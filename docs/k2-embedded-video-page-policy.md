@@ -12,7 +12,7 @@
 
 | Surface | Route (Amiga) | Section | Status |
 |---------|---------------|---------|--------|
-| **WC tournament Videos tab** | `/amiga/tournament/videos.php?id=` | [§2](#2-wc-tournament-videos-tab) | **Phase A shipped** · Phase B deferred |
+| **WC tournament Videos tab** | `/amiga/tournament/videos/games.php?id=` · `/amiga/tournament/videos/atmosphere.php?id=` | [§2](#2-wc-tournament-videos-tab) | **Phase A shipped** · Phase B deferred |
 | Player profile **Videos** wing | TBD | [§3](#3-player-profile-videos-wing-reserved) | Reserved |
 | Online / other embed pages | TBD (e.g. `game.php`) | [§4](#4-other-surfaces-reserved) | Reserved |
 
@@ -38,7 +38,7 @@ These apply to every section in the document map unless a surface explicitly ove
 |-------|------|----------|
 | **`v`** | YouTube video id — **what the spotlight player loads** | Yes for any “watch this clip” deep link |
 | **`game`** | Amiga **rated game id** — which **Games index row** is active (scores, phase, highlight) | Optional — use when sharing “this game” or when multiple rows share the same `v` |
-| **`wing`** | Sub-area of the page (WC tab: `extras` = Atmosphere) | When the clip lives off the default wing |
+| **`wing`** | *(retired Jun 2026)* — use folder path (`videos/games.php` vs `videos/atmosphere.php`) | — |
 | **`t`** | Start offset in seconds inside the embed (YouTube `?start=`) | **Phase B** — optional; manifest offsets later |
 
 **Playback language is always `v=`.** `game=` disambiguates the index UI only; it does not replace `v=` for the embed.
@@ -49,7 +49,7 @@ These apply to every section in the document map unless a surface explicitly ove
 
 - ▶ control should have a **real `href`** with the full deep link (works without JS).
 - JS **may** `preventDefault` for smooth in-page swap + scroll; must **update the URL** (`pushState` / `replaceState`) so copy-from-address-bar matches what is playing.
-- **Cold load:** server reads URL params and renders correct wing, spotlight iframe, and active row — first paint must match the link.
+- **Cold load:** server reads URL path + params and renders correct mode, spotlight iframe, and active row — first paint must match the link.
 
 ### 1.4 Ambiguous `v=` without `game=`
 
@@ -70,24 +70,24 @@ Normal share flow from a Games row should copy **`v=` + `game=`**, so this case 
 
 ## 2. WC tournament Videos tab
 
-**Route:** `/amiga/tournament/videos.php?id={tournament_id}`  
-**Scope:** World Cup events only — **Games** wing (match index table) + **Atmosphere** wing (`?wing=extras`). Non-WC tournaments use stacked cards ([`amiga_tournament_videos_body.inc.php`](../site/public_html/includes/amiga_tournament_videos_body.inc.php)) — out of scope for §2 until a future section adds them.
+**Route:** `/amiga/tournament/videos/games.php?id={tournament_id}` (Games) · `/amiga/tournament/videos/atmosphere.php?id={tournament_id}` (Atmosphere)  
+**Scope:** World Cup events only — **Games** mode (match index table) + **Atmosphere** mode (folder paths). Non-WC tournaments use stacked cards ([`amiga_tournament_videos_body.inc.php`](../site/public_html/includes/amiga_tournament_videos_body.inc.php)) — out of scope for §2 until a future section adds them.
 
-### 2.1 Wings
+### 2.1 Modes
 
-| Wing | URL | Index | Spotlight |
+| Mode | URL | Index | Spotlight |
 |------|-----|-------|-----------|
-| **Games** (default) | `?id=` | One table row per linked `game_id` | Shared iframe below table |
-| **Atmosphere** | `?id=&wing=extras` | Title + duration list | Same spotlight pattern |
+| **Games** (default) | `/amiga/tournament/videos/games.php?id=` | One table row per linked `game_id` | Shared iframe below table |
+| **Atmosphere** | `/amiga/tournament/videos/atmosphere.php?id=` | Title + duration list | Same spotlight pattern |
 
-Atmosphere clips: deep link with **`v=`** + **`wing=extras`** only (no `game=`).
+Atmosphere clips: deep link on the atmosphere path with **`v=`** only (no `game=`).
 
 ### 2.2 Cold visit (full page load)
 
 | URL shape | Player | Active row | Scroll |
 |-----------|--------|------------|--------|
 | `?id=` only (index) | **Hidden** — no embed until user picks a clip or opens a deep link | **None** | Normal (top of page; table in view) |
-| `?id=&v=…` (+ optional `game=`, `wing=`) | Embed for **`v=`** (+ `t=` if set) | If **`game=`** valid for tournament and matches `v=` in manifest → that row; else if exactly one row has `v=` → that row; else **no** row (§1.4) | **Scrolls to player** via the server-declared carry-scroll target (§1.2) — hashless URLs land on the player, no flash |
+| `?id=&v=…` (+ optional `game=`) on the correct mode path | Embed for **`v=`** (+ `t=` if set) | If **`game=`** valid for tournament and matches `v=` in manifest → that row; else if exactly one row has `v=` → that row; else **no** row (§1.4) | **Scrolls to player** via the server-declared carry-scroll target (§1.2) — hashless URLs land on the player, no flash |
 
 Invalid or unknown `v=` / `game=` → fall back to **index** cold behaviour (no player, no row highlight); do not error page.
 
@@ -115,13 +115,13 @@ The URL drives rendering: `popstate` calls one `renderFromUrl(root)` — `?v=…
 **Games row click** — URL shape (hashless):
 
 ```text
-/amiga/tournament/videos.php?id={tid}&v={youtube_id}&game={game_id}
+/amiga/tournament/videos/games.php?id={tid}&v={youtube_id}&game={game_id}
 ```
 
 **Atmosphere row click:**
 
 ```text
-/amiga/tournament/videos.php?id={tid}&wing=extras&v={youtube_id}
+/amiga/tournament/videos/atmosphere.php?id={tid}&v={youtube_id}
 ```
 
 ### 2.4 Back button (in-session)
@@ -142,7 +142,7 @@ Handled via **`popstate`** + URL shape:
 ### 2.5 Share / copy link
 
 - URLs are **hashless** and directly shareable. From a **Games** row: **`v=` + `game=`** — “watch this game.”
-- **Atmosphere:** **`v=`** + **`wing=extras`**.
+- **Atmosphere:** atmosphere path + **`v=`**.
 - **`t=`** when Phase B exists.
 - A future **“share”** button can simply copy `location.href` (or build a row’s deep link); the recipient lands on the player via the server-declared cold-load scroll (§1.2) — no hash required.
 
@@ -152,7 +152,7 @@ Copy-from-address-bar after in-session navigation reflects the current clip (His
 
 | Phase | Deliverable | Exit criteria |
 |-------|-------------|---------------|
-| **A — Deep links** | PHP reads `v=` / `game=` / `wing=`; ▶ as link + JS enhance; History API; hash scroll; Back behaviour §2.4 | Shared Games semi link opens correct row + embed; cold index shows table only (no default clip) |
+| **A — Deep links** | PHP reads path mode + `v=` / `game=`; ▶ as link + JS enhance; History API; hash scroll; Back behaviour §2.4 | Shared Games semi link opens correct row + embed; cold index shows table only (no default clip) |
 | **B — Timestamps** | Manifest offsets; `t=`; embed `start=` | Dual-leg / stream “start at game” works for curated rows |
 
 **Out of scope for §2:** changing catalog dedupe rules; new DB tables; online realm.
@@ -184,4 +184,4 @@ Examples: online `game.php` watch links, realm-wide video index, non-WC tourname
 | PHP lib + game index | [`amiga_tournament_videos_lib.php`](../site/public_html/includes/amiga_tournament_videos_lib.php) |
 | WC render + spotlight | [`amiga_tournament_videos_wc_render.inc.php`](../site/public_html/includes/amiga_tournament_videos_wc_render.inc.php) |
 | Click handler (today — no URL yet) | [`amiga-tournament-videos.js`](../site/public_html/js/amiga-tournament-videos.js) |
-| URL builder (today — `id` + `wing` only) | `amiga_tournament_videos_url()` in [`amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php) |
+| URL builder | `amiga_tournament_videos_url()` in [`amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php) — `$mode` = `games` \| `atmosphere` |

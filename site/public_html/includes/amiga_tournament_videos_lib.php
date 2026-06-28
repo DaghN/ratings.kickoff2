@@ -323,22 +323,6 @@ function amiga_tournament_videos_wc_sort_bucket(array $video): int
     return 60;
 }
 
-function amiga_tournament_videos_wing_from_request(bool $hasExtrasWing, bool $hasGamesWing = true): string
-{
-    $wing = isset($_GET['wing']) ? trim((string) $_GET['wing']) : '';
-    if ($wing === 'extras' && $hasExtrasWing) {
-        return 'extras';
-    }
-    if ($wing === 'games' && $hasGamesWing) {
-        return 'games';
-    }
-    if (!$hasGamesWing && $hasExtrasWing) {
-        return 'extras';
-    }
-
-    return 'games';
-}
-
 /**
  * @param list<int> $gameIds
  * @return array<int, array<string, mixed>>
@@ -785,7 +769,7 @@ function amiga_tournament_videos_wc_game_caption_html(array $entry): string
 
 function amiga_tournament_videos_play_button_html(
     int $tournamentId,
-    string $wing,
+    string $mode,
     string $youtubeId,
     string $spotlightLabel,
     bool $isActive,
@@ -798,7 +782,7 @@ function amiga_tournament_videos_play_button_html(
     $classes = 'k2-tournament-videos__play-btn' . ($isActive ? ' is-active' : '');
     $href = amiga_tournament_href(amiga_tournament_videos_url(
         $tournamentId,
-        $wing,
+        $mode,
         $youtubeId,
         $gameId,
         $startSec > 0 ? $startSec : null,

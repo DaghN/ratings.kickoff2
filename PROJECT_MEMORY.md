@@ -126,6 +126,8 @@
 
 | When | Note |
 |------|------|
+| 2026-06-28 | **Amiga player tournaments — segment filter layout** — Event chrome tabs + Host country/Year listboxes (catalog index parity); retired bordered `.k2-player-tournament-filters` panel. |
+| 2026-06-28 | **Amiga tournaments index — Host country + Year filters** — archive listboxes on `/amiga/tournaments.php` (faceted counts, pill URLs carry `country`/`year`/`k2_sort`); shared games filter stack. |
 | 2026-06-28 | **Amiga HoF — retire BiggestPeakRating** — dropped from `013`/`027` DDL + writers; HoF “Highest peak rating” = read-time `MAX(PeakRating)` + `peak_rating_tournament_id` date; `verify-hof-peak-rating-holder` in `prove`. |
 | 2026-06-28 | **YouTube embeds — origin param** — `k2_youtube_embed_url()` + site-wide `<meta name="referrer">`; fixes “Sign in to confirm you’re not a bot” / Error 153 on tournament Videos, join promo, game placeholder. |
 | 2026-06-28 | **Amiga HoF — LB deep-link sort indices** — fixed eight off-by-one `k2_sort` targets in `amiga_records_hof_links.php` (calendar-geo peak/host/faced/beaten, tournament honours events/gold, WC honours played). |
@@ -532,6 +534,8 @@
 | 2026-06 | **Amiga TT T14c** — *(toggle entry superseded T19)* `amiga_tournament_snapshot_as_param()` retained for event ribbon on `tournament.php` (§5.1.1). |
 | 2026-06 | **Profile bonanza moment logic** — 3× ratio gate on primary sum game; global highest-`SumOfGoals` fallback where ratio passes (replaced H2H win vs same opponent). |
 | 2026-06 | **Profile heatmap section rhythm** — padding breaks (no margin collapse): story→days 24px; days→weeks ~52px; weeks→bursts ~32px. |
+| 2026-06 | **K2 page structure checklist** — agent onboarding for new pages/tabs/modes (`docs/k2-page-structure-checklist.md`); wired into AGENTS, kool-workspace, url-routes, agent-track playbook. |
+| 2026-06 | **Amiga tournament Videos folder modes (TV-FOLDER)** — Games/Atmosphere → `tournament/videos/{games,atmosphere}.php`; legacy `videos.php` 302. |
 
 ---
 

@@ -30,11 +30,110 @@ const AMIGA_FIXTURE_GENERATED_BY_PREFIXES = [
 /** Hash target on tournament detail pages — zero-height anchor flush above the hero title. */
 const AMIGA_TOURNAMENT_PAGE_FRAGMENT = 'tournament';
 
+const AMIGA_TOURNAMENT_VIDEOS_PATH_GAMES = '/amiga/tournament/videos/games.php';
+const AMIGA_TOURNAMENT_VIDEOS_PATH_ATMOSPHERE = '/amiga/tournament/videos/atmosphere.php';
+
+function amiga_tournament_videos_path_for_mode(string $mode): string
+{
+    return $mode === 'atmosphere'
+        ? AMIGA_TOURNAMENT_VIDEOS_PATH_ATMOSPHERE
+        : AMIGA_TOURNAMENT_VIDEOS_PATH_GAMES;
+}
+
+function amiga_tournament_videos_mode_from_request(?string $path = null): string
+{
+    require_once __DIR__ . '/k2_table_helpers.php';
+    require_once __DIR__ . '/amiga_snapshot_url.php';
+
+    $pathOnly = k2_table_path_only($path ?? amiga_snapshot_request_path());
+    if ($pathOnly === AMIGA_TOURNAMENT_VIDEOS_PATH_ATMOSPHERE) {
+        return 'atmosphere';
+    }
+
+    return 'games';
+}
+
+function amiga_tournament_videos_resolve_mode(
+    string $requestedMode,
+    bool $hasAtmosphereWing,
+    bool $hasGamesWing = true,
+): string {
+    if ($requestedMode === 'atmosphere' && $hasAtmosphereWing) {
+        return 'atmosphere';
+    }
+    if ($requestedMode === 'games' && $hasGamesWing) {
+        return 'games';
+    }
+    if (!$hasGamesWing && $hasAtmosphereWing) {
+        return 'atmosphere';
+    }
+
+    return 'games';
+}
+
+/**
+ * @param array<string, mixed> $query
+ */
+function amiga_tournament_videos_apply_mode_redirect(
+    int $id,
+    string $requestedMode,
+    bool $hasAtmosphereWing,
+    bool $hasGamesWing,
+    array $query,
+): void {
+    $resolvedMode = amiga_tournament_videos_resolve_mode($requestedMode, $hasAtmosphereWing, $hasGamesWing);
+    if ($resolvedMode === $requestedMode) {
+        return;
+    }
+
+    $v = isset($query['v']) ? trim((string) $query['v']) : '';
+    $game = isset($query['game']) ? max(0, (int) $query['game']) : 0;
+    $startSec = isset($query['t']) ? max(0, (int) $query['t']) : 0;
+
+    header(
+        'Location: ' . amiga_tournament_href(amiga_tournament_videos_url(
+            $id,
+            $resolvedMode,
+            $v !== '' ? $v : null,
+            $game > 0 ? $game : null,
+            $startSec > 0 ? $startSec : null,
+        )),
+        true,
+        302,
+    );
+    exit;
+}
+
+/** 302 legacy `/amiga/tournament/videos.php` (+ optional `wing=extras`) to folder modes. */
+function amiga_tournament_videos_legacy_redirect(): void
+{
+    $query = $_GET;
+    $id = isset($query['id']) ? max(0, (int) $query['id']) : 0;
+    $wing = isset($query['wing']) ? trim((string) $query['wing']) : '';
+    $mode = in_array($wing, ['extras', 'atmosphere'], true) ? 'atmosphere' : 'games';
+    $v = isset($query['v']) ? trim((string) $query['v']) : '';
+    $game = isset($query['game']) ? max(0, (int) $query['game']) : 0;
+    $startSec = isset($query['t']) ? max(0, (int) $query['t']) : 0;
+
+    header(
+        'Location: ' . amiga_tournament_href(amiga_tournament_videos_url(
+            $id,
+            $mode,
+            $v !== '' ? $v : null,
+            $game > 0 ? $game : null,
+            $startSec > 0 ? $startSec : null,
+        )),
+        true,
+        302,
+    );
+    exit;
+}
+
 function amiga_tournament_path_for_view(?string $view): string
 {
     return match ($view) {
         'games' => '/amiga/tournament/games.php',
-        'videos' => '/amiga/tournament/videos.php',
+        'videos' => AMIGA_TOURNAMENT_VIDEOS_PATH_GAMES,
         'stages' => '/amiga/tournament/stages.php',
         'standings' => '/amiga/tournament/standings.php',
         'event-stats', null => '/amiga/tournament/event-stats.php',
@@ -50,7 +149,7 @@ function amiga_tournament_view_from_request(?string $path = null): ?string
     return match (k2_table_path_only($path ?? amiga_snapshot_request_path())) {
         '/amiga/tournament/event-stats.php' => 'event-stats',
         '/amiga/tournament/games.php' => 'games',
-        '/amiga/tournament/videos.php' => 'videos',
+        '/amiga/tournament/videos.php', AMIGA_TOURNAMENT_VIDEOS_PATH_GAMES, AMIGA_TOURNAMENT_VIDEOS_PATH_ATMOSPHERE => 'videos',
         '/amiga/tournament/stages.php' => 'stages',
         '/amiga/tournament/standings.php' => 'standings',
         default => null,
@@ -710,16 +809,13 @@ function amiga_tournament_games_url(int $id, int $playerFilter = 0): string
 
 function amiga_tournament_videos_url(
     int $id,
-    string $wing = 'games',
+    string $mode = 'games',
     ?string $youtubeId = null,
     ?int $gameId = null,
     ?int $startSec = null,
     bool $withPlayerHash = false,
 ): string {
     $params = ['id' => $id];
-    if ($wing === 'extras') {
-        $params['wing'] = 'extras';
-    }
     if ($youtubeId !== null && $youtubeId !== '') {
         $yt = preg_replace('/[^A-Za-z0-9_-]/', '', $youtubeId) ?? '';
         if ($yt !== '') {
@@ -732,7 +828,7 @@ function amiga_tournament_videos_url(
     if ($startSec !== null && $startSec > 0) {
         $params['t'] = $startSec;
     }
-    $url = amiga_tournament_path_for_view('videos') . '?' . http_build_query($params);
+    $url = amiga_tournament_videos_path_for_mode($mode) . '?' . http_build_query($params);
     if ($withPlayerHash) {
         $url .= '#k2-tournament-video-player';
     }
@@ -1084,14 +1180,195 @@ function amiga_tournament_index_matches_wc_filter(array $row, string $wcFilter):
     return true;
 }
 
-/** Filter pill href for /amiga/tournaments.php (carries active k2_sort when set). */
-function amiga_tournament_index_filter_url(string $typeFilter = '', string $videosFilter = '', string $wcFilter = ''): string
+/** Calendar year from tournament catalog row (0 when unknown). */
+function amiga_tournament_index_event_year(array $row): int
 {
+    $eventDate = $row['event_date'] ?? null;
+    if ($eventDate === null || $eventDate === '') {
+        return 0;
+    }
+    $ts = strtotime((string) $eventDate);
+
+    return $ts !== false ? (int) date('Y', $ts) : 0;
+}
+
+/** Tournament index host-country filter: '' = all. */
+function amiga_tournament_index_matches_country_filter(array $row, string $countryFilter): bool
+{
+    if ($countryFilter === '') {
+        return true;
+    }
+
+    return trim((string) ($row['country'] ?? '')) === $countryFilter;
+}
+
+/** Tournament index calendar-year filter: 0 = all. */
+function amiga_tournament_index_matches_year_filter(array $row, int $yearFilter): bool
+{
+    if ($yearFilter < 1) {
+        return true;
+    }
+
+    return amiga_tournament_index_event_year($row) === $yearFilter;
+}
+
+/**
+ * Apply index filters; omit one dimension for faceted listbox counts.
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_tournament_index_filter_rows(
+    array $rows,
+    string $wcFilter,
+    string $typeFilter,
+    string $videosFilter,
+    string $countryFilter = '',
+    int $yearFilter = 0,
+    bool $omitCountry = false,
+    bool $omitYear = false
+): array {
+    return array_values(array_filter(
+        $rows,
+        static function (array $row) use ($wcFilter, $typeFilter, $videosFilter, $countryFilter, $yearFilter, $omitCountry, $omitYear): bool {
+            if (!amiga_tournament_index_matches_wc_filter($row, $wcFilter)) {
+                return false;
+            }
+            if (!amiga_tournament_index_matches_filter($row, $typeFilter)) {
+                return false;
+            }
+            if ($videosFilter === 'with-videos' && !amiga_tournament_has_videos((int) ($row['id'] ?? 0))) {
+                return false;
+            }
+            if (!$omitCountry && !amiga_tournament_index_matches_country_filter($row, $countryFilter)) {
+                return false;
+            }
+            if (!$omitYear && !amiga_tournament_index_matches_year_filter($row, $yearFilter)) {
+                return false;
+            }
+
+            return true;
+        }
+    ));
+}
+
+/**
+ * @return array<string, int> country name => tournament count
+ */
+function amiga_tournament_index_country_counts(array $rows): array
+{
+    $counts = [];
+    foreach ($rows as $row) {
+        $country = trim((string) ($row['country'] ?? ''));
+        if ($country === '') {
+            continue;
+        }
+        $counts[$country] = ($counts[$country] ?? 0) + 1;
+    }
+    ksort($counts, SORT_STRING);
+
+    return $counts;
+}
+
+/**
+ * @return array<int, int> year => tournament count
+ */
+function amiga_tournament_index_year_counts(array $rows): array
+{
+    $counts = [];
+    foreach ($rows as $row) {
+        $year = amiga_tournament_index_event_year($row);
+        if ($year < 1) {
+            continue;
+        }
+        $counts[$year] = ($counts[$year] ?? 0) + 1;
+    }
+    krsort($counts, SORT_NUMERIC);
+
+    return $counts;
+}
+
+/**
+ * @param array<string, int> $counts
+ * @return array<string, int>
+ */
+function amiga_tournament_index_inject_selected_country(array $counts, string $country): array
+{
+    $country = trim($country);
+    if ($country === '' || isset($counts[$country])) {
+        return $counts;
+    }
+    $counts[$country] = 0;
+    ksort($counts, SORT_STRING);
+
+    return $counts;
+}
+
+/**
+ * @param array<int, int> $counts
+ * @return array<int, int>
+ */
+function amiga_tournament_index_inject_selected_year(array $counts, int $year): array
+{
+    if ($year < 1 || isset($counts[$year])) {
+        return $counts;
+    }
+    $counts[$year] = 0;
+    krsort($counts, SORT_NUMERIC);
+
+    return $counts;
+}
+
+/**
+ * @param array<string, int> $counts
+ * @return list<array{value: string, label: string, meta: string}>
+ */
+function amiga_tournament_index_country_listbox_choices(array $counts): array
+{
+    $choices = [['value' => '', 'label' => '', 'meta' => '']];
+    foreach ($counts as $country => $count) {
+        $choices[] = [
+            'value' => $country,
+            'label' => $country,
+            'meta' => (string) (int) $count,
+        ];
+    }
+
+    return $choices;
+}
+
+/**
+ * @param array<int, int> $counts
+ * @return list<array{value: string, label: string, meta: string}>
+ */
+function amiga_tournament_index_year_listbox_choices(array $counts, string $idleValue = '0'): array
+{
+    $choices = [['value' => $idleValue, 'label' => '', 'meta' => '']];
+    foreach ($counts as $year => $count) {
+        $choices[] = [
+            'value' => (string) (int) $year,
+            'label' => (string) (int) $year,
+            'meta' => (string) (int) $count,
+        ];
+    }
+
+    return $choices;
+}
+
+/** Filter pill href for /amiga/tournaments.php (carries active k2_sort when set). */
+function amiga_tournament_index_filter_url(
+    string $typeFilter = '',
+    string $videosFilter = '',
+    string $wcFilter = '',
+    string $countryFilter = '',
+    int $yearFilter = 0
+): string {
     require_once __DIR__ . '/k2_table_helpers.php';
     $params = array_merge(
         in_array($wcFilter, ['world-cup', 'not-world-cup'], true) ? ['wc' => $wcFilter] : [],
         $typeFilter !== '' ? ['type' => $typeFilter] : [],
         $videosFilter === 'with-videos' ? ['videos' => 'with-videos'] : [],
+        $countryFilter !== '' ? ['country' => $countryFilter] : [],
+        $yearFilter > 0 ? ['year' => (string) $yearFilter] : [],
         k2_table_sort_query_params(),
     );
 

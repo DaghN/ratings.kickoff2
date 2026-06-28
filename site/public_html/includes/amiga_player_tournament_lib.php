@@ -154,20 +154,24 @@ function amiga_player_tournament_participation_countries(array $rows): array
 function amiga_player_tournament_participation_filter_events(
     array $rows,
     string $filter,
-    string $country = ''
+    string $country = '',
+    int $year = 0
 ): array {
     $country = trim($country);
-    if ($filter === 'all' && $country === '') {
+    if ($filter === 'all' && $country === '' && $year < 1) {
         return $rows;
     }
 
     return array_values(array_filter(
         $rows,
-        static function (array $row) use ($filter, $country): bool {
+        static function (array $row) use ($filter, $country, $year): bool {
             if ($filter === 'world-cup' && !amiga_tournament_is_world_cup($row)) {
                 return false;
             }
             if ($country !== '' && trim((string) ($row['country'] ?? '')) !== $country) {
+                return false;
+            }
+            if ($year > 0 && amiga_tournament_index_event_year($row) !== $year) {
                 return false;
             }
 
@@ -184,6 +188,7 @@ function amiga_player_tournaments_list_summary(
     string $eventFilter,
     string $countryFilter,
     bool $hasAnyParticipation,
+    int $yearFilter = 0,
 ): string {
     if ($count === 0) {
         if (!$hasAnyParticipation) {
@@ -195,15 +200,19 @@ function amiga_player_tournaments_list_summary(
 
     $word = $count === 1 ? 'event' : 'events';
     $n = number_format($count);
+    $yearSuffix = $yearFilter > 0 ? ' in ' . $yearFilter : '';
 
     if ($eventFilter === 'world-cup' && $countryFilter !== '') {
-        return $n . ' World Cup ' . $word . ' in ' . $countryFilter . '.';
+        return $n . ' World Cup ' . $word . ' in ' . $countryFilter . $yearSuffix . '.';
     }
     if ($eventFilter === 'world-cup') {
-        return $n . ' World Cup ' . $word . '.';
+        return $n . ' World Cup ' . $word . $yearSuffix . '.';
     }
     if ($countryFilter !== '') {
-        return $n . ' ' . $word . ' in ' . $countryFilter . '.';
+        return $n . ' ' . $word . ' in ' . $countryFilter . $yearSuffix . '.';
+    }
+    if ($yearFilter > 0) {
+        return $n . ' ' . $word . ' in ' . $yearFilter . '.';
     }
 
     return $n . ' ' . $word . ' in total.';
@@ -212,7 +221,7 @@ function amiga_player_tournaments_list_summary(
 /**
  * Filter pills URL for player tournament history.
  */
-function amiga_player_tournaments_filter_url(int $playerId, string $filter = 'all', string $country = ''): string
+function amiga_player_tournaments_filter_url(int $playerId, string $filter = 'all', string $country = '', int $year = 0): string
 {
     $params = ['id' => $playerId];
     if ($filter !== 'all') {
@@ -221,6 +230,9 @@ function amiga_player_tournaments_filter_url(int $playerId, string $filter = 'al
     $country = trim($country);
     if ($country !== '') {
         $params['country'] = $country;
+    }
+    if ($year > 0) {
+        $params['year'] = (string) $year;
     }
 
     return k2_amiga_route('amiga-player-tournaments', array_merge($params, k2_table_sort_query_params()));

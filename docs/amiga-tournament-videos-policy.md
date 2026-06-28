@@ -203,8 +203,8 @@ Steve’s forum reply: thread covers most of his camcorder tapes; **tape origina
 
 ### 9.1 Tournament Videos tab
 
-- **Route:** `/amiga/tournament/videos.php?id={tournament_id}` — register in `k2_amiga_routes.php`.
-- **Layout (all events with manifest rows):** **Games** + **Atmosphere** wing tabs, single spotlight embed, sortable index table, `?v=` / optional `game=` deep links — same stack as World Cups (`amiga_tournament_videos_wc_body.inc.php` + `amiga-tournament-videos.js`). Hide **Games** when no match rows; hide **Atmosphere** when no ceremony/coverage rows.
+- **Route:** `/amiga/tournament/videos/games.php?id={tournament_id}` (default) · `/amiga/tournament/videos/atmosphere.php?id={tournament_id}` — register in `k2_amiga_routes.php`. Legacy `/amiga/tournament/videos.php` 302s to folder paths.
+- **Layout (all events with manifest rows):** **Games** + **Atmosphere** mode tabs (folder paths), single spotlight embed, sortable index table, `?v=` / optional `game=` deep links — same stack as World Cups (`amiga_tournament_videos_wc_body.inc.php` + `amiga-tournament-videos.js`). Hide **Games** when no match rows; hide **Atmosphere** when no ceremony/coverage rows.
 - **Interaction:** [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) §2 — Back-to-index, share URLs (Phase A); timestamps Phase B.
 - **Nav:** insert **Videos** in `amiga_tournament_page.php` pill row when `amiga_tournament_has_videos($id)`.
 - **Games index:** match rows with linked player names when IDs set; WC knockout ordering when applicable; generic stage/kind sort otherwise.

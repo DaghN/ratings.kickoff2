@@ -248,7 +248,7 @@ $hasVideosTab = amiga_tournament_has_videos($id);
 
 $tournamentVideosRows = [];
 
-$tournamentVideosWing = 'games';
+$tournamentVideosMode = 'games';
 
 $tournamentVideosGameEntries = [];
 
@@ -279,14 +279,25 @@ if ($hasVideosTab) {
         $tournamentVideosGameEntries = amiga_tournament_videos_wc_game_index($con, $id, $tournamentVideosMatchRows);
         $tournamentVideosHasGamesWing = $tournamentVideosGameEntries !== [];
         $tournamentVideosHasExtrasWing = $tournamentVideosExtrasRows !== [];
-        $tournamentVideosWing = amiga_tournament_videos_wing_from_request(
+        $requestedVideosMode = isset($k2AmigaTournamentVideosMode) && is_string($k2AmigaTournamentVideosMode)
+            ? $k2AmigaTournamentVideosMode
+            : amiga_tournament_videos_mode_from_request();
+        amiga_tournament_videos_apply_mode_redirect(
+            $id,
+            $requestedVideosMode,
+            $tournamentVideosHasExtrasWing,
+            $tournamentVideosHasGamesWing,
+            $_GET,
+        );
+        $tournamentVideosMode = amiga_tournament_videos_resolve_mode(
+            $requestedVideosMode,
             $tournamentVideosHasExtrasWing,
             $tournamentVideosHasGamesWing,
         );
         $tournamentVideosExtrasRows = amiga_tournament_videos_sort_extras($tournamentVideosExtrasRows);
-        $tournamentVideosIndexUrl = amiga_tournament_href(amiga_tournament_videos_url($id, $tournamentVideosWing));
+        $tournamentVideosIndexUrl = amiga_tournament_href(amiga_tournament_videos_url($id, $tournamentVideosMode));
         $videoRequest = amiga_tournament_videos_wc_request_params();
-        if ($tournamentVideosWing === 'games') {
+        if ($tournamentVideosMode === 'games') {
             $gamesSpotlight = amiga_tournament_videos_wc_games_spotlight_state(
                 $tournamentVideosGameEntries,
                 $videoRequest['v'] !== '' ? $videoRequest['v'] : null,

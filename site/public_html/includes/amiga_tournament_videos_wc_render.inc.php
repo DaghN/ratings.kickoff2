@@ -7,28 +7,28 @@ declare(strict_types=1);
  */
 
 /** @param list<array{game_id: int, youtube_id: string, video: array<string, mixed>, game: array<string, mixed>, sort_bucket: int}> $entries */
-function amiga_tournament_videos_render_wc_wing_nav(
+function amiga_tournament_videos_render_wc_mode_nav(
     int $tournamentId,
-    string $activeWing,
-    bool $hasExtrasWing,
+    string $activeMode,
+    bool $hasAtmosphereWing,
     bool $hasGamesWing = true,
 ): void {
-    if (!$hasGamesWing && !$hasExtrasWing) {
+    if (!$hasGamesWing && !$hasAtmosphereWing) {
         return;
     }
     $gamesHref = amiga_tournament_href(amiga_tournament_videos_url($tournamentId, 'games'));
-    $extrasHref = amiga_tournament_href(amiga_tournament_videos_url($tournamentId, 'extras'));
+    $atmosphereHref = amiga_tournament_href(amiga_tournament_videos_url($tournamentId, 'atmosphere'));
     ?>
 <div class="k2-chrome-tabs k2-tournament-videos-wings">
   <nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Video sections">
     <?php if ($hasGamesWing) { ?>
-    <a href="<?php echo k2_h($gamesHref); ?>" class="k2-chrome-tabs__tab<?php echo $activeWing === 'games' ? ' is-active' : ''; ?>"<?php
-        echo $activeWing === 'games' ? ' aria-current="page"' : '';
+    <a href="<?php echo k2_h($gamesHref); ?>" class="k2-chrome-tabs__tab<?php echo $activeMode === 'games' ? ' is-active' : ''; ?>"<?php
+        echo $activeMode === 'games' ? ' aria-current="page"' : '';
     ?>>Games</a>
     <?php } ?>
-    <?php if ($hasExtrasWing) { ?>
-    <a href="<?php echo k2_h($extrasHref); ?>" class="k2-chrome-tabs__tab<?php echo $activeWing === 'extras' ? ' is-active' : ''; ?>"<?php
-        echo $activeWing === 'extras' ? ' aria-current="page"' : '';
+    <?php if ($hasAtmosphereWing) { ?>
+    <a href="<?php echo k2_h($atmosphereHref); ?>" class="k2-chrome-tabs__tab<?php echo $activeMode === 'atmosphere' ? ' is-active' : ''; ?>"<?php
+        echo $activeMode === 'atmosphere' ? ' aria-current="page"' : '';
     ?>>Atmosphere</a>
     <?php } ?>
   </nav>
@@ -42,7 +42,7 @@ function amiga_tournament_videos_render_wc_wing_nav(
  */
 function amiga_tournament_videos_render_wc_games_table(
     int $tournamentId,
-    string $wing,
+    string $mode,
     array $entries,
     ?array $spotlightEntry,
     string $spotlightYoutube,
@@ -142,7 +142,7 @@ function amiga_tournament_videos_render_wc_games_table(
       <td class="k2-table-cell--center"><?php
           echo amiga_tournament_videos_play_button_html(
               $tournamentId,
-              $wing,
+              $mode,
               (string) $entry['youtube_id'],
               $spotlightLabel,
               $isActive,
@@ -162,7 +162,7 @@ function amiga_tournament_videos_render_wc_games_table(
 /** @param list<array<string, mixed>> $rows */
 function amiga_tournament_videos_render_wc_extras_table(
     int $tournamentId,
-    string $wing,
+    string $mode,
     array $rows,
     string $spotlightYoutube,
     bool $highlightRow,
@@ -204,7 +204,7 @@ function amiga_tournament_videos_render_wc_extras_table(
       <td class="k2-table-cell--center"><?php
           echo amiga_tournament_videos_play_button_html(
               $tournamentId,
-              $wing,
+              $mode,
               $yt,
               $spotlightLabel,
               $isActive,

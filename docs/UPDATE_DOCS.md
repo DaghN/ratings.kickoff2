@@ -38,11 +38,13 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | Milestones feature (phases, catalog, tier plan) | `docs/milestones-README.md`, `docs/milestones-catalog.md` (regen script), `docs/milestones-project.md`, `docs/milestones-product-spec.md` |
 | Hub tabs / IA | `docs/hub-ia-agreement.md` |
 | URL routes / new sub-hub tabs | `docs/url-routes.md` § Sub-hub navigation |
+| **New page / tab / mode (URL + placement)** | **`docs/k2-page-structure-checklist.md`** (then `url-routes.md`, `navigation-model.md` NM3–NM4) |
 | Play & setup / join page | `docs/join-play-setup.md` |
 | Visual identity / theme | `docs/design-direction.md` |
 | **Page nav spacing** (chrome stack gaps) | [`nav-spacing-policy.md`](nav-spacing-policy.md) · [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md) |
 | **K2 tooltips** (table headers, chart hovers, control help) | [`k2-tooltip-policy.md`](k2-tooltip-policy.md) |
 | **K2 tables** (sortable, wide, filter reload, table refactor) | **`docs/k2-table-implementation-checklist.md`** (then `docs/k2-table-and-games-plan.md` if needed) |
+| **K2 page structure** (new page / tab / mode) | **`docs/k2-page-structure-checklist.md`** (then `url-routes.md`, `navigation-model.md`) |
 | Ladder replay scope / reset rules | `docs/replay-v1-scope-and-reset.md` (rare; big replay changes only) |
 | **Amiga Opponents wing** | [`amiga-opponents-wing-policy.md`](amiga-opponents-wing-policy.md) (port online H2H/WDL/Goals/DDs; incremental slices) |
 | **Amiga World Cups LB** | [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) (V1); **slice V2** [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md) |

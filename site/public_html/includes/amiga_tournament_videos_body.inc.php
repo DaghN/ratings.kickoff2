@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /** @var int $id */
-/** @var string $tournamentVideosWing */
+/** @var string $tournamentVideosMode */
 /** @var list<array{game_id: int, youtube_id: string, video: array<string, mixed>, game: array<string, mixed>, sort_bucket: int}> $tournamentVideosGameEntries */
 /** @var list<array<string, mixed>> $tournamentVideosExtrasRows */
 /** @var array<string, mixed>|array{game_id: int, youtube_id: string, video: array<string, mixed>, game: array<string, mixed>, sort_bucket: int}|null $tournamentVideosSpotlight */

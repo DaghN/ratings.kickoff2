@@ -6,6 +6,8 @@
 <?php $k2RankedCloak = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
+<script type="text/javascript" src="/js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/individual3-filters.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/individual3-filters.js'); ?>" defer="defer"></script>
 </head>
 <body class="k2-site">
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
@@ -46,25 +48,68 @@ $con->query("SET time_zone = '+00:00'");
 $allRows = amiga_tournament_index_rows($con);
 mysqli_close($con);
 
-$rows = $allRows;
-if ($wcFilter !== '') {
-    $rows = array_values(array_filter(
-        $rows,
-        static fn (array $row): bool => amiga_tournament_index_matches_wc_filter($row, $wcFilter)
-    ));
+$catalogCountries = array_keys(amiga_tournament_index_country_counts($allRows));
+$catalogYears = array_keys(amiga_tournament_index_year_counts($allRows));
+
+$countryFilter = '';
+if (isset($_GET['country']) && is_string($_GET['country'])) {
+    $countryCandidate = trim($_GET['country']);
+    if ($countryCandidate !== '' && in_array($countryCandidate, $catalogCountries, true)) {
+        $countryFilter = $countryCandidate;
+    }
 }
-if ($typeFilter !== '') {
-    $rows = array_values(array_filter(
-        $rows,
-        static fn (array $row): bool => amiga_tournament_index_matches_filter($row, $typeFilter)
-    ));
+
+$yearFilter = 0;
+if (isset($_GET['year'])) {
+    $yearCandidate = filter_var($_GET['year'], FILTER_VALIDATE_INT);
+    if ($yearCandidate !== false && $yearCandidate > 0 && in_array((int) $yearCandidate, $catalogYears, true)) {
+        $yearFilter = (int) $yearCandidate;
+    }
 }
-if ($videosFilter === 'with-videos') {
-    $rows = array_values(array_filter(
-        $rows,
-        static fn (array $row): bool => amiga_tournament_has_videos((int) ($row['id'] ?? 0))
-    ));
-}
+
+$countryFacetRows = amiga_tournament_index_filter_rows(
+    $allRows,
+    $wcFilter,
+    $typeFilter,
+    $videosFilter,
+    $countryFilter,
+    $yearFilter,
+    true,
+    false
+);
+$yearFacetRows = amiga_tournament_index_filter_rows(
+    $allRows,
+    $wcFilter,
+    $typeFilter,
+    $videosFilter,
+    $countryFilter,
+    $yearFilter,
+    false,
+    true
+);
+
+$countryCounts = amiga_tournament_index_inject_selected_country(
+    amiga_tournament_index_country_counts($countryFacetRows),
+    $countryFilter
+);
+$yearCounts = amiga_tournament_index_inject_selected_year(
+    amiga_tournament_index_year_counts($yearFacetRows),
+    $yearFilter
+);
+
+$countryChoices = amiga_tournament_index_country_listbox_choices($countryCounts);
+$yearChoices = amiga_tournament_index_year_listbox_choices($yearCounts);
+$showCountryFilter = count($countryCounts) > 1 || $countryFilter !== '';
+$showYearFilter = count($yearCounts) > 1 || $yearFilter > 0;
+
+$rows = amiga_tournament_index_filter_rows(
+    $allRows,
+    $wcFilter,
+    $typeFilter,
+    $videosFilter,
+    $countryFilter,
+    $yearFilter
+);
 ?>
 
 <?php
@@ -75,6 +120,12 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 $k2AmigaTournamentIndexWcFilter = $wcFilter;
 $k2AmigaTournamentIndexFilter = $typeFilter;
 $k2AmigaTournamentIndexVideosFilter = $videosFilter;
+$k2AmigaTournamentIndexCountryFilter = $countryFilter;
+$k2AmigaTournamentIndexYearFilter = $yearFilter;
+$k2AmigaTournamentIndexCountryChoices = $countryChoices;
+$k2AmigaTournamentIndexYearChoices = $yearChoices;
+$k2AmigaTournamentIndexShowCountryFilter = $showCountryFilter;
+$k2AmigaTournamentIndexShowYearFilter = $showYearFilter;
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_index_nav.php';
 ?>
 
@@ -83,7 +134,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_index_nav.php';
 <p class="k2-amiga-tournament-footnote" style="padding-bottom:1rem">
     <?php echo count($rows); ?> tournament<?php echo count($rows) === 1 ? '' : 's'; ?><?php
 
-        echo $typeFilter !== '' || $videosFilter !== '' || $wcFilter !== '' ? ' (filtered)' : '';
+        echo $typeFilter !== '' || $videosFilter !== '' || $wcFilter !== '' || $countryFilter !== '' || $yearFilter > 0 ? ' (filtered)' : '';
 
     ?>.
 </p>

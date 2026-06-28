@@ -688,6 +688,7 @@ body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-lb-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-tournament-index-tabs,
+body.k2-site .k2-chrome-tabs.k2-amiga-player-tournaments-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-player-games-scope-tabs,
 body.k2-site .k2-chrome-tabs.k2-player-wing-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs,
@@ -706,6 +707,7 @@ body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-lb-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-tournament-index-tabs .k2-chrome-tabs__bar,
+body.k2-site .k2-chrome-tabs.k2-amiga-player-tournaments-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-player-games-scope-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-player-wing-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs .k2-chrome-tabs__bar,
@@ -2839,47 +2841,10 @@ body.k2-site .k2-player-games-action:focus-visible {
 	outline: none;
 }
 
-/* Amiga player tournament history â€” labeled filter rows (Event / Location) in one panel */
-body.k2-site .k2-player-tournament-filters {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-	width: 100%;
-	max-width: 100%;
-	min-width: 0;
-	margin: 0 0 20px;
-	padding: 4px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-md);
-	background: var(--k2-bg-surface);
-	box-sizing: border-box;
-}
-
-body.k2-site .k2-player-tournament-filters__row {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 6px 8px;
-	min-width: 0;
-}
-
-body.k2-site .k2-player-tournament-filters__row .server-period-activity-leaderboard__picker-label {
-	flex: 0 0 auto;
-	min-width: 4.75rem;
-	margin: 0;
-}
-
-body.k2-site .k2-player-tournament-filters__pills {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 2px;
-	flex: 1 1 auto;
-	min-width: 0;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	background: transparent;
+/* Amiga player tournament history — chrome tab segments + listbox row (catalog index parity) */
+body.k2-site .k2-amiga-player-tournaments-filters .k2-player-games-controls {
+	margin-top: calc(var(--k2-nav-gap, 0.75rem) * 0.35);
+	margin-bottom: 0;
 }
 
 body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) {

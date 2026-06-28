@@ -5,6 +5,8 @@ Full behaviour contract and page inventory: [`k2-table-and-games-plan.md`](k2-ta
 
 **Do not invent a one-off table stack.** Find the closest **reference implementation** below, read that file, then copy the pattern.
 
+**New page or tab?** Read [`k2-page-structure-checklist.md`](k2-page-structure-checklist.md) first if the slice adds routes or modes.
+
 **Column / header tooltips:** [`k2-tooltip-policy.md`](k2-tooltip-policy.md) — use `data-k2-help`, not native `title` on `<th>`.
 
 ---

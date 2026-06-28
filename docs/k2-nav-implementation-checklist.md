@@ -2,6 +2,8 @@
 
 **For agents (read before adding or refactoring page chrome nav -- hub tabs, wing ribbons, sub-nav rows, player nav, hub shells).**
 
+**New page or mode?** Read [`k2-page-structure-checklist.md`](k2-page-structure-checklist.md) **first** (folder path vs query param) — then return here for nav markup.
+
 Spacing contract: [`nav-spacing-policy.md`](nav-spacing-policy.md). Segment grammar: [`design-direction.md`](design-direction.md). Routes / sub-hubs: [`url-routes.md`](url-routes.md) section Sub-hub navigation.
 
 **Before deciding *which page gets an active pill* or *where a detail page lives*, read [`navigation-model.md`](navigation-model.md)** (NM1–NM6): hub bar is always present; active pill only on hub/sub-hub **places**; **entity pages** (a game/player/tournament/country/milestone) live at the realm root in a **singular** namespace with **no active pill**, never nested in a plural hub folder.
@@ -106,6 +108,7 @@ Adding a **new sub-nav class** to `theme.css`? Add it to the existing sub-nav bl
 
 ## Related
 
+- [`k2-page-structure-checklist.md`](k2-page-structure-checklist.md) -- folder paths vs query-param modes (read before this checklist when adding a new page/tab)
 - [`navigation-model.md`](navigation-model.md) -- NM1-NM6: hub bar always present, active pill only on places, entity pages at realm root (the *why* behind active-pill + page-placement choices)
 - [`nav-spacing-policy.md`](nav-spacing-policy.md) -- locked decisions N1-N10, patterns A/B/C
 - [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md) -- shipped phases + smoke URLs

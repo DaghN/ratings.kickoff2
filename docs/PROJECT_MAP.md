@@ -28,6 +28,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | `docs/coordination/cutover-readiness.md` | **Prep done vs live cutover** — read before schema/replay registers |
 | `site/public_html/ops/sql/migrations/` | Canonical SCH DDL (indexes, tables); see `ops-schema-migrations.md` |
 | `docs/` | Specs, coordination, agent playbooks |
+| **K2 page structure** (new page / tab / mode — folder paths, not `?view=` / `?wing=`) | **`docs/k2-page-structure-checklist.md`** — read before choosing URLs; then `url-routes.md` § Sub-hub navigation |
 | `docs/k2-table-implementation-checklist.md` | **K2 tables** — mandatory before new/refactored sortable tables; run `scripts/audit_k2_table_compliance.py` for backlog |
 | `docs/k2-tooltip-policy.md` | **K2 tooltips** — mandatory before table header/column help, chart hovers, or control tooltips; audit flags `<th title=` |
 | `docs/k2-nav-implementation-checklist.md` | **K2 page chrome nav** — mandatory before new wing/sub-nav/hub shell; spacing in `nav-spacing-policy.md` |

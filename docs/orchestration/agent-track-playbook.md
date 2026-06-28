@@ -70,6 +70,7 @@ Phase 4 — Slices      (execute one slice per session; handoff files)
 - Data / behaviour model (diagram or table)
 - **Rejected alternatives** (prevents re-debate)
 - **Out of scope**
+- **URL / page structure** — product and behaviour here; **canonical paths defer to** [`k2-page-structure-checklist.md`](../k2-page-structure-checklist.md) and [`url-routes.md`](../url-routes.md). Do **not** lock query-param mode tabs (`?view=`, `?wing=`, `?tab=`) in feature policy without cross-check.
 - Links to parent contracts ([`website-data-contract.md`](../website-data-contract.md), [`amiga-data-contract.md`](../amiga-data-contract.md), [`design-direction.md`](../design-direction.md))
 
 **Examples:**

@@ -995,3 +995,12 @@ body.k2-site .k2-amiga-organizer-results__undo:focus-visible {
 .k2-table--tournament-games .k2-amiga-tgame-goal--win {
 	font-weight: 700;
 }
+
+body.k2-site .k2-amiga-tournament-index-tabs--stacked {
+	margin-top: calc(var(--k2-nav-gap, 0.75rem) * 0.35);
+}
+
+body.k2-site .k2-amiga-tournament-index-filters .k2-player-games-controls {
+	margin-top: calc(var(--k2-nav-gap, 0.75rem) * 0.35);
+	margin-bottom: 0;
+}

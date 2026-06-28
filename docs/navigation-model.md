@@ -2,7 +2,7 @@
 
 **Status:** Current navigation invariants (Jun 2026). Authority for *"which pages show an active hub pill, and where does an entity page live?"*
 
-**Authority / related:** [`hub-ia-agreement.md`](hub-ia-agreement.md) (hub shape + tab order) · [`url-routes.md`](url-routes.md) (route map + foldered sub-hubs) · [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) (how to build nav) · [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md).
+**Authority / related:** [`hub-ia-agreement.md`](hub-ia-agreement.md) (hub shape + tab order) · [`url-routes.md`](url-routes.md) (route map + foldered sub-hubs) · [`k2-page-structure-checklist.md`](k2-page-structure-checklist.md) (new page / tab / mode — read before choosing paths) · [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) (how to build nav) · [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md).
 
 This doc states the **invariants** so they are not relitigated per feature. It is realm-agnostic (Online + Amiga). Decision IDs **NM1–NM6** are citeable.
 

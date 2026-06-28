@@ -1,6 +1,6 @@
 # Amiga tournament videos — implementation plan
 
-**Status:** **In progress (Jun 2026)** — policy locked; **TV-0–TV-3 shipped**; **TV-1 human review sign-off (Jun 2026)** — tournaments index + orphan→tournament queues complete (see policy §10). **TV-URL** shipped (embedded player + deep links). **TV-4** partial — **With videos** filter shipped; Chronology clip indicator TBD. Future: admin bulk-verify page.
+**Status:** **In progress (Jun 2026)** — policy locked; **TV-0–TV-3 shipped**; **TV-1 human review sign-off (Jun 2026)** — tournaments index + orphan→tournament queues complete (see policy §10). **TV-URL** shipped (embedded player + deep links). **TV-FOLDER** shipped (Games/Atmosphere folder modes — [`amiga-tournament-videos-folder-modes-plan.md`](amiga-tournament-videos-folder-modes-plan.md)). **TV-4** partial — **With videos** filter shipped; Chronology clip indicator TBD. Future: admin bulk-verify page.
 
 **Policy:** [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md)
 

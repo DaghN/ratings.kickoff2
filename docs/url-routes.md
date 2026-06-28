@@ -2,7 +2,7 @@
 
 **Status:** Jun 2026 — legacy `server*`, `ranked*`, `individual*` page names replaced with semantic paths.
 
-**Authority:** Runtime map in [`site/public_html/includes/k2_routes.php`](../site/public_html/includes/k2_routes.php). Hub IA labels in [`hub-ia-agreement.md`](hub-ia-agreement.md).
+**Authority:** Runtime map in [`site/public_html/includes/k2_routes.php`](../site/public_html/includes/k2_routes.php). Hub IA labels in [`hub-ia-agreement.md`](hub-ia-agreement.md). **New paths:** [`k2-page-structure-checklist.md`](k2-page-structure-checklist.md).
 
 ---
 
@@ -12,13 +12,13 @@
 2. **Root-absolute URLs** — `k2_route()` returns paths like `/milestones/recent.php` (leading `/`). Required so hub and cross-links work from `leaderboards/` and `player/` subfolders.
 3. **Shared assets** — `/js/…`, `/stylesheets/…`, `/fonts/…` in `k2_head.php` and page templates (not bare `js/…` on subfolder pages).
 4. **Amiga** — player universe under `amiga/player/`; route keys in `includes/k2_amiga_routes.php` (`k2_amiga_route()`). Legacy flat URLs 302 to canonical paths.
-5. **Foldered sub-hubs, not `?view=`** — see [§ Sub-hub navigation](#sub-hub-navigation-foldered-not-view) below.
+5. **Foldered sub-hubs, not query-param modes** — see [§ Sub-hub navigation](#sub-hub-navigation-foldered-not-view) below. **Do not** add new `?view=`, `?wing=`, `?tab=`, or similar switches for “where am I?” navigation.
 
 ---
 
 ## Sub-hub navigation (foldered, not `?view=`)
 
-**Product rule (Jun 2026):** When a page has internal tabs or modes (Recent · Catalog · Highlights · All games, etc.), prefer **one PHP file per mode under a folder**, not a single root file with `?view=`.
+**Product rule (Jun 2026):** When a page has internal tabs or modes (Recent · Catalog · Highlights · All games, etc.), prefer **one PHP file per mode under a folder**, not a single root file with a query-param mode switch (`?view=`, `?wing=`, `?tab=`, …).
 
 | Kind | URL shape | Examples |
 |------|-----------|----------|
@@ -32,7 +32,7 @@
 - Thin entry files (`games/recent.php`, …) + shared shell include (`*_hub_shell_start.inc.php`, sub-nav include).
 - Register each mode in `K2_ROUTES` (`games-recent`, `milestones-catalog`, …); hub default key keeps short name (`games` → recent, `milestones` → recent).
 - Sub-nav hrefs via `k2_route()` only — never bare relative `recent.php` on subfolder pages.
-- **Do not** add new `?view=` for navigation. Legacy `?view=` on old URLs is retired, not a pattern to copy.
+- **Do not** add new query-param mode switches for navigation. Legacy `?view=` / `?wing=` on old URLs 302 to folder paths — not a pattern to copy.
 
 **Pre-public refactors:** Update on-site links via `k2_route()` / href helpers; **no** bookmark redirect layer required until the site is public with stable external URLs.
 
@@ -45,6 +45,7 @@
 | Leaderboards | `leaderboards/` | one wing per file |
 | Player opponents | `player/opponents/` | `h2h.php`, `wdl.php`, … |
 | Player milestones | `player/milestones/` | `garden.php`, `chronology.php` |
+| Amiga tournament Videos (nested under entity tab) | `amiga/tournament/videos/` | `games.php`, `atmosphere.php` |
 
 **Detail pages stay at root or a stable path** when they are not sub-nav peers — e.g. `milestone.php?key=`, `game.php?id=` (key/id are entity lookup, not hub mode). Inbound game links use `k2_game_page_url($id)` → `/game.php?id=` + `#k2-game` so the viewport lands on the game table (hub chrome stays above the fold).
 
@@ -176,9 +177,13 @@ Per-event pages use **foldered tabs** (not `?view=`). Entity id stays in query; 
 | `amiga-tournament-standings` | `/amiga/tournament/standings.php` | League table / groups / bracket (ordinary events) |
 | `amiga-tournament-stages` | `/amiga/tournament/stages.php` | Stages + sub-nav (World Cups) |
 | `amiga-tournament-games` | `/amiga/tournament/games.php` | Games |
-| `amiga-tournament-videos` | `/amiga/tournament/videos.php` | Videos (when manifest has rows for `id`) |
+| `amiga-tournament-videos` | `/amiga/tournament/videos/games.php` | Videos — Games (default; when manifest has rows for `id`) |
+| `amiga-tournament-videos-games` | `/amiga/tournament/videos/games.php` | Videos — Games |
+| `amiga-tournament-videos-atmosphere` | `/amiga/tournament/videos/atmosphere.php` | Videos — Atmosphere |
 
-Query `?id=` required on all tabs. Optional `?player=` on games; `?scope=` / `?scope_key=` on standings/stages. **Videos tab:** `?wing=extras` (Atmosphere). **Deep links (WC spotlight, live):** `?v={youtube_id}`, optional `?game={amiga_game_id}`, future `?t=` seconds — see [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md). Tab appears only when `amiga_tournament_has_videos($id)`.
+Query `?id=` required on all tabs. Optional `?player=` on games; `?scope=` / `?scope_key=` on standings/stages. **Videos modes** are folder paths (not `?wing=`). **Deep links (WC spotlight, live):** `?v={youtube_id}`, optional `?game={amiga_game_id}` on Games mode, future `?t=` seconds — see [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md). Tab appears only when `amiga_tournament_has_videos($id)`.
+
+**Legacy redirect (302):** `/amiga/tournament/videos.php` → `videos/games.php` (or `videos/atmosphere.php` when legacy `?wing=extras`).
 
 **Entry redirects (302, query preserved):** `/amiga/tournament.php` (legacy `?view=`) → folder path; `/amiga/tournament/index.php` → `event-stats.php`. Nav hrefs use named files only — **not** bare `index.php` as a tab target (same habit as WC stats `participation.php`, Games `recent.php`).
 
