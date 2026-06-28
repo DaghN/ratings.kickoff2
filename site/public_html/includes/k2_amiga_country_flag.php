@@ -2,10 +2,10 @@
 /**
  * Amiga country flags → country roster links.
  *
- * Table flag: k2-amiga-country-flag-img (20×15) via k2_amiga_country_flag_link().
- * Flag-only cells: k2_amiga_country_table_cell() (em dash when no SVG).
- * Video spotlight caption: flag_link(..., tgame class + decorative) — caption-only.
+ * Flag img → roster: k2_amiga_country_flag_link() (k2-country-roster-link on img).
+ * Inline table cells: k2_amiga_lb_*_cell() compositors — see docs/k2-table-entity-links-policy.md
  *
+ * @see docs/k2-table-entity-links-policy.md
  * @see docs/amiga-countries-hub-policy.md CH9
  */
 require_once __DIR__ . '/k2_safety.php';

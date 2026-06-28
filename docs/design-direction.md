@@ -160,7 +160,7 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 | Hub section chapter (`.k2-hub-chapter`) | `__title` 1.25rem/600 **primary** (intentional — sole “where you are” landmark; not accent/glow; Jun 2026 trial reverted); `__lede` 13px muted; optional `__list` (compact disc bullets, muted+accent `::marker`, same typography) via `$k2HubChapterList` in `includes/k2_hub_chapter.inc.php`. Online hub: Activity, Leaderboards (`lb_nav.php`), Milestones, HoF (rules list). Amiga hub: News (`/amiga/news.php`), World Cups, Activity (`/amiga/activity.php`), HoF, Tournaments, Live tournaments — **not** Amiga Leaderboards (sub-nav only). |
 | Status-style tickers (arc line) | `--k2-text-muted`; key counts `.blue` |
 | Onboarding / long explanatory prose (Play & setup) | `--k2-text-secondary` (14px); page title stays `--k2-text-primary` |
-| Player names / dense table links | `a.k2-link-star`, weight 600; hover/focus underline |
+| Table entity name links (player · tournament · country) | `a.k2-link-star` via shared PHP helpers — weight 600; hover/focus underline. Contract: [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md). |
 | Prose/footer links | `--k2-link` |
 | Positive/negative table stats | `.blue` / `.red` on profile/games rows, Status ticker/meta, record **date markers** (`(New!)` / `(Legendary)` on `hall-of-fame.php`); **not** on calm leaderboard value cells |
 | HoF record row label + date column | `server-records-table` col 1 + 4 ? `--k2-text-muted`; value (anchor) + holder unchanged; online two-panel HoF: shared col 1 via `--k2-hof-label-col-ch` (`includes/records_hof_table.php` + label register in `hall-of-fame.php`) |
@@ -221,9 +221,7 @@ Imagery:
 - No repeating site-wide decorative banner.
 - Use imagery where it earns its place, e.g. Status heritage box or future Amiga photos.
 - **Amiga player hero:** country as fourth hero stat (label + flag under Rank/Rating/Games); `k2_amiga_country_flag.php` + `img/flags/amiga/`.
-- **Amiga table flags:** one leaderboard impression (`k2-amiga-country-flag-img`, 20×15) via `k2_amiga_country_flag_link()` / `k2_amiga_inline_flag_and_link()` / `k2_amiga_country_table_cell()` (em dash when no SVG). Video spotlight caption: `flag_link` with tgame class.
-- **Amiga leaderboards (player rows):** Country column after Elo (col 3) — centered flag via `k2_lb_th_country()` / `k2_lb_td_country_open()` on Rating, Calendar-geo, Tournament honours, Goals, DDs, Victims, Peak, Performance.
-- **World Cups tournament stats (wing 2):** Host Country column after Year — centered flag from `host_country` via `k2_amiga_country_table_cell()` on Goals, DDs, Participation, Geography, Podium tables.
+- **Amiga table flags + entity links:** one leaderboard flag impression (`k2-amiga-country-flag-img`, 20×15); inline `[flag][name]` via `k2_amiga_lb_player_cell()` / `k2_amiga_lb_tournament_cell()` / `k2_amiga_lb_country_cell()` — **no dedicated flag-only Country columns** (migration: [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md)). Flag img → `k2_amiga_country_flag_link()`; entity names → `k2-link-star` helpers. Video spotlight caption: tgame `flag_link` + decorative (caption-only).
 - Status heritage box may use a clipped tint-following halo behind the art; the inset boundary contains the light.
 - Dense tables and charts should start high on the page.
 - **In-page scrollbars** (`.k2-table-wrap`, archive listbox panels, heatmaps, bracket rails, etc.): thin muted thumb via `--k2-scrollbar-*` tokens in `theme.css` — not OS default gray, not tint accent. Page-level vertical scroll stays native unless we extend tokens to `html` later.

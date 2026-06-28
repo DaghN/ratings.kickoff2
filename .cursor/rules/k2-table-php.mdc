@@ -12,7 +12,8 @@ When this file matches, you are likely touching **table markup or page head asse
 
 1. **Read** [`docs/k2-table-implementation-checklist.md`](docs/k2-table-implementation-checklist.md).
 2. **Open** the closest §1 reference file (same scenario: hub LB, filter pills, player ledger, server games, etc.).
-3. **Run** (optional) `python scripts/audit_k2_table_compliance.py` to see backlog status.
+3. **Entity links / Amiga inline flags** in cells: [`docs/k2-table-entity-links-policy.md`](docs/k2-table-entity-links-policy.md).
+4. **Run** (optional) `python scripts/audit_k2_table_compliance.py` to see backlog status.
 
 ## Do not
 

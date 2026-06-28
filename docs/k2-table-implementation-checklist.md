@@ -9,6 +9,8 @@ Full behaviour contract and page inventory: [`k2-table-and-games-plan.md`](k2-ta
 
 **Column / header tooltips:** [`k2-tooltip-policy.md`](k2-tooltip-policy.md) — use `data-k2-help`, not native `title` on `<th>`.
 
+**Entity links in cells (player · tournament · country names, Amiga inline flags):** [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) — use shared link helpers + compositors; no ad-hoc flag-only Country columns on Amiga.
+
 ---
 
 ## 1) Pick a reference (read one file first)
@@ -68,6 +70,10 @@ Online hub LB wings may use `k2_lb_sortable_table_head.inc.php` instead of the g
 
 Exactly one editorial link column per table (`data-k2-anchor-col`). Map: [`k2-table-and-games-plan.md` § Anchor column map](k2-table-and-games-plan.md).
 
+### Entity name links and Amiga inline flags
+
+Player, tournament, and country **name** cells: [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) — `k2-link-star` via realm link helpers; Amiga `[flag][name]` via `k2_amiga_lb_*_cell()` compositors. Do not add dedicated flag-only Country columns on Amiga tables.
+
 ---
 
 ## 3) Before shipping — self-check
@@ -80,6 +86,7 @@ Exactly one editorial link column per table (`data-k2-anchor-col`). Map: [`k2-ta
 - [ ] Navigation that reloads the page preserves `k2_sort` / `k2_dir` where sortable.
 - [ ] Hard refresh + filter/tab click: **no visible sort flash**.
 - [ ] Column help uses `data-k2-help` / `data-k2-tooltip-label`, not `title` on `<th>` ([`k2-tooltip-policy.md`](k2-tooltip-policy.md)).
+- [ ] Entity name cells and Amiga inline flags follow [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) (helpers + compositors; no new flag-only Country cols).
 - [ ] Hub wings use `lb_column_help.php` helpers where shared copy exists.
 - [ ] Page loads `k2-table.js` when headers or cells expose `data-k2-help`.
 - [ ] Run `python scripts/audit_k2_table_compliance.py` — no new Tier C files or `<th title=` violations.

@@ -51,6 +51,10 @@ Site-wide table styling belongs to `stylesheets/theme.css`; simple sortable beha
 - Table headers stay muted; hover/active sort states use the shared theme tokens.
 - Use utility/data attributes instead of legacy class bundles for new sortable tables.
 
+### Entity links in cells
+
+Player, tournament, and country **name** links inside table cells — plus Amiga inline `[flag][name]` compositors — follow [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md). Table machinery below (sort, anchor, mirror) is unchanged; entity links are **cell content**, not sort behaviour.
+
 ### Behavior
 
 Tables opt in explicitly:
