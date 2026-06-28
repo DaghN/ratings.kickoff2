@@ -106,7 +106,22 @@ function k2_amiga_country_flag_link(string $country, array $opts = []): string
     return '<a class="k2-country-roster-link" href="' . k2_h($href) . '" aria-label="Players from ' . k2_h($label) . '">' . $flag . '</a>';
 }
 
-/** Flag-only table cell — linked img or em dash (no text fallback). */
+/** Country roster name link — entity name link (k2-link-star), not flag wrapper. */
+function k2_amiga_country_roster_link(string $countryToken): string
+{
+    $countryToken = trim($countryToken);
+    if ($countryToken === '') {
+        return '';
+    }
+    require_once __DIR__ . '/amiga_countries_lib.php';
+    $href = k2_amiga_country_roster_href($countryToken);
+
+    return '<a class="k2-link-star" href="' . k2_h($href) . '">' . k2_h($countryToken) . '</a>';
+}
+
+/**
+ * @deprecated Flag-only table cells retired — use k2_amiga_lb_*_cell() compositors.
+ */
 function k2_amiga_country_table_cell(string $country, bool $link = true): string
 {
     if (!$link) {
@@ -148,16 +163,13 @@ function k2_amiga_lb_tournament_cell(int $tournamentId, string $name, string $ho
     return k2_amiga_inline_flag_and_link($hostCountry, amiga_tournament_link($tournamentId, $name));
 }
 
-/**
- * Player country column body — centered flag + sort value for k2-table text sort.
- *
- * @return string opening <td ...> through cell contents (caller closes </td>)
- */
-function k2_lb_td_country_open(int $colIndex, array $sort, string $country, bool $link = true): string
+/** Leaderboard Country column — flag + country name roster link (dual link). */
+function k2_amiga_lb_country_cell(string $countryToken): string
 {
-    require_once __DIR__ . '/k2_table_helpers.php';
+    $nameLink = k2_amiga_country_roster_link($countryToken);
+    if ($nameLink === '') {
+        return '—';
+    }
 
-    return '<td' . k2_lb_td($colIndex, $sort, 'k2-table-cell--center')
-        . ' data-k2-sort-value="' . k2_h($country) . '">'
-        . k2_amiga_country_table_cell($country, $link);
+    return k2_amiga_inline_flag_and_link($countryToken, $nameLink);
 }

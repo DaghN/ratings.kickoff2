@@ -18,8 +18,8 @@ function amiga_player_opponents_dds_ratio_cell(float $ratio): string
     return $ratio == 0.0 ? '0%' : number_format(100 * $ratio, 1) . '%';
 }
 
-const AMIGA_PLAYER_OPPONENTS_TABLE_ANCHOR_COL = 3;
-const AMIGA_PLAYER_OPPONENTS_TABLE_DEFAULT_SORT_COL = 3;
+const AMIGA_PLAYER_OPPONENTS_TABLE_ANCHOR_COL = 2;
+const AMIGA_PLAYER_OPPONENTS_TABLE_DEFAULT_SORT_COL = 2;
 
 /** @return array{anchor: int, sort_col: int, sort_dir: string, class: string} */
 function amiga_player_opponents_table_sort_state(): array
@@ -45,8 +45,7 @@ function amiga_player_opponents_render_wdl_table_from_rows(array $rows, int $pla
     <tr>
         <th<?php echo k2_lb_th(0, $sort, 'k2-table-cell--left'); ?> data-k2-sort="text">Opponent</th>
         <th<?php echo k2_lb_th_elo(1, $sort); ?> data-k2-sort="number"<?php echo k2_lb_elo_column_help_attrs(); ?>>Elo</th>
-        <th<?php echo k2_lb_th_country(2, $sort); ?> data-k2-sort="text">Country</th>
-        <th<?php echo k2_lb_th(3, $sort, ''); ?> data-k2-sort="number" data-k2-help="Rated games against this opponent.">Games</th>
+        <th<?php echo k2_lb_th(2, $sort, ''); ?> data-k2-sort="number" data-k2-help="Rated games against this opponent.">Games</th>
         <th data-k2-sort="number" data-k2-help="Wins against this opponent.">Wins</th>
         <th data-k2-sort="number" data-k2-help="Draws against this opponent.">Draws</th>
         <th data-k2-sort="number" data-k2-help="Losses against this opponent.">Losses</th>
@@ -76,10 +75,9 @@ function amiga_player_opponents_render_wdl_table_from_rows(array $rows, int $pla
 	        : ($perfInfinity ? PERFORMANCE_RATING_INFINITY_SORT_VALUE : '-1');
 	    ?>
     <tr>
-        <td<?php echo k2_lb_td(0, $sort, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link($opponentId, $opponentName); ?></td>
+        <td<?php echo k2_lb_td(0, $sort, 'k2-table-cell--left'); ?>><?php echo k2_amiga_lb_player_cell($opponentId, $opponentName, (string) ($row['opponent_country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td(1, $sort); ?>><?php echo k2_fmt_int($row['opponent_rating']); ?></td>
-        <?php echo k2_lb_td_country_open(2, $sort, (string) ($row['opponent_country'] ?? '')); ?></td>
-        <td<?php echo k2_lb_td(3, $sort); ?>><?php echo amiga_player_opponents_games_cell_html($playerId, $opponentId, $games); ?></td>
+        <td<?php echo k2_lb_td(2, $sort); ?>><?php echo amiga_player_opponents_games_cell_html($playerId, $opponentId, $games); ?></td>
         <td><?php if ($wins != 0) {
             echo "<span class='blue'>";
             echo $wins;
@@ -129,8 +127,7 @@ function amiga_player_opponents_render_goals_table_from_rows(array $rows, int $p
     <tr>
         <th<?php echo k2_lb_th(0, $sort, 'k2-table-cell--left'); ?> data-k2-sort="text">Opponent</th>
         <th<?php echo k2_lb_th_elo(1, $sort); ?> data-k2-sort="number"<?php echo k2_lb_elo_column_help_attrs(); ?>>Elo</th>
-        <th<?php echo k2_lb_th_country(2, $sort); ?> data-k2-sort="text">Country</th>
-        <th<?php echo k2_lb_th(3, $sort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
+        <th<?php echo k2_lb_th(2, $sort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
         <th data-k2-sort="number" data-k2-tooltip-label="Goals for" data-k2-help="Goals scored against this opponent.">GF</th>
         <th data-k2-sort="number" data-k2-tooltip-label="Goals against" data-k2-help="Goals conceded against this opponent.">GA</th>
         <th data-k2-sort="number" data-k2-tooltip-label="Goals scored per game" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goals_scored_avg(), ENT_QUOTES, 'UTF-8'); ?>">GF/g</th>
@@ -173,10 +170,9 @@ function amiga_player_opponents_render_goals_table_from_rows(array $rows, int $p
 	    $drawDisplay = $numberDraws > 0 && $biggestDraw !== null ? $biggestDraw . '-' . $biggestDraw : '-';
 	    ?>
     <tr>
-        <td<?php echo k2_lb_td(0, $sort, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link($opponentId, $opponentName); ?></td>
+        <td<?php echo k2_lb_td(0, $sort, 'k2-table-cell--left'); ?>><?php echo k2_amiga_lb_player_cell($opponentId, $opponentName, (string) ($row['opponent_country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td(1, $sort); ?>><?php echo k2_fmt_int($row['opponent_rating']); ?></td>
-        <?php echo k2_lb_td_country_open(2, $sort, (string) ($row['opponent_country'] ?? '')); ?></td>
-        <td<?php echo k2_lb_td(3, $sort); ?>><?php echo amiga_player_opponents_games_cell_html($playerId, $opponentId, $games); ?></td>
+        <td<?php echo k2_lb_td(2, $sort); ?>><?php echo amiga_player_opponents_games_cell_html($playerId, $opponentId, $games); ?></td>
         <td><?php if ($goalsFor != 0) {
             echo "<span class='blue'>";
             echo $goalsFor;
@@ -239,8 +235,7 @@ function amiga_player_opponents_render_dds_table_from_rows(array $rows, int $pla
     <tr>
         <th<?php echo k2_lb_th(0, $sort, 'k2-table-cell--left'); ?> data-k2-sort="text">Opponent</th>
         <th<?php echo k2_lb_th_elo(1, $sort); ?> data-k2-sort="number"<?php echo k2_lb_elo_column_help_attrs(); ?>>Elo</th>
-        <th<?php echo k2_lb_th_country(2, $sort); ?> data-k2-sort="text">Country</th>
-        <th<?php echo k2_lb_th(3, $sort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
+        <th<?php echo k2_lb_th(2, $sort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
         <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_double_digits(), ENT_QUOTES, 'UTF-8'); ?>">Double Digits</th>
         <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_clean_sheets(), ENT_QUOTES, 'UTF-8'); ?>">Clean Sheets</th>
         <th data-k2-sort="number" data-k2-tooltip-label="Double Digits ratio" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_double_digits_ratio(), ENT_QUOTES, 'UTF-8'); ?>">DD Ratio</th>
@@ -266,10 +261,9 @@ function amiga_player_opponents_render_dds_table_from_rows(array $rows, int $pla
 	    $csConcededRatio = amiga_player_opponents_matchup_ratio($cleanSheetsConceded, $games);
 	    ?>
     <tr>
-        <td<?php echo k2_lb_td(0, $sort, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link($opponentId, $opponentName); ?></td>
+        <td<?php echo k2_lb_td(0, $sort, 'k2-table-cell--left'); ?>><?php echo k2_amiga_lb_player_cell($opponentId, $opponentName, (string) ($row['opponent_country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td(1, $sort); ?>><?php echo k2_fmt_int($row['opponent_rating']); ?></td>
-        <?php echo k2_lb_td_country_open(2, $sort, (string) ($row['opponent_country'] ?? '')); ?></td>
-        <td<?php echo k2_lb_td(3, $sort); ?>><?php echo amiga_player_opponents_games_cell_html($playerId, $opponentId, $games); ?></td>
+        <td<?php echo k2_lb_td(2, $sort); ?>><?php echo amiga_player_opponents_games_cell_html($playerId, $opponentId, $games); ?></td>
         <td><?php if ($doubleDigits != 0) {
             echo "<span class='blue'>";
             echo $doubleDigits;

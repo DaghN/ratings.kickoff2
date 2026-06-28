@@ -1,6 +1,6 @@
 # K2 table entity links policy
 
-**Status:** Locked intent (Jun 2026). **Code migration in progress** — inline Amiga flags + helper alignment ship against this doc; grep for legacy flag-only columns before calling a surface done.
+**Status:** **Shipped** (Jun 2026). Inline Amiga flags + entity link helpers aligned with this doc.
 
 **Authority:** Product + visual contract; defers to [`design-direction.md`](design-direction.md) for tokens. Table machinery (sort, cloak, mirror, anchor map): [`k2-table-and-games-plan.md`](k2-table-and-games-plan.md). Amiga flag SVG map + roster URLs: [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) CH9. Dagh's latest chat wins on scope.
 
@@ -35,7 +35,7 @@ Table cells that name a **player**, **tournament**, or **country** should look a
 |--------|--------|-------|-------------|
 | **Player** | `k2_player_link()` in `k2_safety.php` | `k2_amiga_player_link()` in `amiga_player_load.php` | Player profile |
 | **Tournament** | (surface-specific; prefer `k2-link-star` when added) | `amiga_tournament_link()` in `amiga_tournament_lib.php` | Tournament event stats |
-| **Country** | — | `k2_amiga_country_roster_link()` **(to add)** in `k2_amiga_country_flag.php` or `amiga_countries_lib.php` | `k2_amiga_country_roster_href()` |
+| **Country** | — | `k2_amiga_country_roster_link()` in `k2_amiga_country_flag.php` | `k2_amiga_country_roster_href()` |
 
 All three return `<a class="k2-link-star" href="…">…label…</a>`.
 
@@ -51,7 +51,7 @@ Implementation: `includes/k2_amiga_country_flag.php`.
 |------------|-------|------|
 | `k2_amiga_lb_player_cell($playerId, $name, $country)` | flag + player name | Nationality beside player (rating LB, opponents, event stats, …) |
 | `k2_amiga_lb_tournament_cell($tournamentId, $name, $hostCountry)` | host flag + tournament name | Host nation beside tournament (catalog, player history, WC chronology, WC stats, perf-rating Event col, …) |
-| `k2_amiga_lb_country_cell($countryToken)` **(to add)** | flag + country name | Countries index, WC Countries wings — row **is** the country |
+| `k2_amiga_lb_country_cell($countryToken)` | flag + country name | Countries index, WC Countries wings — row **is** the country |
 
 Shared layout:
 

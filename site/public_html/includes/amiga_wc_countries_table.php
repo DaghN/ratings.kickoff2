@@ -41,7 +41,7 @@ function amiga_wc_countries_render_honours(array $rows, int $countryCount): void
 <thead>
     <tr>
         <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">Rank</th>
-        <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort="text">Country</th>
+        <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort="text">Country</th>
         <th<?php echo k2_lb_th(2, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_country_players(), ENT_QUOTES, 'UTF-8'); ?>">Players</th>
         <th<?php echo k2_lb_th(3, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_country_wcs(), ENT_QUOTES, 'UTF-8'); ?>">WCs</th>
         <th<?php echo k2_lb_th(4, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_countries_wc_entries_index(), ENT_QUOTES, 'UTF-8'); ?>">WC entries</th>
@@ -59,7 +59,7 @@ function amiga_wc_countries_render_honours(array $rows, int $countryCount): void
         ?>
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
-        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo k2_amiga_country_table_cell($countryToken, true); ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo k2_amiga_lb_country_cell($countryToken); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo (int) $row['players']; ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo (int) $row['tournaments_with_nation']; ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo (int) $row['wc_participations']; ?></td>
@@ -91,7 +91,7 @@ function amiga_wc_countries_render_results(array $rows, int $countryCount): void
 <thead>
     <tr>
         <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">Rank</th>
-        <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort="text">Country</th>
+        <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort="text">Country</th>
         <th<?php echo k2_lb_th(2, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_country_players(), ENT_QUOTES, 'UTF-8'); ?>">Players</th>
         <th<?php echo k2_lb_th(3, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_country_wcs(), ENT_QUOTES, 'UTF-8'); ?>">WCs</th>
         <th<?php echo k2_lb_th(4, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_country_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
@@ -138,7 +138,7 @@ function amiga_wc_countries_render_results(array $rows, int $countryCount): void
         ?>
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
-        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo k2_amiga_country_table_cell($countryToken, true); ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo k2_amiga_lb_country_cell($countryToken); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo $players; ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo (int) $row['tournaments_with_nation']; ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo $games; ?></td>
@@ -184,7 +184,7 @@ function amiga_wc_countries_render_goals(array $rows, int $countryCount): void
 <thead>
     <tr>
         <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">Rank</th>
-        <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort="text">Country</th>
+        <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort="text">Country</th>
         <th<?php echo k2_lb_th(2, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_country_players(), ENT_QUOTES, 'UTF-8'); ?>">Players</th>
         <th<?php echo k2_lb_th(3, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_country_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
         <th<?php echo k2_lb_th(4, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Goals for" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_country_goals_for(), ENT_QUOTES, 'UTF-8'); ?>">GF</th>
@@ -217,7 +217,7 @@ function amiga_wc_countries_render_goals(array $rows, int $countryCount): void
         ?>
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
-        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo k2_amiga_country_table_cell($countryToken, true); ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo k2_amiga_lb_country_cell($countryToken); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo (int) $row['players']; ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo k2_fmt_count($gf, $games); ?></td>
@@ -271,7 +271,7 @@ function amiga_wc_countries_render_dds(array $rows, int $countryCount): void
 <thead>
     <tr>
         <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">Rank</th>
-        <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort="text">Country</th>
+        <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort="text">Country</th>
         <th<?php echo k2_lb_th(2, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_country_players(), ENT_QUOTES, 'UTF-8'); ?>">Players</th>
         <th<?php echo k2_lb_th(3, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_country_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
         <th<?php echo k2_lb_th(4, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_country_double_digits(), ENT_QUOTES, 'UTF-8'); ?>">Double digits</th>
@@ -293,7 +293,7 @@ function amiga_wc_countries_render_dds(array $rows, int $countryCount): void
         ?>
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
-        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo k2_amiga_country_table_cell($countryToken, true); ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo k2_amiga_lb_country_cell($countryToken); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo (int) $row['players']; ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo k2_fmt_count($row['double_digits'] ?? 0, $games); ?></td>
@@ -328,7 +328,7 @@ function amiga_wc_countries_render_opponents(array $rows, int $countryCount): vo
 <thead>
     <tr>
         <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">Rank</th>
-        <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort="text">Country</th>
+        <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort="text">Country</th>
         <th<?php echo k2_lb_th(2, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_country_players(), ENT_QUOTES, 'UTF-8'); ?>">Players</th>
         <th<?php echo k2_lb_th(3, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_country_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
         <th<?php echo k2_lb_th(4, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_country_opponents(), ENT_QUOTES, 'UTF-8'); ?>">Opponents</th>
@@ -348,7 +348,7 @@ function amiga_wc_countries_render_opponents(array $rows, int $countryCount): vo
         ?>
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
-        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo k2_amiga_country_table_cell($countryToken, true); ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo k2_amiga_lb_country_cell($countryToken); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo (int) $row['players']; ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo k2_fmt_count($row['different_opponents'] ?? 0, $games); ?></td>

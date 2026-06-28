@@ -20,9 +20,7 @@ const AMIGA_WC_STATS_VIEWS = ['participation', 'goals', 'dds', 'geography'];
 
 function amiga_world_cup_stats_tournament_link(int $tournamentId, string $name): string
 {
-    $href = amiga_tournament_href(amiga_tournament_event_stats_url($tournamentId));
-
-    return '<a href="' . k2_h($href) . '">' . k2_h($name) . '</a>';
+    return k2_amiga_lb_tournament_cell($tournamentId, $name, '');
 }
 
 function amiga_world_cup_stats_peak_cell(?int $metric, ?int $gameId): string
@@ -75,9 +73,10 @@ function amiga_world_cup_stats_anchor_columns(): array
             'render' => static function (array $row, array $nameMap): string {
                 unset($nameMap);
 
-                return amiga_world_cup_stats_tournament_link(
+                return k2_amiga_lb_tournament_cell(
                     (int) ($row['tournament_id'] ?? 0),
                     (string) ($row['tournament_name'] ?? ''),
+                    (string) ($row['host_country'] ?? ''),
                 );
             },
         ],
@@ -91,18 +90,6 @@ function amiga_world_cup_stats_anchor_columns(): array
                 unset($nameMap);
 
                 return k2_fmt_optional_int($row['calendar_year'] ?? null);
-            },
-        ],
-        [
-            'label' => 'Country',
-            'sort' => 'text',
-            'align' => 'center',
-            'help' => 'Host nation.',
-            'sort_value' => static fn (array $row): string => (string) ($row['host_country'] ?? ''),
-            'render' => static function (array $row, array $nameMap): string {
-                unset($nameMap);
-
-                return k2_amiga_country_table_cell((string) ($row['host_country'] ?? ''));
             },
         ],
         [

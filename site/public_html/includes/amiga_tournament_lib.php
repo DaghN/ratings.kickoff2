@@ -1085,7 +1085,7 @@ function amiga_tournament_link(int $id, string $name, string $fragment = AMIGA_T
         $href .= '#' . ltrim($fragment, '#');
     }
 
-    return '<a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">'
+    return '<a class="k2-link-star" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">'
         . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</a>';
 }
 

@@ -256,7 +256,7 @@ function k2_lb_th_elo(int $colIndex, array $sort): string
     return k2_lb_th($colIndex, $sort, 'k2-table-cell--center');
 }
 
-/** Player nationality column <th> attrs — centered (flags in body via k2_amiga_country_table_cell). */
+/** @deprecated Legacy flag-only column header — use inline compositors per k2-table-entity-links-policy.md */
 function k2_lb_th_country(int $colIndex, array $sort): string
 {
     return k2_lb_th($colIndex, $sort, 'k2-table-cell--center');
