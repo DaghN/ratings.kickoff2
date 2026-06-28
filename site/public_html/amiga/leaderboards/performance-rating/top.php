@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 $k2AmigaLbPerfRatingView = 'top';
 $k2AmigaLbPerfRatingPageTitle = 'Amiga ladder — Performance rating — Top 100';
-$k2AmigaLbPerfRatingLede = 'The hundred highest single-event performance ratings in the realm at this date. A player may appear more than once.';
+$k2AmigaLbPerfRatingLede = 'The hundred highest single-event performance ratings. A player may appear more than once.';
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_lib.php';

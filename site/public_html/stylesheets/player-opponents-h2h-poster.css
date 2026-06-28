@@ -12,6 +12,7 @@ body.k2-site .k2-h2h2-poster {
 	--k2-h2h2-marquee-max: 48rem;
 	--k2-h2h2-record-max: 34rem;
 	--k2-h2h2-card-width: 320px;
+	--k2-h2h2-card-max: 380px;
 	--k2-h2h2-avatar: clamp(54px, 8vw, 68px);
 	position: relative;
 	display: flex;
@@ -53,9 +54,9 @@ body.k2-site .k2-h2h2-card {
 	border-radius: var(--k2-radius-lg);
 	background: var(--k2-bg-surface);
 	box-sizing: border-box;
-	width: var(--k2-h2h2-card-width, 320px);
-	max-width: 100%;
-	min-width: 0;
+	width: max-content;
+	min-width: var(--k2-h2h2-card-width, 320px);
+	max-width: min(var(--k2-h2h2-card-max, 380px), 100%);
 	transition: border-color 0.2s ease, box-shadow 0.2s ease;
 	box-shadow:
 		0 0 12px color-mix(in srgb, var(--k2-h2h2-side) 28%, transparent),
@@ -137,7 +138,6 @@ body.k2-site .k2-h2h2-card__name {
 	line-height: 1.12;
 	color: var(--k2-h2h2-side);
 	text-shadow: 0 0 26px color-mix(in srgb, var(--k2-h2h2-side) 40%, transparent);
-	overflow-wrap: anywhere;
 }
 
 body.k2-site .k2-h2h2-card__name-line {
@@ -145,6 +145,7 @@ body.k2-site .k2-h2h2-card__name-line {
 	align-items: center;
 	gap: 8px;
 	max-width: 100%;
+	white-space: nowrap;
 }
 
 body.k2-site .k2-h2h2-card__country-text {

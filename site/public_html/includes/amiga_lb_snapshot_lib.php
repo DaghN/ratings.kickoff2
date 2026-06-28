@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_snapshot_context.php';
 require_once __DIR__ . '/amiga_player_current_lib.php';
+require_once __DIR__ . '/amiga_lb_lib.php';
 
 /**
  * FROM + JOIN latest snapshot row per player on or before cutoff (alias ``s``).
@@ -425,10 +426,7 @@ function amiga_lb_honours_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx)
                 WHERE x.rn = 1 AND x.tournaments_played > 0
             ) t
             INNER JOIN amiga_players p ON p.id = t.player_id
-            ORDER BY t.tournaments_played DESC,
-                     t.event_gold DESC,
-                     t.event_podiums DESC,
-                     t.player_id ASC';
+            ORDER BY ' . amiga_lb_tournament_honours_order_sql('t');
 
     $stmt = $con->prepare($sql);
     if (!$stmt) {

@@ -44,6 +44,7 @@ const K2_AMIGA_ROUTES = [
 	'amiga-world-cups-countries' => 'amiga/world-cups/countries/honours.php',
 	'amiga-world-cups-countries-honours' => 'amiga/world-cups/countries/honours.php',
 	'amiga-world-cups-countries-results' => 'amiga/world-cups/countries/results.php',
+	'amiga-world-cups-countries-participation' => 'amiga/world-cups/countries/participation.php',
 	'amiga-world-cups-countries-goals' => 'amiga/world-cups/countries/goals.php',
 	'amiga-world-cups-countries-dds' => 'amiga/world-cups/countries/dds.php',
 	'amiga-world-cups-countries-opponents' => 'amiga/world-cups/countries/opponents.php',

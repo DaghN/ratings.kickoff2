@@ -18,6 +18,10 @@ $k2AmigaWorldCupsCountriesTabs = [
         'href' => amiga_url_with_context(k2_amiga_route('amiga-world-cups-countries-results')),
         'label' => 'Results',
     ],
+    'participation' => [
+        'href' => amiga_url_with_context(k2_amiga_route('amiga-world-cups-countries-participation')),
+        'label' => 'Participation',
+    ],
     'goals' => [
         'href' => amiga_url_with_context(k2_amiga_route('amiga-world-cups-countries-goals')),
         'label' => 'Goals',

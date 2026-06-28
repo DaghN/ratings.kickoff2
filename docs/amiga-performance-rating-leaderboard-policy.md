@@ -161,7 +161,7 @@ Segment `href`s pass through `amiga_url_with_context()`.
 | Sub-wing | Starter lede |
 |----------|----------------|
 | **Best** | Best single-event performance rating per player. Events need at least two games and at least one draw or loss — perfect win records cannot define a performance rating. |
-| **Top 100** | The hundred highest single-event performance ratings in the realm at this date. A player may appear more than once. |
+| **Top 100** | The hundred highest single-event performance ratings. A player may appear more than once. |
 | **Perfect** | Every perfect tournament run: at least two games, all wins. These events have no finite performance rating (∞). |
 
 ---

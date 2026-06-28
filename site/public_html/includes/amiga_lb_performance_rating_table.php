@@ -32,9 +32,6 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows): vo
     $perfHelp = amiga_perf_rating_column_help();
     $infinityHelp = amiga_perf_rating_perfect_infinity_help();
     $gamesHelp = 'Games in the listed event.';
-    $wHelp = 'Wins in this event (all phases).';
-    $dHelp = 'Draws in this event (all phases).';
-    $lHelp = 'Losses in this event (all phases).';
 
     k2_table_wrap_open(true);
     ?>
@@ -47,9 +44,9 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows): vo
         <th<?php echo k2_lb_th_elo(2, $lbSort); ?> data-k2-sort="number"<?php echo k2_lb_elo_column_help_attrs(); ?>>Elo</th>
         <th<?php echo k2_lb_th(3, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars($isPerfect ? $infinityHelp : $perfHelp, ENT_QUOTES, 'UTF-8'); ?>">Perf. rating</th>
         <th<?php echo k2_lb_th(4, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars($gamesHelp, ENT_QUOTES, 'UTF-8'); ?>">Event games</th>
-        <th<?php echo k2_lb_th(5, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars($wHelp, ENT_QUOTES, 'UTF-8'); ?>">W</th>
-        <th<?php echo k2_lb_th(6, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars($dHelp, ENT_QUOTES, 'UTF-8'); ?>">D</th>
-        <th<?php echo k2_lb_th(7, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars($lHelp, ENT_QUOTES, 'UTF-8'); ?>">L</th>
+        <th<?php echo k2_lb_th(5, $lbSort, ''); ?> data-k2-sort="number">W</th>
+        <th<?php echo k2_lb_th(6, $lbSort, ''); ?> data-k2-sort="number">D</th>
+        <th<?php echo k2_lb_th(7, $lbSort, ''); ?> data-k2-sort="number">L</th>
         <th<?php echo k2_lb_th(8, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort="text">Event</th>
         <th<?php echo k2_lb_th(9, $lbSort, 'k2-table-cell--right'); ?> data-k2-sort="number">Date</th>
     </tr>

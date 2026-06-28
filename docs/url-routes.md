@@ -168,7 +168,7 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 
 **Player stats dual surface:** hub `world-cups/players/*` and LB `leaderboards/world-cups/*` share `includes/amiga_wc_players_wing_body.inc.php` — [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) WCH9.
 
-**Country stats (hub wing 4):** `world-cups/countries/*` — Honours default (`honours.php`); Results · Goals · DDs · Opponents; routes in `k2_amiga_routes.php`; no LB mirror — [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md) §8.1.
+**Country stats (hub wing 4):** `world-cups/countries/*` — Honours default (`honours.php`); Results · Participation · Goals · DDs · Opponents; routes in `k2_amiga_routes.php`; no LB mirror — [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md) §8.1.
 
 Query `?id=` required on all player tabs.
 

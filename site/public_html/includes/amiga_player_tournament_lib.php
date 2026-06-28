@@ -10,6 +10,7 @@ require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_player_current_lib.php';
 require_once __DIR__ . '/amiga_snapshot_context.php';
+require_once __DIR__ . '/amiga_lb_lib.php';
 
 /**
  * Tournament participation rows for a player (canonical derived source).
@@ -645,7 +646,7 @@ function amiga_player_tournament_totals_row(mysqli $con, int $playerId): ?array
 /**
  * Tournament honours leaderboard rows (all-events honours + Elo).
  *
- * Default SQL order: tournaments_played, event_gold, event_podiums.
+ * Default SQL order: event_gold, event_silver, event_bronze, tournaments_played.
  *
  * @return list<array<string, mixed>>
  */
@@ -670,10 +671,7 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con, ?AmigaSnapshotCo
             FROM amiga_player_current t
             INNER JOIN amiga_players p ON p.id = t.player_id
             WHERE t.tournaments_played > 0
-            ORDER BY t.tournaments_played DESC,
-                     t.event_gold DESC,
-                     t.event_podiums DESC,
-                     t.player_id ASC';
+            ORDER BY ' . amiga_lb_tournament_honours_order_sql('t');
     $result = mysqli_query($con, $sql);
     if (!$result) {
         return [];

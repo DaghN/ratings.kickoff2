@@ -129,7 +129,7 @@ Column layout per sub-wing: [`amiga-world-cup-stats-table-plan.md`](amiga-world-
 |---------|------|
 | **Status** | **Policy locked** — [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md); DDL / writers / UI **not shipped** |
 | **Sub-wings** | **Honours · Results · Goals · DDs & CSs · Opponents** — same names as player stats |
-| **Paths** | `/amiga/world-cups/countries/honours.php` (default), `results.php`, `goals.php`, `dds.php`, `opponents.php` (proposed) |
+| Paths | `/amiga/world-cups/countries/honours.php` (default), `results.php`, `participation.php`, `goals.php`, `dds.php`, `opponents.php` |
 | **Grain** | One row per `country_token` (`Unknown` for blank nationality) |
 | **Read lib** | `amiga_country_slice_*` at cutoff — when implemented |
 | **LB mirror** | **Hub only** for v1 — no Leaderboards → Countries wing unless product revises |

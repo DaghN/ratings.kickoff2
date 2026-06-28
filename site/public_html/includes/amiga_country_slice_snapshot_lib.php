@@ -84,6 +84,8 @@ function amiga_lb_wc_country_order_sql(string $view, string $alias = 'ccs'): str
     switch ($view) {
         case 'results':
             return "{$a}.points DESC, {$a}.games DESC, {$a}.wins DESC, {$token}";
+        case 'participation':
+            return "{$a}.wc_participations DESC, {$a}.players DESC, {$a}.games DESC, {$token}";
         case 'goals':
             return "{$a}.goals_for DESC, {$a}.games DESC, {$token}";
         case 'dds':

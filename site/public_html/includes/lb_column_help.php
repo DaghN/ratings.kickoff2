@@ -376,47 +376,83 @@ function k2_lb_help_milestones_total(): string
 /** Amiga tournament honours wing (`/amiga/leaderboards/tournament-honours.php`). */
 function k2_lb_help_amiga_tournament_events(): string
 {
-    return 'Tournament events you entered (at least one rated game).';
+    return 'Tournament events you entered.';
 }
 
 function k2_lb_help_amiga_event_gold(): string
 {
-    return 'Tournament wins — holistic 1st place across the event (all tournament types).';
+    return 'Tournament wins.';
 }
 
 function k2_lb_help_amiga_event_silver(): string
 {
-    return 'Holistic 2nd-place tournament finishes.';
+    return 'Tournament 2nd-place finishes.';
 }
 
 function k2_lb_help_amiga_event_bronze(): string
 {
-    return 'Holistic 3rd-place tournament finishes.';
+    return 'Tournament 3rd-place finishes.';
 }
 
 function k2_lb_help_amiga_event_podiums(): string
 {
-    return 'Top-three tournament finishes (gold + silver + bronze).';
+    return 'Top-three tournament finishes.';
 }
 
 function k2_lb_help_amiga_perfect_events(): string
 {
-    return 'Tournament events with at least two games and no draws or losses (all wins).';
+    return 'Tournaments where you won all your games.';
+}
+
+/** Amiga career goals LB (`/amiga/leaderboards/goals.php`). Omits "rated" (Amiga realm convention). */
+function k2_lb_help_amiga_games(): string
+{
+    return 'Games you have played (career).';
+}
+
+function k2_lb_help_amiga_goals_scored(): string
+{
+    return 'Total goals scored across your career.';
+}
+
+function k2_lb_help_amiga_goals_conceded(): string
+{
+    return 'Total goals conceded across your career.';
+}
+
+function k2_lb_help_amiga_goals_scored_avg(): string
+{
+    return 'Average goals scored per game.';
+}
+
+function k2_lb_help_amiga_goals_conceded_avg(): string
+{
+    return 'Average goals conceded per game.';
+}
+
+function k2_lb_help_amiga_most_scored(): string
+{
+    return 'Most goals scored in one game.';
+}
+
+function k2_lb_help_amiga_most_conceded(): string
+{
+    return 'Most goals conceded in one game.';
 }
 
 function k2_lb_help_amiga_wc_perfect_events(): string
 {
-    return 'World Cup events with at least two games and no draws or losses (all wins).';
+    return 'World Cups where you won all your games.';
 }
 
 function k2_lb_help_amiga_wc_played(): string
 {
-    return 'World Cup events you entered.';
+    return 'World Cups you entered.';
 }
 
 function k2_lb_help_amiga_wc_gold(): string
 {
-    return 'World Cup wins (holistic 1st place).';
+    return 'World Cup wins.';
 }
 
 function k2_lb_help_amiga_wc_silver(): string
@@ -431,7 +467,7 @@ function k2_lb_help_amiga_wc_bronze(): string
 
 function k2_lb_help_amiga_wc_podiums(): string
 {
-    return 'World Cup top-three finishes (gold + silver + bronze).';
+    return 'Top-three World Cup finishes.';
 }
 
 function k2_lb_help_wins(): string
@@ -451,7 +487,12 @@ function k2_lb_help_losses(): string
 
 function k2_lb_help_amiga_wc_match_points(): string
 {
-    return 'Match points from World Cup games only — 3 for a win, 1 for a draw, 0 for a loss.';
+    return 'Match points in all World Cup games — 3 for a win, 1 for a draw, 0 for a loss.';
+}
+
+function k2_lb_help_amiga_wc_games(): string
+{
+    return 'World Cup games.';
 }
 
 function k2_lb_help_amiga_wc_points_per_game(): string
@@ -474,9 +515,137 @@ function k2_lb_help_amiga_wc_goal_difference_per_game(): string
     return 'Goal difference per World Cup game (GD ÷ games).';
 }
 
+/** Amiga WC players LB — Goals wing. Player grain; World Cup games only. */
+function k2_lb_help_amiga_wc_goals_scored(): string
+{
+    return 'Goals scored in World Cup games.';
+}
+
+function k2_lb_help_amiga_wc_goals_conceded(): string
+{
+    return 'Goals conceded in World Cup games.';
+}
+
+function k2_lb_help_amiga_wc_goals_scored_avg(): string
+{
+    return 'Average goals scored per World Cup game.';
+}
+
+function k2_lb_help_amiga_wc_goals_conceded_avg(): string
+{
+    return 'Average goals conceded per World Cup game.';
+}
+
+function k2_lb_help_amiga_wc_goal_ratio(): string
+{
+    return 'World Cup goals scored divided by World Cup goals conceded.';
+}
+
+function k2_lb_help_amiga_wc_most_goals_scored(): string
+{
+    return 'Most goals scored in one World Cup game.';
+}
+
+function k2_lb_help_amiga_wc_most_goals_conceded(): string
+{
+    return 'Most goals conceded in one World Cup game.';
+}
+
+function k2_lb_help_amiga_wc_win_margin(): string
+{
+    return 'Your largest winning margin in one World Cup game.';
+}
+
+function k2_lb_help_amiga_wc_loss_margin(): string
+{
+    return 'Your heaviest defeat in one World Cup game.';
+}
+
+function k2_lb_help_amiga_wc_goal_sum(): string
+{
+    return 'Most total goals in one World Cup game you played in.';
+}
+
+function k2_lb_help_amiga_wc_biggest_draw(): string
+{
+    return 'Your highest-scoring draw in World Cup games.';
+}
+
+/** Amiga WC players LB — DDs & CSs wing. Player grain; World Cup games only. */
+function k2_lb_help_amiga_wc_double_digits(): string
+{
+    return 'World Cup games where you scored 10 or more goals.';
+}
+
+function k2_lb_help_amiga_wc_clean_sheets(): string
+{
+    return 'World Cup games where you held the opponent scoreless.';
+}
+
+function k2_lb_help_amiga_wc_double_digits_ratio(): string
+{
+    return 'Share of your World Cup games where you scored 10 or more goals.';
+}
+
+function k2_lb_help_amiga_wc_clean_sheets_ratio(): string
+{
+    return 'Share of your World Cup games where you held the opponent scoreless.';
+}
+
+function k2_lb_help_amiga_wc_double_digits_conceded(): string
+{
+    return 'World Cup games where you conceded 10 or more goals.';
+}
+
+function k2_lb_help_amiga_wc_clean_sheets_conceded(): string
+{
+    return 'World Cup games where you scored no goals.';
+}
+
+function k2_lb_help_amiga_wc_double_digits_conceded_ratio(): string
+{
+    return 'Share of your World Cup games where you conceded 10 or more goals.';
+}
+
+function k2_lb_help_amiga_wc_clean_sheets_conceded_ratio(): string
+{
+    return 'Share of your World Cup games where you scored no goals.';
+}
+
+/** Amiga WC players LB — Opponents wing. Player grain; World Cup games only. */
+function k2_lb_help_amiga_wc_opponents(): string
+{
+    return 'Different players you have faced in World Cup games.';
+}
+
+function k2_lb_help_amiga_wc_victims(): string
+{
+    return 'Different players you have beaten at least once in World Cup games.';
+}
+
+function k2_lb_help_amiga_wc_dd_victims(): string
+{
+    return 'Opponents you scored 10 or more against at least once in World Cup games.';
+}
+
+function k2_lb_help_amiga_wc_cs_victims(): string
+{
+    return 'Opponents you shut out at least once in World Cup games.';
+}
+
+function k2_lb_help_amiga_wc_opponent_countries_faced(): string
+{
+    return 'Distinct opponent countries you faced in World Cup games, including your own country.';
+}
+
+function k2_lb_help_amiga_wc_opponent_countries_beaten(): string
+{
+    return 'Distinct countries that you have beaten an opponent from in World Cup games, including your own country.';
+}
+
 function k2_lb_help_amiga_peak_year_games(): string
 {
-    return 'Most rated games in a single calendar year (by tournament date).';
+    return 'Most games in a single calendar year.';
 }
 
 function k2_lb_help_amiga_peak_year_tournaments(): string
@@ -486,17 +655,17 @@ function k2_lb_help_amiga_peak_year_tournaments(): string
 
 function k2_lb_help_amiga_countries_played_in(): string
 {
-    return 'Distinct host countries of tournaments you entered, including your own country when set.';
+    return 'Distinct host countries of tournaments you entered, including your own country.';
 }
 
 function k2_lb_help_amiga_opponent_countries_faced(): string
 {
-    return 'Distinct opponent countries you faced, including your own country when set.';
+    return 'Distinct opponent countries you faced, including your own country.';
 }
 
 function k2_lb_help_amiga_opponent_countries_beaten(): string
 {
-    return 'Distinct opponent countries where you have at least one win.';
+    return 'Distinct countries that you have beaten an opponent from, including your own country.';
 }
 
 /** World Cups hub - Country stats (`amiga_wc_countries_table.php`). Nation grain. */
@@ -512,17 +681,17 @@ function k2_lb_help_amiga_wc_country_wcs(): string
 
 function k2_lb_help_amiga_wc_country_gold(): string
 {
-    return 'World Cup wins by nationals - every medal counts, so two compatriots on the podium both add to this total.';
+    return 'World Cup wins for this country.';
 }
 
 function k2_lb_help_amiga_wc_country_silver(): string
 {
-    return 'World Cup second-place finishes by nationals (summed across all players from this country).';
+    return 'World Cup 2nd-place finishes for this country.';
 }
 
 function k2_lb_help_amiga_wc_country_bronze(): string
 {
-    return 'World Cup third-place finishes by nationals (summed across all players from this country).';
+    return 'World Cup 3rd-place finishes for this country.';
 }
 
 function k2_lb_help_amiga_wc_country_podiums(): string
@@ -534,6 +703,62 @@ function k2_lb_help_amiga_wc_country_games(): string
 {
     return 'Player-games by nationals in World Cups - each side of a match counts once, '
         . 'so compatriot vs compatriot adds two toward this country.';
+}
+
+/** WC country Results wing — natural copy; no "player-games" (see `amiga_wc_countries_render_results`). */
+function k2_lb_help_amiga_wc_country_results_games(): string
+{
+    return 'World Cup games played by this country\'s players. Each side of a match counts once.';
+}
+
+function k2_lb_help_amiga_wc_country_results_points_per_game(): string
+{
+    return 'Average match points per game.';
+}
+
+function k2_lb_help_amiga_wc_country_results_win_rate(): string
+{
+    return 'Draws count as half a win: (wins + half of draws) ÷ games.';
+}
+
+function k2_lb_help_amiga_wc_country_results_avg_opponent_rating(): string
+{
+    return 'Average opponent Elo in this country\'s World Cup games.';
+}
+
+function k2_lb_help_amiga_wc_country_results_performance_rating(): string
+{
+    return 'Elo level implied by this country\'s World Cup results.';
+}
+
+function k2_lb_help_amiga_wc_country_results_games_per_player(): string
+{
+    return 'Games divided by the number of players from this country.';
+}
+
+function k2_lb_help_amiga_wc_country_results_domestic_games(): string
+{
+    return 'Games where both players are from this country.';
+}
+
+function k2_lb_help_amiga_wc_country_results_domestic_share(): string
+{
+    return 'Domestic games as a share of all games for this country.';
+}
+
+function k2_lb_help_amiga_wc_country_results_international_games(): string
+{
+    return 'Games where the players are from two different countries.';
+}
+
+function k2_lb_help_amiga_wc_country_results_international_share(): string
+{
+    return 'International games as a share of all games for this country.';
+}
+
+function k2_lb_help_amiga_wc_country_results_games_share(): string
+{
+    return 'This country\'s games as a share of all World Cup games.';
 }
 
 function k2_lb_help_amiga_wc_country_wins(): string

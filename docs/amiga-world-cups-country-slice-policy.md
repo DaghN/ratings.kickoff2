@@ -41,7 +41,7 @@ Player WC stats answer *who dominated?* Country stats answer *which nations domi
 | # | Decision | Rule |
 |---|----------|------|
 | **WCCS1** | **Hub wing** | **Wing 4 — Country stats** under `/amiga/world-cups/countries/*` (exact routes at implementation). |
-| **WCCS2** | **Five sub-wings** | Honours · Results · Goals · DDs & CSs · Opponents — same names as player stats. |
+| **WCCS2** | **Six sub-wings** | Honours · Results · Participation · Goals · DDs & CSs · Opponents. |
 | **WCCS3** | **Row key** | `country_token` — `TRIM(amiga_players.country)` when non-empty ([**H8**](amiga-hof-tournament-geo-policy.md)); empty/NULL → literal **`Unknown`**. |
 | **WCCS4** | **Eligibility** | Rows where **≥1 distinct player** from that token has WC slice `tournaments_played ≥ 1` (equivalent to ≥1 WC player-game in practice). **`Unknown`** row when any such player has blank country. |
 | **WCCS5** | **Leading columns** | **Rank · Country** (flag when mapped) · **Players** (distinct WC participants) · data columns. **No Elo.** |
@@ -91,7 +91,7 @@ Player WC stats answer *who dominated?* Country stats answer *which nations domi
 
 **Registry:** extend `scripts/amiga/slice_columns.py` (or sibling `country_slice_columns.py`) at implementation.
 
-### 5.1 Shared / participation metrics (placement TBD)
+### 5.1 Shared / participation metrics
 
 | Slice column | UI label (proposed) | Definition |
 |--------------|---------------------|------------|
@@ -134,6 +134,10 @@ Player WC stats answer *who dominated?* Country stats answer *which nations domi
 | `win_rate` | Win rate | `(wins + 0.5 × draws) ÷ games` |
 | `average_opponent_rating` | Avg opp. rating | `Σ frozen_opponent_rating ÷ games` over all national player-games |
 | `performance_rating` | Perf. rating | Chess-style TPR (§5.3.1) |
+
+### 5.3a Participation sub-wing
+
+**Path:** `…/participation.php` — default sort **Entries** desc. Prefix **Rank · Country · Players · WCs · Games**; then §5.1 participation / geography / realm-share columns (`wc_participations` → **Entries**).
 
 #### 5.3.1 Performance rating (nation)
 
@@ -304,6 +308,7 @@ New CLI **`verify_country_slice`** (or extend `verify_player_slice` sibling) wit
 |----------|----------|
 | Honours (default) | `/amiga/world-cups/countries/honours.php` |
 | Results | `…/results.php` |
+| Participation | `…/participation.php` |
 | Goals | `…/goals.php` |
 | DDs & CSs | `…/dds.php` |
 | Opponents | `…/opponents.php` |

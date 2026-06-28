@@ -129,6 +129,24 @@
 
 | When | Note |
 |------|------|
+| 2026-06-29 | **Amiga WC country Participation sub-wing** — new tab after Results (`participation.php`); Results wing match-outcome columns only. |
+| 2026-06-29 | **Amiga WC country Results — drop Pts per WC column** from results table UI. |
+| 2026-06-29 | **Amiga WC country Results tooltips** — natural copy, no W/D/L help, no "player-games" on results wing. |
+| 2026-06-29 | **Amiga WC country honours medal tooltips** — concise gold/silver/bronze copy (aligned with player WC honours wing). |
+| 2026-06-29 | **Amiga WC stats geography — Intl games tooltip** — title International games; body updated in `amiga_world_cup_stats_table.php`. |
+| 2026-06-29 | **Amiga perf-rating LB — W/D/L tooltips removed** on Best · Top 100 · Perfect tables. |
+| 2026-06-29 | **Amiga perf-rating Top 100 lede** — drop "in the realm at this date" from wing copy. |
+| 2026-06-29 | **Amiga peak-rating LB — Peak rank tie-break** — `data-k2-sort-tie-value` from peak rank date (first attainment wins on equal rank). |
+| 2026-06-29 | **Amiga goals LB tooltips** — Amiga-specific helpers; drop "rated" from column help (Elo unchanged). |
+| 2026-06-29 | **Amiga WC DDs + Opponents LB tooltips** — WC-specific copy on both player wings (aligned with goals/results). |
+| 2026-06-29 | **Amiga WC goals LB tooltips** — WC-specific copy for all goal columns (was career/rated-game helpers). |
+| 2026-06-29 | **Amiga WC results LB tooltips** — Games, Pts (Points label), W/D/L help removed on results wing. |
+| 2026-06-29 | **Amiga WC honours LB tooltips** — WCs, medals, Podiums, Perfect copy aligned with tournament honours wing (`lb_column_help.php`). |
+| 2026-06-29 | **Amiga WC stats participation — column order fix** — `amiga_world_cup_stats_columns_for_view()`: Games is anchor index 3 (not 4); participation wing order Tournament · Year · Players · 1st WC · Games · … |
+| 2026-06-29 | **Amiga tournament honours LB tooltips** — Events, medal, Podiums, Perfect copy simplified in `lb_column_help.php`. |
+| 2026-06-29 | **Amiga calendar-geo LB tooltips** — Peak games, host countries, countries faced, countries beaten copy tightened in `lb_column_help.php`. |
+| 2026-06-29 | **Amiga tournament honours LB sort** — default gold → silver → bronze → events (matches WC honours pattern); `amiga_lb_tournament_honours_order_sql()` shared by present + TT reads. |
+| 2026-06-29 | **H2H poster fighter card names** — nowrap + `width: max-content` card (320–380px); fixes long Amiga names (e.g. Christopher D + flag) wrapping in `player-opponents-h2h-poster.css`. |
 | 2026-06-29 | **Amiga WC event-stats Medal column** — Gold/Silver/Bronze use `amiga_wc_podium_metal_label_markup()` (same gradient metal as player hero). |
 | 2026-06-29 | **Amiga tournament event-stats `#` rank column** — first col autorank (`data-k2-autorank="true"`); Player anchor col 1; default Pts sort col 11; ranks follow active sort (SSR = Pts desc tiebreak). |
 | 2026-06-28 | **Amiga game table flags fix** — player games + single-game queries now SELECT `country_a`/`country_b`/`tournament_country`; pages load `amiga-tournament.css` (helpers were correct; rows lacked data). |

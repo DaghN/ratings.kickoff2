@@ -433,6 +433,21 @@ function amiga_profile_event_date_sort_value(array $row): string
     return (string) ($ts !== false ? $ts : 0);
 }
 
+/**
+ * Sort attrs for peak-rating LB Peak rank column — tie-break by peak rank date (first attainment wins).
+ */
+function amiga_lb_peak_elo_rank_cell_sort_attrs(mixed $peakRank, mixed $peakRankDate): string
+{
+    $rankVal = (!k2_db_is_null($peakRank) && (int) $peakRank >= 1) ? (int) $peakRank : 999999;
+    if ($peakRankDate === null || $peakRankDate === '') {
+        $dateTie = '9999999999';
+    } else {
+        $dateTie = amiga_profile_event_date_sort_value(['event_date' => $peakRankDate]);
+    }
+
+    return ' data-k2-sort-value="' . $rankVal . '" data-k2-sort-tie-value="' . htmlspecialchars($dateTie, ENT_QUOTES, 'UTF-8') . '"';
+}
+
 function amiga_profile_tournament_finish_rank_label(array $row): string
 {
     $label = amiga_profile_event_finish_ordinal_label($row);

@@ -183,7 +183,7 @@ function amiga_world_cup_stats_view_columns(): array
             ['label' => 'Host players', 'sort' => 'number', 'help' => 'Players from the host country.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['distinct_host_country_players'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Guest %', 'sort' => 'number', 'help' => 'Guest players as a share of all participants.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['guest_player_share'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Nation pairs', 'sort' => 'number', 'help' => 'Distinct nationality pairings that met in a game.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['distinct_opponent_countries_pairs'] ?? null, amiga_world_cup_stats_games($row))],
-            ['label' => 'Intl games', 'sort' => 'number', 'help' => 'Games where both players have nationality set and they differ.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['international_games'] ?? null, amiga_world_cup_stats_games($row))],
+            ['label' => 'Intl games', 'tooltip_label' => 'International games', 'sort' => 'number', 'help' => 'Games where the players are from 2 different countries.', 'render' => static fn (array $row, array $m) => k2_fmt_count($row['international_games'] ?? null, amiga_world_cup_stats_games($row))],
             ['label' => 'Intl %', 'sort' => 'number', 'help' => 'International games as a share of games.', 'render' => static fn (array $row, array $m) => k2_fmt_pct_from_ratio($row['international_game_share'] ?? null, amiga_world_cup_stats_games($row))],
         ],
     ];
@@ -217,9 +217,9 @@ function amiga_world_cup_stats_columns_for_view(string $view): array
     }
 
     return array_merge(
-        array_slice($anchorCols, 0, 4),
+        array_slice($anchorCols, 0, 3),
         [$firstWcCol],
-        [$anchorCols[4]],
+        [$anchorCols[3]],
         $restStats,
     );
 }

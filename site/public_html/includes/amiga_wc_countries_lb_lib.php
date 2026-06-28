@@ -14,7 +14,7 @@ require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
  */
 function amiga_wc_country_rows_for_view(mysqli $con, AmigaSnapshotContext $ctx, string $view): array
 {
-    $allowed = ['honours', 'results', 'goals', 'dds', 'opponents'];
+    $allowed = ['honours', 'results', 'participation', 'goals', 'dds', 'opponents'];
     if (!in_array($view, $allowed, true)) {
         $view = 'honours';
     }
