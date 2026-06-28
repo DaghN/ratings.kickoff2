@@ -58,7 +58,7 @@ function k2_archive_listbox_pick_sizer_row(
 
     foreach ($candidates as $row) {
         if ($split) {
-            $score = mb_strlen($row['label']) + mb_strlen($row['meta']);
+            $score = mb_strlen($row['label']) + mb_strlen($row['meta']) + ($row['meta'] !== '' ? 4 : 0);
         } else {
             $score = mb_strlen($row['label']);
         }
@@ -66,6 +66,25 @@ function k2_archive_listbox_pick_sizer_row(
             $bestScore = $score;
             $bestLabel = $row['label'];
             $bestMeta = $row['meta'];
+        }
+    }
+
+    if ($split && $candidates !== []) {
+        $longestLabel = '';
+        $longestMeta = '';
+        foreach ($candidates as $row) {
+            if (mb_strlen($row['label']) > mb_strlen($longestLabel)) {
+                $longestLabel = $row['label'];
+            }
+            if (mb_strlen($row['meta']) > mb_strlen($longestMeta)) {
+                $longestMeta = $row['meta'];
+            }
+        }
+        $crossScore = mb_strlen($longestLabel) + mb_strlen($longestMeta) + ($longestMeta !== '' ? 4 : 0);
+        if ($crossScore > $bestScore) {
+            $bestLabel = $longestLabel;
+            $bestMeta = $longestMeta;
+            $bestScore = $crossScore;
         }
     }
 

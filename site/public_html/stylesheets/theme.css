@@ -2780,7 +2780,7 @@ body.k2-site .k2-archive-listbox--meta-options .k2-archive-listbox__option--spli
 	flex-direction: row;
 	align-items: center;
 	justify-content: space-between;
-	gap: 12px;
+	gap: 16px;
 	min-height: calc(1.35em + 10px);
 }
 
@@ -2797,7 +2797,6 @@ body.k2-site .k2-player-games-controls .k2-archive-listbox--meta-options .k2-arc
 body.k2-site .k2-archive-listbox--meta-options .k2-archive-listbox__option-label {
 	flex: 1 1 auto;
 	min-width: 0;
-	font-variant-numeric: tabular-nums;
 }
 
 body.k2-site .k2-archive-listbox__option-label.k2-link-star {
@@ -2807,8 +2806,10 @@ body.k2-site .k2-archive-listbox__option-label.k2-link-star {
 
 body.k2-site .k2-archive-listbox--meta-options .k2-archive-listbox__option-meta {
 	flex: 0 0 auto;
+	min-width: 3.25ch;
 	white-space: nowrap;
 	font-variant-numeric: tabular-nums;
+	text-align: right;
 	color: var(--k2-text-muted);
 	font-weight: 400;
 }
@@ -3168,8 +3169,15 @@ body.k2-site .k2-archive-listbox--ghost-sized .k2-archive-listbox__width-sizer--
 	display: inline-flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 12px;
+	gap: 16px;
 	min-height: 0;
+}
+
+body.k2-site .k2-archive-listbox--ghost-sized .k2-archive-listbox__width-sizer--split .k2-archive-listbox__option-meta {
+	flex: 0 0 auto;
+	min-width: 3.25ch;
+	text-align: right;
+	font-variant-numeric: tabular-nums;
 }
 
 body.k2-site .k2-archive-listbox--ghost-sized .k2-archive-listbox__size-anchor > .k2-archive-listbox__trigger {

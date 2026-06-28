@@ -1354,6 +1354,93 @@ function amiga_tournament_index_year_listbox_choices(array $counts, string $idle
     return $choices;
 }
 
+/**
+ * Plain-language count line for the filtered tournament catalog list.
+ */
+function amiga_tournament_index_list_summary(
+    int $count,
+    bool $hasAnyTournaments,
+    string $wcFilter = '',
+    string $typeFilter = '',
+    string $videosFilter = '',
+    string $countryFilter = '',
+    int $yearFilter = 0,
+): string {
+    if ($count === 0) {
+        if (!$hasAnyTournaments) {
+            return 'No tournaments on record yet.';
+        }
+
+        return 'No tournaments match these filters.';
+    }
+
+    $word = $count === 1 ? 'tournament' : 'tournaments';
+    $n = number_format($count);
+
+    $preNoun = [];
+    if ($wcFilter === 'world-cup') {
+        $preNoun[] = 'World Cup';
+    } elseif ($wcFilter === 'not-world-cup') {
+        $preNoun[] = 'non-World Cup';
+    }
+    if ($typeFilter === 'league') {
+        $preNoun[] = 'league';
+    } elseif ($typeFilter === 'cup') {
+        $preNoun[] = 'cup';
+    } elseif ($typeFilter === 'league-cup') {
+        $preNoun[] = 'league + cup';
+    }
+
+    $postNoun = [];
+    if ($videosFilter === 'with-videos') {
+        $postNoun[] = 'with videos';
+    }
+
+    $suffix = '';
+    if ($countryFilter !== '') {
+        $suffix .= ' in ' . $countryFilter;
+    }
+    if ($yearFilter > 0) {
+        $suffix .= ' in ' . $yearFilter;
+    }
+
+    $hasFilters = $preNoun !== [] || $postNoun !== [] || $suffix !== '';
+    if (!$hasFilters) {
+        return $n . ' ' . $word . ' in total.';
+    }
+
+    $phrase = $n . ' ';
+    if ($preNoun !== []) {
+        $phrase .= implode(' ', $preNoun) . ' ';
+    }
+    $phrase .= $word;
+    if ($postNoun !== []) {
+        $phrase .= ' ' . implode(' ', $postNoun);
+    }
+
+    return $phrase . $suffix . '.';
+}
+
+/** True when any catalog index filter param is active. */
+function amiga_tournament_index_filters_active(
+    string $wcFilter,
+    string $typeFilter,
+    string $videosFilter,
+    string $countryFilter,
+    int $yearFilter,
+): bool {
+    return $wcFilter !== ''
+        || $typeFilter !== ''
+        || $videosFilter !== ''
+        || $countryFilter !== ''
+        || $yearFilter > 0;
+}
+
+function amiga_tournament_index_reset_url(): string
+{
+    return '/amiga/tournaments.php';
+}
+
 /** Filter pill href for /amiga/tournaments.php (carries active k2_sort when set). */
 function amiga_tournament_index_filter_url(
     string $typeFilter = '',

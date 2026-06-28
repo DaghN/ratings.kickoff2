@@ -218,6 +218,22 @@ function amiga_player_tournaments_list_summary(
     return $n . ' ' . $word . ' in total.';
 }
 
+/** True when any player tournament history filter is active. */
+function amiga_player_tournaments_filters_active(
+    string $eventFilter,
+    string $countryFilter,
+    int $yearFilter,
+): bool {
+    return $eventFilter !== 'all'
+        || $countryFilter !== ''
+        || $yearFilter > 0;
+}
+
+function amiga_player_tournaments_reset_url(int $playerId): string
+{
+    return k2_amiga_route('amiga-player-tournaments', ['id' => $playerId]);
+}
+
 /**
  * Filter pills URL for player tournament history.
  */

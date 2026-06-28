@@ -110,6 +110,15 @@ $rows = amiga_tournament_index_filter_rows(
     $countryFilter,
     $yearFilter
 );
+$listSummary = amiga_tournament_index_list_summary(
+    count($rows),
+    $allRows !== [],
+    $wcFilter,
+    $typeFilter,
+    $videosFilter,
+    $countryFilter,
+    $yearFilter,
+);
 ?>
 
 <?php
@@ -129,15 +138,14 @@ $k2AmigaTournamentIndexShowYearFilter = $showYearFilter;
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_index_nav.php';
 ?>
 
+<div class="k2-player-games-status" data-k2-carry-scroll>
+	<?php echo k2_h($listSummary); ?>
+<?php if (amiga_tournament_index_filters_active($wcFilter, $typeFilter, $videosFilter, $countryFilter, $yearFilter)) { ?>
+	<a class="k2-player-games-reset" href="<?php echo k2_h(amiga_tournament_index_reset_url()); ?>">Reset filters</a>
+<?php } ?>
+</div>
+
 <?php amiga_tournament_index_render_table($rows); ?>
-
-<p class="k2-amiga-tournament-footnote" style="padding-bottom:1rem">
-    <?php echo count($rows); ?> tournament<?php echo count($rows) === 1 ? '' : 's'; ?><?php
-
-        echo $typeFilter !== '' || $videosFilter !== '' || $wcFilter !== '' || $countryFilter !== '' || $yearFilter > 0 ? ' (filtered)' : '';
-
-    ?>.
-</p>
 
 </div><!-- .k2-page-nav -->
 

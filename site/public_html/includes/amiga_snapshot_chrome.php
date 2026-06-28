@@ -296,8 +296,11 @@ function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $
 
 function amiga_snapshot_chrome_render_unwired_note(): void
 {
-    global $k2AmigaPlayerTabActive;
+    global $k2AmigaPlayerTabActive, $k2AmigaPlayerTabWiredAtCutoff;
     if (!isset($k2AmigaPlayerTabActive) || $k2AmigaPlayerTabActive === '') {
+        return;
+    }
+    if (!empty($k2AmigaPlayerTabWiredAtCutoff)) {
         return;
     }
     echo '<p class="k2-amiga-time-travel__unwired">This page still shows present-day data.</p>';

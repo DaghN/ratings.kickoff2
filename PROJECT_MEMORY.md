@@ -126,9 +126,14 @@
 
 | When | Note |
 |------|------|
+| 2026-06-28 | **Player Videos — time travel index** — game index ≤ cutoff via `amiga_snapshot_rated_game_cutoff_and_sql`; opponent facets on filtered set; unwired note suppressed (`k2AmigaPlayerTabWiredAtCutoff`). |
+| 2026-06-28 | **Player Videos — time travel tab link** — `amiga_player_videos_url()` now passes query via `k2_amiga_route(..., $params)` once (was double-`?` when `as=` active → dropped `id` → blank page). |
+| 2026-06-28 | **Amiga tournament filter pages — Reset filters pill** — accent `k2-player-games-reset` on catalog index + player tournaments status row when any filter active. |
+| 2026-06-28 | **Amiga tournaments index — filter summary line** — plain-language count above table (`amiga_tournament_index_list_summary()`); replaces footnote "(filtered)". |
 | 2026-06-28 | **Amiga player tournaments — segment filter layout** — Event chrome tabs + Host country/Year listboxes (catalog index parity); retired bordered `.k2-player-tournament-filters` panel. |
 | 2026-06-28 | **Amiga tournaments index — Host country + Year filters** — archive listboxes on `/amiga/tournaments.php` (faceted counts, pill URLs carry `country`/`year`/`k2_sort`); shared games filter stack. |
 | 2026-06-28 | **Amiga HoF — retire BiggestPeakRating** — dropped from `013`/`027` DDL + writers; HoF “Highest peak rating” = read-time `MAX(PeakRating)` + `peak_rating_tournament_id` date; `verify-hof-peak-rating-holder` in `prove`. |
+| 2026-06-28 | **Amiga staging export — stale part cleanup** — `export_ko2amiga_db.ps1` deletes old `ko2amiga_*.sql` in `_import/` not listed in manifest after each run (keeps `ko2amiga_db.sql`); avoids ~100 MB of orphan parts from renumbered exports. |
 | 2026-06-28 | **YouTube embeds — origin param** — `k2_youtube_embed_url()` + site-wide `<meta name="referrer">`; fixes “Sign in to confirm you’re not a bot” / Error 153 on tournament Videos, join promo, game placeholder. |
 | 2026-06-28 | **Amiga HoF — LB deep-link sort indices** — fixed eight off-by-one `k2_sort` targets in `amiga_records_hof_links.php` (calendar-geo peak/host/faced/beaten, tournament honours events/gold, WC honours played). |
 | 2026-06-28 | **Amiga HoF — dual-holder flags fix** — country batch lookup now includes `*IDA`/`*IDB` holder columns (was `str_ends_with(..., 'ID')` only); fixes missing flag on second player in biggest draw / sum of goals rows. |

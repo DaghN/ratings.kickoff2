@@ -130,6 +130,7 @@ Player pills stay visible under time travel. Target **T15** + **T16**:
 | **`tournament.php` detail** | Ribbon + `as=` on entry redirects and in-page nav (**shipped** Jun 2026); standings/stats body still present-day until wired (§4.4) |
 | **Opponents** tables | Shipped — `amiga_matchup_snapshot_lib.php` |
 | **Profile rating chart** | Snapshot events ≤ cutoff; date x-axis ends at cutoff (`amiga_player_rating_history_payload`) | **Shipped** Jun 2026 |
+| **Player Videos** | Game-linked manifest rows ≤ cutoff (`amiga_snapshot_rated_game_cutoff_and_sql` on index load) | **Shipped** Jun 2026 |
 | **Profile** blocks | Career / honours at cutoff — phase 2+ |
 
 ### 4.4 Transitional defer (visible but not yet at cutoff)

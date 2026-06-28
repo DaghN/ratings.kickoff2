@@ -169,7 +169,7 @@
         var left = labelNode && labelNode.textContent ? labelNode.textContent : '';
         var right = metaNode && metaNode.textContent ? metaNode.textContent : '';
         var pad = 20;
-        var gap = 12;
+        var gap = 16;
         if (!right) {
             return measureTextWidth(btn, left) + pad;
         }

@@ -28,6 +28,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_db.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_videos_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_videos_render.inc.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_context.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_routes.php';
 
 include __DIR__ . '/../../../config/ko2amiga_config.php';
@@ -48,7 +49,8 @@ try {
     exit('Player not found.');
 }
 
-$playerVideoEntriesAll = amiga_player_videos_game_index($con, $playerId);
+$ctx = amiga_snapshot_context_from_request($con);
+$playerVideoEntriesAll = amiga_player_videos_game_index($con, $playerId, $ctx);
 $opponentFacets = amiga_player_videos_opponent_facets($playerVideoEntriesAll, $playerId);
 $opponentFilter = amiga_player_videos_validate_opponent_filter(
     amiga_player_videos_opponent_from_request(),
@@ -88,6 +90,7 @@ $name = $Name;
 mysqli_close($con);
 
 $k2AmigaPlayerTabActive = 'videos';
+$k2AmigaPlayerTabWiredAtCutoff = true;
 ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>

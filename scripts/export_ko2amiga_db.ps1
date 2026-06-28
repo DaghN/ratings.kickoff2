@@ -41,6 +41,27 @@ function Write-DumpFile {
     [System.IO.File]::WriteAllText($Path, $text, $Utf8NoBom)
 }
 
+function Remove-StaleKo2AmigaImportParts {
+    param(
+        [string]$Directory,
+        [string[]]$KeepPartNames
+    )
+    $keep = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($name in $KeepPartNames) {
+        [void]$keep.Add($name)
+    }
+    [void]$keep.Add('ko2amiga_db.sql')
+
+    $removed = New-Object System.Collections.Generic.List[string]
+    Get-ChildItem -LiteralPath $Directory -File -Filter 'ko2amiga_*.sql' | ForEach-Object {
+        if (-not $keep.Contains($_.Name)) {
+            Remove-Item -LiteralPath $_.FullName -Force
+            [void]$removed.Add($_.Name)
+        }
+    }
+    return $removed
+}
+
 $parts = New-Object System.Collections.Generic.List[string]
 
 # 01 — DDL only
@@ -222,6 +243,21 @@ Write-DumpFile $OutFile @('ko2amiga_db') + $Tables
 $ArchiveFile = Join-Path $ArchiveDir "ko2amiga_db-$Stamp.sql"
 Copy-Item -LiteralPath $OutFile -Destination $ArchiveFile -Force
 
+$removedStale = Remove-StaleKo2AmigaImportParts -Directory $OutDir -KeepPartNames @($parts)
+$partsBytes = ($parts | ForEach-Object {
+    (Get-Item -LiteralPath (Join-Path $OutDir $_)).Length
+} | Measure-Object -Sum).Sum
+$fullDumpBytes = (Get-Item -LiteralPath $OutFile).Length
+
 Write-Host "Wrote $($parts.Count) part files + manifest to $OutDir"
+Write-Host ("Active export: {0:N1} MB manifest parts, {1:N1} MB full dump" -f ($partsBytes / 1MB), ($fullDumpBytes / 1MB))
+if ($removedStale.Count -gt 0) {
+    Write-Host "Removed $($removedStale.Count) stale ko2amiga_*.sql file(s) not in manifest:"
+    foreach ($name in $removedStale) {
+        Write-Host "  - $name"
+    }
+} else {
+    Write-Host 'No stale ko2amiga_*.sql files to remove.'
+}
 Write-Host "Full dump: $OutFile"
 Write-Host "Archive copy: $ArchiveFile"

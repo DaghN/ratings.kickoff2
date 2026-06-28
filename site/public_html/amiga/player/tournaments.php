@@ -130,8 +130,11 @@ $k2PlayerTournamentsFilterAction = $tournamentsFilterAction;
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournaments_filters_nav.php';
 ?>
 
-<div class="k2-player-games-status">
+<div class="k2-player-games-status" data-k2-carry-scroll>
 	<?php echo k2_h($listSummary); ?>
+<?php if (amiga_player_tournaments_filters_active($eventFilter, $countryFilter, $yearFilter)) { ?>
+	<a class="k2-player-games-reset" href="<?php echo k2_h(amiga_player_tournaments_reset_url($playerId)); ?>">Reset filters</a>
+<?php } ?>
 </div>
 
 <?php

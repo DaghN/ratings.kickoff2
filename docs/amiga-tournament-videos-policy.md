@@ -234,6 +234,7 @@ Steve’s forum reply: thread covers most of his camcorder tapes; **tape origina
 - **Nav:** **Videos** pill on player wing nav when `amiga_player_has_videos($id)` (manifest match rows with `game_ids` for that player).
 - **Index:** cross-tournament game table, **reverse chronological** (game date, tournament chrono fallback); ID · Date · Tournament · game row · play button.
 - **Filter:** opponent listbox above table (same stack as player **Games** — `k2_archive_listbox`, `individual3-filters.js`); options = opponents with ≥1 linked video, **A–Z**, game count in panel meta; `?opponent={id}`.
+- **Time travel:** index rows ≤ active cutoff (tournament event tuple on linked game); opponent facets recomputed on filtered set.
 - **Player:** same spotlight embed stack as tournament Videos (`amiga-tournament-videos.js`, `?v=` / `game=` deep links).
 
 ### 9.6 Later UI (not v1)

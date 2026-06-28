@@ -12,6 +12,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/amiga_tournament_videos_lib.php';
 require_once __DIR__ . '/k2_amiga_routes.php';
 require_once __DIR__ . '/amiga_snapshot_url.php';
+require_once __DIR__ . '/amiga_snapshot_context.php';
 
 /** @var array<int, list<array<string, mixed>>>|null */
 $GLOBALS['_amiga_player_videos_by_pid'] = null;
@@ -89,20 +90,24 @@ function amiga_player_videos_url(
     if ($startSec !== null && $startSec > 0) {
         $params['t'] = $startSec;
     }
-    $path = k2_amiga_route('amiga-player-videos') . '?' . http_build_query($params);
+    $path = k2_amiga_route('amiga-player-videos', $params);
     if ($withPlayerHash) {
         $path .= '#' . AMIGA_TOURNAMENT_VIDEOS_PLAYER_FRAGMENT;
     }
 
-    return amiga_url_with_context($path);
+    return $path;
 }
 
 /**
  * @param list<int> $gameIds
  * @return array<int, array<string, mixed>>
  */
-function amiga_player_videos_games_by_ids(mysqli $con, int $playerId, array $gameIds): array
-{
+function amiga_player_videos_games_by_ids(
+    mysqli $con,
+    int $playerId,
+    array $gameIds,
+    ?AmigaSnapshotContext $ctx = null,
+): array {
     if ($playerId < 1 || $gameIds === []) {
         return [];
     }
@@ -115,16 +120,19 @@ function amiga_player_videos_games_by_ids(mysqli $con, int $playerId, array $gam
     }
 
     $placeholders = implode(',', array_fill(0, count($gameIds), '?'));
+    $cutoffTypes = '';
+    $cutoffParams = [];
+    $cutoffSql = amiga_snapshot_rated_game_cutoff_and_sql($ctx, $cutoffTypes, $cutoffParams);
     $sql = 'SELECT r.id, r.`Date`, r.idA, r.NameA, r.idB, r.NameB, r.tournament_id, r.phase,
                    r.GoalsA, r.GoalsB, r.RatingA, r.RatingB, r.RatingDifference,
                    r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB,
                    r.NewRatingA, r.NewRatingB, r.SumOfGoals, r.GoalDifference,
                    r.country_a, r.country_b '
         . amiga_rated_games_from_sql()
-        . ' WHERE r.id IN (' . $placeholders . ') AND (r.idA = ? OR r.idB = ?)';
+        . ' WHERE r.id IN (' . $placeholders . ') AND (r.idA = ? OR r.idB = ?)' . $cutoffSql;
 
-    $types = str_repeat('i', count($gameIds)) . 'ii';
-    $params = array_merge($gameIds, [$playerId, $playerId]);
+    $types = str_repeat('i', count($gameIds)) . 'ii' . $cutoffTypes;
+    $params = array_merge($gameIds, [$playerId, $playerId], $cutoffParams);
 
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
@@ -212,11 +220,13 @@ function amiga_player_videos_sort_timestamp(array $game, array $tournamentMeta):
  *   sort_ts: int,
  * }>
  */
-function amiga_player_videos_game_index(mysqli $con, int $playerId): array
+function amiga_player_videos_game_index(mysqli $con, int $playerId, ?AmigaSnapshotContext $ctx = null): array
 {
     if ($playerId < 1) {
         return [];
     }
+
+    $ctx ??= amiga_snapshot_context_peek();
 
     $pending = [];
     $gameIds = [];
@@ -246,7 +256,7 @@ function amiga_player_videos_game_index(mysqli $con, int $playerId): array
         return [];
     }
 
-    $gamesById = amiga_player_videos_games_by_ids($con, $playerId, $gameIds);
+    $gamesById = amiga_player_videos_games_by_ids($con, $playerId, $gameIds, $ctx);
     if ($gamesById === []) {
         return [];
     }
