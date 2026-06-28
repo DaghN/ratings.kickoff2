@@ -79,7 +79,8 @@
 
 - **Amiga Countries hub (Jun 2026):** **Shipped** — hub tab + index (player count sort) + roster (flag per row, WC entries tooltips, TT); flag links site-wide; cross-links WC country stats. [`amiga-countries-hub-policy.md`](docs/amiga-countries-hub-policy.md).
 
-- **Amiga perfect event (Jun 2026):** **Shipped** — SCH-045 `is_perfect_event` + career `perfect_events` + HoF `MostPerfectEvents` + catalog `?perfect=with-participant`; honours LB + WC honours **Perfect** column; `verify-perfect-event` in `prove`. [`amiga-perfect-event-policy.md`](docs/amiga-perfect-event-policy.md).
+- **Amiga perfect event (Jun 2026):** **Shipped** — SCH-045; honours LB + WC **Perfect** column; catalog filter; HoF **Most perfect events**. [`amiga-perfect-event-policy.md`](docs/amiga-perfect-event-policy.md).
+- **Amiga perf. rating LB (Jun 2026):** **Shipped** — folder `performance-rating/{best,top,perfect}.php` + segment nav; W-D-L columns; Top 100 fixed set; Perfect shows **∞**. [`amiga-performance-rating-leaderboard-policy.md`](docs/amiga-performance-rating-leaderboard-policy.md).
 
 - **Amiga tournament videos (Jun 2026):** **TV-3 shipped** — manifest **~299** videos; unified embed UI on all events with clips. **Player Videos wing (Jun 2026):** `/amiga/player/videos.php` when manifest has linked match clips; reverse-chrono index + opponent filter + spotlight player. Human review sign-off on orphans + tournaments index. Next: **TV-4** Chronology clip indicator. [`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md).
 
@@ -128,6 +129,8 @@
 
 | When | Note |
 |------|------|
+| 2026-06-28 | **Amiga perf-rating LB — shipped** — Best · Top 100 · Perfect sub-wings (`performance-rating/{best,top,perfect}.php`); W-D-L columns; ∞ on Perfect (183 rows); top=100 fixed set; legacy `performance-rating.php` 302; TT on all paths. |
+| 2026-06-28 | **Amiga perf-rating LB policy** — locked Best · Top 100 · Perfect sub-wings (folder + segment nav), W-D-L columns, ∞ on Perfect, fixed top-100 set, TT reads. [`amiga-performance-rating-leaderboard-policy.md`](docs/amiga-performance-rating-leaderboard-policy.md) |
 | 2026-06-28 | **Amiga perfect event — shipped (SCH-045)** — `is_perfect_event` on snapshots; career `perfect_events` + HoF **Most perfect events**; catalog **Perfect run** filter; honours LB + WC honours **Perfect** column; `verify-perfect-event` in `prove` (183 participations; Oliver St 24). |
 | 2026-06-28 | **Player Videos — time travel index** — game index ≤ cutoff via `amiga_snapshot_rated_game_cutoff_and_sql`; opponent facets on filtered set; unwired note suppressed (`k2AmigaPlayerTabWiredAtCutoff`). |
 | 2026-06-28 | **Player Videos — time travel tab link** — `amiga_player_videos_url()` now passes query via `k2_amiga_route(..., $params)` once (was double-`?` when `as=` active → dropped `id` → blank page). |

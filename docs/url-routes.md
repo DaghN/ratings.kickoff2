@@ -157,6 +157,10 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-lb-world-cups-goals` | `/amiga/leaderboards/world-cups/goals.php` |
 | `amiga-lb-world-cups-dds` | `/amiga/leaderboards/world-cups/dds.php` |
 | `amiga-lb-world-cups-opponents` | `/amiga/leaderboards/world-cups/opponents.php` |
+| `amiga-lb-performance-rating` | `/amiga/leaderboards/performance-rating/best.php` (Perf. rating default — Best) |
+| `amiga-lb-performance-rating-best` | `/amiga/leaderboards/performance-rating/best.php` |
+| `amiga-lb-performance-rating-top` | `/amiga/leaderboards/performance-rating/top.php` |
+| `amiga-lb-performance-rating-perfect` | `/amiga/leaderboards/performance-rating/perfect.php` |
 | `amiga-games` | `/amiga/games/recent.php` (Recent default; `/amiga/games.php` 302) |
 | `amiga-games-recent` | `/amiga/games/recent.php` |
 | `amiga-games-highlights` | `/amiga/games/highlights.php` |
@@ -168,7 +172,7 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 
 Query `?id=` required on all player tabs.
 
-**Legacy redirects (302, query preserved):** `/amiga/profile.php` → profile; `/amiga/games.php?id=` → player games; bare `/amiga/games.php` → Games hub Recent; `/amiga/player-tournaments.php` → tournaments.
+**Legacy redirects (302, query preserved):** `/amiga/profile.php` → profile; `/amiga/games.php?id=` → player games; bare `/amiga/games.php` → Games hub Recent; `/amiga/player-tournaments.php` → tournaments; `/amiga/leaderboards/performance-rating.php` → `performance-rating/best.php`.
 
 **Not under `player/`:** `/amiga/tournament/` (per-event detail — foldered tabs below), `/amiga/history.php` (301 → rating LB; legacy bookmarks), hub pages under `/amiga/` (including `/amiga/world-cups/`). Player Opponents wings: `amiga/player/opponents/*`.
 

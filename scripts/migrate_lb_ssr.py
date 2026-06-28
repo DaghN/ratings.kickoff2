@@ -26,7 +26,9 @@ FILES: dict[str, int] = {
     "amiga/leaderboards/double-digits.php": 4,
     "amiga/leaderboards/victims.php": 4,
     "amiga/leaderboards/peak-rating.php": 4,
-    "amiga/leaderboards/performance-rating.php": 3,
+    "amiga/leaderboards/performance-rating/best.php": 3,
+    "amiga/leaderboards/performance-rating/top.php": 3,
+    "amiga/leaderboards/performance-rating/perfect.php": 9,
     "amiga/leaderboards/tournament-honours.php": 4,
     "amiga/leaderboards/calendar-geo.php": 4,
 }

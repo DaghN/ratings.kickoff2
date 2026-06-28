@@ -158,6 +158,24 @@ function k2_amiga_lb_player_cell(int $playerId, string $name, string $country = 
     return '<span class="k2-amiga-wc-podium-player">' . $flag . $link . '</span>';
 }
 
+/** Leaderboard Event column — host-country flag + tournament link (no separate Country column). */
+function k2_amiga_lb_tournament_cell(int $tournamentId, string $name, string $hostCountry = ''): string
+{
+    require_once __DIR__ . '/amiga_tournament_lib.php';
+
+    $link = amiga_tournament_link($tournamentId, $name);
+    $hostCountry = trim($hostCountry);
+    if ($hostCountry === '') {
+        return $link;
+    }
+    $flag = k2_amiga_country_table_cell($hostCountry, true);
+    if ($flag === '') {
+        return $link;
+    }
+
+    return '<span class="k2-amiga-wc-podium-player">' . $flag . $link . '</span>';
+}
+
 /**
  * Player country column body — centered flag + sort value for k2-table text sort.
  *

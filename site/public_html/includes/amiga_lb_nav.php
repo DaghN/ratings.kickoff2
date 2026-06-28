@@ -33,7 +33,7 @@ $k2AmigaLbWingTabs = [
     'victims' => ['href' => '/amiga/leaderboards/victims.php', 'label' => 'Victims &amp; Culprits'],
     'peak-rating' => ['href' => '/amiga/leaderboards/peak-rating.php', 'label' => 'Peak rating'],
     'performance-rating' => [
-        'href' => '/amiga/leaderboards/performance-rating.php',
+        'href' => '/amiga/leaderboards/performance-rating/best.php',
         'label' => 'Perf. rating',
     ],
 ];

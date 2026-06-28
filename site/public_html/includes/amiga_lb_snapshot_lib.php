@@ -134,7 +134,11 @@ function amiga_lb_performance_rating_rows_at_cutoff(mysqli $con, AmigaSnapshotCo
                    ranked.event_date,
                    ranked.event_chrono,
                    ranked.event_games,
-                   ranked.performance_rating
+                   ranked.event_wins,
+                   ranked.event_draws,
+                   ranked.event_losses,
+                   ranked.performance_rating,
+                   ranked.host_country
             FROM (
                 SELECT pl.id AS player_id,
                        pl.name AS player_name,
@@ -143,9 +147,13 @@ function amiga_lb_performance_rating_rows_at_cutoff(mysqli $con, AmigaSnapshotCo
                        s.NumberGames,
                        part.tournament_id,
                        part.tournament_name,
+                       t.country AS host_country,
                        part.event_date,
                        part.event_chrono,
                        part.games AS event_games,
+                       part.wins AS event_wins,
+                       part.draws AS event_draws,
+                       part.losses AS event_losses,
                        part.performance_rating,
                        ROW_NUMBER() OVER (
                            PARTITION BY part.player_id
@@ -178,6 +186,176 @@ function amiga_lb_performance_rating_rows_at_cutoff(mysqli $con, AmigaSnapshotCo
                      ranked.event_games DESC,
                      ranked.Rating DESC,
                      ranked.player_id ASC';
+
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        return [];
+    }
+
+    $eventDate = $cutoff['event_date'];
+    $chrono = $cutoff['chrono'];
+    $tournamentId = $cutoff['tournament_id'];
+    $stmt->bind_param(
+        'sdisdi',
+        $eventDate,
+        $chrono,
+        $tournamentId,
+        $eventDate,
+        $chrono,
+        $tournamentId
+    );
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return [];
+    }
+    $result = $stmt->get_result();
+    $rows = [];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $rows[] = $row;
+        }
+        $result->free();
+    }
+    $stmt->close();
+
+    return $rows;
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function amiga_lb_performance_rating_top_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx): array
+{
+    $cutoff = $ctx->cutoff();
+    if ($cutoff === null) {
+        return [];
+    }
+
+    $visibility = amiga_tournament_public_visibility_where('t');
+    $sql = 'SELECT pl.id AS player_id,
+                   pl.name AS player_name,
+                   s.Rating,
+                   pl.country AS country,
+                   s.NumberGames,
+                   part.tournament_id,
+                   part.tournament_name,
+                   part.event_date,
+                   part.event_chrono,
+                   part.games AS event_games,
+                   part.wins AS event_wins,
+                   part.draws AS event_draws,
+                   part.losses AS event_losses,
+                   part.performance_rating,
+                   t.country AS host_country
+            FROM amiga_player_event_snapshots part
+            INNER JOIN amiga_players pl ON pl.id = part.player_id
+            INNER JOIN (
+                SELECT x.player_id, x.Rating, x.NumberGames FROM (
+                    SELECT snap.player_id, snap.Rating, snap.NumberGames,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY snap.player_id
+                            ORDER BY snap.event_date DESC, snap.event_chrono DESC, snap.tournament_id DESC
+                        ) AS rn
+                    FROM amiga_player_event_snapshots snap
+                    WHERE (snap.event_date, snap.event_chrono, snap.tournament_id) <= (?, ?, ?)
+                ) x WHERE x.rn = 1
+            ) s ON s.player_id = part.player_id
+            INNER JOIN tournaments t ON t.id = part.tournament_id
+            WHERE (part.event_date, part.event_chrono, part.tournament_id) <= (?, ?, ?)
+              AND part.performance_rating IS NOT NULL
+              AND part.games >= 2
+              AND s.NumberGames > 0
+              AND ' . $visibility . '
+            ORDER BY part.performance_rating DESC,
+                     part.games DESC,
+                     part.tournament_id DESC,
+                     part.player_id ASC
+            LIMIT 100';
+
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        return [];
+    }
+
+    $eventDate = $cutoff['event_date'];
+    $chrono = $cutoff['chrono'];
+    $tournamentId = $cutoff['tournament_id'];
+    $stmt->bind_param(
+        'sdisdi',
+        $eventDate,
+        $chrono,
+        $tournamentId,
+        $eventDate,
+        $chrono,
+        $tournamentId
+    );
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return [];
+    }
+    $result = $stmt->get_result();
+    $rows = [];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $rows[] = $row;
+        }
+        $result->free();
+    }
+    $stmt->close();
+
+    return $rows;
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function amiga_lb_performance_rating_perfect_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx): array
+{
+    $cutoff = $ctx->cutoff();
+    if ($cutoff === null) {
+        return [];
+    }
+
+    $visibility = amiga_tournament_public_visibility_where('t');
+    $sql = 'SELECT pl.id AS player_id,
+                   pl.name AS player_name,
+                   s.Rating,
+                   pl.country AS country,
+                   s.NumberGames,
+                   part.tournament_id,
+                   part.tournament_name,
+                   part.event_date,
+                   part.event_chrono,
+                   part.games AS event_games,
+                   part.wins AS event_wins,
+                   part.draws AS event_draws,
+                   part.losses AS event_losses,
+                   part.performance_rating,
+                   t.country AS host_country
+            FROM amiga_player_event_snapshots part
+            INNER JOIN amiga_players pl ON pl.id = part.player_id
+            INNER JOIN (
+                SELECT x.player_id, x.Rating, x.NumberGames FROM (
+                    SELECT snap.player_id, snap.Rating, snap.NumberGames,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY snap.player_id
+                            ORDER BY snap.event_date DESC, snap.event_chrono DESC, snap.tournament_id DESC
+                        ) AS rn
+                    FROM amiga_player_event_snapshots snap
+                    WHERE (snap.event_date, snap.event_chrono, snap.tournament_id) <= (?, ?, ?)
+                ) x WHERE x.rn = 1
+            ) s ON s.player_id = part.player_id
+            INNER JOIN tournaments t ON t.id = part.tournament_id
+            WHERE (part.event_date, part.event_chrono, part.tournament_id) <= (?, ?, ?)
+              AND part.is_perfect_event = 1
+              AND s.NumberGames > 0
+              AND ' . $visibility . '
+            ORDER BY part.event_date DESC,
+                     part.event_chrono DESC,
+                     part.tournament_id DESC,
+                     part.player_id ASC';
 
     $stmt = $con->prepare($sql);
     if (!$stmt) {

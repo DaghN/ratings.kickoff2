@@ -53,6 +53,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | Amiga derived write policy / prove-only corrections | `docs/amiga-derived-write-policy.md`, `docs/amiga-data-contract.md` |
 | Amiga event finish / honours / podiums | `docs/amiga-tournament-honours-rules.md`, `docs/amiga-event-finish-implementation-plan.md`, `docs/amiga-player-universe-contract.md` §5.2–§6 |
 | **Amiga perfect event** (undefeated events, honours LB, HoF) | [`amiga-perfect-event-policy.md`](amiga-perfect-event-policy.md) · [`amiga-perfect-event-implementation-plan.md`](amiga-perfect-event-implementation-plan.md) |
+| **Amiga perf. rating LB sub-wings** (Best · Top 100 · Perfect) | [`amiga-performance-rating-leaderboard-policy.md`](amiga-performance-rating-leaderboard-policy.md) |
 | **Amiga tournament videos** (YouTube embeds, manifest) | [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) · [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) · [`amiga-tournament-videos-implementation-plan.md`](amiga-tournament-videos-implementation-plan.md) |
 | Hall of Fame record C++ / staging defects | `docs/coordination/records-post-game-exception.md`, `docs/staging-post-game-record-defects.md` (when records behavior changes) |
 

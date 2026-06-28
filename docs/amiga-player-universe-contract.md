@@ -118,7 +118,7 @@ Each surface maps to **one primary derived source** (joins to `amiga_players` / 
 | **Top opponents** | profile | `amiga_player_matchup_summary` | goals column; H2H links | B (shipped) |
 | **H2H / Opponents wing** | `amiga/player/opponents/*` | `amiga_player_matchup_summary` | W/D/L · Goals · DDs tables; H2H placeholder | B (shipped Jun 2026) |
 | **Tier A LB wings** | `/amiga/leaderboards/rating.php`, `goals.php`, … | `amiga_player_current` | `amiga_lb_nav.php`; k2 LB SSR (`k2_lb_th` / `k2_lb_td`) | A (shipped) |
-| **Performance rating LB** | `/amiga/leaderboards/performance-rating.php` | `amiga_player_event_snapshots` | best event per player | B (shipped) |
+| **Performance rating LB** | `/amiga/leaderboards/performance-rating/best.php` (+ Top 100 · Perfect sub-wings) | `amiga_player_event_snapshots` | best / top-100 / perfect | B (shipped) |
 | **Tournament honours LB** | `/amiga/leaderboards/tournament-honours.php` | `amiga_player_current` honours + `Rating` | `event_*` + `wc_*` | B (shipped) |
 | **Hall of Fame** | `/amiga/hall-of-fame.php` | `amiga_generalstats` + ratio queries on current | WC panel; metric → LB deep links | B (shipped) |
 | **Historical rating ladder** | `/amiga/leaderboards/rating.php?as=` (legacy `/amiga/history.php` → redirect) | `amiga_player_event_snapshots` cutoff reads | Time-travel ribbon; Δ column not on LB wing (History page retired Jun 2026) | A (slice 7) |

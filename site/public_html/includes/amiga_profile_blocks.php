@@ -337,7 +337,7 @@ function amiga_profile_render_perf_rating_highlight(array $highlight, int $playe
 		<?php } ?>
 	</dl>
 	<p style="margin:0.75rem 0 0">
-		<a class="k2-link-star" href="/amiga/leaderboards/performance-rating.php">Best event performance leaderboard</a>
+		<a class="k2-link-star" href="<?php echo k2_h(k2_amiga_route('amiga-lb-performance-rating-best')); ?>">Best event performance leaderboard</a>
 		<?php if ($playerId > 0) { ?>
 		 · <a class="k2-link-star" href="<?php echo k2_h(k2_amiga_route('amiga-player-tournaments', ['id' => $playerId])); ?>">Full tournament history</a>
 		<?php } ?>

@@ -27,6 +27,30 @@ function amiga_perf_rating_games_list_help(): string
         . 'Requires at least 2 games; omitted for perfect win or loss records.';
 }
 
+/** Tooltip for ∞ in Perfect perf-rating sub-wing. */
+function amiga_perf_rating_perfect_infinity_help(): string
+{
+    return 'All wins in this event (at least 2 games). A finite performance rating cannot be defined for a perfect win record.';
+}
+
+/** Sort key for perf-rating LB Date column (newest event first on Perfect wing). */
+function amiga_lb_perf_rating_date_sort_value(array $row): string
+{
+    if (isset($row['event_chrono']) && $row['event_chrono'] !== null && $row['event_chrono'] !== '') {
+        $chrono = (float) $row['event_chrono'];
+    } else {
+        $chrono = 0.0;
+        $eventDate = $row['event_date'] ?? null;
+        if ($eventDate !== null && $eventDate !== '') {
+            $ts = strtotime((string) $eventDate);
+            $chrono = $ts !== false ? (float) $ts : 0.0;
+        }
+    }
+    $tournamentId = (int) ($row['tournament_id'] ?? 0);
+
+    return sprintf('%013.3f.%010d', $chrono, $tournamentId);
+}
+
 const AMIGA_PERFORMANCE_RATING_MIN_GAMES = PERFORMANCE_RATING_MIN_GAMES;
 
 function amiga_performance_elo_expected(float $playerRating, float $opponentRating): float
