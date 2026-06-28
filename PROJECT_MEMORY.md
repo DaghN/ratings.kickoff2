@@ -79,6 +79,8 @@
 
 - **Amiga Countries hub (Jun 2026):** **Shipped** — hub tab + index (player count sort) + roster (flag per row, WC entries tooltips, TT); flag links site-wide; cross-links WC country stats. [`amiga-countries-hub-policy.md`](docs/amiga-countries-hub-policy.md).
 
+- **Amiga perfect event (Jun 2026):** **Policy locked** — `is_perfect_event` + career `perfect_events` + HoF `MostPerfectEvents` + catalog `has_perfect_participant`; WC honours Perfect = snapshot count (no slice DDL). [`amiga-perfect-event-policy.md`](docs/amiga-perfect-event-policy.md) · plan [`amiga-perfect-event-implementation-plan.md`](docs/amiga-perfect-event-implementation-plan.md). Implementation SCH-045 — slice 1 next.
+
 - **Amiga tournament videos (Jun 2026):** **TV-3 shipped** — manifest **~299** videos; unified embed UI on all events with clips. **Player Videos wing (Jun 2026):** `/amiga/player/videos.php` when manifest has linked match clips; reverse-chrono index + opponent filter + spotlight player. Human review sign-off on orphans + tournaments index. Next: **TV-4** Chronology clip indicator. [`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md).
 
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
@@ -427,6 +429,8 @@
 | 2026-06 | **Amiga Opponents tables** — `amiga_matchup_snapshot_lib.php` + W/D/L · Goals · DDs wings (stored + time travel); H2H placeholder. |
 | 2026-06 | **Amiga Opponents IA shell** — player pill + `amiga/player/opponents/{h2h,wdl,goals,dds}.php`; placeholder wing bodies; routes in `k2_amiga_routes.php`. |
 | 2026-06 | **Amiga matchup SCH-031** — goal extremes on `matchup_summary` + `matchup_at_event` (online SCH-019 parity); finalize Python+PHP; verify oracle; replay green. |
+| 2026-06 | **Amiga perfect event implementation plan** — SCH-045 slices 0–9 (DDL, writers, prove, UI, closure). [`amiga-perfect-event-implementation-plan.md`](docs/amiga-perfect-event-implementation-plan.md) |
+| 2026-06 | **Amiga perfect event policy** — locked definition (≥2 games, all wins); storage on snapshots/current/catalog/realm; WC honours read from `is_perfect_event` (no slice columns); HoF MostPerfectEvents. [`amiga-perfect-event-policy.md`](docs/amiga-perfect-event-policy.md) |
 | 2026-06 | **Amiga Opponents wing policy** — [`amiga-opponents-wing-policy.md`](docs/amiga-opponents-wing-policy.md); incremental port plan (audit + slice discipline); no implementation plan yet. |
 | 2026-06 | **Amiga profile hygiene** — removed legacy `/amiga/h2h.php` + profile top-opponents table; future Opponents wing under `amiga/player/opponents/*`. |
 | 2026-06 | **Amiga time travel sort carry** — `k2_sort`/`k2_dir` preserved on same-path chevron/picker/granularity nav; JS ribbon refresh on column sort. |

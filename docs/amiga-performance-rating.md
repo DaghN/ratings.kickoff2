@@ -132,6 +132,12 @@ Full replay recomputes via finalize loop (no separate backfill needed after `rep
 
 ---
 
+## Related product (perfect events)
+
+Undefeated events (all wins, `games >= 2`) are excluded from perf rating but tracked separately as **Perfect** honours — see [`amiga-perfect-event-policy.md`](amiga-perfect-event-policy.md). Do not infer perfect events from `performance_rating IS NULL` alone.
+
+---
+
 ## Non-goals (v1)
 
 - HoF “best performance in an event” deep link (LB wing shipped slice 5)

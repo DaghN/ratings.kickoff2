@@ -64,6 +64,7 @@ Per-metric storage (SCH-030 DDL `030_career_rise_dates.sql` — 20 columns × sn
 | Most tournaments in one year | `peak_year_tournaments` | *(none — use `peak_year_tournaments_year`)* |
 | Most tournaments (career) | `tournaments_played` | `tournaments_played_last_rise_tournament_id`, `tournaments_played_last_rise_event_date` |
 | Most tournament wins | `event_gold` | `event_gold_last_rise_tournament_id`, `event_gold_last_rise_event_date` |
+| Most perfect events | `perfect_events` | `perfect_events_last_rise_tournament_id`, `perfect_events_last_rise_event_date` — policy [`amiga-perfect-event-policy.md`](amiga-perfect-event-policy.md) (SCH-045, not yet shipped) |
 | Most World Cups played | `wc_played` | `wc_played_last_rise_tournament_id`, `wc_played_last_rise_event_date` |
 | Most countries played in | `countries_played_in` | `countries_played_in_last_rise_tournament_id`, `countries_played_in_last_rise_event_date` |
 | Most opponent countries faced | `opponent_countries_faced` | `opponent_countries_faced_last_rise_tournament_id`, `opponent_countries_faced_last_rise_event_date` |
