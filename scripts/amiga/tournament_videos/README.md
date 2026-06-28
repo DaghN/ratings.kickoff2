@@ -58,3 +58,17 @@ python -m scripts.amiga.tournament_videos.build_manifest
 ```
 
 Fix wrong mappings in chat or via future bulk-verify page. Policy: [`docs/amiga-tournament-videos-policy.md`](../../../docs/amiga-tournament-videos-policy.md)
+
+## Drop non-KO2 / off-catalog videos
+
+When a harvested row is not Kick Off 2 tournament material (channel noise, unrelated uploads):
+
+```powershell
+python -m scripts.amiga.tournament_videos.drop_video YOUTUBE_ID --reason "Not KO2 related — …"
+python -m scripts.amiga.tournament_videos.build_manifest
+```
+
+- Removes the row from `review.csv`
+- Appends audit line to `data/amiga/tournament_videos/dropped.csv`
+- Re-harvest skips dropped ids (`harvest.py` denylist)
+- Remove id from `amiga_video_orphans_catalog.php` if it was in a curated group

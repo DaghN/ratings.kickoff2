@@ -8,6 +8,7 @@ import logging
 import sys
 
 from scripts.amiga.tournament_videos.constants import CSV_COLUMNS, RAW_DIR, REVIEW_CSV
+from scripts.amiga.tournament_videos.dropped import load_dropped_ids
 from scripts.amiga.tournament_videos.enrich import (
     build_review_row,
     load_player_index,
@@ -51,6 +52,8 @@ def run_harvest(*, skip_youtube: bool = False, skip_forum: bool = False, probe_w
     playlist_ids = {v.youtube_id for v in yt_rows if v.source == "wc_finals_playlist"}
 
     all_ids = set(grouped.keys()) | set(forum_by_yt.keys())
+    dropped_ids = load_dropped_ids()
+    all_ids -= dropped_ids
     wc_by_year = load_wc_catalog()
     players = load_player_index()
 

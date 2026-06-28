@@ -7,16 +7,25 @@ declare(strict_types=1);
  */
 
 /** @param list<array{game_id: int, youtube_id: string, video: array<string, mixed>, game: array<string, mixed>, sort_bucket: int}> $entries */
-function amiga_tournament_videos_render_wc_wing_nav(int $tournamentId, string $activeWing, bool $hasExtrasWing): void
-{
+function amiga_tournament_videos_render_wc_wing_nav(
+    int $tournamentId,
+    string $activeWing,
+    bool $hasExtrasWing,
+    bool $hasGamesWing = true,
+): void {
+    if (!$hasGamesWing && !$hasExtrasWing) {
+        return;
+    }
     $gamesHref = amiga_tournament_href(amiga_tournament_videos_url($tournamentId, 'games'));
     $extrasHref = amiga_tournament_href(amiga_tournament_videos_url($tournamentId, 'extras'));
     ?>
 <div class="k2-chrome-tabs k2-tournament-videos-wings">
   <nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Video sections">
+    <?php if ($hasGamesWing) { ?>
     <a href="<?php echo k2_h($gamesHref); ?>" class="k2-chrome-tabs__tab<?php echo $activeWing === 'games' ? ' is-active' : ''; ?>"<?php
         echo $activeWing === 'games' ? ' aria-current="page"' : '';
     ?>>Games</a>
+    <?php } ?>
     <?php if ($hasExtrasWing) { ?>
     <a href="<?php echo k2_h($extrasHref); ?>" class="k2-chrome-tabs__tab<?php echo $activeWing === 'extras' ? ' is-active' : ''; ?>"<?php
         echo $activeWing === 'extras' ? ' aria-current="page"' : '';
@@ -76,7 +85,7 @@ function amiga_tournament_videos_render_wc_games_table(
   </thead>
   <tbody class="black">
   <?php if ($entries === []) { ?>
-    <tr><td colspan="<?php echo $showPhase ? 9 : 8; ?>" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No game videos linked for this World Cup yet.</td></tr>
+    <tr><td colspan="<?php echo $showPhase ? 9 : 8; ?>" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No game videos linked for this event yet.</td></tr>
   <?php } ?>
   <?php foreach ($entries as $entry) {
       $gameRow = $entry['game'];
@@ -171,7 +180,7 @@ function amiga_tournament_videos_render_wc_extras_table(
   </thead>
   <tbody class="black">
   <?php if ($rows === []) { ?>
-    <tr><td colspan="3" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No other videos for this World Cup.</td></tr>
+    <tr><td colspan="3" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No atmosphere videos for this event.</td></tr>
   <?php } ?>
   <?php foreach ($rows as $row) {
       $yt = (string) ($row['youtube_id'] ?? '');

@@ -212,3 +212,24 @@ body.k2-site .k2-tournament-videos__also-label {
 	font-size: 0.85rem;
 	color: var(--k2-text-secondary);
 }
+
+body.k2-site .k2-video-orphans__why {
+	display: inline-grid;
+	place-items: center;
+	width: 1.35rem;
+	height: 1.35rem;
+	padding: 0;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: 999px;
+	background: transparent;
+	color: var(--k2-text-secondary);
+	font-size: 0.82rem;
+	font-weight: 600;
+	line-height: 1;
+	cursor: help;
+}
+
+body.k2-site .k2-amiga-tournament-index-tabs--stacked,
+body.k2-site .k2-amiga-tournament-index-tabs--videos {
+	margin-top: calc(var(--k2-nav-gap, 0.75rem) * 0.35);
+}

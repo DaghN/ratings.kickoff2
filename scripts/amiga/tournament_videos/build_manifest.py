@@ -9,6 +9,8 @@ from datetime import date
 
 from scripts.amiga.tournament_videos.constants import CSV_COLUMNS, MANIFEST_JSON, REVIEW_CSV
 
+REVIEW_CSV_PUBLIC = MANIFEST_JSON.parent / "tournament_videos" / "review.csv"
+
 STAGE_SORT = {
     "final": 10,
     "semi": 20,
@@ -118,8 +120,11 @@ def run(*, verified_only: bool = False) -> int:
         json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
+    REVIEW_CSV_PUBLIC.parent.mkdir(parents=True, exist_ok=True)
+    REVIEW_CSV_PUBLIC.write_text(REVIEW_CSV.read_text(encoding="utf-8"), encoding="utf-8")
     verified_n = sum(1 for v in payload["videos"] if v.get("verified"))
     print(f"Wrote {MANIFEST_JSON}")
+    print(f"Wrote {REVIEW_CSV_PUBLIC}")
     print(f"  videos: {len(payload['videos'])} ({verified_n} verified=true)")
     return 0
 

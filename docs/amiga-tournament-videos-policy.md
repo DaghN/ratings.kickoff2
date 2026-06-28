@@ -127,6 +127,8 @@ Steve’s forum reply: thread covers most of his camcorder tapes; **tape origina
 | `external_file` | WMV/other host | null or match if known | — |
 | `excluded` | Online WC, tutorials, wrong realm | null | — |
 
+**Dropped (off file):** rows removed from `review.csv` into `data/amiga/tournament_videos/dropped.csv` when not KO2 / not catalog material (channel noise). Re-harvest denylist; not shown on orphans page.
+
 **Player name parsing:** YouTube titles use compact tokens (`DaghN`, `GianniT`, `FabioF`) or full names (`Dagh N - Gianni T`). Resolve via **first name + surname initial** against `amiga_players` (disambiguates multiple Fabios). If ambiguous → leave null; flag in review CSV.
 
 **Streams:** titles like `KOA WC2006`, `WC2001 Dartford Part2a Saturday`, `Day 1` → `kind: stream`. Do not attach players. Future: Steve may split into per-game uploads → new manifest rows.
@@ -202,16 +204,12 @@ Steve’s forum reply: thread covers most of his camcorder tapes; **tape origina
 ### 9.1 Tournament Videos tab
 
 - **Route:** `/amiga/tournament/videos.php?id={tournament_id}` — register in `k2_amiga_routes.php`.
-- **Interaction (WC spotlight):** [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) §2 — `v=` / optional `game=` deep links, Back-to-index, share URLs (Phase A); timestamps Phase B.
+- **Layout (all events with manifest rows):** **Games** + **Atmosphere** wing tabs, single spotlight embed, sortable index table, `?v=` / optional `game=` deep links — same stack as World Cups (`amiga_tournament_videos_wc_body.inc.php` + `amiga-tournament-videos.js`). Hide **Games** when no match rows; hide **Atmosphere** when no ceremony/coverage rows.
+- **Interaction:** [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) §2 — Back-to-index, share URLs (Phase A); timestamps Phase B.
 - **Nav:** insert **Videos** in `amiga_tournament_page.php` pill row when `amiga_tournament_has_videos($id)`.
-- **Sections (group by `stage` / `kind`):**
-  1. Final & podium (final legs, 3rd place)
-  2. Knockout (semi, quarter, bronze/silver side cups)
-  3. Side events (Game of Shame, exhibition)
-  4. Ceremony (presentations)
-  5. Coverage (streams — prominent “long video” label; link or lazy embed)
-- **Match rows:** linked player names when IDs set.
-- **Alternates:** secondary links under same section when `relation_group` has non-canonical siblings.
+- **Games index:** match rows with linked player names when IDs set; WC knockout ordering when applicable; generic stage/kind sort otherwise.
+- **Atmosphere index:** ceremony, coverage, stream, and other non-match `kind` rows.
+- **Alternates:** secondary links in table when `relation_group` has non-canonical siblings.
 
 ### 9.2 World Cups Chronology
 
@@ -224,7 +222,13 @@ Steve’s forum reply: thread covers most of his camcorder tapes; **tape origina
 - Filter: any tournament with ≥1 manifest row (any `kind` except `excluded`).
 - Implement alongside existing All · World Cups · Leagues · … tabs ([`amiga_tournament_index_nav.php`](../site/public_html/includes/amiga_tournament_index_nav.php)).
 
-### 9.4 Later UI (not v1)
+### 9.4 Orphans dev page
+
+- **Route:** `/amiga/videos/orphans.php` — **not linked from hub**; dev/reference for harvest leftovers.
+- **Sections:** curated unassigned groups (tutorials, general KO2, dup candidates) + **Excluded** table (manifest dupes / catalog decisions, with `?` tooltips).
+- **Human review sign-off (Jun 2026):** no remaining row should map to a tournament Videos tab. Re-open only when new harvest rows appear or a specific clip is reported misplaced.
+
+### 9.5 Later UI (not v1)
 
 - Player profile **Videos** tab — all manifest rows where `player_a_id` or `player_b_id` matches.
 - Realm **Video index** page — sortable table of all clips.
@@ -253,6 +257,21 @@ Legacy WMV probe ───────────────► external_url r
 - 2010-style dual URLs per match
 - `excluded` vs tournament-linked online WC clip
 - Dead forum links worth asking Steve about
+
+**Human review sign-off (Jun 2026):** Dagh completed two manual passes:
+
+| Queue | Scope | Outcome |
+|-------|--------|---------|
+| **Tournament catalog** | `/amiga/tournaments.php` — all events with manifest clips (World Cups + leagues + cups) | No obvious mis-assignments; manifest **~299** videos stable |
+| **Orphan → tournament** | `/amiga/videos/orphans.php` — unassigned + excluded harvest rows | Nothing left that should ship on a tournament Videos tab |
+
+**After sign-off — what orphans still contains (by design):**
+
+- **Unassigned** — tutorials (e.g. Alkelele shot-height series), general KO2 misc, ko2cv duplicate candidates — not event-scoped.
+- **Excluded** — lower-quality dupes, online WC (offline catalog), rows with no DB game — audit trail only.
+- **Dropped** — `data/amiga/tournament_videos/dropped.csv` — not KO2; removed from `review.csv` + re-harvest denylist.
+
+Re-open either queue only on **new harvest**, **manual adds**, or a **specific misfile report**. Per-row `verified=Y` on every CSV row is still not required for ship.
 
 **Tooling:** Python script under `scripts/amiga/` or `scripts/oneoff/` — not production path.
 

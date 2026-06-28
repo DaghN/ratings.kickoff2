@@ -19,6 +19,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_records_common.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_records_hof_links.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_context.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_realm_snapshot_read_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
@@ -46,6 +47,8 @@ if ($ctx->isActive()) {
     }
 }
 [$newRecordCutoff, $legendaryRecordCutoff] = amiga_records_age_cutoffs_from($hofAsOf);
+
+$hofCountryByPlayer = amiga_tournament_player_countries($con, amiga_hof_holder_ids_from_records($records));
 
 mysqli_close($con);
 ?>
@@ -100,35 +103,35 @@ ob_start();
 amiga_records_render_row(
     'Most games',
     (string) ($records['MostGamesPlayed'] ?? '-'),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostGamesPlayedID'] ?? 0), (string) ($records['MostGamesPlayedName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostGamesPlayedID'] ?? 0), (string) ($records['MostGamesPlayedName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostGamesPlayedDate'] ?? null, true, $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_games')
 );
 amiga_records_render_row(
     'Most wins',
     amiga_records_value_or_dash($records['MostWins'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostWinsID'] ?? 0), (string) ($records['MostWinsName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostWinsID'] ?? 0), (string) ($records['MostWinsName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostWinsDate'] ?? null, amiga_records_has_value($records['MostWins'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_wins')
 );
 amiga_records_render_row(
     'Most goals',
     amiga_records_value_or_dash($records['MostGoalsScored'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostGoalsScoredID'] ?? 0), (string) ($records['MostGoalsScoredName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostGoalsScoredID'] ?? 0), (string) ($records['MostGoalsScoredName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostGoalsScoredDate'] ?? null, amiga_records_has_value($records['MostGoalsScored'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_goals')
 );
 amiga_records_render_row(
     'Most double digits',
     amiga_records_value_or_dash($records['MostDoubleDigits'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostDoubleDigitsID'] ?? 0), (string) ($records['MostDoubleDigitsName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostDoubleDigitsID'] ?? 0), (string) ($records['MostDoubleDigitsName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostDoubleDigitsDate'] ?? null, amiga_records_has_value($records['MostDoubleDigits'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_dd')
 );
 amiga_records_render_row(
     'Most clean sheets',
     amiga_records_value_or_dash($records['MostCleanSheets'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostCleanSheetsID'] ?? 0), (string) ($records['MostCleanSheetsName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostCleanSheetsID'] ?? 0), (string) ($records['MostCleanSheetsName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostCleanSheetsDate'] ?? null, amiga_records_has_value($records['MostCleanSheets'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_cs')
 );
@@ -136,28 +139,28 @@ amiga_records_render_spacer_row();
 amiga_records_render_row(
     'Most opponents',
     (string) ($records['MostDifferentOpponents'] ?? '-'),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostDifferentOpponentsID'] ?? 0), (string) ($records['MostDifferentOpponentsName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostDifferentOpponentsID'] ?? 0), (string) ($records['MostDifferentOpponentsName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostDifferentOpponentsDate'] ?? null, true, $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_opponents')
 );
 amiga_records_render_row(
     'Most victims',
     amiga_records_value_or_dash($records['MostDifferentVictims'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostDifferentVictimsID'] ?? 0), (string) ($records['MostDifferentVictimsName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostDifferentVictimsID'] ?? 0), (string) ($records['MostDifferentVictimsName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostDifferentVictimsDate'] ?? null, amiga_records_has_value($records['MostDifferentVictims'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_victims')
 );
 amiga_records_render_row(
     'Most double digit victims',
     amiga_records_value_or_dash($records['MostDoubleDigitsVictims'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostDoubleDigitsVictimsID'] ?? 0), (string) ($records['MostDoubleDigitsVictimsName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostDoubleDigitsVictimsID'] ?? 0), (string) ($records['MostDoubleDigitsVictimsName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostDoubleDigitsVictimsDate'] ?? null, amiga_records_has_value($records['MostDoubleDigitsVictims'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_dd_victims')
 );
 amiga_records_render_row(
     'Most clean sheet victims',
     amiga_records_value_or_dash($records['MostCleanSheetsVictims'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostCleanSheetsVictimsID'] ?? 0), (string) ($records['MostCleanSheetsVictimsName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostCleanSheetsVictimsID'] ?? 0), (string) ($records['MostCleanSheetsVictimsName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostCleanSheetsVictimsDate'] ?? null, amiga_records_has_value($records['MostCleanSheetsVictims'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_cs_victims')
 );
@@ -166,7 +169,7 @@ $hasMostGoalsOneGame = amiga_records_has_value($records['MostGoalsScoredInOneGam
 amiga_records_render_row(
     'Most goals in one game',
     amiga_records_value_or_dash($records['MostGoalsScoredInOneGame'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostGoalsScoredInOneGameID'] ?? 0), (string) ($records['MostGoalsScoredInOneGameName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostGoalsScoredInOneGameID'] ?? 0), (string) ($records['MostGoalsScoredInOneGameName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostGoalsScoredInOneGameDate'] ?? null, $hasMostGoalsOneGame, $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_goals_one_game')
 );
@@ -174,7 +177,7 @@ $hasBiggestWinMargin = amiga_records_has_value($records['BiggestWinDifference'] 
 amiga_records_render_row(
     'Biggest winning margin',
     amiga_records_value_or_dash($records['BiggestWinDifference'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['BiggestWinDifferenceID'] ?? 0), (string) ($records['BiggestWinDifferenceName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['BiggestWinDifferenceID'] ?? 0), (string) ($records['BiggestWinDifferenceName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['BiggestWinDifferenceDate'] ?? null, $hasBiggestWinMargin, $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('biggest_win_margin')
 );
@@ -185,10 +188,12 @@ $biggestDrawScore = $hasBiggestDraw
 amiga_records_render_row(
     'Biggest draw',
     $biggestDrawScore,
-    amiga_records_holder_html(
-        amiga_records_profile_link((int) ($records['BiggestDrawSumIDA'] ?? 0), (string) ($records['BiggestDrawSumNameA'] ?? ''))
-        . ' / '
-        . amiga_records_profile_link((int) ($records['BiggestDrawSumIDB'] ?? 0), (string) ($records['BiggestDrawSumNameB'] ?? ''))
+    amiga_records_holder_players_pair(
+        (int) ($records['BiggestDrawSumIDA'] ?? 0),
+        (string) ($records['BiggestDrawSumNameA'] ?? ''),
+        (int) ($records['BiggestDrawSumIDB'] ?? 0),
+        (string) ($records['BiggestDrawSumNameB'] ?? ''),
+        $hofCountryByPlayer
     ),
     amiga_records_date_or_dash($records['BiggestDrawSumDate'] ?? null, $hasBiggestDraw, $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('biggest_draw')
@@ -197,10 +202,12 @@ $hasBiggestSumGoals = amiga_records_has_value($records['BiggestSumOfGoals'] ?? 0
 amiga_records_render_row(
     'Biggest sum of goals',
     amiga_records_value_or_dash($records['BiggestSumOfGoals'] ?? null),
-    amiga_records_holder_html(
-        amiga_records_profile_link((int) ($records['BiggestSumOfGoalsIDA'] ?? 0), (string) ($records['BiggestSumOfGoalsNameA'] ?? ''))
-        . ' / '
-        . amiga_records_profile_link((int) ($records['BiggestSumOfGoalsIDB'] ?? 0), (string) ($records['BiggestSumOfGoalsNameB'] ?? ''))
+    amiga_records_holder_players_pair(
+        (int) ($records['BiggestSumOfGoalsIDA'] ?? 0),
+        (string) ($records['BiggestSumOfGoalsNameA'] ?? ''),
+        (int) ($records['BiggestSumOfGoalsIDB'] ?? 0),
+        (string) ($records['BiggestSumOfGoalsNameB'] ?? ''),
+        $hofCountryByPlayer
     ),
     amiga_records_date_or_dash($records['BiggestSumOfGoalsDate'] ?? null, $hasBiggestSumGoals, $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('biggest_sum_goals')
@@ -210,7 +217,7 @@ $hasPeakRating = amiga_records_has_value($records['BiggestPeakRating'] ?? 0);
 amiga_records_render_row(
     'Highest peak rating',
     $hasPeakRating ? number_format((float) $records['BiggestPeakRating'], 0, '.', '') : '-',
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['BiggestPeakRatingID'] ?? 0), (string) ($records['BiggestPeakRatingName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['BiggestPeakRatingID'] ?? 0), (string) ($records['BiggestPeakRatingName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['BiggestPeakRatingDate'] ?? null, $hasPeakRating, $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('peak_rating')
 );
@@ -218,21 +225,21 @@ amiga_records_render_spacer_row();
 amiga_records_render_row(
     'Best attack average',
     amiga_records_fixed_or_dash($records['BiggestGoalsForAverage'] ?? null, 2),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['BiggestGoalsForAverageID'] ?? 0), (string) ($records['BiggestGoalsForAverageName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['BiggestGoalsForAverageID'] ?? 0), (string) ($records['BiggestGoalsForAverageName'] ?? ''), $hofCountryByPlayer),
     '-',
     amiga_records_hof_lb_href('attack_avg')
 );
 amiga_records_render_row(
     'Best defense average',
     amiga_records_fixed_or_dash($records['SmallestGoalsAgainstAverage'] ?? null, 2),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['SmallestGoalsAgainstAverageID'] ?? 0), (string) ($records['SmallestGoalsAgainstAverageName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['SmallestGoalsAgainstAverageID'] ?? 0), (string) ($records['SmallestGoalsAgainstAverageName'] ?? ''), $hofCountryByPlayer),
     '-',
     amiga_records_hof_lb_href('defense_avg')
 );
 amiga_records_render_row(
     'Best goal ratio',
     amiga_records_fixed_or_dash($records['BiggestGoalRatio'] ?? null, 2),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['BiggestGoalRatioID'] ?? 0), (string) ($records['BiggestGoalRatioName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['BiggestGoalRatioID'] ?? 0), (string) ($records['BiggestGoalRatioName'] ?? ''), $hofCountryByPlayer),
     '-',
     amiga_records_hof_lb_href('goal_ratio')
 );
@@ -240,21 +247,21 @@ amiga_records_render_spacer_row();
 amiga_records_render_row(
     'Highest winning frequency',
     amiga_records_percent_or_dash($records['BiggestWinRatio'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['BiggestWinRatioID'] ?? 0), (string) ($records['BiggestWinRatioName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['BiggestWinRatioID'] ?? 0), (string) ($records['BiggestWinRatioName'] ?? ''), $hofCountryByPlayer),
     '-',
     amiga_records_hof_lb_href('win_ratio')
 );
 amiga_records_render_row(
     'Highest double digit frequency',
     amiga_records_percent_or_dash($records['BiggestDoubleDigitsRatio'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['BiggestDoubleDigitsRatioID'] ?? 0), (string) ($records['BiggestDoubleDigitsRatioName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['BiggestDoubleDigitsRatioID'] ?? 0), (string) ($records['BiggestDoubleDigitsRatioName'] ?? ''), $hofCountryByPlayer),
     '-',
     amiga_records_hof_lb_href('dd_ratio')
 );
 amiga_records_render_row(
     'Highest clean sheet frequency',
     amiga_records_percent_or_dash($records['BiggestCleanSheetsRatio'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['BiggestCleanSheetsRatioID'] ?? 0), (string) ($records['BiggestCleanSheetsRatioName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['BiggestCleanSheetsRatioID'] ?? 0), (string) ($records['BiggestCleanSheetsRatioName'] ?? ''), $hofCountryByPlayer),
     '-',
     amiga_records_hof_lb_href('cs_ratio')
 );
@@ -262,35 +269,35 @@ amiga_records_render_spacer_row();
 amiga_records_render_row(
     'Most games in one year',
     amiga_records_value_or_dash($records['MostGamesInOneYear'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostGamesInOneYearID'] ?? 0), (string) ($records['MostGamesInOneYearName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostGamesInOneYearID'] ?? 0), (string) ($records['MostGamesInOneYearName'] ?? ''), $hofCountryByPlayer),
     amiga_records_peak_year_or_dash($records['MostGamesInOneYearDate'] ?? null, amiga_records_has_value($records['MostGamesInOneYear'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_games_in_year')
 );
 amiga_records_render_row(
     'Most tournaments in one year',
     amiga_records_value_or_dash($records['MostTournamentsInOneYear'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostTournamentsInOneYearID'] ?? 0), (string) ($records['MostTournamentsInOneYearName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostTournamentsInOneYearID'] ?? 0), (string) ($records['MostTournamentsInOneYearName'] ?? ''), $hofCountryByPlayer),
     amiga_records_peak_year_or_dash($records['MostTournamentsInOneYearDate'] ?? null, amiga_records_has_value($records['MostTournamentsInOneYear'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_tournaments_in_year')
 );
 amiga_records_render_row(
     'Most tournaments (career)',
     amiga_records_value_or_dash($records['MostTournamentsPlayed'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostTournamentsPlayedID'] ?? 0), (string) ($records['MostTournamentsPlayedName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostTournamentsPlayedID'] ?? 0), (string) ($records['MostTournamentsPlayedName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostTournamentsPlayedDate'] ?? null, amiga_records_has_value($records['MostTournamentsPlayed'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_tournaments_played')
 );
 amiga_records_render_row(
     'Most tournament wins',
     amiga_records_value_or_dash($records['MostTournamentWins'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostTournamentWinsID'] ?? 0), (string) ($records['MostTournamentWinsName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostTournamentWinsID'] ?? 0), (string) ($records['MostTournamentWinsName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostTournamentWinsDate'] ?? null, amiga_records_has_value($records['MostTournamentWins'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_tournament_wins')
 );
 amiga_records_render_row(
     'Most World Cups played',
     amiga_records_value_or_dash($records['MostWcPlayed'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostWcPlayedID'] ?? 0), (string) ($records['MostWcPlayedName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostWcPlayedID'] ?? 0), (string) ($records['MostWcPlayedName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostWcPlayedDate'] ?? null, amiga_records_has_value($records['MostWcPlayed'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_wc_played')
 );
@@ -298,21 +305,21 @@ amiga_records_render_spacer_row();
 amiga_records_render_row(
     'Most countries played in',
     amiga_records_value_or_dash($records['MostCountriesPlayedIn'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostCountriesPlayedInID'] ?? 0), (string) ($records['MostCountriesPlayedInName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostCountriesPlayedInID'] ?? 0), (string) ($records['MostCountriesPlayedInName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostCountriesPlayedInDate'] ?? null, amiga_records_has_value($records['MostCountriesPlayedIn'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_countries_played_in')
 );
 amiga_records_render_row(
     'Most opponent countries faced',
     amiga_records_value_or_dash($records['MostOpponentCountriesFaced'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostOpponentCountriesFacedID'] ?? 0), (string) ($records['MostOpponentCountriesFacedName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostOpponentCountriesFacedID'] ?? 0), (string) ($records['MostOpponentCountriesFacedName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostOpponentCountriesFacedDate'] ?? null, amiga_records_has_value($records['MostOpponentCountriesFaced'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_opponent_countries_faced')
 );
 amiga_records_render_row(
     'Most opponent countries beaten',
     amiga_records_value_or_dash($records['MostOpponentCountriesBeaten'] ?? null),
-    amiga_records_holder_html(amiga_records_profile_link((int) ($records['MostOpponentCountriesBeatenID'] ?? 0), (string) ($records['MostOpponentCountriesBeatenName'] ?? ''))),
+    amiga_records_holder_player((int) ($records['MostOpponentCountriesBeatenID'] ?? 0), (string) ($records['MostOpponentCountriesBeatenName'] ?? ''), $hofCountryByPlayer),
     amiga_records_date_or_dash($records['MostOpponentCountriesBeatenDate'] ?? null, amiga_records_has_value($records['MostOpponentCountriesBeaten'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_opponent_countries_beaten')
 );

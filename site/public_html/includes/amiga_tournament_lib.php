@@ -1047,14 +1047,11 @@ function amiga_tournament_index_format_label(string $kind): string
     };
 }
 
-/** Tournament index pill filter: '' | world-cup | league | cup | league-cup */
+/** Tournament index format pill filter: '' | league | cup | league-cup */
 function amiga_tournament_index_matches_filter(array $row, string $filter): bool
 {
     if ($filter === '') {
         return true;
-    }
-    if ($filter === 'world-cup') {
-        return amiga_tournament_is_world_cup($row);
     }
     $flags = amiga_tournament_catalog_format_flags($row);
     if ($filter === 'league') {
@@ -1070,12 +1067,31 @@ function amiga_tournament_index_matches_filter(array $row, string $filter): bool
     return true;
 }
 
+/** Tournament index World Cup pill filter: '' | world-cup | not-world-cup */
+function amiga_tournament_index_matches_wc_filter(array $row, string $wcFilter): bool
+{
+    if ($wcFilter === '') {
+        return true;
+    }
+    $isWorldCup = amiga_tournament_is_world_cup($row);
+    if ($wcFilter === 'world-cup') {
+        return $isWorldCup;
+    }
+    if ($wcFilter === 'not-world-cup') {
+        return !$isWorldCup;
+    }
+
+    return true;
+}
+
 /** Filter pill href for /amiga/tournaments.php (carries active k2_sort when set). */
-function amiga_tournament_index_filter_url(string $typeFilter = ''): string
+function amiga_tournament_index_filter_url(string $typeFilter = '', string $videosFilter = '', string $wcFilter = ''): string
 {
     require_once __DIR__ . '/k2_table_helpers.php';
     $params = array_merge(
+        in_array($wcFilter, ['world-cup', 'not-world-cup'], true) ? ['wc' => $wcFilter] : [],
         $typeFilter !== '' ? ['type' => $typeFilter] : [],
+        $videosFilter === 'with-videos' ? ['videos' => 'with-videos'] : [],
         k2_table_sort_query_params(),
     );
 

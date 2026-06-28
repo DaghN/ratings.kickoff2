@@ -13,9 +13,13 @@ declare(strict_types=1);
 /** @var bool $tournamentVideosHighlightRow */
 /** @var string $tournamentVideosIndexUrl */
 
+/** @var bool $tournamentVideosHasGamesWing */
+/** @var bool $tournamentVideosHasExtrasWing */
+
 require_once __DIR__ . '/amiga_tournament_videos_wc_render.inc.php';
 
-$hasExtrasWing = $tournamentVideosExtrasRows !== [];
+$hasExtrasWing = $tournamentVideosHasExtrasWing ?? ($tournamentVideosExtrasRows !== []);
+$hasGamesWing = $tournamentVideosHasGamesWing ?? ($tournamentVideosGameEntries !== []);
 ?>
 <section
   class="k2-tournament-videos k2-tournament-videos--wc"
@@ -25,7 +29,7 @@ $hasExtrasWing = $tournamentVideosExtrasRows !== [];
   data-k2-tv-index-url="<?php echo k2_h($tournamentVideosIndexUrl); ?>"
   data-k2-tv-table="<?php echo k2_h($tournamentVideosWing === 'extras' ? '.k2-table--tournament-videos-extras' : '.k2-table--tournament-videos-games'); ?>"
 >
-  <?php amiga_tournament_videos_render_wc_wing_nav($id, $tournamentVideosWing, $hasExtrasWing); ?>
+  <?php amiga_tournament_videos_render_wc_wing_nav($id, $tournamentVideosWing, $hasExtrasWing, $hasGamesWing); ?>
 
   <?php if ($tournamentVideosWing === 'extras') { ?>
   <?php amiga_tournament_videos_render_wc_extras_table(

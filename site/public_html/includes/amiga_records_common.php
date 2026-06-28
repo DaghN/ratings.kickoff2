@@ -87,6 +87,58 @@ function amiga_records_profile_link(int $playerId, string $name): string
     return k2_amiga_player_link($playerId, $name);
 }
 
+/**
+ * @param array<int, string> $countryByPlayer
+ */
+function amiga_records_holder_player(int $playerId, string $name, array $countryByPlayer): string
+{
+    require_once __DIR__ . '/k2_amiga_country_flag.php';
+
+    return amiga_records_holder_html(
+        k2_amiga_lb_player_cell($playerId, $name, $countryByPlayer[$playerId] ?? '')
+    );
+}
+
+/**
+ * @param array<int, string> $countryByPlayer
+ */
+function amiga_records_holder_players_pair(
+    int $playerIdA,
+    string $nameA,
+    int $playerIdB,
+    string $nameB,
+    array $countryByPlayer,
+): string {
+    require_once __DIR__ . '/k2_amiga_country_flag.php';
+
+    $cellA = k2_amiga_lb_player_cell($playerIdA, $nameA, $countryByPlayer[$playerIdA] ?? '');
+    $cellB = k2_amiga_lb_player_cell($playerIdB, $nameB, $countryByPlayer[$playerIdB] ?? '');
+
+    return amiga_records_holder_html($cellA . ' / ' . $cellB);
+}
+
+/**
+ * @return list<int>
+ */
+function amiga_hof_holder_ids_from_records(array $records): array
+{
+    require_once __DIR__ . '/amiga_realm_snapshot_read_lib.php';
+
+    $ids = [];
+    foreach (amiga_hof_record_column_names() as $column) {
+        // Holder FK columns: *ID, *IDA, *IDB (dual-player game records).
+        if (!preg_match('/ID(A|B)?$/', $column)) {
+            continue;
+        }
+        $id = (int) ($records[$column] ?? 0);
+        if ($id > 0) {
+            $ids[] = $id;
+        }
+    }
+
+    return array_values(array_unique($ids));
+}
+
 function amiga_records_render_row(
     string $label,
     string $valueHtml,

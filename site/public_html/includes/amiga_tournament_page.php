@@ -248,15 +248,15 @@ $hasVideosTab = amiga_tournament_has_videos($id);
 
 $tournamentVideosRows = [];
 
-$tournamentVideosGrouped = [];
-
-$tournamentVideoPlayerNames = [];
-
 $tournamentVideosWing = 'games';
 
 $tournamentVideosGameEntries = [];
 
 $tournamentVideosExtrasRows = [];
+
+$tournamentVideosHasGamesWing = false;
+
+$tournamentVideosHasExtrasWing = false;
 
 $tournamentVideosSpotlight = null;
 
@@ -274,17 +274,15 @@ if ($hasVideosTab) {
 
     $tournamentVideosRows = amiga_tournament_videos_for_id($id);
 
-    $tournamentVideosGrouped = amiga_tournament_videos_grouped($tournamentVideosRows);
-
-    $tournamentVideoPlayerNames = amiga_tournament_videos_player_names($con, $tournamentVideosRows);
-
-    if ($isWorldCupEvent && $pageView === 'videos') {
+    if ($pageView === 'videos') {
         [$tournamentVideosMatchRows, $tournamentVideosExtrasRows] = amiga_tournament_videos_partition($tournamentVideosRows);
         $tournamentVideosGameEntries = amiga_tournament_videos_wc_game_index($con, $id, $tournamentVideosMatchRows);
-        $tournamentVideosWing = amiga_tournament_videos_wing_from_request($tournamentVideosExtrasRows !== []);
-        if ($tournamentVideosWing === 'extras' && $tournamentVideosExtrasRows === []) {
-            $tournamentVideosWing = 'games';
-        }
+        $tournamentVideosHasGamesWing = $tournamentVideosGameEntries !== [];
+        $tournamentVideosHasExtrasWing = $tournamentVideosExtrasRows !== [];
+        $tournamentVideosWing = amiga_tournament_videos_wing_from_request(
+            $tournamentVideosHasExtrasWing,
+            $tournamentVideosHasGamesWing,
+        );
         $tournamentVideosExtrasRows = amiga_tournament_videos_sort_extras($tournamentVideosExtrasRows);
         $tournamentVideosIndexUrl = amiga_tournament_href(amiga_tournament_videos_url($id, $tournamentVideosWing));
         $videoRequest = amiga_tournament_videos_wc_request_params();

@@ -35,14 +35,14 @@ function amiga_records_hof_lb_target(string $metric): ?array
         'goal_ratio' => ['wing' => 'goals', 'sort' => 8, 'dir' => 'desc'],
         'dd_ratio' => ['wing' => 'double-digits', 'sort' => 6, 'dir' => 'desc'],
         'cs_ratio' => ['wing' => 'double-digits', 'sort' => 7, 'dir' => 'desc'],
-        'most_games_in_year' => ['wing' => 'calendar-geo', 'sort' => 4, 'dir' => 'desc'],
-        'most_tournaments_in_year' => ['wing' => 'calendar-geo', 'sort' => 6, 'dir' => 'desc'],
-        'most_tournaments_played' => ['wing' => 'tournament-honours', 'sort' => 4, 'dir' => 'desc'],
-        'most_tournament_wins' => ['wing' => 'tournament-honours', 'sort' => 5, 'dir' => 'desc'],
-        'most_wc_played' => ['wing' => 'world-cups', 'sort' => 4, 'dir' => 'desc'],
-        'most_countries_played_in' => ['wing' => 'calendar-geo', 'sort' => 8, 'dir' => 'desc'],
-        'most_opponent_countries_faced' => ['wing' => 'calendar-geo', 'sort' => 9, 'dir' => 'desc'],
-        'most_opponent_countries_beaten' => ['wing' => 'calendar-geo', 'sort' => 10, 'dir' => 'desc'],
+        'most_games_in_year' => ['wing' => 'calendar-geo', 'sort' => 3, 'dir' => 'desc'],
+        'most_tournaments_in_year' => ['wing' => 'calendar-geo', 'sort' => 5, 'dir' => 'desc'],
+        'most_tournaments_played' => ['wing' => 'tournament-honours', 'sort' => 3, 'dir' => 'desc'],
+        'most_tournament_wins' => ['wing' => 'tournament-honours', 'sort' => 4, 'dir' => 'desc'],
+        'most_wc_played' => ['wing' => 'world-cups', 'sort' => 3, 'dir' => 'desc'],
+        'most_countries_played_in' => ['wing' => 'calendar-geo', 'sort' => 7, 'dir' => 'desc'],
+        'most_opponent_countries_faced' => ['wing' => 'calendar-geo', 'sort' => 8, 'dir' => 'desc'],
+        'most_opponent_countries_beaten' => ['wing' => 'calendar-geo', 'sort' => 9, 'dir' => 'desc'],
     ];
 
     return $map[$metric] ?? null;

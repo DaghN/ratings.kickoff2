@@ -8,6 +8,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = REPO_ROOT / "data" / "amiga" / "tournament_videos"
 RAW_DIR = DATA_DIR / "raw"
 REVIEW_CSV = DATA_DIR / "review.csv"
+DROPPED_CSV = DATA_DIR / "dropped.csv"
 MANIFEST_JSON = REPO_ROOT / "site" / "public_html" / "data" / "amiga" / "tournament_videos.json"
 
 FORUM_URL = "https://ko-gathering.com/forum/viewtopic.php?t=15358"
@@ -81,6 +82,13 @@ CSV_COLUMNS = [
     "notes",
     "external_url",
     "wc_video_slot",
+]
+
+DROPPED_CSV_COLUMNS = [
+    "youtube_id",
+    "title",
+    "reason",
+    "dropped_on",
 ]
 
 PLAYLIST_OFFLINE_WC_MAX_YEAR = 2023

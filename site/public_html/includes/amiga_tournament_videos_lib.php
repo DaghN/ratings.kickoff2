@@ -296,6 +296,11 @@ function amiga_tournament_videos_wc_sort_bucket(array $video): int
     }
 
     $stage = strtolower((string) ($video['stage'] ?? ''));
+
+    if ($stage === 'bronze' || str_contains(strtolower((string) ($video['title'] ?? '')), '3rd place')) {
+        return 20;
+    }
+
     $title = strtolower((string) ($video['title'] ?? ''));
 
     if ($stage === 'semi' || str_contains($title, 'semi final') || str_contains($title, 'semi-final')) {
@@ -321,10 +326,16 @@ function amiga_tournament_videos_wc_sort_bucket(array $video): int
     return 60;
 }
 
-function amiga_tournament_videos_wing_from_request(bool $hasExtrasWing): string
+function amiga_tournament_videos_wing_from_request(bool $hasExtrasWing, bool $hasGamesWing = true): string
 {
-    $wing = isset($_GET['wing']) ? trim((string) $_GET['wing']) : 'games';
+    $wing = isset($_GET['wing']) ? trim((string) $_GET['wing']) : '';
     if ($wing === 'extras' && $hasExtrasWing) {
+        return 'extras';
+    }
+    if ($wing === 'games' && $hasGamesWing) {
+        return 'games';
+    }
+    if (!$hasGamesWing && $hasExtrasWing) {
         return 'extras';
     }
 

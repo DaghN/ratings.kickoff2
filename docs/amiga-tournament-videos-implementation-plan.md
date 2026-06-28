@@ -1,6 +1,6 @@
 # Amiga tournament videos — implementation plan
 
-**Status:** **In progress (Jun 2026)** — policy locked; **TV-0–TV-3 shipped**; **TV-URL** specced ([`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md), not started). **TV-4** discovery surfaces next (Chronology clip indicator + Has videos filter). Future: admin bulk-verify page (video + proposed game_id side-by-side).
+**Status:** **In progress (Jun 2026)** — policy locked; **TV-0–TV-3 shipped**; **TV-1 human review sign-off (Jun 2026)** — tournaments index + orphan→tournament queues complete (see policy §10). **TV-URL** shipped (embedded player + deep links). **TV-4** partial — **With videos** filter shipped; Chronology clip indicator TBD. Future: admin bulk-verify page.
 
 **Policy:** [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md)
 
@@ -147,6 +147,8 @@ python -m scripts.amiga.tournament_videos.harvest
 ```
 
 **Human gate:** Dagh edits `review.csv` — set `verified=Y`, fix `guessed_tournament_id`, `relation`, `kind`, Greek Champs 2011, Milan I 2003, excluded online WC.
+
+**Sign-off (Jun 2026):** Manual review complete — tournaments index (all events) + orphan→tournament assignment; no obvious misplacements. Orphans page retains non-event KO2 + excluded audit only. See policy §10 **Human review sign-off**.
 
 ---
 
@@ -377,15 +379,19 @@ Store optional slice notes in chat; no separate handoff file unless multi-agent.
 
 ---
 
-## Open items (resolve during TV-1 / TV-2 review)
+## Open items (TV-1 / TV-2 review — resolved Jun 2026)
 
-| Item | Default if unresolved |
-|------|------------------------|
-| Greek Champs 2011 → `tournament_id` | Dagh picks Athens LXX* row or leaves unmapped until disposition |
-| Milan I 2003 | Map to separate tournament or `excluded` |
-| 2010 dual URLs | Both rows, one `canonical` after spot-check |
+| Item | Resolution |
+|------|------------|
+| Greek Champs 2011 → `tournament_id` | Mapped via disposition / review passes |
+| Milan I 2003 | Mapped or excluded per review |
+| 2010 dual URLs | Canonical/alternate pairs in manifest |
 | Online WC 2024 in playlist | `kind: excluded` — not on Amiga tournament page |
 | WMV mirrors | `external_url` on YouTube row or separate `external_file` row |
+| **Tournament catalog placement** | **Sign-off Jun 2026** — no obvious mis-assignments on tournaments index |
+| **Orphan → tournament queue** | **Sign-off Jun 2026** — nothing left on orphans page for tournament tabs |
+
+Re-open on new harvest rows or specific misfile reports only.
 
 ---
 
