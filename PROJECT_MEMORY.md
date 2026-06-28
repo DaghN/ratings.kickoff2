@@ -527,6 +527,7 @@
 | 2026-06 | **Profile career chart alignment (B+C)** — `profileCareerTimeRange()` (Jun 2017 month → month-end); rating by date axis only; `offset: false` on month bars. |
 | 2026-06 | **Profile career chart gutters (slice A)** — shared 48px y-axis + 12px right padding via `chart-theme.js` (rating, games/month, goals). |
 | 2026-06 | **Amiga time travel realm home** — wordmark + Amiga 500 toggle keep active `as=` and land on rating LB (not News) when in time travel. |
+| 2026-06 | **Amiga Opponents Goals column label** — Goals tab header **TG/g** → **Sum/g** (`amiga_player_opponents_tables.php`). |
 | 2026-06 | **Amiga TT T14c** — *(toggle entry superseded T19)* `amiga_tournament_snapshot_as_param()` retained for event ribbon on `tournament.php` (§5.1.1). |
 | 2026-06 | **Profile bonanza moment logic** — 3× ratio gate on primary sum game; global highest-`SumOfGoals` fallback where ratio passes (replaced H2H win vs same opponent). |
 | 2026-06 | **Profile heatmap section rhythm** — padding breaks (no margin collapse): story→days 24px; days→weeks ~52px; weeks→bursts ~32px. |

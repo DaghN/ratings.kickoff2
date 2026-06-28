@@ -131,7 +131,7 @@ function amiga_player_opponents_render_goals_table_from_rows(array $rows, int $p
         <th data-k2-sort="number" data-k2-tooltip-label="Goals scored per game" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goals_scored_avg(), ENT_QUOTES, 'UTF-8'); ?>">GF/g</th>
         <th data-k2-sort="number" data-k2-tooltip-label="Goals conceded per game" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goals_conceded_avg(), ENT_QUOTES, 'UTF-8'); ?>">GA/g</th>
         <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_goal_ratio(), ENT_QUOTES, 'UTF-8'); ?>">Ratio</th>
-        <th data-k2-sort="number" data-k2-tooltip-label="Total goals per game" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_total_goals_per_game(), ENT_QUOTES, 'UTF-8'); ?>">TG/g</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Total goals per game" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_total_goals_per_game(), ENT_QUOTES, 'UTF-8'); ?>">Sum/g</th>
         <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_most_scored(), ENT_QUOTES, 'UTF-8'); ?>">Max GF</th>
         <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_most_conceded(), ENT_QUOTES, 'UTF-8'); ?>">Max GA</th>
         <th data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_win_margin(), ENT_QUOTES, 'UTF-8'); ?>">Max win</th>

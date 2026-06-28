@@ -57,7 +57,7 @@ Amiga already has cumulative pair data at finalize (`amiga_player_matchup_summar
 | Need | Present source | Time-travel source | Online analogue |
 |------|----------------|-------------------|-----------------|
 | W/D/L table | `matchup_summary` | `matchup_at_event` | `player_matchup_summary` |
-| Goals core (GF, GA, averages, ratio, TG/g) | same | same | same |
+| Goals core (GF, GA, averages, ratio, Sum/g) | same | same | same |
 | DDs counts | `dd_wins`, `dd_losses`, `cs_wins`, `cs_losses` | same | `double_digits`, `clean_sheets`, … |
 | Top opponents list | summary | at-event | profile bar / picker ordering |
 | H2H poster W/D/L | directed summary row | directed at-event row | poster centre record |
