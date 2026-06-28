@@ -1,6 +1,6 @@
 # Amiga cumulative matchup at event — policy
 
-**Status:** **Locked** (Jun 2026).  
+**Status:** **Locked** (Jun 2026). Extended **SCH-044** (Jun 2026): per-opponent `performance_rating` on both tables.  
 **Implementation plan:** [`amiga-matchup-at-event-implementation-plan.md`](amiga-matchup-at-event-implementation-plan.md)  
 **Parent:** [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.4
 
@@ -48,8 +48,11 @@ Directed `(player_id → opponent_id)`:
 | `dd_losses` | Games opponent scored ≥10 vs subject |
 | `cs_wins` | Games subject clean sheet vs opponent (`goals_against = 0`) |
 | `cs_losses` | Games opponent clean sheet vs subject (`goals_for = 0`) |
+| `performance_rating` | Cumulative directed pair **TPR** through E (SCH-044) — Elo level implied by subject's results vs opponent over all games to date, using each game's **frozen pre-game opponent rating**. `NULL` for `< 2` games or a perfect (all-win / all-loss) record. See [`amiga-performance-rating.md`](amiga-performance-rating.md). |
 
 At-event rows also denorm `event_date`, `event_chrono` from `as_of_tournament_id` for cutoff queries.
+
+**`performance_rating` is not derivable from the cumulative scalars** (the TPR sum is non-linear), so finalize recomputes it only for **touched pairs** (pairs that played in E): the full replay path accumulates per-game `(opponent_rating, score)` samples in memory; the warm/live path reseeds each touched pair from `amiga_game_ratings`. Untouched pairs carry the prior value forward (unchanged since their last meeting). Time-travel reads take the latest at-event row ≤ cutoff — same as every other column.
 
 ---
 
@@ -78,9 +81,10 @@ Written onto `PlayerState` before snapshot persist so career rows stay self-cont
 2. Derive network scalars from pair map → PlayerState
 3. Update peak/nadir from event rating_after
 4. Persist event snapshots + current (existing)
-5. DELETE + INSERT amiga_player_matchup_at_event rows for (participant × opponent × tournament_id)
-6. UPSERT amiga_player_matchup_summary from cumulative map for touched pairs
-7. Mark rating_finalized
+5. Recompute `performance_rating` for **touched pairs** (played this event) — in-memory samples (replay) or reseed from `amiga_game_ratings` (warm/live)
+6. DELETE + INSERT amiga_player_matchup_at_event rows for (participant × opponent × tournament_id)
+7. UPSERT amiga_player_matchup_summary from cumulative map for touched pairs
+8. Mark rating_finalized
 ```
 
 Replay = loop finalize only. **No tail batches** for matchup, network, or catalog.
@@ -107,6 +111,7 @@ At cutoff T: pair rows where `event_date/chrono ≤ T`, take latest row per `(pl
 
 - `SUM(matchup_summary.games) = 2 × COUNT(amiga_games)` (unchanged)
 - At-event row count ≈ sum of cumulative opponent counts at each snapshot event
-- Summary row = at-event row for each pair at player's **latest participated event** (order by `event_date`, `event_chrono`, `as_of_tournament_id` — not `MAX(as_of_tournament_id)` alone; catalog ids are not chrono-monotonic)
+- Summary row = at-event row for each pair at player's **latest participated event** (order by `event_date`, `event_chrono`, `as_of_tournament_id` — not `MAX(as_of_tournament_id)` alone; catalog ids are not chrono-monotonic) — includes `performance_rating` (null-safe `<=>`)
 - Snapshot `DifferentOpponents` = pair-count oracle at same `tournament_id`
+- `performance_rating` spot-check: re-solve TPR from `amiga_game_ratings` for sample pairs and compare to stored summary value (`verify_player_matchups`)
 - `python -m scripts.amiga prove` green

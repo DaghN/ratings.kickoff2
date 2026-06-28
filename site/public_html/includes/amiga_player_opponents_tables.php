@@ -52,6 +52,7 @@ function amiga_player_opponents_render_wdl_table_from_rows(array $rows, int $pla
         <th data-k2-sort="number" data-k2-help="Share of games won against this opponent.">Win Ratio</th>
         <th data-k2-sort="number" data-k2-help="Share of games drawn against this opponent.">Draw Ratio</th>
         <th data-k2-sort="number" data-k2-help="Share of games lost against this opponent.">Loss Ratio</th>
+        <th data-k2-sort="number" data-k2-tooltip-label="Performance rating" data-k2-help="The Elo level implied by the hero's results against this opponent (frozen pre-game opponent ratings). Needs at least 2 games and a non-perfect record.">Perf. rating</th>
     </tr>
 </thead>
 <tbody>
@@ -65,6 +66,9 @@ function amiga_player_opponents_render_wdl_table_from_rows(array $rows, int $pla
 	    $winRatio = amiga_player_opponents_matchup_ratio($wins, $games);
 	    $drawRatio = amiga_player_opponents_matchup_ratio($draws, $games);
 	    $lossRatio = amiga_player_opponents_matchup_ratio($losses, $games);
+	    $perfRating = isset($row['performance_rating']) && $row['performance_rating'] !== null
+	        ? (int) round((float) $row['performance_rating'])
+	        : null;
 	    ?>
     <tr>
         <td<?php echo k2_lb_td(0, $sort, 'k2-table-cell--left'); ?>><?php echo k2_amiga_player_link($opponentId, $opponentName); ?></td>
@@ -90,6 +94,7 @@ function amiga_player_opponents_render_wdl_table_from_rows(array $rows, int $pla
         <td><?php echo number_format(100 * $drawRatio, 1);
         echo '%'; ?></td>
         <td><?php echo $losses != 0 ? number_format(100 * $lossRatio, 1) . '%' : '0%'; ?></td>
+        <td<?php echo $perfRating === null ? ' data-k2-sort-value="-1"' : ''; ?>><?php echo $perfRating !== null ? k2_fmt_int($perfRating) : '—'; ?></td>
     </tr>
     <?php } ?>
 </tbody>

@@ -176,66 +176,6 @@ function amiga_player_opponents_h2h_load_player_card(
 }
 
 /**
- * @return array{subject: ?int, opponent: ?int}
- */
-function amiga_player_h2h_pair_performance_ratings(
-    mysqli $con,
-    int $playerId,
-    int $opponentId,
-    ?AmigaSnapshotContext $ctx = null
-): array {
-    $playerId = max(0, $playerId);
-    $opponentId = max(0, $opponentId);
-    if ($playerId < 1 || $opponentId < 1 || $playerId === $opponentId) {
-        return ['subject' => null, 'opponent' => null];
-    }
-
-    $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
-    $types = '';
-    $params = [];
-    $whereSql = amiga_games_where_clause(
-        $playerId,
-        '',
-        $opponentId,
-        0,
-        '',
-        '',
-        '',
-        '',
-        0,
-        0,
-        0,
-        -1,
-        -1,
-        -1,
-        null,
-        $types,
-        $params,
-        $ctx
-    );
-
-    $sql = 'SELECT r.idA, r.RatingA, r.RatingB, r.ActualScore '
-        . amiga_rated_games_from_sql()
-        . ' WHERE ' . $whereSql
-        . ' ORDER BY r.`Date` ASC, r.id ASC';
-
-    $rows = amiga_games_query_all($con, $sql, $types, $params);
-    if ($rows === []) {
-        return ['subject' => null, 'opponent' => null];
-    }
-
-    $subjectPairs = player_h2h_performance_rating_pairs_for_player($rows, $playerId);
-    $opponentPairs = player_h2h_performance_rating_pairs_for_player($rows, $opponentId);
-    $subjectPerf = amiga_performance_rating_from_pairs($subjectPairs);
-    $opponentPerf = amiga_performance_rating_from_pairs($opponentPairs);
-
-    return [
-        'subject' => $subjectPerf !== null ? (int) round($subjectPerf) : null,
-        'opponent' => $opponentPerf !== null ? (int) round($opponentPerf) : null,
-    ];
-}
-
-/**
  * @return array<string, mixed>|null
  */
 function amiga_player_opponents_h2h_pair_detail_load(
@@ -257,9 +197,16 @@ function amiga_player_opponents_h2h_pair_detail_load(
         return $detail;
     }
 
-    $perf = amiga_player_h2h_pair_performance_ratings($con, $playerId, $opponentId, $ctx);
-    $detail['perf_rating_subject'] = $perf['subject'];
-    $detail['perf_rating_opponent'] = $perf['opponent'];
+    // Stored directed pair TPR (holy ops finalize) — subject is the player→opponent
+    // row; opponent is the reverse directed row. No on-the-fly solve.
+    $detail['perf_rating_subject'] = isset($row['performance_rating']) && $row['performance_rating'] !== null
+        ? (int) round((float) $row['performance_rating'])
+        : null;
+    $reverse = amiga_player_opponents_h2h_directed_row($con, $opponentId, $playerId, $ctx);
+    $detail['perf_rating_opponent'] = ($reverse !== null
+        && isset($reverse['performance_rating']) && $reverse['performance_rating'] !== null)
+        ? (int) round((float) $reverse['performance_rating'])
+        : null;
 
     return $detail;
 }

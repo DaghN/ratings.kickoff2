@@ -22,6 +22,51 @@ function k2_h(mixed $value): string
 	return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
 
+/** Request origin (scheme + host) for third-party embeds that require an origin param. */
+function k2_request_origin(): string
+{
+	$host = (string) ($_SERVER['HTTP_HOST'] ?? '');
+	if ($host === '') {
+		return '';
+	}
+	$proto = 'http';
+	if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+		$proto = 'https';
+	} elseif (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+		$xf = strtolower((string) $_SERVER['HTTP_X_FORWARDED_PROTO']);
+		if ($xf === 'https' || $xf === 'http') {
+			$proto = $xf;
+		}
+	} elseif (isset($_SERVER['SERVER_PORT']) && (int) $_SERVER['SERVER_PORT'] === 443) {
+		$proto = 'https';
+	}
+
+	return $proto . '://' . $host;
+}
+
+/**
+ * Privacy-enhanced YouTube embed URL (youtube-nocookie.com) with origin for player config.
+ *
+ * @param array<string, int|string> $params start, autoplay, etc.
+ */
+function k2_youtube_embed_url(string $youtubeId, array $params = []): string
+{
+	$id = preg_replace('/[^A-Za-z0-9_-]/', '', $youtubeId) ?? '';
+	if ($id === '') {
+		return '';
+	}
+	$origin = k2_request_origin();
+	if ($origin !== '') {
+		$params['origin'] = $origin;
+	}
+	$url = 'https://www.youtube-nocookie.com/embed/' . rawurlencode($id);
+	if ($params === []) {
+		return $url;
+	}
+
+	return $url . '?' . http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+}
+
 function k2_public_error(string $message = 'Could not load ratings data.', int $statusCode = 500): void
 {
 	if (!headers_sent()) {

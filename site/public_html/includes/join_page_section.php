@@ -9,7 +9,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/join_page_links.php';
 
 $links = k2_join_page_links();
 $promoEmbedId = $links['youtube_promo_embed_id'];
-$promoEmbedSrc = 'https://www.youtube.com/embed/' . rawurlencode($promoEmbedId);
+$promoEmbedSrc = k2_youtube_embed_url($promoEmbedId);
 ?>
 <section class="k2-join-page" aria-labelledby="k2-join-title">
 	<header class="k2-join-page__hero">

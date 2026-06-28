@@ -96,7 +96,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 
 <?php if ($row !== null) { ?>
 <?php
-$k2GameVideoUrl = 'https://www.youtube-nocookie.com/embed/fILBf_fVNzY';
+$k2GameVideoUrl = k2_youtube_embed_url('fILBf_fVNzY');
 $k2GameVideoTitle = '2024 Online World Championship final — Blazej vs EternalStudent';
 ?>
 <section class="k2-game-page__aside" aria-labelledby="k2-game-page-while-we-wait">

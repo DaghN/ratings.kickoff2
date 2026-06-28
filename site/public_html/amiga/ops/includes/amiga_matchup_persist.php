@@ -33,7 +33,19 @@ function amiga_matchup_pair_columns(): array
         'dd_losses',
         'cs_wins',
         'cs_losses',
+        'performance_rating',
     ];
+}
+
+/** mysqli bind types for the pair columns ('d' for the decimal perf rating). */
+function amiga_matchup_pair_column_types(): string
+{
+    $types = '';
+    foreach (amiga_matchup_pair_columns() as $col) {
+        $types .= $col === 'performance_rating' ? 'd' : 'i';
+    }
+
+    return $types;
 }
 
 /**
@@ -87,7 +99,7 @@ function amiga_ops_persist_matchup_at_event(
             foreach ($cols as $col) {
                 $params[] = $row[$col];
             }
-            $types = 'iiisi' . str_repeat('i', count($cols));
+            $types = 'iiisi' . amiga_matchup_pair_column_types();
             $stmt->bind_param($types, ...$params);
             if (!$stmt->execute()) {
                 throw new RuntimeException('execute matchup at-event insert: ' . $stmt->error);
@@ -131,7 +143,7 @@ function amiga_ops_upsert_matchup_summary(
             foreach ($cols as $col) {
                 $params[] = $row[$col];
             }
-            $types = 'ii' . str_repeat('i', count($cols));
+            $types = 'ii' . amiga_matchup_pair_column_types();
             $stmt->bind_param($types, ...$params);
             if (!$stmt->execute()) {
                 throw new RuntimeException('execute matchup summary upsert: ' . $stmt->error);

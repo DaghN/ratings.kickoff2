@@ -49,6 +49,8 @@ function amiga_player_opponents_normalize_matchup_row(array $row): array
         'double_digits_conceded' => (int) ($row['dd_losses'] ?? 0),
         'clean_sheets' => (int) ($row['cs_wins'] ?? 0),
         'clean_sheets_conceded' => (int) ($row['cs_losses'] ?? 0),
+        'performance_rating' => array_key_exists('performance_rating', $row) && $row['performance_rating'] !== null
+            ? (float) $row['performance_rating'] : null,
     ];
 }
 

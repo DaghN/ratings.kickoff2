@@ -564,6 +564,7 @@ def finalize_tournament(
     pending_delta: dict[int, float] = {pid: 0.0 for pid in participant_ids}
     games_in_event: dict[int, int] = {pid: 0 for pid in participant_ids}
     perf_pairs: dict[int, list[tuple[float, float]]] = {pid: [] for pid in participant_ids}
+    touched_matchup_pairs: set[tuple[int, int]] = set()
     rating_rows: list[dict[str, Any]] = []
     ratings_by_game_id: dict[int, dict[str, Any]] = {}
     event_commits: dict[int, dict[str, Any]] = {}
@@ -592,6 +593,9 @@ def finalize_tournament(
             games_in_event[id_b] = games_in_event.get(id_b, 0) + 1
             perf_pairs[id_a].append((rating_b, score_a))
             perf_pairs[id_b].append((rating_a, 1.0 - score_a))
+            matchups.apply_pair_perf_sample(id_a, id_b, rating_a, rating_b, score_a)
+            touched_matchup_pairs.add((id_a, id_b))
+            touched_matchup_pairs.add((id_b, id_a))
             rating_rows.append(_row_to_rating_insert_finalize(game_id, row))
             ratings_by_game_id[game_id] = _row_to_rating_insert(game_id, row)
 
@@ -625,6 +629,10 @@ def finalize_tournament(
         )
 
     conn.commit()
+
+    # Per-opponent cumulative TPR: replay solves from in-memory samples; the
+    # warm/live path reseeds touched pairs from the now-committed game ratings.
+    matchups.recompute_touched_perf(conn, touched_matchup_pairs)
 
     for pid in sorted(participant_ids):
         if pid not in event_commits:

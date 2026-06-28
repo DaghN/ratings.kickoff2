@@ -7,6 +7,7 @@ from typing import Any
 
 import pymysql
 
+from scripts.amiga.performance_rating import performance_rating_from_pairs
 from scripts.k2_rating_core.player_state import PlayerState
 
 _EXTREME_COLS = (
@@ -43,6 +44,12 @@ class PairTotals:
     dd_losses: int = 0
     cs_wins: int = 0
     cs_losses: int = 0
+    # Cumulative directed pair TPR through processed history (frozen per-game
+    # opponent ratings). ``perf_samples`` is the in-memory (opponent_rating,
+    # score) list used by the full replay path; the warm/live path leaves it
+    # empty and reseeds ``performance_rating`` from the DB for touched pairs.
+    performance_rating: float | None = None
+    perf_samples: list[tuple[float, float]] = field(default_factory=list)
 
     def to_row(self, player_id: int, opponent_id: int) -> dict[str, Any]:
         row = {
@@ -58,6 +65,7 @@ class PairTotals:
             "dd_losses": self.dd_losses,
             "cs_wins": self.cs_wins,
             "cs_losses": self.cs_losses,
+            "performance_rating": self.performance_rating,
         }
         for col in _EXTREME_COLS:
             row[col] = getattr(self, col)
@@ -112,6 +120,10 @@ class MatchupCumulative:
     """player_id -> opponent_id -> cumulative pair totals through processed history."""
 
     pairs: dict[int, dict[int, PairTotals]] = field(default_factory=dict)
+    # True for a full replay object that has seen every game from the start, so
+    # in-memory ``perf_samples`` are complete. ``load_from_summary`` flips this
+    # off (warm/live path) — touched-pair perf is then reseeded from the DB.
+    perf_complete: bool = True
 
     def _pair(self, player_id: int, opponent_id: int) -> PairTotals:
         by_opp = self.pairs.setdefault(player_id, {})
@@ -160,6 +172,70 @@ class MatchupCumulative:
         if cs_a:
             pb.cs_losses += 1
 
+    def apply_pair_perf_sample(
+        self,
+        id_a: int,
+        id_b: int,
+        rating_a: float,
+        rating_b: float,
+        score_a: float,
+    ) -> None:
+        """Append one game's directed (opponent_rating, score) sample per pair.
+
+        Only meaningful on the full replay path (``perf_complete``); the warm
+        path reseeds touched-pair perf from the DB instead.
+        """
+        if not self.perf_complete:
+            return
+        self._pair(id_a, id_b).perf_samples.append((float(rating_b), float(score_a)))
+        self._pair(id_b, id_a).perf_samples.append((float(rating_a), 1.0 - float(score_a)))
+
+    def recompute_touched_perf(
+        self,
+        conn: pymysql.connections.Connection | None,
+        touched_pairs: set[tuple[int, int]],
+    ) -> None:
+        """Recompute ``performance_rating`` for directed pairs played this event.
+
+        Replay path solves from accumulated in-memory samples; warm/live path
+        reseeds each touched pair's samples from ``amiga_game_ratings``.
+        """
+        for player_id, opponent_id in touched_pairs:
+            pair = self._pair(player_id, opponent_id)
+            if self.perf_complete:
+                samples = pair.perf_samples
+            else:
+                samples = self._perf_samples_from_db(conn, player_id, opponent_id)
+            pair.performance_rating = performance_rating_from_pairs(samples)
+
+    @staticmethod
+    def _perf_samples_from_db(
+        conn: pymysql.connections.Connection | None,
+        player_id: int,
+        opponent_id: int,
+    ) -> list[tuple[float, float]]:
+        """All rated directed (opponent_rating, score) samples for one pair."""
+        if conn is None:
+            return []
+        sql = """
+            SELECT g.player_a_id AS idA, r.rating_a, r.rating_b, r.actual_score
+            FROM amiga_games g
+            INNER JOIN amiga_game_ratings r ON r.game_id = g.id
+            WHERE (g.player_a_id = %s AND g.player_b_id = %s)
+               OR (g.player_a_id = %s AND g.player_b_id = %s)
+        """
+        with conn.cursor() as cur:
+            cur.execute(sql, (player_id, opponent_id, opponent_id, player_id))
+            rows = cur.fetchall()
+        samples: list[tuple[float, float]] = []
+        for row in rows:
+            score_a = float(row["actual_score"])
+            if int(row["idA"]) == player_id:
+                samples.append((float(row["rating_b"]), score_a))
+            else:
+                samples.append((float(row["rating_a"]), 1.0 - score_a))
+        return samples
+
     def pairs_for_player(self, player_id: int) -> dict[int, PairTotals]:
         return self.pairs.get(player_id, {})
 
@@ -171,6 +247,9 @@ class MatchupCumulative:
         """Warm cumulative state from present summary (live finalize path)."""
         if not player_ids:
             return
+        # In-memory perf samples are not reconstructable from summary scalars;
+        # touched pairs are reseeded from amiga_game_ratings at finalize.
+        self.perf_complete = False
         placeholders = ", ".join(["%s"] * len(player_ids))
         sql = f"""
             SELECT player_id, opponent_id, games, wins, draws, losses,
@@ -178,7 +257,8 @@ class MatchupCumulative:
                    max_goals_for, max_goals_against, min_goals_for, min_goals_against,
                    max_win_margin, max_loss_margin, max_draw_goals,
                    max_goal_sum, min_goal_sum,
-                   dd_wins, dd_losses, cs_wins, cs_losses
+                   dd_wins, dd_losses, cs_wins, cs_losses,
+                   performance_rating
             FROM amiga_player_matchup_summary
             WHERE player_id IN ({placeholders})
         """
@@ -219,6 +299,11 @@ class MatchupCumulative:
                     dd_losses=int(row["dd_losses"]),
                     cs_wins=int(row["cs_wins"]),
                     cs_losses=int(row["cs_losses"]),
+                    performance_rating=(
+                        float(row["performance_rating"])
+                        if row["performance_rating"] is not None
+                        else None
+                    ),
                 )
 
     def network_counts(self, player_id: int) -> dict[str, int]:

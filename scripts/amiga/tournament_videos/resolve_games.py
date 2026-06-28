@@ -284,12 +284,22 @@ def pick_game_ids(
     stage: str,
     leg: int | None,
     dual_leg_ok: bool,
+    player_a_id: int | None = None,
+    player_b_id: int | None = None,
 ) -> list[int]:
     if not games:
         return []
     if len(games) == 1:
         return [games[0].game_id]
     games = sorted(games, key=lambda g: g.game_id)
+    if player_a_id and player_b_id:
+        by_home = [
+            g
+            for g in games
+            if g.player_a_id == player_a_id and g.player_b_id == player_b_id
+        ]
+        if len(by_home) == 1:
+            return [by_home[0].game_id]
     dur = duration_sec or 0
     if (
         dual_leg_ok
@@ -415,6 +425,8 @@ def resolve_row(
         stage=stage,
         leg=leg,
         dual_leg_ok=True,
+        player_a_id=pa,
+        player_b_id=pb,
     )
     if ids:
         note = None

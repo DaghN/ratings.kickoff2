@@ -81,6 +81,7 @@ function amiga_matchup_opponents_select_columns(bool $atCutoff = false): array
         'm.dd_losses',
         'm.cs_wins',
         'm.cs_losses',
+        'm.performance_rating',
     ];
 }
 

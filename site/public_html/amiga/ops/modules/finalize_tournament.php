@@ -607,6 +607,8 @@ function amiga_finalize_tournament(
         $gamesInEvent = array_fill_keys($participantIds, 0);
         /** @var array<int, list<array{opponent: float, score: float}>> $perfPairs */
         $perfPairs = array_fill_keys($participantIds, []);
+        /** @var array<string, array{0: int, 1: int}> $touchedMatchupPairs */
+        $touchedMatchupPairs = [];
 
         foreach ($games as $game) {
             $matchups->applyGame($game);
@@ -625,6 +627,8 @@ function amiga_finalize_tournament(
             $gamesInEvent[$idB] = ($gamesInEvent[$idB] ?? 0) + 1;
             $perfPairs[$idA][] = ['opponent' => $ratingB, 'score' => $scoreA];
             $perfPairs[$idB][] = ['opponent' => $ratingA, 'score' => 1.0 - $scoreA];
+            $touchedMatchupPairs[$idA . ':' . $idB] = [$idA, $idB];
+            $touchedMatchupPairs[$idB . ':' . $idA] = [$idB, $idA];
 
             amiga_ops_write_game_ratings_finalize($con, $derived);
         }
@@ -706,6 +710,9 @@ function amiga_finalize_tournament(
     amiga_ops_log(
         'event snapshots: id=' . $tournamentId . ' rows=' . $snapshotRows
     );
+
+    // Per-opponent cumulative TPR: reseed touched pairs from committed ratings.
+    $matchups->recomputeTouchedPerf($con, array_values($touchedMatchupPairs));
 
     $eventDate = (string) $tour['event_date'];
     $eventChrono = (int) $tour['chrono'];

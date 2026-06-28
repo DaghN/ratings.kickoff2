@@ -129,7 +129,7 @@ function amiga_player_wc_medal_counts(mysqli $con, int $playerId, ?AmigaSnapshot
     $eventDate = (string) $cutoff['event_date'];
     $chrono = (float) $cutoff['chrono'];
     $tournamentId = (int) $cutoff['tournament_id'];
-    $stmt->bind_param('sissdi', $sliceKey, $playerId, $eventDate, $chrono, $tournamentId);
+    $stmt->bind_param('sisdi', $sliceKey, $playerId, $eventDate, $chrono, $tournamentId);
     if (!$stmt->execute()) {
         $stmt->close();
 

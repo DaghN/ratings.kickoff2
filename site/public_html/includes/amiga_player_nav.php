@@ -9,6 +9,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/k2_amiga_routes.php';
 require_once __DIR__ . '/amiga_snapshot_url.php';
 require_once __DIR__ . '/amiga_player_opponents_lib.php';
+require_once __DIR__ . '/amiga_player_videos_lib.php';
 
 $k2AmigaPlayerTabActive = $k2AmigaPlayerTabActive ?? 'profile';
 $id = isset($id) ? (int) $id : 0;
@@ -18,6 +19,12 @@ $k2AmigaPlayerTabs = [
     'tournaments' => ['href' => k2_amiga_route('amiga-player-tournaments', ['id' => $id]), 'label' => 'Tournaments'],
     'games' => ['href' => k2_amiga_route('amiga-player-games', ['id' => $id]), 'label' => 'Games'],
 ];
+if ($id > 0 && amiga_player_has_videos($id)) {
+    $k2AmigaPlayerTabs['videos'] = [
+        'href' => amiga_player_videos_url($id),
+        'label' => 'Videos',
+    ];
+}
 ?>
 <div class="k2-chrome-tabs k2-player-wing-tabs">
 	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Player sections">

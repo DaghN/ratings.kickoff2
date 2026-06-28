@@ -32,5 +32,25 @@ class PairTotalsExtremesTests(unittest.TestCase):
         self.assertEqual(ba.max_loss_margin, 10)
 
 
+class PairPerformanceRatingTests(unittest.TestCase):
+    def test_perf_rating_replay_path(self) -> None:
+        m = MatchupCumulative()
+        # One win and one loss vs a 1500-rated opponent -> TPR ~ 1500.
+        m.apply_game({"player_a_id": 1, "player_b_id": 2, "goals_a": 3, "goals_b": 0})
+        m.apply_pair_perf_sample(1, 2, 1500.0, 1500.0, 1.0)
+        m.apply_game({"player_a_id": 1, "player_b_id": 2, "goals_a": 0, "goals_b": 3})
+        m.apply_pair_perf_sample(1, 2, 1500.0, 1500.0, 0.0)
+        m.recompute_touched_perf(None, {(1, 2), (2, 1)})
+        self.assertAlmostEqual(m.pairs_for_player(1)[2].performance_rating, 1500.0, delta=1.0)
+        self.assertAlmostEqual(m.pairs_for_player(2)[1].performance_rating, 1500.0, delta=1.0)
+
+    def test_perf_rating_single_game_is_none(self) -> None:
+        m = MatchupCumulative()
+        m.apply_game({"player_a_id": 1, "player_b_id": 2, "goals_a": 3, "goals_b": 0})
+        m.apply_pair_perf_sample(1, 2, 1500.0, 1500.0, 1.0)
+        m.recompute_touched_perf(None, {(1, 2), (2, 1)})
+        self.assertIsNone(m.pairs_for_player(1)[2].performance_rating)
+
+
 if __name__ == "__main__":
     unittest.main()

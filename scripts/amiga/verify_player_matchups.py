@@ -9,8 +9,10 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
+from scripts.amiga.performance_rating import performance_rating_from_pairs
 
 _SAMPLE_PAIR_LIMIT = 12
+_PERF_TOLERANCE = 1e-3
 
 
 def _connect(cfg) -> pymysql.connections.Connection:
@@ -111,6 +113,30 @@ FROM (
        OR (g.player_b_id = %(player_id)s AND g.player_a_id = %(opponent_id)s)
 ) AS directed
 """
+
+
+_PAIR_PERF_ORACLE_SQL = """
+SELECT g.player_a_id AS idA, r.rating_a, r.rating_b, r.actual_score
+FROM amiga_games g
+INNER JOIN amiga_game_ratings r ON r.game_id = g.id
+WHERE (g.player_a_id = %(player_id)s AND g.player_b_id = %(opponent_id)s)
+   OR (g.player_a_id = %(opponent_id)s AND g.player_b_id = %(player_id)s)
+"""
+
+
+def _pair_perf_oracle(conn: pymysql.connections.Connection, player_id: int, opponent_id: int) -> float | None:
+    """Recompute directed pair TPR from stored game ratings (frozen inputs)."""
+    with conn.cursor() as cur:
+        cur.execute(_PAIR_PERF_ORACLE_SQL, {"player_id": player_id, "opponent_id": opponent_id})
+        rows = cur.fetchall()
+    pairs: list[tuple[float, float]] = []
+    for row in rows:
+        score_a = float(row["actual_score"])
+        if int(row["idA"]) == player_id:
+            pairs.append((float(row["rating_b"]), score_a))
+        else:
+            pairs.append((float(row["rating_a"]), 1.0 - score_a))
+    return performance_rating_from_pairs(pairs)
 
 
 def _nullable_int_equal(got: object, expected: object) -> bool:
@@ -280,7 +306,7 @@ def verify_player_matchups(conn: pymysql.connections.Connection) -> list[str]:
                    goals_for, goals_against,
                    max_goals_for, max_goals_against, min_goals_for, min_goals_against,
                    max_win_margin, max_loss_margin, max_draw_goals,
-                   max_goal_sum, min_goal_sum
+                   max_goal_sum, min_goal_sum, performance_rating
             FROM amiga_player_matchup_summary
             ORDER BY games DESC, player_id ASC, opponent_id ASC
             LIMIT %s
@@ -338,6 +364,24 @@ def verify_player_matchups(conn: pymysql.connections.Connection) -> list[str]:
                         )
                         break
 
+    for row in sample_pairs:
+        player_id = int(row["player_id"])
+        opponent_id = int(row["opponent_id"])
+        oracle_perf = _pair_perf_oracle(conn, player_id, opponent_id)
+        stored = row.get("performance_rating")
+        stored_val = float(stored) if stored is not None else None
+        if oracle_perf is None or stored_val is None:
+            if oracle_perf is not None or stored_val is not None:
+                errors.append(
+                    f"perf null mismatch player_id={player_id} opponent_id={opponent_id}: "
+                    f"summary={stored_val!r} oracle={oracle_perf!r}"
+                )
+        elif abs(stored_val - oracle_perf) > _PERF_TOLERANCE:
+            errors.append(
+                f"perf spot-check mismatch player_id={player_id} opponent_id={opponent_id}: "
+                f"summary={stored_val} oracle={oracle_perf}"
+            )
+
     with conn.cursor() as cur:
         cur.execute("SELECT COUNT(*) AS n FROM amiga_games")
         game_count = int(cur.fetchone()["n"])
@@ -381,6 +425,7 @@ def verify_player_matchups(conn: pymysql.connections.Connection) -> list[str]:
                OR NOT (s.max_draw_goals <=> e.max_draw_goals)
                OR s.max_goal_sum <> e.max_goal_sum
                OR s.min_goal_sum <> e.min_goal_sum
+               OR NOT (s.performance_rating <=> e.performance_rating)
             """
         )
         if int(cur.fetchone()["n"]):

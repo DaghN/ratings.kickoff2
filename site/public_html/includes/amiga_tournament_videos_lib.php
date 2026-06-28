@@ -160,16 +160,13 @@ function amiga_tournament_videos_grouped(array $rows): array
 
 function amiga_tournament_video_embed_url(string $youtubeId, int $startSec = 0): string
 {
-    $id = amiga_tournament_videos_sanitize_youtube_id($youtubeId);
-    if ($id === '') {
-        return '';
-    }
-    $url = 'https://www.youtube-nocookie.com/embed/' . rawurlencode($id);
+    require_once __DIR__ . '/k2_safety.php';
+    $params = [];
     if ($startSec > 0) {
-        $url .= '?start=' . $startSec;
+        $params['start'] = $startSec;
     }
 
-    return $url;
+    return k2_youtube_embed_url($youtubeId, $params);
 }
 
 function amiga_tournament_videos_sanitize_youtube_id(?string $raw): string

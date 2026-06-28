@@ -1,6 +1,6 @@
 # Amiga Opponents wing — policy
 
-**Status:** **In progress** (Jun 2026) — **SCH-031** goal extremes shipped; **Opponents IA shell** shipped; **W/D/L · Goals · DDs tables** wired with time travel (`amiga_matchup_snapshot_lib.php`). **H2H slices D+F shipped** — poster/pickers/pair detail/moments/charts on `amiga/player/opponents/h2h.php` (event-step rating compare; chart APIs `?realm=amiga`).  
+**Status:** **In progress** (Jun 2026) — **SCH-031** goal extremes shipped; **Opponents IA shell** shipped; **W/D/L · Goals · DDs tables** wired with time travel (`amiga_matchup_snapshot_lib.php`). **H2H slices D+F shipped** — poster/pickers/pair detail/moments/charts on `amiga/player/opponents/h2h.php` (event-step rating compare; chart APIs `?realm=amiga`). **SCH-044** stored pair performance rating shipped — W/D/L **Perf.** column + H2H pair detail read stored value.  
 **No implementation plan yet** — work incrementally; add a plan or slice handoff only when a concrete slice is about to ship.
 
 **Parent:** [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`amiga-data-contract.md`](amiga-data-contract.md)
@@ -62,6 +62,7 @@ Amiga already has cumulative pair data at finalize (`amiga_player_matchup_summar
 | Top opponents list | summary | at-event | profile bar / picker ordering |
 | H2H poster W/D/L | directed summary row | directed at-event row | poster centre record |
 | Hero rank + rating at cutoff | `amiga_player_current.elo_rank` | `amiga_player_elo_rank_at_event` | `playertable` + LB rank pattern |
+| **Pair performance rating** (SCH-044) | `matchup_summary.performance_rating` | `matchup_at_event.performance_rating` | online H2H perf (read-time) |
 
 **Read pattern (locked):** mirror `amiga_lb_snapshot_from_sql()` — `ROW_NUMBER() OVER (PARTITION BY player_id, opponent_id ORDER BY event_date DESC, event_chrono DESC, as_of_tournament_id DESC)` with cutoff tuple `<=` resolved cutoff. **Do not** use `MAX(as_of_tournament_id)` alone (catalog ids are not chrono-monotonic).
 
@@ -80,7 +81,7 @@ Written at **tournament finalize** (incremental `MatchupCumulative`) and verifie
 | H2H **moments** grid | `amiga_games` + tournament chrono filter | Correct if filtered; not one snapshot row |
 | Cumulative H2H / goals charts | filtered `amiga_games` | Online APIs are `realm=online` only today |
 | Scoreline heatmap, histograms | filtered pair games | Same |
-| Pair **performance rating** | `amiga_game_ratings` per game | Computable read-time; not on summary row |
+| Pair **performance rating** | `matchup_summary` / `matchup_at_event` `.performance_rating` | **Stored** (SCH-044) — written at finalize, read at cutoff; no read-time solve |
 | **Rating comparison** chart | event-step (`amiga_rating_events` / snapshots) | **Shipped** Jun 2026 |
 | **Rank comparison** chart | `amiga_player_elo_rank_at_event` (dual series) | **Shipped** Jun 2026 — [`amiga-player-rank-chart-h2h-policy.md`](amiga-player-rank-chart-h2h-policy.md) |
 
@@ -184,6 +185,7 @@ Reorder or split if analysis shows a smaller safe step.
 | Jun 2026 | **H2H slice D** — `amiga_player_opponents_h2h.php` + `amiga_player_matchup_directed_opponent_row()`; poster/pickers/pair races/all-games link; time travel via stored at-event rows; search API `realm=amiga`. |
 | Jun 2026 | **Opponents Games column links** — W/D/L · Goals · DDs `Games` counts link to hero games tab filtered by opponent (`as=` preserved). |
 | Jun 2026 | **Hero games + tournaments cutoff** — `amiga_snapshot_*_cutoff_and_sql()`; games tab + perf API + player tournament list ≤ cutoff under `as=`. |
+| Jun 2026 | **Pair performance rating stored (SCH-044)** — `performance_rating` on `matchup_summary` + `matchup_at_event`; finalize recomputes touched pairs (replay in-memory samples / warm reseed from `amiga_game_ratings`). Surfaced as W/D/L **Perf.** column; H2H pair detail reads stored value (no on-the-fly solve). |
 | Jun 2026 | **Opponents tables** — `amiga_matchup_snapshot_lib.php` + W/D/L · Goals · DDs wings (stored + `as=`); H2H still placeholder. |
 | Jun 2026 | **Opponents IA shell** — pill + `amiga/player/opponents/{h2h,wdl,goals,dds}.php` + inner chrome; placeholder bodies. |
 | Jun 2026 | **SCH-031 goal extremes** — `max_goals_*` / margins / goal sums on `matchup_summary` + `matchup_at_event`; Python + PHP finalize; `verify_player_matchups` extremes oracle; replay green. |

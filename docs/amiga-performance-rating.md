@@ -1,8 +1,8 @@
 # Amiga performance rating (event TPR)
 
-**Status:** Shipped (Jun 2026)  
-**Scope:** `ko2amiga_db` — one performance rating per player per finalized tournament  
-**Related:** [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.2
+**Status:** Shipped (Jun 2026). **Per-opponent (pair) TPR** added **SCH-044** (Jun 2026) — see [§ Per-opponent performance rating](#per-opponent-performance-rating-sch-044).  
+**Scope:** `ko2amiga_db` — one performance rating per player per finalized tournament; plus one **directed pair** TPR per opponent (matchup tables)  
+**Related:** [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.2 · [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) · [`amiga-opponents-wing-policy.md`](amiga-opponents-wing-policy.md)
 
 ---
 
@@ -88,12 +88,44 @@ When the games tab filters to a **single tournament**, the list perf should matc
 
 ---
 
+## Per-opponent performance rating (SCH-044)
+
+Same TPR math, but the game set is **all rated games vs one opponent through the cutoff** (not one event). Answers: *“How strong did the hero play against this specific opponent?”* It is **directed** — the hero→opponent value and the opponent→hero value are independent rows.
+
+| Property | Value |
+|----------|-------|
+| Game set | All rated games between the directed pair, tournament tuple ≤ cutoff |
+| `R_opp_g` | Frozen `rating_b` / `rating_a` per game (same as event TPR) |
+| Min games / perfect record | Same NULL rules (`< 2` games, all-win or all-loss → NULL) |
+| Grain | Directed `(player_id, opponent_id)` |
+
+### Storage (matchup tables — not rating_events)
+
+| Table | Role |
+|-------|------|
+| `amiga_player_matchup_summary.performance_rating` | **Present** value per directed pair |
+| `amiga_player_matchup_at_event.performance_rating` | **Cumulative through E** per directed pair (time travel: latest row ≤ cutoff) |
+
+Written at **tournament finalize** by the cumulative matchup writer ([`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) §3, §5): recomputed only for **pairs played that event** (replay uses in-memory `(opponent_rating, score)` samples; warm/live reseeds touched pairs from `amiga_game_ratings`); untouched pairs carry the prior value forward. No batch repair CLI — wrong state → `replay` / `prove`.
+
+### Read paths
+
+| Surface | Source |
+|---------|--------|
+| `/amiga/player/opponents/wdl.php` | **Perf.** column (last) — `amiga_player_matchup_summary` (present) / `amiga_player_matchup_at_event` (cutoff) via `amiga_matchup_snapshot_lib.php` |
+| `/amiga/player/opponents/h2h.php` pair detail | `perf_rating_subject` = player→opponent row; `perf_rating_opponent` = opponent→player row — **stored**, no on-the-fly solve |
+
+**Verify:** `verify-player-matchups` — re-solve pair TPR from `amiga_game_ratings` for sample pairs; summary `performance_rating` == latest at-event row (null-safe).
+
+---
+
 ## CLI
 
 ```powershell
 mysql ko2amiga_db < scripts/amiga/sql/015_performance_rating.sql
 python -m scripts.amiga prove
 python -m scripts.amiga verify-player-participation
+python -m scripts.amiga verify-player-matchups
 ```
 
 Full replay recomputes via finalize loop (no separate backfill needed after `replay`).

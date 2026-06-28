@@ -78,7 +78,7 @@ These are **links or embeds** to other sites — not CDN dependencies for app ch
 
 | What | Where | Why external |
 |------|-------|----------------|
-| **YouTube promo embeds** | `join.php` → `includes/join_page_section.php` iframe `youtube.com/embed/…`; `game.php` interim replay placeholder uses `youtube-nocookie.com/embed/…` | Video host; self-hosting = hosting video files yourself |
+| **YouTube promo embeds** | `join.php` → `includes/join_page_section.php` iframe; `game.php` interim replay placeholder; tournament/player Videos spotlight — all via `k2_youtube_embed_url()` (`youtube-nocookie.com/embed/…?origin=…`) | Video host; self-hosting = hosting video files yourself |
 | **Outbound links** | `includes/join_page_links.php` | Discord, kickoff2.net, shops, YouTube watch URLs, etc. |
 | **Player profile links** | `k2_player_link()`, tables | `player/profile.php` on same site |
 | **W3C DTD / xmlns URLs** | HTML doctype | Identifier strings; browsers do not fetch them |

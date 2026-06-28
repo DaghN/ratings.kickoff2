@@ -11,7 +11,7 @@
   function embedUrl(youtubeId, startSec, autoplay) {
     var id = encodeURIComponent(youtubeId || "");
     var url = "https://www.youtube-nocookie.com/embed/" + id;
-    var params = [];
+    var params = ["origin=" + encodeURIComponent(window.location.origin || "")];
     if (startSec > 0) {
       params.push("start=" + String(startSec));
     }

@@ -233,3 +233,31 @@ body.k2-site .k2-amiga-tournament-index-tabs--stacked,
 body.k2-site .k2-amiga-tournament-index-tabs--videos {
 	margin-top: calc(var(--k2-nav-gap, 0.75rem) * 0.35);
 }
+
+/* Game index row flags — tournament Videos + player Videos (see amiga-tournament.css).
+   k2_amiga_country_flag_img() emits 28×21 when a custom class is set; shrink to match tournament games table. */
+body.k2-site .k2-tournament-videos--wc .k2-amiga-tgame-side {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+}
+
+body.k2-site .k2-tournament-videos--wc .k2-table--tournament-games .k2-amiga-tgame-team--a {
+	text-align: right;
+}
+
+body.k2-site .k2-tournament-videos--wc .k2-table--tournament-games .k2-amiga-tgame-team--a .k2-amiga-tgame-side {
+	justify-content: flex-end;
+}
+
+body.k2-site .k2-tournament-videos--wc .k2-amiga-tgame-flag {
+	width: 1.45em;
+	height: auto;
+	flex: 0 0 auto;
+	border-radius: 2px;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.28);
+}
+
+body.k2-site .k2-tournament-videos--wc .k2-table--tournament-games .k2-amiga-tgame-goal--win {
+	font-weight: 700;
+}

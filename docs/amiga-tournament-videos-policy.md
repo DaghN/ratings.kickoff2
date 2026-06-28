@@ -33,7 +33,7 @@ Embed **official tournament match video** on the Amiga site — primarily **Worl
 | **TV1** | **Tab name** | **Videos** — not Media. Photos may get their own tab later. |
 | **TV2** | **Tab placement** | New foldered tab under `amiga/tournament/` — same nav pattern as `event-stats.php`, `stages.php`, `games.php` ([`url-routes.md`](url-routes.md)). Show tab only when manifest has rows for `tournament_id`. |
 | **TV3** | **Primary home** | Per-tournament **Videos** tab is v1 home. WC **Chronology** + **Tournaments → Has videos** are discovery surfaces. |
-| **TV4** | **Embed host** | YouTube via `youtube-nocookie.com/embed/…` — lazy load (thumbnail → iframe on click). Same habit as `game.php` and `join_page_section.php`. |
+| **TV4** | **Embed host** | YouTube via `youtube-nocookie.com/embed/…?origin={site}` — `k2_youtube_embed_url()` / JS `embedUrl()`; page `<meta name="referrer" content="strict-origin-when-cross-origin">` + iframe `referrerpolicy`. Same habit as `game.php` and `join_page_section.php`. |
 | **TV5** | **Stored truth v1** | Checked-in manifest JSON — **not** a new DB table until admin UI or player reverse-index forces it. |
 | **TV6** | **Player association** | **`match`** clips with two clearly identified players → store `player_a_id` + `player_b_id` (nullable FKs to `amiga_players.id`). |
 | **TV7** | **Streams** | Long multi-hour **day/stream** uploads → `kind: stream`; link to tournament; **no** player IDs. |
@@ -228,7 +228,15 @@ Steve’s forum reply: thread covers most of his camcorder tapes; **tape origina
 - **Sections:** curated unassigned groups (tutorials, general KO2, dup candidates) + **Excluded** table (manifest dupes / catalog decisions, with `?` tooltips).
 - **Human review sign-off (Jun 2026):** no remaining row should map to a tournament Videos tab. Re-open only when new harvest rows appear or a specific clip is reported misplaced.
 
-### 9.5 Later UI (not v1)
+### 9.5 Player profile — Videos wing
+
+- **Route:** `/amiga/player/videos.php?id={player_id}` — `amiga-player-videos` in `k2_amiga_routes.php`.
+- **Nav:** **Videos** pill on player wing nav when `amiga_player_has_videos($id)` (manifest match rows with `game_ids` for that player).
+- **Index:** cross-tournament game table, **reverse chronological** (game date, tournament chrono fallback); ID · Date · Tournament · game row · play button.
+- **Filter:** opponent listbox above table (same stack as player **Games** — `k2_archive_listbox`, `individual3-filters.js`); options = opponents with ≥1 linked video, **A–Z**, game count in panel meta; `?opponent={id}`.
+- **Player:** same spotlight embed stack as tournament Videos (`amiga-tournament-videos.js`, `?v=` / `game=` deep links).
+
+### 9.6 Later UI (not v1)
 
 - Player profile **Videos** tab — all manifest rows where `player_a_id` or `player_b_id` matches.
 - Realm **Video index** page — sortable table of all clips.

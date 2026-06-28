@@ -6,6 +6,8 @@
  */
 declare(strict_types=1);
 
+require_once dirname(__DIR__, 3) . '/includes/amiga_performance_rating.php';
+
 /**
  * @phpstan-type PairTotals array{
  *   games: int,
@@ -26,7 +28,8 @@ declare(strict_types=1);
  *   dd_wins: int,
  *   dd_losses: int,
  *   cs_wins: int,
- *   cs_losses: int
+ *   cs_losses: int,
+ *   performance_rating: float|null
  * }
  */
 final class AmigaMatchupCumulative
@@ -59,6 +62,7 @@ final class AmigaMatchupCumulative
             'dd_losses' => 0,
             'cs_wins' => 0,
             'cs_losses' => 0,
+            'performance_rating' => null,
         ];
     }
 
@@ -285,7 +289,55 @@ final class AmigaMatchupCumulative
             'dd_losses' => $totals['dd_losses'],
             'cs_wins' => $totals['cs_wins'],
             'cs_losses' => $totals['cs_losses'],
+            'performance_rating' => $totals['performance_rating'] ?? null,
         ];
+    }
+
+    /**
+     * Recompute cumulative directed pair TPR for pairs played this event.
+     *
+     * Live finalize warms from summary scalars (no per-game samples), so each
+     * touched pair is reseeded from amiga_game_ratings (frozen inputs). Mirrors
+     * scripts/amiga/matchup_cumulative.py recompute_touched_perf (warm path).
+     *
+     * @param list<array{0: int, 1: int}> $touchedPairs
+     */
+    public function recomputeTouchedPerf(mysqli $con, array $touchedPairs): void
+    {
+        if ($touchedPairs === []) {
+            return;
+        }
+        $sql = 'SELECT g.player_a_id AS idA, r.rating_a, r.rating_b, r.actual_score '
+            . 'FROM amiga_games g INNER JOIN amiga_game_ratings r ON r.game_id = g.id '
+            . 'WHERE (g.player_a_id = ? AND g.player_b_id = ?) '
+            . 'OR (g.player_a_id = ? AND g.player_b_id = ?)';
+        $stmt = $con->prepare($sql);
+        if ($stmt === false) {
+            throw new RuntimeException('prepare matchup perf reseed: ' . $con->error);
+        }
+        foreach ($touchedPairs as [$pid, $oid]) {
+            $stmt->bind_param('iiii', $pid, $oid, $oid, $pid);
+            if (!$stmt->execute()) {
+                throw new RuntimeException('execute matchup perf reseed: ' . $stmt->error);
+            }
+            $res = $stmt->get_result();
+            $samples = [];
+            while ($res && ($row = $res->fetch_assoc())) {
+                $scoreA = (float) $row['actual_score'];
+                if ((int) $row['idA'] === $pid) {
+                    $samples[] = ['opponent' => (float) $row['rating_b'], 'score' => $scoreA];
+                } else {
+                    $samples[] = ['opponent' => (float) $row['rating_a'], 'score' => 1.0 - $scoreA];
+                }
+            }
+            if ($res) {
+                $res->free();
+            }
+            if (isset($this->pairs[$pid][$oid])) {
+                $this->pairs[$pid][$oid]['performance_rating'] = amiga_performance_rating_from_pairs($samples);
+            }
+        }
+        $stmt->close();
     }
 
     /**
@@ -302,7 +354,7 @@ final class AmigaMatchupCumulative
         $sql = 'SELECT player_id, opponent_id, games, wins, draws, losses, goals_for, goals_against, '
             . 'max_goals_for, max_goals_against, min_goals_for, min_goals_against, '
             . 'max_win_margin, max_loss_margin, max_draw_goals, max_goal_sum, min_goal_sum, '
-            . 'dd_wins, dd_losses, cs_wins, cs_losses '
+            . 'dd_wins, dd_losses, cs_wins, cs_losses, performance_rating '
             . "FROM amiga_player_matchup_summary WHERE player_id IN ({$placeholders})";
         $stmt = $con->prepare($sql);
         if ($stmt === false) {
@@ -336,6 +388,9 @@ final class AmigaMatchupCumulative
                 'dd_losses' => (int) $row['dd_losses'],
                 'cs_wins' => (int) $row['cs_wins'],
                 'cs_losses' => (int) $row['cs_losses'],
+                'performance_rating' => $row['performance_rating'] !== null
+                    ? (float) $row['performance_rating']
+                    : null,
             ];
         }
         $stmt->close();

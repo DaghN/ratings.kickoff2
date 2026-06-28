@@ -31,6 +31,7 @@ _PAIR_COLS = (
     "dd_losses",
     "cs_wins",
     "cs_losses",
+    "performance_rating",
 )
 
 
