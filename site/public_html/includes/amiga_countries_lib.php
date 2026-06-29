@@ -336,6 +336,43 @@ function amiga_countries_index_row_for_token(array $indexRows, string $countryTo
     return null;
 }
 
+/**
+ * @return array<string, int> country_token => rated player count at snapshot
+ */
+function amiga_countries_player_counts_by_token(mysqli $con, ?AmigaSnapshotContext $ctx = null): array
+{
+    static $cache = [];
+    $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+    if ($ctx->isActive()) {
+        $cutoff = $ctx->cutoff();
+        $cacheKey = $cutoff === null
+            ? 'at:empty'
+            : 'at:' . (int) ($cutoff['tournament_id'] ?? 0) . ':' . (string) ($cutoff['event_date'] ?? '') . ':' . (string) ($cutoff['chrono'] ?? '');
+    } else {
+        $cacheKey = 'present';
+    }
+    if (!isset($cache[$cacheKey])) {
+        $map = [];
+        foreach (amiga_countries_index_rows(amiga_countries_player_rows($con, $ctx)) as $row) {
+            $map[(string) $row['country_token']] = (int) $row['players'];
+        }
+        $cache[$cacheKey] = $map;
+    }
+
+    return $cache[$cacheKey];
+}
+
+function amiga_countries_player_count(mysqli $con, string $countryToken, ?AmigaSnapshotContext $ctx = null): int
+{
+    $countryToken = amiga_countries_normalize_country_param($countryToken);
+    if ($countryToken === '') {
+        return 0;
+    }
+    $map = amiga_countries_player_counts_by_token($con, $ctx);
+
+    return $map[$countryToken] ?? 0;
+}
+
 function amiga_countries_wc_stats_href_for_token(string $countryToken): string
 {
     return k2_amiga_route('amiga-world-cups-countries-honours');

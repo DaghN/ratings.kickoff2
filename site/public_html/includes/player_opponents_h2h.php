@@ -380,12 +380,16 @@ function k2_h2h_poster_card_name_html(array $card, string $side): string
     }
 
     require_once __DIR__ . '/k2_amiga_country_flag.php';
+    require_once __DIR__ . '/amiga_countries_lib.php';
     $meta = k2_amiga_country_flag_meta($country);
     $flagHtml = '';
     if ($meta !== null) {
-        $flagHtml = '<span class="k2-h2h2-card__country-flag" aria-hidden="true">'
+        $countryHref = k2_amiga_country_roster_href($country);
+        $flagHtml = '<a class="k2-country-roster-link k2-h2h2-card__country-flag-link" href="' . k2_h($countryHref) . '"'
+            . ' aria-label="Players from ' . k2_h($meta['label']) . '">'
+            . '<span class="k2-h2h2-card__country-flag" aria-hidden="true">'
             . k2_amiga_country_flag_img($country, ['decorative' => true])
-            . '</span>';
+            . '</span></a>';
     } else {
         $flagHtml = '<span class="k2-h2h2-card__country-text">' . k2_h($country) . '</span>';
     }
@@ -396,11 +400,17 @@ function k2_h2h_poster_card_name_html(array $card, string $side): string
 
 /**
  * @param non-empty-string $label
+ * @param non-empty-string $sideInk `blue` (subject) or `red` (opponent); empty = muted default
  */
-function k2_h2h_poster_card_stat_html(string $label, string $valueHtml): string
+function k2_h2h_poster_card_stat_html(string $label, string $valueHtml, string $sideInk = ''): string
 {
+    $valueClass = 'k2-h2h2-card__stat-value';
+    if ($sideInk === 'blue' || $sideInk === 'red') {
+        $valueClass .= ' ' . $sideInk;
+    }
+
     return '<div class="k2-h2h2-card__stat" aria-label="' . k2_h($label) . '">'
-        . '<span class="k2-h2h2-card__stat-value">' . $valueHtml . '</span></div>';
+        . '<span class="' . k2_h($valueClass) . '">' . $valueHtml . '</span></div>';
 }
 
 /**
@@ -424,8 +434,9 @@ function k2_h2h_poster_card_html(array $card, string $side): string
         $href = k2_player_profile_href($pid);
     }
 
-    $rankStat = k2_h2h_poster_card_stat_html('Rank', k2_h($rank));
-    $ratingStat = k2_h2h_poster_card_stat_html('Rating', k2_h($rating));
+    $sideInk = $side === 'subject' ? 'blue' : 'red';
+    $rankStat = k2_h2h_poster_card_stat_html('Rank', k2_h($rank), $sideInk);
+    $ratingStat = k2_h2h_poster_card_stat_html('Rating', k2_h($rating), $sideInk);
     $stats = $rankStat . $ratingStat;
 
     $inner = '<div class="k2-h2h2-card__media">'
@@ -441,6 +452,19 @@ function k2_h2h_poster_card_html(array $card, string $side): string
     $class = 'k2-h2h2-card k2-h2h2-card--' . k2_h($side);
     if ($href !== '') {
         $label = $name !== '' ? 'View ' . $name . ' profile' : 'View player profile';
+        $country = trim((string) ($card['country'] ?? ''));
+        $countryFlagLink = false;
+        if ($country !== '') {
+            require_once __DIR__ . '/k2_amiga_country_flag.php';
+            $countryFlagLink = k2_amiga_country_flag_meta($country) !== null;
+        }
+        if ($countryFlagLink) {
+            return '<article class="' . $class . ' k2-h2h2-card--link">'
+                . $inner
+                . '<a class="k2-h2h2-card__profile-hit" href="' . k2_h($href) . '"'
+                . ' aria-label="' . k2_h($label) . '"></a>'
+                . '</article>';
+        }
 
         return '<a class="' . $class . ' k2-h2h2-card--link" href="' . k2_h($href) . '"'
             . ' aria-label="' . k2_h($label) . '">' . $inner . '</a>';

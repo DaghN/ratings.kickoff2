@@ -96,8 +96,18 @@ function amiga_player_opponents_h2h_country_record(array $bucket): ?array
     ];
 }
 
-function k2_h2h_poster_country_card_html(string $countryToken): string
+function k2_h2h_poster_country_player_count_html(int $playerCount): string
 {
+    if ($playerCount === 1) {
+        return '1 player';
+    }
+
+    return k2_fmt_int($playerCount, '0') . ' players';
+}
+
+function k2_h2h_poster_country_card_html(string $countryToken, string $side = 'opponent', ?int $playerCount = null): string
+{
+    $side = $side === 'subject' ? 'subject' : 'opponent';
     $label = $countryToken === AMIGA_COUNTRIES_UNKNOWN_TOKEN ? 'Unknown' : $countryToken;
     $href = k2_amiga_country_roster_href($countryToken);
     $meta = k2_amiga_country_flag_meta($countryToken);
@@ -108,15 +118,19 @@ function k2_h2h_poster_country_card_html(string $countryToken): string
         : '<div class="k2-h2h2-card__avatar" aria-hidden="true">' . k2_h(mb_strtoupper(mb_substr($label, 0, 1))) . '</div>';
 
     $rosterLabel = 'View players from ' . $label;
+    $sideInk = $side === 'subject' ? 'blue' : 'red';
+    $statValue = $playerCount !== null
+        ? k2_h(k2_h2h_poster_country_player_count_html($playerCount))
+        : k2_h($label);
     $inner = '<div class="k2-h2h2-card__media">' . $mediaInner . '</div>'
         . '<div class="k2-h2h2-card__body">'
         . '<p class="k2-h2h2-card__name">' . k2_h($label) . '</p>'
-        . '<div class="k2-h2h2-card__stats" role="group" aria-label="Country">'
-        . k2_h2h_poster_card_stat_html('Country', k2_h($label))
+        . '<div class="k2-h2h2-card__stats" role="group" aria-label="Players">'
+        . k2_h2h_poster_card_stat_html('Players', $statValue, $sideInk)
         . '</div>'
         . '</div>';
 
-    $class = 'k2-h2h2-card k2-h2h2-card--opponent k2-h2h2-card--country k2-h2h2-card--link';
+    $class = 'k2-h2h2-card k2-h2h2-card--' . $side . ' k2-h2h2-card--country k2-h2h2-card--link';
 
     return '<a class="' . $class . '" href="' . k2_h($href) . '" aria-label="' . k2_h($rosterLabel) . '">' . $inner . '</a>';
 }
@@ -126,12 +140,15 @@ function k2_h2h_poster_country_card_html(string $countryToken): string
  * @param array{games:int,wins:int,draws:int,losses:int,goals_for:int,goals_against:int}|null $record
  */
 function player_opponents_render_h2h_country_poster(
+    mysqli $con,
     array $subjectCard,
     string $countryToken,
     ?array $record,
-    int $games
+    int $games,
+    ?AmigaSnapshotContext $ctx = null
 ): void {
     $countryLabel = $countryToken === AMIGA_COUNTRIES_UNKNOWN_TOKEN ? 'Unknown' : $countryToken;
+    $countryPlayerCount = amiga_countries_player_count($con, $countryToken, $ctx);
     $hasGames = $record !== null && $games > 0;
     $w = $hasGames ? (int) $record['wins'] : 0;
     $d = $hasGames ? (int) $record['draws'] : 0;
@@ -161,7 +178,7 @@ function player_opponents_render_h2h_country_poster(
 	<div class="k2-h2h2-marquee">
 		<?php echo k2_h2h_poster_card_html($subjectCard, 'subject'); ?>
 		<div class="k2-h2h2-vs" aria-hidden="true">vs</div>
-		<?php echo k2_h2h_poster_country_card_html($countryToken); ?>
+		<?php echo k2_h2h_poster_country_card_html($countryToken, 'opponent', $countryPlayerCount); ?>
 	</div>
 
 	<?php if ($hasGames) { ?>
@@ -410,7 +427,7 @@ function amiga_player_opponents_render_country_h2h_panel(
                 $countryToken = (string) $pair['country_token'];
                 $games = (int) $pair['games'];
                 $record = $games > 0 ? amiga_player_opponents_h2h_country_record($bucket) : null;
-                player_opponents_render_h2h_country_poster($subjectCard, $countryToken, $record, $games);
+                player_opponents_render_h2h_country_poster($con, $subjectCard, $countryToken, $record, $games, $ctx);
                 if ($games > 0) {
                     player_opponents_render_h2h_country_pair_detail($subjectCard, $countryToken, $bucket);
                     player_opponents_render_h2h_country_all_games_link($playerId, $countryToken, $games);

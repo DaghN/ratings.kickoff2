@@ -155,6 +155,23 @@ function k2_lb_table_anchor_markup(): string
     return '<div id="' . k2_lb_table_anchor_id() . '" class="k2-lb-table-anchor" tabindex="-1"></div>';
 }
 
+/** DOM id on a leaderboard player row — hero rank/rating links land here. */
+function k2_lb_player_row_anchor_id(int $playerId): string
+{
+    return 'k2-lb-player-' . max(0, $playerId);
+}
+
+function k2_lb_player_row_anchor_hash(int $playerId): string
+{
+    return '#' . k2_lb_player_row_anchor_id($playerId);
+}
+
+/** Zero-height scroll target at the top of a leaderboard player row. */
+function k2_lb_player_row_anchor_markup(int $playerId): string
+{
+    return '<span id="' . k2_h(k2_lb_player_row_anchor_id($playerId)) . '" class="k2-lb-player-row-anchor" tabindex="-1"></span>';
+}
+
 /**
  * Leaderboard wing URL that scrolls to the table top (profile hero stat links).
  *

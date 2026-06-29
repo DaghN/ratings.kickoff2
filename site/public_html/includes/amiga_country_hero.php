@@ -42,7 +42,10 @@ $flagImg = k2_amiga_country_flag_img($countryToken, [
             }
         ?></div>
         <div class="k2-country-hero__body">
-            <h2 class="k2-country-hero__name"><?php echo k2_h($countryToken); ?></h2>
+            <h2 class="k2-country-hero__name"><?php
+                $countryNameLink = k2_amiga_country_roster_link($countryToken);
+                echo $countryNameLink !== '' ? $countryNameLink : k2_h($countryToken);
+            ?></h2>
             <div class="k2-player-hero__stats">
                 <div class="k2-player-hero__stat">
                     <span class="k2-player-hero__stat-label">Players</span>

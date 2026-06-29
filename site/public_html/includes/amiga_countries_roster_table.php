@@ -14,6 +14,7 @@ require_once __DIR__ . '/k2_amiga_country_flag.php';
 require_once __DIR__ . '/k2_amiga_routes.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
+require_once __DIR__ . '/amiga_lb_lib.php';
 
 /**
  * @param list<array<string, mixed>> $rows
@@ -54,7 +55,7 @@ function amiga_countries_render_roster_table(array $rows, string $countryToken):
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_amiga_lb_player_cell($playerId, $playerName, $countryToken); ?></td>
-        <td<?php echo k2_lb_td(2, $lbSort); ?> data-k2-sort-value="<?php echo k2_h((string) $row['rating_sort']); ?>"><?php echo k2_fmt_int($row['rating']); ?></td>
+        <td<?php echo k2_lb_td(2, $lbSort); ?> data-k2-sort-value="<?php echo k2_h((string) $row['rating_sort']); ?>"><?php echo k2_amiga_lb_rating_cell_link($playerId, $row['rating'], $playerName); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo $eloRank !== null ? '#' . (int) $eloRank : '—'; ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo (int) $row['number_games']; ?></td>
         <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo (int) $row['wc_played']; ?></td>

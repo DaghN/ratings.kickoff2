@@ -81,11 +81,17 @@ function amiga_country_rivals_h2h_redirect_default_rival_if_needed(
 }
 
 function amiga_country_rivals_render_h2h_poster(
+    mysqli $con,
     string $heroCountry,
     string $rivalCountry,
     ?array $record,
-    int $games
+    int $games,
+    ?AmigaSnapshotContext $ctx = null
 ): void {
+    $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+    $playerCounts = amiga_countries_player_counts_by_token($con, $ctx);
+    $heroPlayerCount = $playerCounts[$heroCountry] ?? 0;
+    $rivalPlayerCount = $playerCounts[$rivalCountry] ?? 0;
     $heroLabel = $heroCountry === AMIGA_COUNTRIES_UNKNOWN_TOKEN ? 'Unknown' : $heroCountry;
     $rivalLabel = $rivalCountry === AMIGA_COUNTRIES_UNKNOWN_TOKEN ? 'Unknown' : $rivalCountry;
     $hasGames = $record !== null && $games > 0;
@@ -112,9 +118,9 @@ function amiga_country_rivals_render_h2h_poster(
     ?>
 <section class="k2-h2h2-poster" id="h2h-rivalry"<?php echo $hasGames ? '' : ' data-empty="1"'; ?>>
 	<div class="k2-h2h2-marquee">
-		<?php echo k2_h2h_poster_country_card_html($heroCountry); ?>
+		<?php echo k2_h2h_poster_country_card_html($heroCountry, 'subject', $heroPlayerCount); ?>
 		<div class="k2-h2h2-vs" aria-hidden="true">vs</div>
-		<?php echo k2_h2h_poster_country_card_html($rivalCountry); ?>
+		<?php echo k2_h2h_poster_country_card_html($rivalCountry, 'opponent', $rivalPlayerCount); ?>
 	</div>
 	<?php if ($hasGames) { ?>
 	<div class="k2-h2h2-record" role="group" aria-label="<?php echo k2_h(sprintf('%s vs %s record', $heroLabel, $rivalLabel)); ?>">
@@ -271,7 +277,7 @@ function amiga_country_rivals_render_h2h_panel(
                 'goals_for' => (int) $bucket['goals_for'],
                 'goals_against' => (int) $bucket['goals_against'],
             ];
-            amiga_country_rivals_render_h2h_poster($heroCountry, $rivalCountry, $record, $games);
+            amiga_country_rivals_render_h2h_poster($con, $heroCountry, $rivalCountry, $record, $games, $ctx);
             amiga_country_rivals_render_h2h_pair_detail($heroCountry, $rivalCountry, $bucket);
             amiga_country_rivals_render_h2h_all_games_link($heroCountry, $rivalCountry, $games);
             $momentGames = amiga_country_rivals_h2h_games_rows($con, $heroCountry, $rivalCountry, $ctx);

@@ -29,6 +29,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_performance_rating.php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_game_row.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_archive_listbox.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_ratedresults_games_filters.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_routes.php';
 
 include __DIR__ . '/../../../config/ko2amiga_config.php';
@@ -195,6 +196,7 @@ $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : 
 ?>
 
 <div class="k2-player-games-filters">
+    <div id="<?php echo k2_h(K2_PLAYER_GAMES_FILTERS_ANCHOR); ?>" class="k2-player-games-filters-anchor" tabindex="-1"></div>
     <div class="k2-chrome-tabs k2-amiga-player-games-scope-tabs">
         <nav class="k2-chrome-tabs__bar" data-k2-carry-scroll role="tablist" aria-label="Game scope">
             <a href="<?php echo amiga_games_h(amiga_games_event_filter_url($gamesUrlState, 'all')); ?>" class="k2-chrome-tabs__tab<?php echo $eventFilter === 'all' ? ' is-active' : ''; ?>"<?php echo $eventFilter === 'all' ? ' aria-current="true"' : ''; ?>>All games</a>

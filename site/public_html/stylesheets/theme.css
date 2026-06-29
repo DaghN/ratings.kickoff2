@@ -2050,6 +2050,13 @@ body.k2-site .k2-lb-table-anchor {
 	height: 0;
 }
 
+body.k2-site .k2-lb-player-row-anchor {
+	display: block;
+	height: 0;
+	overflow: hidden;
+	scroll-margin-top: 12px;
+}
+
 body.k2-site .k2-countries-scroll-anchor {
 	height: 0;
 	scroll-margin-top: 12px;
@@ -3943,6 +3950,17 @@ body.k2-site a.k2-country-hero__flag-link:focus {
 	color: var(--k2-link-star);
 }
 
+body.k2-site .k2-country-hero--feast .k2-country-hero__name a.k2-link-star,
+body.k2-site .k2-country-hero--feast .k2-country-hero__name a.k2-link-star:visited,
+body.k2-site .k2-country-hero--feast .k2-country-hero__name a.k2-link-star:hover,
+body.k2-site .k2-country-hero--feast .k2-country-hero__name a.k2-link-star:focus-visible {
+	font: inherit;
+	font-weight: inherit;
+	color: inherit;
+	text-decoration: none;
+	cursor: pointer;
+}
+
 .k2-country-hero--feast .k2-player-hero__stat {
 	align-items: center;
 }
@@ -4034,10 +4052,6 @@ body.k2-site a.k2-country-roster-link:active,
 body.k2-site a.k2-country-roster-link:focus {
 	text-decoration: none;
 	color: inherit;
-}
-
-body.k2-site a.k2-player-hero__country-link:hover .k2-player-hero__country-flag {
-	box-shadow: 0 0 0 1px var(--k2-link-star);
 }
 
 .k2-player-hero__name {

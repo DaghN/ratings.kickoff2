@@ -6,6 +6,7 @@
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_amiga_country_flag.php';
 require_once __DIR__ . '/k2_amiga_routes.php';
+require_once __DIR__ . '/k2_ratedresults_games_filters.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_lb_lib.php';
 require_once __DIR__ . '/amiga_wc_podium_th.php';
@@ -30,8 +31,12 @@ $heroRank = $heroRankNum !== null ? '#' . $heroRankNum : '—';
 $nameEsc = htmlspecialchars((string) $Name, ENT_QUOTES, 'UTF-8');
 $heroPlayerId = isset($id) ? (int) $id : (isset($playerId) ? (int) $playerId : 0);
 $heroProfileHref = $heroPlayerId > 0 ? k2_amiga_player_profile_href($heroPlayerId) : '';
-$heroGamesHref = $heroPlayerId > 0 ? k2_amiga_route('amiga-player-games', ['id' => $heroPlayerId]) : '';
-$heroLbRatingHref = amiga_lb_table_href('/amiga/leaderboards/rating.php');
+$heroGamesHref = $heroPlayerId > 0
+    ? k2_amiga_route('amiga-player-games', ['id' => $heroPlayerId]) . k2_player_games_filters_anchor_fragment()
+    : '';
+$heroLbRatingHref = $heroPlayerId > 0
+    ? amiga_lb_rating_player_href($heroPlayerId)
+    : amiga_lb_table_href('/amiga/leaderboards/rating.php');
 $heroRankLinked = !$heroPreDebut && $heroDisplay && $heroRankNum !== null;
 $heroRatingLinked = !$heroPreDebut && $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
 $heroGamesLinked = !$heroPreDebut && $heroGamesHref !== '';

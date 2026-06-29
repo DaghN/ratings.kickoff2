@@ -100,7 +100,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     $delta = $showDeltaColumn ? ($deltaByPlayer[$playerId] ?? null) : null;
     ?>
     <tr>
-        <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo (int) $rank; ?></td>
+        <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo k2_lb_player_row_anchor_markup($playerId); ?><?php echo (int) $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_amiga_lb_player_cell($playerId, $playerName, (string) ($row['Country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td($colElo, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
 <?php if ($showDeltaColumn) { ?>

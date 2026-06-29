@@ -131,6 +131,9 @@
 
 | When | Note |
 |------|------|
+| 2026-06-29 | **Amiga country roster — Elo links** — Elo column links to rating LB row anchor (`#k2-lb-player-{id}`) via `k2_amiga_lb_rating_cell_link()`; preserves `as=` time travel; `k2-link-star` (entity drill-down parity with player/tournament cells). |
+| 2026-06-29 | **Amiga country Rivals H2H poster — card symmetry** — nation-pair poster passes `subject`/`opponent` into `k2_h2h_poster_country_card_html()` so hero hugs `vs` from the left (blue) and rival from the right (red). |
+| 2026-06-29 | **Amiga games All games — empty filter fix** — `amiga_realm_games_all_request_state()` no longer maps missing `country`/`rival` to `Unknown` (was filtering to zero games); nation-pair filter applies only when both params are present in the URL. |
 | 2026-06-29 | **Amiga tournament hero — feast grid** — entity pages + live view use country-hero layout (host flag 124×93, name, Date/Players/Games/Winner stats); `amiga_tournament_hero.php` + `amiga_tournament_winner()`. |
 | 2026-06-29 | **Amiga import — player fixes** — Diego L → Italy; Joerg D/S alias merge into Jorg D/S (`PLAYER_NAME_ALIASES`); player count 471 (−2 dupes). |
 | 2026-06-29 | **Amiga import — Norway player countries** — `PLAYER_COUNTRY_OVERRIDES` in `import_corrections.py` for Ingvald E, Kjetil D, Oyvind H (missing L2 identity); wired into import manifest; local `import --incremental` applied. |

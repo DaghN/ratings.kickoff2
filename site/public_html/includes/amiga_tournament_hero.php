@@ -2,7 +2,7 @@
 /**
  * Tournament entity hero — feast grid matching country hero (flag left, name + stats right).
  *
- * Expects $k2TournamentHeroSummary (name, country, event_date, player_count, game_count)
+ * Expects $k2TournamentHeroSummary (id, name, country, event_date, player_count, game_count)
  * and optional $k2TournamentHeroWinner (player_id, player_name, player_country).
  * Optional $k2TournamentHeroBadges — list of plain-text badge labels (live view).
  */
@@ -23,6 +23,7 @@ $hostCountry = trim((string) ($summary['country'] ?? ''));
 $eventDate = $summary['event_date'] ?? null;
 $playerCount = (int) ($summary['player_count'] ?? 0);
 $gameCount = (int) ($summary['game_count'] ?? 0);
+$tournamentId = (int) ($summary['id'] ?? 0);
 $winner = is_array($k2TournamentHeroWinner ?? null) ? $k2TournamentHeroWinner : null;
 $badges = is_array($k2TournamentHeroBadges ?? null) ? $k2TournamentHeroBadges : [];
 
@@ -44,7 +45,10 @@ if ($winner !== null) {
     $winnerName = trim((string) ($winner['player_name'] ?? ''));
     $winnerCountry = trim((string) ($winner['player_country'] ?? ''));
     if ($winnerId > 0 && $winnerName !== '') {
-        $winnerDisplay = k2_amiga_lb_player_cell($winnerId, $winnerName, $winnerCountry);
+        require_once __DIR__ . '/amiga_player_load.php';
+        $playerHref = k2_amiga_player_profile_href($winnerId);
+        $playerLink = '<a class="k2-player-hero__stat-link" href="' . k2_h($playerHref) . '">' . k2_h($winnerName) . '</a>';
+        $winnerDisplay = k2_amiga_inline_flag_and_link($winnerCountry, $playerLink);
     }
 }
 ?>
@@ -60,7 +64,14 @@ if ($winner !== null) {
             }
         ?></div>
         <div class="k2-country-hero__body">
-            <h2 class="k2-country-hero__name"><?php echo k2_h($tournamentName); ?></h2>
+            <h2 class="k2-country-hero__name"><?php
+                if ($tournamentId > 0) {
+                    require_once __DIR__ . '/amiga_tournament_lib.php';
+                    echo amiga_tournament_link($tournamentId, $tournamentName);
+                } else {
+                    echo k2_h($tournamentName);
+                }
+            ?></h2>
             <div class="k2-player-hero__stats">
                 <div class="k2-player-hero__stat">
                     <span class="k2-player-hero__stat-label">Date</span>

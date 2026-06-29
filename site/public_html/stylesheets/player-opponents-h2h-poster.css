@@ -67,14 +67,17 @@ body.k2-site .k2-h2h2-card {
 }
 
 body.k2-site a.k2-h2h2-card--link,
-body.k2-site a.k2-h2h2-card--link:visited {
+body.k2-site a.k2-h2h2-card--link:visited,
+body.k2-site article.k2-h2h2-card--link {
 	color: inherit;
 	text-decoration: none;
 	cursor: pointer;
 }
 
 body.k2-site a.k2-h2h2-card--link:hover,
-body.k2-site a.k2-h2h2-card--link:focus-visible {
+body.k2-site a.k2-h2h2-card--link:focus-visible,
+body.k2-site article.k2-h2h2-card--link:has(.k2-h2h2-card__profile-hit:hover),
+body.k2-site article.k2-h2h2-card--link:has(.k2-h2h2-card__profile-hit:focus-visible) {
 	text-decoration: none;
 	box-shadow:
 		0 0 0 1px color-mix(in srgb, var(--k2-h2h2-side) 72%, transparent),
@@ -86,8 +89,26 @@ body.k2-site a.k2-h2h2-card--link:focus-visible {
 }
 
 body.k2-site a.k2-h2h2-card--link:hover .k2-h2h2-card__name,
-body.k2-site a.k2-h2h2-card--link:focus-visible .k2-h2h2-card__name {
+body.k2-site a.k2-h2h2-card--link:focus-visible .k2-h2h2-card__name,
+body.k2-site article.k2-h2h2-card--link:has(.k2-h2h2-card__profile-hit:hover) .k2-h2h2-card__name,
+body.k2-site article.k2-h2h2-card--link:has(.k2-h2h2-card__profile-hit:focus-visible) .k2-h2h2-card__name {
 	color: color-mix(in srgb, var(--k2-h2h2-side) 82%, var(--k2-text-primary));
+}
+
+body.k2-site .k2-h2h2-card__profile-hit {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	border-radius: inherit;
+}
+
+body.k2-site .k2-h2h2-card__country-flag-link {
+	position: relative;
+	z-index: 2;
+	display: block;
+	line-height: 0;
+	color: inherit;
+	text-decoration: none;
 }
 
 body.k2-site .k2-h2h2-card--subject {
@@ -176,6 +197,14 @@ body.k2-site .k2-h2h2-card__stat-value {
 	color: var(--k2-text-secondary);
 	font-variant-numeric: tabular-nums;
 	line-height: 1.1;
+}
+
+body.k2-site .k2-h2h2-card__stat-value.blue {
+	color: var(--k2-h2h2-blue, var(--k2-table-positive));
+}
+
+body.k2-site .k2-h2h2-card__stat-value.red {
+	color: var(--k2-h2h2-red, var(--k2-table-negative));
 }
 
 body.k2-site .k2-h2h2-card__country-flag {

@@ -352,6 +352,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 <?php
 $k2TournamentHeroSummary = [
+    'id' => $id,
     'name' => $tName,
     'country' => trim((string) ($tournament['country'] ?? '')),
     'event_date' => $tournament['event_date'] ?? null,

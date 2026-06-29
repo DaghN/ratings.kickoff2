@@ -67,8 +67,9 @@ function amiga_realm_games_all_request_state(): array
     $sortKey = amiga_realm_games_all_valid_sort((string) ($_GET['sort'] ?? 'id'));
     $sortDirection = amiga_realm_games_all_valid_direction((string) ($_GET['dir'] ?? 'desc'));
     $offset = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
-    $country = amiga_country_rivals_normalize_token((string) ($_GET['country'] ?? ''));
-    $rival = amiga_country_rivals_normalize_token((string) ($_GET['rival'] ?? ''));
+    // Raw trim only — empty means no nation-pair filter (normalize would map '' → Unknown).
+    $country = trim((string) ($_GET['country'] ?? ''));
+    $rival = trim((string) ($_GET['rival'] ?? ''));
 
     return [
         'sort' => $sortKey,
@@ -82,19 +83,25 @@ function amiga_realm_games_all_request_state(): array
 function amiga_realm_games_all_where_sql(array $state, AmigaSnapshotContext $ctx, string &$types, array &$params): string
 {
     $where = '1=1';
-    $hero = (string) ($state['country'] ?? '');
-    $rival = (string) ($state['rival'] ?? '');
-    if ($hero !== '' && $rival !== '') {
-        $tokenA = amiga_country_rivals_games_token_sql('r.country_a');
-        $tokenB = amiga_country_rivals_games_token_sql('r.country_b');
-        $where .= ' AND ((' . $tokenA . ' = ? AND ' . $tokenB . ' = ?) OR (' . $tokenB . ' = ? AND ' . $tokenA . ' = ?))';
-        $types .= 'ssss';
-        $params[] = $hero;
-        $params[] = $rival;
-        $params[] = $hero;
-        $params[] = $rival;
+    $heroRaw = trim((string) ($state['country'] ?? ''));
+    $rivalRaw = trim((string) ($state['rival'] ?? ''));
+    if ($heroRaw !== '' && $rivalRaw !== '') {
+        $hero = amiga_country_rivals_normalize_token($heroRaw);
+        $rival = amiga_country_rivals_normalize_token($rivalRaw);
+        if (amiga_country_rivals_is_domestic_rival($hero, $rival)) {
+            $where .= ' AND 1=0';
+        } else {
+            $tokenA = amiga_country_rivals_games_token_sql('r.country_a');
+            $tokenB = amiga_country_rivals_games_token_sql('r.country_b');
+            $where .= ' AND ((' . $tokenA . ' = ? AND ' . $tokenB . ' = ?) OR (' . $tokenB . ' = ? AND ' . $tokenA . ' = ?))';
+            $types .= 'ssss';
+            $params[] = $hero;
+            $params[] = $rival;
+            $params[] = $hero;
+            $params[] = $rival;
+        }
     }
-    $where .= amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params, 'r');
+    $where .= amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params);
 
     return $where;
 }
