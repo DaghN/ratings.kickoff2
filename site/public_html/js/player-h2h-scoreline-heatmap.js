@@ -49,11 +49,18 @@
 
     function gamesListUrl(playerId, goalsFor, goalsAgainst, opponentId, ctxEl) {
         if (CTX) {
-            return CTX.gamesListUrl(ctxEl, playerId, {
+            var params = {
                 gf: goalsFor,
-                ga: goalsAgainst,
-                opponent: opponentId
-            });
+                ga: goalsAgainst
+            };
+            var matchup = CTX.gamesMatchupParams(ctxEl, opponentId);
+            var key;
+            for (key in matchup) {
+                if (Object.prototype.hasOwnProperty.call(matchup, key)) {
+                    params[key] = matchup[key];
+                }
+            }
+            return CTX.gamesListUrl(ctxEl, playerId, params);
         }
         return '/player/games.php?id=' + encodeURIComponent(String(playerId))
             + '&gf=' + encodeURIComponent(String(goalsFor))
@@ -572,11 +579,17 @@
         }
 
         function loadOpponent(opponentId) {
-            if (!opponentId) {
+            if (CTX && CTX.h2hGrainFrom(root) === 'country') {
+                if (!CTX.opponentCountryFrom(root)) {
+                    return;
+                }
+            } else if (!opponentId) {
                 return;
             }
 
-            root.setAttribute('data-opponent-id', String(opponentId));
+            if (opponentId) {
+                root.setAttribute('data-opponent-id', String(opponentId));
+            }
 
             var status = root.querySelector('.player-h2h-scoreline-heatmap-status');
             var wrap = root.querySelector('.h2h-scoreline-heatmap-wrap');
@@ -588,7 +601,7 @@
             }
 
             var url = API_PATH + '?id=' + encodeURIComponent(playerId)
-                + '&opponent=' + encodeURIComponent(opponentId)
+                + (CTX ? CTX.matchupApiQuery(root, opponentId) : ('&opponent=' + encodeURIComponent(opponentId)))
                 + (CTX ? CTX.apiSuffix(root) : '&realm=online');
 
             fetch(url, { credentials: 'same-origin' })
@@ -615,16 +628,12 @@
             loadOpponent(e.detail.opponentId);
         });
 
-        var h2hRoot = root.closest('.k2-player-opponents-h2h');
-        if (h2hRoot) {
-            var initialId = h2hRoot.getAttribute('data-chart-opponent-id');
-            if (initialId) {
-                loadOpponent(initialId);
-            }
-        } else {
-            var staticOpponentId = root.getAttribute('data-opponent-id');
-            if (staticOpponentId) {
-                loadOpponent(staticOpponentId);
+        var initial = CTX ? CTX.initialMatchupFromPage(root) : null;
+        if (initial) {
+            if (initial.type === 'country') {
+                loadOpponent(null);
+            } else {
+                loadOpponent(initial.id);
             }
         }
     }

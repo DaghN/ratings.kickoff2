@@ -195,6 +195,13 @@ function amiga_player_videos_render_body(
 >
   <?php amiga_player_videos_render_opponent_filter($playerId, $opponentFilter, $opponentChoices); ?>
 
+  <?php
+    $videoCount = count($entries);
+    ?>
+  <div class="k2-player-games-status" data-k2-carry-scroll>
+    <?php echo (int) $videoCount; ?> video<?php echo $videoCount === 1 ? '' : 's'; ?>.
+  </div>
+
   <?php amiga_player_videos_render_games_table(
       $playerId,
       $entries,

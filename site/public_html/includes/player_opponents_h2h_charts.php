@@ -240,3 +240,112 @@ function player_opponents_render_h2h_matchup_charts(
 </section>
     <?php
 }
+
+function player_opponents_render_h2h_country_matchup_charts(
+    int $playerId,
+    string $countryToken,
+    ?string $playerName = null,
+    string $realm = 'amiga'
+): void {
+    $playerId = max(0, $playerId);
+    $countryToken = trim($countryToken);
+    if ($playerId < 1 || $countryToken === '') {
+        return;
+    }
+
+    require_once __DIR__ . '/amiga_player_h2h_country_lib.php';
+    $countryLabel = amiga_player_h2h_country_opponent_label($countryToken);
+    $playerName = $playerName !== null ? trim($playerName) : '';
+    if ($playerName === '') {
+        $playerName = '#' . $playerId;
+    }
+
+    $h2hHeading = 'Wins vs ' . $countryLabel;
+    $goalsHeading = 'Goals per game vs ' . $countryLabel;
+    $cumulativeGoalsHeading = 'Cumulative goals vs ' . $countryLabel;
+    $totalGoalsHeading = 'Combined goals per game vs ' . $countryLabel;
+    $scorelineHeading = 'Scoreline heatmap vs ' . $countryLabel;
+    ?>
+<section class="k2-h2h2-charts" aria-label="Matchup charts" data-chart-realm="<?php echo k2_h($realm); ?>" data-h2h-grain="country">
+	<div class="pm3d-matchups">
+		<h3 class="pm3d-matchups__subtitle player-head-to-head-chart-heading"><?php echo k2_h($h2hHeading); ?></h3>
+		<div class="player-head-to-head-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>" data-opponent-country="<?php echo k2_h($countryToken); ?>">
+			<p class="player-head-to-head-meta pm3d-chart__meta"></p>
+			<p class="player-head-to-head-chart-status pm3d-chart__status k2-chart-panel__status">Loading head-to-head…</p>
+			<div class="k2-chart-frame">
+				<canvas aria-label="Head-to-head cumulative wins"></canvas>
+			</div>
+		</div>
+		<h3 class="pm3d-matchups__subtitle player-head-to-head-goals-chart-heading"><?php echo k2_h($cumulativeGoalsHeading); ?></h3>
+		<div class="player-head-to-head-goals-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>" data-opponent-country="<?php echo k2_h($countryToken); ?>">
+			<p class="player-head-to-head-goals-meta pm3d-chart__meta"></p>
+			<p class="player-head-to-head-goals-chart-status pm3d-chart__status k2-chart-panel__status">Loading cumulative goals…</p>
+			<div class="k2-chart-frame">
+				<canvas aria-label="Head-to-head cumulative goals"></canvas>
+			</div>
+		</div>
+		<h3 class="pm3d-matchups__subtitle player-goals-scored-histogram-heading"><?php echo k2_h($goalsHeading); ?></h3>
+		<div
+			class="player-goals-scored-histogram k2-chart-panel"
+			data-player-id="<?php echo $playerId; ?>"
+			data-opponent-country="<?php echo k2_h($countryToken); ?>"
+			data-h2h-side="subject"
+		>
+			<p class="k2-chart-block__hint">Goals <?php echo k2_h($playerName); ?> scored in rated games vs <?php echo k2_h($countryLabel); ?>. Click a bar to filter the games list.</p>
+			<p class="player-goals-scored-histogram-status pm3d-chart__status k2-chart-panel__status">Loading goals per game…</p>
+			<div class="k2-chart-frame">
+				<canvas aria-label="<?php echo k2_h($playerName); ?> goals scored per game vs <?php echo k2_h($countryLabel); ?>"></canvas>
+			</div>
+		</div>
+		<div
+			class="player-goals-scored-histogram player-goals-scored-histogram--rival k2-chart-panel"
+			data-player-id="<?php echo $playerId; ?>"
+			data-opponent-country="<?php echo k2_h($countryToken); ?>"
+			data-h2h-side="rival"
+		>
+			<p class="k2-chart-block__hint">Goals <?php echo k2_h($countryLabel); ?> scored in rated games vs <?php echo k2_h($playerName); ?>. Click a bar to filter by goals conceded.</p>
+			<p class="player-goals-scored-histogram-status pm3d-chart__status k2-chart-panel__status">Loading goals per game…</p>
+			<div class="k2-chart-frame">
+				<canvas aria-label="<?php echo k2_h($countryLabel); ?> goals scored per game vs <?php echo k2_h($playerName); ?>"></canvas>
+			</div>
+		</div>
+		<h4 class="pm3d-matchups__chart-label player-goals-scored-histogram-grouped-heading">Side by side</h4>
+		<div
+			class="player-goals-scored-histogram player-goals-scored-histogram--h2h-grouped k2-chart-panel"
+			data-player-id="<?php echo $playerId; ?>"
+			data-opponent-country="<?php echo k2_h($countryToken); ?>"
+			data-h2h-grouped="1"
+		>
+			<p class="k2-chart-block__hint"><?php echo k2_h($playerName); ?> (chrome) beside <?php echo k2_h($countryLabel); ?> (red) at each goal count. Click a bar to filter the games list.</p>
+			<p class="player-goals-scored-histogram-status pm3d-chart__status k2-chart-panel__status">Loading goals per game…</p>
+			<div class="k2-chart-frame">
+				<canvas aria-label="Goals scored per game comparison vs country"></canvas>
+			</div>
+		</div>
+		<h3 class="pm3d-matchups__subtitle player-h2h-total-goals-chart-heading"><?php echo k2_h($totalGoalsHeading); ?></h3>
+		<div
+			class="player-h2h-total-goals-chart k2-chart-panel"
+			data-player-id="<?php echo $playerId; ?>"
+			data-opponent-country="<?php echo k2_h($countryToken); ?>"
+		>
+			<p class="player-h2h-total-goals-meta pm3d-chart__meta"></p>
+			<p class="player-h2h-total-goals-chart-status pm3d-chart__status k2-chart-panel__status">Loading combined goals per game…</p>
+			<div class="k2-chart-frame">
+				<canvas aria-label="Combined goals per game vs country"></canvas>
+			</div>
+			<p class="player-h2h-total-goals-chart__x-label">Goal sum</p>
+		</div>
+		<h3 class="pm3d-matchups__subtitle player-h2h-scoreline-heatmap-heading"><?php echo k2_h($scorelineHeading); ?></h3>
+		<div
+			class="player-h2h-scoreline-heatmap"
+			data-player-id="<?php echo $playerId; ?>"
+			data-opponent-country="<?php echo k2_h($countryToken); ?>"
+		>
+			<p class="player-h2h-scoreline-heatmap-meta pm3d-chart__meta">Each square is how many times this scoreline happened.</p>
+			<p class="player-h2h-scoreline-heatmap-status pm3d-chart__status k2-chart-panel__status">Loading scoreline heatmap…</p>
+			<div class="h2h-scoreline-heatmap-wrap"></div>
+		</div>
+	</div>
+</section>
+    <?php
+}

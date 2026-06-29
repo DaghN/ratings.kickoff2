@@ -94,7 +94,11 @@
         }
 
         function loadOpponent(opponentId, opponentName) {
-            if (!opponentId) {
+            if (CTX && CTX.h2hGrainFrom(root) === 'country') {
+                if (!CTX.opponentCountryFrom(root)) {
+                    return;
+                }
+            } else if (!opponentId) {
                 return;
             }
 
@@ -104,7 +108,7 @@
             setMeta('');
 
             var url = API_PATH + '?id=' + encodeURIComponent(playerId)
-                + '&opponent=' + encodeURIComponent(opponentId)
+                + (CTX ? CTX.matchupApiQuery(root, opponentId) : ('&opponent=' + encodeURIComponent(opponentId)))
                 + (CTX ? CTX.apiSuffix(root) : '&realm=online');
 
             fetch(url, { credentials: 'same-origin' })
@@ -235,11 +239,12 @@
             loadOpponent(e.detail.opponentId, e.detail.opponentName);
         });
 
-        var h2hRoot = root.closest('.k2-player-opponents-h2h');
-        if (h2hRoot) {
-            var initialId = h2hRoot.getAttribute('data-chart-opponent-id');
-            if (initialId) {
-                loadOpponent(initialId, h2hRoot.getAttribute('data-chart-opponent-name') || '');
+        var initial = CTX ? CTX.initialMatchupFromPage(root) : null;
+        if (initial) {
+            if (initial.type === 'country') {
+                loadOpponent(null, '');
+            } else {
+                loadOpponent(initial.id, initial.name);
             }
         }
     }

@@ -101,7 +101,7 @@ Grep pass on nav-like blocks in `theme.css`. **Token-only** swaps (12px → `var
 | Item | Value | Why |
 |------|-------|-----|
 | `.k2-player-opponents:has(.k2-player-opponents-h2h) .k2-player-opponents__nav` | `margin-bottom: 20px` | H2H picker block needs more air than table wing |
-| `.k2-player-opponents__nav-row` (planned) | flex row; `gap: var(--k2-nav-gap)` between wing + grain segments | Amiga Opponents **vs Player · vs Country** beside wing tabs — [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md) §6 |
+| `.k2-player-opponents__nav-row` (shipped Jun 2026) | flex row; `gap: var(--k2-nav-gap)` between wing + grain segments | Amiga Opponents **vs Player · vs Country** beside wing tabs — [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md) §6 |
 | `.k2-hub-bar` top margin | `16px` | Header-to-hub rhythm, not `--k2-nav-gap` |
 | `.k2-hub-chapter-to-content-gap` | `22px` | HoF-only editorial gap; out of nav stack v1 |
 | `.k2-page-nav .k2-table` | `margin-bottom: 16px` | Profile multi-table stack spacing, not page chrome |

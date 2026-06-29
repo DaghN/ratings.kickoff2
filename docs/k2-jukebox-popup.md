@@ -37,6 +37,13 @@ w.focus();
 `__k2JukeboxReady` is readable cross-window because both are same-origin. This avoids
 re-navigating (and restarting) an already-open player when the FAB is clicked again.
 
+**Playlist updates:** the player re-fetches `/audio/amiga/playlist.json` when the popup
+gains focus or when the launcher sends `ping` (each main-tab navigation). Fetch uses
+`cache: no-store` and a `?v=` query from `playlist.json` filemtime (set in `jukebox.php`
+as `window.__k2JukeboxPlaylistVer`) so edits show up without a full window reload. If the
+current track was removed, playback moves to the saved index (or the first track) and
+stale `localStorage` track ids are cleared.
+
 ### Raise / send-behind toggle
 
 The launcher keeps a live window handle + a `jukeboxFocused` flag (fed by the player's

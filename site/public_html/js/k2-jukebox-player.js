@@ -14,7 +14,7 @@
 	window.__k2JukeboxReady = true;
 
 	var STORAGE_PREFIX = "k2-jukebox-";
-	var PLAYLIST_URL = "/audio/amiga/playlist.json";
+	var PLAYLIST_BASE = "/audio/amiga/playlist.json";
 	var CHANNEL_NAME = "k2-jukebox";
 
 	var root = document.querySelector("#k2-jukebox-root");
@@ -43,6 +43,7 @@
 	var shuffleOrder = [];
 	var shufflePos = 0;
 	var lastSavedTime = -1;
+	var playlistReady = false;
 
 	var channel = null;
 	try {
@@ -370,18 +371,90 @@
 		}
 	}
 
-	function restoreTrackIndex() {
-		var savedId = readStorage("track-id", "");
-		var idx = -1;
-		if (savedId) {
-			for (var i = 0; i < tracks.length; i++) {
-				if (tracks[i].id === savedId) {
-					idx = i;
-					break;
-				}
+	function playlistUrl() {
+		var ver = window.__k2JukeboxPlaylistVer;
+		return PLAYLIST_BASE + (ver ? "?v=" + ver : "");
+	}
+
+	function findTrackIndexById(id) {
+		if (!id) {
+			return -1;
+		}
+		for (var i = 0; i < tracks.length; i++) {
+			if (tracks[i].id === id) {
+				return i;
 			}
 		}
+		return -1;
+	}
+
+	function reconcileAfterPlaylistChange() {
+		var keepId =
+			currentIndex >= 0 && tracks[currentIndex] ? tracks[currentIndex].id : readStorage("track-id", "");
+		var idx = findTrackIndexById(keepId);
 		if (idx < 0) {
+			if (keepId) {
+				writeStorage("track-id", "");
+			}
+			idx = parseInt(readStorage("track-index", "0"), 10);
+			if (!isFinite(idx)) {
+				idx = 0;
+			}
+			idx = resolveIndex(idx);
+		}
+		if (idx < 0) {
+			idx = tracks.length ? 0 : -1;
+		}
+		if (idx < 0) {
+			currentIndex = -1;
+			highlightTrack(-1);
+			updateNowPlaying(null);
+			broadcastState();
+			return;
+		}
+		var wasPlaying = audio && !audio.paused;
+		var resumeAt = audio && isFinite(audio.currentTime) ? audio.currentTime : 0;
+		if (currentIndex === idx && audio && audio.src && tracks[idx] && audio.src.indexOf(tracks[idx].file) !== -1) {
+			highlightTrack(idx);
+			updateNowPlaying(tracks[idx]);
+			broadcastState();
+			return;
+		}
+		loadTrack(idx, wasPlaying, resumeAt);
+	}
+
+	function loadPlaylist(isRefresh) {
+		return fetch(playlistUrl(), { credentials: "same-origin", cache: "no-store" })
+			.then(function (res) {
+				if (!res.ok) {
+					throw new Error("playlist");
+				}
+				return res.json();
+			})
+			.then(function (data) {
+				tracks = data && data.tracks ? data.tracks : [];
+				renderTrackList();
+				playlistReady = true;
+				if (isRefresh) {
+					reconcileAfterPlaylistChange();
+				} else {
+					restoreTrackIndex();
+				}
+			})
+			.catch(function () {
+				if (trackList) {
+					trackList.innerHTML = '<li class="k2-jukebox__track k2-jukebox__track--empty">Playlist unavailable</li>';
+				}
+			});
+	}
+
+	function restoreTrackIndex() {
+		var savedId = readStorage("track-id", "");
+		var idx = findTrackIndexById(savedId);
+		if (idx < 0) {
+			if (savedId) {
+				writeStorage("track-id", "");
+			}
 			idx = parseInt(readStorage("track-index", "0"), 10);
 			if (!isFinite(idx)) {
 				idx = 0;
@@ -495,6 +568,9 @@
 			if (data.type === "ping") {
 				/* Report state only — do NOT raise the window. The main tab pings on
 				   every page load; focusing here would steal focus on each navigation. */
+				if (playlistReady) {
+					loadPlaylist(true);
+				}
 				broadcastState();
 				broadcastFocus(document.hasFocus());
 			}
@@ -505,6 +581,9 @@
 	   it forward/behind instead of only ever raising it. */
 	window.addEventListener("focus", function () {
 		broadcastFocus(true);
+		if (playlistReady) {
+			loadPlaylist(true);
+		}
 	});
 	window.addEventListener("blur", function () {
 		broadcastFocus(false);
@@ -524,23 +603,7 @@
 		restorePreferences();
 		bindEvents();
 		broadcastFocus(document.hasFocus());
-		fetch(PLAYLIST_URL, { credentials: "same-origin" })
-			.then(function (res) {
-				if (!res.ok) {
-					throw new Error("playlist");
-				}
-				return res.json();
-			})
-			.then(function (data) {
-				tracks = data && data.tracks ? data.tracks : [];
-				renderTrackList();
-				restoreTrackIndex();
-			})
-			.catch(function () {
-				if (trackList) {
-					trackList.innerHTML = '<li class="k2-jukebox__track k2-jukebox__track--empty">Playlist unavailable</li>';
-				}
-			});
+		loadPlaylist(false);
 	}
 
 	if (document.readyState === "loading") {

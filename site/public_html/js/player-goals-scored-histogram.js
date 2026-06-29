@@ -30,8 +30,12 @@
         if (CTX) {
             var params = {};
             params[goalParam || 'gf'] = goals;
-            if (opponentId) {
-                params.opponent = opponentId;
+            var matchup = CTX.gamesMatchupParams(ctxEl, opponentId || null);
+            var key;
+            for (key in matchup) {
+                if (Object.prototype.hasOwnProperty.call(matchup, key)) {
+                    params[key] = matchup[key];
+                }
             }
             return CTX.gamesListUrl(ctxEl, playerId, params);
         }
@@ -121,10 +125,27 @@
 
     function fetchDistribution(apiPlayerId, apiOpponentId, ctxEl) {
         var url = API_PATH + '?id=' + encodeURIComponent(String(apiPlayerId))
+            + (CTX ? CTX.matchupApiQuery(ctxEl || document.documentElement, apiOpponentId) : '')
             + (CTX ? CTX.apiSuffix(ctxEl || document.documentElement) : '&realm=online');
-        if (apiOpponentId) {
+        if (!CTX && apiOpponentId) {
             url += '&opponent=' + encodeURIComponent(String(apiOpponentId));
         }
+        return fetch(url, { credentials: 'same-origin' }).then(function (r) {
+            if (!r.ok) {
+                throw new Error('bad_status');
+            }
+            return r.json();
+        });
+    }
+
+    function fetchDistributionCountry(apiPlayerId, countryToken, side, ctxEl) {
+        var el = ctxEl || document.documentElement;
+        var url = API_PATH + '?id=' + encodeURIComponent(String(apiPlayerId))
+            + (CTX ? CTX.matchupApiQuery(el, null, { country: countryToken, side: side }) : (
+                '&opp_country=' + encodeURIComponent(String(countryToken))
+                + '&side=' + encodeURIComponent(String(side))
+            ))
+            + (CTX ? CTX.apiSuffix(el) : '&realm=online');
         return fetch(url, { credentials: 'same-origin' }).then(function (r) {
             if (!r.ok) {
                 throw new Error('bad_status');
@@ -398,6 +419,7 @@
     function renderH2hSingleChart(root, buckets, data) {
         var playerId = root.getAttribute('data-player-id');
         var opponentId = root.getAttribute('data-opponent-id') || '';
+        var opponentCountry = root.getAttribute('data-opponent-country') || '';
         var isRival = root.getAttribute('data-h2h-side') === 'rival';
         var goalParam = isRival ? 'ga' : 'gf';
         var canvas = root.querySelector('canvas');
@@ -513,7 +535,7 @@
                 }
             })
         });
-        bindBarDrillDown('h2h-goals-single-' + playerId + '-' + opponentId + '-' + goalParam, chartInstance, canvas, {
+        bindBarDrillDown('h2h-goals-single-' + playerId + '-' + (opponentId || opponentCountry) + '-' + goalParam, chartInstance, canvas, {
             pinKey: function (el) {
                 return String(el.index);
             },
@@ -558,6 +580,7 @@
     function renderGroupedH2hChart(root, subjectBuckets, rivalBuckets, subjectData, rivalData) {
         var playerId = root.getAttribute('data-player-id');
         var opponentId = root.getAttribute('data-opponent-id') || '';
+        var opponentCountry = root.getAttribute('data-opponent-country') || '';
         var canvas = root.querySelector('canvas');
         var status = root.querySelector('.player-goals-scored-histogram-status');
         var chartInstance = root._k2GoalsHistogramChart || null;
@@ -705,7 +728,7 @@
                 }
             })
         });
-        bindBarDrillDown('h2h-goals-grouped-' + playerId + '-' + opponentId, chartInstance, canvas, {
+        bindBarDrillDown('h2h-goals-grouped-' + playerId + '-' + (opponentId || opponentCountry), chartInstance, canvas, {
             pickElement: pickGroupedBarElement,
             pinKey: function (el) {
                 return el.datasetIndex + ':' + el.index;
@@ -807,7 +830,9 @@
 
         var playerId = subjectRoot.getAttribute('data-player-id');
         var opponentId = subjectRoot.getAttribute('data-opponent-id');
-        if (!playerId || !opponentId) {
+        var opponentCountry = subjectRoot.getAttribute('data-opponent-country') || '';
+        var isCountry = !!(CTX && CTX.h2hGrainFrom(matchups) === 'country' && opponentCountry);
+        if (!playerId || (!opponentId && !isCountry)) {
             return false;
         }
 
@@ -817,10 +842,20 @@
             setLoading(groupedRoot);
         }
 
-        Promise.all([
-            fetchDistribution(playerId, opponentId, matchups),
-            fetchDistribution(opponentId, playerId, matchups)
-        ])
+        var fetchPromise;
+        if (isCountry) {
+            fetchPromise = Promise.all([
+                fetchDistributionCountry(playerId, opponentCountry, 'subject', matchups),
+                fetchDistributionCountry(playerId, opponentCountry, 'rival', matchups)
+            ]);
+        } else {
+            fetchPromise = Promise.all([
+                fetchDistribution(playerId, opponentId, matchups),
+                fetchDistribution(opponentId, playerId, matchups)
+            ]);
+        }
+
+        fetchPromise
             .then(function (results) {
                 var subjectData = results[0];
                 var rivalData = results[1];

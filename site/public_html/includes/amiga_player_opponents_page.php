@@ -2,13 +2,16 @@
 /**
  * Shared Amiga Opponents wing page shell.
  * Set $k2AmigaPlayerOpponentsView before require (h2h | wdl | goals | dds).
+ * Set $k2AmigaPlayerOpponentsGrain ('player' | 'country') for country-grain pages.
  */
 declare(strict_types=1);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_opponents_lib.php';
 
 $k2AmigaPlayerOpponentsView = amiga_player_opponents_parse_view($k2AmigaPlayerOpponentsView ?? null);
+$k2AmigaPlayerOpponentsGrain = amiga_player_opponents_parse_grain($k2AmigaPlayerOpponentsGrain ?? null);
 $view = $k2AmigaPlayerOpponentsView;
+$grain = $k2AmigaPlayerOpponentsGrain;
 $viewLabel = amiga_player_opponents_view_label($view);
 
 ?>
@@ -59,6 +62,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_context.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_opponents_tables.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_opponents_country_tables.php';
 
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2amiga_config.php';
 
@@ -91,7 +95,37 @@ $k2AmigaPlayerTabActive = 'opponents';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_nav.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_opponents_nav.php';
 
-if ($view === 'h2h') {
+if ($grain === 'country') {
+    if ($view === 'wdl') {
+        amiga_player_opponents_render_country_wdl_table($con, $id, $ctx);
+    } elseif ($view === 'goals') {
+        amiga_player_opponents_render_country_goals_table($con, $id, $ctx);
+    } elseif ($view === 'dds') {
+        amiga_player_opponents_render_country_dds_table($con, $id, $ctx);
+    } elseif ($view === 'h2h') {
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_opponents_country_h2h.php';
+        $h2hCountryToken = amiga_player_opponents_h2h_parse_country_param($_GET['country'] ?? null);
+        $h2hDefaultCountry = !array_key_exists('country', $_GET);
+        $h2hPickSource = amiga_player_opponents_h2h_parse_pick_source($_GET['pick'] ?? null);
+        if ($h2hPickSource === null && ($h2hCountryToken !== '' || $h2hDefaultCountry)) {
+            $h2hPickSource = 'games';
+        }
+        $h2hPlayerName = (string) ($pm['name'] ?? ('#' . $id));
+        amiga_player_opponents_render_country_h2h_panel(
+            $con,
+            $id,
+            $h2hPlayerName,
+            $h2hCountryToken,
+            $h2hDefaultCountry,
+            $h2hPickSource,
+            $ctx
+        );
+    } else {
+        ?>
+<p class="k2-hub-page-intro k2-player-opponents__country-placeholder">Country opponents — <?php echo htmlspecialchars($viewLabel, ENT_QUOTES, 'UTF-8'); ?> is not available.</p>
+        <?php
+    }
+} elseif ($view === 'h2h') {
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_opponents_h2h.php';
     $h2hOpponentId = amiga_player_opponents_h2h_parse_opponent_id($_GET['opponent'] ?? null, $id);
     $h2hDefaultOpponent = !array_key_exists('opponent', $_GET);

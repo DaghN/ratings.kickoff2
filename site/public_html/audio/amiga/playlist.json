@@ -10,7 +10,6 @@
     {"id": "shadow-beast-intro", "title": "Intro", "game": "Shadow of the Beast", "file": "tracks/shadow-beast-intro.mp3"},
     {"id": "shadow-beast-castle", "title": "To The Castle", "game": "Shadow of the Beast", "file": "tracks/shadow-beast-castle.mp3"},
     {"id": "lotus-intro", "title": "Intro", "game": "Lotus Esprit Turbo Challenge", "file": "tracks/lotus-intro.mp3"},
-    {"id": "lotus-music-02", "title": "Track 02", "game": "Lotus Esprit Turbo Challenge", "file": "tracks/lotus-music-02.mp3"},
     {"id": "lotus-2-intro", "title": "Intro", "game": "Lotus Esprit Turbo Challenge 2", "file": "tracks/lotus-2-intro.mp3"},
     {"id": "ik-plus", "title": "Theme", "game": "International Karate +", "file": "tracks/ik-plus.mp3"},
     {"id": "swiv-intro", "title": "Intro", "game": "SWIV", "file": "tracks/swiv-intro.mp3"},

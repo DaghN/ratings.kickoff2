@@ -3467,6 +3467,32 @@ body.k2-site .k2-player-opponents__nav {
 	margin-bottom: var(--k2-nav-gap);
 }
 
+body.k2-site .k2-player-opponents__nav-row {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--k2-nav-gap);
+	width: fit-content;
+	max-width: 100%;
+}
+
+body.k2-site .k2-player-opponents__wings,
+body.k2-site .k2-player-opponents__grain {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+body.k2-site .k2-player-opponents__wings .k2-chrome-tabs__bar,
+body.k2-site .k2-player-opponents__grain-bar {
+	width: fit-content;
+	max-width: 100%;
+}
+
+body.k2-site .k2-player-opponents__country-placeholder {
+	margin-top: 0;
+}
+
 body.k2-site .k2-player-opponents__bar {
 	width: fit-content;
 	max-width: 100%;

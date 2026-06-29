@@ -114,10 +114,6 @@ $k2AmigaPlayerTabWiredAtCutoff = true;
     $opponentChoices,
 ); ?>
 
-<p class="k2-amiga-tournament-footnote" style="padding-bottom:1rem">
-  <?php echo count($playerVideoEntries); ?> video<?php echo count($playerVideoEntries) === 1 ? '' : 's'; ?> · reverse chronological.
-</p>
-
 </div><!-- .k2-page-nav -->
 
 </body>

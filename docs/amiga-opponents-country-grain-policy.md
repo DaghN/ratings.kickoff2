@@ -1,6 +1,6 @@
 # Amiga Opponents — country grain (player vs country)
 
-**Status:** **Policy locked** (Jun 2026). **Not shipped** — implementation follows this doc.
+**Status:** **Shipped** (Jun 2026). OCG-1–OCG-7 complete — see [`amiga-opponents-country-grain-implementation-plan.md`](amiga-opponents-country-grain-implementation-plan.md).
 
 **Implementation plan:** [`amiga-opponents-country-grain-implementation-plan.md`](amiga-opponents-country-grain-implementation-plan.md) — slices **OCG-1–OCG-7**.
 
@@ -149,7 +149,7 @@ Same TPR definition as pair and event perf ([`amiga-performance-rating.md`](amig
 - **`R_opp_g`:** frozen pre-game opponent rating on each game row.
 - **Min games / perfect record:** same NULL / ∞ rules as pair perf (`≥2` games; all-win or all-loss → NULL; perfect win → ∞ display).
 
-**Implementation:** dedicated helper e.g. `amiga_player_country_matchup_performance_rating($con, $playerId, $countryToken, $ctx)` — batch for W/D/L table rows in one query where practical.
+**Implementation:** dedicated helper e.g. `amiga_player_country_matchup_performance_rating($con, $playerId, $countryToken, $ctx)` — batch for W/D/L table rows in one query where practical. **Country H2H pair detail** also solves **reverse TPR** (nationals from *C* vs hero — each game uses hero’s frozen pre-game rating as `R_opp` and the national’s score) via `performance_rating_vs_hero` on the same batch pass.
 
 **Not stored** in v1 — no `prove` gate unless tables are added later.
 
@@ -339,4 +339,5 @@ Ship and proof after each slice. Update this doc session log + `PROJECT_MEMORY.m
 | Date | Note |
 |------|------|
 | Jun 2026 | Policy locked — folder `opponents/country/` grain, horizontal dual segment nav, read-time roll-up + country TPR, H2H minus rating/rank compare. |
-| Jun 2026 | Implementation plan — [`amiga-opponents-country-grain-implementation-plan.md`](amiga-opponents-country-grain-implementation-plan.md) slices OCG-1–OCG-7. |
+| Jun 2026 | Implementation plan — slices OCG-1–OCG-7. |
+| Jun 2026 | **OCG-2 shipped** — nav + country entries + placeholder (routes/hrefs included). |

@@ -161,10 +161,13 @@ function player_opponents_h2h_moment_slot_defs(string $subjectShort, string $opp
 function player_opponents_h2h_moments_slots(
     array $games,
     string $subjectName,
-    string $opponentName
+    string $opponentName,
+    ?string $opponentKicker = null
 ): array {
     $subjectShort = k2_h2h_moment_short_name($subjectName);
-    $opponentShort = k2_h2h_moment_short_name($opponentName);
+    $opponentShort = $opponentKicker !== null && $opponentKicker !== ''
+        ? $opponentKicker
+        : k2_h2h_moment_short_name($opponentName);
     $defs = player_opponents_h2h_moment_slot_defs($subjectShort, $opponentShort);
 
     if ($games === []) {

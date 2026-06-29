@@ -668,6 +668,82 @@ function k2_lb_help_amiga_opponent_countries_beaten(): string
     return 'Distinct countries that you have beaten an opponent from, including your own country.';
 }
 
+/** Amiga Opponents country grain W/D/L table. */
+function k2_lb_help_amiga_opponents_country(): string
+{
+    return 'Opponent nationality bucket — includes games vs compatriots when this row is your own country.';
+}
+
+function k2_lb_help_amiga_opponents_country_games(): string
+{
+    return 'Rated games vs opponents from this country. Opens your games list filtered to this opponent country.';
+}
+
+function k2_lb_help_amiga_opponents_country_wins(): string
+{
+    return 'Wins vs opponents from this country.';
+}
+
+function k2_lb_help_amiga_opponents_country_draws(): string
+{
+    return 'Draws vs opponents from this country.';
+}
+
+function k2_lb_help_amiga_opponents_country_losses(): string
+{
+    return 'Losses vs opponents from this country.';
+}
+
+function k2_lb_help_amiga_opponents_country_win_ratio(): string
+{
+    return 'Share of games won vs opponents from this country.';
+}
+
+function k2_lb_help_amiga_opponents_country_draw_ratio(): string
+{
+    return 'Share of games drawn vs opponents from this country.';
+}
+
+function k2_lb_help_amiga_opponents_country_loss_ratio(): string
+{
+    return 'Share of games lost vs opponents from this country.';
+}
+
+function k2_lb_help_amiga_opponents_country_performance_rating(): string
+{
+    return 'The Elo level implied by your results vs opponents from this country (frozen pre-game opponent ratings). Needs at least 2 games; shows ∞ for a perfect win record (all wins).';
+}
+
+function k2_lb_help_amiga_opponents_country_goals_for(): string
+{
+    return 'Goals scored vs opponents from this country.';
+}
+
+function k2_lb_help_amiga_opponents_country_goals_against(): string
+{
+    return 'Goals conceded vs opponents from this country.';
+}
+
+function k2_lb_help_amiga_opponents_country_double_digits(): string
+{
+    return 'Games where you scored 10+ goals vs opponents from this country.';
+}
+
+function k2_lb_help_amiga_opponents_country_clean_sheets(): string
+{
+    return 'Games where you conceded 0 goals vs opponents from this country.';
+}
+
+function k2_lb_help_amiga_opponents_country_double_digits_conceded(): string
+{
+    return 'Games where opponents from this country scored 10+ against you.';
+}
+
+function k2_lb_help_amiga_opponents_country_clean_sheets_conceded(): string
+{
+    return 'Games where opponents from this country failed to score against you.';
+}
+
 /** World Cups hub - Country stats (`amiga_wc_countries_table.php`). Nation grain. */
 function k2_lb_help_amiga_wc_country_players(): string
 {

@@ -141,6 +141,7 @@ function k2_jukebox_asset_ver(string $relPath): int
 		</div>
 		<audio class="k2-jukebox__audio" preload="metadata"></audio>
 	</div>
+	<script type="text/javascript">window.__k2JukeboxPlaylistVer=<?php echo k2_jukebox_asset_ver('/audio/amiga/playlist.json'); ?>;</script>
 	<script type="text/javascript" src="/js/k2-jukebox-player.js?v=<?php echo k2_jukebox_asset_ver('/js/k2-jukebox-player.js'); ?>"></script>
 </body>
 </html>

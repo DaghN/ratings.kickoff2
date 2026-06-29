@@ -26,18 +26,24 @@
         }
     }
 
-    function navigateToOpponent(root, opponentId, pick) {
+    function navigateToSelection(root, value, pick) {
         var base = root.getAttribute('data-h2h-base') || '';
-        if (!base || !opponentId) {
+        if (!base || !value) {
             return;
         }
+        var grain = root.getAttribute('data-h2h-grain') || 'player';
+        var param = grain === 'country' ? 'country' : 'opponent';
         var sep = base.indexOf('?') >= 0 ? '&' : '?';
-        var url = base + sep + 'opponent=' + encodeURIComponent(String(opponentId));
+        var url = base + sep + param + '=' + encodeURIComponent(String(value));
         if (pick) {
             url += '&pick=' + encodeURIComponent(String(pick));
         }
         storeCarryScroll();
         window.location.href = url;
+    }
+
+    function navigateToOpponent(root, opponentId, pick) {
+        navigateToSelection(root, opponentId, pick);
     }
 
     function metaLabel(gamesVs) {
@@ -95,6 +101,10 @@
     }
 
     function initSearch(root) {
+        if (root.getAttribute('data-h2h-grain') === 'country') {
+            return;
+        }
+
         var playerId = root.getAttribute('data-player-id');
         var input = root.querySelector('.k2-player-opponents-h2h__search-input');
         var list = root.querySelector('.k2-player-opponents-h2h__search-results');
@@ -181,7 +191,7 @@
                     return;
                 }
                 var pick = this.id.indexOf('-alpha-') >= 0 ? 'alpha' : 'games';
-                navigateToOpponent(root, val, pick);
+                navigateToSelection(root, val, pick);
             });
         }
     }

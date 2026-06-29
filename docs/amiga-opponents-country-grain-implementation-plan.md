@@ -1,6 +1,6 @@
 # Amiga Opponents — country grain implementation plan
 
-**Status:** **Ready to execute** (Jun 2026). Policy locked; code not started.
+**Status:** **Complete** (Jun 2026). **OCG-1–OCG-7 shipped** — country ledger tables + country **H2H** (poster/pickers/detail/moments/game charts; no rating/rank compare).
 
 **Policy:** [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md) (**OCG1–OCG13**)
 
@@ -73,13 +73,13 @@ See policy **OCG1–OCG13**. Compressed:
 | Slice | Deliverable | STOP gate |
 |-------|-------------|-----------|
 | **OCG-0** | Policy + this plan | Dagh OK — **done** |
-| **OCG-1** | Routes, grain-aware href lib, country roll-up + TPR load lib | PHP probe: player 73 roll-up games sum = pair sum; early `as=` ≤ present |
-| **OCG-2** | Dual-segment nav + `country/` thin entries + shell branch (placeholder OK) | Browser: toggle preserves wing + `as=`; both grains show nav row |
-| **OCG-3** | Country **W/D/L** table (Perf., games links, column help) | Browser: id=73 country W/D/L; Games → games tab `opp_country=`; Perf. sane |
-| **OCG-4** | Country **Goals** + **DDs** tables | Browser: extremes = MAX not SUM; sort works |
-| **OCG-5** | Country **H2H** — pickers, poster, detail, all-games link (no charts) | Browser: pick country; poster W/D/L matches table bucket |
-| **OCG-6** | Country H2H — moments + game charts (no rating/rank) | Charts load for `country=`; rating/rank sections absent |
-| **OCG-7** | Audit + docs closure | `audit_k2_table_compliance.py` on country table pages; MEMORY updated |
+| **OCG-1** | Routes, grain-aware href lib, country roll-up + TPR load lib | PHP probe: player 73 roll-up games sum = pair sum; early `as=` ≤ present — **done** |
+| **OCG-2** | Dual-segment nav + `country/` thin entries + shell branch (placeholder OK) | Browser: toggle preserves wing + `as=`; both grains show nav row — **done** |
+| **OCG-3** | Country **W/D/L** table (Perf., games links, column help) | Browser: id=73 country W/D/L; Games → games tab `opp_country=`; Perf. sane — **done** |
+| **OCG-4** | Country **Goals** + **DDs** tables | Browser: extremes = MAX not SUM; sort works — **done** |
+| **OCG-5** | Country **H2H** — pickers, poster, detail, all-games link (no charts) | Browser: pick country; poster W/D/L matches table bucket — **done** |
+| **OCG-6** | Country H2H — moments + game charts (no rating/rank) | **Done** — charts load for `country=`; rating/rank sections absent |
+| **OCG-7** | Audit + docs closure | **Done** — `audit_k2_table_compliance.py` PASS; MEMORY updated |
 
 ---
 
@@ -143,24 +143,26 @@ User can switch grain and wing; country pages load shell with placeholder body.
 
 ### Tasks
 
-- [ ] **Thin entries** (four files):
+- [x] **Thin entries** (four files):
   - `site/public_html/amiga/player/opponents/country/h2h.php`
   - `…/country/wdl.php`, `goals.php`, `dds.php`
   - Each sets `$k2AmigaPlayerOpponentsGrain = 'country'` and `$k2AmigaPlayerOpponentsView`, then `require` page shell.
-- [ ] **`amiga_player_opponents_nav.php`:**
+- [x] **`amiga_player_opponents_nav.php`:**
   - Accept `$k2AmigaPlayerOpponentsGrain` (default `player`).
   - Wrap wing + grain bars in `.k2-player-opponents__nav-row`.
   - Wing links: `amiga_player_opponents_href($id, $viewId, $grain)`.
   - Grain links: same `$view`, toggle grain only.
   - `aria-label` on grain nav: e.g. *Opponent grouping*.
-- [ ] **`theme.css`** (under `.k2-player-opponents` block):
+- [x] **`theme.css`** (under `.k2-player-opponents` block):
   - `.k2-player-opponents__nav-row` — flex row, align center, wrap, gap `var(--k2-nav-gap)`.
   - `.k2-player-opponents__wings`, `.k2-player-opponents__grain` — `margin: 0`; inner bars `width: fit-content`.
   - Preserve H2H `20px` nav margin rule when `.k2-player-opponents-h2h` present.
-- [ ] **`amiga_player_opponents_page.php`:**
+- [x] **`amiga_player_opponents_page.php`:**
   - Parse grain from entry var or script path.
   - Pass grain into nav include.
-  - Branch render: country grain → temporary `<p class="k2-hub-page-intro">Country grain — W/D/L slice next.</p>` until OCG-3+.
+  - Branch render: country grain → placeholder until OCG-3+.
+
+**Also shipped (OCG-1 partial):** country route keys + grain-aware `amiga_player_opponents_href()` in lib + `k2_amiga_routes.php`.
 
 ### Verification
 
@@ -183,15 +185,15 @@ First shippable country-grain surface.
 ### Tasks
 
 - [ ] **`includes/amiga_player_opponents_country_tables.php`** (new) — or dedicated W/D/L section if file stays small:
-  - `amiga_player_opponents_render_country_wdl_table($con, $playerId, $ctx)`.
-  - Columns: **Country** · **Games** · W · D · L · ratios · **Perf.**
-  - **No Elo column** — re-anchor k2-table default sort column index (Games column shifts left vs player table).
-  - Country cell: `k2_amiga_lb_country_cell($token)`.
-  - Games cell: link via `amiga_player_opponents_games_filtered_by_country_href()`.
-  - Perf.: batch helper from OCG-1; display via `performance_rating.php` format helpers (∞ / dash).
-- [ ] **`lb_column_help.php`:** tooltips for country W/D/L where labels differ (e.g. *players from this country* on Country column).
-- [ ] Wire shell branch: country + `wdl` → render country W/D/L table.
-- [ ] Empty state: no rows → short intro line (no table).
+  - [x] `amiga_player_opponents_render_country_wdl_table($con, $playerId, $ctx)`.
+  - [x] Columns: **Country** · **Games** · W · D · L · ratios · **Perf.**
+  - [x] **No Elo column** — re-anchor k2-table default sort column index (Games column shifts left vs player table).
+  - [x] Country cell: `k2_amiga_lb_country_cell($token)`.
+  - [x] Games cell: link via `amiga_player_opponents_games_filtered_by_country_href()`.
+  - [x] Perf.: batch helper from OCG-1; display via `performance_rating.php` format helpers (∞ / dash).
+- [x] **`lb_column_help.php`:** tooltips for country W/D/L where labels differ (e.g. *players from this country* on Country column).
+- [x] Wire shell branch: country + `wdl` → render country W/D/L table.
+- [x] Empty state: no rows → short intro line (no table).
 
 ### Verification
 
@@ -212,10 +214,10 @@ Complete ledger wings for country grain.
 
 ### Tasks
 
-- [ ] **Goals table:** same row source; goal extremes from rolled-up **MAX** fields; reuse ratio / TG/g math from player grain where applicable.
-- [ ] **DDs table:** summed dd/cs counts; ratios ÷ bucket games — mirror player grain column order minus Elo.
-- [ ] Shell branches for `goals` and `dds` views.
-- [ ] Column help for any country-specific wording.
+- [x] **Goals table:** same row source; goal extremes from rolled-up **MAX** fields; reuse ratio / TG/g math from player grain where applicable.
+- [x] **DDs table:** summed dd/cs counts; ratios ÷ bucket games — mirror player grain column order minus Elo.
+- [x] Shell branches for `goals` and `dds` views.
+- [x] Column help for any country-specific wording.
 
 ### Verification
 
@@ -233,17 +235,17 @@ Country drill-down parity with player H2H minus charts.
 
 ### Tasks
 
-- [ ] **`includes/amiga_player_opponents_country_h2h.php`** (new):
-  - `amiga_player_opponents_h2h_parse_country_param(mixed $raw): string` — normalize via `amiga_countries_normalize_country_param()` or shared helper; empty = no selection.
-  - `amiga_player_opponents_render_country_h2h_panel(...)` — parallel to player panel.
-  - **Pickers:** two listboxes only (games desc · A–Z); options from `amiga_player_opponents_country_rows()`; values = country token strings.
-  - **Default opponent country:** when `country` param absent, use top bucket for **display** only (mirror player H2H — URL without param until user picks).
-  - **Poster:** reuse `player_opponents_render_h2h_poster()` only if adaptable; otherwise add `player_opponents_render_h2h_country_poster()` — hero card + **country card** (flag, token, roster link) + centre W/D/L from bucket.
-  - **Pair detail:** W/D/L + country Perf. (read-time).
-  - **All games link:** hero games `opp_country=` filter.
-- [ ] Listbox render: extend or duplicate `k2_h2h_opponent_listbox_render` for token labels (flag + country name sort).
-- [ ] Shell: country + `h2h` → country H2H panel.
-- [ ] **Do not** call `player_opponents_render_h2h_matchup_charts()` in this slice.
+- [x] **`includes/amiga_player_opponents_country_h2h.php`** (new):
+  - [x] `amiga_player_opponents_h2h_parse_country_param(mixed $raw): string` — normalize via `amiga_countries_normalize_country_param()` or shared helper; empty = no selection.
+  - [x] `amiga_player_opponents_render_country_h2h_panel(...)` — parallel to player panel.
+  - [x] **Pickers:** two listboxes only (games desc · A–Z); options from `amiga_player_opponents_country_rows()`; values = country token strings.
+  - [x] **Default opponent country:** when `country` param absent, use top bucket for **display** only (mirror player H2H — URL without param until user picks).
+  - [x] **Poster:** reuse `player_opponents_render_h2h_poster()` only if adaptable; otherwise add `player_opponents_render_h2h_country_poster()` — hero card + **country card** (flag, token, roster link) + centre W/D/L from bucket.
+  - [x] **Pair detail:** W/D/L + country Perf. (read-time).
+  - [x] **All games link:** hero games `opp_country=` filter.
+- [x] Listbox render: extend or duplicate `k2_h2h_opponent_listbox_render` for token labels (flag + country name sort).
+- [x] Shell: country + `h2h` → country H2H panel.
+- [x] **Do not** call `player_opponents_render_h2h_matchup_charts()` in this slice.
 
 ### Verification
 
@@ -261,13 +263,13 @@ Game-level texture filtered by opponent country; **exclude** rating/rank compare
 
 ### Tasks
 
-- [ ] **Moments grid:**
+- [x] **Moments grid:**
   - New helper `amiga_player_h2h_country_games_rows($con, $playerId, $countryToken, $ctx)` — filter pair games where opponent nationality = token (reuse games WHERE + country join).
   - Feed `player_opponents_h2h_moments_slots()` with hero name + country label as “opponent name”.
-- [ ] **Charts — PHP:**
+- [x] **Charts — PHP:**
   - Add `player_opponents_render_h2h_country_matchup_charts()` — copy structure from `player_opponents_render_h2h_matchup_charts()` but **omit** rating comparison + rank comparison sections entirely (not hidden — not in DOM).
   - Include: cumulative H2H wins, cumulative goals, goals-per-game histogram, total-goals histogram, scoreline heatmap.
-- [ ] **Charts — API/JS:**
+- [x] **Charts — API/JS:**
   - Extend Amiga branches to accept **`opp_country`** (or dedicated country endpoints) on:
     - `api/player_head_to_head.php`
     - `api/player_head_to_head_goals.php` (if separate)
@@ -293,10 +295,10 @@ Game-level texture filtered by opponent country; **exclude** rating/rank compare
 
 ### Tasks
 
-- [ ] `python scripts/audit_k2_table_compliance.py` — country W/D/L, Goals, DDs pages.
-- [ ] Policy session log + this plan slice checkboxes.
-- [ ] [`UPDATE_DOCS.md`](UPDATE_DOCS.md) Part A: `PROJECT_MEMORY.md`, [`feature-log.md`](coordination/feature-log.md) (L0 UI row), policy status → **In progress** / partial shipped notes per slice.
-- [ ] Confirm [`url-routes.md`](url-routes.md) route table matches registered keys (already drafted — verify at ship).
+- [x] `python scripts/audit_k2_table_compliance.py` — country W/D/L, Goals, DDs pages.
+- [x] Policy session log + this plan slice checkboxes.
+- [x] [`UPDATE_DOCS.md`](UPDATE_DOCS.md) Part A: `PROJECT_MEMORY.md`, [`feature-log.md`](coordination/feature-log.md) (L0 UI row), policy status → **Complete**.
+- [x] Confirm [`url-routes.md`](url-routes.md) route table matches registered keys (already drafted — verify at ship).
 
 ### Browser smoke script (manual)
 
@@ -344,4 +346,7 @@ Persisted `amiga_player_country_matchup_*` tables · online port · country-vs-c
 
 | Date | Note |
 |------|------|
+| 2026-06-29 | **OCG-1 + OCG-3 shipped** — country load/perf libs; country W/D/L table; player 73 parity 264 games. |
+| 2026-06-29 | **OCG-5 shipped** — country H2H panel (listboxes, country poster card, W/D/L+Perf detail, games link); JS `country=` navigation. |
+| 2026-06-29 | **OCG-4 shipped** — country Goals + DDs tables; shared empty state; min_goal_sum rollup fix; player 73 DD sum parity 107. |
 | Jun 2026 | Implementation plan locked — slices OCG-1–OCG-7. |

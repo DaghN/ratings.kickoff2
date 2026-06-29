@@ -16,6 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $realm = isset($_GET['realm']) ? strtolower(trim((string) $_GET['realm'])) : 'online';
 $playerId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $opponentId = isset($_GET['opponent']) ? (int) $_GET['opponent'] : 0;
+$oppCountry = isset($_GET['opp_country']) ? trim((string) $_GET['opp_country']) : '';
+$goalsSide = isset($_GET['side']) && (string) $_GET['side'] === 'rival' ? 'rival' : 'subject';
 
 if ($realm !== 'online' && $realm !== 'amiga') {
     echo json_encode([
@@ -45,6 +47,64 @@ if ($opponentId > 0 && $opponentId === $playerId) {
 }
 
 $scopeOpponentId = $opponentId > 0 ? $opponentId : null;
+
+if ($realm === 'amiga' && $oppCountry !== '') {
+    include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2amiga_config.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_context.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_matchup_lib.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_h2h_country_lib.php';
+
+    $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+    if ($con->connect_errno) {
+        http_response_code(500);
+        echo json_encode(['error' => 'db_connect_failed']);
+        exit;
+    }
+    $con->set_charset('utf8mb4');
+    $con->query("SET time_zone = '+00:00'");
+
+    $ctx = amiga_snapshot_context_from_request($con);
+    $identity = amiga_player_identity_row($con, $playerId);
+    if ($identity === null) {
+        mysqli_close($con);
+        echo json_encode([
+            'realm' => $realm,
+            'playerId' => $playerId,
+            'opponentId' => null,
+            'oppCountry' => $oppCountry,
+            'playerName' => null,
+            'opponentName' => null,
+            'maxGoals' => 0,
+            'totalGames' => 0,
+            'buckets' => [],
+            'meta' => ['note' => 'player_not_found'],
+        ]);
+        exit;
+    }
+
+    $countryToken = amiga_player_opponents_country_token_from_field($oppCountry);
+    $countryLabel = amiga_player_h2h_country_opponent_label($countryToken);
+    $heroName = (string) $identity['name'];
+    $buckets = amiga_player_h2h_country_goals_scored_buckets($con, $playerId, $countryToken, $ctx, $goalsSide);
+    $maxGoals = $buckets === [] ? 0 : (int) $buckets[count($buckets) - 1]['goals'];
+    $totalGames = player_goals_scored_distribution_total_games($buckets);
+    $avgGoalsPerGame = player_goals_scored_distribution_avg_goals_per_game($buckets);
+    mysqli_close($con);
+
+    echo json_encode([
+        'realm' => $realm,
+        'playerId' => $playerId,
+        'opponentId' => null,
+        'oppCountry' => $countryToken,
+        'playerName' => $goalsSide === 'rival' ? $countryLabel : $heroName,
+        'opponentName' => $goalsSide === 'rival' ? $heroName : $countryLabel,
+        'maxGoals' => $maxGoals,
+        'totalGames' => $totalGames,
+        'avgGoalsPerGame' => $avgGoalsPerGame,
+        'buckets' => $buckets,
+    ]);
+    exit;
+}
 
 if ($realm === 'amiga') {
     include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2amiga_config.php';
