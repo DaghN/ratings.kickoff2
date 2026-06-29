@@ -30,11 +30,18 @@ allows it), and computes a **centred** `left`/`top` from `screen.availWidth/Heig
 // Reuse first — window features on an existing named window can spawn a duplicate.
 var w = window.open('', 'k2jukebox');
 if (w.__k2JukeboxReady) { w.focus(); /* toggle raise/behind */ return; }
-// No player yet — centred create, then load:
-w = window.open('', 'k2jukebox', 'popup=yes,width=360,height=500,left=…,top=…');
-if (!w.__k2JukeboxReady) { w.location.replace('/jukebox.php'); }
-w.focus();
+// First open — centred create, paint a dark boot doc synchronously, then load the player:
+w = window.open('about:blank', 'k2jukebox', 'popup=yes,width=360,height=500,left=…,top=…');
+/* document.write dark #0b0f14 shell in the click handler, then: */
+w.location.replace('/jukebox.php');
+// Main tab keeps focus until the player boots; then the popup is raised.
 ```
+
+First open uses `sessionStorage` key `k2-jukebox-popup-live` so the launcher **does not**
+call featureless `window.open('', name)` when no player exists yet (that path spawned a
+throwaway blank window, closed it, then opened a second centred popup — main-tab flash).
+After a main-tab navigation the flag is still set, so featureless re-acquire is safe.
+Player sets/clears the flag on boot / `pagehide`; launcher clears on `{ type:'closed' }`.
 
 `__k2JukeboxReady` is readable cross-window because both are same-origin. This avoids
 re-navigating (and restarting) an already-open player when the FAB is clicked again.
@@ -68,6 +75,7 @@ a main-tab navigation re-acquires the handle and always raises; toggling resumes
 
 `BroadcastChannel('k2-jukebox')` messages:
 
+- player → `{ type:'ready' }` when the popup player has booted (launcher raises deferred).
 - player → `{ type:'state', playing, title, game }` on play/pause/track change.
 - player → `{ type:'track-change', reason:'auto-advance' }` when the current track ends and the
   next one loads automatically (not on manual next/prev or playlist clicks). The FAB briefly pulses

@@ -131,6 +131,11 @@
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **Jukebox popup white flash** — sync dark boot `document.write` on `about:blank` before `location.replace`; `color-scheme:dark` + panel `#131922` pre-paint in `jukebox.php`; prefetch `/jukebox.php` from FAB. |
+| 2026-06-30 | **Jukebox first-open flash fix** — single `window.open('/jukebox.php', …)` (no blank→close→recreate); main tab keeps focus until player `ready`; inline `#0b0f14` pre-paint in `jukebox.php`; `k2-jukebox-popup-live` session flag. Doc: `k2-jukebox-popup.md`. |
+| 2026-06-30 | **Jukebox playlist row hover** — track title picks up `--k2-link-star` accent when the playlist row is hovered/focused. |
+| 2026-06-30 | **Jukebox FAB glow — final timing** — auto-advance glow 2.6s; gentle rise to a sharp peak (~38%, rise ~1s) then prompt-but-gradual fade (`cubic-bezier(0.25,0,0.45,1)`, ~1.6s tail, no plateau); subtle glow-forward bloom, thin 1px rim. Launcher fallback timer 3.0s. |
+| 2026-06-30 | **Jukebox progress bar** — smooth playback via `requestAnimationFrame` + `scaleX` fill (replaces jerky `timeupdate` + width transition). |
 | 2026-06-30 | **Jukebox FAB — auto-advance glow** — popup broadcasts `track-change` / `auto-advance` on `ended`; main-tab FAB pulses accent glow (`is-track-change`) via `k2-jukebox-launcher.js` + `k2-jukebox.css`. Manual next/prev unchanged. Doc: `k2-jukebox-popup.md`. |
 | 2026-06-30 | **Tint schedule boundaries shifted** — six-hour auto rotation now holo 04–10, pitch 10–16, chrome 16–22, amber 22–04 (was midnight-aligned slots). `k2-tint-schedule.js` + `tint-vs-realm.md`; amber period id anchors to evening calendar day for manual-override continuity across midnight. |
 | 2026-06-29 | **Jukebox FAB — reuse existing popup after nav.** `k2-jukebox-launcher.js` now re-acquires the named window via `window.open('', 'k2jukebox')` **without** features before creating; passing features when a player is already open was spawning a second jukebox instead of raising the first. Doc: `k2-jukebox-popup.md`. |

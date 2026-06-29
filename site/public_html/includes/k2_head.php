@@ -29,6 +29,7 @@ if (is_file($k2JukeboxCssPath)) {
 	echo '<link href="/stylesheets/k2-jukebox.css?v=' . (int) filemtime($k2JukeboxCssPath) . '" rel="stylesheet" type="text/css" />' . "\n";
 }
 if (is_file($k2JukeboxJsPath)) {
+	echo '<link rel="prefetch" href="/jukebox.php" as="document" />' . "\n";
 	echo '<script type="text/javascript" src="/js/k2-jukebox-launcher.js?v=' . (int) filemtime($k2JukeboxJsPath) . '" defer="defer"></script>' . "\n";
 }
 $k2ReqPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);

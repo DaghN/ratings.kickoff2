@@ -12,6 +12,8 @@
 	var WIN_W = 360;
 	var WIN_H = 500;
 	var CHANNEL_NAME = "k2-jukebox";
+	var POPUP_LIVE_KEY = "k2-jukebox-popup-live";
+	var POPUP_BOOT_BG = "#0b0f14";
 
 	/* Centre the popup on the screen the browser sits on (availLeft/availTop keep it
 	   on the correct monitor in multi-display setups; position applies only when the
@@ -37,6 +39,77 @@
 
 	var jukeboxWin = null;
 	var jukeboxFocused = false;
+	var deferRaiseTarget = null;
+	var deferRaiseRaf = 0;
+
+	function readPopupLive() {
+		try {
+			return sessionStorage.getItem(POPUP_LIVE_KEY) === "1";
+		} catch (e) {
+			return false;
+		}
+	}
+
+	function setPopupLive(live) {
+		try {
+			if (live) {
+				sessionStorage.setItem(POPUP_LIVE_KEY, "1");
+			} else {
+				sessionStorage.removeItem(POPUP_LIVE_KEY);
+			}
+		} catch (e2) {
+			/* ignore */
+		}
+	}
+
+	function cancelDeferRaise() {
+		if (deferRaiseRaf) {
+			cancelAnimationFrame(deferRaiseRaf);
+			deferRaiseRaf = 0;
+		}
+		deferRaiseTarget = null;
+	}
+
+	function completeDeferRaise() {
+		var w = deferRaiseTarget;
+		if (!w || w.closed || !isPlayerReady(w)) {
+			return false;
+		}
+		cancelDeferRaise();
+		raise(w);
+		return true;
+	}
+
+	function scheduleDeferRaise(w) {
+		cancelDeferRaise();
+		deferRaiseTarget = w;
+		/* Keep the main tab focused while the popup loads — avoids a full main-window
+		   repaint on first open. Raise once the player has booted. */
+		try {
+			window.focus();
+		} catch (eKeep) {
+			/* ignore */
+		}
+		var attempts = 0;
+		function tick() {
+			deferRaiseRaf = 0;
+			if (completeDeferRaise()) {
+				return;
+			}
+			if (!deferRaiseTarget || deferRaiseTarget.closed) {
+				cancelDeferRaise();
+				return;
+			}
+			if (++attempts > 360) {
+				var fallback = deferRaiseTarget;
+				cancelDeferRaise();
+				raise(fallback);
+				return;
+			}
+			deferRaiseRaf = requestAnimationFrame(tick);
+		}
+		deferRaiseRaf = requestAnimationFrame(tick);
+	}
 
 	function raise(w) {
 		try {
@@ -104,32 +177,16 @@
 		}
 	}
 
-	function openJukebox(frontHint) {
-		var w = reacquireNamedWindow();
-		if (w && !w.closed && isPlayerReady(w)) {
-			toggleOrRaise(w, frontHint);
-			return;
-		}
-
-		/* open("", name) with no existing target creates a blank window — discard it
-		   so the centred create below does not leave a stray empty popup behind. */
-		if (w && !w.closed && !isPlayerReady(w)) {
-			try {
-				w.close();
-			} catch (e4) {
-				/* ignore */
-			}
-			jukeboxWin = null;
-			w = null;
-		}
-
+	function openFreshPlayerWindow() {
+		var w;
 		try {
-			w = window.open("", WIN_NAME, buildFeatures());
+			/* about:blank + synchronous dark boot doc — avoids a white frame while jukebox.php
+			   is still on the wire (window.open(url) leaves the popup white until first byte). */
+			w = window.open("about:blank", WIN_NAME, buildFeatures());
 		} catch (e) {
 			w = null;
 		}
 		if (!w) {
-			/* Popup blocked — open as a normal navigable window as a fallback. */
 			try {
 				window.open(JUKEBOX_URL, WIN_NAME);
 			} catch (e2) {
@@ -137,16 +194,62 @@
 			}
 			return;
 		}
+		try {
+			w.document.open();
+			w.document.write(
+				"<!DOCTYPE html><html lang=\"en\" style=\"background:" +
+					POPUP_BOOT_BG +
+					";color-scheme:dark\">" +
+					"<head><meta charset=\"utf-8\"><meta name=\"color-scheme\" content=\"dark\">" +
+					"<style>html,body{background:" +
+					POPUP_BOOT_BG +
+					";margin:0;height:100%}</style></head><body></body></html>"
+			);
+			w.document.close();
+		} catch (eBoot) {
+			/* ignore — navigation below still runs */
+		}
 		jukeboxWin = w;
-		if (!isPlayerReady(w)) {
-			/* Freshly created (about:blank) window — load the player into it. */
+		setPopupLive(true);
+		try {
+			w.location.replace(JUKEBOX_URL);
+		} catch (eNav) {
 			try {
-				w.location.replace(JUKEBOX_URL);
-			} catch (e5) {
 				w.location.href = JUKEBOX_URL;
+			} catch (eNav2) {
+				/* ignore */
 			}
 		}
-		raise(w);
+		scheduleDeferRaise(w);
+	}
+
+	function openJukebox(frontHint) {
+		var w = jukeboxWin && !jukeboxWin.closed ? jukeboxWin : null;
+
+		/* After a main-tab navigation we lose the in-memory handle; re-acquire only when
+		   a live player is expected — never on first open (that spawned a throwaway blank
+		   window, closed it, then created a second centred popup). */
+		if (!w && readPopupLive()) {
+			w = reacquireNamedWindow();
+		}
+
+		if (w && !w.closed && isPlayerReady(w)) {
+			jukeboxWin = w;
+			toggleOrRaise(w, frontHint);
+			return;
+		}
+
+		if (w && !w.closed && !isPlayerReady(w)) {
+			try {
+				w.close();
+			} catch (e4) {
+				/* ignore */
+			}
+			jukeboxWin = null;
+			setPopupLive(false);
+		}
+
+		openFreshPlayerWindow();
 	}
 
 	function applyState(playing, title) {
@@ -199,7 +302,7 @@
 		}
 		root.__k2TrackGlowTimer = setTimeout(function () {
 			clearAutoAdvanceGlow(root, btn);
-		}, 1600);
+		}, 3000);
 	}
 
 	function bindFab() {
@@ -208,6 +311,22 @@
 			return;
 		}
 		btn.__k2JukeboxBound = true;
+		/* Warm jukebox.php in the HTTP cache so the boot-screen → player hop is faster. */
+		btn.addEventListener("pointerenter", function () {
+			if (btn.__k2JukeboxPrefetched) {
+				return;
+			}
+			btn.__k2JukeboxPrefetched = true;
+			try {
+				var link = document.createElement("link");
+				link.rel = "prefetch";
+				link.href = JUKEBOX_URL;
+				link.as = "document";
+				document.head.appendChild(link);
+			} catch (ePre) {
+				/* ignore */
+			}
+		}, { once: true });
 		/* Snapshot the popup's front/behind state the instant the press starts, before
 		   the resulting focus shift can blur it and corrupt jukeboxFocused. */
 		var frontAtPress = null;
@@ -244,7 +363,12 @@
 				applyState(data.playing, data.title);
 			} else if (data.type === "track-change" && data.reason === "auto-advance") {
 				triggerAutoAdvanceGlow();
+			} else if (data.type === "ready") {
+				setPopupLive(true);
+				completeDeferRaise();
 			} else if (data.type === "closed") {
+				cancelDeferRaise();
+				setPopupLive(false);
 				applyState(false, "");
 				jukeboxWin = null;
 				jukeboxFocused = false;

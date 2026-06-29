@@ -16,6 +16,7 @@
 	var STORAGE_PREFIX = "k2-jukebox-";
 	var PLAYLIST_BASE = "/audio/amiga/playlist.json";
 	var CHANNEL_NAME = "k2-jukebox";
+	var POPUP_LIVE_KEY = "k2-jukebox-popup-live";
 
 	var root = document.querySelector("#k2-jukebox-root");
 	if (!root) {
@@ -44,6 +45,7 @@
 	var shufflePos = 0;
 	var lastSavedTime = -1;
 	var playlistReady = false;
+	var progressRaf = 0;
 
 	var channel = null;
 	try {
@@ -92,6 +94,34 @@
 		}
 		try {
 			channel.postMessage({ type: "track-change", reason: "auto-advance" });
+		} catch (e) {
+			/* ignore */
+		}
+	}
+
+	function markPopupLive() {
+		try {
+			sessionStorage.setItem(POPUP_LIVE_KEY, "1");
+		} catch (e) {
+			/* ignore */
+		}
+	}
+
+	function clearPopupLive() {
+		try {
+			sessionStorage.removeItem(POPUP_LIVE_KEY);
+		} catch (e) {
+			/* ignore */
+		}
+	}
+
+	function broadcastReady() {
+		markPopupLive();
+		if (!channel) {
+			return;
+		}
+		try {
+			channel.postMessage({ type: "ready" });
 		} catch (e) {
 			/* ignore */
 		}
@@ -251,8 +281,19 @@
 			}
 			return;
 		}
+		stopProgressLoop();
+		lastSavedTime = -1;
 		audio.src = url;
 		audio.load();
+		if (progressFill) {
+			progressFill.style.transform = "scaleX(0)";
+		}
+		if (timeCurrent) {
+			timeCurrent.textContent = "0:00";
+		}
+		if (progressBar) {
+			progressBar.setAttribute("aria-valuenow", "0");
+		}
 		var startAt = typeof resumeAt === "number" && resumeAt > 0 ? resumeAt : 0;
 		if (startAt > 0 || autoplay) {
 			audio.addEventListener("canplay", function onCanPlay() {
@@ -340,16 +381,38 @@
 		if (timeTotal) {
 			timeTotal.textContent = formatTime(dur);
 		}
-		var pct = dur > 0 ? (cur / dur) * 100 : 0;
-		progressFill.style.width = pct + "%";
+		var ratio = dur > 0 ? Math.max(0, Math.min(1, cur / dur)) : 0;
+		progressFill.style.transform = "scaleX(" + ratio + ")";
 		if (progressBar) {
-			progressBar.setAttribute("aria-valuenow", String(Math.round(pct)));
+			progressBar.setAttribute("aria-valuenow", String(Math.round(ratio * 100)));
 		}
 		var whole = Math.floor(cur);
 		if (whole !== lastSavedTime) {
 			lastSavedTime = whole;
 			writeStorage("track-time", String(whole));
 		}
+	}
+
+	function progressLoop() {
+		progressRaf = 0;
+		updateProgress();
+		if (audio && !audio.paused && !audio.ended) {
+			progressRaf = requestAnimationFrame(progressLoop);
+		}
+	}
+
+	function startProgressLoop() {
+		if (!progressRaf) {
+			progressRaf = requestAnimationFrame(progressLoop);
+		}
+	}
+
+	function stopProgressLoop() {
+		if (progressRaf) {
+			cancelAnimationFrame(progressRaf);
+			progressRaf = 0;
+		}
+		updateProgress();
 	}
 
 	function seekFromClientX(clientX) {
@@ -550,13 +613,15 @@
 		if (audio) {
 			audio.addEventListener("play", function () {
 				setPlayingUi(true);
+				startProgressLoop();
 			});
 			audio.addEventListener("pause", function () {
 				setPlayingUi(false);
+				stopProgressLoop();
 			});
-			audio.addEventListener("timeupdate", updateProgress);
 			audio.addEventListener("loadedmetadata", updateProgress);
 			audio.addEventListener("ended", function () {
+				stopProgressLoop();
 				broadcastAutoAdvance();
 				loadTrack(nextIndex(1), true);
 			});
@@ -602,6 +667,8 @@
 	});
 
 	window.addEventListener("pagehide", function () {
+		stopProgressLoop();
+		clearPopupLive();
 		if (channel) {
 			try {
 				channel.postMessage({ type: "closed" });
@@ -615,6 +682,7 @@
 		restorePreferences();
 		bindEvents();
 		broadcastFocus(document.hasFocus());
+		broadcastReady();
 		loadPlaylist(false);
 	}
 

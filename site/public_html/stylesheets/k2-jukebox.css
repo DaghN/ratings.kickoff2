@@ -83,27 +83,41 @@
 }
 
 .k2-jukebox.is-track-change .k2-jukebox__toggle {
-	animation: k2-jukebox-track-glow 1.25s ease-out;
+	animation: k2-jukebox-track-glow 2.6s ease-out;
 }
 
+/* "Magic gold ring": glow-forward bloom rather than a thick border. Four shadow
+   layers, same order in every keyframe so each interpolates smoothly —
+   L1 crisp rim ring, L2 tight core glow, L3 wide soft bloom, L4 the resting
+   surface shadow (constant). The temporary rim is a thin box-shadow ring (not
+   animated border-width, which snaps between whole pixels). Gentle rise to a
+   sharp peak (~34%), then a fade that leaves the peak promptly (no plateau) but
+   decays gradually over a longer tail. */
 @keyframes k2-jukebox-track-glow {
 	0% {
 		box-shadow:
 			0 0 0 0 color-mix(in srgb, var(--k2-accent) 0%, transparent),
+			0 0 0 0 color-mix(in srgb, var(--k2-accent-glow) 0%, transparent),
+			0 0 0 0 color-mix(in srgb, var(--k2-accent-glow) 0%, transparent),
 			var(--k2-shadow-surface);
 		border-color: color-mix(in srgb, var(--k2-accent) 62%, var(--k2-segment-active-ring));
+		animation-timing-function: cubic-bezier(0.45, 0, 0.35, 1);
 	}
-	35% {
+	38% {
 		box-shadow:
-			0 0 calc(var(--k2-accent-glow-blur) * 1.4 * var(--k2-glow-strength)) var(--k2-accent-glow),
-			0 0 calc(var(--k2-accent-glow-blur) * 0.5 * var(--k2-glow-strength)) color-mix(in srgb, var(--k2-accent) 40%, transparent),
+			0 0 calc(var(--k2-accent-glow-blur) * 0.3) 1px color-mix(in srgb, white 18%, var(--k2-accent)),
+			0 0 calc(var(--k2-accent-glow-blur) * 1.5 * var(--k2-glow-strength)) color-mix(in srgb, white 22%, var(--k2-accent-glow)),
+			0 0 calc(var(--k2-accent-glow-blur) * 3 * var(--k2-glow-strength)) calc(var(--k2-accent-glow-blur) * 0.2) color-mix(in srgb, white 10%, var(--k2-accent-glow)),
 			var(--k2-shadow-surface);
-		border-color: color-mix(in srgb, var(--k2-accent) 85%, var(--k2-segment-active-text));
+		border-color: color-mix(in srgb, white 15%, var(--k2-accent));
 		color: var(--k2-segment-active-text);
+		animation-timing-function: cubic-bezier(0.25, 0, 0.45, 1);
 	}
 	100% {
 		box-shadow:
 			0 0 0 1px color-mix(in srgb, var(--k2-accent) 18%, transparent),
+			0 0 0 0 color-mix(in srgb, var(--k2-accent-glow) 0%, transparent),
+			0 0 0 0 color-mix(in srgb, var(--k2-accent-glow) 0%, transparent),
 			var(--k2-shadow-surface);
 		border-color: color-mix(in srgb, var(--k2-accent) 62%, var(--k2-segment-active-ring));
 	}
@@ -145,9 +159,10 @@
 	.k2-jukebox.is-track-change .k2-jukebox__toggle {
 		animation: none;
 		box-shadow:
-			0 0 calc(var(--k2-accent-glow-blur) * 0.75 * var(--k2-glow-strength)) var(--k2-accent-glow),
+			0 0 0 1.5px color-mix(in srgb, white 35%, var(--k2-accent)),
+			0 0 calc(var(--k2-accent-glow-blur) * 2.6 * var(--k2-glow-strength)) color-mix(in srgb, white 30%, var(--k2-accent-glow)),
 			var(--k2-shadow-surface);
-		border-color: color-mix(in srgb, var(--k2-accent) 78%, var(--k2-segment-active-ring));
+		border-color: color-mix(in srgb, white 30%, var(--k2-accent));
 	}
 }
 
@@ -511,14 +526,15 @@
 .k2-jukebox__progress-fill {
 	display: block;
 	height: 100%;
-	width: 0;
+	width: 100%;
+	transform-origin: left center;
+	transform: scaleX(0);
 	border-radius: inherit;
 	background: linear-gradient(
 		90deg,
 		color-mix(in srgb, var(--k2-accent) 55%, var(--k2-text-primary)),
 		color-mix(in srgb, var(--k2-accent) 85%, var(--k2-text-primary))
 	);
-	transition: width 0.08s linear;
 }
 
 .k2-jukebox__times {
@@ -610,6 +626,12 @@
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	transition: color 0.12s ease;
+}
+
+.k2-jukebox__track:hover .k2-jukebox__track-title,
+.k2-jukebox__track:focus-visible .k2-jukebox__track-title {
+	color: var(--k2-link-star);
 }
 
 .k2-jukebox__track-game {

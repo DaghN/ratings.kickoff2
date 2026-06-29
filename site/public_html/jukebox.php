@@ -17,10 +17,22 @@ function k2_jukebox_asset_ver(string $relPath): int
 }
 ?>
 <!doctype html>
-<html lang="en" data-realm="amiga" data-k2-accent="amber">
+<html lang="en" data-realm="amiga" data-k2-accent="amber" style="background:#0b0f14;color-scheme:dark">
 <head>
 	<meta charset="utf-8" />
+	<meta name="color-scheme" content="dark" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<style>
+		/* Pre-stylesheet paint — matches :root --k2-bg-page / --k2-text-primary (theme.css). */
+		html,
+		body {
+			background-color: #0b0f14;
+			color: #d0d7de;
+		}
+		body.k2-jukebox-window .k2-jukebox__panel {
+			background-color: #131922;
+		}
+	</style>
 	<title>Amiga Jukebox</title>
 	<?php include $docRoot . '/includes/k2_fonts_head.php'; ?>
 	<link href="/stylesheets/k2-fonts.css?v=<?php echo k2_jukebox_asset_ver('/stylesheets/k2-fonts.css'); ?>" rel="stylesheet" type="text/css" />
