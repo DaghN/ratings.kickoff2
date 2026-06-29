@@ -156,8 +156,8 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 |-------|------|
 | Body/table data | `--k2-text-primary`, normal weight |
 | Muted helpers/headings | `--k2-text-muted` |
-| Hub page lede (`.k2-hub-page-intro` in `.k2-hub-page-intro-head`) | 13px `--k2-text-muted`, max-width 44rem � Milestones catalog + HoF footnotes above tables; optional `.blue` / `.holo` |
-| Hub section chapter (`.k2-hub-chapter`) | `__title` 1.25rem/600 **primary** (intentional — sole “where you are” landmark; not accent/glow; Jun 2026 trial reverted); `__lede` 13px muted; optional `__list` (compact disc bullets, muted+accent `::marker`, same typography) via `$k2HubChapterList` in `includes/k2_hub_chapter.inc.php`. Online hub: Activity, Leaderboards (`lb_nav.php`), Milestones, HoF (rules list). Amiga hub: News (`/amiga/news.php`), World Cups, Activity (`/amiga/activity.php`), HoF, Tournaments, Live tournaments — **not** Amiga Leaderboards (sub-nav only). |
+| Hub page lede (`.k2-hub-page-intro` in `.k2-hub-page-intro-head`) | 14px `--k2-text-muted`, max-width 44rem — Milestones catalog + HoF footnotes above tables; optional `.blue` / `.holo` |
+| Hub section chapter (`.k2-hub-chapter`) | `__title` 1.25rem/600 **primary** (intentional — sole “where you are” landmark; not accent/glow; Jun 2026 trial reverted); `__lede` 14px muted; optional `__list` (compact disc bullets, muted+accent `::marker`, same typography) via `$k2HubChapterList` in `includes/k2_hub_chapter.inc.php`. Online hub: Activity, Leaderboards (`lb_nav.php`), Milestones, HoF (rules list). Amiga hub: News (`/amiga/news.php`), World Cups, Activity (`/amiga/activity.php`), HoF, Tournaments, Live tournaments — **not** Amiga Leaderboards (sub-nav only). |
 | Status-style tickers (arc line) | `--k2-text-muted`; key counts `.blue` |
 | Onboarding / long explanatory prose (Play & setup) | `--k2-text-secondary` (14px); page title stays `--k2-text-primary` |
 | Table entity name links (player · tournament · country) | `a.k2-link-star` via shared PHP helpers — weight 600; hover/focus underline. Contract: [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md). |

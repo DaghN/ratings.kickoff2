@@ -92,7 +92,7 @@ Grep pass on nav-like blocks in `theme.css`. **Token-only** swaps (12px → `var
 | `.k2-hub-chapter__nav` | `12px` → `var(--k2-nav-gap)` | None (token = 12px) |
 | `.k2-games-highlights-board-filter` | `12px` → token | None — check Highlights board filter → cards anyway |
 | `.k2-realm-games-filters` | `12px` → token | None — check Games → All filters → table anyway |
-| `.server-peak-period-leaderboards__subnav` | `12px` → token | None today (markup unused; kept for legacy CSS block) |
+| `.server-peak-period-leaderboards__subnav` | **Deleted** (Jun 2026 — entire legacy peak/period leaderboard embed CSS block removed from `theme.css`; markup never shipped on Activity after charts v2) | None |
 | `.k2-hub-tabs` | `margin: 16px 0 12px` → `margin: 0` | **None** — live pages nest tabs in `.k2-hub-bar`, which already zeroes inner margin |
 | `.k2-chrome-tabs > .server-peak-period-leaderboards` | **Deleted** (dead DOM + violated N2 `margin-top`) | None (selector never matched live markup) |
 

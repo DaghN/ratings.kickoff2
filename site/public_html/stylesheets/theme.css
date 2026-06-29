@@ -176,7 +176,7 @@ body.k2-site h1 {
 	color: var(--k2-text-primary);
 }
 
-/* Hub page lede â€” muted 13px (catalog, HoF notes, etc.) */
+/* Hub page lede — muted 14px (catalog, HoF notes, etc.) */
 body.k2-site .k2-hub-page-intro-head {
 	margin-bottom: 22px;
 }
@@ -184,7 +184,7 @@ body.k2-site .k2-hub-page-intro-head {
 body.k2-site .k2-hub-page-intro {
 	margin: 0;
 	font-family: var(--k2-font-body);
-	font-size: 13px;
+	font-size: 14px;
 	font-weight: 400;
 	line-height: 1.45;
 	color: var(--k2-text-muted);
@@ -210,7 +210,7 @@ body.k2-site .k2-hub-chapter__title {
 body.k2-site .k2-hub-chapter__lede {
 	margin: 0 0 12px;
 	font-family: var(--k2-font-body);
-	font-size: 13px;
+	font-size: 14px;
 	font-weight: 400;
 	line-height: 1.45;
 	color: var(--k2-text-muted);
@@ -232,7 +232,7 @@ body.k2-site .k2-hub-chapter__list {
 	list-style-position: outside;
 	max-width: 44rem;
 	font-family: var(--k2-font-body);
-	font-size: 13px;
+	font-size: 14px;
 	font-weight: 400;
 	line-height: 1.45;
 	color: var(--k2-text-muted);
@@ -979,7 +979,7 @@ body.k2-site.k2-activity-charts .server-activity-summary + .k2-activity-section 
 body.k2-site.k2-activity-charts .k2-activity-section__intro {
 	margin: 2px 0 0;
 	color: var(--k2-text-muted);
-	font-size: 13px;
+	font-size: 14px;
 	line-height: 1.45;
 	max-width: 44rem;
 }
@@ -1236,107 +1236,39 @@ body.k2-site .server-matchup-breadth-chart-status {
 	color: var(--k2-text-muted);
 }
 
-/* Games-by-period leaderboards (Status) â€” outer panel */
-body.k2-site .server-period-activity-leaderboards {
-	max-width: var(--k2-max-width);
-	margin-bottom: 16px;
-	padding: 14px;
+/* Activity LB error lines (legacy class; peaks / participation / in-a-row wings) */
+body.k2-site .server-peak-period-leaderboard-status {
+	color: var(--k2-text-muted);
+}
+
+/* Shared filter control tokens — picker labels/inputs (Games, Status, Amiga filters, H2H) */
+body.k2-site .server-period-activity-leaderboard__picker-label {
+	font-weight: 500;
+}
+
+body.k2-site .server-period-activity-leaderboard__input {
+	padding: 4px 8px;
 	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-md);
+	border-radius: var(--k2-radius-sm);
 	background: var(--k2-bg-surface);
-}
-
-body.k2-site .server-period-activity-leaderboards__heading.k2-panel-heading {
-	margin-bottom: 4px;
-}
-
-body.k2-site .server-period-activity-leaderboards__intro {
-	margin: 0 0 12px;
-	color: var(--k2-text-muted);
+	color: var(--k2-text-secondary);
 	font-size: 0.9em;
-	line-height: 1.4;
 }
 
-body.k2-site .server-peak-period-leaderboards-status,
-body.k2-site .server-peak-period-leaderboard-status,
-body.k2-site .server-period-activity-leaderboards-status,
-body.k2-site .server-period-activity-leaderboard-status {
-	color: var(--k2-text-muted);
+body.k2-site .server-period-activity-leaderboard__date-control {
+	display: inline-flex;
+	align-items: stretch;
+	gap: 4px;
 }
 
-/* Busiest day / month / year / all-time Activity tables (ranked8) */
-body.k2-site .server-peak-period-leaderboards__subnav {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 10px;
-	margin-bottom: var(--k2-nav-gap);
-	width: fit-content;
-	max-width: 100%;
+body.k2-site .server-period-activity-leaderboard__input--day {
+	color-scheme: dark;
 }
 
-body.k2-site .server-peak-period-leaderboards__bar-wrap {
-	width: fit-content;
-	max-width: 100%;
-}
-
-body.k2-site .server-peak-period-leaderboards__bar {
-	width: fit-content;
-	max-width: 100%;
-}
-
-body.k2-site .server-peak-period-leaderboards__panel[hidden] {
-	display: none;
-}
-
-body.k2-site .server-peak-period-leaderboards {
-	max-width: 100%;
-	overflow-x: auto;
-	padding-bottom: 4px;
-}
-
-body.k2-site .server-peak-period-leaderboards__grid {
-	max-width: var(--k2-max-width);
-	margin-bottom: 16px;
-	display: grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
-	gap: 16px;
-	align-items: start;
-}
-
-body.k2-site .server-peak-period-leaderboards__grid--single {
-	grid-template-columns: minmax(0, 1fr);
-}
-
-body.k2-site .server-peak-period-leaderboards__grid--period {
-	width: fit-content;
-	grid-template-columns: repeat(2, max-content);
-	column-gap: 56px;
-	row-gap: 22px;
-}
-
-body.k2-site .server-peak-period-leaderboards__grid--all-time {
-	width: fit-content;
-	grid-template-columns: repeat(2, max-content);
-	column-gap: clamp(40px, 6vw, 72px);
-	row-gap: 22px;
-}
-
-body.k2-site .server-peak-period-leaderboard-block {
-	min-width: 0;
-}
-
-body.k2-site .server-peak-period-leaderboard-block[id] {
-	scroll-margin-top: 140px;
-}
-
-body.k2-site .server-peak-period-leaderboard-block__title.k2-panel-heading {
-	margin-bottom: 8px;
-	font-size: 13px;
-}
-
-body.k2-site .server-peak-period-leaderboard-block .k2-table-wrap {
-	overflow-x: auto;
+body.k2-site .server-period-activity-leaderboard__input--day::-webkit-calendar-picker-indicator {
+	cursor: pointer;
+	opacity: 1;
+	filter: invert(1) brightness(1.15);
 }
 
 body.k2-site .server-records-panel {
@@ -1411,171 +1343,7 @@ body.k2-site .k2-table.server-records-table tbody tr.server-records-section-head
 	border-bottom: 1px solid var(--k2-border-subtle, rgba(255, 255, 255, 0.14));
 }
 
-body.k2-site .server-period-activity-leaderboards__grid {
-	display: grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
-	gap: 16px;
-	align-items: start;
-}
-
-@media (max-width: 1024px) {
-	body.k2-site .server-period-activity-leaderboards__grid {
-		grid-template-columns: 1fr;
-	}
-}
-
-@media (max-width: 760px) {
-	body.k2-site .server-peak-period-leaderboards__grid--period,
-	body.k2-site .server-peak-period-leaderboards__grid--all-time {
-		column-gap: 24px;
-	}
-}
-
-body.k2-site .server-period-activity-leaderboard {
-	min-width: 0;
-	padding: 12px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-md);
-	background: var(--k2-bg-elevated);
-}
-
-body.k2-site .server-period-activity-leaderboard__title.k2-panel-heading {
-	margin-bottom: 4px;
-	font-size: 13px;
-}
-
-body.k2-site .server-period-activity-leaderboard__hint {
-	margin: 0 0 10px;
-	color: var(--k2-text-muted);
-	font-size: 0.85em;
-	line-height: 1.35;
-}
-
-body.k2-site .server-period-activity-leaderboard .k2-table-wrap {
-	overflow-x: auto;
-}
-
-body.k2-site .server-period-activity-leaderboard__head {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
-	gap: 8px 12px;
-	margin-bottom: 4px;
-}
-
-body.k2-site .server-period-activity-leaderboard__picker {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	margin: 0;
-	font-size: 0.85em;
-	color: var(--k2-text-muted);
-}
-
-body.k2-site .server-period-activity-leaderboard__picker-label {
-	font-weight: 500;
-}
-
-body.k2-site .server-period-activity-leaderboard__input {
-	padding: 4px 8px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-sm);
-	background: var(--k2-bg-surface);
-	color: var(--k2-text-secondary);
-	font-size: 0.9em;
-}
-
-body.k2-site .server-period-activity-leaderboard__date-control {
-	display: inline-flex;
-	align-items: stretch;
-	gap: 4px;
-}
-
-body.k2-site .server-period-activity-leaderboard__input--day {
-	color-scheme: dark;
-}
-
-body.k2-site .server-period-activity-leaderboard__input--day::-webkit-calendar-picker-indicator {
-	cursor: pointer;
-	opacity: 1;
-	filter: invert(1) brightness(1.15);
-}
-
-body.k2-site .server-period-activity-leaderboard__calendar-button {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 28px;
-	min-height: 28px;
-	padding: 0;
-	border: 1px solid color-mix(in srgb, var(--k2-accent) 58%, transparent);
-	border-radius: var(--k2-radius-sm);
-	background: var(--k2-accent-muted);
-	color: var(--k2-segment-active-text);
-	cursor: pointer;
-	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.025) inset;
-	transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
-}
-
-body.k2-site .server-period-activity-leaderboard__calendar-button:hover,
-body.k2-site .server-period-activity-leaderboard__calendar-button:focus-visible {
-	border-color: var(--k2-accent);
-	background: color-mix(in srgb, var(--k2-accent) 22%, transparent);
-	color: var(--k2-text-primary);
-	box-shadow: 0 0 0 2px var(--k2-accent-muted);
-	outline: none;
-}
-
-body.k2-site .server-period-activity-leaderboard__calendar-button:disabled {
-	cursor: default;
-	opacity: 0.6;
-}
-
-body.k2-site .server-period-activity-leaderboard__calendar-icon {
-	position: relative;
-	width: 15px;
-	height: 14px;
-	border: 1.5px solid currentColor;
-	border-radius: 3px;
-	box-sizing: border-box;
-}
-
-body.k2-site .server-period-activity-leaderboard__calendar-icon::before {
-	content: "";
-	position: absolute;
-	left: -1.5px;
-	right: -1.5px;
-	top: 3px;
-	border-top: 1.5px solid currentColor;
-}
-
-body.k2-site .server-period-activity-leaderboard__calendar-icon::after {
-	content: "";
-	position: absolute;
-	left: 3px;
-	top: 7px;
-	width: 2px;
-	height: 2px;
-	background: currentColor;
-	box-shadow: 4px 0 0 currentColor, 8px 0 0 currentColor, 0 4px 0 currentColor, 4px 4px 0 currentColor;
-}
-
-body.k2-site .server-period-activity-leaderboard__summary {
-	margin: 0 0 10px;
-	font-size: 0.9em;
-	color: var(--k2-text-primary);
-}
-
-body.k2-site .server-period-activity-leaderboard__summary-period {
-	color: var(--k2-text-muted);
-}
-
-body.k2-site .server-period-activity-leaderboard--loading {
-	opacity: 0.72;
-}
-
-/* â”€â”€ Leaderboard / data tables (k2-table â€” mock-aligned) â”€â”€ */
+/* ── Leaderboard / data tables (k2-table — mock-aligned) ── */
 body.k2-site .k2-table {
 	border-collapse: collapse;
 	font-size: 12px;
@@ -1772,17 +1540,13 @@ body.k2-site .k2-table tbody td.k2-table-col-sorted {
 /* Hub leaderboards + Games Highlights + Activity peaks (ranked8): secondary body cells; anchor + active sort pop */
 body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td,
 body.k2-site .k2-table.k2-table--calm-stats.k2-games-highlights-table tbody td,
-body.k2-site .server-peak-period-leaderboard-block .k2-table.k2-table--calm-stats tbody td,
 body.k2-site .k2-table.k2-status-table.k2-table--calm-stats tbody td:not(.k2-table-anchor-cell):not(.k2-table-col-sorted) {
 	color: var(--k2-text-secondary);
 }
 
 body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td.k2-table-anchor-cell,
 body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td.k2-table-anchor-cell .blue,
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td.k2-table-anchor-cell .red,
-body.k2-site .server-peak-period-leaderboard-block .k2-table.k2-table--calm-stats tbody td.k2-table-anchor-cell,
-body.k2-site .server-peak-period-leaderboard-block .k2-table.k2-table--calm-stats tbody td.k2-table-anchor-cell .blue,
-body.k2-site .server-peak-period-leaderboard-block .k2-table.k2-table--calm-stats tbody td.k2-table-anchor-cell .red {
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td.k2-table-anchor-cell .red {
 	color: var(--k2-link-star);
 	font-weight: 600;
 }
@@ -2112,7 +1876,6 @@ body.k2-site .k2-archive-listbox__panel,
 body.k2-site .player-search-results,
 body.k2-site .k2-amiga-organizer-player-search__results,
 .activity-heatmap.activity-heatmap--scrolls,
-body.k2-site .server-peak-period-leaderboards,
 body.k2-site .pm3-cal--weeks .pm3-cal__week-grid,
 body.k2-site .k2-ms-recent-list-block,
 body.k2-site .k2-amiga-bracket__rounds {
@@ -2126,7 +1889,6 @@ body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar,
 body.k2-site .player-search-results::-webkit-scrollbar,
 body.k2-site .k2-amiga-organizer-player-search__results::-webkit-scrollbar,
 .activity-heatmap.activity-heatmap--scrolls::-webkit-scrollbar,
-body.k2-site .server-peak-period-leaderboards::-webkit-scrollbar,
 body.k2-site .pm3-cal--weeks .pm3-cal__week-grid::-webkit-scrollbar,
 body.k2-site .k2-ms-recent-list-block::-webkit-scrollbar,
 body.k2-site .k2-amiga-bracket__rounds::-webkit-scrollbar {
@@ -2140,7 +1902,6 @@ body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar-track,
 body.k2-site .player-search-results::-webkit-scrollbar-track,
 body.k2-site .k2-amiga-organizer-player-search__results::-webkit-scrollbar-track,
 .activity-heatmap.activity-heatmap--scrolls::-webkit-scrollbar-track,
-body.k2-site .server-peak-period-leaderboards::-webkit-scrollbar-track,
 body.k2-site .pm3-cal--weeks .pm3-cal__week-grid::-webkit-scrollbar-track,
 body.k2-site .k2-ms-recent-list-block::-webkit-scrollbar-track,
 body.k2-site .k2-amiga-bracket__rounds::-webkit-scrollbar-track {
@@ -2153,7 +1914,6 @@ body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar-thumb,
 body.k2-site .player-search-results::-webkit-scrollbar-thumb,
 body.k2-site .k2-amiga-organizer-player-search__results::-webkit-scrollbar-thumb,
 .activity-heatmap.activity-heatmap--scrolls::-webkit-scrollbar-thumb,
-body.k2-site .server-peak-period-leaderboards::-webkit-scrollbar-thumb,
 body.k2-site .pm3-cal--weeks .pm3-cal__week-grid::-webkit-scrollbar-thumb,
 body.k2-site .k2-ms-recent-list-block::-webkit-scrollbar-thumb,
 body.k2-site .k2-amiga-bracket__rounds::-webkit-scrollbar-thumb {
@@ -2167,7 +1927,6 @@ body.k2-site .k2-archive-listbox__panel::-webkit-scrollbar-thumb:hover,
 body.k2-site .player-search-results::-webkit-scrollbar-thumb:hover,
 body.k2-site .k2-amiga-organizer-player-search__results::-webkit-scrollbar-thumb:hover,
 .activity-heatmap.activity-heatmap--scrolls::-webkit-scrollbar-thumb:hover,
-body.k2-site .server-peak-period-leaderboards::-webkit-scrollbar-thumb:hover,
 body.k2-site .pm3-cal--weeks .pm3-cal__week-grid::-webkit-scrollbar-thumb:hover,
 body.k2-site .k2-ms-recent-list-block::-webkit-scrollbar-thumb:hover,
 body.k2-site .k2-amiga-bracket__rounds::-webkit-scrollbar-thumb:hover {
