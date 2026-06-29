@@ -515,7 +515,8 @@ function amiga_realm_build_generalstats_payload_oracle(mysqli $con, int $tournam
             amiga_realm_career_holder_patch($con, $cutoff, $valueCol, $prefix)
         );
     }
-    $patch = array_merge($patch, amiga_realm_wc_slice_holder_patch($con, $cutoff));
+    // SCH-046: MostWcPlayed migrated to the WC Hall of Fame store (amiga_wc_hof_*);
+    // no longer projected onto amiga_generalstats / amiga_realm_snapshots.
     $patch = array_merge($patch, amiga_realm_most_goals_one_game_patch($con, $cutoff));
     $patch = array_merge($patch, amiga_realm_biggest_win_margin_patch($con, $cutoff));
     $patch = array_merge($patch, amiga_realm_biggest_draw_sum_patch($con, $cutoff));

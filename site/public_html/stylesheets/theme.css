@@ -1377,6 +1377,18 @@ body.k2-site .k2-table.server-records-table tbody td:nth-child(4) {
 	color: var(--k2-text-muted);
 }
 
+/* HoF: in-table section divider (e.g. "World Cups"). */
+body.k2-site .k2-table.server-records-table tbody tr.server-records-section-header td {
+	color: var(--k2-text-primary, #fff);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	font-size: 0.85em;
+	padding-top: 18px;
+	padding-bottom: 6px;
+	border-bottom: 1px solid var(--k2-border-subtle, rgba(255, 255, 255, 0.14));
+}
+
 body.k2-site .server-period-activity-leaderboards__grid {
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2844,7 +2856,7 @@ body.k2-site .k2-player-games-action:focus-visible {
 
 /* Amiga player tournament history — chrome tab segments + listbox row (catalog index parity) */
 body.k2-site .k2-amiga-player-tournaments-filters .k2-player-games-controls {
-	margin-top: calc(var(--k2-nav-gap, 0.75rem) * 0.35);
+	margin-top: 0;
 	margin-bottom: 0;
 }
 
@@ -2855,10 +2867,13 @@ body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) {
 	width: 100%;
 	max-width: 100%;
 	min-width: 0;
-	margin: 0 0 12px;
+	margin: 0 0 var(--k2-nav-gap);
 }
 
-body.k2-site .k2-player-games-filters .k2-chrome-tabs.k2-amiga-player-games-scope-tabs {
+body.k2-site .k2-player-games-filters .k2-chrome-tabs.k2-amiga-player-games-scope-tabs,
+body.k2-site .k2-player-games-filters .k2-chrome-tabs.k2-amiga-tournament-index-tabs,
+body.k2-site .k2-player-games-filters .k2-chrome-tabs.k2-amiga-player-tournaments-tabs {
+	margin-top: 0;
 	margin-bottom: 0;
 }
 

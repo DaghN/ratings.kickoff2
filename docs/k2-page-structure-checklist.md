@@ -36,6 +36,7 @@ Route authority: [`url-routes.md`](url-routes.md) § Sub-hub navigation · place
 | Leaderboards wing | `leaderboards/rating.php`, `goals.php`, … | `lb_nav.php` |
 | LB Activity sub-modes | `leaderboards/activity/participation.php`, `peaks.php`, … | `lb_activity_nav.php` |
 | Player opponents modes | `player/opponents/h2h.php`, `wdl.php`, … | `player_opponents_page.php`, `player_opponents_nav.php` |
+| Amiga Opponents **country grain** (nested mode) | `amiga/player/opponents/country/h2h.php`, `wdl.php`, … | `amiga_player_opponents_page.php`, `amiga_player_opponents_nav.php` — [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md) |
 | Player milestones modes | `player/milestones/garden.php`, `chronology.php` | `player_milestones_page.php`, `player_milestones_nav.php` |
 | Amiga player wings | `amiga/player/profile.php`, `games.php`, … | `amiga_player_nav.php` |
 | Amiga Games hub modes | `amiga/games/recent.php`, `highlights.php`, `all.php` | `amiga_games_hub_shell_*.inc.php`, `amiga_games_hub_nav.php` |

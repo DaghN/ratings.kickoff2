@@ -49,7 +49,6 @@ _HOF_GEO_HONOURS_PREFIXES = tuple(prefix for _v, _c, prefix in _CAREER_HOLDERS i
     "MostTournamentsPlayed",
     "MostTournamentWins",
     "MostPerfectEvents",
-    "MostWcPlayed",
     "MostCountriesPlayedIn",
     "MostOpponentCountriesFaced",
     "MostOpponentCountriesBeaten",

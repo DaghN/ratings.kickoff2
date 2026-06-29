@@ -229,11 +229,6 @@ body.k2-site .k2-video-orphans__why {
 	cursor: help;
 }
 
-body.k2-site .k2-amiga-tournament-index-tabs--stacked,
-body.k2-site .k2-amiga-tournament-index-tabs--videos {
-	margin-top: calc(var(--k2-nav-gap, 0.75rem) * 0.35);
-}
-
 /* Video index game rows — scoreboard side layout (flags use k2-amiga-country-flag-img). */
 body.k2-site .k2-tournament-videos--wc .k2-amiga-tgame-side {
 	display: inline-flex;

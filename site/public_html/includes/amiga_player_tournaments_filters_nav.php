@@ -55,6 +55,7 @@ $k2PlayerTournamentsPerfectTabs = [
 $k2PlayerTournamentsSortParams = k2_table_sort_query_params();
 ?>
 <div class="k2-player-games-filters k2-amiga-player-tournaments-filters">
+<div class="k2-amiga-tournament-index-segment-filters">
 <div class="k2-chrome-tabs k2-amiga-player-tournaments-tabs">
 	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Filter events">
 <?php foreach ($k2PlayerTournamentsEventTabs as $filterId => $tab) {
@@ -66,7 +67,7 @@ $k2PlayerTournamentsSortParams = k2_table_sort_query_params();
 <?php } ?>
 	</nav>
 </div>
-<div class="k2-chrome-tabs k2-amiga-player-tournaments-tabs k2-amiga-player-tournaments-tabs--stacked">
+<div class="k2-chrome-tabs k2-amiga-player-tournaments-tabs">
 	<nav class="k2-chrome-tabs__bar k2-chrome-tabs__bar--compact" data-k2-carry-scroll aria-label="Filter by perfect run">
 <?php foreach ($k2PlayerTournamentsPerfectTabs as $filterId => $tab) {
     $isActive = $k2PlayerTournamentsPerfectFilter === $filterId;
@@ -76,6 +77,7 @@ $k2PlayerTournamentsSortParams = k2_table_sort_query_params();
 			<?php echo $isActive ? ' aria-current="page"' : ''; ?>><?php echo $tab['label']; ?></a>
 <?php } ?>
 	</nav>
+</div>
 </div>
 <?php if ($k2PlayerTournamentsShowCountryFilter || $k2PlayerTournamentsShowYearFilter) { ?>
 <form class="k2-player-games-controls" method="get" action="<?php echo htmlspecialchars($k2PlayerTournamentsFilterAction, ENT_QUOTES, 'UTF-8'); ?>" data-k2-carry-scroll>

@@ -52,6 +52,7 @@ DERIVED_SQL: tuple[Path, ...] = (
     _SQL_ROOT / "derived" / "043_drop_rating_game_ids.sql",
     _SQL_ROOT / "derived" / "044_matchup_performance_rating.sql",
     _SQL_ROOT / "derived" / "045_perfect_event.sql",
+    _SQL_ROOT / "derived" / "046_wc_hof.sql",
 )
 
 # Legacy flat paths (archaeology / one-off scripts — not apply_schema).
@@ -59,6 +60,8 @@ LEGACY_SQL_TRACK_B = _SQL_ROOT / "002_tournament_standings.sql"
 LEGACY_SQL_KNOCKOUT = _SQL_ROOT / "003_knockout_scope.sql"
 
 _DERIVED_DROP_ORDER = (
+    "amiga_wc_hof_present",
+    "amiga_wc_hof_snapshots",
     "amiga_world_cup_stats",
     "amiga_community_stat_facts",
     "amiga_community_stats_snapshots",
@@ -145,6 +148,20 @@ _BIGGEST_PEAK_RATING_DROP_TABLES: tuple[str, ...] = (
     "amiga_realm_snapshots",
 )
 
+# SCH-046: MostWcPlayed migrated to the WC Hall of Fame store (amiga_wc_hof_*);
+# retire the legacy career/realm HoF columns.
+_MOST_WC_PLAYED_DROP_COLUMNS: tuple[str, ...] = (
+    "MostWcPlayed",
+    "MostWcPlayedID",
+    "MostWcPlayedName",
+    "MostWcPlayedDate",
+)
+
+_MOST_WC_PLAYED_DROP_TABLES: tuple[str, ...] = (
+    "amiga_generalstats",
+    "amiga_realm_snapshots",
+)
+
 
 def _ensure_slice_at_event_rise_columns(conn: pymysql.connections.Connection) -> None:
     """Add rise columns to slice_at_event when upgrading from slice-0 draft DDL."""
@@ -221,6 +238,31 @@ def _drop_biggest_peak_rating_columns_if_present(
     conn.commit()
 
 
+def _drop_most_wc_played_columns_if_present(
+    conn: pymysql.connections.Connection,
+) -> None:
+    """Retire MostWcPlayed* HoF columns — idempotent on fresh DDL (no cols)."""
+    with conn.cursor() as cur:
+        for table in _MOST_WC_PLAYED_DROP_TABLES:
+            placeholders = ", ".join(["%s"] * len(_MOST_WC_PLAYED_DROP_COLUMNS))
+            cur.execute(
+                f"""
+                SELECT COLUMN_NAME
+                FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = %s
+                  AND COLUMN_NAME IN ({placeholders})
+                """,
+                (table, *_MOST_WC_PLAYED_DROP_COLUMNS),
+            )
+            present = {row[0] for row in cur.fetchall()}
+            for col in _MOST_WC_PLAYED_DROP_COLUMNS:
+                if col not in present:
+                    continue
+                cur.execute(f"ALTER TABLE `{table}` DROP COLUMN `{col}`")
+    conn.commit()
+
+
 def _drop_tables(conn: pymysql.connections.Connection, tables: tuple[str, ...]) -> None:
     if not tables:
         return
@@ -281,6 +323,7 @@ def apply_schema_derived(
     _ensure_slice_at_event_rise_columns(conn)
     _drop_wc_honours_columns_if_present(conn)
     _drop_biggest_peak_rating_columns_if_present(conn)
+    _drop_most_wc_played_columns_if_present(conn)
 
 
 def apply_schema(conn: pymysql.connections.Connection, *, drop_existing: bool = False) -> None:

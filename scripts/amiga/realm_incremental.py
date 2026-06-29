@@ -28,7 +28,6 @@ _HOLDER_DATE_FIELD: dict[str, str] = {
     "MostTournamentsPlayed": "tournaments_played_last_rise_event_date",
     "MostTournamentWins": "event_gold_last_rise_event_date",
     "MostPerfectEvents": "perfect_events_last_rise_event_date",
-    "MostWcPlayed": "wc_slice_tournaments_played_last_rise_event_date",
     "MostCountriesPlayedIn": "countries_played_in_last_rise_event_date",
     "MostOpponentCountriesFaced": "opponent_countries_faced_last_rise_event_date",
     "MostOpponentCountriesBeaten": "opponent_countries_beaten_last_rise_event_date",

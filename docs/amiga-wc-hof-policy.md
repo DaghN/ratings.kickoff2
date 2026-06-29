@@ -1,6 +1,6 @@
 # Amiga Hall of Fame — World Cup records
 
-**Status:** **Policy locked** (Jun 2026-29) — implementation plan [`amiga-wc-hof-implementation-plan.md`](amiga-wc-hof-implementation-plan.md)  
+**Status:** **Implemented** (Jun 2026-29) — all 8 slices (WCH-1…WCH-8) shipped; Python + PHP finalize parity; `prove` green incl. `verify-wc-hof`, `verify-hof-geo-year`, `verify-realm-snapshots`. Plan [`amiga-wc-hof-implementation-plan.md`](amiga-wc-hof-implementation-plan.md)  
 **Implementation plan:** [`amiga-wc-hof-implementation-plan.md`](amiga-wc-hof-implementation-plan.md)
 **Parent:** [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) · [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md) · [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md)  
 **Related:** [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) · [`amiga-data-contract.md`](amiga-data-contract.md)
@@ -290,6 +290,8 @@ If no WC snapshot exists before cutoff (pre-first-WC lens), WC block shows empty
 ### 8.3 Leaderboard deep links
 
 Extend [`amiga_records_hof_links.php`](site/public_html/includes/amiga_records_hof_links.php) with WC wing targets (`/amiga/leaderboards/world-cups/*`) and sort indices from [`amiga_wc_players_table.php`](site/public_html/includes/amiga_wc_players_table.php).
+
+**§4.6 single-game rows:** value links go to **`/amiga/game.php?id={*GameID}`** (the record game), not the WC goals leaderboard.
 
 Rows without a natural LB column (§4.7 awards, §4.8 single-WC peaks) may ship **without** value links until a LB column exists or product accepts HoF-only rows.
 

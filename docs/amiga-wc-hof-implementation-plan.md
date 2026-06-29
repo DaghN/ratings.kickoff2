@@ -1,6 +1,6 @@
 # Amiga World Cup Hall of Fame — implementation plan
 
-**Status:** **Ready to execute** (Jun 2026-29)  
+**Status:** **Executed / complete** (Jun 2026-29) — all slices WCH-1…WCH-8 shipped; `prove` green (`verify-wc-hof`, `verify-hof-geo-year`, `verify-realm-snapshots`); Python + PHP finalize parity verified. Legacy `MostWcPlayed*` columns on `amiga_generalstats` / `amiga_realm_snapshots` **dropped** (`028` no longer adds them + idempotent `schema_bundles.py` drop helper; realm read lib cleaned) — re-`prove` green.  
 **Policy:** [`amiga-wc-hof-policy.md`](amiga-wc-hof-policy.md)  
 **Parent:** [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) · [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md)
 
@@ -31,6 +31,15 @@ From policy **WCH1–WCH13**. Compressed:
 - Ratio rows: **`games ≥ 20`** on WC slice (`ESTABLISHED_MIN_GAMES` / `k2_established_min_games()`)
 - Per-WC attack/defense awards: **no** min games in event; ties → lowest `player_id`
 - **`MostWcPlayed` migrates** off `amiga_generalstats` / career realm writers in WCH-7
+
+---
+
+## Locked implementation decisions (Jun 2026-29, Dagh OK)
+
+Two storage simplifications agreed before WCH-1 — **do not re-introduce the rejected shapes**:
+
+- **ID1 — Rise dates are derived, not stored.** HoF `{Prefix}Date` for cumulative rows is computed at WC-finalize time by scanning the holder's existing `amiga_player_slice_at_event` timeline (latest strict increase ≤ cutoff). **Do NOT** add per-metric `*_last_rise_tournament_id` / `*_last_rise_event_date` columns to the slice tables. Only the **6** genuinely-new fields below are added to the slice (§ Slice extensions). The snapshot payload still carries each `{Prefix}Date`; it is just computed, not read from a slice rise column.
+- **ID2 — No refinalize forward-chain.** Single-event reopen/refinalize is retired ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)); corrections run full `prove` / `replay`. The WC HoF writer is **idempotent UPSERT** so a whole-catalog replay rebuilds every WC snapshot in chrono order. **Do NOT** build an incremental "recompute later WC snapshots" helper.
 
 ---
 
@@ -132,13 +141,11 @@ Add to **`amiga_player_slice_totals`** and **`amiga_player_slice_at_event`** (`s
 | `best_single_wc_ga_per_game` | §4.8 player peak (lower is better) |
 | `best_single_wc_ga_per_game_tournament_id` | §4.8 anchor |
 
-**Rise columns** on slice (both tables) for HoF date projection — `{metric}_last_rise_tournament_id` + `{metric}_last_rise_event_date` for:
+**No new rise columns** (decision **ID1**). HoF `{Prefix}Date` for every cumulative / ratio row is derived at WC-finalize compute time from the holder's `amiga_player_slice_at_event` history (latest tournament where the metric strictly increased, ≤ cutoff). The existing `tournaments_played_last_rise_*` columns stay as-is; no per-metric rise columns are added for the new records.
 
-- Existing: `tournaments_played` (already present)
-- New rise metrics: `gold`, `games`, `wins`, `points`, `goals_for`, `double_digits`, `clean_sheets`, `different_opponents`, `different_victims`, `double_digits_victims`, `clean_sheets_victims`, `best_attack_awards`, `best_defense_awards`
-- Ratio rise (store when eligible ratio strictly improves): derive metric-specific rise cols OR recompute rise tournament from slice timeline at WC HoF write — **implementer picks one**; verify oracles the HoF `*Date` either way
+**Total new slice columns: 6** (the table above) × both slice tables.
 
-**Registry:** extend `scripts/amiga/slice_columns.py`.
+**Registry:** extend `scripts/amiga/slice_columns.py` (add the 6 stat columns; leave `SLICE_RISE_METRICS` unchanged).
 
 ---
 
@@ -200,7 +207,7 @@ At each **World Cup** finalize, update player slice fields before WC HoF snapsho
 - [ ] In `WorldCupSliceTracker` or finalize hook after V2 game loop:
   - Compute this event's GF/g, GA/g per participant
   - Update `best_single_wc_*` if event improves player peak (strict beat; tie → lowest `player_id` for max GF/g peak; for GA/g lower wins)
-- [ ] `scripts/amiga/slice_rise_wc.py` (or extend `slice_totals.py`) — bump `*_last_rise_*` when cumulative slice counters strictly increase at WC finalize
+- [ ] (No rise writer — decision **ID1**; rise dates derived later in WCH-3 from `amiga_player_slice_at_event`)
 - [ ] Wire in `finalize_tournament.py` after `persist_world_cup_slices_at_tournament` and **before** WC HoF persist (WCH-3)
 - [ ] Unit tests: `test_wc_slice_awards.py`, extend `test_slice_game_stats.py` for single-peak updates
 
@@ -223,8 +230,8 @@ When tournament *E* is a World Cup, compute full 28-holder payload through chron
 - [ ] `scripts/amiga/wc_hof.py`:
   - `WC_ESTABLISHED_MIN_GAMES = 20`
   - Load all players' WC slice rows at cutoff *E* (from `amiga_player_slice_at_event` latest ≤ *E* per player — same pattern as `amiga_lb_wc_slice` cutoff)
-  - **Cumulative holders (§4.1–4.5, §4.7):** max/min over slice columns; dates from holder rise fields on slice
-  - **Ratio holders (§4.2–4.4, §4.3 avgs):** eligible pool `games >= 20`; compute Pts/g, win rate, GF/g, GA/g, GD/g from slice numerators; beat per policy; date from ratio rise
+  - **Cumulative holders (§4.1–4.5, §4.7):** max/min over slice columns; `Date` derived from the holder's `amiga_player_slice_at_event` timeline (latest strict increase ≤ cutoff) — decision **ID1**
+  - **Ratio holders (§4.2–4.4, §4.3 avgs):** eligible pool `games >= 20`; compute Pts/g, win rate, GF/g, GA/g, GD/g from slice numerators; beat per policy; `Date` derived from at_event timeline (latest event where the eligible ratio strictly improved)
   - **Single-game (§4.6):** WC-filtered oracle over `amiga_games` ≤ *E* (mirror `server_records.py` patches + `is_world_cup_tournament` join) — **do not** trust slice max alone for `GameID`
   - **Single-WC peaks (§4.8):** max/min over players' `best_single_wc_*` + `*_tournament_id`; date from anchor tournament
 - [ ] `scripts/amiga/wc_hof_persist.py` — UPSERT snapshot row; REPLACE present id=1
@@ -235,7 +242,7 @@ When tournament *E* is a World Cup, compute full 28-holder payload through chron
       patch = build_wc_hof_payload(conn, as_of_tournament_id=E)
       persist_wc_hof_snapshot(conn, E, patch)
   ```
-- [ ] Refinalize forward chain: if refinalizing WC *T*, recompute WC HoF snapshots for *T* and all **later** WC tournament ids in chrono order (helper in `wc_hof_persist.py`)
+- [ ] Idempotent persist (decision **ID2**): UPSERT snapshot keyed by `tournament_id`, REPLACE present id=1 — a full `replay` rebuilds every WC snapshot in chrono order. **No** incremental forward-chain helper.
 
 ### Verification
 
@@ -391,8 +398,8 @@ python -m scripts.amiga prove
 
 | Risk | Mitigation |
 |------|------------|
-| Many rise columns on slice | Centralize in `slice_rise_wc.py`; verify dates in `verify-wc-hof` |
-| Refinalize WC forward chain | Unit test refinalize mid-catalog replays later WC snapshots |
+| Rise-date derivation correctness | Decision **ID1**: derive from `amiga_player_slice_at_event`; `verify-wc-hof` oracles every `{Prefix}Date` against the timeline |
+| Idempotent WC snapshot rebuild | Decision **ID2**: UPSERT keyed by `tournament_id`; `prove`/`replay` from scratch is the only correction path |
 | `MostWcPlayed` migration breaks geo verify | WCH-7 updates oracles in same slice |
 | HoF table width sync | Reuse `records_hof_sync_*` helpers; WC block may need second sync group or combined labels array |
 | Full prove runtime | Run only at WCH-4 and WCH-8 STOP gates |

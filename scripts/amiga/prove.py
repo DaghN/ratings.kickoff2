@@ -28,6 +28,7 @@ from scripts.amiga.verify_hof_holder_projection import main as verify_hof_holder
 from scripts.amiga.verify_stored_id_date_pairs import main as verify_stored_id_date_pairs_main
 from scripts.amiga.verify_player_slice import main as verify_player_slice_main
 from scripts.amiga.verify_country_slice import main as verify_country_slice_main
+from scripts.amiga.verify_wc_hof import main as verify_wc_hof_main
 from scripts.amiga.verify_perfect_event import main as verify_perfect_event_main
 from scripts.amiga.tournament_format import main as verify_tournament_formats_main
 
@@ -41,6 +42,7 @@ _VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
     ("verify-player-matchups", verify_player_matchups_main),
     ("verify-player-slice", verify_player_slice_main),
     ("verify-country-slice", verify_country_slice_main),
+    ("verify-wc-hof", verify_wc_hof_main),
     ("verify-realm-snapshots", verify_realm_snapshots_main),
     ("verify-community-stats", verify_community_stats_main),
     ("verify-world-cup-stats", verify_world_cup_stats_main),

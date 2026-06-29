@@ -30,6 +30,9 @@ const AMIGA_FIXTURE_GENERATED_BY_PREFIXES = [
 /** Hash target on tournament detail pages — zero-height anchor flush above the hero title. */
 const AMIGA_TOURNAMENT_PAGE_FRAGMENT = 'tournament';
 
+/** First KOA World Cup (2001, Dartford) — tournaments index chapter lede link target. */
+const AMIGA_FIRST_WORLD_CUP_TOURNAMENT_ID = 26;
+
 const AMIGA_TOURNAMENT_VIDEOS_PATH_GAMES = '/amiga/tournament/videos/games.php';
 const AMIGA_TOURNAMENT_VIDEOS_PATH_ATMOSPHERE = '/amiga/tournament/videos/atmosphere.php';
 
@@ -1114,6 +1117,15 @@ function amiga_tournament_link(int $id, string $name, string $fragment = AMIGA_T
 
     return '<a class="k2-link-star" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">'
         . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</a>';
+}
+
+function amiga_tournament_index_chapter_lede_html(int $tournamentCount): string
+{
+    $wcLink = amiga_tournament_link(AMIGA_FIRST_WORLD_CUP_TOURNAMENT_ID, 'World Cup in Dartford in 2001');
+    $countHtml = '<span class="blue">' . number_format($tournamentCount) . '</span>';
+
+    return 'Since the first ' . $wcLink . ', a total of ' . $countHtml
+        . ' official tournaments have been played. Links to them all are provided below, with various filter options.';
 }
 
 function amiga_tournament_is_world_cup_by_name(string $name): bool

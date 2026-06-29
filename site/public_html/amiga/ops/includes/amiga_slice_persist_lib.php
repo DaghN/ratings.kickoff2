@@ -181,6 +181,13 @@ function amiga_ops_persist_world_cup_slices(
             'clean_sheets_victims' => (int) ($totals['clean_sheets_victims'] ?? 0),
             'tournaments_played_last_rise_tournament_id' => $totals['tournaments_played_last_rise_tournament_id'] ?? null,
             'tournaments_played_last_rise_event_date' => $totals['tournaments_played_last_rise_event_date'] ?? null,
+            // WC HoF (SCH-046): per-event award counters + single-WC peaks.
+            'best_attack_awards' => (int) ($totals['best_attack_awards'] ?? 0),
+            'best_defense_awards' => (int) ($totals['best_defense_awards'] ?? 0),
+            'best_single_wc_gf_per_game' => $totals['best_single_wc_gf_per_game'] ?? null,
+            'best_single_wc_gf_per_game_tournament_id' => $totals['best_single_wc_gf_per_game_tournament_id'] ?? null,
+            'best_single_wc_ga_per_game' => $totals['best_single_wc_ga_per_game'] ?? null,
+            'best_single_wc_ga_per_game_tournament_id' => $totals['best_single_wc_ga_per_game_tournament_id'] ?? null,
         ];
         amiga_slice_upsert_row(
             $con,

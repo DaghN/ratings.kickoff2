@@ -35,6 +35,7 @@ Spacing contract: [`nav-spacing-policy.md`](nav-spacing-policy.md). Segment gram
 | Player wing hub bar | `includes/player_wing_hub_nav.inc.php` | Online player shells after `site_header.php` | `.k2-hub-bar` (no active tab); tint on hub only |
 | Amiga player wing hub bar | `includes/amiga_player_wing_hub_nav.inc.php` | Amiga player shells after `site_header.php` | Same; TT ribbon still from `site_header` above hub |
 | Player opponents sub-nav | `includes/player_opponents_nav.php` | `includes/player_opponents_page.php` | Pattern **B** wrapper `.k2-chrome-tabs.k2-player-opponents` |
+| Amiga Opponents grain segment | `includes/amiga_player_opponents_nav.php` (extend: wing + grain on one row) | `amiga/player/opponents/*.php` | Horizontal dual segment — [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md) §6 |
 | Player milestones sub-nav | `includes/player_milestones_nav.php` | `includes/player_milestones_page.php` | Pattern **B** wrapper `.k2-chrome-tabs.k2-player-milestones` |
 | Amiga player nav | `includes/amiga_player_nav.php` | Amiga player pages | `.k2-chrome-tabs.k2-player-wing-tabs` (see row above) |
 | Amiga tournament nav | `includes/amiga_tournament_page.php` markup + `amiga-tournament.css` | `amiga/tournament/*.php` | `.k2-player-nav-bar` + `.k2-amiga-tournament-stages-nav` |

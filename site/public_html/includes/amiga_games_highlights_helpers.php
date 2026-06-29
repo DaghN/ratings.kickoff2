@@ -13,27 +13,27 @@ require_once __DIR__ . '/amiga_realm_games_hub_table.php';
 const AMIGA_GAMES_HIGHLIGHTS_LIMIT = 100;
 const AMIGA_GAMES_HIGHLIGHTS_ANCHOR = 'k2-amiga-games-highlights';
 
-/** @var array<string, array{label: string, heading: string, default_sort_col: int}> */
+/** @var array<string, array{label: string, heading: string, default_sort_key: string}> */
 const AMIGA_GAMES_HIGHLIGHT_BOARDS = [
     'most_goals' => [
         'label' => 'Most goals',
         'heading' => 'Most total goals',
-        'default_sort_col' => 9,
+        'default_sort_key' => 'sum',
     ],
     'biggest_draws' => [
         'label' => 'Biggest draws',
         'heading' => 'Biggest draws',
-        'default_sort_col' => 9,
+        'default_sort_key' => 'sum',
     ],
     'biggest_wins' => [
         'label' => 'Biggest wins',
         'heading' => 'Biggest wins',
-        'default_sort_col' => 8,
+        'default_sort_key' => 'gd',
     ],
     'top_score' => [
         'label' => 'Top score',
         'heading' => 'Top score',
-        'default_sort_col' => 10,
+        'default_sort_key' => 'top_score',
     ],
 ];
 
@@ -117,7 +117,10 @@ function amiga_games_render_highlights_table(array $rows, string $board): void
 	<h2 class="k2-panel-heading" id="k2-amiga-games-highlights-heading"><?php echo amiga_realm_games_all_h($meta['heading']); ?></h2>
 	<?php amiga_realm_games_hub_render_table($rows, [
         'show_rank' => true,
-        'default_sort_col' => (int) $meta['default_sort_col'],
+        'default_sort_col' => amiga_realm_games_all_sort_col_index(
+            (string) ($meta['default_sort_key'] ?? 'sum'),
+            true,
+        ),
         'default_sort_dir' => 'desc',
         'empty_message' => 'No rated games match this board yet.',
     ]); ?>

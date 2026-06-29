@@ -15,6 +15,7 @@ require_once __DIR__ . '/../includes/amiga_player_geo_year_lib.php';
 require_once __DIR__ . '/../includes/amiga_realm_snapshot_lib.php';
 require_once __DIR__ . '/../includes/amiga_community_stats_lib.php';
 require_once __DIR__ . '/../includes/amiga_world_cup_stats_lib.php';
+require_once __DIR__ . '/../includes/amiga_wc_hof_lib.php';
 require_once dirname(__DIR__, 3) . '/includes/amiga_performance_rating.php';
 
 const AMIGA_FINALIZE_LOCK_NAME = 'amiga_finalize_tournament';
@@ -743,6 +744,11 @@ function amiga_finalize_tournament(
 
     amiga_realm_persist_snapshot_for_tournament($con, $tournamentId, $finalizedAt);
     amiga_ops_log('realm snapshot: id=' . $tournamentId);
+
+    // SCH-046: World Cup Hall of Fame snapshot + present (no-op for non-WC events).
+    if (amiga_wc_hof_persist_for_tournament($con, $tournamentId, $finalizedAt)) {
+        amiga_ops_log('wc hall of fame: id=' . $tournamentId);
+    }
 
     $errors = amiga_ops_verify_tournament_finalize($con, $tournamentId);
     if ($errors !== []) {

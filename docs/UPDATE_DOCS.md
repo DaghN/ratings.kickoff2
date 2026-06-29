@@ -48,6 +48,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | **K2 page structure** (new page / tab / mode) | **`docs/k2-page-structure-checklist.md`** (then `url-routes.md`, `navigation-model.md`) |
 | Ladder replay scope / reset rules | `docs/replay-v1-scope-and-reset.md` (rare; big replay changes only) |
 | **Amiga Opponents wing** | [`amiga-opponents-wing-policy.md`](amiga-opponents-wing-policy.md) (port online H2H/WDL/Goals/DDs; incremental slices) |
+| **Amiga Opponents country grain** | [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md) (`opponents/country/*`; read-time roll-up) |
 | **Amiga World Cups LB** | [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) (V1); **slice V2** [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md) |
 | **Amiga WC HoF** | [`amiga-wc-hof-policy.md`](amiga-wc-hof-policy.md) · [`amiga-wc-hof-implementation-plan.md`](amiga-wc-hof-implementation-plan.md) |
 | **Amiga Countries hub** | [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) · [`amiga-countries-hub-implementation-plan.md`](amiga-countries-hub-implementation-plan.md) |

@@ -33,9 +33,10 @@
 | Most tournaments in one year | `MostTournamentsInOneYear` | `peak_year_tournaments` |
 | Most tournaments (career) | `MostTournamentsPlayed` | `tournaments_played` |
 | Most tournament wins | `MostTournamentWins` | `event_gold` |
-| Most World Cups played | `MostWcPlayed` | `wc_played` |
 | Most countries played in | `MostCountriesPlayedIn` | `countries_played_in` |
 | Most opponent countries faced | `MostOpponentCountriesFaced` | `opponent_countries_faced` |
 | Most opponent countries beaten | `MostOpponentCountriesBeaten` | `opponent_countries_beaten` |
+
+> **`MostWcPlayed` migrated out (Jun 2026-29, SCH-046).** "Most World Cups played" now lives solely on the World Cup Hall of Fame store (`amiga_wc_hof_present` / `amiga_wc_hof_snapshots`) — see [`amiga-wc-hof-policy.md`](amiga-wc-hof-policy.md). It is no longer projected onto `amiga_generalstats` / `amiga_realm_snapshots`, and the legacy `MostWcPlayed*` DDL columns there were **dropped** — `028_hof_tournament_geo.sql` no longer adds them, plus an idempotent `information_schema`-guarded drop helper in `schema_bundles.py` retires them on existing DBs.
 
 Date column: year peaks → calendar year (`peak_year_*_year`); career honours + geography → **per-metric last-rise** `tournament_id` + `event_date` on player rows (SCH-029) — [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md). `honours_last_event_date` remains last participation only (not HoF record dates).

@@ -63,6 +63,14 @@ def empty_world_cup_slice() -> dict[str, Any]:
         "different_victims": 0,
         "double_digits_victims": 0,
         "clean_sheets_victims": 0,
+        # WC Hall of Fame slice extensions (SCH-046) — populated by the WC-finalize
+        # award/peak writer (WCH-2); default here so persist carries them.
+        "best_attack_awards": 0,
+        "best_defense_awards": 0,
+        "best_single_wc_gf_per_game": None,
+        "best_single_wc_gf_per_game_tournament_id": None,
+        "best_single_wc_ga_per_game": None,
+        "best_single_wc_ga_per_game_tournament_id": None,
         **_empty_rise_fields(),
     }
 

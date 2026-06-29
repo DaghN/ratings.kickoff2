@@ -37,7 +37,6 @@ _CAREER_HOLDERS: list[tuple[str, str, str]] = [
     ("MostTournamentsPlayed", "tournaments_played", "MostTournamentsPlayed"),
     ("MostTournamentWins", "event_gold", "MostTournamentWins"),
     ("MostPerfectEvents", "perfect_events", "MostPerfectEvents"),
-    ("MostWcPlayed", "wc_slice_tournaments_played", "MostWcPlayed"),
     ("MostCountriesPlayedIn", "countries_played_in", "MostCountriesPlayedIn"),
     ("MostOpponentCountriesFaced", "opponent_countries_faced", "MostOpponentCountriesFaced"),
     ("MostOpponentCountriesBeaten", "opponent_countries_beaten", "MostOpponentCountriesBeaten"),

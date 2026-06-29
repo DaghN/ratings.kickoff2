@@ -95,6 +95,13 @@ function amiga_slice_empty_world_cup(): array
         'different_victims' => 0,
         'double_digits_victims' => 0,
         'clean_sheets_victims' => 0,
+        // WC HoF (SCH-046): per-event award counters + single-WC peaks.
+        'best_attack_awards' => 0,
+        'best_defense_awards' => 0,
+        'best_single_wc_gf_per_game' => null,
+        'best_single_wc_gf_per_game_tournament_id' => null,
+        'best_single_wc_ga_per_game' => null,
+        'best_single_wc_ga_per_game_tournament_id' => null,
     ] + amiga_slice_empty_rise_fields();
 }
 

@@ -137,6 +137,10 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-player-opponents-wdl` | `/amiga/player/opponents/wdl.php` |
 | `amiga-player-opponents-goals` | `/amiga/player/opponents/goals.php` |
 | `amiga-player-opponents-dds` | `/amiga/player/opponents/dds.php` |
+| `amiga-player-opponents-country-h2h` | `/amiga/player/opponents/country/h2h.php` (country grain — default drill-down `country={token}`) |
+| `amiga-player-opponents-country-wdl` | `/amiga/player/opponents/country/wdl.php` |
+| `amiga-player-opponents-country-goals` | `/amiga/player/opponents/country/goals.php` |
+| `amiga-player-opponents-country-dds` | `/amiga/player/opponents/country/dds.php` |
 | `amiga-world-cups` | `/amiga/world-cups/chronology.php` (Chronology default; `/amiga/world-cups/` 302) |
 | `amiga-world-cups-chronology` | `/amiga/world-cups/chronology.php` (`chronology/index.php` 302 legacy) |
 | `amiga-world-cups-stats` | `/amiga/world-cups/stats/participation.php` (Participation default; `stats.php` + `stats/index.php` 302) |
@@ -174,7 +178,7 @@ Query `?id=` required on all player tabs.
 
 **Legacy redirects (302, query preserved):** `/amiga/profile.php` → profile; `/amiga/games.php?id=` → player games; bare `/amiga/games.php` → Games hub Recent; `/amiga/player-tournaments.php` → tournaments; `/amiga/leaderboards/performance-rating.php` → `performance-rating/best.php`.
 
-**Not under `player/`:** `/amiga/tournament/` (per-event detail — foldered tabs below), `/amiga/history.php` (301 → rating LB; legacy bookmarks), hub pages under `/amiga/` (including `/amiga/world-cups/`). Player Opponents wings: `amiga/player/opponents/*`.
+**Not under `player/`:** `/amiga/tournament/` (per-event detail — foldered tabs below), `/amiga/history.php` (301 → rating LB; legacy bookmarks), hub pages under `/amiga/` (including `/amiga/world-cups/`). Player Opponents: `amiga/player/opponents/*` (player grain) · `amiga/player/opponents/country/*` (country grain — [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md)).
 
 ### Amiga tournament detail (`amiga/tournament/`)
 

@@ -63,6 +63,7 @@ if ($k2AmigaTournamentIndexCtx instanceof AmigaSnapshotContext && $k2AmigaTourna
 }
 ?>
 <div class="k2-player-games-filters k2-amiga-tournament-index-filters">
+<div class="k2-amiga-tournament-index-segment-filters">
 <div class="k2-chrome-tabs k2-amiga-tournament-index-tabs">
 	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Filter by World Cup">
 <?php foreach ($k2AmigaTournamentIndexWcTabs as $filterId => $tab) {
@@ -74,7 +75,7 @@ if ($k2AmigaTournamentIndexCtx instanceof AmigaSnapshotContext && $k2AmigaTourna
 <?php } ?>
 	</nav>
 </div>
-<div class="k2-chrome-tabs k2-amiga-tournament-index-tabs k2-amiga-tournament-index-tabs--stacked">
+<div class="k2-chrome-tabs k2-amiga-tournament-index-tabs">
 	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Filter by format">
 <?php foreach ($k2AmigaTournamentIndexTabs as $filterId => $tab) {
     $isActive = $k2AmigaTournamentIndexFilter === $filterId;
@@ -85,7 +86,7 @@ if ($k2AmigaTournamentIndexCtx instanceof AmigaSnapshotContext && $k2AmigaTourna
 <?php } ?>
 	</nav>
 </div>
-<div class="k2-chrome-tabs k2-amiga-tournament-index-tabs k2-amiga-tournament-index-tabs--stacked">
+<div class="k2-chrome-tabs k2-amiga-tournament-index-tabs">
 	<nav class="k2-chrome-tabs__bar k2-chrome-tabs__bar--compact" data-k2-carry-scroll aria-label="Filter by videos">
 <?php foreach ($k2AmigaTournamentIndexVideosTabs as $filterId => $tab) {
     $isActive = $k2AmigaTournamentIndexVideosFilter === $filterId;
@@ -96,7 +97,7 @@ if ($k2AmigaTournamentIndexCtx instanceof AmigaSnapshotContext && $k2AmigaTourna
 <?php } ?>
 	</nav>
 </div>
-<div class="k2-chrome-tabs k2-amiga-tournament-index-tabs k2-amiga-tournament-index-tabs--stacked">
+<div class="k2-chrome-tabs k2-amiga-tournament-index-tabs">
 	<nav class="k2-chrome-tabs__bar k2-chrome-tabs__bar--compact" data-k2-carry-scroll aria-label="Filter by perfect run">
 <?php foreach ($k2AmigaTournamentIndexPerfectTabs as $filterId => $tab) {
     $isActive = $k2AmigaTournamentIndexPerfectFilter === $filterId;
@@ -106,6 +107,7 @@ if ($k2AmigaTournamentIndexCtx instanceof AmigaSnapshotContext && $k2AmigaTourna
 			<?php echo $isActive ? ' aria-current="page"' : ''; ?>><?php echo $tab['label']; ?></a>
 <?php } ?>
 	</nav>
+</div>
 </div>
 <?php if ($k2AmigaTournamentIndexShowCountryFilter || $k2AmigaTournamentIndexShowYearFilter) { ?>
 <form class="k2-player-games-controls" method="get" action="<?php echo htmlspecialchars($k2AmigaTournamentIndexFormAction, ENT_QUOTES, 'UTF-8'); ?>" data-k2-carry-scroll>

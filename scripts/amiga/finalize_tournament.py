@@ -17,6 +17,7 @@ from scripts.amiga.slice_persist import (
 from scripts.amiga.country_slice_game_stats import CountryWorldCupSliceTracker
 from scripts.amiga.slice_game_stats import WorldCupSliceTracker, apply_world_cup_tournament_games
 from scripts.amiga.slice_totals import empty_world_cup_slice, increment_world_cup_slice
+from scripts.amiga.wc_slice_awards import apply_wc_slice_awards_and_peaks
 from scripts.amiga.tournament_honours import is_world_cup_tournament
 from scripts.amiga.player_stats_load import load_player_states_before_tournament
 from scripts.amiga.performance_rating import performance_rating_from_pairs
@@ -278,6 +279,8 @@ def _persist_event_snapshots(
             player_countries,
             participating,
         )
+        # §4.7 awards + §4.8 single-WC peaks (must precede slice persist below).
+        apply_wc_slice_awards_and_peaks(slice_accum, part_rows, tournament_id)
         for pid in participating:
             if pid in slice_accum:
                 slice_for_event[pid] = dict(slice_accum[pid])
@@ -735,6 +738,19 @@ def finalize_tournament(
         event_date=tour["event_date"],
     )
     log.info("finalize_tournament: realm snapshot tournament_id=%s", tournament_id)
+
+    # WC Hall of Fame (sparse): compute + persist only on World Cup finalize, after
+    # the WC slice (incl. awards/peaks) for this event has been written above.
+    if is_world_cup_tournament(str(tour.get("name") or "")):
+        from scripts.amiga.wc_hof_persist import persist_wc_hof_for_tournament
+
+        persist_wc_hof_for_tournament(
+            conn,
+            tournament_id,
+            finalized_at=finalized_at,
+            commit=True,
+        )
+        log.info("finalize_tournament: wc hof snapshot tournament_id=%s", tournament_id)
 
     with conn.cursor() as cur:
         cur.execute(

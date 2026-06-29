@@ -19,6 +19,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_records_common.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_records_hof_links.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_context.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_realm_snapshot_read_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_wc_hof_read_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
@@ -38,6 +39,9 @@ if (!$records) {
 
 $peakHolder = amiga_hof_peak_rating_holder($con, $ctx);
 
+// World Cup HoF block (sparse store; present row or time-travel snapshot).
+$wcRecords = amiga_wc_hof_records_load($con, $ctx) ?? [];
+
 $hofAsOf = time();
 if ($ctx->isActive()) {
     $hofCutoff = $ctx->cutoff();
@@ -54,6 +58,10 @@ $hofHolderIds = amiga_hof_holder_ids_from_records($records);
 if (($peakHolder['player_id'] ?? 0) > 0) {
     $hofHolderIds[] = (int) $peakHolder['player_id'];
 }
+foreach (amiga_wc_hof_holder_ids_from_records($wcRecords) as $wcHolderId) {
+    $hofHolderIds[] = $wcHolderId;
+}
+$hofHolderIds = array_values(array_unique($hofHolderIds));
 $hofCountryByPlayer = amiga_tournament_player_countries($con, $hofHolderIds);
 
 mysqli_close($con);
@@ -92,10 +100,38 @@ $k2HofRecordLabels = [
     'Most tournaments (career)',
     'Most tournament wins',
     'Most perfect events',
-    'Most World Cups played',
     'Most countries played in',
     'Most opponent countries faced',
     'Most opponent countries beaten',
+    // World Cup HoF block (rendered after the career rows; same width-sync group).
+    'Most World Cups',
+    'Most WC golds',
+    'Most WC games',
+    'Most WC wins',
+    'Most WC points',
+    'Best WC points/game',
+    'Best WC win rate',
+    'Most WC goals',
+    'Best WC goals/game',
+    'Best WC defense/game',
+    'Best WC goal diff/game',
+    'Best WC goal ratio',
+    'Most WC double digits',
+    'Best WC double digit rate',
+    'Most WC clean sheets',
+    'Best WC clean sheet rate',
+    'Most WC opponents',
+    'Most WC victims',
+    'Most WC double digit victims',
+    'Most WC clean sheet victims',
+    'Most WC goals in one game',
+    'Biggest WC winning margin',
+    'Biggest WC draw',
+    'Biggest WC sum of goals',
+    'Most best attack awards',
+    'Most best defense awards',
+    'Best single-WC attack',
+    'Best single-WC defense',
 ];
 
 records_hof_sync_reset();
@@ -308,13 +344,6 @@ amiga_records_render_row(
     amiga_records_date_or_dash($records['MostPerfectEventsDate'] ?? null, amiga_records_has_value($records['MostPerfectEvents'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_perfect_events')
 );
-amiga_records_render_row(
-    'Most World Cups played',
-    amiga_records_value_or_dash($records['MostWcPlayed'] ?? null),
-    amiga_records_holder_player((int) ($records['MostWcPlayedID'] ?? 0), (string) ($records['MostWcPlayedName'] ?? ''), $hofCountryByPlayer),
-    amiga_records_date_or_dash($records['MostWcPlayedDate'] ?? null, amiga_records_has_value($records['MostWcPlayed'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
-    amiga_records_hof_lb_href('most_wc_played')
-);
 amiga_records_render_spacer_row();
 amiga_records_render_row(
     'Most countries played in',
@@ -337,6 +366,124 @@ amiga_records_render_row(
     amiga_records_date_or_dash($records['MostOpponentCountriesBeatenDate'] ?? null, amiga_records_has_value($records['MostOpponentCountriesBeaten'] ?? 0), $newRecordCutoff, $legendaryRecordCutoff),
     amiga_records_hof_lb_href('most_opponent_countries_beaten')
 );
+
+// ---- World Cups -------------------------------------------------------------
+amiga_records_render_spacer_row();
+echo "    <tr class=\"server-records-section-header\"><td colspan=\"4\">World Cups</td></tr>\n";
+
+$wcRow = static function (
+    string $label,
+    string $valueHtml,
+    string $holderHtml,
+    $dateValue,
+    bool $hasValue,
+    ?string $lbHref
+) use ($newRecordCutoff, $legendaryRecordCutoff): void {
+    amiga_records_render_row(
+        $label,
+        $valueHtml,
+        $holderHtml,
+        amiga_records_date_or_dash($dateValue, $hasValue, $newRecordCutoff, $legendaryRecordCutoff),
+        $lbHref
+    );
+};
+$wcHolder = static fn(string $prefix): string => amiga_records_holder_player(
+    (int) ($wcRecords[$prefix . 'ID'] ?? 0),
+    (string) ($wcRecords[$prefix . 'Name'] ?? ''),
+    $hofCountryByPlayer
+);
+// Ratio / average records are "best as of now (or snapshot)" and carry no
+// meaningful achievement date (leadership can change when someone else's ratio
+// drops). Mirror the career ratio rows above and surface a dash, never a date.
+$wcRatioRow = static function (
+    string $label,
+    string $valueHtml,
+    string $holderHtml,
+    ?string $lbHref
+): void {
+    amiga_records_render_row($label, $valueHtml, $holderHtml, '-', $lbHref);
+};
+
+// 4.1 — career-shape totals
+$wcRow('Most World Cups', amiga_records_value_or_dash($wcRecords['MostWcPlayed'] ?? null), $wcHolder('MostWcPlayed'), $wcRecords['MostWcPlayedDate'] ?? null, amiga_records_has_value($wcRecords['MostWcPlayed'] ?? 0), amiga_records_hof_lb_href('most_wc_played'));
+$wcRow('Most WC golds', amiga_records_value_or_dash($wcRecords['MostWcGold'] ?? null), $wcHolder('MostWcGold'), $wcRecords['MostWcGoldDate'] ?? null, amiga_records_has_value($wcRecords['MostWcGold'] ?? 0), amiga_records_hof_lb_href('wc_gold'));
+$wcRow('Most WC games', amiga_records_value_or_dash($wcRecords['MostWcGames'] ?? null), $wcHolder('MostWcGames'), $wcRecords['MostWcGamesDate'] ?? null, amiga_records_has_value($wcRecords['MostWcGames'] ?? 0), amiga_records_hof_lb_href('wc_games'));
+$wcRow('Most WC wins', amiga_records_value_or_dash($wcRecords['MostWcWins'] ?? null), $wcHolder('MostWcWins'), $wcRecords['MostWcWinsDate'] ?? null, amiga_records_has_value($wcRecords['MostWcWins'] ?? 0), amiga_records_hof_lb_href('wc_wins'));
+$wcRow('Most WC points', amiga_records_value_or_dash($wcRecords['MostWcPoints'] ?? null), $wcHolder('MostWcPoints'), $wcRecords['MostWcPointsDate'] ?? null, amiga_records_has_value($wcRecords['MostWcPoints'] ?? 0), amiga_records_hof_lb_href('wc_points'));
+amiga_records_render_spacer_row();
+
+// 4.2 — efficiency ratios (>= 20 WC games)
+$wcRatioRow('Best WC points/game', amiga_records_fixed_or_dash($wcRecords['BestWcPtsPerGame'] ?? null, 2), $wcHolder('BestWcPtsPerGame'), amiga_records_hof_lb_href('wc_pts_per_game'));
+$wcRatioRow('Best WC win rate', amiga_records_percent_or_dash($wcRecords['BestWcWinRate'] ?? null), $wcHolder('BestWcWinRate'), amiga_records_hof_lb_href('wc_win_rate'));
+amiga_records_render_spacer_row();
+
+// 4.3 — goals
+$wcRow('Most WC goals', amiga_records_value_or_dash($wcRecords['MostWcGoalsFor'] ?? null), $wcHolder('MostWcGoalsFor'), $wcRecords['MostWcGoalsForDate'] ?? null, amiga_records_has_value($wcRecords['MostWcGoalsFor'] ?? 0), amiga_records_hof_lb_href('wc_goals_for'));
+$wcRatioRow('Best WC goals/game', amiga_records_fixed_or_dash($wcRecords['BestWcGoalsForPerGame'] ?? null, 2), $wcHolder('BestWcGoalsForPerGame'), amiga_records_hof_lb_href('wc_gf_per_game'));
+$wcRatioRow('Best WC defense/game', amiga_records_fixed_or_dash($wcRecords['BestWcGoalsAgainstPerGame'] ?? null, 2), $wcHolder('BestWcGoalsAgainstPerGame'), amiga_records_hof_lb_href('wc_ga_per_game'));
+$wcRatioRow('Best WC goal diff/game', amiga_records_fixed_or_dash($wcRecords['BestWcGoalDiffPerGame'] ?? null, 2), $wcHolder('BestWcGoalDiffPerGame'), amiga_records_hof_lb_href('wc_gd_per_game'));
+$wcRatioRow('Best WC goal ratio', amiga_records_fixed_or_dash($wcRecords['BestWcGoalRatio'] ?? null, 2), $wcHolder('BestWcGoalRatio'), amiga_records_hof_lb_href('wc_goal_ratio'));
+amiga_records_render_spacer_row();
+
+// 4.4 — double digits / clean sheets
+$wcRow('Most WC double digits', amiga_records_value_or_dash($wcRecords['MostWcDoubleDigits'] ?? null), $wcHolder('MostWcDoubleDigits'), $wcRecords['MostWcDoubleDigitsDate'] ?? null, amiga_records_has_value($wcRecords['MostWcDoubleDigits'] ?? 0), amiga_records_hof_lb_href('wc_double_digits'));
+$wcRatioRow('Best WC double digit rate', amiga_records_percent_or_dash($wcRecords['BestWcDoubleDigitsRatio'] ?? null), $wcHolder('BestWcDoubleDigitsRatio'), amiga_records_hof_lb_href('wc_dd_ratio'));
+$wcRow('Most WC clean sheets', amiga_records_value_or_dash($wcRecords['MostWcCleanSheets'] ?? null), $wcHolder('MostWcCleanSheets'), $wcRecords['MostWcCleanSheetsDate'] ?? null, amiga_records_has_value($wcRecords['MostWcCleanSheets'] ?? 0), amiga_records_hof_lb_href('wc_clean_sheets'));
+$wcRatioRow('Best WC clean sheet rate', amiga_records_percent_or_dash($wcRecords['BestWcCleanSheetsRatio'] ?? null), $wcHolder('BestWcCleanSheetsRatio'), amiga_records_hof_lb_href('wc_cs_ratio'));
+amiga_records_render_spacer_row();
+
+// 4.5 — opponents / victims
+$wcRow('Most WC opponents', amiga_records_value_or_dash($wcRecords['MostWcOpponents'] ?? null), $wcHolder('MostWcOpponents'), $wcRecords['MostWcOpponentsDate'] ?? null, amiga_records_has_value($wcRecords['MostWcOpponents'] ?? 0), amiga_records_hof_lb_href('wc_opponents'));
+$wcRow('Most WC victims', amiga_records_value_or_dash($wcRecords['MostWcVictims'] ?? null), $wcHolder('MostWcVictims'), $wcRecords['MostWcVictimsDate'] ?? null, amiga_records_has_value($wcRecords['MostWcVictims'] ?? 0), amiga_records_hof_lb_href('wc_victims'));
+$wcRow('Most WC double digit victims', amiga_records_value_or_dash($wcRecords['MostWcDoubleDigitsVictims'] ?? null), $wcHolder('MostWcDoubleDigitsVictims'), $wcRecords['MostWcDoubleDigitsVictimsDate'] ?? null, amiga_records_has_value($wcRecords['MostWcDoubleDigitsVictims'] ?? 0), amiga_records_hof_lb_href('wc_dd_victims'));
+$wcRow('Most WC clean sheet victims', amiga_records_value_or_dash($wcRecords['MostWcCleanSheetsVictims'] ?? null), $wcHolder('MostWcCleanSheetsVictims'), $wcRecords['MostWcCleanSheetsVictimsDate'] ?? null, amiga_records_has_value($wcRecords['MostWcCleanSheetsVictims'] ?? 0), amiga_records_hof_lb_href('wc_cs_victims'));
+amiga_records_render_spacer_row();
+
+// 4.6 — single-game (value links to the record game, not WC goals LB)
+$wcRow('Most WC goals in one game', amiga_records_value_or_dash($wcRecords['MostWcGoalsInOneGame'] ?? null), $wcHolder('MostWcGoalsInOneGame'), $wcRecords['MostWcGoalsInOneGameDate'] ?? null, amiga_records_has_value($wcRecords['MostWcGoalsInOneGame'] ?? 0), amiga_records_hof_game_href_from_prefix($wcRecords, 'MostWcGoalsInOneGame'));
+$wcRow('Biggest WC winning margin', amiga_records_value_or_dash($wcRecords['BiggestWcWinDifference'] ?? null), $wcHolder('BiggestWcWinDifference'), $wcRecords['BiggestWcWinDifferenceDate'] ?? null, amiga_records_has_value($wcRecords['BiggestWcWinDifference'] ?? 0), amiga_records_hof_game_href_from_prefix($wcRecords, 'BiggestWcWinDifference'));
+$hasWcDraw = amiga_records_has_value($wcRecords['BiggestWcDrawSum'] ?? 0);
+$wcDrawScore = $hasWcDraw
+    ? ((string) ((int) $wcRecords['BiggestWcDrawSum'] / 2) . '-' . (string) ((int) $wcRecords['BiggestWcDrawSum'] / 2))
+    : '-';
+$wcRow(
+    'Biggest WC draw',
+    $wcDrawScore,
+    amiga_records_holder_players_pair(
+        (int) ($wcRecords['BiggestWcDrawSumIDA'] ?? 0),
+        (string) ($wcRecords['BiggestWcDrawSumNameA'] ?? ''),
+        (int) ($wcRecords['BiggestWcDrawSumIDB'] ?? 0),
+        (string) ($wcRecords['BiggestWcDrawSumNameB'] ?? ''),
+        $hofCountryByPlayer
+    ),
+    $wcRecords['BiggestWcDrawSumDate'] ?? null,
+    $hasWcDraw,
+    amiga_records_hof_game_href_from_prefix($wcRecords, 'BiggestWcDrawSum')
+);
+$wcRow(
+    'Biggest WC sum of goals',
+    amiga_records_value_or_dash($wcRecords['BiggestWcSumOfGoals'] ?? null),
+    amiga_records_holder_players_pair(
+        (int) ($wcRecords['BiggestWcSumOfGoalsIDA'] ?? 0),
+        (string) ($wcRecords['BiggestWcSumOfGoalsNameA'] ?? ''),
+        (int) ($wcRecords['BiggestWcSumOfGoalsIDB'] ?? 0),
+        (string) ($wcRecords['BiggestWcSumOfGoalsNameB'] ?? ''),
+        $hofCountryByPlayer
+    ),
+    $wcRecords['BiggestWcSumOfGoalsDate'] ?? null,
+    amiga_records_has_value($wcRecords['BiggestWcSumOfGoals'] ?? 0),
+    amiga_records_hof_game_href_from_prefix($wcRecords, 'BiggestWcSumOfGoals')
+);
+amiga_records_render_spacer_row();
+
+// 4.7 — per-event awards (HoF-only; no leaderboard link)
+$wcRow('Most best attack awards', amiga_records_value_or_dash($wcRecords['MostWcBestAttackAwards'] ?? null), $wcHolder('MostWcBestAttackAwards'), $wcRecords['MostWcBestAttackAwardsDate'] ?? null, amiga_records_has_value($wcRecords['MostWcBestAttackAwards'] ?? 0), null);
+$wcRow('Most best defense awards', amiga_records_value_or_dash($wcRecords['MostWcBestDefenseAwards'] ?? null), $wcHolder('MostWcBestDefenseAwards'), $wcRecords['MostWcBestDefenseAwardsDate'] ?? null, amiga_records_has_value($wcRecords['MostWcBestDefenseAwards'] ?? 0), null);
+amiga_records_render_spacer_row();
+
+// 4.8 — single-WC peaks (HoF-only; no leaderboard link)
+$wcRow('Best single-WC attack', amiga_records_fixed_or_dash($wcRecords['BestSingleWcGoalsForPerGame'] ?? null, 2), $wcHolder('BestSingleWcGoalsForPerGame'), $wcRecords['BestSingleWcGoalsForPerGameDate'] ?? null, amiga_records_has_value($wcRecords['BestSingleWcGoalsForPerGame'] ?? 0), null);
+$wcRow('Best single-WC defense', amiga_records_fixed_or_dash($wcRecords['BestSingleWcGoalsAgainstPerGame'] ?? null, 2), $wcHolder('BestSingleWcGoalsAgainstPerGame'), $wcRecords['BestSingleWcGoalsAgainstPerGameDate'] ?? null, amiga_records_has_value($wcRecords['BestSingleWcGoalsAgainstPerGame'] ?? 0), null);
 ?>
 </tbody>
 </table>

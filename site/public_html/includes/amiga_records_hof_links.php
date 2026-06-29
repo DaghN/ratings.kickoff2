@@ -44,6 +44,26 @@ function amiga_records_hof_lb_target(string $metric): ?array
         'most_countries_played_in' => ['wing' => 'calendar-geo', 'sort' => 7, 'dir' => 'desc'],
         'most_opponent_countries_faced' => ['wing' => 'calendar-geo', 'sort' => 8, 'dir' => 'desc'],
         'most_opponent_countries_beaten' => ['wing' => 'calendar-geo', 'sort' => 9, 'dir' => 'desc'],
+        // World Cup HoF rows -> World Cup player leaderboard sub-wings (WCH-6).
+        'wc_gold' => ['wing' => 'world-cups', 'sort' => 4, 'dir' => 'desc'],
+        'wc_games' => ['wing' => 'world-cups-results', 'sort' => 4, 'dir' => 'desc'],
+        'wc_wins' => ['wing' => 'world-cups-results', 'sort' => 5, 'dir' => 'desc'],
+        'wc_points' => ['wing' => 'world-cups-results', 'sort' => 8, 'dir' => 'desc'],
+        'wc_pts_per_game' => ['wing' => 'world-cups-results', 'sort' => 9, 'dir' => 'desc'],
+        'wc_win_rate' => ['wing' => 'world-cups-results', 'sort' => 10, 'dir' => 'desc'],
+        'wc_goals_for' => ['wing' => 'world-cups-goals', 'sort' => 4, 'dir' => 'desc'],
+        'wc_gf_per_game' => ['wing' => 'world-cups-goals', 'sort' => 7, 'dir' => 'desc'],
+        'wc_ga_per_game' => ['wing' => 'world-cups-goals', 'sort' => 8, 'dir' => 'asc'],
+        'wc_gd_per_game' => ['wing' => 'world-cups-goals', 'sort' => 9, 'dir' => 'desc'],
+        'wc_goal_ratio' => ['wing' => 'world-cups-goals', 'sort' => 10, 'dir' => 'desc'],
+        'wc_double_digits' => ['wing' => 'world-cups-dds', 'sort' => 4, 'dir' => 'desc'],
+        'wc_clean_sheets' => ['wing' => 'world-cups-dds', 'sort' => 5, 'dir' => 'desc'],
+        'wc_dd_ratio' => ['wing' => 'world-cups-dds', 'sort' => 6, 'dir' => 'desc'],
+        'wc_cs_ratio' => ['wing' => 'world-cups-dds', 'sort' => 7, 'dir' => 'desc'],
+        'wc_opponents' => ['wing' => 'world-cups-opponents', 'sort' => 4, 'dir' => 'desc'],
+        'wc_victims' => ['wing' => 'world-cups-opponents', 'sort' => 5, 'dir' => 'desc'],
+        'wc_dd_victims' => ['wing' => 'world-cups-opponents', 'sort' => 6, 'dir' => 'desc'],
+        'wc_cs_victims' => ['wing' => 'world-cups-opponents', 'sort' => 7, 'dir' => 'desc'],
     ];
 
     return $map[$metric] ?? null;
@@ -60,6 +80,10 @@ function amiga_records_hof_lb_wing_path(string $wing): string
         'calendar-geo' => '/amiga/leaderboards/calendar-geo.php',
         'tournament-honours' => '/amiga/leaderboards/tournament-honours.php',
         'world-cups' => '/amiga/leaderboards/world-cups/honours.php',
+        'world-cups-results' => '/amiga/leaderboards/world-cups/results.php',
+        'world-cups-goals' => '/amiga/leaderboards/world-cups/goals.php',
+        'world-cups-dds' => '/amiga/leaderboards/world-cups/dds.php',
+        'world-cups-opponents' => '/amiga/leaderboards/world-cups/opponents.php',
     ];
 
     return $paths[$wing] ?? '/amiga/leaderboards/rating.php';
@@ -79,4 +103,26 @@ function amiga_records_hof_lb_href(string $metric): ?string
             'k2_dir' => $target['dir'],
         ]
     );
+}
+
+/**
+ * Deep link to the rated game that set a game-anchored HoF record (§4.6).
+ */
+function amiga_records_hof_game_href(int $gameId): ?string
+{
+    if ($gameId < 1) {
+        return null;
+    }
+
+    require_once __DIR__ . '/k2_amiga_routes.php';
+
+    return k2_amiga_route('amiga-game', ['id' => $gameId]);
+}
+
+/**
+ * @param array<string, mixed> $records
+ */
+function amiga_records_hof_game_href_from_prefix(array $records, string $prefix): ?string
+{
+    return amiga_records_hof_game_href((int) ($records[$prefix . 'GameID'] ?? 0));
 }

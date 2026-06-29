@@ -43,7 +43,21 @@ SLICE_STAT_COLUMNS_V2: tuple[str, ...] = (
     "clean_sheets_victims",
 )
 
-SLICE_STAT_COLUMNS: tuple[str, ...] = SLICE_STAT_COLUMNS_V1 + SLICE_STAT_COLUMNS_V2
+# World Cup Hall of Fame slice extensions (SCH-046) — award counters + single-WC
+# peaks. Per-metric rise columns are intentionally NOT added (decision ID1: HoF
+# dates are derived from the slice_at_event timeline at compute time).
+SLICE_STAT_COLUMNS_WC_HOF: tuple[str, ...] = (
+    "best_attack_awards",
+    "best_defense_awards",
+    "best_single_wc_gf_per_game",
+    "best_single_wc_gf_per_game_tournament_id",
+    "best_single_wc_ga_per_game",
+    "best_single_wc_ga_per_game_tournament_id",
+)
+
+SLICE_STAT_COLUMNS: tuple[str, ...] = (
+    SLICE_STAT_COLUMNS_V1 + SLICE_STAT_COLUMNS_V2 + SLICE_STAT_COLUMNS_WC_HOF
+)
 
 SLICE_RISE_METRICS: tuple[str, ...] = ("tournaments_played",)
 
