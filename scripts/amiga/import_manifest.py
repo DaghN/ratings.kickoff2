@@ -38,6 +38,7 @@ def build_manifest(
     stats: dict[str, int],
     name_merges: list[dict[str, object]],
     catalog_overrides: list[dict[str, str]],
+    player_country_overrides: list[dict[str, str]] | None = None,
     catalog_splits: list[dict[str, str | int | float]] | None = None,
     score_supplements: list[dict[str, str | int]] | None = None,
     structure_specs: list[dict[str, object]] | None = None,
@@ -54,6 +55,7 @@ def build_manifest(
         "transforms": {
             "name_merges": name_merges,
             "catalog_overrides": catalog_overrides,
+            "player_country_overrides": player_country_overrides or [],
             "catalog_splits": catalog_splits or [],
             "score_supplements": score_supplements or [],
             "structure_specs": structure_specs or [],

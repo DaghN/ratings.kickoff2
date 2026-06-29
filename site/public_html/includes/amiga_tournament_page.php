@@ -218,6 +218,8 @@ $eventStatsRows = amiga_tournament_participation_rows($con, $id);
 
 $tournamentGameCount = amiga_tournament_game_count($con, $id);
 
+$tournamentWinner = amiga_tournament_winner($con, $id);
+
 $hasGamesTab = $tournamentGameCount > 0;
 
 $tournamentGamesPlayerFilter = isset($_GET['player']) ? max(0, (int) $_GET['player']) : 0;
@@ -348,27 +350,17 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 <div id="<?php echo k2_h(AMIGA_TOURNAMENT_PAGE_FRAGMENT); ?>" class="k2-amiga-tournament-page-anchor" tabindex="-1"></div>
 
-<header class="k2-amiga-tournament-hero">
-
-  <h1 class="k2-amiga-tournament-hero__title k2-hub-intro"><?php echo k2_h($tName); ?></h1>
-
-  <p class="k2-amiga-tournament-hero__meta"><?php
-
-      $meta = [];
-      if (!empty($tournament['event_date'])) {
-          $meta[] = amiga_profile_format_event_date($tournament['event_date']);
-      }
-      if (!empty($tournament['country'])) {
-          $meta[] = k2_h((string) $tournament['country']);
-      }
-      if ((int) ($tournament['player_count'] ?? 0) > 0) {
-          $meta[] = k2_h((int) $tournament['player_count'] . ' players');
-      }
-      echo $meta !== [] ? implode(' · ', $meta) : '—';
-
-  ?></p>
-
-</header>
+<?php
+$k2TournamentHeroSummary = [
+    'name' => $tName,
+    'country' => trim((string) ($tournament['country'] ?? '')),
+    'event_date' => $tournament['event_date'] ?? null,
+    'player_count' => (int) ($tournament['player_count'] ?? 0),
+    'game_count' => $tournamentGameCount,
+];
+$k2TournamentHeroWinner = $tournamentWinner;
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_hero.php';
+?>
 
 
 

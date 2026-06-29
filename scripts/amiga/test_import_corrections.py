@@ -12,6 +12,7 @@ from scripts.amiga.import_corrections import (
     WORLD_CUP_VENUES,
     apply_catalog_corrections,
     apply_catalog_splits,
+    apply_player_country_corrections,
     catalog_name_after_corrections,
     catalog_splits_manifest,
     supplemental_scores_manifest,
@@ -47,6 +48,15 @@ class ImportCorrectionsTests(unittest.TestCase):
         manifest = supplemental_scores_manifest()
         rodenbach = next(m for m in manifest if m["tournament"] == "Rodenbach II")
         self.assertEqual(rodenbach["games_added"], 10)
+
+    def test_player_country_overrides_fill_missing_identity(self) -> None:
+        countries = {"Mark B": "England"}
+        applied = apply_player_country_corrections(countries)
+        self.assertEqual(countries["Kjetil D"], "Norway")
+        self.assertEqual(countries["Mark B"], "England")
+        kjetil = next(entry for entry in applied if entry["player"] == "Kjetil D")
+        self.assertEqual(kjetil["access"], "")
+        self.assertEqual(kjetil["canonical"], "Norway")
 
     def test_world_cup_venue_corrections(self) -> None:
         tournaments = [

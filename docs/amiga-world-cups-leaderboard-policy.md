@@ -38,7 +38,7 @@ This doc is the **data + column** contract for the `world_cup` player slice. **U
 | **WC7** | **Eligibility** | Rows where slice `tournaments_played ≥ 1` (equivalent to ≥1 WC game in practice). |
 | **WC8** | **Averages** | `Pts/g`, `GF/g`, `GA/g`, `GD/g` computed in PHP from stored numerators + `games` — not persisted. |
 | **WC9** | **Extract honours LB** | Remove WC block from `tournament-honours.php` once World Cups wing ships. Gradual LB reshaping elsewhere is expected. |
-| **WC10** | **HoF** | **Policy locked** — [`amiga-wc-hof-policy.md`](amiga-wc-hof-policy.md) (sparse WC snapshots, 28 rows). Implementation plan TBD. |
+| **WC10** | **HoF** | **Implemented** (Jun 2026-29) — [`amiga-wc-hof-policy.md`](amiga-wc-hof-policy.md) · [`amiga-wc-hof-implementation-plan.md`](amiga-wc-hof-implementation-plan.md) (WCH-1…WCH-8 complete; sparse WC snapshots, 28 rows). |
 | **WC11** | **Time travel** | All three sub-wings use `AmigaSnapshotContext` + slice read lib from slice 0 — [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) T4/T15. |
 | **WC12** | **No dual home** | **Do not** keep `wc_*` on the snapshot honours block after migration — consolidate in slice tables in the **same** implementation track (no “read medals from old columns while slice grows”). |
 

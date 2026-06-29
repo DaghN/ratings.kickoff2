@@ -19,6 +19,7 @@ from scripts.amiga.import_corrections import (
     SUPPLEMENTAL_SCORES,
     apply_catalog_corrections,
     apply_catalog_splits,
+    apply_player_country_corrections,
     catalog_splits_manifest,
     supplemental_scores_manifest,
 )
@@ -205,6 +206,7 @@ class WitnessPrepared:
     raw_to_canonical: dict[str, str]
     countries: dict[str, str]
     catalog_overrides: list[dict[str, str]]
+    player_country_overrides: list[dict[str, str]]
     catalog_splits: list[dict[str, str | int | float]]
     score_supplements: list[dict[str, object]]
     skipped_catalog: list[str]
@@ -283,6 +285,21 @@ def _prepare_witness_core(
     scores_sorted = sorted(scores, key=sort_key)
     names = {s.team_a for s in scores_sorted} | {s.team_b for s in scores_sorted}
 
+    player_country_overrides = apply_player_country_corrections(countries)
+    if player_country_overrides:
+        log.info(
+            "Applied %s player country override(s) from import_corrections.py",
+            len(player_country_overrides),
+        )
+        for entry in player_country_overrides:
+            log.info(
+                "  → %s.%s: %r → %s",
+                entry["player"],
+                entry["field"],
+                entry["access"],
+                entry["canonical"],
+            )
+
     return WitnessPrepared(
         source=source,
         tournaments=tournaments,
@@ -294,6 +311,7 @@ def _prepare_witness_core(
         raw_to_canonical=raw_to_canonical,
         countries=countries,
         catalog_overrides=catalog_overrides,
+        player_country_overrides=player_country_overrides,
         catalog_splits=catalog_splits_manifest(),
         score_supplements=score_supplements,
         skipped_catalog=skipped_catalog,
@@ -493,6 +511,7 @@ def persist_witness_to_mysql(
         stats=stats,
         name_merges=prepared.merge_log,
         catalog_overrides=prepared.catalog_overrides,
+        player_country_overrides=prepared.player_country_overrides,
         catalog_splits=prepared.catalog_splits,
         score_supplements=prepared.score_supplements,
         structure_specs=structure_specs_manifest(structure_result) if structure_result else [],

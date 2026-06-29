@@ -7,24 +7,35 @@ body.k2-site .k2-amiga-tournament-page-anchor {
 
 .k2-amiga-tournament-hero {
 	margin: 0 0 var(--k2-nav-gap);
-	padding: 1rem 1.25rem;
+}
+
+.k2-amiga-tournament-hero.k2-country-hero--feast {
+	padding: 0;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-lg);
 	background: var(--k2-bg-surface);
 	box-shadow: var(--k2-shadow-surface);
 }
 
-.k2-amiga-tournament-hero__title {
-	margin: 0 0 0.35rem;
-	font-size: 1.35rem;
-	line-height: 1.25;
+/* Stat fields = label + value column; widen horizontal gap between fields only. */
+.k2-amiga-tournament-hero .k2-player-hero__stats {
+	column-gap: 36px;
 }
 
-.k2-amiga-tournament-hero__meta {
-	margin: 0;
-	color: var(--k2-text-secondary);
-	font-size: 0.95rem;
-	line-height: 1.5;
+.k2-amiga-tournament-hero__stat-value--winner .k2-amiga-wc-podium-player {
+	justify-content: center;
+}
+
+.k2-amiga-tournament-hero__stat-value--winner .k2-amiga-country-flag-img {
+	width: 24px;
+	height: 18px;
+}
+
+body.k2-site .k2-amiga-tournament-hero__stat-value--winner a.k2-link-star,
+body.k2-site .k2-amiga-tournament-hero__stat-value--winner a.k2-link-star:visited,
+body.k2-site .k2-amiga-tournament-hero__stat-value--winner a.k2-link-star:hover,
+body.k2-site .k2-amiga-tournament-hero__stat-value--winner a.k2-link-star:focus-visible {
+	color: var(--k2-accent);
 }
 
 .k2-amiga-tournament-hero__badges {

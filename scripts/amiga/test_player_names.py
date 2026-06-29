@@ -5,6 +5,7 @@ from __future__ import annotations
 import unittest
 
 from scripts.amiga.player_names import (
+    build_canonical_name_map,
     identity_key,
     koa_abbreviation_candidates,
     normalize_display_name,
@@ -42,6 +43,21 @@ class PlayerNamesTests(unittest.TestCase):
         result = suggest_koa_display_name("Madonna", set())
         self.assertIsNone(result.suggested_name)
         self.assertIn("first name and surname", result.reason or "")
+
+    def test_manual_alias_merges_joerg_to_jorg(self) -> None:
+        class Row:
+            def __init__(self, a: str, b: str) -> None:
+                self.team_a = a
+                self.team_b = b
+
+        scores = [Row("Joerg D", "Mark B"), Row("Jorg D", "Alan B")] * 10 + [Row("Joerg D", "Alan B")] * 5
+        raw_to_canonical, merge_log = build_canonical_name_map(
+            scores,
+            countries={"Jorg D": "Germany"},
+        )
+        self.assertEqual(raw_to_canonical["Joerg D"], "Jorg D")
+        self.assertEqual(raw_to_canonical["Jorg D"], "Jorg D")
+        self.assertTrue(any(entry["canonical"] == "Jorg D" for entry in merge_log))
 
 
 if __name__ == "__main__":

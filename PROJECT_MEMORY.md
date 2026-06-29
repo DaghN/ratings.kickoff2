@@ -22,7 +22,7 @@
 
 - **Status Leagues:** **Shipped** — [`status-period-competitions.md`](docs/status-period-competitions.md).
 
-- **Profile:** Feast shipped on **`player/profile.php`** — gradual improvements only; live spec [`player-profile-feast.md`](docs/player-profile-feast.md). Multi-agent lab sandboxes removed Jun 2026 (handoff archived).
+- **Profile (online):** **Complete** — production feast on **`player/profile.php`**; no active build track; spec [`player-profile-feast.md`](docs/player-profile-feast.md). **Amiga profile:** gradual polish only — [`amiga-profile-v0.md`](docs/amiga-profile-v0.md). Multi-agent lab sandboxes removed Jun 2026 (handoff archived).
 
 - **Design / Status hub:** Phase B v1.2 room grid shipped. Prod live DB read + joshua redirect = **deferred** ([`STATUS_PAGE_DATA.md`](docs/STATUS_PAGE_DATA.md)).
 
@@ -71,7 +71,7 @@
 
 - **Amiga World Cups LB (Jun 2026):** **V2 UI** — five sub-wings on **World Cups hub → Player stats** only; LB wing **retired** Jun 2026 (legacy URLs 302). Writers proven Jun 2026-23. [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cups-player-slice-v2-policy.md`](docs/amiga-world-cups-player-slice-v2-policy.md).
 
-- **Amiga WC HoF (Jun 2026):** **Policy + plan locked** — 28 WC record rows, sparse snapshots; execute [`amiga-wc-hof-implementation-plan.md`](docs/amiga-wc-hof-implementation-plan.md) WCH-1+. [`amiga-wc-hof-policy.md`](docs/amiga-wc-hof-policy.md).
+- **Amiga WC HoF (Jun 2026):** **Complete (WCH-1…8, SCH-046)** — 28 WC record rows; sparse `amiga_wc_hof_{snapshots,present}` + HoF UI block + time travel; Python + PHP finalize parity; `prove` green. [`amiga-wc-hof-policy.md`](docs/amiga-wc-hof-policy.md) · [`amiga-wc-hof-implementation-plan.md`](docs/amiga-wc-hof-implementation-plan.md).
 
 - **Amiga community stats (Jun 2026):** **V2 writers shipped** — registry v2, `036`/`037`, `prove` green. **UI:** Activity community wings + WC year charts TBD; per-WC table on World Cups hub wing 2 **shipped**.
 
@@ -79,7 +79,7 @@
 
 - **Amiga derived writes (Jun 2026):** **Locked** — batch `*-rebuild` CLIs removed; corrections = **`prove` only**; verify = read-only oracles. [`amiga-derived-write-policy.md`](docs/amiga-derived-write-policy.md).
 
-- **Amiga Countries hub (Jun 2026):** **Shipped** — hub tab + index (player count sort) + roster (flag per row, WC entries tooltips, TT); flag links site-wide; cross-links WC country stats. [`amiga-countries-hub-policy.md`](docs/amiga-countries-hub-policy.md).
+- **Amiga Countries hub (Jun 2026):** **Shipped** — hub tab + index (player count sort) + country entity **Roster · Rivals** (CRV-1–7: `country/rivals/{h2h,wdl,goals,dds}`); flag links site-wide; cross-links WC country stats. [`amiga-countries-hub-policy.md`](docs/amiga-countries-hub-policy.md) · [`amiga-country-rivals-policy.md`](docs/amiga-country-rivals-policy.md).
 
 - **Amiga perfect event (Jun 2026):** **Shipped** — SCH-045; honours LB + WC **Perfect** column; catalog filter; HoF **Most perfect events**. [`amiga-perfect-event-policy.md`](docs/amiga-perfect-event-policy.md).
 - **Amiga perf. rating LB (Jun 2026):** **Shipped** — folder `performance-rating/{best,top,perfect}.php` + segment nav; W-D-L columns; Top 100 fixed set; Perfect shows **∞**. [`amiga-performance-rating-leaderboard-policy.md`](docs/amiga-performance-rating-leaderboard-policy.md).
@@ -117,7 +117,7 @@
 
 **Dagh**
 
-1. **Profile** — gradual improvements on production feast — [`player-profile-feast.md`](docs/player-profile-feast.md) · [`profile-build-playbook.md`](docs/profile-build-playbook.md).
+1. **Amiga profile** — optional polish on v0 feast — [`amiga-profile-v0.md`](docs/amiga-profile-v0.md). (Online profile feast **complete** — [`player-profile-feast.md`](docs/player-profile-feast.md).)
 
 **Steve (when ready)**
 
@@ -131,6 +131,10 @@
 
 | When | Note |
 |------|------|
+| 2026-06-29 | **Amiga tournament hero — feast grid** — entity pages + live view use country-hero layout (host flag 124×93, name, Date/Players/Games/Winner stats); `amiga_tournament_hero.php` + `amiga_tournament_winner()`. |
+| 2026-06-29 | **Amiga import — player fixes** — Diego L → Italy; Joerg D/S alias merge into Jorg D/S (`PLAYER_NAME_ALIASES`); player count 471 (−2 dupes). |
+| 2026-06-29 | **Amiga import — Norway player countries** — `PLAYER_COUNTRY_OVERRIDES` in `import_corrections.py` for Ingvald E, Kjetil D, Oyvind H (missing L2 identity); wired into import manifest; local `import --incremental` applied. |
+| 2026-06-29 | **Docs — status hygiene** — corrected stale Current focus: WC HoF **complete** (WCH-1…8), country Rivals **shipped** (CRV-1–7), online profile feast **complete** (Amiga profile = polish only); fixed WC10 row in WC LB policy + WC hub out-of-scope; `player-profile-feast.md` archived v1+ backlog section. |
 | 2026-06-29 | **Amiga WC player stats — LB wing retired** — removed World Cups tab from Leaderboards; `/amiga/leaderboards/world-cups/*` 302 → hub `world-cups/players/*`; HoF/profile/tournament-honours links retargeted; deleted LB-only nav/shell includes. |
 | 2026-06-29 | **Docs — WC nav structure sweep** — policies, url-routes, navigation-model NM7, profile-v0, HoF/perfect-event/staging handoff aligned to hub-only Player stats. |
 | 2026-06-29 | **Amiga World Cups hub wing order** — nav tabs: Chronology · Player stats · Country stats · Tournament stats (`amiga_world_cups_hub_nav.php`; WCH4 policy). |

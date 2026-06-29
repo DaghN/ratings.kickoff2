@@ -59,6 +59,33 @@ WORLD_CUP_VENUE_RATIONALE = (
     "canonical catalog uses the real host nation and appends the host city to the name."
 )
 
+# Canonical player display name → country when L2 witness_player_identity has no row (or wrong).
+# Keys must match post-merge canonical names (player_names.py).
+PLAYER_COUNTRY_OVERRIDES: dict[str, str] = {
+    "Diego L": "Italy",
+    "Ingvald E": "Norway",
+    "Kjetil D": "Norway",
+    "Oyvind H": "Norway",
+}
+
+PLAYER_COUNTRY_RATIONALE: dict[str, str] = {
+    "Diego L": "Italian player; missing from L2 witness_player_identity.",
+    "Ingvald E": "Norwegian player; missing from L2 witness_player_identity.",
+    "Kjetil D": "Norwegian player; missing from L2 witness_player_identity.",
+    "Oyvind H": "Norwegian player; missing from L2 witness_player_identity.",
+}
+
+# Access spelling variant → canonical display name (forced winner in name merge groups).
+PLAYER_NAME_ALIASES: dict[str, str] = {
+    "Joerg D": "Jorg D",
+    "Joerg S": "Jorg S",
+}
+
+PLAYER_NAME_ALIAS_RATIONALE: dict[str, str] = {
+    "Joerg D": "Same player as Jorg D; Access umlaut spelling (oe) variant.",
+    "Joerg S": "Same player as Jorg S; Access umlaut spelling (oe) variant.",
+}
+
 OVERRIDE_RATIONALE: dict[str, str] = {
     "World Cup 2015": (
         "Access [Tournament players].Tournament and Scores.Tournament use year label "
@@ -268,6 +295,32 @@ def catalog_splits_manifest() -> list[dict[str, str | int | float]]:
         }
         for split in IMPORT_CATALOG_SPLITS
     ]
+
+
+def apply_player_country_corrections(countries: dict[str, str]) -> list[dict[str, str]]:
+    """
+    Patch in-memory player→country map before amiga_players insert.
+
+    Returns applied overrides for the import manifest (empty when identity already matches).
+    """
+    applied: list[dict[str, str]] = []
+
+    for player, canonical in PLAYER_COUNTRY_OVERRIDES.items():
+        access = (countries.get(player) or "").strip()
+        if access == canonical:
+            continue
+        applied.append(
+            {
+                "player": player,
+                "field": "country",
+                "access": access,
+                "canonical": canonical,
+                "reason": PLAYER_COUNTRY_RATIONALE.get(player, ""),
+            }
+        )
+        countries[player] = canonical
+
+    return applied
 
 
 def apply_catalog_corrections(tournaments: list[dict[str, Any]]) -> list[dict[str, str]]:

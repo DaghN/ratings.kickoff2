@@ -6,6 +6,8 @@ import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 
+from scripts.amiga.import_corrections import PLAYER_NAME_ALIASES
+
 _WS = re.compile(r"\s+")
 
 
@@ -16,6 +18,30 @@ def normalize_display_name(raw: str) -> str:
 
 def identity_key(raw: str) -> str:
     return normalize_display_name(raw).casefold()
+
+
+def canonical_player_name(raw: str) -> str:
+    """Apply manual spelling aliases before identity grouping."""
+    normalized = normalize_display_name(raw)
+    return PLAYER_NAME_ALIASES.get(normalized, normalized)
+
+
+def merge_identity_key(raw: str) -> str:
+    return identity_key(canonical_player_name(raw))
+
+
+def forced_canonical_for_variants(variants: list[str]) -> str | None:
+    """When any variant has a manual alias target, that spelling wins the merge group."""
+    targets = {
+        PLAYER_NAME_ALIASES[normalize_display_name(v)]
+        for v in variants
+        if normalize_display_name(v) in PLAYER_NAME_ALIASES
+    }
+    if not targets:
+        return None
+    if len(targets) > 1:
+        raise ValueError(f"conflicting player name alias targets: {sorted(targets)}")
+    return next(iter(targets))
 
 
 def split_full_name(raw: str) -> tuple[str, str] | None:
@@ -119,7 +145,7 @@ def build_canonical_name_map(
 
     by_key: dict[str, list[str]] = defaultdict(list)
     for raw in raw_counts:
-        by_key[identity_key(raw)].append(raw)
+        by_key[merge_identity_key(raw)].append(raw)
 
     raw_to_canonical: dict[str, str] = {}
     merge_log: list[dict[str, object]] = []
@@ -132,8 +158,12 @@ def build_canonical_name_map(
             country = countries.get(norm) or countries.get(v.strip()) or ""
             return (raw_counts[v], 1 if country.strip() else 0, -len(norm))
 
-        winner = max(unique_variants, key=variant_score)
-        canonical = normalize_display_name(winner)
+        forced = forced_canonical_for_variants(unique_variants)
+        if forced:
+            canonical = forced
+        else:
+            winner = max(unique_variants, key=variant_score)
+            canonical = normalize_display_name(winner)
         for v in unique_variants:
             raw_to_canonical[v] = canonical
 

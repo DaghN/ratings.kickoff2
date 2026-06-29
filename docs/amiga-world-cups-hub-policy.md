@@ -217,7 +217,7 @@ Registered in [`site/public_html/includes/k2_amiga_routes.php`](../site/public_h
 | **5** | Activity cross-links; TT hub bar amend | Phases 1–3 |
 | **6** | Wing **4** — country slice DDL + writers + hub UI | [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md) |
 
-**Out of scope v1:** New writers beyond slice V1, WC HoF rows, histogram UX from community catalog. **Slice V2** (goals texture, DDs, Opponents) — [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md). **Country slice** — policy locked Jun 2026-24; implementation = Phase 6.
+**Out of scope v1 (historical):** New writers beyond slice V1 — superseded where shipped. **Slice V2** (goals texture, DDs, Opponents) — [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md) **shipped**. **Country slice** — **shipped** Jun 2026-24 (Phase 6). **WC HoF** — **shipped** Jun 2026-29 (WCH-1…8). **Still open:** histogram UX from community catalog.
 
 ---
 

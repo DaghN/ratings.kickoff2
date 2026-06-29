@@ -93,7 +93,7 @@ L0 koatd.mdb
 
 | Module | What it does |
 |--------|----------------|
-| [`import_corrections.py`](../scripts/amiga/import_corrections.py) | Known-wrong Access catalog fields — **one row per tournament**, with rationale; **World Cup host city + country** (retire Access `WC` placeholder); **supplemental Scores rows** when Access catalog exists but games are missing |
+| [`import_corrections.py`](../scripts/amiga/import_corrections.py) | Known-wrong Access catalog fields — **one row per tournament**, with rationale; **World Cup host city + country** (retire Access `WC` placeholder); **supplemental Scores rows** when Access catalog exists but games are missing; **player nationality** when L2 `witness_player_identity` is missing or wrong; **player name spelling aliases** (e.g. Joerg → Jorg) |
 
 Add manual overrides only when:
 
@@ -113,6 +113,7 @@ Each import writes **`data/amiga/exports/import_manifest.json`** (gitignored; re
 | `stats` | tournaments, games, raw vs canonical player counts, merge groups |
 | `transforms.name_merges` | Same detail as legacy `name_merges.json` |
 | `transforms.catalog_overrides` | Applied manual patches (access vs canonical + reason) |
+| `transforms.player_country_overrides` | Player nationality patches when L2 identity is missing/wrong |
 | `transforms.score_supplements` | Games appended from external evidence (tournament, count, reason) |
 | `transforms.structure_specs` | Registered structure specs applied (or skipped) during import |
 | `registry` | Module pointers for reviewers |
@@ -181,6 +182,26 @@ Exits non-zero if a new inversion appears that is **not** covered by `import_cor
 | Wiesbaden IX | `event_date` | 2009-04-07 | **2009-01-25** | Chrono 333 before Wiesbaden X (Feb 22); Access April date breaks IX-before-X order. Source: [KO Gathering forum](https://ko-gathering.com/forum/viewtopic.php?p=247684#p247684) |
 
 Newent XVI (2009-02-13, chrono 334) needs no override — it sits correctly between corrected Wiesbaden IX (Jan 25) and Wiesbaden X (Feb 22).
+
+### Player nationality (manual)
+
+When a game player has no row in L2 `witness_player_identity` (or Access country is wrong), set canonical display name → country in `PLAYER_COUNTRY_OVERRIDES` in `import_corrections.py`.
+
+| Player | Country | Reason |
+|--------|---------|--------|
+| Diego L | Italy | Missing from L2 witness_player_identity |
+| Ingvald E | Norway | Missing from L2 witness_player_identity |
+| Kjetil D | Norway | Missing from L2 witness_player_identity |
+| Oyvind H | Norway | Missing from L2 witness_player_identity |
+
+### Player name spelling aliases (manual)
+
+When Access uses an alternate spelling for the same person (not caught by case/spacing merge), map variant → canonical in `PLAYER_NAME_ALIASES` in `import_corrections.py`. Alias target always wins the merge group.
+
+| Variant | Canonical | Reason |
+|---------|-----------|--------|
+| Joerg D | Jorg D | Same player; Access umlaut (oe) spelling |
+| Joerg S | Jorg S | Same player; Access umlaut (oe) spelling |
 
 ### World Cup host city + country (manual)
 

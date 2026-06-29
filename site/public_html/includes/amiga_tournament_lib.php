@@ -889,6 +889,50 @@ function amiga_tournament_game_count(mysqli $con, int $tournamentId): int
 }
 
 /**
+ * Tournament champion from stored participation (`is_winner = 1`).
+ *
+ * @return array{player_id: int, player_name: string, player_country: string}|null
+ */
+function amiga_tournament_winner(mysqli $con, int $tournamentId): ?array
+{
+    if ($tournamentId < 1) {
+        return null;
+    }
+    $sql = 'SELECT p.id AS player_id, p.name AS player_name, COALESCE(p.country, \'\') AS player_country
+            FROM amiga_player_event_snapshots s
+            INNER JOIN amiga_players p ON p.id = s.player_id
+            WHERE s.tournament_id = ? AND s.is_winner = 1
+            ORDER BY s.player_id ASC
+            LIMIT 1';
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        return null;
+    }
+    mysqli_stmt_bind_param($stmt, 'i', $tournamentId);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $row = $res ? mysqli_fetch_assoc($res) : null;
+    if ($res) {
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+    if ($row === null) {
+        return null;
+    }
+    $playerId = (int) ($row['player_id'] ?? 0);
+    $playerName = trim((string) ($row['player_name'] ?? ''));
+    if ($playerId < 1 || $playerName === '') {
+        return null;
+    }
+
+    return [
+        'player_id' => $playerId,
+        'player_name' => $playerName,
+        'player_country' => trim((string) ($row['player_country'] ?? '')),
+    ];
+}
+
+/**
  * Participation roster for the player filter dropdown.
  *
  * @return list<array{player_id: int, player_name: string, games: int}>

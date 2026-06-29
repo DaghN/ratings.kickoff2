@@ -1,6 +1,6 @@
 # Player profile (feast) — shipped layout
 
-**Status:** Jun 2026 (layout + narrative contract). **Production page:** `player/profile.php?id={player}`.  
+**Status:** **Complete** (Jun 2026) — layout + narrative contract shipped; no active build track (bugfixes / copy tweaks only). **Production page:** `player/profile.php?id={player}`.  
 **Implementing v1 content:** [`docs/profile-build-playbook.md`](profile-build-playbook.md) (placement charter, module recipes, waves).  
 **v1 content decisions (archive):** [`docs/archive/profile-content-candidates.md`](archive/profile-content-candidates.md).  
 **Prior audits:** [`docs/archive/profile-redesign-framing.md`](archive/profile-redesign-framing.md), [`docs/archive/profile-data-audit-pass2.md`](archive/profile-data-audit-pass2.md).  
@@ -161,11 +161,13 @@ Profile does **not** duplicate those tables.
 
 ---
 
-## Gradual improvements (backlog)
+## Archived v1+ ideas (not active)
 
-**Curated v1:** [`archive/profile-content-candidates.md`](archive/profile-content-candidates.md). **How to build:** [`profile-build-playbook.md`](profile-build-playbook.md) (waves §7). Below = short summary.
+**Not an active track** — feast v1 shipped Jun 2026. Kept for reference only; do not treat as backlog unless Dagh reopens profile work.
 
-### Ship next (v1)
+**Curated v1:** [`archive/profile-content-candidates.md`](archive/profile-content-candidates.md). **How to build (historical):** [`profile-build-playbook.md`](profile-build-playbook.md) (waves §7). Below = short summary.
+
+### Was planned for v1+ (archived)
 
 | Theme | Items |
 |-------|--------|

@@ -40,39 +40,32 @@ if ($tournament === null) {
 
 $participants = amiga_live_tournament_participants($con, $id);
 $fixtureGroups = amiga_live_tournament_fixture_groups($con, $id);
+$liveGameCount = amiga_tournament_game_count($con, $id);
 mysqli_close($con);
 
 $k2AmigaHubTabActive = 'live-tournaments';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 $tName = (string) $tournament['name'];
-$meta = [];
-if (!empty($tournament['event_date'])) {
-    $meta[] = (string) $tournament['event_date'];
-}
-if (!empty($tournament['country'])) {
-    $meta[] = (string) $tournament['country'];
-}
-if ((int) ($tournament['player_count'] ?? 0) > 0) {
-    $meta[] = (int) $tournament['player_count'] . ' players';
-}
-if (!empty($tournament['started_at'])) {
-    $meta[] = 'started ' . (string) $tournament['started_at'] . ' UTC';
-}
+
+$k2TournamentHeroSummary = [
+    'name' => $tName,
+    'country' => trim((string) ($tournament['country'] ?? '')),
+    'event_date' => $tournament['event_date'] ?? null,
+    'player_count' => (int) ($tournament['player_count'] ?? 0),
+    'game_count' => $liveGameCount,
+];
+$k2TournamentHeroWinner = null;
+$k2TournamentHeroBadges = [
+    (string) ($tournament['lifecycle_status'] ?? 'live'),
+    'Live view',
+];
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_hero.php';
 ?>
 
 <p class="k2-amiga-tournament-back">
   <a class="k2-link-star" href="/amiga/live-tournaments.php">← Live tournaments</a>
 </p>
-
-<header class="k2-amiga-tournament-hero">
-  <h1 class="k2-amiga-tournament-hero__title k2-hub-intro"><?php echo k2_h($tName); ?></h1>
-  <p class="k2-amiga-tournament-hero__meta"><?php echo $meta !== [] ? k2_h(implode(' · ', $meta)) : '—'; ?></p>
-  <div class="k2-amiga-tournament-hero__badges">
-    <span class="k2-amiga-tournament-badge"><?php echo k2_h((string) $tournament['lifecycle_status']); ?></span>
-    <span class="k2-amiga-tournament-badge">Live view</span>
-  </div>
-</header>
 
 <div class="k2-amiga-live-view">
 
