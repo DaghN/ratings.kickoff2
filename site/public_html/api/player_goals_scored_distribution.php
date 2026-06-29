@@ -18,6 +18,51 @@ $playerId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $opponentId = isset($_GET['opponent']) ? (int) $_GET['opponent'] : 0;
 $oppCountry = isset($_GET['opp_country']) ? trim((string) $_GET['opp_country']) : '';
 $goalsSide = isset($_GET['side']) && (string) $_GET['side'] === 'rival' ? 'rival' : 'subject';
+$pairHero = isset($_GET['country']) ? trim((string) $_GET['country']) : '';
+$pairRival = isset($_GET['rival']) ? trim((string) $_GET['rival']) : '';
+
+if ($realm === 'amiga' && $pairHero !== '' && $pairRival !== '') {
+    include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2amiga_config.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_context.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_country_rivals_h2h_games_lib.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_country_rivals_h2h.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_goals_distribution.php';
+
+    $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+    if ($con->connect_errno) {
+        http_response_code(500);
+        echo json_encode(['error' => 'db_connect_failed']);
+        exit;
+    }
+    $con->set_charset('utf8mb4');
+    $con->query("SET time_zone = '+00:00'");
+
+    $ctx = amiga_snapshot_context_from_request($con);
+    $heroToken = amiga_country_rivals_normalize_token($pairHero);
+    $rivalToken = amiga_country_rivals_normalize_token($pairRival);
+    $heroLabel = amiga_country_rivals_nation_label($heroToken);
+    $rivalLabel = amiga_country_rivals_nation_label($rivalToken);
+    $buckets = amiga_country_rivals_h2h_goals_buckets($con, $heroToken, $rivalToken, $ctx, $goalsSide);
+    $maxGoals = $buckets === [] ? 0 : (int) $buckets[count($buckets) - 1]['goals'];
+    $totalGames = player_goals_scored_distribution_total_games($buckets);
+    $avgGoalsPerGame = player_goals_scored_distribution_avg_goals_per_game($buckets);
+    mysqli_close($con);
+
+    echo json_encode([
+        'realm' => $realm,
+        'playerId' => null,
+        'opponentId' => null,
+        'heroCountry' => $heroToken,
+        'rivalCountry' => $rivalToken,
+        'playerName' => $goalsSide === 'rival' ? $rivalLabel : $heroLabel,
+        'opponentName' => $goalsSide === 'rival' ? $heroLabel : $rivalLabel,
+        'maxGoals' => $maxGoals,
+        'totalGames' => $totalGames,
+        'avgGoalsPerGame' => $avgGoalsPerGame,
+        'buckets' => $buckets,
+    ]);
+    exit;
+}
 
 if ($realm !== 'online' && $realm !== 'amiga') {
     echo json_encode([

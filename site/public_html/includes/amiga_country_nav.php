@@ -9,6 +9,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_countries_lib.php';
+require_once __DIR__ . '/amiga_country_rivals_lib.php';
 
 $k2AmigaCountryView = $k2AmigaCountryView ?? 'roster';
 $k2AmigaCountryToken = (string) ($k2AmigaCountryToken ?? '');

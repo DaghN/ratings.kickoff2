@@ -32,7 +32,7 @@
             return;
         }
         var grain = root.getAttribute('data-h2h-grain') || 'player';
-        var param = grain === 'country' ? 'country' : 'opponent';
+        var param = grain === 'nation-pair' ? 'rival' : (grain === 'country' ? 'country' : 'opponent');
         var sep = base.indexOf('?') >= 0 ? '&' : '?';
         var url = base + sep + param + '=' + encodeURIComponent(String(value));
         if (pick) {

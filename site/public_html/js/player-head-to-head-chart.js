@@ -56,7 +56,9 @@
         root.setAttribute('data-k2-chart-bound', '1');
 
         var playerId = root.getAttribute('data-player-id');
-        if (!playerId) {
+        var heroCountry = root.getAttribute('data-hero-country');
+        var rivalCountry = root.getAttribute('data-rival-country');
+        if (!playerId && (!heroCountry || !rivalCountry)) {
             return;
         }
 
@@ -98,6 +100,10 @@
                 if (!CTX.opponentCountryFrom(root)) {
                     return;
                 }
+            } else if (CTX && CTX.h2hGrainFrom(root) === 'nation-pair') {
+                if (!CTX.heroCountryFrom(root) || !CTX.rivalCountryFrom(root)) {
+                    return;
+                }
             } else if (!opponentId) {
                 return;
             }
@@ -107,9 +113,15 @@
             }
             setMeta('');
 
-            var url = API_PATH + '?id=' + encodeURIComponent(playerId)
-                + (CTX ? CTX.matchupApiQuery(root, opponentId) : ('&opponent=' + encodeURIComponent(opponentId)))
-                + (CTX ? CTX.apiSuffix(root) : '&realm=online');
+            var url = API_PATH + '?';
+            if (playerId) {
+                url += 'id=' + encodeURIComponent(playerId)
+                    + (CTX ? CTX.matchupApiQuery(root, opponentId) : ('&opponent=' + encodeURIComponent(opponentId)));
+            } else {
+                url += 'country=' + encodeURIComponent(heroCountry)
+                    + '&rival=' + encodeURIComponent(rivalCountry);
+            }
+            url += (CTX ? CTX.apiSuffix(root) : '&realm=online');
 
             fetch(url, { credentials: 'same-origin' })
                 .then(function (r) {
@@ -241,7 +253,7 @@
 
         var initial = CTX ? CTX.initialMatchupFromPage(root) : null;
         if (initial) {
-            if (initial.type === 'country') {
+            if (initial.type === 'country' || initial.type === 'nation-pair') {
                 loadOpponent(null, '');
             } else {
                 loadOpponent(initial.id, initial.name);

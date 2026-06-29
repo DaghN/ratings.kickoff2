@@ -7,11 +7,11 @@
 | Page | Path |
 |------|------|
 | Hub nav | News · Leaderboards · World Cups · **Countries** · Activity · Hall of Fame · Tournaments · Live tournaments (`includes/amiga_hub_nav.php`; default landing `/amiga/news.php`) |
-| **Countries hub** | `/amiga/countries/index.php` (hub index) · `/amiga/country/roster.php?country={token}` + `/amiga/country/rivals.php?country={token}` (country entity — Roster · Rivals segment) — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
+| **Countries hub** | `/amiga/countries/index.php` (hub index) · `/amiga/country/roster.php?country={token}` · `/amiga/country/rivals/{h2h,wdl,goals,dds}.php?country={token}` (+ `rival=` on H2H) — country entity **Roster · Rivals** — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) · Rivals grain [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) §1.1 |
 | Leaderboard (rating) | `/amiga/leaderboards/rating.php` (Leaderboards tab; `/amiga/rating.php` redirects) |
-| Leaderboard wings | Tab order in `amiga_lb_nav.php`: Rating · World Cups · Tournament honours · Calendar &amp; geography · Goals · DDs &amp; CSs · Victims · Peak · Perf. rating |
-| Tournament honours LB | `/amiga/leaderboards/tournament-honours.php` (all-events medals; WC → World Cups wing) |
-| World Cups LB | `/amiga/leaderboards/world-cups/honours.php` (+ Results · Goals slices 2–3) — [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) |
+| Leaderboard wings | Tab order in `amiga_lb_nav.php`: Rating · Tournament honours · Calendar &amp; geography · Goals · DDs &amp; CSs · Victims · Peak · Perf. rating *(World Cups player stats = hub only — not an LB wing)* |
+| Tournament honours LB | `/amiga/leaderboards/tournament-honours.php` (all-events medals; WC career stats → World Cups hub → Player stats) |
+| World Cups player stats | `/amiga/world-cups/players/honours.php` (+ Results · Goals · DDs · Opponents) — [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) |
 | Hall of Fame | `/amiga/hall-of-fame.php` |
 | Profile | `/amiga/player/profile.php?id={amiga_players.id}` |
 | Tournament history | `/amiga/player/tournaments.php?id={amiga_players.id}` |

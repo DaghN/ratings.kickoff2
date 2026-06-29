@@ -4,7 +4,7 @@
 
 **Authority / related:** [`hub-ia-agreement.md`](hub-ia-agreement.md) (hub shape + tab order) · [`url-routes.md`](url-routes.md) (route map + foldered sub-hubs) · [`k2-page-structure-checklist.md`](k2-page-structure-checklist.md) (new page / tab / mode — read before choosing paths) · [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) (how to build nav) · [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md).
 
-This doc states the **invariants** so they are not relitigated per feature. It is realm-agnostic (Online + Amiga). Decision IDs **NM1–NM6** are citeable.
+This doc states the **invariants** so they are not relitigated per feature. It is realm-agnostic (Online + Amiga). Decision IDs **NM1–NM7** are citeable.
 
 ---
 
@@ -49,6 +49,9 @@ Do not light a hub pill because of where the user came from, or where the data i
 **NM6 — An entity may carry its own context sub-nav (below the hub bar).**
 Having internal tabs does **not** change NM1–NM3. The hub bar stays; the entity adds its own nav *below* it — e.g. player Profile / Opponents / Milestones / Games; tournament Event stats / Standings / Games / Videos; country Roster / Rivals. This is a property of the entity, not a separate page tier. (There is no "hub bar gets replaced" tier — see history below.)
 
+**NM7 — Domain mini-universes are not Leaderboard wings (Amiga).**
+Some verticals get their **own hub tab** with foldered wings — **World Cups** (`world-cups/`), **Countries** (`countries/` index + `country/` entity). Career stats for that domain live there, **not** duplicated under **Leaderboards** (`leaderboards/` + `amiga_lb_nav.php`). Leaderboards = realm-wide career lenses (Rating, Goals, Peak, …). HoF and profile deep-links target the canonical hub path. Legacy bookmarks may 302 — see [`url-routes.md`](url-routes.md).
+
 ---
 
 ## Why (so we do not reopen this)
@@ -66,7 +69,7 @@ Having internal tabs does **not** change NM1–NM3. The hub bar stays; the entit
 | `amiga/game.php?id=` | Yes | — |
 | `amiga/player/*.php?id=` | Yes — hub bar present, no pill; player sub-nav below (NM6) | — |
 | `amiga/tournament/*.php?id=` | Yes (Jun 2026) | Entity namespace (sibling of the `tournaments.php` hub listing); active pill neutralized (`$k2AmigaHubTabActive = ''` in `amiga_tournament_page.php`); tournament section nav is its NM6 sub-nav |
-| `amiga/country/roster.php?country=` · `amiga/country/rivals.php?country=` | Yes (Jun 2026) | Relocated out of the `countries/` hub folder to the singular `country/` namespace (NM3); **Roster · Rivals** segment (NM6); no active pill (NM2). Old `countries/roster.php` 302s to the new path. Rivals is a placeholder pending content. |
+| `amiga/country/roster.php?country=` · `amiga/country/rivals/{h2h,wdl,goals,dds}.php?country=` | Yes (Jun 2026) | Singular `country/` entity namespace (NM3); **Roster · Rivals** segment (NM6); no active pill (NM2). Rivals = country-vs-country four wings (**shipped** Jun 2026). Legacy `countries/roster.php` 302s to roster path; `rivals.php` 302s to `rivals/h2h.php`. |
 | `amiga/countries/index.php` | Yes | Hub **place** — keeps the **Countries** active pill |
 
 **Stale doc corrected (Jun 2026):** earlier IA notes said player pages *replace* the hub tabs with player context tabs. No longer true — the hub bar is present with no active pill (NM1/NM2); the player nav is an NM6 sub-nav below it. Fixed in [`hub-ia-agreement.md`](hub-ia-agreement.md).

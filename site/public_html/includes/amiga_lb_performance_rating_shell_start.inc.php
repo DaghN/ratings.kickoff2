@@ -9,6 +9,7 @@ declare(strict_types=1);
 $k2AmigaLbPerfRatingView = $k2AmigaLbPerfRatingView ?? 'best';
 $k2AmigaLbPerfRatingPageTitle = $k2AmigaLbPerfRatingPageTitle ?? 'Amiga ladder — Performance rating';
 $k2AmigaLbPerfRatingLede = $k2AmigaLbPerfRatingLede ?? '';
+$k2AmigaLbPerfRatingLedeHtml = $k2AmigaLbPerfRatingLedeHtml ?? '';
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" data-realm="amiga">
@@ -31,9 +32,15 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_performance_rating_nav.php';
 ?>
 
-<?php if ($k2AmigaLbPerfRatingLede !== '') { ?>
-<header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
-	<p class="k2-hub-page-intro" style="margin:0 0 1rem"><?php echo htmlspecialchars($k2AmigaLbPerfRatingLede, ENT_QUOTES, 'UTF-8'); ?></p>
+<?php if ($k2AmigaLbPerfRatingLede !== '' || $k2AmigaLbPerfRatingLedeHtml !== '') { ?>
+<header class="k2-hub-page-intro-head" style="padding:0 1.25rem"<?php echo $k2AmigaLbPerfRatingLedeHtml !== '' ? ' data-k2-carry-scroll' : ''; ?>>
+	<p class="k2-hub-page-intro" style="margin:0 0 1rem"><?php
+if ($k2AmigaLbPerfRatingLedeHtml !== '') {
+	echo $k2AmigaLbPerfRatingLedeHtml;
+} else {
+	echo htmlspecialchars($k2AmigaLbPerfRatingLede, ENT_QUOTES, 'UTF-8');
+}
+?></p>
 </header>
 <?php } ?>
 

@@ -40,7 +40,9 @@
 
 		'[data-k2-carry-scroll] a.k2-player-games-day-step[href], ' +
 
-		'[data-k2-carry-scroll] a.k2-league-period__sibling-link[href]';
+		'[data-k2-carry-scroll] a.k2-league-period__sibling-link[href], ' +
+
+		'[data-k2-carry-scroll] a.k2-carry-scroll-link[href]';
 
 
 

@@ -51,11 +51,6 @@ function k2_amiga_country_roster_href(string $countryToken, bool $scrollToHero =
     return $href;
 }
 
-function k2_amiga_country_rivals_href(string $countryToken): string
-{
-    return k2_amiga_route('amiga-country-rivals', ['country' => $countryToken]);
-}
-
 function amiga_countries_normalize_country_param(string $raw): string
 {
     $raw = trim($raw);

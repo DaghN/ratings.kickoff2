@@ -86,7 +86,10 @@ foreach ($honoursRows as $row) {
 </div>
 </div>
 
-<p style="padding:0 1.25rem 2rem;color:var(--k2-text-secondary)"><?php echo number_format($playerCount); ?> players with at least one tournament. World Cup honours: <a class="k2-link-star" href="<?php echo htmlspecialchars(amiga_url_with_context('/amiga/leaderboards/world-cups/honours.php'), ENT_QUOTES, 'UTF-8'); ?>">World Cups leaderboard</a>.</p>
+<p style="padding:0 1.25rem 2rem;color:var(--k2-text-secondary)"><?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_routes.php';
+echo number_format($playerCount);
+?> players with at least one tournament. World Cup honours: <a class="k2-link-star" href="<?php echo htmlspecialchars(k2_amiga_route('amiga-world-cups-players-honours'), ENT_QUOTES, 'UTF-8'); ?>">World Cups → Player stats</a>.</p>
 
 </div><!-- .k2-page-nav -->
 

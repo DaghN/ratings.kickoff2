@@ -50,6 +50,9 @@
     }
 
     function gamesBasePath(el) {
+        if (realmFrom(el) === 'amiga' && h2hGrainFrom(el) === 'nation-pair') {
+            return '/amiga/games/all.php';
+        }
         return realmFrom(el) === 'amiga' ? '/amiga/player/games.php' : '/player/games.php';
     }
 
@@ -58,7 +61,15 @@
     }
 
     function gamesListUrl(el, playerId, queryParams) {
-        var url = gamesBasePath(el) + '?id=' + encodeURIComponent(String(playerId));
+        var url;
+        if (realmFrom(el) === 'amiga' && h2hGrainFrom(el) === 'nation-pair') {
+            var hero = heroCountryFrom(el);
+            var rival = rivalCountryFrom(el);
+            url = gamesBasePath(el) + '?country=' + encodeURIComponent(String(hero))
+                + '&rival=' + encodeURIComponent(String(rival));
+        } else {
+            url = gamesBasePath(el) + '?id=' + encodeURIComponent(String(playerId));
+        }
         var key;
         for (key in queryParams) {
             if (!Object.prototype.hasOwnProperty.call(queryParams, key)) {
@@ -80,16 +91,56 @@
 
     function h2hGrainFrom(el) {
         var root = h2hRootFrom(el);
-        if (root && root.getAttribute('data-h2h-grain') === 'country') {
-            return 'country';
+        if (root) {
+            var grain = root.getAttribute('data-h2h-grain');
+            if (grain === 'country' || grain === 'nation-pair') {
+                return grain;
+            }
         }
         if (el && el.closest) {
             var charts = el.closest('.k2-h2h2-charts');
-            if (charts && charts.getAttribute('data-h2h-grain') === 'country') {
-                return 'country';
+            if (charts) {
+                var chartsGrain = charts.getAttribute('data-h2h-grain');
+                if (chartsGrain === 'country' || chartsGrain === 'nation-pair') {
+                    return chartsGrain;
+                }
             }
         }
         return 'player';
+    }
+
+    function heroCountryFrom(el) {
+        if (!el) {
+            return '';
+        }
+        if (el.getAttribute && el.getAttribute('data-hero-country')) {
+            return el.getAttribute('data-hero-country');
+        }
+        var root = h2hRootFrom(el);
+        if (root) {
+            var fromRoot = root.getAttribute('data-hero-country');
+            if (fromRoot) {
+                return fromRoot;
+            }
+        }
+        return '';
+    }
+
+    function rivalCountryFrom(el) {
+        if (!el) {
+            return '';
+        }
+        if (el.getAttribute && el.getAttribute('data-rival-country')) {
+            return el.getAttribute('data-rival-country');
+        }
+        var root = h2hRootFrom(el);
+        if (root) {
+            var fromRoot = root.getAttribute('data-rival-country') || root.getAttribute('data-chart-country');
+            if (fromRoot) {
+                return fromRoot;
+            }
+        }
+        return '';
     }
 
     function opponentCountryFrom(el) {
@@ -111,6 +162,14 @@
 
     function matchupApiQuery(el, opponentId, options) {
         options = options || {};
+        if (h2hGrainFrom(el) === 'nation-pair') {
+            var hero = heroCountryFrom(el);
+            var rival = rivalCountryFrom(el);
+            if (!hero || !rival) {
+                return '';
+            }
+            return '&country=' + encodeURIComponent(hero) + '&rival=' + encodeURIComponent(rival);
+        }
         if (h2hGrainFrom(el) === 'country') {
             var country = opponentCountryFrom(el) || options.country || '';
             if (!country) {
@@ -132,6 +191,14 @@
     }
 
     function gamesMatchupParams(el, opponentId) {
+        if (h2hGrainFrom(el) === 'nation-pair') {
+            var hero = heroCountryFrom(el);
+            var rival = rivalCountryFrom(el);
+            if (hero && rival) {
+                return { country: hero, rival: rival };
+            }
+            return {};
+        }
         if (h2hGrainFrom(el) === 'country') {
             var country = opponentCountryFrom(el);
             if (country) {
@@ -146,6 +213,13 @@
     }
 
     function initialMatchupFromPage(el) {
+        if (h2hGrainFrom(el) === 'nation-pair') {
+            var hero = heroCountryFrom(el);
+            var rival = rivalCountryFrom(el);
+            if (hero && rival) {
+                return { type: 'nation-pair', id: rival, name: '' };
+            }
+        }
         var country = opponentCountryFrom(el);
         if (country && h2hGrainFrom(el) === 'country') {
             return { type: 'country', id: country, name: '' };
@@ -187,6 +261,8 @@
         gamesHash: gamesHash,
         gamesListUrl: gamesListUrl,
         h2hGrainFrom: h2hGrainFrom,
+        heroCountryFrom: heroCountryFrom,
+        rivalCountryFrom: rivalCountryFrom,
         opponentCountryFrom: opponentCountryFrom,
         matchupApiQuery: matchupApiQuery,
         gamesMatchupParams: gamesMatchupParams,

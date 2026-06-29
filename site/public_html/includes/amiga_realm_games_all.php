@@ -6,6 +6,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/k2_amiga_routes.php';
 require_once __DIR__ . '/amiga_db.php';
+require_once __DIR__ . '/amiga_countries_lib.php';
+require_once __DIR__ . '/amiga_country_rivals_load.php';
+require_once __DIR__ . '/amiga_country_rivals_h2h_games_lib.php';
 require_once __DIR__ . '/amiga_realm_games_hub_lib.php';
 require_once __DIR__ . '/amiga_snapshot_context.php';
 
@@ -57,34 +60,50 @@ function amiga_realm_games_all_build_url(array $params): string
 }
 
 /**
- * @return array{sort: string, dir: string, offset: int}
+ * @return array{sort: string, dir: string, offset: int, country: string, rival: string}
  */
 function amiga_realm_games_all_request_state(): array
 {
     $sortKey = amiga_realm_games_all_valid_sort((string) ($_GET['sort'] ?? 'id'));
     $sortDirection = amiga_realm_games_all_valid_direction((string) ($_GET['dir'] ?? 'desc'));
     $offset = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
+    $country = amiga_country_rivals_normalize_token((string) ($_GET['country'] ?? ''));
+    $rival = amiga_country_rivals_normalize_token((string) ($_GET['rival'] ?? ''));
 
     return [
         'sort' => $sortKey,
         'dir' => $sortDirection,
         'offset' => $offset,
+        'country' => $country,
+        'rival' => $rival,
     ];
 }
 
-function amiga_realm_games_all_where_sql(AmigaSnapshotContext $ctx, string &$types, array &$params): string
+function amiga_realm_games_all_where_sql(array $state, AmigaSnapshotContext $ctx, string &$types, array &$params): string
 {
     $where = '1=1';
-    $where .= amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params);
+    $hero = (string) ($state['country'] ?? '');
+    $rival = (string) ($state['rival'] ?? '');
+    if ($hero !== '' && $rival !== '') {
+        $tokenA = amiga_country_rivals_games_token_sql('r.country_a');
+        $tokenB = amiga_country_rivals_games_token_sql('r.country_b');
+        $where .= ' AND ((' . $tokenA . ' = ? AND ' . $tokenB . ' = ?) OR (' . $tokenB . ' = ? AND ' . $tokenA . ' = ?))';
+        $types .= 'ssss';
+        $params[] = $hero;
+        $params[] = $rival;
+        $params[] = $hero;
+        $params[] = $rival;
+    }
+    $where .= amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params, 'r');
 
     return $where;
 }
 
-function amiga_realm_games_all_count(mysqli $con, AmigaSnapshotContext $ctx): int
+function amiga_realm_games_all_count(mysqli $con, array $state, AmigaSnapshotContext $ctx): int
 {
     $types = '';
     $params = [];
-    $whereSql = amiga_realm_games_all_where_sql($ctx, $types, $params);
+    $whereSql = amiga_realm_games_all_where_sql($state, $ctx, $types, $params);
     $rows = amiga_realm_games_hub_query_all(
         $con,
         'SELECT COUNT(*) AS c ' . amiga_rated_games_from_sql() . ' WHERE ' . $whereSql,
@@ -96,7 +115,7 @@ function amiga_realm_games_all_count(mysqli $con, AmigaSnapshotContext $ctx): in
 }
 
 /**
- * @param array{sort: string, dir: string, offset: int} $state
+ * @param array{sort: string, dir: string, offset: int, country: string, rival: string} $state
  * @return list<array<string, mixed>>
  */
 function amiga_realm_games_all_fetch_page(mysqli $con, array $state, AmigaSnapshotContext $ctx, int $limit): array
@@ -109,7 +128,7 @@ function amiga_realm_games_all_fetch_page(mysqli $con, array $state, AmigaSnapsh
 
     $types = '';
     $params = [];
-    $whereSql = amiga_realm_games_all_where_sql($ctx, $types, $params);
+    $whereSql = amiga_realm_games_all_where_sql($state, $ctx, $types, $params);
 
     $sql = amiga_realm_games_hub_select_sql()
         . amiga_rated_games_from_sql()
@@ -120,10 +139,16 @@ function amiga_realm_games_all_fetch_page(mysqli $con, array $state, AmigaSnapsh
     return amiga_realm_games_hub_query_all($con, $sql, $types, $params);
 }
 
-/** @param array{sort: string, dir: string, offset: int} $state */
+/** @param array{sort: string, dir: string, offset: int, country: string, rival: string} $state */
 function amiga_realm_games_all_query_params(array $state, bool $includeOffset = true): array
 {
     $params = [];
+    if (($state['country'] ?? '') !== '') {
+        $params['country'] = (string) $state['country'];
+    }
+    if (($state['rival'] ?? '') !== '') {
+        $params['rival'] = (string) $state['rival'];
+    }
     if ($state['sort'] !== 'id') {
         $params['sort'] = $state['sort'];
     }
@@ -163,7 +188,7 @@ function amiga_realm_games_all_sort_col_index(string $sortKey, bool $withRank = 
     return ($map[$key] ?? 0) + $offset;
 }
 
-/** @param array{sort: string, dir: string, offset: int} $state */
+/** @param array{sort: string, dir: string, offset: int, country: string, rival: string} $state */
 function amiga_realm_games_all_sort_header(
     string $key,
     string $label,

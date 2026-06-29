@@ -18,7 +18,7 @@ $limit = AMIGA_REALM_GAMES_ALL_PAGE_SIZE;
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $ctx = amiga_lb_context($con);
 
-$totalMatches = amiga_realm_games_all_count($con, $ctx);
+$totalMatches = amiga_realm_games_all_count($con, $state, $ctx);
 $offset = $state['offset'];
 if ($offset >= $totalMatches && $totalMatches > 0) {
     $offset = 0;
@@ -41,6 +41,7 @@ $pagerBase = amiga_realm_games_all_query_params($state, false);
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_games_hub_shell_start.inc.php';
 ?>
 	<div class="k2-realm-games-all">
+		<div id="matching-games" class="k2-player-games-day-anchor" tabindex="-1"></div>
 		<div class="k2-player-games-status k2-realm-games-all__status" data-k2-carry-scroll>
 			<div class="k2-realm-games-all__status-range">
 				<span class="k2-realm-games-all__status-text">

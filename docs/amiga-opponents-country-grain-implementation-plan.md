@@ -320,14 +320,14 @@ Game-level texture filtered by opponent country; **exclude** rating/rank compare
 | Perf. N+1 on W/D/L | Batch perf helper in OCG-1 |
 | Poster CSS assumes two players | Country card variant in OCG-5; do not fake second player profile |
 | Chart JS hardcodes `opponent=` | Explicit `data-h2h-grain` + API `opp_country` in OCG-6 |
-| Own-country row confuses users | Tooltip on Country column (*includes games vs compatriots*) |
+| Own-country row confuses users | Tooltip on Country column (*includes games vs compatriots*). **Not** the same as Rivals — country entity **excludes** domestic A→A ([`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) CRV7). |
 | Online opponents lib drift | Touch **Amiga includes only**; no `player_opponents_page.php` change |
 
 ---
 
 ## Out of scope (reminder)
 
-Persisted `amiga_player_country_matchup_*` tables · online port · country-vs-country Rivals · realm-wide LBs · average opp Elo column · H2H player search in country grain.
+Persisted `amiga_player_country_matchup_*` tables · online port · ~~country-vs-country Rivals~~ (**shipped** — [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md)) · realm-wide LBs · average opp Elo column · H2H player search in country grain.
 
 ---
 

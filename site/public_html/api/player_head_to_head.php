@@ -30,6 +30,47 @@ if ($realm !== 'online' && $realm !== 'amiga') {
     exit;
 }
 
+$pairHero = isset($_GET['country']) ? trim((string) $_GET['country']) : '';
+$pairRival = isset($_GET['rival']) ? trim((string) $_GET['rival']) : '';
+
+if ($realm === 'amiga' && $pairHero !== '' && $pairRival !== '') {
+    include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2amiga_config.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_context.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_country_rivals_h2h_games_lib.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_country_rivals_h2h.php';
+
+    $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+    if ($con->connect_errno) {
+        http_response_code(500);
+        echo json_encode(['error' => 'db_connect_failed']);
+        exit;
+    }
+    $con->set_charset('utf8mb4');
+    $con->query("SET time_zone = '+00:00'");
+
+    $ctx = amiga_snapshot_context_from_request($con);
+    $heroToken = amiga_country_rivals_normalize_token($pairHero);
+    $rivalToken = amiga_country_rivals_normalize_token($pairRival);
+    $cum = amiga_country_rivals_h2h_cumulative_payload($con, $heroToken, $rivalToken, $ctx);
+    mysqli_close($con);
+
+    echo json_encode([
+        'realm' => $realm,
+        'playerId' => null,
+        'playerName' => amiga_country_rivals_nation_label($heroToken),
+        'opponentId' => null,
+        'opponentName' => amiga_country_rivals_nation_label($rivalToken),
+        'heroCountry' => $heroToken,
+        'rivalCountry' => $rivalToken,
+        'total_games' => (int) $cum['total_games'],
+        'draws' => (int) $cum['draws'],
+        'player_goals_total' => (int) $cum['player_goals_total'],
+        'opponent_goals_total' => (int) $cum['opponent_goals_total'],
+        'points' => $cum['points'],
+    ]);
+    exit;
+}
+
 if ($playerId < 1) {
     http_response_code(400);
     echo json_encode(['error' => 'invalid_id']);

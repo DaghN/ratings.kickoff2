@@ -131,7 +131,7 @@ function amiga_profile_render_honours(array $totals, int $playerId): void
 	<p style="margin:0.75rem 0 0">
 		<a class="k2-link-star" href="/amiga/leaderboards/tournament-honours.php">Tournament honours leaderboard</a><?php
         if ($hasWcMedals) {
-            echo ' · <a class="k2-link-star" href="/amiga/leaderboards/world-cups/honours.php">World Cups leaderboard</a>';
+            echo ' · <a class="k2-link-star" href="' . k2_h(k2_amiga_route('amiga-world-cups-players-honours')) . '">World Cup player stats</a>';
         }
         if ($hasWcMedals && $playerId > 0) {
             echo ' · <a class="k2-link-star" href="' . k2_h(amiga_player_tournaments_filter_url($playerId, 'world-cup')) . '">World Cup history</a>';

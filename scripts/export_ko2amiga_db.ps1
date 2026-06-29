@@ -27,7 +27,8 @@ $Tables = @(
     'amiga_world_cup_stats',
     'amiga_tournament_finish_override',
     'amiga_player_slice_totals', 'amiga_player_slice_at_event',
-    'amiga_country_slice_totals', 'amiga_country_slice_at_event'
+    'amiga_country_slice_totals', 'amiga_country_slice_at_event',
+    'amiga_wc_hof_snapshots', 'amiga_wc_hof_present'
 )
 
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
@@ -228,6 +229,18 @@ $countrySliceAtEventPart = ('ko2amiga_{0:D2}_country_slice_at_event.sql' -f $idx
 $countrySliceAtEventFile = Join-Path $OutDir $countrySliceAtEventPart
 Write-DumpFile $countrySliceAtEventFile @('--no-create-info', 'ko2amiga_db', 'amiga_country_slice_at_event')
 $parts.Add($countrySliceAtEventPart)
+$idx++
+
+$wcHofSnapshotsPart = ('ko2amiga_{0:D2}_wc_hof_snapshots.sql' -f $idx)
+$wcHofSnapshotsFile = Join-Path $OutDir $wcHofSnapshotsPart
+Write-DumpFile $wcHofSnapshotsFile @('--no-create-info', 'ko2amiga_db', 'amiga_wc_hof_snapshots')
+$parts.Add($wcHofSnapshotsPart)
+$idx++
+
+$wcHofPresentPart = ('ko2amiga_{0:D2}_wc_hof_present.sql' -f $idx)
+$wcHofPresentFile = Join-Path $OutDir $wcHofPresentPart
+Write-DumpFile $wcHofPresentFile @('--no-create-info', 'ko2amiga_db', 'amiga_wc_hof_present')
+$parts.Add($wcHofPresentPart)
 
 $manifest = @{
     generated = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')

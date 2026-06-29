@@ -60,7 +60,7 @@ Player WC stats answer *who dominated?* Country stats answer *which nations domi
 | **WCCS18** | **Realm shares** | `games_share` = national games ÷ realm WC player-games; `goals_share` = national GF ÷ realm WC GF — both stored at finalize. |
 | **WCCS19** | **Rejected metrics** | Medals/podium/pts **per participation**; representation rate; single-WC peaks; “top national” player link. |
 | **WCCS20** | **Column placement** | **Deferred** — metric catalog in §5 is authoritative; UI column order decided at implementation. |
-| **WCCS21** | **LB dual surface** | **Hub only** for v1 — no Leaderboards → Countries mirror unless product revises later. |
+| **WCCS21** | **No LB mirror** | **Hub only** for v1 — WC player + country career stats live under World Cups hub, not Leaderboards (same pattern as career Countries hub). |
 | **WCCS22** | **Time travel** | Every stored column on **`country_slice_at_event`**; reads at cutoff = latest row ≤ cutoff (same pattern as player slice). |
 | **WCCS23** | **WC detection** | `is_world_cup_tournament()` / name `^World Cup\s+\S` — same as player slice. |
 | **WCCS24** | **HoF / rise dates** | **Out of scope** for v1 — no new HoF rows unless follow-on slice asks. |
@@ -346,7 +346,7 @@ Use `k2_amiga_country_flag.php` when `country_token` maps; **`Unknown`** — tex
 
 | Topic | Notes |
 |-------|--------|
-| Leaderboards → Countries dual surface | Hub only (**WCCS21**) — **not** the career **Countries** hub tab ([`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md)) |
+| Leaderboards → Countries mirror | Hub only (**WCCS21**) — **not** the career **Countries** hub tab ([`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md)) |
 | Medals/podium/pts per participation | Rejected (**WCCS19**) |
 | Representation rate | Rejected |
 | Single-WC peaks / top national player | Rejected |

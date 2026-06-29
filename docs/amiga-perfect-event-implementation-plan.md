@@ -275,7 +275,7 @@ Browser (present):
 
 ### Verification
 
-- `/amiga/leaderboards/world-cups/honours.php` — Gianni T shows **1** Perfect (present corpus)
+- `/amiga/world-cups/players/honours.php` — Gianni T shows **1** Perfect (present corpus)
 - TT spot-check one cutoff where WC perfect count should be 0
 
 ---

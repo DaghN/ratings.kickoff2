@@ -27,6 +27,20 @@ Add a **country grain** to the Amiga **Opponents** wing — same four inner wing
 
 **UI:** a second **segment** (vs Player · vs Country) sits **to the right** of the four wing tabs on one horizontal row, with a fixed gap — not stacked below the wing tabs on desktop.
 
+**Sibling (country vs country):** [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) — same four wings on the **country entity** with `rival=` drill-down; **excludes** domestic A→A. See **§1.1 Three matchup grains** below.
+
+---
+
+## 1.1 Three matchup grains (player vs player · player vs country · country vs country)
+
+| Grain | Question | Hero | Drill param | URL | Domestic / own-country |
+|-------|----------|------|-------------|-----|------------------------|
+| **Player vs player** | Player X vs player Y | `?id=` | `opponent=` | `player/opponents/*` | — |
+| **Player vs country** (this track) | Player X vs nationals from C | `?id=` | `country=` | `player/opponents/country/*` | **Includes** own-country row (**OCG8**) |
+| **Country vs country** | Nationals from A vs nationals from B | `?country=` | `rival=` | `country/rivals/*` | **Excludes** A→A (**CRV7**) |
+
+Full table and policy links: [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) §1.1.
+
 ---
 
 ## 2. Locked product decisions
@@ -40,7 +54,7 @@ Add a **country grain** to the Amiga **Opponents** wing — same four inner wing
 | **OCG5** | **Segment placement** | **One nav row**, horizontal: wing segment **left**, grain segment **right**, `gap: var(--k2-nav-gap)` between the two segment tracks (see §6). **Not** a second row below the wings on viewports ≥ policy breakpoint. |
 | **OCG6** | **Country token** | `TRIM(amiga_players.country)` when non-empty ([**H8**](amiga-hof-tournament-geo-policy.md)); empty/NULL opponent nationality → literal **`Unknown`**. |
 | **OCG7** | **Directed hero perspective** | All stats are **hero → opponent country**: cumulative results of the subject player against all nationals from that token through cutoff. |
-| **OCG8** | **Own country row** | Include games vs **compatriots** (hero vs own country token). Copy/tooltips: *players from {country}*, not “national team”. |
+| **OCG8** | **Own country row** | Include games vs **compatriots** (hero vs own country token). Copy/tooltips: *players from {country}*, not “national team”. **Contrast:** country Rivals (`country/rivals/*`) **excludes** domestic A→A — see [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) CRV7. |
 | **OCG9** | **Cross-border game count** | Each rated game between hero and an opponent from country *C* counts **once** in hero→*C* (same as summing directed pair rows). |
 | **OCG10** | **Time travel** | Same cutoff habit as player grain ([`amiga-opponents-wing-policy.md`](amiga-opponents-wing-policy.md) O4–O5): present = `matchup_summary`; cutoff = latest `matchup_at_event` per opponent, **then** roll up by country. |
 | **OCG11** | **Stored truth v1** | **No DDL** — roll-up + read-time country TPR only. Revisit persisted `amiga_player_country_matchup_*` only if perf or verify demands it. |
@@ -301,7 +315,7 @@ Ship and proof after each slice. Update this doc session log + `PROJECT_MEMORY.m
 |-------|--------|
 | Persisted country matchup tables | v1 read-time only (**OCG11**) |
 | Realm-wide LB “best vs Sweden” | Needs stored grain or heavy scan — defer |
-| Country vs country (nation pairs) | [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) §9 Rivals — separate track |
+| Country vs country (nation pairs) | **Shipped** Jun 2026 — [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) · `country/rivals/*` (hero `country=`, drill `rival=`). Not under `player/opponents/`. |
 | Online opponents country grain | No nationality |
 | Average opponent Elo column | Defer (WC country slice uses on Results — different product) |
 
@@ -340,4 +354,5 @@ Ship and proof after each slice. Update this doc session log + `PROJECT_MEMORY.m
 |------|------|
 | Jun 2026 | Policy locked — folder `opponents/country/` grain, horizontal dual segment nav, read-time roll-up + country TPR, H2H minus rating/rank compare. |
 | Jun 2026 | Implementation plan — slices OCG-1–OCG-7. |
-| Jun 2026 | **OCG-2 shipped** — nav + country entries + placeholder (routes/hrefs included). |
+| Jun 2026 | **OCG-1–7 shipped** — country W/D/L · Goals · DDs · H2H (moments + charts, no rating/rank). |
+| Jun 2026 | Docs — three-grain cross-ref with country Rivals (player vs country vs country vs country). |

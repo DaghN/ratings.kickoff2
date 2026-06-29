@@ -289,7 +289,7 @@ If no WC snapshot exists before cutoff (pre-first-WC lens), WC block shows empty
 
 ### 8.3 Leaderboard deep links
 
-Extend [`amiga_records_hof_links.php`](site/public_html/includes/amiga_records_hof_links.php) with WC wing targets (`/amiga/leaderboards/world-cups/*`) and sort indices from [`amiga_wc_players_table.php`](site/public_html/includes/amiga_wc_players_table.php).
+Extend [`amiga_records_hof_links.php`](site/public_html/includes/amiga_records_hof_links.php) with WC wing targets (`/amiga/world-cups/players/*`) and sort indices from [`amiga_wc_players_table.php`](site/public_html/includes/amiga_wc_players_table.php).
 
 **§4.6 single-game rows:** value links go to **Games → Highlights** (`/amiga/games/highlights.php?board=…`), same board mapping as online career HoF; WC rows append **`scope=world-cup`** (one Highlights page — no separate WC highlights hub).
 

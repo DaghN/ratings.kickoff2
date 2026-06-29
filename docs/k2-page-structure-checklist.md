@@ -42,7 +42,7 @@ Route authority: [`url-routes.md`](url-routes.md) § Sub-hub navigation · place
 | Amiga Games hub modes | `amiga/games/recent.php`, `highlights.php`, `all.php` | `amiga_games_hub_shell_*.inc.php`, `amiga_games_hub_nav.php` |
 | Amiga tournament entity tabs | `amiga/tournament/event-stats.php`, `games.php`, … | `amiga_tournament_page.php` |
 | Amiga tournament Videos sub-modes | `amiga/tournament/videos/games.php`, `atmosphere.php` | same shell; `amiga_tournament_videos_wc_render.inc.php` mode nav |
-| Amiga country entity segment | `amiga/country/roster.php`, `rivals.php` | `amiga_country_page.php`, `amiga_country_nav.php` |
+| Amiga country entity segment | `amiga/country/roster.php`, `rivals.php` → `rivals/{h2h,wdl,goals,dds}.php` | `amiga_country_page.php`, `amiga_country_nav.php`, `amiga_country_rivals_nav.php` — [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) |
 | Amiga WC hub wings | `amiga/world-cups/chronology.php`, `players/honours.php`, … | `amiga_world_cups_hub_shell_*.inc.php`, wing nav includes |
 
 If unsure: **grep** `k2_amiga_route(` / `k2_route(` in the nearest neighbour and open its thin entry file.

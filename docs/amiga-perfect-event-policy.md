@@ -15,7 +15,7 @@ A **perfect event** (product label: **Perfect**) is a tournament participation w
 | **Grain** | Player × event (`amiga_player_event_snapshots` event-local flag) |
 | **Career honour** | Running count `perfect_events` on honours block (all tournaments) |
 | **HoF** | `MostPerfectEvents` realm record (value + holder id/name/date) |
-| **WC honours LB** | **No extra slice persistence** — count from snapshot rows filtered to World Cups |
+| **WC honours** | **No extra slice persistence** — count from snapshot rows filtered to World Cups |
 | **Catalog filter** | `has_perfect_participant` on `amiga_tournament_catalog_stats` |
 | **Time travel** | Snapshot honours block + realm snapshots at cutoff |
 
@@ -153,7 +153,7 @@ WC **Perfect** column does **not** add columns to `amiga_player_slice_*`.
 | Surface | Route | Source |
 |---------|-------|--------|
 | Tournament honours LB — **Perfect** | `/amiga/leaderboards/tournament-honours.php` | `perfect_events` on honours block (`amiga_player_current` / snapshot at cutoff) |
-| World Cups honours LB — **Perfect** | `/amiga/leaderboards/world-cups/honours.php` | Count `is_perfect_event` on snapshots, WC filter (§4.6) |
+| World Cups honours — **Perfect** | `/amiga/world-cups/players/honours.php` | Count `is_perfect_event` on snapshots, WC filter (§4.6) |
 | Hall of Fame | `/amiga/hall-of-fame.php` | `MostPerfectEvents*` from `amiga_generalstats` / realm snapshot at cutoff |
 | HoF deep link | HoF value cell | Tournament honours LB sorted by Perfect column (`amiga_records_hof_lb_target`) |
 | Player tournament history | `/amiga/player/tournaments.php` | Per-row `is_perfect_event` (badge/icon — UI slice); optional client filter |

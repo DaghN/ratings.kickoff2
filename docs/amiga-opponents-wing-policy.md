@@ -7,7 +7,7 @@
 
 **Online reference (shipped):** [`player-opponents-hub.md`](player-opponents-hub.md) · [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md)
 
-**Related:** [`amiga-profile-v0.md`](amiga-profile-v0.md) · [`hub-ia-agreement.md`](hub-ia-agreement.md) · [`url-routes.md`](url-routes.md) · **Country grain (player vs country):** [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md)
+**Related:** [`amiga-profile-v0.md`](amiga-profile-v0.md) · [`hub-ia-agreement.md`](hub-ia-agreement.md) · [`url-routes.md`](url-routes.md) · **Country grain (player vs country):** [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md) · **Country Rivals (country vs country):** [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md)
 
 ---
 
@@ -35,7 +35,7 @@ Amiga already has cumulative pair data at finalize (`amiga_player_matchup_summar
 | **O8** | **No match streaks** | Amiga streak columns are non-authoritative — do not port streak banners or streak-based opponent UI. |
 | **O9** | **Reuse online shell where sane** | Prefer adapting `player_opponents_*` patterns (nav, tables, poster CSS) over a parallel Amiga-only design system. |
 | **O10** | **Analyze before every slice** | Each new chat/slice **starts with a short situation read** (this doc + relevant policy + current code). Snapshot quirks and unwired neighbours must be explicit before coding. |
-| **O11** | **Country grain (Amiga)** | Second grain under `opponents/country/*` — folder path, not query param; horizontal **vs Player · vs Country** segment beside wing tabs. Data + UI: [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md). |
+| **O11** | **Country grain (Amiga)** | Second grain under `opponents/country/*` — folder path, not query param; horizontal **vs Player · vs Country** segment beside wing tabs. **Player vs country** — data + UI: [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md). **Not** country vs country (that is Rivals on the country entity — [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md)). |
 
 ---
 

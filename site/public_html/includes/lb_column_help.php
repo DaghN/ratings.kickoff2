@@ -744,6 +744,82 @@ function k2_lb_help_amiga_opponents_country_clean_sheets_conceded(): string
     return 'Games where opponents from this country failed to score against you.';
 }
 
+/** Amiga country Rivals nation-pair tables. */
+function k2_lb_help_amiga_country_rivals_rival(): string
+{
+    return 'Directed rival nation (hero → rival). Domestic compatriot matchups (hero vs hero) are excluded from Rivals.';
+}
+
+function k2_lb_help_amiga_country_rivals_games(): string
+{
+    return 'Rated games between nationals from the hero country and this rival nation. Opens All games filtered to this nation pair.';
+}
+
+function k2_lb_help_amiga_country_rivals_wins(): string
+{
+    return 'Wins by players from the hero country vs nationals from this rival.';
+}
+
+function k2_lb_help_amiga_country_rivals_draws(): string
+{
+    return 'Draws between nationals from the hero country and this rival.';
+}
+
+function k2_lb_help_amiga_country_rivals_losses(): string
+{
+    return 'Losses by players from the hero country vs nationals from this rival.';
+}
+
+function k2_lb_help_amiga_country_rivals_win_ratio(): string
+{
+    return 'Share of games won by the hero country vs this rival.';
+}
+
+function k2_lb_help_amiga_country_rivals_draw_ratio(): string
+{
+    return 'Share of games drawn between the hero country and this rival.';
+}
+
+function k2_lb_help_amiga_country_rivals_loss_ratio(): string
+{
+    return 'Share of games lost by the hero country vs this rival.';
+}
+
+function k2_lb_help_amiga_country_rivals_performance_rating(): string
+{
+    return 'Elo level implied by hero-country results vs this rival (frozen pre-game opponent ratings). Needs at least 2 games; shows ∞ for a perfect win record.';
+}
+
+function k2_lb_help_amiga_country_rivals_goals_for(): string
+{
+    return 'Goals scored by hero-country nationals vs this rival.';
+}
+
+function k2_lb_help_amiga_country_rivals_goals_against(): string
+{
+    return 'Goals conceded by hero-country nationals vs this rival.';
+}
+
+function k2_lb_help_amiga_country_rivals_double_digits(): string
+{
+    return 'Games where hero-country nationals scored 10+ vs this rival.';
+}
+
+function k2_lb_help_amiga_country_rivals_clean_sheets(): string
+{
+    return 'Games where hero-country nationals conceded 0 vs this rival.';
+}
+
+function k2_lb_help_amiga_country_rivals_double_digits_conceded(): string
+{
+    return 'Games where rival nationals scored 10+ against the hero country.';
+}
+
+function k2_lb_help_amiga_country_rivals_clean_sheets_conceded(): string
+{
+    return 'Games where rival nationals failed to score against the hero country.';
+}
+
 /** World Cups hub - Country stats (`amiga_wc_countries_table.php`). Nation grain. */
 function k2_lb_help_amiga_wc_country_players(): string
 {

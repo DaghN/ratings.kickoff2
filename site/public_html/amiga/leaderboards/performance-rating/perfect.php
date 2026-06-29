@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 $k2AmigaLbPerfRatingView = 'perfect';
 $k2AmigaLbPerfRatingPageTitle = 'Amiga ladder — Performance rating — Perfect';
-$k2AmigaLbPerfRatingLede = 'Every perfect tournament run: at least two games, all wins. These events have no finite performance rating (∞).';
+$k2AmigaLbPerfRatingLede = 'Every perfect tournament run.';
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_lib.php';

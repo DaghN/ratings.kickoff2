@@ -322,7 +322,7 @@ Ship user-visible WC HoF block.
   - Add optional `<tr class="server-records-section-header">` or panel divider **World Cups**
   - Render 28 rows in §4 order using `$wcRecords`
   - Merge holder ids into `$hofHolderIds` for country flags
-- [ ] Extend `site/public_html/includes/amiga_records_hof_links.php` — WC metrics → `/amiga/leaderboards/world-cups/*.php` sort indices
+- [x] Extend `site/public_html/includes/amiga_records_hof_links.php` — WC metrics → `/amiga/world-cups/players/*.php` sort indices
   - HoF-only rows (§4.7 awards, §4.8 peaks): **no link** v1 OK per policy
 - [ ] Time travel: when `$ctx->isActive()`, career block unchanged; WC block uses `amiga_wc_hof_records_load`
 

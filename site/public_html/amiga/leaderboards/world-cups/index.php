@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_url.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_routes.php';
 
-header('Location: ' . amiga_url_with_context('/amiga/leaderboards/world-cups/honours.php'), true, 302);
+header('Location: ' . k2_amiga_route('amiga-world-cups-players-honours'), true, 302);
 exit;

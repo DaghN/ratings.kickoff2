@@ -1,9 +1,7 @@
 <?php
 declare(strict_types=1);
 
-$k2AmigaWcPlayersView = 'dds';
-$k2AmigaWcPlayersPageTitle = 'Amiga ladder — World Cups DDs & CSs';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_routes.php';
 
-include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_wc_players_lb_shell_start.inc.php';
-include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_wc_players_wing_body.inc.php';
-include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_wc_players_lb_shell_end.inc.php';
+header('Location: ' . k2_amiga_route('amiga-world-cups-players-dds'), true, 302);
+exit;

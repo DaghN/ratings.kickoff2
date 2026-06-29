@@ -317,13 +317,19 @@
         root.setAttribute('data-k2-chart-bound', '1');
 
         var playerId = root.getAttribute('data-player-id');
-        if (!playerId) {
+        var heroCountry = root.getAttribute('data-hero-country');
+        var rivalCountry = root.getAttribute('data-rival-country');
+        if (!playerId && (!heroCountry || !rivalCountry)) {
             return;
         }
 
         function loadOpponent(opponentId, opponentName) {
             if (CTX && CTX.h2hGrainFrom(root) === 'country') {
                 if (!CTX.opponentCountryFrom(root)) {
+                    return;
+                }
+            } else if (CTX && CTX.h2hGrainFrom(root) === 'nation-pair') {
+                if (!heroCountry || !rivalCountry) {
                     return;
                 }
             } else if (!opponentId) {
@@ -343,9 +349,15 @@
                 meta.textContent = '';
             }
 
-            var url = API_PATH + '?id=' + encodeURIComponent(playerId)
-                + (CTX ? CTX.matchupApiQuery(root, opponentId) : ('&opponent=' + encodeURIComponent(opponentId)))
-                + (CTX ? CTX.apiSuffix(root) : '&realm=online');
+            var url = API_PATH + '?';
+            if (playerId) {
+                url += 'id=' + encodeURIComponent(playerId)
+                    + (CTX ? CTX.matchupApiQuery(root, opponentId) : ('&opponent=' + encodeURIComponent(opponentId)));
+            } else {
+                url += 'country=' + encodeURIComponent(heroCountry)
+                    + '&rival=' + encodeURIComponent(rivalCountry);
+            }
+            url += (CTX ? CTX.apiSuffix(root) : '&realm=online');
 
             fetch(url, { credentials: 'same-origin' })
                 .then(function (r) {

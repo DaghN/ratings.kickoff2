@@ -1,8 +1,8 @@
 # Amiga World Cups — player slice V2 expansion
 
-**Status:** **Shipped** (Jun 2026-23) — DDL `039`, writers, `verify-player-slice` V2, **`prove` green**, **five sub-wing UI** on hub + LB dual surface.
+**Status:** **Shipped** (Jun 2026-23) — DDL `039`, writers, `verify-player-slice` V2, **`prove` green**, **five sub-wing UI** on World Cups hub → Player stats. *(LB duplicate retired Jun 2026-29.)*
 
-**Parent:** [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) (V1 data home) · [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) (dual-surface UI) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) (prove-only writes)
+**Parent:** [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) (V1 data home) · [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) (UI home) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) (prove-only writes)
 
 **Related:** [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) (career network semantics) · [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) (geo semantics) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.3
 
@@ -24,7 +24,7 @@ Expand the **`world_cup` player slice** (`amiga_player_slice_totals` + `amiga_pl
 | 4 | **DDs & CSs** | — | New tab — mirror generic [`double-digits.php`](../site/public_html/amiga/leaderboards/double-digits.php) |
 | 5 | **Opponents** | — | New tab — geography + victims subset (WC-scoped) |
 
-**UI:** Same **dual surface** as V1 ([`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) WCH8–WCH9) — hub `world-cups/players/*` and LB `leaderboards/world-cups/*` share `includes/amiga_wc_players_wing_body.inc.php`.
+**UI:** World Cups hub → Player stats (`world-cups/players/*`) — [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) WCH8–WCH9. Shared body: `includes/amiga_wc_players_wing_body.inc.php`.
 
 **Storage:** All new metrics are **WC-game-scoped** stored truth on the slice row. **Do not** copy career values from `amiga_player_current` / snapshots (wrong scope). **Do not** live-scan `amiga_games` on LB hot paths.
 
@@ -76,7 +76,7 @@ Those career fields are maintained in **`PlayerState`** / **`PlayerGeoYearTracke
 
 **Verify:** `scripts/amiga/verify_player_slice.py` — honours + game **sums** vs `amiga_games` ∩ WC tournaments.
 
-**UI:** Honours · Results · Goals (partial) on dual surface.
+**UI:** Honours · Results · Goals (partial) on hub Player stats.
 
 ---
 
@@ -196,7 +196,7 @@ Python and PHP must produce **identical** slice rows for the same tournament rep
 - Extend `includes/amiga_wc_lb_lib.php` / slice snapshot lib to SELECT new columns.
 - Extend `includes/amiga_wc_players_table.php` — new renderers `dds`, `opponents`; enrich `goals`.
 - Register routes: `…/players/dds.php`, `…/players/opponents.php` (+ LB twins).
-- Update `amiga_wc_lb_nav.php` + `amiga_world_cups_players_nav.php`.
+- Update `amiga_world_cups_players_nav.php` (hub inner tabs).
 - Propagate `as=` on all new tabs.
 
 ---
@@ -219,17 +219,19 @@ Extend **`scripts/amiga/verify_player_slice.py`** (or sibling `verify_player_sli
 
 ---
 
-## 8. UI contract (dual surface)
+## 8. UI contract (hub Player stats)
 
 ### 8.1 Sub-wing URLs
 
-| Sub-wing | Hub path | LB path |
-|----------|----------|---------|
-| Honours | `/amiga/world-cups/players/honours.php` | `/amiga/leaderboards/world-cups/honours.php` |
-| Results | `…/results.php` | `…/results.php` |
-| Goals | `…/goals.php` | `…/goals.php` |
-| DDs & CSs | `…/dds.php` | `…/dds.php` |
-| Opponents | `…/opponents.php` | `…/opponents.php` |
+| Sub-wing | Hub path |
+|----------|----------|
+| Honours | `/amiga/world-cups/players/honours.php` |
+| Results | `…/results.php` |
+| Goals | `…/goals.php` |
+| DDs & CSs | `…/dds.php` |
+| Opponents | `…/opponents.php` |
+
+Legacy `/amiga/leaderboards/world-cups/*` → **302** matching hub path (Jun 2026-29).
 
 Register keys in `includes/k2_amiga_routes.php`; document in [`url-routes.md`](url-routes.md).
 
@@ -253,7 +255,7 @@ One line per sub-wing on hub shell — mirror tone of existing wing 2 player-sta
 | **V2-3** | `verify_player_slice` v2 oracles | V2-2 |
 | **V2-4** | PHP writer parity | V2-2 |
 | **V2-5** | `prove` green on fresh nuclear DB | V2-3, V2-4 |
-| **V2-6** | UI — enrich Goals + add DDs & Opponents tabs (dual surface) | V2-5 |
+| **V2-6** | UI — enrich Goals + add DDs & Opponents tabs (hub Player stats) | V2-5 |
 | **V2-7** | Docs closure — LB policy §8, hub policy, `amiga-data-contract.md`, feature-log | V2-6 |
 
 Slices **V2-2–V2-5** may land before UI; do not ship UI without `prove` sign-off on new columns.
@@ -282,7 +284,7 @@ Slices **V2-2–V2-5** may land before UI; do not ship UI without `prove` sign-o
 | [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) | §8 V2 → pointer here; §6 paths for two new tabs |
 | [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) | Wing 3 sub-wing list = five |
 | [`amiga-data-contract.md`](amiga-data-contract.md) | Register `039` columns |
-| [`url-routes.md`](url-routes.md) | Four new route keys × two surfaces |
+| [`url-routes.md`](url-routes.md) | Route keys for five sub-wings; legacy LB redirects |
 | [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) | §5.3 slice paragraph |
 | [`docs/coordination/feature-log.md`](coordination/feature-log.md) | L1 row when DDL lands |
 

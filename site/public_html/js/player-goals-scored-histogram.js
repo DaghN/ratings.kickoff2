@@ -154,6 +154,20 @@
         });
     }
 
+    function fetchDistributionNationPair(heroCountry, rivalCountry, side, ctxEl) {
+        var el = ctxEl || document.documentElement;
+        var url = API_PATH + '?country=' + encodeURIComponent(String(heroCountry))
+            + '&rival=' + encodeURIComponent(String(rivalCountry))
+            + '&side=' + encodeURIComponent(String(side))
+            + (CTX ? CTX.apiSuffix(el) : '&realm=amiga');
+        return fetch(url, { credentials: 'same-origin' }).then(function (r) {
+            if (!r.ok) {
+                throw new Error('bad_status');
+            }
+            return r.json();
+        });
+    }
+
     function pickGroupedBarElement(chart, evt, elements) {
         if (!elements || !elements.length) {
             return null;
@@ -831,8 +845,11 @@
         var playerId = subjectRoot.getAttribute('data-player-id');
         var opponentId = subjectRoot.getAttribute('data-opponent-id');
         var opponentCountry = subjectRoot.getAttribute('data-opponent-country') || '';
+        var heroCountry = subjectRoot.getAttribute('data-hero-country') || '';
+        var rivalCountry = subjectRoot.getAttribute('data-rival-country') || '';
+        var isNationPair = !!(CTX && CTX.h2hGrainFrom(matchups) === 'nation-pair' && heroCountry && rivalCountry);
         var isCountry = !!(CTX && CTX.h2hGrainFrom(matchups) === 'country' && opponentCountry);
-        if (!playerId || (!opponentId && !isCountry)) {
+        if (!isNationPair && (!playerId || (!opponentId && !isCountry))) {
             return false;
         }
 
@@ -843,7 +860,12 @@
         }
 
         var fetchPromise;
-        if (isCountry) {
+        if (isNationPair) {
+            fetchPromise = Promise.all([
+                fetchDistributionNationPair(heroCountry, rivalCountry, 'subject', matchups),
+                fetchDistributionNationPair(heroCountry, rivalCountry, 'rival', matchups)
+            ]);
+        } else if (isCountry) {
             fetchPromise = Promise.all([
                 fetchDistributionCountry(playerId, opponentCountry, 'subject', matchups),
                 fetchDistributionCountry(playerId, opponentCountry, 'rival', matchups)

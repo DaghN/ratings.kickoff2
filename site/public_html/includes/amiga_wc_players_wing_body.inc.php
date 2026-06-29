@@ -2,8 +2,8 @@
 /**
  * Load WC player slice rows and render the active sub-wing table.
  *
- * Requires $k2AmigaWcPlayersView (or $k2AmigaWorldCupsPlayersView / $k2AmigaWcLbView).
- * Used by Leaderboards → World Cups and World Cups hub → Player stats.
+ * Requires $k2AmigaWcPlayersView (or $k2AmigaWorldCupsPlayersView).
+ * Used by World Cups hub → Player stats.
  */
 declare(strict_types=1);
 
@@ -13,7 +13,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_wc_players_table.php';
 
 $k2AmigaWcPlayersView = $k2AmigaWcPlayersView
     ?? $k2AmigaWorldCupsPlayersView
-    ?? $k2AmigaWcLbView
     ?? 'honours';
 
 include __DIR__ . '/../../config/ko2amiga_config.php';

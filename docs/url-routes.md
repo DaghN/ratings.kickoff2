@@ -155,12 +155,12 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-world-cups-players-goals` | `/amiga/world-cups/players/goals.php` |
 | `amiga-world-cups-players-dds` | `/amiga/world-cups/players/dds.php` |
 | `amiga-world-cups-players-opponents` | `/amiga/world-cups/players/opponents.php` |
-| `amiga-lb-world-cups` | `/amiga/leaderboards/world-cups/honours.php` (LB entry — **same table body** as hub player stats) |
-| `amiga-lb-world-cups-honours` | `/amiga/leaderboards/world-cups/honours.php` |
-| `amiga-lb-world-cups-results` | `/amiga/leaderboards/world-cups/results.php` |
-| `amiga-lb-world-cups-goals` | `/amiga/leaderboards/world-cups/goals.php` |
-| `amiga-lb-world-cups-dds` | `/amiga/leaderboards/world-cups/dds.php` |
-| `amiga-lb-world-cups-opponents` | `/amiga/leaderboards/world-cups/opponents.php` |
+| `amiga-lb-world-cups` | **Deprecated alias** → `/amiga/world-cups/players/honours.php` |
+| `amiga-lb-world-cups-honours` | **Deprecated alias** → `/amiga/world-cups/players/honours.php` |
+| `amiga-lb-world-cups-results` | **Deprecated alias** → `/amiga/world-cups/players/results.php` |
+| `amiga-lb-world-cups-goals` | **Deprecated alias** → `/amiga/world-cups/players/goals.php` |
+| `amiga-lb-world-cups-dds` | **Deprecated alias** → `/amiga/world-cups/players/dds.php` |
+| `amiga-lb-world-cups-opponents` | **Deprecated alias** → `/amiga/world-cups/players/opponents.php` |
 | `amiga-lb-performance-rating` | `/amiga/leaderboards/performance-rating/best.php` (Perf. rating default — Best) |
 | `amiga-lb-performance-rating-best` | `/amiga/leaderboards/performance-rating/best.php` |
 | `amiga-lb-performance-rating-top` | `/amiga/leaderboards/performance-rating/top.php` |
@@ -170,15 +170,15 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-games-highlights` | `/amiga/games/highlights.php` |
 | `amiga-games-all` | `/amiga/games/all.php` |
 
-**Player stats dual surface:** hub `world-cups/players/*` and LB `leaderboards/world-cups/*` share `includes/amiga_wc_players_wing_body.inc.php` — [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) WCH9.
+**Player stats:** hub `world-cups/players/*` only — [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) WCH9. Legacy `/amiga/leaderboards/world-cups/*` → **302** hub paths.
 
 **Country stats (hub wing 4):** `world-cups/countries/*` — Honours default (`honours.php`); Results · Participation · Goals · DDs · Opponents; routes in `k2_amiga_routes.php`; no LB mirror — [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md) §8.1.
 
 Query `?id=` required on all player tabs.
 
-**Legacy redirects (302, query preserved):** `/amiga/profile.php` → profile; `/amiga/games.php?id=` → player games; bare `/amiga/games.php` → Games hub Recent; `/amiga/player-tournaments.php` → tournaments; `/amiga/leaderboards/performance-rating.php` → `performance-rating/best.php`.
+**Legacy redirects (302, query preserved):** `/amiga/profile.php` → profile; `/amiga/games.php?id=` → player games; bare `/amiga/games.php` → Games hub Recent; `/amiga/player-tournaments.php` → tournaments; `/amiga/leaderboards/performance-rating.php` → `performance-rating/best.php`; `/amiga/leaderboards/world-cups/*` → matching `world-cups/players/*` hub path (Jun 2026).
 
-**Not under `player/`:** `/amiga/tournament/` (per-event detail — foldered tabs below), `/amiga/history.php` (301 → rating LB; legacy bookmarks), hub pages under `/amiga/` (including `/amiga/world-cups/`). Player Opponents: `amiga/player/opponents/*` (player grain) · `amiga/player/opponents/country/*` (country grain — [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md)).
+**Not under `player/`:** `/amiga/tournament/` (per-event detail — foldered tabs below), `/amiga/history.php` (301 → rating LB; legacy bookmarks), hub pages under `/amiga/` (including `/amiga/world-cups/`). Player Opponents: `amiga/player/opponents/*` (**player vs player**) · `amiga/player/opponents/country/*` (**player vs country** — [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md)). Country entity Rivals: `amiga/country/rivals/*` (**country vs country** — [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) §1.1).
 
 ### Amiga tournament detail (`amiga/tournament/`)
 
@@ -210,7 +210,13 @@ A single country is an **entity page** ([`navigation-model.md`](navigation-model
 |-----------|------|---------|
 | `amiga-countries` | `/amiga/countries/index.php` | Countries **hub place** (plural) — keeps active pill |
 | `amiga-country-roster` | `/amiga/country/roster.php?country={token}` | Roster (default; career roster table) |
-| `amiga-country-rivals` | `/amiga/country/rivals.php?country={token}` | Rivals (placeholder; country-vs-country H2H later) |
+| `amiga-country-rivals` | `/amiga/country/rivals.php?country={token}` | Rivals legacy redirect → `rivals/h2h.php` |
+| `amiga-country-rivals-h2h` | `/amiga/country/rivals/h2h.php?country={token}` | Rivals — Head-to-head (`rival={token}` drill-down; domestic A→A excluded) |
+| `amiga-country-rivals-wdl` | `/amiga/country/rivals/wdl.php?country={token}` | Rivals — W/D/L |
+| `amiga-country-rivals-goals` | `/amiga/country/rivals/goals.php?country={token}` | Rivals — Goals |
+| `amiga-country-rivals-dds` | `/amiga/country/rivals/dds.php?country={token}` | Rivals — DDs |
+
+**Rivals filter params (not navigation):** `rival=` = opponent nation on H2H and games links; `country=` on `/amiga/games/all.php` pairs with `rival=` for nation-pair game lists. Do **not** reuse `opponent=` (player id) on Rivals URLs.
 
 `k2_amiga_country_roster_href()` / `k2_amiga_country_rivals_href()` build these; every flag cell ([`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) CH9) routes through the roster helper. Legacy `amiga-countries-roster` (`/amiga/countries/roster.php`) is now a **302** to `/amiga/country/roster.php` (preserves `country` + `as`). The **Countries** pill is active only on `countries/index.php` (NM2); country entity pages carry no active pill. Policy: [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md).
 

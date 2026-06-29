@@ -1,6 +1,6 @@
 <?php
 /**
- * World Cups hub sub-navigation — Chronology · Tournament stats · Player stats · Country stats.
+ * World Cups hub sub-navigation — Chronology · Player stats · Country stats · Tournament stats.
  *
  * Set $k2AmigaWorldCupsHubView before include: chronology | stats | players | countries
  *
@@ -17,10 +17,6 @@ $k2AmigaWorldCupsHubTabs = [
         'href' => k2_amiga_route('amiga-world-cups-chronology'),
         'label' => 'Chronology',
     ],
-    'stats' => [
-        'href' => k2_amiga_route('amiga-world-cups-stats'),
-        'label' => 'Tournament stats',
-    ],
     'players' => [
         'href' => k2_amiga_route('amiga-world-cups-players'),
         'label' => 'Player stats',
@@ -28,6 +24,10 @@ $k2AmigaWorldCupsHubTabs = [
     'countries' => [
         'href' => k2_amiga_route('amiga-world-cups-countries'),
         'label' => 'Country stats',
+    ],
+    'stats' => [
+        'href' => k2_amiga_route('amiga-world-cups-stats'),
+        'label' => 'Tournament stats',
     ],
 ];
 ?>

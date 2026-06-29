@@ -69,13 +69,13 @@
 - **Amiga time travel (Jun 2026):** **T13–T19** — snapshot-only TT hub; **T19** fixed mode-toggle homes (Present → News; Time travel → rating LB + `as=`); pre-debut hero **—** + note (`T17`); **player Event chevrons** + picker accents (`T18`). [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md).
 - **Amiga Opponents wing (Jun 2026):** **W/D/L · Goals · DDs + H2H (slices D+F) shipped** — poster/pickers/pair detail/moments/charts on `amiga/player/opponents/h2h.php`; Amiga `realm=` API branches + event-step rating compare. Policy [`amiga-opponents-wing-policy.md`](docs/amiga-opponents-wing-policy.md). **Country grain (Jun 2026):** **OCG-1–OCG-7 complete** — roll-up + read-time country TPR; country **W/D/L · Goals · DDs** tables; country **H2H** (poster/pickers/detail/moments/game charts, no rating/rank compare); API `opp_country` + chart JS grain — [`amiga-opponents-country-grain-policy.md`](docs/amiga-opponents-country-grain-policy.md) · [`amiga-opponents-country-grain-implementation-plan.md`](docs/amiga-opponents-country-grain-implementation-plan.md).
 
-- **Amiga World Cups LB (Jun 2026):** **V2 UI shipped** — five sub-wings (Honours · Results · Goals · DDs & CSs · Opponents); **dual surface** hub + LB via `amiga_wc_players_table.php`. Writers proven Jun 2026-23. [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cups-player-slice-v2-policy.md`](docs/amiga-world-cups-player-slice-v2-policy.md).
+- **Amiga World Cups LB (Jun 2026):** **V2 UI** — five sub-wings on **World Cups hub → Player stats** only; LB wing **retired** Jun 2026 (legacy URLs 302). Writers proven Jun 2026-23. [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cups-player-slice-v2-policy.md`](docs/amiga-world-cups-player-slice-v2-policy.md).
 
 - **Amiga WC HoF (Jun 2026):** **Policy + plan locked** — 28 WC record rows, sparse snapshots; execute [`amiga-wc-hof-implementation-plan.md`](docs/amiga-wc-hof-implementation-plan.md) WCH-1+. [`amiga-wc-hof-policy.md`](docs/amiga-wc-hof-policy.md).
 
 - **Amiga community stats (Jun 2026):** **V2 writers shipped** — registry v2, `036`/`037`, `prove` green. **UI:** Activity community wings + WC year charts TBD; per-WC table on World Cups hub wing 2 **shipped**.
 
-- **Amiga World Cups hub (Jun 2026):** **Wings 1–4 shipped** — **events catalog** (sortable table, podium flag+name cols) + tournament stats (five sub-wings) + **player stats** + **country stats** (shared with LB where applicable). [`amiga-world-cups-hub-policy.md`](docs/amiga-world-cups-hub-policy.md).
+- **Amiga World Cups hub (Jun 2026):** **Wings 1–4 shipped** — **events catalog** (sortable table, podium flag+name cols) + tournament stats (five sub-wings) + **player stats** + **country stats**. [`amiga-world-cups-hub-policy.md`](docs/amiga-world-cups-hub-policy.md).
 
 - **Amiga derived writes (Jun 2026):** **Locked** — batch `*-rebuild` CLIs removed; corrections = **`prove` only**; verify = read-only oracles. [`amiga-derived-write-policy.md`](docs/amiga-derived-write-policy.md).
 
@@ -131,10 +131,18 @@
 
 | When | Note |
 |------|------|
+| 2026-06-29 | **Amiga WC player stats — LB wing retired** — removed World Cups tab from Leaderboards; `/amiga/leaderboards/world-cups/*` 302 → hub `world-cups/players/*`; HoF/profile/tournament-honours links retargeted; deleted LB-only nav/shell includes. |
+| 2026-06-29 | **Docs — WC nav structure sweep** — policies, url-routes, navigation-model NM7, profile-v0, HoF/perfect-event/staging handoff aligned to hub-only Player stats. |
+| 2026-06-29 | **Amiga World Cups hub wing order** — nav tabs: Chronology · Player stats · Country stats · Tournament stats (`amiga_world_cups_hub_nav.php`; WCH4 policy). |
+| 2026-06-29 | **Amiga country Rivals — All games anchor** — rivals H2H “All rated games” link + chart drill-downs now append `#matching-games`; `amiga/games/all.php` gains matching anchor above table (parity with player games / OCG H2H). |
+| 2026-06-29 | **Amiga export — WC HoF tables missing on staging** — `export_ko2amiga_db.ps1` omitted `amiga_wc_hof_{snapshots,present}` (SCH-046); added to schema + parts 39–40; re-export ready for WinSCP + browser import. |
 | 2026-06-29 | **Amiga player Videos tab** — video count moved from footnote below table to `k2-player-games-status` above table (`amiga_player_videos_render.inc.php`); footer removed from `amiga/player/videos.php`. |
 | 2026-06-29 | **Jukebox playlist refresh** — removed Lotus Esprit *Track 02* from `playlist.json`; player now re-fetches playlist on window focus / launcher ping (`cache: no-store` + `?v=filemtime`) so a reused popup window picks up edits instead of keeping an in-memory list. |
 | 2026-06-29 | **Amiga Opponents country H2H pair detail** — race table mirrors vs-player (goals/DD); reverse country TPR vs hero in perf batch (`performance_rating_vs_hero`). |
-| 2026-06-29 | **Amiga Opponents country grain OCG-6 + OCG-7** — country H2H moments grid + game charts (cumulative wins/goals, histograms, heatmap; no rating/rank); API `opp_country` on five chart endpoints; chart JS grain via `player-opponents-h2h-chart-context.js`; audit PASS; player 73 vs England browser smoke. |
+| 2026-06-29 | **Docs — three matchup grains** — player vs player / player vs country / country vs country cross-ref in rivals + OCG policies, url-routes, navigation-model, hub policy; domestic A→A contrast documented. |
+| 2026-06-29 | **Amiga country Rivals — exclude domestic row** — hero→same-country rival dropped from all four wings + H2H default/redirect; Denmark defaults to Sweden. |
+| 2026-06-29 | **Amiga country Rivals shipped (CRV-1–7)** — nation-pair roll-up from matchup tables; wings `country/rivals/{h2h,wdl,goals,dds}`; W/D/L·Goals·DDs k2-tables; H2H poster/moments/charts (`nation-pair` grain); games filter `country`+`rival` on All games; DK→SE parity 131/40/17/74. |
+| 2026-06-29 | **Amiga country Rivals (CRV-0)** — nation-pair policy + implementation plan locked; second roll-up from matchup tables; `country/rivals/{h2h,wdl,goals,dds}` + `rival=` param. |
 | 2026-06-29 | **Amiga Opponents country grain OCG-5** — country H2H poster/pickers/detail + reverse country TPR on pair strip; `country/h2h.php` deep links. |
 | 2026-06-29 | **Amiga Opponents country grain OCG-1 + OCG-3** — `amiga_player_opponents_country_{load,perf}_lib.php` roll-up from pair matchup rows + batch country TPR; country W/D/L table (`amiga_player_opponents_country_tables.php`); Games links via `opp_country=`; player 73 parity probe 264=264 games. |
 | 2026-06-29 | **Amiga Games Highlights sort fix** — four board default sort columns were off by 1 (copied online indices; Amiga table adds Tournament + Phase). Boards now resolve via `amiga_realm_games_all_sort_col_index()` (GD=9, Sum=10, TS=11 with rank). |

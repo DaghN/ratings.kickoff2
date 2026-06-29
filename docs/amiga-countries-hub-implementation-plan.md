@@ -273,7 +273,7 @@ Single query for all player rows at cutoff (~470 max), aggregate in PHP — acce
 
 ## Out of scope (reminder)
 
-- Country vs country compare (v2)
+- Country vs country compare — **shipped** Jun 2026 as Rivals (`country/rivals/*`) — [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md)
 - LB country filter
 - New derived tables / `prove` oracle
 - Activity nationality charts

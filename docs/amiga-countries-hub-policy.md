@@ -23,7 +23,7 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 
 **Chess-club analogy:** click a nation → see the roster → see strength and activity. **Not** a federation or “national team” — copy uses *players from {country}* / *{country} roster*.
 
-**V2 (out of v1 scope):** **Country vs country** compare page — same product role as player H2H (`amiga/player/opponents/h2h.php`), at nation grain.
+**Rivals (shipped Jun 2026):** **Country vs country** compare on the country entity — [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) · §9 below.
 
 **Explicitly out of scope for this track:** leaderboard country filter (`?country=` on Rating/Goals wings) — separate future project.
 
@@ -53,12 +53,12 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 | **CH16** | **Time travel** | Both index and roster **must** honour `as=` from slice 1 — same cutoff tuple as leaderboards (`AmigaSnapshotContext`). |
 | **CH17** | **Host vs nationality (data only)** | Roster roll-ups and index eligibility use **player nationality**. Tournament **host** country is a separate field on events — but **both** host and nationality **flags** link to the same country roster URL for that token (**CH9**). Host/opponent **filter listboxes** on player games stay text-only. |
 | **CH18** | **Cross-links** | Roster page → WC country stats for that token when row exists. WC country index row → country roster. Optional one-line on index lede. |
-| **CH19** | **Rivals (country vs country)** | Nation-pair compare (texture similar to player H2H) now lands as the **Rivals** segment under the `country/` entity (CH24), not a free-floating V2. **Placeholder page first**; H2H-style country-vs-country content later. Supersedes the earlier "no v1 URLs or stubs" stance. |
+| **CH19** | **Rivals (country vs country)** | Nation-pair compare (texture similar to player H2H) on the **Rivals** segment under the `country/` entity (CH24). **Shipped Jun 2026** — four wings under `country/rivals/*`; policy [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md). |
 | **CH20** | **LB country filter** | **Out of scope** for this track. |
 | **CH21** | **Stored truth v1** | **No new derived tables or finalize writers** — read-time aggregation from `amiga_player_current` (present) or latest `amiga_player_event_snapshots` row per player ≤ cutoff (time travel). ~470 players × ~21 countries is acceptable. Revisit stored country roll-ups only if perf or verify demands it. |
 | **CH22** | **k2-table stack** | Both tables use full k2-table checklist (cloak, SSR sort, mirror, column help where needed). |
 | **CH23** | **Country = entity page** | A single country (`country/roster.php`, `country/rivals.php`) is an **entity page** ([`navigation-model.md`](navigation-model.md) NM2), not a hub mode: realm hub bar present with **no active pill** (not `countries`). The **Countries** pill is active only on the `countries/index.php` hub place. |
-| **CH24** | **Country segment (Roster · Rivals)** | Singular `country/` carries an NM6 context sub-nav below the hub bar: **Roster** (default — the v1 roster table) · **Rivals**. **Rivals** = the country-vs-country surface (CH19 / §9); ships first as a **placeholder page** under the segment, H2H-style content later. Segment markup follows [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) (segment track, active state via PHP var). |
+| **CH24** | **Country segment (Roster · Rivals)** | Singular `country/` carries an NM6 context sub-nav below the hub bar: **Roster** (default — career roster table) · **Rivals** (country-vs-country — four inner wings H2H · W/D/L · Goals · DDs). Segment markup follows [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) (segment track, active state via PHP var). |
 
 ---
 
@@ -230,20 +230,25 @@ See [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) — same cutoff
 
 ---
 
-## 9. Rivals — country vs country (placed; content deferred)
+## 9. Rivals — country vs country (**shipped** Jun 2026)
 
-**Intent:** A **nation-pair** surface comparable to player H2H — e.g. Denmark vs Sweden: combined headcount, shared WC history, games between nationals, medal comparison, maybe cumulative charts at nation grain.
+**Intent:** A **nation-pair** surface comparable to player H2H — e.g. Denmark vs Sweden: games between nationals, W/D/L · Goals · DDs tables, H2H poster/moments/charts at directed nation grain.
 
-**Placement (Jun 2026):** lands as the **Rivals** segment of the `country/` entity (CH24) — `/amiga/country/rivals.php?country={token}` — **not** a free-floating compare page. First ship is a **placeholder page** under the Roster · Rivals segment so the IA is in place; H2H-style nation-pair content (likely keyed `?country={a}` + an opponent picker, or `?a=&b=`) comes later and may require stored nation-pair facts or heavy read-time scans — separate plan.
+**Placement:** **Rivals** segment of the `country/` entity — `/amiga/country/rivals/{h2h,wdl,goals,dds}.php?country={token}` + `rival=` for H2H drill-down. Shared shell `includes/amiga_country_page.php` + wing nav `includes/amiga_country_rivals_nav.php`.
 
-**Analogy:** Player H2H = [`amiga-opponents-wing-policy.md`](amiga-opponents-wing-policy.md); Country vs country = same *compare two entities* product pattern at country grain.
+**Policy · plan:** [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) (**CRV1–CRV16**) · [`amiga-country-rivals-implementation-plan.md`](amiga-country-rivals-implementation-plan.md) (slices **CRV-1–CRV-7**).
+
+**Data (v1):** second read-time roll-up from `amiga_player_matchup_summary` / at-event — **not** a games rescan for table aggregates (benchmarked faster Jun 2026). Game-level reads for H2H depth filter `amiga_games` by directed nation pair.
+
+**Analogy:** Player Opponents **country grain** (player vs country) = [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md); Rivals = same four wings at **country vs country** nation-pair hero. See **Three matchup grains** in that policy and [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) §1.1.
+
+**Domestic row:** Rivals UI **excludes** hero→same-country (A→A); player Opponents country grain **includes** the hero's own country row (compatriots).
 
 ---
 
 ## 10. Out of scope (this track)
 
 - Leaderboard country filter
-- Country vs country compare (v2)
 - Activity charts per nationality (community stats `player_nationality` facts — separate Activity slice)
 - New HoF rows for countries
 - Stored `amiga_country_career_totals` table (unless perf review forces later)

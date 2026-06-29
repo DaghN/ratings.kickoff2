@@ -55,7 +55,7 @@ Several WC questions were **cut** from the Activity chart catalog in favour of t
 | Option | Status |
 |--------|--------|
 | **A — Activity → World Cups sub-wing** | **Superseded** |
-| **B — Leaderboards → World Cups tab** | **Superseded** for event table (player LB → hub wing 3) |
+| **B — Leaderboards → World Cups tab** | **Retired Jun 2026-29** — player stats = hub wing 3 only; legacy LB folder 302 |
 | **C — Dedicated `/amiga/world-cups/` hub** | **Locked** — wing 2 hosts this table |
 
 Realm **year-level** WC charts (**Q-WC-001**–**003**, **006**–**007**, **011**) remain on **Activity**. Wing 2 may link to them.
