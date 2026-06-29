@@ -64,7 +64,7 @@ function k2_lb_help_nadir(): string
 
 function k2_lb_help_opponent_avg(): string
 {
-    return 'Mean Elo of opponents you have faced (career).';
+    return 'Average Elo of opponents you have faced (career).';
 }
 
 function k2_lb_help_highest_victim(): string

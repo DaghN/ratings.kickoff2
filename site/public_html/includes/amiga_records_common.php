@@ -38,7 +38,7 @@ function amiga_records_age_cutoffs_from(?int $asOfTimestamp = null): array
     $asOf = $asOfTimestamp ?? time();
 
     return [
-        (int) strtotime('-1 month', $asOf),
+        (int) strtotime('-6 months', $asOf),
         (int) strtotime('-5 years', $asOf),
     ];
 }

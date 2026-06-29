@@ -86,6 +86,17 @@
 		}
 	}
 
+	function broadcastAutoAdvance() {
+		if (!channel) {
+			return;
+		}
+		try {
+			channel.postMessage({ type: "track-change", reason: "auto-advance" });
+		} catch (e) {
+			/* ignore */
+		}
+	}
+
 	function attemptPlay() {
 		if (!audio) {
 			return;
@@ -546,6 +557,7 @@
 			audio.addEventListener("timeupdate", updateProgress);
 			audio.addEventListener("loadedmetadata", updateProgress);
 			audio.addEventListener("ended", function () {
+				broadcastAutoAdvance();
 				loadTrack(nextIndex(1), true);
 			});
 		}

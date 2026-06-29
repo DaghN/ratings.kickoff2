@@ -27,15 +27,21 @@ allows it), and computes a **centred** `left`/`top` from `screen.availWidth/Heig
 (+`availLeft/Top` so it lands on the right monitor):
 
 ```js
-var w = window.open('', 'k2jukebox', 'popup=yes,width=360,height=500,left=…,top=…');
-// existing window? window.open('', name) returns it WITHOUT navigating.
-// new window?      it returns a fresh about:blank we then point at /jukebox.php.
-if (!w.__k2JukeboxReady) { w.location.replace('/jukebox.php'); }  // load the player
+// Reuse first — window features on an existing named window can spawn a duplicate.
+var w = window.open('', 'k2jukebox');
+if (w.__k2JukeboxReady) { w.focus(); /* toggle raise/behind */ return; }
+// No player yet — centred create, then load:
+w = window.open('', 'k2jukebox', 'popup=yes,width=360,height=500,left=…,top=…');
+if (!w.__k2JukeboxReady) { w.location.replace('/jukebox.php'); }
 w.focus();
 ```
 
 `__k2JukeboxReady` is readable cross-window because both are same-origin. This avoids
 re-navigating (and restarting) an already-open player when the FAB is clicked again.
+**Important:** after a main-tab navigation the launcher loses its in-memory window handle,
+so it must call `window.open('', name)` **without** the features string first — passing
+features when a named popup already exists makes Chromium open a **second** jukebox instead
+of reusing the first.
 
 **Playlist updates:** the player re-fetches `/audio/amiga/playlist.json` when the popup
 gains focus or when the launcher sends `ping` (each main-tab navigation). Fetch uses
@@ -63,6 +69,9 @@ a main-tab navigation re-acquires the handle and always raises; toggling resumes
 `BroadcastChannel('k2-jukebox')` messages:
 
 - player → `{ type:'state', playing, title, game }` on play/pause/track change.
+- player → `{ type:'track-change', reason:'auto-advance' }` when the current track ends and the
+  next one loads automatically (not on manual next/prev or playlist clicks). The FAB briefly pulses
+  (`is-track-change` → `k2-jukebox-track-glow` in `k2-jukebox.css`).
 - player → `{ type:'focus' | 'blur' }` on window focus/blur (drives the toggle).
 - player → `{ type:'closed' }` on `pagehide`.
 - launcher → `{ type:'ping' }` on each page load; player replies with `state` + current

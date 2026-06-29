@@ -82,6 +82,33 @@
 	box-shadow: 0 0 0 1px color-mix(in srgb, var(--k2-accent) 18%, transparent), var(--k2-shadow-surface);
 }
 
+.k2-jukebox.is-track-change .k2-jukebox__toggle {
+	animation: k2-jukebox-track-glow 1.25s ease-out;
+}
+
+@keyframes k2-jukebox-track-glow {
+	0% {
+		box-shadow:
+			0 0 0 0 color-mix(in srgb, var(--k2-accent) 0%, transparent),
+			var(--k2-shadow-surface);
+		border-color: color-mix(in srgb, var(--k2-accent) 62%, var(--k2-segment-active-ring));
+	}
+	35% {
+		box-shadow:
+			0 0 calc(var(--k2-accent-glow-blur) * 1.4 * var(--k2-glow-strength)) var(--k2-accent-glow),
+			0 0 calc(var(--k2-accent-glow-blur) * 0.5 * var(--k2-glow-strength)) color-mix(in srgb, var(--k2-accent) 40%, transparent),
+			var(--k2-shadow-surface);
+		border-color: color-mix(in srgb, var(--k2-accent) 85%, var(--k2-segment-active-text));
+		color: var(--k2-segment-active-text);
+	}
+	100% {
+		box-shadow:
+			0 0 0 1px color-mix(in srgb, var(--k2-accent) 18%, transparent),
+			var(--k2-shadow-surface);
+		border-color: color-mix(in srgb, var(--k2-accent) 62%, var(--k2-segment-active-ring));
+	}
+}
+
 .k2-jukebox.is-open .k2-jukebox__toggle {
 	color: var(--k2-segment-active-text);
 	border-color: var(--k2-segment-active-ring);
@@ -113,6 +140,14 @@
 	.k2-jukebox.is-playing .k2-jukebox__toggle-led {
 		animation: none;
 		opacity: 0.85;
+	}
+
+	.k2-jukebox.is-track-change .k2-jukebox__toggle {
+		animation: none;
+		box-shadow:
+			0 0 calc(var(--k2-accent-glow-blur) * 0.75 * var(--k2-glow-strength)) var(--k2-accent-glow),
+			var(--k2-shadow-surface);
+		border-color: color-mix(in srgb, var(--k2-accent) 78%, var(--k2-segment-active-ring));
 	}
 }
 

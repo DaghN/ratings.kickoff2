@@ -131,6 +131,10 @@
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **Jukebox FAB — auto-advance glow** — popup broadcasts `track-change` / `auto-advance` on `ended`; main-tab FAB pulses accent glow (`is-track-change`) via `k2-jukebox-launcher.js` + `k2-jukebox.css`. Manual next/prev unchanged. Doc: `k2-jukebox-popup.md`. |
+| 2026-06-30 | **Tint schedule boundaries shifted** — six-hour auto rotation now holo 04–10, pitch 10–16, chrome 16–22, amber 22–04 (was midnight-aligned slots). `k2-tint-schedule.js` + `tint-vs-realm.md`; amber period id anchors to evening calendar day for manual-override continuity across midnight. |
+| 2026-06-29 | **Jukebox FAB — reuse existing popup after nav.** `k2-jukebox-launcher.js` now re-acquires the named window via `window.open('', 'k2jukebox')` **without** features before creating; passing features when a player is already open was spawning a second jukebox instead of raising the first. Doc: `k2-jukebox-popup.md`. |
+| 2026-06-29 | **HoF (New!) cutoff** — online + Amiga: `(New!)` marker when record date is within **6 months** (was 1 month); lede bullets updated on both `/hall-of-fame.php` pages. |
 | 2026-06-29 | **Amiga country hero — medal row nesting** — removed premature `</div>` in `amiga_country_hero.php` so `.k2-player-hero__medals` stays inside `.k2-player-hero__stats` (player-hero parity; fixes medals stacking under Players/Games/WC entries). |
 | 2026-06-29 | **Amiga player hero — WC medal spacing** — gold/silver/bronze stats wrapped in `.k2-player-hero__medals` with equal-width columns so value centers align evenly; country hero matches. |
 | 2026-06-29 | **Amiga player hero — inline country flag** — `amiga_player_hero.php` uses `k2_amiga_inline_flag_and_link()` beside the name (H2H fighter-card parity); separate Country stat removed; 24×18 flag in `theme.css`. |

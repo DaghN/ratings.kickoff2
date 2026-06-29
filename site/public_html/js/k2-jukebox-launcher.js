@@ -63,23 +63,66 @@
 		jukeboxFocused = false;
 	}
 
+	function isPlayerReady(w) {
+		if (!w || w.closed) {
+			return false;
+		}
+		try {
+			return !!w.__k2JukeboxReady;
+		} catch (e) {
+			return false;
+		}
+	}
+
+	/* Reuse the named popup without window features — passing features on an existing
+	   named window makes some browsers spawn a second popup instead of reusing it. */
+	function reacquireNamedWindow() {
+		var w = jukeboxWin;
+		if (w && !w.closed) {
+			return w;
+		}
+		try {
+			w = window.open("", WIN_NAME);
+		} catch (e) {
+			w = null;
+		}
+		if (w) {
+			jukeboxWin = w;
+		}
+		return w;
+	}
+
+	function toggleOrRaise(w, frontHint) {
+		/* Use the state captured at pointerdown: pressing the FAB focuses the main
+		   window, which blurs the popup; that blur message would otherwise flip
+		   jukeboxFocused to false before this click runs, making us always raise. */
+		var isFront = typeof frontHint === "boolean" ? frontHint : jukeboxFocused;
+		if (isFront) {
+			sendBehind(w);
+		} else {
+			raise(w);
+		}
+	}
+
 	function openJukebox(frontHint) {
-		/* Already have a live handle (consecutive clicks on the same page): toggle
-		   stacking without re-opening, so a second click sends it behind. */
-		if (jukeboxWin && !jukeboxWin.closed) {
-			/* Use the state captured at pointerdown: pressing the FAB focuses the main
-			   window, which blurs the popup; that blur message would otherwise flip
-			   jukeboxFocused to false before this click runs, making us always raise. */
-			var isFront = typeof frontHint === "boolean" ? frontHint : jukeboxFocused;
-			if (isFront) {
-				sendBehind(jukeboxWin);
-			} else {
-				raise(jukeboxWin);
-			}
+		var w = reacquireNamedWindow();
+		if (w && !w.closed && isPlayerReady(w)) {
+			toggleOrRaise(w, frontHint);
 			return;
 		}
 
-		var w;
+		/* open("", name) with no existing target creates a blank window — discard it
+		   so the centred create below does not leave a stray empty popup behind. */
+		if (w && !w.closed && !isPlayerReady(w)) {
+			try {
+				w.close();
+			} catch (e4) {
+				/* ignore */
+			}
+			jukeboxWin = null;
+			w = null;
+		}
+
 		try {
 			w = window.open("", WIN_NAME, buildFeatures());
 		} catch (e) {
@@ -95,13 +138,7 @@
 			return;
 		}
 		jukeboxWin = w;
-		var ready = false;
-		try {
-			ready = !!w.__k2JukeboxReady;
-		} catch (e3) {
-			ready = false;
-		}
-		if (!ready) {
+		if (!isPlayerReady(w)) {
 			/* Freshly created (about:blank) window — load the player into it. */
 			try {
 				w.location.replace(JUKEBOX_URL);
@@ -109,7 +146,6 @@
 				w.location.href = JUKEBOX_URL;
 			}
 		}
-		/* First click (or first click after a main-tab navigation): bring it forward. */
 		raise(w);
 	}
 
@@ -127,6 +163,43 @@
 			);
 			btn.removeAttribute("title");
 		}
+	}
+
+	function clearAutoAdvanceGlow(root, btn) {
+		if (!root) {
+			return;
+		}
+		root.classList.remove("is-track-change");
+		if (root.__k2TrackGlowTimer) {
+			clearTimeout(root.__k2TrackGlowTimer);
+			root.__k2TrackGlowTimer = null;
+		}
+		if (btn && root.__k2TrackGlowAnimEnd) {
+			btn.removeEventListener("animationend", root.__k2TrackGlowAnimEnd);
+			root.__k2TrackGlowAnimEnd = null;
+		}
+	}
+
+	function triggerAutoAdvanceGlow() {
+		var root = fabRoot();
+		var btn = fabButton();
+		if (!root) {
+			return;
+		}
+		clearAutoAdvanceGlow(root, btn);
+		void root.offsetWidth;
+		root.classList.add("is-track-change");
+		if (btn) {
+			root.__k2TrackGlowAnimEnd = function (ev) {
+				if (ev.animationName === "k2-jukebox-track-glow") {
+					clearAutoAdvanceGlow(root, btn);
+				}
+			};
+			btn.addEventListener("animationend", root.__k2TrackGlowAnimEnd);
+		}
+		root.__k2TrackGlowTimer = setTimeout(function () {
+			clearAutoAdvanceGlow(root, btn);
+		}, 1600);
 	}
 
 	function bindFab() {
@@ -169,6 +242,8 @@
 			var data = ev.data || {};
 			if (data.type === "state") {
 				applyState(data.playing, data.title);
+			} else if (data.type === "track-change" && data.reason === "auto-advance") {
+				triggerAutoAdvanceGlow();
 			} else if (data.type === "closed") {
 				applyState(false, "");
 				jukeboxWin = null;

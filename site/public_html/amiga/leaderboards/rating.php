@@ -21,6 +21,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_snapshot_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_country_flag.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_wc_lb_lib.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
@@ -61,7 +62,7 @@ $colGames = 3 + $colOffset;
 $colWins = 4 + $colOffset;
 $colDraws = 5 + $colOffset;
 $colLosses = 6 + $colOffset;
-$colWinPct = 7 + $colOffset;
+$colWinRate = 7 + $colOffset;
 $colOppAvg = 8 + $colOffset;
 
 $k2AmigaLbWingActive = 'rating';
@@ -85,8 +86,8 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
         <th<?php echo k2_lb_th($colWins, $lbSort, ''); ?> data-k2-sort="number">Wins</th>
         <th<?php echo k2_lb_th($colDraws, $lbSort, ''); ?> data-k2-sort="number">Draws</th>
         <th<?php echo k2_lb_th($colLosses, $lbSort, ''); ?> data-k2-sort="number">Losses</th>
-        <th<?php echo k2_lb_th($colWinPct, $lbSort, ''); ?> data-k2-sort="number">Win %</th>
-        <th<?php echo k2_lb_th($colOppAvg, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_opponent_avg(), ENT_QUOTES, 'UTF-8'); ?>">Opp. avg.</th>
+        <th<?php echo k2_lb_th($colWinRate, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_win_rate(), ENT_QUOTES, 'UTF-8'); ?>">Win rate</th>
+        <th<?php echo k2_lb_th($colOppAvg, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Opponent Average" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_opponent_avg(), ENT_QUOTES, 'UTF-8'); ?>">Opponent Average</th>
     </tr>
 </thead>
 
@@ -98,6 +99,9 @@ while ($row = mysqli_fetch_assoc($result)) {
     $playerId = (int) $row['ID'];
     $playerName = (string) $row['Name'];
     $delta = $showDeltaColumn ? ($deltaByPlayer[$playerId] ?? null) : null;
+    $wins = (int) $row['NumberWins'];
+    $draws = (int) $row['NumberDraws'];
+    $winRate = amiga_wc_lb_win_rate($wins, $draws, $games);
     ?>
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo k2_lb_player_row_anchor_markup($playerId); ?><?php echo (int) $rank; ?></td>
@@ -110,7 +114,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         <td<?php echo k2_lb_td($colWins, $lbSort); ?>><?php echo k2_fmt_count($row['NumberWins'], $games); ?></td>
         <td<?php echo k2_lb_td($colDraws, $lbSort); ?>><?php echo k2_fmt_count($row['NumberDraws'], $games); ?></td>
         <td<?php echo k2_lb_td($colLosses, $lbSort); ?>><?php echo k2_fmt_count($row['NumberLosses'], $games); ?></td>
-        <td<?php echo k2_lb_td($colWinPct, $lbSort); ?>><?php echo k2_fmt_pct_from_ratio($row['WinRatio'], $games); ?></td>
+        <td<?php echo k2_lb_td($colWinRate, $lbSort); ?>><?php echo k2_fmt_pct_from_ratio($winRate, $games); ?></td>
         <td<?php echo k2_lb_td($colOppAvg, $lbSort); ?>><?php echo k2_fmt_lb_stat($row['AverageOpponentRating'], $games); ?></td>
     </tr>
     <?php
