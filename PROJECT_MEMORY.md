@@ -71,6 +71,8 @@
 
 - **Amiga World Cups LB (Jun 2026):** **V2 UI shipped** — five sub-wings (Honours · Results · Goals · DDs & CSs · Opponents); **dual surface** hub + LB via `amiga_wc_players_table.php`. Writers proven Jun 2026-23. [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cups-player-slice-v2-policy.md`](docs/amiga-world-cups-player-slice-v2-policy.md).
 
+- **Amiga WC HoF (Jun 2026):** **Policy + plan locked** — 28 WC record rows, sparse snapshots; execute [`amiga-wc-hof-implementation-plan.md`](docs/amiga-wc-hof-implementation-plan.md) WCH-1+. [`amiga-wc-hof-policy.md`](docs/amiga-wc-hof-policy.md).
+
 - **Amiga community stats (Jun 2026):** **V2 writers shipped** — registry v2, `036`/`037`, `prove` green. **UI:** Activity community wings + WC year charts TBD; per-WC table on World Cups hub wing 2 **shipped**.
 
 - **Amiga World Cups hub (Jun 2026):** **Wings 1–4 shipped** — **events catalog** (sortable table, podium flag+name cols) + tournament stats (five sub-wings) + **player stats** + **country stats** (shared with LB where applicable). [`amiga-world-cups-hub-policy.md`](docs/amiga-world-cups-hub-policy.md).
@@ -129,6 +131,9 @@
 
 | When | Note |
 |------|------|
+| 2026-06-29 | **Amiga WC HoF implementation plan** — [`amiga-wc-hof-implementation-plan.md`](docs/amiga-wc-hof-implementation-plan.md) WCH-0–8 slices ready to execute. |
+| 2026-06-29 | **Amiga WC HoF policy** — locked [`amiga-wc-hof-policy.md`](docs/amiga-wc-hof-policy.md): 28 WC record rows, sparse WC-only snapshots, 20-game ratio gate; implementation plan next. |
+| 2026-06-29 | **Amiga Activity summary** — removed Decided games headline card (`amiga_activity_summary.php`). |
 | 2026-06-29 | **Amiga WC country Participation sub-wing** — new tab after Results (`participation.php`); Results wing match-outcome columns only. |
 | 2026-06-29 | **Amiga WC country Results — drop Pts per WC column** from results table UI. |
 | 2026-06-29 | **Amiga WC country Results tooltips** — natural copy, no W/D/L help, no "player-games" on results wing. |

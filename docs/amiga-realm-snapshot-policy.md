@@ -38,7 +38,7 @@ Amiga **realm-wide** derived truth is a **sparse timeline**: one **complete** `a
 | **R8** | **Tie policy** | Career / single-game record beats: **strict `>`** on value to replace holder; equal value → **lowest `player_id` wins**. Ratio leaders: same eligible pool (`NumberGames >= k2_established_min_games()`), order by metric then `player_id ASC` |
 | **R9** | **Compute scope at finalize** | Realm row at event *E* = scan **all rated games and player state through chrono ≤ *E*** (same semantic as batch `server_records.py` today, scoped to cutoff). Incremental carry-forward optimizations allowed if verify proves parity |
 | **R10** | **No replay tail batch** | `python -m scripts.amiga prove` must not depend on post-replay batch derived writers. Corrections = full `prove` ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)) |
-| **R11** | **WC medals panel** | World Cup gold/silver/bronze leaders on `/amiga/hall-of-fame.php` stay **out of** `amiga_generalstats` / realm snapshots until a separate decision — honours live on player snapshots/current today |
+| **R11** | **WC HoF** | **Superseded for WC record set** — [`amiga-wc-hof-policy.md`](amiga-wc-hof-policy.md): sparse `amiga_wc_hof_snapshots` (WC finalizes only), not on every `amiga_realm_snapshots` row. Career `MostWcPlayed` migrates into WC HoF store in that track. |
 
 ---
 

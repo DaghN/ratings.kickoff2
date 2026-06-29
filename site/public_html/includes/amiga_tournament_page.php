@@ -41,6 +41,18 @@ if ($tournamentPageId >= 1) {
         $_GET,
     );
 
+    if ($tournamentPageView === 'videos') {
+        $requestedVideosMode = isset($k2AmigaTournamentVideosMode) && is_string($k2AmigaTournamentVideosMode)
+            ? $k2AmigaTournamentVideosMode
+            : amiga_tournament_videos_mode_from_request();
+        amiga_tournament_videos_apply_mode_redirect_from_db(
+            $tournamentDb,
+            $tournamentPageId,
+            $requestedVideosMode,
+            $_GET,
+        );
+    }
+
 }
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -282,13 +294,6 @@ if ($hasVideosTab) {
         $requestedVideosMode = isset($k2AmigaTournamentVideosMode) && is_string($k2AmigaTournamentVideosMode)
             ? $k2AmigaTournamentVideosMode
             : amiga_tournament_videos_mode_from_request();
-        amiga_tournament_videos_apply_mode_redirect(
-            $id,
-            $requestedVideosMode,
-            $tournamentVideosHasExtrasWing,
-            $tournamentVideosHasGamesWing,
-            $_GET,
-        );
         $tournamentVideosMode = amiga_tournament_videos_resolve_mode(
             $requestedVideosMode,
             $tournamentVideosHasExtrasWing,

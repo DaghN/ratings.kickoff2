@@ -35,9 +35,7 @@ $NumberOfPlayers = (int) ($row['NumberOfPlayers'] ?? 0);
 $DifferentOpponentsAverage = $row['DifferentOpponentsAverage'];
 $GamesPlayed = (int) ($row['GamesPlayed'] ?? 0);
 $GamesPlayedAverage = $row['GamesPlayedAverage'];
-$NumberOfDecidedGames = (int) ($row['NumberOfDecidedGames'] ?? 0);
 $NumberOfDraws = (int) ($row['NumberOfDraws'] ?? 0);
-$DecidedGamesRatio = $row['DecidedGamesRatio'];
 $DrawsRatio = $row['DrawsRatio'];
 $GoalsScored = (int) ($row['GoalsScored'] ?? 0);
 $GoalsPerGameAverage = $row['GoalsPerGameAverage'];
@@ -76,11 +74,6 @@ unset($con);
             <span class="server-activity-summary__label">Clean sheets</span>
             <span class="server-activity-summary__value"><?php echo number_format($CleanSheets); ?></span>
             <span class="server-activity-summary__note"><?php echo number_format(100 * (float) $CleanSheetsRatio, 1); ?> per 100 games</span>
-        </div>
-        <div class="server-activity-summary__stat">
-            <span class="server-activity-summary__label">Decided games</span>
-            <span class="server-activity-summary__value"><?php echo number_format($NumberOfDecidedGames); ?></span>
-            <span class="server-activity-summary__note"><?php echo number_format(100 * (float) $DecidedGamesRatio, 1); ?>% of games</span>
         </div>
         <div class="server-activity-summary__stat">
             <span class="server-activity-summary__label">Games per player</span>

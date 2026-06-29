@@ -104,6 +104,33 @@ function amiga_tournament_videos_apply_mode_redirect(
     exit;
 }
 
+/**
+ * 302 when the requested folder mode is unavailable — must run before HTML output.
+ *
+ * @param array<string, mixed> $query
+ */
+function amiga_tournament_videos_apply_mode_redirect_from_db(
+    mysqli $con,
+    int $id,
+    string $requestedMode,
+    array $query,
+): void {
+    require_once __DIR__ . '/amiga_tournament_videos_lib.php';
+    if (!amiga_tournament_has_videos($id)) {
+        return;
+    }
+    $rows = amiga_tournament_videos_for_id($id);
+    [$matchRows, $extrasRows] = amiga_tournament_videos_partition($rows);
+    $gameEntries = amiga_tournament_videos_wc_game_index($con, $id, $matchRows);
+    amiga_tournament_videos_apply_mode_redirect(
+        $id,
+        $requestedMode,
+        $extrasRows !== [],
+        $gameEntries !== [],
+        $query,
+    );
+}
+
 /** 302 legacy `/amiga/tournament/videos.php` (+ optional `wing=extras`) to folder modes. */
 function amiga_tournament_videos_legacy_redirect(): void
 {
