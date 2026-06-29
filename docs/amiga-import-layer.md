@@ -200,8 +200,10 @@ When Access uses an alternate spelling for the same person (not caught by case/s
 
 | Variant | Canonical | Reason |
 |---------|-----------|--------|
+| Ian Ka | Ian K | Same player; extended surname abbreviation |
 | Joerg D | Jorg D | Same player; Access umlaut (oe) spelling |
 | Joerg S | Jorg S | Same player; Access umlaut (oe) spelling |
+| Klaus L | Klaus Le | Same player; shorter surname abbreviation |
 
 ### World Cup host city + country (manual)
 

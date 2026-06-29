@@ -1,7 +1,7 @@
 <?php
 /**
  * Amiga player hero — same feast shell as online; links stay in Amiga realm.
- * Expects $Name, $Rating, $NumberGames, $rank, $id (optional $Country stat column).
+ * Expects $Name, $Rating, $NumberGames, $rank, $id (optional $Country for inline flag beside name).
  */
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_amiga_country_flag.php';
@@ -41,14 +41,19 @@ $heroRankLinked = !$heroPreDebut && $heroDisplay && $heroRankNum !== null;
 $heroRatingLinked = !$heroPreDebut && $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
 $heroGamesLinked = !$heroPreDebut && $heroGamesHref !== '';
 $heroCountry = isset($Country) ? trim((string) $Country) : '';
-$heroFlagMeta = $heroCountry !== '' ? k2_amiga_country_flag_meta($heroCountry) : null;
+$heroNameInner = $nameEsc;
+if ($heroProfileHref !== '') {
+    $heroNameInner = '<a class="k2-player-hero__name-link" href="' . htmlspecialchars($heroProfileHref, ENT_QUOTES, 'UTF-8') . '">' . $nameEsc . '</a>';
+}
+$heroNameDisplay = $heroCountry !== ''
+    ? k2_amiga_inline_flag_and_link($heroCountry, $heroNameInner)
+    : $heroNameInner;
 $heroWcMedals = [];
 foreach ([1 => (int) ($k2AmigaPlayerHeroWcGold ?? 0), 2 => (int) ($k2AmigaPlayerHeroWcSilver ?? 0), 3 => (int) ($k2AmigaPlayerHeroWcBronze ?? 0)] as $place => $medalCount) {
     if ($medalCount > 0) {
         $heroWcMedals[$place] = $medalCount;
     }
 }
-$heroWcMedalLead = true;
 ?>
 <div id="<?php echo k2_h(K2_PLAYER_PAGE_FRAGMENT); ?>" class="k2-player-page-anchor" tabindex="-1"></div>
 <article class="k2-player-hero k2-player-hero--feast">
@@ -61,13 +66,7 @@ $heroWcMedalLead = true;
 			}
 		?></div>
 		<div class="k2-player-hero__body">
-			<h2 class="k2-player-hero__name"><?php
-				if ($heroProfileHref !== '') {
-					?><a class="k2-player-hero__name-link" href="<?php echo htmlspecialchars($heroProfileHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $nameEsc; ?></a><?php
-				} else {
-					echo $nameEsc;
-				}
-			?></h2>
+			<h2 class="k2-player-hero__name"><?php echo $heroNameDisplay; ?></h2>
 			<div class="k2-player-hero__stats">
 				<div class="k2-player-hero__stat">
 					<span class="k2-player-hero__stat-label">Rank</span>
@@ -99,37 +98,23 @@ $heroWcMedalLead = true;
 						}
 					?></span>
 				</div>
-				<?php if ($heroCountry !== '') { ?>
-				<div class="k2-player-hero__stat k2-player-hero__stat--country">
-					<span class="k2-player-hero__stat-label">Country</span>
-					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--country"><?php
-                    if ($heroFlagMeta !== null) {
-                        require_once __DIR__ . '/amiga_countries_lib.php';
-                        $heroCountryHref = k2_amiga_country_roster_href($heroCountry);
-                        ?><a class="k2-country-roster-link k2-player-hero__country-link" href="<?php echo htmlspecialchars($heroCountryHref, ENT_QUOTES, 'UTF-8'); ?>" aria-label="Players from <?php echo htmlspecialchars($heroFlagMeta['label'], ENT_QUOTES, 'UTF-8'); ?>"><span class="k2-player-hero__country-flag"><?php
-                        echo k2_amiga_country_flag_img($heroCountry, [
-                            'decorative' => false,
-                        ]);
-                        ?></span></a><?php
-                    } else {
-                        echo htmlspecialchars($heroCountry, ENT_QUOTES, 'UTF-8');
-                    }
-                    ?></span>
-				</div>
-				<?php } ?>
+				<?php if ($heroWcMedals !== []) {
+                    $heroWcMedalCount = count($heroWcMedals);
+                    ?>
+				<div class="k2-player-hero__medals" style="--k2-player-hero-medal-count: <?php echo $heroWcMedalCount; ?>">
 				<?php foreach ($heroWcMedals as $place => $medalCount) {
                     $medalMeta = amiga_wc_podium_meta((int) $place);
                     if ($medalMeta === null) {
                         continue;
                     }
                     ?>
-				<div class="k2-player-hero__stat k2-country-hero__stat--medal<?php echo $heroWcMedalLead ? ' k2-country-hero__stat--medal-lead' : ''; ?>">
+				<div class="k2-player-hero__stat k2-country-hero__stat--medal">
 					<span class="k2-country-hero__medal-label"><?php echo amiga_wc_podium_metal_label_markup((int) $place); ?></span>
 					<span class="k2-country-hero__medal-value k2-country-hero__medal-value--<?php echo k2_h($medalMeta['variant']); ?>"><?php echo k2_h((string) $medalCount); ?></span>
 				</div>
-				<?php
-                    $heroWcMedalLead = false;
-                } ?>
+				<?php } ?>
+				</div>
+				<?php } ?>
 			</div>
 		</div>
 	</div>

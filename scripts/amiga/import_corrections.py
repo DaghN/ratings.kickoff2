@@ -77,13 +77,17 @@ PLAYER_COUNTRY_RATIONALE: dict[str, str] = {
 
 # Access spelling variant → canonical display name (forced winner in name merge groups).
 PLAYER_NAME_ALIASES: dict[str, str] = {
+    "Ian Ka": "Ian K",
     "Joerg D": "Jorg D",
     "Joerg S": "Jorg S",
+    "Klaus L": "Klaus Le",
 }
 
 PLAYER_NAME_ALIAS_RATIONALE: dict[str, str] = {
+    "Ian Ka": "Same player as Ian K; Access extended surname abbreviation.",
     "Joerg D": "Same player as Jorg D; Access umlaut spelling (oe) variant.",
     "Joerg S": "Same player as Jorg S; Access umlaut spelling (oe) variant.",
+    "Klaus L": "Same player as Klaus Le; Access shorter surname abbreviation.",
 }
 
 OVERRIDE_RATIONALE: dict[str, str] = {

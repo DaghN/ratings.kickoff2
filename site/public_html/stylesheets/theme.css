@@ -3977,11 +3977,19 @@ body.k2-site .k2-country-hero--feast .k2-country-hero__name a.k2-link-star:focus
 }
 
 .k2-country-hero__stat--medal {
-	min-width: 3rem;
+	min-width: 0;
 }
 
-.k2-country-hero__stat--medal-lead {
+.k2-player-hero__medals {
+	display: flex;
+	align-items: flex-start;
 	margin-left: 20px;
+	width: calc(var(--k2-player-hero-medal-count, 1) * 60px);
+}
+
+.k2-player-hero__medals > .k2-country-hero__stat--medal {
+	flex: 1 1 0;
+	min-width: 0;
 }
 
 .k2-country-hero__medal-label {
@@ -4055,11 +4063,26 @@ body.k2-site a.k2-country-roster-link:focus {
 }
 
 .k2-player-hero__name {
-	margin: 0 0 12px;
+	margin: 0 0 8px;
+	transform: translateY(-2px);
 	font-family: var(--k2-font-display);
 	font-size: 24px;
 	font-weight: 600;
 	color: var(--k2-link-star);
+}
+
+.k2-player-hero__name .k2-amiga-wc-podium-player {
+	gap: 8px;
+}
+
+.k2-player-hero__name .k2-amiga-wc-podium-player .k2-country-roster-link {
+	margin-top: 2px;
+}
+
+.k2-player-hero__name .k2-amiga-country-flag-img {
+	width: 24px;
+	height: 18px;
+	border-radius: 2px;
 }
 
 body.k2-site a.k2-player-hero__name-link,
@@ -4093,7 +4116,7 @@ body.k2-site a.k2-player-hero__stat-link:focus {
 .k2-player-hero__stat {
 	display: flex;
 	flex-direction: column;
-	gap: 6px;
+	gap: 0;
 	min-width: 0;
 }
 

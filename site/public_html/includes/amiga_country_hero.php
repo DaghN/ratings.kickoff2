@@ -59,6 +59,7 @@ $flagImg = k2_amiga_country_flag_img($countryToken, [
                     <span class="k2-player-hero__stat-label">WC entries</span>
                     <span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><?php echo k2_h(number_format($wcEntries)); ?></span>
                 </div>
+                <div class="k2-player-hero__medals" style="--k2-player-hero-medal-count: 3">
                 <?php
                 foreach ([1 => $wcGold, 2 => $wcSilver, 3 => $wcBronze] as $place => $medalCount) {
                     $medalMeta = amiga_wc_podium_meta($place);
@@ -66,11 +67,12 @@ $flagImg = k2_amiga_country_flag_img($countryToken, [
                         continue;
                     }
                     ?>
-                <div class="k2-player-hero__stat k2-country-hero__stat--medal<?php echo $place === 1 ? ' k2-country-hero__stat--medal-lead' : ''; ?>">
+                <div class="k2-player-hero__stat k2-country-hero__stat--medal">
                     <span class="k2-country-hero__medal-label"><?php echo amiga_wc_podium_metal_label_markup($place); ?></span>
                     <span class="k2-country-hero__medal-value k2-country-hero__medal-value--<?php echo k2_h($medalMeta['variant']); ?>"><?php echo k2_h((string) $medalCount); ?></span>
                 </div>
                 <?php } ?>
+                </div>
             </div>
         </div>
     </div>

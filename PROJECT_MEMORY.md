@@ -131,10 +131,14 @@
 
 | When | Note |
 |------|------|
+| 2026-06-29 | **Amiga country hero — medal row nesting** — removed premature `</div>` in `amiga_country_hero.php` so `.k2-player-hero__medals` stays inside `.k2-player-hero__stats` (player-hero parity; fixes medals stacking under Players/Games/WC entries). |
+| 2026-06-29 | **Amiga player hero — WC medal spacing** — gold/silver/bronze stats wrapped in `.k2-player-hero__medals` with equal-width columns so value centers align evenly; country hero matches. |
+| 2026-06-29 | **Amiga player hero — inline country flag** — `amiga_player_hero.php` uses `k2_amiga_inline_flag_and_link()` beside the name (H2H fighter-card parity); separate Country stat removed; 24×18 flag in `theme.css`. |
 | 2026-06-29 | **Amiga country roster — Elo links** — Elo column links to rating LB row anchor (`#k2-lb-player-{id}`) via `k2_amiga_lb_rating_cell_link()`; preserves `as=` time travel; `k2-link-star` (entity drill-down parity with player/tournament cells). |
 | 2026-06-29 | **Amiga country Rivals H2H poster — card symmetry** — nation-pair poster passes `subject`/`opponent` into `k2_h2h_poster_country_card_html()` so hero hugs `vs` from the left (blue) and rival from the right (red). |
 | 2026-06-29 | **Amiga games All games — empty filter fix** — `amiga_realm_games_all_request_state()` no longer maps missing `country`/`rival` to `Unknown` (was filtering to zero games); nation-pair filter applies only when both params are present in the URL. |
 | 2026-06-29 | **Amiga tournament hero — feast grid** — entity pages + live view use country-hero layout (host flag 124×93, name, Date/Players/Games/Winner stats); `amiga_tournament_hero.php` + `amiga_tournament_winner()`. |
+| 2026-06-29 | **Amiga import — Ian Ka / Klaus L aliases** — merge into Ian K and Klaus Le; all game players now have country (471 → 469). |
 | 2026-06-29 | **Amiga import — player fixes** — Diego L → Italy; Joerg D/S alias merge into Jorg D/S (`PLAYER_NAME_ALIASES`); player count 471 (−2 dupes). |
 | 2026-06-29 | **Amiga import — Norway player countries** — `PLAYER_COUNTRY_OVERRIDES` in `import_corrections.py` for Ingvald E, Kjetil D, Oyvind H (missing L2 identity); wired into import manifest; local `import --incremental` applied. |
 | 2026-06-29 | **Docs — status hygiene** — corrected stale Current focus: WC HoF **complete** (WCH-1…8), country Rivals **shipped** (CRV-1–7), online profile feast **complete** (Amiga profile = polish only); fixed WC10 row in WC LB policy + WC hub out-of-scope; `player-profile-feast.md` archived v1+ backlog section. |
