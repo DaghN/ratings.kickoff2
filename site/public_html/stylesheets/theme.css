@@ -725,6 +725,22 @@ body.k2-site .k2-games-highlights-cluster {
 	width: 100%;
 }
 
+body.k2-site .k2-amiga-games-highlights-nav {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 12px;
+	margin-bottom: var(--k2-nav-gap);
+	width: 100%;
+}
+
+body.k2-site .k2-amiga-games-highlights-nav .k2-games-highlights-board-filter,
+body.k2-site .k2-amiga-games-highlights-nav .k2-games-highlights-scope-filter {
+	margin-bottom: 0;
+	width: fit-content;
+	max-width: 100%;
+}
+
 body.k2-site .k2-games-highlights-board-filter {
 	margin-bottom: var(--k2-nav-gap);
 	width: fit-content;
@@ -732,6 +748,12 @@ body.k2-site .k2-games-highlights-board-filter {
 }
 
 body.k2-site .k2-games-highlights-board-filter__bar {
+	width: fit-content;
+	max-width: 100%;
+	flex-wrap: wrap;
+}
+
+body.k2-site .k2-games-highlights-scope-filter__bar {
 	width: fit-content;
 	max-width: 100%;
 	flex-wrap: wrap;

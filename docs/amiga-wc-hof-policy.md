@@ -291,7 +291,7 @@ If no WC snapshot exists before cutoff (pre-first-WC lens), WC block shows empty
 
 Extend [`amiga_records_hof_links.php`](site/public_html/includes/amiga_records_hof_links.php) with WC wing targets (`/amiga/leaderboards/world-cups/*`) and sort indices from [`amiga_wc_players_table.php`](site/public_html/includes/amiga_wc_players_table.php).
 
-**§4.6 single-game rows:** value links go to **`/amiga/game.php?id={*GameID}`** (the record game), not the WC goals leaderboard.
+**§4.6 single-game rows:** value links go to **Games → Highlights** (`/amiga/games/highlights.php?board=…`), same board mapping as online career HoF; WC rows append **`scope=world-cup`** (one Highlights page — no separate WC highlights hub).
 
 Rows without a natural LB column (§4.7 awards, §4.8 single-WC peaks) may ship **without** value links until a LB column exists or product accepts HoF-only rows.
 

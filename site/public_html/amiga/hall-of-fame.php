@@ -439,9 +439,9 @@ $wcRow('Most WC double digit victims', amiga_records_value_or_dash($wcRecords['M
 $wcRow('Most WC clean sheet victims', amiga_records_value_or_dash($wcRecords['MostWcCleanSheetsVictims'] ?? null), $wcHolder('MostWcCleanSheetsVictims'), $wcRecords['MostWcCleanSheetsVictimsDate'] ?? null, amiga_records_has_value($wcRecords['MostWcCleanSheetsVictims'] ?? 0), amiga_records_hof_lb_href('wc_cs_victims'));
 amiga_records_render_spacer_row();
 
-// 4.6 — single-game (value links to the record game, not WC goals LB)
-$wcRow('Most WC goals in one game', amiga_records_value_or_dash($wcRecords['MostWcGoalsInOneGame'] ?? null), $wcHolder('MostWcGoalsInOneGame'), $wcRecords['MostWcGoalsInOneGameDate'] ?? null, amiga_records_has_value($wcRecords['MostWcGoalsInOneGame'] ?? 0), amiga_records_hof_game_href_from_prefix($wcRecords, 'MostWcGoalsInOneGame'));
-$wcRow('Biggest WC winning margin', amiga_records_value_or_dash($wcRecords['BiggestWcWinDifference'] ?? null), $wcHolder('BiggestWcWinDifference'), $wcRecords['BiggestWcWinDifferenceDate'] ?? null, amiga_records_has_value($wcRecords['BiggestWcWinDifference'] ?? 0), amiga_records_hof_game_href_from_prefix($wcRecords, 'BiggestWcWinDifference'));
+// 4.6 — single-game (value links to Games highlights board; WC scope when applicable)
+$wcRow('Most WC goals in one game', amiga_records_value_or_dash($wcRecords['MostWcGoalsInOneGame'] ?? null), $wcHolder('MostWcGoalsInOneGame'), $wcRecords['MostWcGoalsInOneGameDate'] ?? null, amiga_records_has_value($wcRecords['MostWcGoalsInOneGame'] ?? 0), amiga_records_hof_lb_href('wc_most_goals_one_game'));
+$wcRow('Biggest WC winning margin', amiga_records_value_or_dash($wcRecords['BiggestWcWinDifference'] ?? null), $wcHolder('BiggestWcWinDifference'), $wcRecords['BiggestWcWinDifferenceDate'] ?? null, amiga_records_has_value($wcRecords['BiggestWcWinDifference'] ?? 0), amiga_records_hof_lb_href('wc_biggest_win_margin'));
 $hasWcDraw = amiga_records_has_value($wcRecords['BiggestWcDrawSum'] ?? 0);
 $wcDrawScore = $hasWcDraw
     ? ((string) ((int) $wcRecords['BiggestWcDrawSum'] / 2) . '-' . (string) ((int) $wcRecords['BiggestWcDrawSum'] / 2))
@@ -458,7 +458,7 @@ $wcRow(
     ),
     $wcRecords['BiggestWcDrawSumDate'] ?? null,
     $hasWcDraw,
-    amiga_records_hof_game_href_from_prefix($wcRecords, 'BiggestWcDrawSum')
+    amiga_records_hof_lb_href('wc_biggest_draw')
 );
 $wcRow(
     'Biggest WC sum of goals',
@@ -472,7 +472,7 @@ $wcRow(
     ),
     $wcRecords['BiggestWcSumOfGoalsDate'] ?? null,
     amiga_records_has_value($wcRecords['BiggestWcSumOfGoals'] ?? 0),
-    amiga_records_hof_game_href_from_prefix($wcRecords, 'BiggestWcSumOfGoals')
+    amiga_records_hof_lb_href('wc_biggest_sum_goals')
 );
 amiga_records_render_spacer_row();
 

@@ -2,6 +2,8 @@
 
 **Status:** **Policy locked** (Jun 2026). **Not shipped** — implementation follows this doc.
 
+**Implementation plan:** [`amiga-opponents-country-grain-implementation-plan.md`](amiga-opponents-country-grain-implementation-plan.md) — slices **OCG-1–OCG-7**.
+
 **Parent:** [`amiga-opponents-wing-policy.md`](amiga-opponents-wing-policy.md) · [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) · [`amiga-performance-rating.md`](amiga-performance-rating.md) · [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) (H8 country token)
 
 **Related:** [`k2-page-structure-checklist.md`](k2-page-structure-checklist.md) · [`url-routes.md`](url-routes.md) · [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) · [`nav-spacing-policy.md`](nav-spacing-policy.md) · [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) · [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md)
@@ -337,3 +339,4 @@ Ship and proof after each slice. Update this doc session log + `PROJECT_MEMORY.m
 | Date | Note |
 |------|------|
 | Jun 2026 | Policy locked — folder `opponents/country/` grain, horizontal dual segment nav, read-time roll-up + country TPR, H2H minus rating/rank compare. |
+| Jun 2026 | Implementation plan — [`amiga-opponents-country-grain-implementation-plan.md`](amiga-opponents-country-grain-implementation-plan.md) slices OCG-1–OCG-7. |
