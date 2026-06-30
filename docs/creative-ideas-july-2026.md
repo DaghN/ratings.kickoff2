@@ -118,7 +118,6 @@ LANDING             Status default                   News tab ◻ (placeholder)
 | **C03** | **Community stats → Activity wings** | What kind of scene was this? | Question-catalog charts (46 Qs drafted); year bars + snapshot timeline; TT-aware | Amiga | Writers done; UI TBD — [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) |
 | **C04** | **News / present landing** | What's worth looking at in present mode? | Curated front page — not a blog: HoF (New!), featured clip, finalize pulse | Amiga | `/amiga/news.php` placeholder — pairs with jukebox hang-out |
 | **C05** | **Milestones Story feed** | What's unlocking across the ladder? | Server-wide tier-coloured chronology ticker | Online | Hub phase in [`milestones-hub-ia.md`](milestones-hub-ia.md) |
-| **C06** | **Chronology video glyph (TV-4)** | Which events have footage — at a glance? | Small **film glyph** on chronology row; click → tournament video landing | Amiga | **In addition to** "With videos" filter (filter = find; glyph = wow navigate). Column cost TBD — see §6.2. |
 | **C08** | **Tournament story page** | What happened at this event? | Minimal narrative band: winner, biggest upset, perf rating, **who debuted** in their first official tournament here, moments cards, video — scale down for 4-player kitchen events | Amiga | Magazine spread on `tournament.php`; pairs with **C14** (realm-wide tournament metadata LBs) |
 | **C09** | **Rivalry teaser on profile** | Who's *the* rivalry? | One card → H2H poster | Both | **Deferred** with C01 (Amiga profile pass); online placeholder exists |
 | **C10** | **Online season in review** | How was my 2024? | Calendar year lens on profile — rank Jan vs Dec, games, streak, top rival | Online | Lightweight TT sibling; `player_period_*` tables |
@@ -144,6 +143,7 @@ LANDING             Status default                   News tab ◻ (placeholder)
 | **Highlights: biggest upsets (C15)** | `/amiga/games/highlights.php?board=biggest_upsets` | [`amiga_games_highlights_helpers.php`](../site/public_html/includes/amiga_games_highlights_helpers.php) · underdog-wins only — §6.5 |
 | **On this day last year (C07)** | Status arc panel → Points day league | [`status_queries.php`](../site/public_html/includes/status_queries.php) · §6.3 |
 | **Sticky TT ribbon pin (C02)** | Amiga time-travel ribbon | [`k2-amiga-time-travel-pin.js`](../site/public_html/js/k2-amiga-time-travel-pin.js) · §6.1 |
+| **Chronology video glyph (C06)** | Tournaments catalog + WC chronology — dedicated Videos column before Players | [`amiga_tournament_videos_lib.php`](../site/public_html/includes/amiga_tournament_videos_lib.php) `amiga_tournament_video_column_cell()` · §6.2 |
 | Milestones v0, Time travel, Jukebox, Video embed, Fight poster, Countries/Rivals | (see origin stories) | respective policy docs |
 
 ---
@@ -166,11 +166,17 @@ LANDING             Status default                   News tab ◻ (placeholder)
 
 **Event wing:** pinned bar may wrap (`flex-wrap`) so wide picker + `as_with` rows stay usable.
 
-### 6.2 Chronology video glyph (C06)
+### 6.2 Chronology video glyph (C06) — shipped
 
-**Yes — this matches the intent:** filter finds tournaments with video; **glyph is a navigation wow** — one click to the event's video block (or `#` video landing on tournament page), not merely filtering the list.
+**Status:** **Shipped** Jun 2026.
 
-**Column trade-off:** extra column vs inline glyph in an existing column (e.g. event name or a narrow icon column). Policy allows "column or icon" — [`amiga-tournament-videos-implementation-plan.md`](amiga-tournament-videos-implementation-plan.md) TV-4.
+**Surfaces:** Tournaments hub catalog (`/amiga/tournaments.php`) + World Cups chronology (`amiga_world_cups_events_table.php`). Player tournament-history table held back (different mental model, denser rows).
+
+**Glyph:** **Phosphor play-circle-fill** (amber-tinted solid circle + play triangle) in a **dedicated Videos column** immediately before Players — centered, narrow; **empty cell** when no footage. Scale-up + accent glow on hover when linked. Shows only when `amiga_tournament_has_videos($id)`. One click → the event's **Videos tab landing on `#tournament`** (zero-height anchor flush above the hero), via `amiga_tournament_videos_url()` + `amiga_tournament_href()` so `as=` / with-player carry. Column header blank; no tooltips on glyphs. Sortable (has footage first/last). Dev comparison page: `/amiga/dev/video-glyph-picker.php`.
+
+**Table layout:** Both surfaces use `k2-table-cell--center` on **Players** and **Games** (header + body). Tournaments catalog aligned to WC chronology in Jul 2026.
+
+**Implementation:** `amiga_tournament_video_column_cell()` in `amiga_tournament_videos_lib.php`; `amiga_tournament_index_render_table()` + `amiga_world_cups_events_render_table()`; CSS `.k2-table-cell--video-glyph` + `.k2-amiga-video-glyph--column` in `theme.css`. Closes TV-4.
 
 ### 6.3 "One year ago today" (C07) — shipped
 
@@ -254,6 +260,9 @@ LANDING             Status default                   News tab ◻ (placeholder)
 
 | When | Note |
 |------|------|
+| 2026-07-01 | **C06 table polish** — blank Videos header; empty cells without footage; no glyph tooltips; tournaments catalog Players/Games centered (WC parity); §6.2. |
+| 2026-07-01 | **C06 column layout** — video glyph moved from inline Tournament cell to dedicated Videos column (before Players) on tournaments catalog + WC chronology; sortable; §6.2. |
+| 2026-07-01 | **C06 shipped** — Chronology video glyph: Phosphor play-circle-fill → Videos tab at `#tournament`; `amiga_tournament_video_glyph()`; closes TV-4; player history table held back; §6.2. |
 | 2026-06-30 | **C02 shipped** — optional TT ribbon pin (pushpin icon); sticky full control bar; `localStorage`; §6.1. |
 | 2026-06-30 | **C07 shipped** — Status arc **On this day last year →** → Points day league one UTC year back; §6.3. |
 | 2026-06-30 | **C15 shipped** — Amiga Highlights fifth board **Biggest upsets** (`board=biggest_upsets`); underdog-wins only (lower-rated winner); §6.5. |

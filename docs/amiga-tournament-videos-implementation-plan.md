@@ -1,6 +1,6 @@
 # Amiga tournament videos — implementation plan
 
-**Status:** **In progress (Jun 2026)** — policy locked; **TV-0–TV-3 shipped**; **TV-1 human review sign-off (Jun 2026)** — tournaments index + orphan→tournament queues complete (see policy §10). **TV-URL** shipped (embedded player + deep links). **TV-FOLDER** shipped (Games/Atmosphere folder modes — [`amiga-tournament-videos-folder-modes-plan.md`](amiga-tournament-videos-folder-modes-plan.md)). **TV-4** partial — **With videos** filter shipped; Chronology clip indicator TBD. Future: admin bulk-verify page.
+**Status:** **In progress (Jun 2026)** — policy locked; **TV-0–TV-3 shipped**; **TV-1 human review sign-off (Jun 2026)** — tournaments index + orphan→tournament queues complete (see policy §10). **TV-URL** shipped (embedded player + deep links). **TV-FOLDER** shipped (Games/Atmosphere folder modes — [`amiga-tournament-videos-folder-modes-plan.md`](amiga-tournament-videos-folder-modes-plan.md)). **TV-4** shipped — **With videos** filter + **Chronology video glyph** (C06: Phosphor `play-circle-fill` in dedicated **Videos** column before Players on `/amiga/tournaments.php` + World Cups chronology; `amiga_tournament_video_column_cell()`; click → Videos tab at `#tournament`). Future: admin bulk-verify page.
 
 **Policy:** [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md)
 
@@ -275,9 +275,10 @@ Chronology + Tournaments hub **Has videos** filter.
 
 ### Tasks
 
-- [ ] **`includes/amiga_world_cups_events_table.php`** (or events body):
-  - Column or icon: clip count / play glyph when `amiga_tournament_has_videos($tournament_id)`.
-  - Link icon → `amiga_tournament_videos_url($id)` (optional).
+- [x] **`includes/amiga_world_cups_events_table.php`** + **`amiga_profile_blocks.php`** (tournaments catalog):
+  - Dedicated **Videos** column (before Players) with Phosphor **play-circle-fill** glyph when `amiga_tournament_has_videos($id)` — `amiga_tournament_video_column_cell()` in `amiga_tournament_videos_lib.php`; blank header and blank cell when no footage; sortable; scale + glow on hover; no tooltips.
+  - Glyph → `amiga_tournament_videos_url($id)` + `#tournament` (anchor above hero) via `amiga_tournament_href()` (preserves `as=` / with-player). Player tournament-history table deliberately **not** included (Jun 2026 decision).
+  - Tournaments catalog **Players** + **Games** columns: `k2-table-cell--center` on header + body (parity with WC chronology table).
 - [ ] **`includes/amiga_tournament_index_nav.php`:**
   - Add tab `has-videos` → label **Has videos**; href via new filter helper.
 - [ ] **`includes/amiga_tournament_lib.php`:**

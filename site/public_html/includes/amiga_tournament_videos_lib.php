@@ -84,6 +84,48 @@ function amiga_tournament_has_videos(int $tournamentId): bool
     return isset($index[$tournamentId]) && $index[$tournamentId] !== [];
 }
 
+/** Phosphor play-circle-fill (MIT) — C06 picker row #15. */
+function amiga_tournament_video_glyph_svg(int $size = 16): string
+{
+    return '<svg class="k2-amiga-video-glyph__icon" xmlns="http://www.w3.org/2000/svg" width="' . $size . '" height="' . $size . '" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false">'
+        . '<path d="M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24m40.55 110.58l-52 36A8 8 0 0 1 104 164V92a8 8 0 0 1 12.55-6.58l52 36a8 8 0 0 1 0 13.16"/>'
+        . '</svg>';
+}
+
+/**
+ * Dedicated Videos column cell (TV-4). Empty when no footage; link glyph when present.
+ */
+function amiga_tournament_video_column_cell(int $tournamentId): string
+{
+    return amiga_tournament_video_glyph($tournamentId, true);
+}
+
+/**
+ * "Has footage" glyph for chronology rows (TV-4). Returns '' when the tournament
+ * has no verified video.
+ *
+ * Links to the tournament Videos tab; preserves time-travel / with-player context
+ * via amiga_tournament_href().
+ */
+function amiga_tournament_video_glyph(int $tournamentId, bool $forColumn = false): string
+{
+    if (!amiga_tournament_has_videos($tournamentId)) {
+        return '';
+    }
+
+    require_once __DIR__ . '/amiga_tournament_lib.php';
+
+    // Land on the zero-height anchor flush above the tournament hero (Videos view).
+    $href = amiga_tournament_href(amiga_tournament_videos_url($tournamentId))
+        . '#' . AMIGA_TOURNAMENT_PAGE_FRAGMENT;
+
+    $class = 'k2-amiga-video-glyph' . ($forColumn ? ' k2-amiga-video-glyph--column' : '');
+
+    return '<a class="' . $class . '" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '"'
+        . ' aria-label="Watch footage from this tournament">'
+        . amiga_tournament_video_glyph_svg(16) . '</a>';
+}
+
 /** @return list<array<string, mixed>> */
 function amiga_tournament_videos_for_id(int $tournamentId): array
 {

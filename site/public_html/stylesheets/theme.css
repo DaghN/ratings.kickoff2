@@ -1684,6 +1684,69 @@ body.k2-site .k2-table tbody td a:focus-visible {
 	text-decoration: underline;
 }
 
+body.k2-site .k2-amiga-video-glyph,
+body.k2-site .k2-table tbody td a.k2-amiga-video-glyph,
+body.k2-site .k2-table tbody td a.k2-amiga-video-glyph:visited {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	vertical-align: -0.24em;
+	margin-left: 0.45em;
+	color: color-mix(in srgb, var(--k2-accent) 80%, var(--k2-text-muted));
+	opacity: 0.92;
+	text-decoration: none;
+	transition: color 0.18s ease, opacity 0.18s ease, transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease;
+}
+
+body.k2-site .k2-table tbody td a.k2-amiga-video-glyph:hover,
+body.k2-site .k2-table tbody td a.k2-amiga-video-glyph:focus-visible {
+	color: var(--k2-accent);
+	opacity: 1;
+	text-decoration: none;
+	transform: scale(1.16);
+	filter: drop-shadow(0 0 5px color-mix(in srgb, var(--k2-accent) 55%, transparent));
+}
+
+body.k2-site .k2-amiga-video-glyph__icon {
+	display: block;
+}
+
+body.k2-site .k2-table-cell--video-glyph {
+	width: 2.35rem;
+	padding-left: 0.35rem;
+	padding-right: 0.35rem;
+}
+
+body.k2-site .k2-amiga-video-glyph--column {
+	margin-left: 0;
+	vertical-align: middle;
+}
+
+/* Dev picker — /amiga/dev/video-glyph-picker.php (C06) */
+body.k2-site .k2-table--video-glyph-picker .k2-video-glyph-picker-id {
+	font-size: 0.82rem;
+	color: var(--k2-text-secondary);
+}
+
+body.k2-site .k2-table--video-glyph-picker .k2-video-glyph-picker-style {
+	font-size: 0.85rem;
+	color: var(--k2-text-muted);
+	text-transform: capitalize;
+}
+
+body.k2-site .k2-table--video-glyph-picker tr.k2-video-glyph-picker-row--current {
+	outline: 1px solid color-mix(in srgb, var(--k2-accent) 45%, transparent);
+	outline-offset: -1px;
+	background: color-mix(in srgb, var(--k2-accent) 6%, var(--k2-bg-surface));
+}
+
+body.k2-site .k2-video-glyph-picker-lede {
+	max-width: 52rem;
+	margin: 0 0 1.25rem;
+	color: var(--k2-text-secondary);
+	line-height: 1.55;
+}
+
 body.k2-site .k2-table tbody tr,
 body.k2-site .k2-table tbody tr.alternate {
 	background: var(--k2-bg-surface);

@@ -84,7 +84,7 @@
 - **Amiga perfect event (Jun 2026):** **Shipped** — SCH-045; honours LB + WC **Perfect** column; catalog filter; HoF **Most perfect events**. [`amiga-perfect-event-policy.md`](docs/amiga-perfect-event-policy.md).
 - **Amiga perf. rating LB (Jun 2026):** **Shipped** — folder `performance-rating/{best,top,perfect}.php` + segment nav; W-D-L columns; Top 100 fixed set; Perfect shows **∞**. [`amiga-performance-rating-leaderboard-policy.md`](docs/amiga-performance-rating-leaderboard-policy.md).
 
-- **Amiga tournament videos (Jun 2026):** **TV-3 shipped** — manifest **~299** videos; unified embed UI on all events with clips. **Player Videos wing (Jun 2026):** `/amiga/player/videos.php` when manifest has linked match clips; reverse-chrono index + opponent filter + spotlight player. Human review sign-off on orphans + tournaments index. Next: **TV-4** Chronology clip indicator. [`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md).
+- **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~299** videos; unified embed UI; **C06** dedicated Videos column on tournaments catalog + WC chronology (blank header, no tooltips); **With videos** filter. Player Videos wing. Human review sign-off on orphans + tournaments index. [`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md).
 
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
@@ -133,6 +133,9 @@
 
 | When | Note |
 |------|------|
+| 2026-07-01 | **C06 + tournaments index table** — Videos column (blank header, empty when no footage, no tooltips); Players + Games columns centered (`k2-table-cell--center`, parity with WC chronology). |
+| 2026-07-01 | **C06 column polish** — empty Videos column header; blank cells when no footage; no glyph tooltips. |
+| 2026-07-01 | **C06 glyph → Phosphor play-circle-fill** — chronology video glyph switched to `ph:play-circle-fill` (picker row #15); dev picker at `/amiga/dev/video-glyph-picker.php`. |
 | 2026-06-30 | **With-player stepper doc sweep** — policy §5.7–§5.8 + §10 module map; plan probes/inventory; TT snap via preamble (not snapshot context); `id_country` + faceted counts documented. |
 | 2026-06-30 | **TT as_with auto-snap fix** — `amiga_as_with_snap.php` + preamble before DOCTYPE; LB wings + HoF wired. |
 | 2026-06-30 | **Tournament step filter layout fix** — ghost listbox `align-self: flex-start` (panel = trigger width); theme panel override like games/all. |

@@ -5,6 +5,7 @@
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_player_game_row.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
+require_once __DIR__ . '/amiga_tournament_videos_lib.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_player_matchup_lib.php';
 require_once __DIR__ . '/amiga_performance_rating.php';
@@ -617,16 +618,17 @@ function amiga_tournament_index_render_table(array $rows): void
     <tr>
         <th<?php echo k2_table_sortable_th_attr(0, amiga_tournament_index_sort_col_for_emphasis(0, $defaultSortCol), $defaultSortDir, 'k2-table-cell--right k2-tournament-index-date'); ?> data-k2-sort="number">Date</th>
         <th<?php echo k2_table_sortable_th_attr(1, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Tournament</th>
-        <th<?php echo k2_table_sortable_th_attr(2, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">Players</th>
-        <th<?php echo k2_table_sortable_th_attr(3, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">Games</th>
-        <th<?php echo k2_table_sortable_th_attr(4, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Winner</th>
-        <th<?php echo k2_table_sortable_th_attr(5, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Format</th>
+        <th<?php echo k2_table_sortable_th_attr(2, $defaultSortCol, $defaultSortDir, 'k2-table-cell--center k2-table-cell--video-glyph'); ?> data-k2-sort="number"></th>
+        <th<?php echo k2_table_sortable_th_attr(3, $defaultSortCol, $defaultSortDir, 'k2-table-cell--center'); ?> data-k2-sort="number">Players</th>
+        <th<?php echo k2_table_sortable_th_attr(4, $defaultSortCol, $defaultSortDir, 'k2-table-cell--center'); ?> data-k2-sort="number">Games</th>
+        <th<?php echo k2_table_sortable_th_attr(5, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Winner</th>
+        <th<?php echo k2_table_sortable_th_attr(6, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Format</th>
     </tr>
 </thead>
 <tbody class="black">
 <?php if ($rows === []) { ?>
     <tr>
-        <td colspan="6" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No tournaments match this filter.</td>
+        <td colspan="7" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No tournaments match this filter.</td>
     </tr>
 <?php } ?>
 <?php foreach ($rows as $row) {
@@ -658,10 +660,11 @@ function amiga_tournament_index_render_table(array $rows): void
                 echo $flag !== '' ? '<span class="k2-amiga-wc-podium-player">' . $flag . $nameHtml . '</span>' : $nameHtml;
             }
         ?></td>
-        <td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol); ?>><?php echo $hasStandings ? (string) $players : '—'; ?></td>
-        <td<?php echo k2_table_body_td_attr(3, $anchorCol, $defaultSortCol); ?>><?php echo $games; ?></td>
-        <td<?php echo k2_table_body_td_attr(4, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($winnerSortValue); ?>"><?php echo $winnerCell; ?></td>
-        <td<?php echo k2_table_body_td_attr(5, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>>
+        <td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol, 'k2-table-cell--center k2-table-cell--video-glyph'); ?> data-k2-sort-value="<?php echo amiga_tournament_has_videos((int) $row['id']) ? '1' : '0'; ?>"><?php echo amiga_tournament_video_column_cell((int) $row['id']); ?></td>
+        <td<?php echo k2_table_body_td_attr(3, $anchorCol, $defaultSortCol, 'k2-table-cell--center'); ?>><?php echo $hasStandings ? (string) $players : '—'; ?></td>
+        <td<?php echo k2_table_body_td_attr(4, $anchorCol, $defaultSortCol, 'k2-table-cell--center'); ?>><?php echo $games; ?></td>
+        <td<?php echo k2_table_body_td_attr(5, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($winnerSortValue); ?>"><?php echo $winnerCell; ?></td>
+        <td<?php echo k2_table_body_td_attr(6, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>>
             <span class="k2-amiga-tournament-format"><?php echo k2_h($formatLabel); ?></span>
         </td>
     </tr>
