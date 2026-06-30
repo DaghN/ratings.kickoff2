@@ -7,6 +7,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_snapshot_context.php';
+require_once __DIR__ . '/amiga_as_with_url.php';
 require_once __DIR__ . '/k2_table_helpers.php';
 
 /**
@@ -53,6 +54,8 @@ function amiga_url_with_context(string $path, array $extraQuery = [], ?AmigaSnap
         $query['as'] = $asParam;
         unset($query['wing'], $query['at']);
     }
+
+    $query = amiga_as_with_append_to_query($query);
 
     if ($query === []) {
         return $pathPart . $hash;
@@ -148,7 +151,7 @@ function amiga_url_present(string $path, array $extraQuery = []): string
         $query[$name] = $value;
     }
 
-    unset($query['as'], $query['wing'], $query['at']);
+    unset($query['as'], $query['wing'], $query['at'], $query['as_with']);
 
     $query = amiga_snapshot_merge_request_query_for_path($pathPart, $query);
 

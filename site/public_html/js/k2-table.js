@@ -574,6 +574,10 @@
 		if (form) {
 			syncTimeTravelPickerSortFields(form, current);
 		}
+		form = ribbon.querySelector('.k2-amiga-history__as-with');
+		if (form) {
+			syncTimeTravelPickerSortFields(form, current);
+		}
 	}
 
 	function refreshLbFilterToggleHrefs() {

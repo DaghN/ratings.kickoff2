@@ -19,6 +19,10 @@ $k2PageBootPath = $k2DocRoot . '/js/k2-page-boot.js';
 if (is_file($k2PageBootPath)) {
 	echo '<script type="text/javascript" src="/js/k2-page-boot.js?v=' . (int) filemtime($k2PageBootPath) . '" defer="defer"></script>' . "\n";
 }
+$k2AmigaTtUrlPath = $k2DocRoot . '/js/k2-amiga-time-travel-url.js';
+if (is_file($k2AmigaTtUrlPath)) {
+	echo '<script type="text/javascript" src="/js/k2-amiga-time-travel-url.js?v=' . (int) filemtime($k2AmigaTtUrlPath) . '" defer="defer"></script>' . "\n";
+}
 $k2PlayerSearchPath = $k2DocRoot . '/js/player-search.js';
 if (is_file($k2PlayerSearchPath)) {
 	echo '<script type="text/javascript" src="/js/player-search.js?v=' . (int) filemtime($k2PlayerSearchPath) . '" defer="defer"></script>' . "\n";

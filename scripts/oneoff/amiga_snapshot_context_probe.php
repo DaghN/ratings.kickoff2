@@ -341,6 +341,70 @@ if ($ctxHubEvent->nextKey() !== $expectedNext) {
 }
 echo "player_path_event_stepping_parity_ok\n";
 
+require __DIR__ . '/../../site/public_html/includes/amiga_participation_step_lib.php';
+
+$asWithPlayerId = 73;
+$participatedKeys = amiga_player_participated_event_keys($con, $asWithPlayerId);
+if (count($participatedKeys) < 2) {
+    fwrite(STDERR, "player 73 needs at least 2 participated events for as_with probe\n");
+    exit(1);
+}
+$participatedLookup = array_fill_keys($participatedKeys, true);
+$asWithTestKey = null;
+$asWithExpectedNext = null;
+$asWithRealmNext = null;
+foreach ($realmEvents as $i => $eventRow) {
+    if ($i >= count($realmEvents) - 1) {
+        break;
+    }
+    $currentKey = (string) $eventRow['key'];
+    $realmNextKey = (string) $realmEvents[$i + 1]['key'];
+    if (isset($participatedLookup[$realmNextKey])) {
+        continue;
+    }
+    $filteredNext = null;
+    for ($j = $i + 1; $j < count($realmEvents); $j++) {
+        $candidateKey = (string) $realmEvents[$j]['key'];
+        if (isset($participatedLookup[$candidateKey])) {
+            $filteredNext = $candidateKey;
+            break;
+        }
+    }
+    if ($filteredNext === null || !isset($participatedLookup[$currentKey])) {
+        continue;
+    }
+    $asWithTestKey = $currentKey;
+    $asWithExpectedNext = $filteredNext;
+    $asWithRealmNext = $realmNextKey;
+    break;
+}
+if ($asWithTestKey === null || $asWithExpectedNext === null || $asWithRealmNext === null) {
+    fwrite(STDERR, "could not find as_with stepping fixture in event catalog\n");
+    exit(1);
+}
+$_GET = ['as' => 'event:' . $asWithTestKey, 'as_with' => (string) $asWithPlayerId];
+amiga_snapshot_context_reset();
+$ctxAsWith = amiga_snapshot_context_from_request($con);
+if ($ctxAsWith->nextKey() !== $asWithExpectedNext) {
+    fwrite(STDERR, "as_with next expected {$asWithExpectedNext}, got " . ($ctxAsWith->nextKey() ?? 'null') . "\n");
+    exit(1);
+}
+$_GET = ['as' => 'event:' . $asWithTestKey];
+amiga_snapshot_context_reset();
+$ctxRealmAtGap = amiga_snapshot_context_from_request($con);
+if ($ctxRealmAtGap->nextKey() !== $asWithRealmNext) {
+    fwrite(STDERR, "realm next at gap expected {$asWithRealmNext}, got " . ($ctxRealmAtGap->nextKey() ?? 'null') . "\n");
+    exit(1);
+}
+$_GET = ['as' => 'event:' . $lastId, 'as_with' => (string) $asWithPlayerId];
+amiga_snapshot_context_reset();
+$ctxAsWithLast = amiga_snapshot_context_from_request($con);
+if ($ctxAsWithLast->nextKey() !== null) {
+    fwrite(STDERR, "as_with forward clamp at last event expected null next\n");
+    exit(1);
+}
+echo "as_with_event_stepping_ok\n";
+
 $_GET['as'] = 'year:2010';
 amiga_snapshot_context_reset();
 $GLOBALS['_amiga_snapshot_context'] = null;
@@ -356,6 +420,17 @@ if (!str_contains($playerHref, 'as=year%3A2010') && !str_contains($playerHref, '
 }
 if (!str_contains($playerHref, 'id=42')) {
     fwrite(STDERR, "player id missing: {$playerHref}\n");
+    exit(1);
+}
+$_GET['as_with'] = '73';
+$asWithHref = amiga_url_with_context('/amiga/leaderboards/rating.php');
+if (!str_contains($asWithHref, 'as_with=73')) {
+    fwrite(STDERR, "as_with propagation fail: {$asWithHref}\n");
+    exit(1);
+}
+$presentHref = amiga_url_present('/amiga/leaderboards/rating.php');
+if (str_contains($presentHref, 'as_with=')) {
+    fwrite(STDERR, "amiga_url_present should strip as_with: {$presentHref}\n");
     exit(1);
 }
 echo "link_propagation_ok\n";

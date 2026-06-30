@@ -290,7 +290,7 @@ Implementation: `includes/amiga_hub_nav_lib.php` · `amiga_snapshot_redirect_pre
 
 | Module | Role |
 |--------|------|
-| `includes/amiga_participation_step_lib.php` | *(slice 1)* participation lookup + step keys — replaces retired T18 lib |
+| `includes/amiga_participation_step_lib.php` | **Shipped slice 1** — participation lookup + step keys; **`as_with=`** on Event ribbon |
 | `includes/amiga_player_snapshot_lib.php` | Hero + `amiga_player_load()` at cutoff |
 | `includes/amiga_elo_rank_lib.php` | Persisted `elo_rank` reads (present + time travel) |
 | `includes/amiga_snapshot_context.php` | Parse `as`, resolve cutoff, `is_active()`, `cutoff()`, `label()`, `query_suffix()` |
@@ -324,7 +324,7 @@ Time travel does **not** add tables or writers. It only changes **read paths** a
 | Check | Expect |
 |-------|--------|
 | Present mode | With no `as`, byte-identical behaviour to pre-time-travel pages (regression) |
-| Link carry | Hub → LB → HoF preserves `as=`; present-only hub pages strip `as=`; header search → Amiga profile preserves `as=` |
+| Link carry | Hub → LB → HoF preserves `as=`; present-only hub pages strip `as=`; header search → Amiga profile preserves `as=` and `as_with=` |
 | Enter time travel (toggle, present) | Always rating LB + `as=year:{first}` (T14/T19) |
 | Present day toggle (from time travel) | Always `/amiga/news.php` (T19); `amiga_url_present()` strips `as=` on in-page links — not the toggle |
 | Time travel toggle (already in lens) | Rating LB + active `as=` (wordmark parity) |

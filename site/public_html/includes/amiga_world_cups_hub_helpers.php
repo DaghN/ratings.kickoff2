@@ -29,21 +29,39 @@ function amiga_world_cups_hub_chapter_list_html(): string
 }
 
 /**
- * Reference instant for Covid gap copy — snapshot cutoff when `as=` active, else now (UTC).
+ * Reference instant for Covid gap copy — snapshot period end when `as=` active, else now (UTC).
+ *
+ * Year/month wings use calendar period end (Dec 31 / last day of month), not the resolved
+ * tournament event_date — e.g. year:2020 has no WC so cutoff tournament is still Nov 2019.
  */
 function amiga_world_cups_hub_chapter_as_of(?AmigaSnapshotContext $ctx = null): DateTimeImmutable
 {
     require_once __DIR__ . '/amiga_snapshot_context.php';
 
+    $utc = new DateTimeZone('UTC');
     $ctx ??= amiga_snapshot_context_peek();
     if ($ctx instanceof AmigaSnapshotContext && $ctx->isActive()) {
+        $wing = $ctx->wing();
+        $key = $ctx->key();
+
+        if ($wing === 'year' && preg_match('/^\d{4}$/', $key) === 1) {
+            return new DateTimeImmutable($key . '-12-31', $utc);
+        }
+
+        if ($wing === 'month' && preg_match('/^\d{4}-\d{2}$/', $key) === 1) {
+            $monthStart = DateTimeImmutable::createFromFormat('!Y-m-d', $key . '-01', $utc);
+            if ($monthStart instanceof DateTimeImmutable) {
+                return $monthStart->modify('last day of this month');
+            }
+        }
+
         $cutoff = $ctx->cutoff();
         if (is_array($cutoff) && ($cutoff['event_date'] ?? '') !== '') {
-            return new DateTimeImmutable((string) $cutoff['event_date'], new DateTimeZone('UTC'));
+            return new DateTimeImmutable((string) $cutoff['event_date'], $utc);
         }
     }
 
-    return new DateTimeImmutable('now', new DateTimeZone('UTC'));
+    return new DateTimeImmutable('now', $utc);
 }
 
 /**

@@ -198,7 +198,7 @@ Registered in [`site/public_html/includes/k2_amiga_routes.php`](../site/public_h
 
 ## 8. Visual / UX notes
 
-- **Hub chapter:** `k2_hub_chapter.inc.php` — title **World Cups**, Christmas lede with blue WC count + time-aware Covid parenthetical `(except the Covid)` once the first missed season has passed (Dec 2020+), wing map list. Respects `as=` cutoff for count + Covid wording.
+- **Hub chapter:** `k2_hub_chapter.inc.php` — title **World Cups**, Christmas lede with blue WC count + time-aware Covid parenthetical `(except for Covid)` once the first missed season has passed (Dec 2020+), wing map list. Respects `as=` cutoff for count + Covid wording. **Covid copy `asOf`:** year/month wings use **calendar period end** (31 Dec / last day of month), not resolved tournament `event_date` — e.g. `year:2020` has no WC so cutoff tournament may be Feb 2020 or earlier, but lede still treats the lens as end-of-2020 for the parenthetical.
 - **Sub-nav** segment track — same component family as Games / Milestones / LB wings.
 - **Tint / realm** — Amiga realm chrome only; no Online mirror unless Dagh explicitly asks.
 - **Design tokens** — [`design-direction.md`](design-direction.md); tables use standard `k2-table` sort patterns.

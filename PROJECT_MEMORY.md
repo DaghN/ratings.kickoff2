@@ -66,7 +66,7 @@
 
 - **Amiga time travel (Jun 2026):** **Phase 1 complete** — header **Present day | Time travel** + one-row ribbon above hub when active; LB (8 wings), HoF at cutoff; profile present-only. Smoke: `scripts/oneoff/amiga_time_travel_smoke.php`. [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md).
 
-- **Amiga time travel (Jun 2026):** **T13–T19** — snapshot-only TT hub; **T19** fixed mode-toggle homes (Present → News; Time travel → rating LB + `as=`); pre-debut hero **—** + note (`T17`); **player Event chevrons** + picker accents (`T18`). [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md).
+- **Amiga time travel (Jun 2026):** **T13–T19** — snapshot-only TT hub; **T19** fixed mode-toggle homes; pre-debut hero **—** + note (`T17`); **with-player** opt-in **`as_with=`** on Event ribbon (slice 1); tournament **`id_with=`** + league **`start_with=`** pending slices 2–3. [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md) · [`with-player-stepper-policy.md`](docs/with-player-stepper-policy.md).
 - **Amiga Opponents wing (Jun 2026):** **W/D/L · Goals · DDs + H2H (slices D+F) shipped** — poster/pickers/pair detail/moments/charts on `amiga/player/opponents/h2h.php`; Amiga `realm=` API branches + event-step rating compare. Policy [`amiga-opponents-wing-policy.md`](docs/amiga-opponents-wing-policy.md). **Country grain (Jun 2026):** **OCG-1–OCG-7 complete** — roll-up + read-time country TPR; country **W/D/L · Goals · DDs** tables; country **H2H** (poster/pickers/detail/moments/game charts, no rating/rank compare); API `opp_country` + chart JS grain — [`amiga-opponents-country-grain-policy.md`](docs/amiga-opponents-country-grain-policy.md) · [`amiga-opponents-country-grain-implementation-plan.md`](docs/amiga-opponents-country-grain-implementation-plan.md).
 
 - **Amiga World Cups LB (Jun 2026):** **V2 UI** — five sub-wings on **World Cups hub → Player stats** only; LB wing **retired** Jun 2026 (legacy URLs 302). Writers proven Jun 2026-23. [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cups-player-slice-v2-policy.md`](docs/amiga-world-cups-player-slice-v2-policy.md).
@@ -131,10 +131,14 @@
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **With player slice 1 fix** — shared `k2-amiga-time-travel-url.js`; header search + H2H chart games links preserve `as_with=`. |
+| 2026-06-30 | **With player slice 1** — `as_with=` on TT Event ribbon: participation lib, listbox, filtered Event chevrons, picker link-star accents, URL propagation. |
 | 2026-06-30 | **With player slice 0 follow-up** — `amiga_tournament_href()` no longer rewrites `as=event:{linked id}`; removed dead `amiga_tournament_snapshot_as_param()`. |
 | 2026-06-30 | **With player stepper plan** — slice 0 adds WP14 (retire tournament id-follows-as); full plan ready. |
 | 2026-06-30 | **With player stepper planning** — policy revised: separate params (`as_with` / `id_with` / `start_with`), shared lookup only, slice 0 = T18 removal; [`with-player-stepper-implementation-plan.md`](docs/with-player-stepper-implementation-plan.md). |
 | 2026-06-30 | **With player stepper policy** — locked spec [`with-player-stepper-policy.md`](docs/with-player-stepper-policy.md): opt-in listbox + chevrons (Amiga tournament nav, TT Event ribbon, online league); retires T18; creative **C13**. |
+| 2026-06-30 | **Amiga WC hub Covid lede fix** — `amiga_world_cups_hub_chapter_as_of()` uses calendar period end for year/month TT (not cutoff tournament date); `(except for Covid)` shows on `year:2020` at Dec 2020+. |
+| 2026-06-30 | **Creative ledger C14–C15** — tournament metadata LB wing (most debuts etc., WC-style split on Tournaments hub); Amiga Highlights **biggest upsets** board (rating gain). [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) §5 · §6.4–§6.5. |
 | 2026-06-30 | **Creative session wrap** — [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) discoverability locked (§4.0); wired into `UPDATE_DOCS` · `AGENTS.md` (task-triggered) · `agent-track-playbook` Phase 0. Rank-chart H2H policy: online **not planned**. |
 | 2026-06-30 | **Creative ideas ledger** — [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md): Jul 2026 brainstorm (recipe, origin stories, C01–C12 approved/parked/rejected). Rank-chart docs: H2H compare marked **shipped Amiga-only** (was stale "not built"). |
 | 2026-06-30 | **Amiga Countries index lede** — dropped WC country-stats cross-link sentence from chapter intro. |

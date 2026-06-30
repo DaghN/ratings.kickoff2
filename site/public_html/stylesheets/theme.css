@@ -2188,6 +2188,33 @@ body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__picker .k2-arc
 	font-weight: 500;
 }
 
+body.k2-site .k2-amiga-history__controls .k2-player-games-controls.k2-amiga-history__as-with {
+	display: inline-flex;
+	align-items: center;
+	margin: 0;
+	flex: 0 1 auto;
+	min-width: 0;
+}
+
+body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__as-with {
+	flex: 0 0 var(--k2-amiga-tt-as-with-width, 10rem);
+	width: var(--k2-amiga-tt-as-with-width, 10rem);
+	max-width: var(--k2-amiga-tt-as-with-width, 10rem);
+	min-width: 0;
+}
+
+body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__as-with .k2-archive-listbox {
+	width: 100%;
+	max-width: 100%;
+	min-width: 0;
+}
+
+body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__as-with .k2-archive-listbox__trigger {
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
 body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__picker .k2-archive-listbox__trigger.k2-link-star .k2-archive-listbox__label {
 	color: var(--k2-link-star);
 	font-weight: 600;

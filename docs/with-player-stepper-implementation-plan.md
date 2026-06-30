@@ -36,7 +36,7 @@
 | Slice | Deliverable | STOP gate |
 |-------|-------------|-----------|
 | **0** | Retire T18 + TT tournament **`id` follows `as=`** sync | **Shipped Jun 2026** |
-| **1** | `as_with=` + TT Event ribbon listbox | Probe + browser: filtered Event chevrons |
+| **1** | `as_with=` + TT Event ribbon listbox | **Shipped Jun 2026** |
 | **2** | `id_with=` + tournament nav chevrons | Tournament page: independent of `as_with` |
 | **3** | `start_with=` + league period row | `league.php` period steps skip inactive months |
 
@@ -139,12 +139,12 @@ Opt-in filter on time-travel **Event** wing. Replaces removed T18 behaviour with
 
 ### Tasks
 
-- [ ] Add `amiga_participation_step_lib.php`
-- [ ] Add `as_with` parse + propagation helpers
-- [ ] Wire context stepping when `as_with` + Event wing
-- [ ] Render listbox on Event ribbon; carry on picker + chevrons
-- [ ] Optional: event picker link-star accents when `as_with` matches row
-- [ ] Extend probe: `as_with=73` → next skips non-played events; forward clamp at TT cutoff
+- [x] Add `amiga_participation_step_lib.php`
+- [x] Add `as_with` parse + propagation helpers
+- [x] Wire context stepping when `as_with` + Event wing
+- [x] Render listbox on Event ribbon; carry on picker + chevrons
+- [x] Optional: event picker link-star accents when `as_with` matches row
+- [x] Extend probe: `as_with=73` → next skips non-played events; forward clamp at TT cutoff
 
 ### Verification
 
@@ -160,9 +160,9 @@ C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe scripts\oneoff\amiga_snapsh
 
 ### Acceptance
 
-- [ ] No `as_with` → post–slice-0 realm-global stepping
-- [ ] `as_with` off via cancel row drops param
-- [ ] Player pages do **not** auto-set `as_with`
+- [x] No `as_with` → post–slice-0 realm-global stepping
+- [x] `as_with` off via cancel row drops param
+- [x] Player pages do **not** auto-set `as_with`
 
 ---
 
@@ -337,6 +337,7 @@ When track complete (or per-slice if user stops early):
 
 | Date | Change |
 |------|--------|
+| 2026-06-30 | Slice 1 **shipped** — `as_with=` TT Event ribbon listbox + filtered stepping. |
 | 2026-06-30 | Slice 0 **shipped** — T18 + tournament id-follows-as retired. |
 | 2026-06-30 | Slice 0 expanded — retire tournament `id` follows `as=` (WP14) alongside T18. |
 | 2026-06-30 | Full plan — per-slice files, verification, layout; no handover prompt; implement in single chat track. |

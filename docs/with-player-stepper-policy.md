@@ -1,7 +1,7 @@
 # With player — stepper filter policy
 
-**Status:** **Locked (Jun 2026)** — product spec; **not yet implemented**.  
-**Implementation plan:** [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md) — **ready to implement** (slices 0–3).
+**Status:** **Locked (Jun 2026)** — **slice 1 shipped** (`as_with=` TT Event ribbon); slices 2–3 pending.  
+**Implementation plan:** [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md)
 
 **Parent:** [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) (C02 sticky TT, C13 with-player stepper)
 
@@ -218,6 +218,7 @@ Full checklist: [`with-player-stepper-implementation-plan.md`](with-player-stepp
 
 | Date | Change |
 |------|--------|
+| 2026-06-30 | Slice 1 shipped — explicit `as_with=` on Event ribbon replaces T18. |
 | 2026-06-30 | **WP14** — retire tournament `id` follows TT `as=` (slice 0); tournament chevrons own `id=` navigation. |
 | 2026-06-30 | Planning revision — per-surface params (`as_with`, `id_with`, `start_with`); shared participation lookup only; T18 slice 0 first; independent filters on tournament+TT (WP13). |
 | 2026-06-30 | Initial policy — creative session alignment. |

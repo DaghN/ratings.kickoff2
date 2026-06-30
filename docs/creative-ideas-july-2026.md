@@ -121,12 +121,14 @@ LANDING             Status default                   News tab ◻ (placeholder)
 | **C05** | **Milestones Story feed** | What's unlocking across the ladder? | Server-wide tier-coloured chronology ticker | Online | Hub phase in [`milestones-hub-ia.md`](milestones-hub-ia.md) |
 | **C06** | **Chronology video glyph (TV-4)** | Which events have footage — at a glance? | Small **film glyph** on chronology row; click → tournament video landing | Amiga | **In addition to** "With videos" filter (filter = find; glyph = wow navigate). Column cost TBD — see §6.2. |
 | **C07** | **"One year ago today" league link** | What happened on this calendar date? | Status (or similar) link: *One year ago today…* → `league.php?cup=points&period=day&start=YYYY-MM-DD#k2-league-period` | Online | v1: **1 year ago**; optional later: 2y / 3y rotation. League infra already exists. |
-| **C08** | **Tournament story page** | What happened at this event? | Minimal narrative band: upsets, perf rating, moments cards, video — scale down for 4-player kitchen events | Amiga | Magazine spread on `tournament.php` |
+| **C08** | **Tournament story page** | What happened at this event? | Minimal narrative band: winner, biggest upset, perf rating, **who debuted** in their first official tournament here, moments cards, video — scale down for 4-player kitchen events | Amiga | Magazine spread on `tournament.php`; pairs with **C14** (realm-wide tournament metadata LBs) |
 | **C09** | **Rivalry teaser on profile** | Who's *the* rivalry? | One card → H2H poster | Both | **Deferred** with C01 (Amiga profile pass); online placeholder exists |
 | **C10** | **Online season in review** | How was my 2024? | Calendar year lens on profile — rank Jan vs Dec, games, streak, top rival | Online | Lightweight TT sibling; `player_period_*` tables |
 | **C11** | **WC highlight reel (editorial)** | Show me the best stuff across WC history | Curated story through WC years — a few videos per year + short editorial copy celebrating players | Amiga | **Must be editorial**, not algorithmic boards |
 | **C12** | **Country story page** | Who *are* the Italians? | Prose band: best WC, top player, default rival link | Amiga | **Parked** — interesting but authenticity / data-to-prose unclear |
 | **C13** | **With player stepper filter** | Step only where this person played | Opt-in listbox + chevrons: **`as_with=`** (TT Event), **`id_with=`** (tournament), **`start_with=`** (league); slice 0 retires T18 | Both | [`with-player-stepper-policy.md`](with-player-stepper-policy.md) · [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md). Pairs with **C02**. |
+| **C14** | **Tournament metadata leaderboard** | Which events had the most debuts / biggest fields / …? | **Tournament stats** sub-wing on **Tournaments hub** — sortable metadata boards beside the chronological searchable catalog (mirror **World Cups hub → Tournament stats**, not player/country stats) | Amiga | **Spark** (Jun 2026) — follow-on from **C08** light editorial; generalizes per-tournament facts (debuts, etc.) into realm-wide LBs; likely extend **`amiga_tournament_catalog_stats`** at finalize; player/country tournament grains stay in normal LBs |
+| **C15** | **Highlights: biggest upsets** | What were the wildest rating swings in a single game? | Fifth board on **`/amiga/games/highlights.php`** — games ranked by biggest **rating gain** for the winner (upset framing) | Amiga | **Spark** (Jun 2026) — small add alongside most goals / biggest draws / biggest wins / top score; read stored **`amiga_game_ratings`** deltas |
 
 ### 5.2 Rejected (session) — do not re-pitch
 
@@ -176,6 +178,31 @@ Online already has **day leagues** — this reuses that muscle memory. Example t
 
 Copy variants to explore: *One year ago today…* · *On this day…* · occasional *Two years ago…* for variety.
 
+### 6.4 Tournament metadata LB (C14)
+
+**Origin:** While sketching **C08** (light editorial on `tournament.php` — winner, biggest upset, perf rating, debuts), the follow-on question: *which tournaments had the most debuts?* That generalizes to **leaderboards of tournament metadata**.
+
+**Placement:** **Tournaments hub** (`/amiga/tournaments.php`) is thin today (title + filter pills + chronological sortable table). Split like **World Cups hub**:
+
+| Wing | Question | Notes |
+|------|----------|-------|
+| **Chronology** (existing) | What happened when? | Searchable catalog; filter pills (videos, perfect, …) |
+| **Tournament stats** (new) | Which events stand out on metadata axes? | e.g. most debuts, largest field, most games — sortable boards linking back to `tournament.php` |
+
+**Explicitly not here:** player stats and country stats at tournament grain belong in **Leaderboards** (and maybe a later Countries hub wing) — same split as World Cups (player/country stats live outside the tournament-stats wing).
+
+**Data habit:** Stored truth at finalize — extend **`amiga_tournament_catalog_stats`** (or a sibling table) rather than hot-path scans; debut count = players whose first official tournament is this event.
+
+**Pairs with:** **C08** per-event story band (micro) ↔ **C14** realm-wide metadata boards (macro).
+
+### 6.5 Highlights: biggest upsets (C15)
+
+**Device:** One more board tab on Amiga **Games → Highlights** — games sorted by largest **single-game rating gain** (winner’s Δ), framed as upsets / shock results.
+
+**Scope:** Small slice — reuse existing highlights cluster (`AMIGA_GAMES_HIGHLIGHT_BOARDS` + table render); no new hub tab. WC scope filter (`all` / `wc`) can inherit from sibling boards if useful.
+
+**Feasibility:** **Yes** — `amiga_game_ratings` already stores per-game deltas; same read pattern as online spectacle boards.
+
 ---
 
 ## 7. Blueprint for future creative sessions
@@ -191,7 +218,7 @@ Copy variants to explore: *One year ago today…* · *On this day…* · occasio
 
 | Section | When |
 |---------|------|
-| **Priority stack** | When Dagh ranks C01–C12 for a month |
+| **Priority stack** | When Dagh ranks C01–C15 for a month |
 | **Sparks inbox** | Raw one-liners not yet discussed |
 | **Rejected with date** | Prevent agent re-pitch loops |
 | **Cross-realm parity table** | After major Amiga/online passes |
@@ -217,6 +244,7 @@ Copy variants to explore: *One year ago today…* · *On this day…* · occasio
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **C14–C15 sparks** — tournament metadata LB wing (debuts etc., WC hub pattern on Tournaments hub); Amiga Highlights **biggest upsets** board (rating gain). C08 notes: winner + debut in editorial band. §6.4–§6.5. |
 | 2026-06-30 | **C13 planning revision** — per-surface params (`as_with` / `id_with` / `start_with`); slice 0 T18 removal; [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md). |
 | 2026-06-30 | **C13 with-player stepper** — policy locked [`with-player-stepper-policy.md`](with-player-stepper-policy.md); supersedes Amiga TT T18. |
 | 2026-06-30 | Creative session wrap — §4.0 discoverability; `UPDATE_DOCS` · `AGENTS.md` · `agent-track-playbook` cross-refs. |

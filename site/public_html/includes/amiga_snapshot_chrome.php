@@ -88,6 +88,50 @@ function amiga_snapshot_chrome_render_picker(
     <?php
 }
 
+function amiga_snapshot_chrome_render_as_with_listbox(mysqli $con, string $path, string $currentAs): void
+{
+    require_once __DIR__ . '/amiga_participation_step_lib.php';
+    require_once __DIR__ . '/amiga_as_with_url.php';
+
+    $playerId = amiga_as_with_from_request();
+    $selected = $playerId > 0 ? (string) $playerId : '';
+    $choices = [
+        ['value' => '', 'label' => 'All players'],
+    ];
+    foreach (amiga_participation_eligible_players($con) as $player) {
+        $choices[] = [
+            'value' => (string) $player['id'],
+            'label' => $player['name'],
+        ];
+    }
+    ?>
+<form class="k2-player-games-controls k2-amiga-history__as-with" method="get" action="<?php echo k2_h($path); ?>" data-k2-carry-scroll>
+    <input type="hidden" name="as" value="<?php echo k2_h($currentAs); ?>" />
+    <?php
+    foreach (amiga_snapshot_chrome_carry_query_params($path) as $carryName => $carryValue) {
+        if ($carryName === 'as_with') {
+            continue;
+        }
+        echo '<input type="hidden" name="' . k2_h($carryName) . '" value="' . k2_h((string) $carryValue) . '" />';
+    }
+    foreach (k2_table_sort_query_params() as $sortName => $sortValue) {
+        echo '<input type="hidden" name="' . k2_h($sortName) . '" value="' . k2_h((string) $sortValue) . '" />';
+    }
+    k2_archive_listbox_render(
+        'as_with',
+        'k2-amiga-time-travel-as-with',
+        $selected,
+        $choices,
+        'With player',
+        '',
+        'With player',
+        false,
+        '',
+    ); ?>
+</form>
+    <?php
+}
+
 function amiga_snapshot_chrome_carry_query_params(string $path): array
 {
     $targetPathOnly = k2_table_path_only($path);
@@ -194,6 +238,7 @@ function amiga_snapshot_chrome_event_layout_style(array $catalog): string
 {
     $maxStepperChars = 20;
     $maxNameChars = 12;
+    $maxAsWithChars = 10;
     foreach ($catalog as $item) {
         $maxStepperChars = max($maxStepperChars, mb_strlen((string) ($item['label'] ?? '')));
         $maxNameChars = max($maxNameChars, mb_strlen((string) ($item['tournament_name'] ?? '')));
@@ -203,11 +248,13 @@ function amiga_snapshot_chrome_event_layout_style(array $catalog): string
     // Picker: name column + fixed date column — do not size meta as if it were another full name.
     $nameRem = min(14.0, max(6.5, $maxNameChars * 0.4));
     $pickerRem = min(19.0, max(13.0, $nameRem + 4.5 + 0.25));
+    $asWithRem = min(14.0, max(9.0, $maxAsWithChars * 0.45 + 2.5));
 
     return sprintf(
-        '--k2-amiga-tt-stepper-width:%.1frem;--k2-amiga-tt-picker-width:%.1frem',
+        '--k2-amiga-tt-stepper-width:%.1frem;--k2-amiga-tt-picker-width:%.1frem;--k2-amiga-tt-as-with-width:%.1frem',
         $stepperRem,
-        $pickerRem
+        $pickerRem,
+        $asWithRem
     );
 }
 
@@ -239,6 +286,15 @@ function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $
         $sectionStyle = amiga_snapshot_chrome_event_layout_style($catalog);
     }
 
+    $pickerAccentKeys = null;
+    if ($wing === 'event') {
+        require_once __DIR__ . '/amiga_participation_step_lib.php';
+        $asWithPlayerId = amiga_as_with_active_player_id($con);
+        if ($asWithPlayerId > 0) {
+            $pickerAccentKeys = amiga_player_participated_event_key_set($con, $asWithPlayerId);
+        }
+    }
+
     require_once __DIR__ . '/amiga_time_travel_stamp.php';
     amiga_time_travel_stamp_render($ctx);
     ?>
@@ -256,7 +312,10 @@ function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $
                 $currentAs,
             );
             if ($catalog !== [] && $currentAs !== '') {
-                amiga_snapshot_chrome_render_picker($path, $wing, $currentAs, $catalog, null);
+                amiga_snapshot_chrome_render_picker($path, $wing, $currentAs, $catalog, $pickerAccentKeys);
+            }
+            if ($wing === 'event' && $currentAs !== '') {
+                amiga_snapshot_chrome_render_as_with_listbox($con, $path, $currentAs);
             }
             ?>
         </div>

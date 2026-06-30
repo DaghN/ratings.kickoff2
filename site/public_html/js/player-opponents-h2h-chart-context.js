@@ -38,6 +38,26 @@
         }
     }
 
+    function amigaNavigationQuerySuffix() {
+        if (window.K2AmigaTimeTravelUrl && typeof window.K2AmigaTimeTravelUrl.navigationQuerySuffix === 'function') {
+            return window.K2AmigaTimeTravelUrl.navigationQuerySuffix();
+        }
+        var suffix = '';
+        var asVal = asParam();
+        if (asVal) {
+            suffix += '&as=' + encodeURIComponent(asVal);
+        }
+        try {
+            var asWith = new URLSearchParams(window.location.search).get('as_with');
+            if (asWith !== null && asWith !== '') {
+                suffix += '&as_with=' + encodeURIComponent(String(asWith));
+            }
+        } catch (e) {
+            /* ignore */
+        }
+        return suffix;
+    }
+
     function apiSuffix(el) {
         var suffix = '&realm=' + encodeURIComponent(realmFrom(el));
         if (realmFrom(el) === 'amiga') {
@@ -81,10 +101,7 @@
             url += '&' + key + '=' + encodeURIComponent(String(queryParams[key]));
         }
         if (realmFrom(el) === 'amiga') {
-            var asVal = asParam();
-            if (asVal) {
-                url += '&as=' + encodeURIComponent(asVal);
-            }
+            url += amigaNavigationQuerySuffix();
         }
         return url + gamesHash(el);
     }

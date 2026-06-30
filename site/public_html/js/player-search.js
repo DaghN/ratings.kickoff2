@@ -107,9 +107,21 @@
         }
     }
 
-    function activeAmigaAsParam() {
-        var asParam = new URLSearchParams(window.location.search).get('as');
-        return asParam ? String(asParam) : '';
+    /** TT ribbon params to carry on Amiga profile picks (header search, etc.). */
+    function appendAmigaTimeTravelParams(params) {
+        if (window.K2AmigaTimeTravelUrl && typeof window.K2AmigaTimeTravelUrl.appendParams === 'function') {
+            window.K2AmigaTimeTravelUrl.appendParams(params);
+            return;
+        }
+        var currentParams = new URLSearchParams(window.location.search);
+        var asParam = currentParams.get('as');
+        if (asParam !== null && asParam !== '') {
+            params.set('as', String(asParam));
+        }
+        var asWith = currentParams.get('as_with');
+        if (asWith !== null && asWith !== '') {
+            params.set('as_with', String(asWith));
+        }
     }
 
     function playerProfileHref(p, profilePage) {
@@ -118,10 +130,7 @@
         var params = new URLSearchParams();
         params.set('id', String(p.id));
         if (realm === 'amiga') {
-            var asParam = activeAmigaAsParam();
-            if (asParam !== '') {
-                params.set('as', asParam);
-            }
+            appendAmigaTimeTravelParams(params);
         }
         return base + '?' + params.toString() + '#' + PLAYER_PROFILE_FRAGMENT;
     }
