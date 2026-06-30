@@ -126,6 +126,7 @@ LANDING             Status default                   News tab ◻ (placeholder)
 | **C10** | **Online season in review** | How was my 2024? | Calendar year lens on profile — rank Jan vs Dec, games, streak, top rival | Online | Lightweight TT sibling; `player_period_*` tables |
 | **C11** | **WC highlight reel (editorial)** | Show me the best stuff across WC history | Curated story through WC years — a few videos per year + short editorial copy celebrating players | Amiga | **Must be editorial**, not algorithmic boards |
 | **C12** | **Country story page** | Who *are* the Italians? | Prose band: best WC, top player, default rival link | Amiga | **Parked** — interesting but authenticity / data-to-prose unclear |
+| **C13** | **With player stepper filter** | Step only where this person played | Opt-in listbox + chevrons: **`as_with=`** (TT Event), **`id_with=`** (tournament), **`start_with=`** (league); slice 0 retires T18 | Both | [`with-player-stepper-policy.md`](with-player-stepper-policy.md) · [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md). Pairs with **C02**. |
 
 ### 5.2 Rejected (session) — do not re-pitch
 
@@ -216,5 +217,7 @@ Copy variants to explore: *One year ago today…* · *On this day…* · occasio
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **C13 planning revision** — per-surface params (`as_with` / `id_with` / `start_with`); slice 0 T18 removal; [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md). |
+| 2026-06-30 | **C13 with-player stepper** — policy locked [`with-player-stepper-policy.md`](with-player-stepper-policy.md); supersedes Amiga TT T18. |
 | 2026-06-30 | Creative session wrap — §4.0 discoverability; `UPDATE_DOCS` · `AGENTS.md` · `agent-track-playbook` cross-refs. |
 | 2026-06-30 | Initial ledger from creative chat — recipe, origin stories, C01–C12, rejects, sticky TT + glyph notes. Fixed stale "H2H rank not built" refs in rank-chart policy/plan. |

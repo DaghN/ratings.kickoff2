@@ -61,6 +61,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | **Amiga tournament videos** (YouTube embeds, manifest) | [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) · [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) · [`amiga-tournament-videos-implementation-plan.md`](amiga-tournament-videos-implementation-plan.md) |
 | Hall of Fame record C++ / staging defects | `docs/coordination/records-post-game-exception.md`, `docs/staging-post-game-record-defects.md` (when records behavior changes) |
 | **Creative / product brainstorm** (pre-track ideas, ledger updates — no code) | [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) — update §5 ledger + §8 changelog; one `PROJECT_MEMORY` line; **not** default cold-start read (see doc §4) |
+| **With player stepper** (opt-in filters, tournament/league/TT chevrons; T18 retirement) | [`with-player-stepper-policy.md`](with-player-stepper-policy.md) · plan [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md) |
 
 Skip specs with no change. **Do not** invent new spec files unless Dagh asks.
 

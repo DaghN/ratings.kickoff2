@@ -44,13 +44,13 @@ There is **no** per-page “Current | Historical” split. One chrome control, o
 | **T13** | **Present-only hub tabs** | **News** (present realm landing), **Live tournaments** (last tab in present order), and future editorial hubs (e.g. **Misc**) appear **only** in Present day hub nav. When `as=` is active, **omit** them from the hub bar. Direct requests to those paths **drop `as=`** (302 to present URL). |
 | **T14** | **Mode toggle — fixed homes (T19)** | Header **Time travel** from present → **`/amiga/leaderboards/rating.php?as=year:{first}`** always (first calendar year in catalog). Header **Present day** from time travel → **`/amiga/news.php`** always. Same paths from every page; no contextual path or `as=` on toggle entry. |
 | **T19** | **Toggle vs ribbon** | **Present day \| Time travel** = mode boundary (fixed homes, T14). **Year · Month · Event ribbon** = move through time **inside** the lens while keeping the current view (except event wing on `tournament.php` — §5.1.1). |
-| ~~**T14b**~~ | *(superseded by T19)* | ~~Player-wing contextual toggle entry~~ — ribbon + player event stepper (T18) remain. |
+| ~~**T14b**~~ | *(superseded by T19)* | ~~Player-wing contextual toggle entry~~ — ribbon remains; player Event stepping → [`with-player-stepper-policy.md`](with-player-stepper-policy.md). |
 | ~~**T14c**~~ | *(superseded by T19)* | ~~Tournament-page contextual toggle entry~~ — event ribbon on `tournament.php` (§5.1.1) remains. |
 | **T15** | **Uniform lens** | **Hub (time travel):** only snapshot-worthy tabs (T13b); all derived stats at cutoff. **Player wings:** hero, games, tournaments, opponents, profile — everything at cutoff when wired; preserve `as=` on links. No silent present-day numbers on wired surfaces. |
 | **T13b** | **Time-travel hub bar** | When `as=` is active, hub bar = **present hub tabs minus editorial / live-ops (T13)**, same relative order. **Jun 2026:** **Leaderboards · World Cups · Tournaments · Countries · Games · Activity · Hall of Fame**. Implementation: `K2_AMIGA_HUB_TIME_TRAVEL_TAB_IDS` in `amiga_hub_nav_lib.php` — extend when adding snapshot-worthy tabs; add paths to T13 redirect list when adding editorial tabs. |
 | **T16** | **No silent exit** | Links from active time travel must **preserve `as=`** on a cutoff-aware page, or **explicitly** open present-only content (T13 editorial redirect, labelled present-only link). Never drop `as=` without user intent. |
 | **T17** | **Pre-debut at cutoff** | Valid `amiga_players` row with **no snapshot ≤ cutoff** (or zero games at cutoff): page **loads** (no 404). Hero rank · rating · games show **—** + muted note *Not on the ladder at this cutoff.* Wired tables may be empty; unwired blocks may still show present data with transitional note (T5). |
-| **T18** | **Player event stepper** | On `/amiga/player/…` with **Event** wing: chevrons step **this player’s participated tournaments** (`NumberGames > 0`). **Forward** from pre-debut → first played event. **Back** at first played event → one **realm** tournament at a time. Picker stays **full realm catalog**; played events get **linkstar accent** (name + date in open panel and closed trigger when selected). Hub / LB keep realm-global stepping. Year / Month unchanged. |
+| ~~**T18**~~ | *(superseded Jun 2026)* | ~~Player-page implicit Event stepping + picker accents~~ — **slice 0:** remove; **slice 1+:** explicit **`as_with=`** on Event ribbon. [`with-player-stepper-policy.md`](with-player-stepper-policy.md). |
 
 ---
 
@@ -200,7 +200,7 @@ Phase 1 proved the **data lens**: one `as=` cutoff, correct snapshot reads, link
 
 **Hub bar (when `as=` active):** **Leaderboards · World Cups · Tournaments · Countries · Games · Activity · Hall of Fame** (T13b). Present-day order: **News · Leaderboards · World Cups · Tournaments · Countries · Games · Activity · Hall of Fame · Live** (last). News and Live are **hidden** under time travel.
 
-**Ribbon (when `as=` active):** compact bar at the top of `k2-page-nav` — **below the temporal stamp**, **above** hub tabs, player hero, and player pills. One row (no wrap): **Year | Month | Event** wing tabs · chevrons + snapshot label · listbox picker. Year/Month wings: label only in stepper. **Event wing:** full layout contract in §5.1.1 (stepper link, picker widths, date formats, linkstar accents on player wings).
+**Ribbon (when `as=` active):** compact bar at the top of `k2-page-nav` — **below the temporal stamp**, **above** hub tabs, player hero, and player pills. One row (no wrap): **Year | Month | Event** wing tabs · chevrons + snapshot label · listbox picker · optional **with-player listbox** (Event wing — [`with-player-stepper-policy.md`](with-player-stepper-policy.md)). Year/Month wings: label only in stepper. **Event wing:** full layout contract in §5.1.1 (stepper link, picker widths, date formats).
 
 **Table sort carry:** same-path ribbon navigation preserves active `k2_sort` / `k2_dir` (PHP hrefs + picker; JS refreshes ribbon after column sort). Cross-page links (hub tabs, other wings) do not carry sort indices.
 
@@ -222,7 +222,7 @@ Applies when Event granularity is active (`as=event:…`). Ribbon `<section>` ge
 | **Stepper link** | `/amiga/tournament.php?id={cutoff_tournament_id}#tournament` | Active `as=` via `amiga_url_with_as_param()` in `amiga_snapshot_chrome_render_stepper()`. User stays in time travel on the tournament page (T16) |
 | **Event wing on `tournament.php`** | Chevrons, picker, and mismatched bookmarks | **`id` tracks cutoff event** — `amiga_snapshot_chrome_nav_href()` + picker carry + `amiga_tournament_apply_time_travel_event_id_redirect()` keep the tournament detail in sync with `as=event:{id}` (Jun 2026) |
 | **Picker closed** | Tournament name · date | Name left, date **right-aligned** in a fixed-width box; date `M Y`. Width = catalog longest name + fixed date column (not `name+date` char sum) |
-| **Picker open** | Full realm catalog (newest first) | Panel width **matches** closed trigger; each row name left · date right. On **player wings** (T18), played events: linkstar on **name and date** |
+| **Picker open** | Full realm catalog (newest first) | Panel width **matches** closed trigger; each row name left · date right. When **`as_with=`** active ([`with-player-stepper-policy.md`](with-player-stepper-policy.md)), participated events for that player may use linkstar on **name and date** (secondary) |
 
 **Width CSS vars** (computed in `amiga_snapshot_chrome_event_layout_style()`):
 
@@ -290,7 +290,7 @@ Implementation: `includes/amiga_hub_nav_lib.php` · `amiga_snapshot_redirect_pre
 
 | Module | Role |
 |--------|------|
-| `includes/amiga_player_event_stepper_lib.php` | Player Event chevrons + picker accents (T18) |
+| `includes/amiga_player_event_stepper_lib.php` | *(retire on ship)* T18 — superseded by [`with-player-stepper-policy.md`](with-player-stepper-policy.md) |
 | `includes/amiga_player_snapshot_lib.php` | Hero + `amiga_player_load()` at cutoff |
 | `includes/amiga_elo_rank_lib.php` | Persisted `elo_rank` reads (present + time travel) |
 | `includes/amiga_snapshot_context.php` | Parse `as`, resolve cutoff, `is_active()`, `cutoff()`, `label()`, `query_suffix()` |
@@ -329,7 +329,7 @@ Time travel does **not** add tables or writers. It only changes **read paths** a
 | Present day toggle (from time travel) | Always `/amiga/news.php` (T19); `amiga_url_present()` strips `as=` on in-page links — not the toggle |
 | Time travel toggle (already in lens) | Rating LB + active `as=` (wordmark parity) |
 | Player before debut at cutoff | Hero — / — / — + note; no 404 (T17) |
-| Player event chevrons | Step played tournaments; picker linkstar on played name + date (T18) |
+| With player filter | Opt-in **`as_with=`** on Event ribbon; picker linkstar secondary — [`with-player-stepper-policy.md`](with-player-stepper-policy.md) (T18 removed slice 0) |
 | Event stepper → tournament | Link lands on `tournament.php` with same `as=`; WC redirects keep `as=` |
 | Event wing on tournament.php | Chevrons / picker / `as=event:` change `id` to cutoff tournament (302 when mismatched) |
 | Event picker layout | Catalog-fixed width; closed date right-aligned; open panel = trigger width |
