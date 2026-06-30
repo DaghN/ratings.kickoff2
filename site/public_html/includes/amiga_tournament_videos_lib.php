@@ -84,7 +84,7 @@ function amiga_tournament_has_videos(int $tournamentId): bool
     return isset($index[$tournamentId]) && $index[$tournamentId] !== [];
 }
 
-/** Phosphor play-circle-fill (MIT) — C06 picker row #15. */
+/** Phosphor play-circle-fill (MIT). */
 function amiga_tournament_video_glyph_svg(int $size = 16): string
 {
     return '<svg class="k2-amiga-video-glyph__icon" xmlns="http://www.w3.org/2000/svg" width="' . $size . '" height="' . $size . '" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false">'
@@ -94,20 +94,10 @@ function amiga_tournament_video_glyph_svg(int $size = 16): string
 
 /**
  * Dedicated Videos column cell (TV-4). Empty when no footage; link glyph when present.
+ * Links to the tournament Videos tab at `#tournament`; preserves `as=` / with-player via
+ * amiga_tournament_href().
  */
 function amiga_tournament_video_column_cell(int $tournamentId): string
-{
-    return amiga_tournament_video_glyph($tournamentId, true);
-}
-
-/**
- * "Has footage" glyph for chronology rows (TV-4). Returns '' when the tournament
- * has no verified video.
- *
- * Links to the tournament Videos tab; preserves time-travel / with-player context
- * via amiga_tournament_href().
- */
-function amiga_tournament_video_glyph(int $tournamentId, bool $forColumn = false): string
 {
     if (!amiga_tournament_has_videos($tournamentId)) {
         return '';
@@ -115,13 +105,10 @@ function amiga_tournament_video_glyph(int $tournamentId, bool $forColumn = false
 
     require_once __DIR__ . '/amiga_tournament_lib.php';
 
-    // Land on the zero-height anchor flush above the tournament hero (Videos view).
     $href = amiga_tournament_href(amiga_tournament_videos_url($tournamentId))
         . '#' . AMIGA_TOURNAMENT_PAGE_FRAGMENT;
 
-    $class = 'k2-amiga-video-glyph' . ($forColumn ? ' k2-amiga-video-glyph--column' : '');
-
-    return '<a class="' . $class . '" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '"'
+    return '<a class="k2-amiga-video-glyph" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '"'
         . ' aria-label="Watch footage from this tournament">'
         . amiga_tournament_video_glyph_svg(16) . '</a>';
 }

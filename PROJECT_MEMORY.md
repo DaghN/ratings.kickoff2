@@ -133,6 +133,7 @@
 
 | When | Note |
 |------|------|
+| 2026-07-01 | **C06 cleanup** — removed dev glyph picker page/lib; consolidated `amiga_tournament_video_column_cell()`; CSS scoped to `.k2-table-cell--video-glyph` only. |
 | 2026-07-01 | **C06 + tournaments index table** — Videos column (blank header, empty when no footage, no tooltips); Players + Games columns centered (`k2-table-cell--center`, parity with WC chronology). |
 | 2026-07-01 | **C06 column polish** — empty Videos column header; blank cells when no footage; no glyph tooltips. |
 | 2026-07-01 | **C06 glyph → Phosphor play-circle-fill** — chronology video glyph switched to `ph:play-circle-fill` (picker row #15); dev picker at `/amiga/dev/video-glyph-picker.php`. |

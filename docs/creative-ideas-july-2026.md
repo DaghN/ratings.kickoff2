@@ -172,11 +172,11 @@ LANDING             Status default                   News tab ◻ (placeholder)
 
 **Surfaces:** Tournaments hub catalog (`/amiga/tournaments.php`) + World Cups chronology (`amiga_world_cups_events_table.php`). Player tournament-history table held back (different mental model, denser rows).
 
-**Glyph:** **Phosphor play-circle-fill** (amber-tinted solid circle + play triangle) in a **dedicated Videos column** immediately before Players — centered, narrow; **empty cell** when no footage. Scale-up + accent glow on hover when linked. Shows only when `amiga_tournament_has_videos($id)`. One click → the event's **Videos tab landing on `#tournament`** (zero-height anchor flush above the hero), via `amiga_tournament_videos_url()` + `amiga_tournament_href()` so `as=` / with-player carry. Column header blank; no tooltips on glyphs. Sortable (has footage first/last). Dev comparison page: `/amiga/dev/video-glyph-picker.php`.
+**Glyph:** **Phosphor play-circle-fill** (amber-tinted solid circle + play triangle) in a **dedicated Videos column** immediately before Players — centered, narrow; **empty cell** when no footage. Scale-up + accent glow on hover when linked. Shows only when `amiga_tournament_has_videos($id)`. One click → the event's **Videos tab landing on `#tournament`** (zero-height anchor flush above the hero), via `amiga_tournament_videos_url()` + `amiga_tournament_href()` so `as=` / with-player carry. Column header blank; no tooltips on glyphs. Sortable (has footage first/last).
 
 **Table layout:** Both surfaces use `k2-table-cell--center` on **Players** and **Games** (header + body). Tournaments catalog aligned to WC chronology in Jul 2026.
 
-**Implementation:** `amiga_tournament_video_column_cell()` in `amiga_tournament_videos_lib.php`; `amiga_tournament_index_render_table()` + `amiga_world_cups_events_render_table()`; CSS `.k2-table-cell--video-glyph` + `.k2-amiga-video-glyph--column` in `theme.css`. Closes TV-4.
+**Implementation:** `amiga_tournament_video_column_cell()` in `amiga_tournament_videos_lib.php`; `amiga_tournament_index_render_table()` + `amiga_world_cups_events_render_table()`; CSS scoped to `.k2-table-cell--video-glyph` in `theme.css`. Closes TV-4.
 
 ### 6.3 "One year ago today" (C07) — shipped
 
@@ -260,6 +260,7 @@ LANDING             Status default                   News tab ◻ (placeholder)
 
 | When | Note |
 |------|------|
+| 2026-07-01 | **C06 cleanup** — dev glyph picker removed; production-only `amiga_tournament_video_column_cell()` + scoped CSS; §6.2. |
 | 2026-07-01 | **C06 table polish** — blank Videos header; empty cells without footage; no glyph tooltips; tournaments catalog Players/Games centered (WC parity); §6.2. |
 | 2026-07-01 | **C06 column layout** — video glyph moved from inline Tournament cell to dedicated Videos column (before Players) on tournaments catalog + WC chronology; sortable; §6.2. |
 | 2026-07-01 | **C06 shipped** — Chronology video glyph: Phosphor play-circle-fill → Videos tab at `#tournament`; `amiga_tournament_video_glyph()`; closes TV-4; player history table held back; §6.2. |
