@@ -92,6 +92,23 @@ Same behaviour as rating history pilot: prev/next step within active wing; jump 
 
 **Event wing** uses two date formats: stepper label `M j, Y` (e.g. `Nov 14, 2006`); picker `M Y` (e.g. `Nov 2018`). Layout contract: §5.1.1.
 
+### 3.4 With-player filters (agents)
+
+Opt-in stepping filters — **separate from cutoff `as=`**. Full spec: [`with-player-stepper-policy.md`](with-player-stepper-policy.md).
+
+| Param | Surface | Propagate on |
+|-------|---------|--------------|
+| `as_with` | TT Event ribbon | Amiga internal links that preserve `as=` |
+| `id_with` | Tournament chevrons | `/amiga/tournament/…` folder only |
+| `start_with` | League period chevrons | `league.php` peer links only |
+
+**Agent habit (same class as T4 / T16 link carry):**
+
+- **PHP navigation:** `amiga_url_with_context()` / `k2_amiga_route()` — appends request `as_with` when active; `amiga_url_present()` strips `as=` **and** `as_with`.
+- **JS navigation** (header search, chart drill-downs): [`k2-amiga-time-travel-url.js`](../site/public_html/js/k2-amiga-time-travel-url.js) — carry `as=` + `as_with` on hrefs; do **not** hand-roll `as=` only.
+- **Chart/API fetches:** pass **`as=` only** (snapshot cutoff) — with-player params are ribbon/stepper state, not read-path inputs.
+- **Never** auto-enable with-player from page context (T18 retired); user picks the listbox explicitly.
+
 ---
 
 ## 4. Read-path register

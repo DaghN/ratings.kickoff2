@@ -135,6 +135,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **Agent onboarding** — AGENTS traps + kool-workspace + TT policy §3.4 + page-structure checklist: with-player URL carry alongside `as=`. |
 | 2026-06-30 | **With player slice 1 fix** — shared `k2-amiga-time-travel-url.js`; header search + H2H chart games links preserve `as_with=`. |
 | 2026-06-30 | **With player slice 1** — `as_with=` on TT Event ribbon: participation lib, listbox, filtered Event chevrons, picker link-star accents, URL propagation. |
 | 2026-06-30 | **With player slice 0 follow-up** — `amiga_tournament_href()` no longer rewrites `as=event:{linked id}`; removed dead `amiga_tournament_snapshot_as_param()`. |

@@ -53,9 +53,9 @@ If unsure: **grep** `k2_amiga_route(` / `k2_route(` in the nearest neighbour and
 
 1. **Thin entry file** per mode — set view variables; `require` shared shell (one-liner pattern like `event-stats.php`).
 2. **Register routes** — `K2_ROUTES` (online) or `K2_AMIGA_ROUTES` + `k2_route()` / `k2_amiga_route()`; hub default key points at the default mode file.
-3. **Href helpers** — build URLs via route helpers + time-travel wrappers (`amiga_tournament_href`, `amiga_url_with_context`); no hardcoded relative paths from subfolders.
+3. **Href helpers** — build URLs via route helpers + time-travel wrappers (`amiga_tournament_href`, `amiga_url_with_context` — carries `as=` + request `as_with`); no hardcoded relative paths from subfolders. With-player params per surface: [`with-player-stepper-policy.md`](with-player-stepper-policy.md).
 4. **Sub-nav hrefs** — full paths from route keys only.
-5. **Legacy redirect (302)** when replacing a query-param mode — preserve `id`, filters, `as=`; drop retired mode keys (`view`, `wing`).
+5. **Legacy redirect (302)** when replacing a query-param mode — preserve `id`, filters, `as=`, active with-player param where applicable; drop retired mode keys (`view`, `wing`).
 6. **Nav chrome** — then read [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) for markup/spacing.
 7. **Tables on the page** — [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md).
 
