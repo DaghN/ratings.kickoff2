@@ -157,7 +157,7 @@ WC **Perfect** column does **not** add columns to `amiga_player_slice_*`.
 | Hall of Fame | `/amiga/hall-of-fame.php` | `MostPerfectEvents*` from `amiga_generalstats` / realm snapshot at cutoff |
 | HoF deep link | HoF value cell | Tournament honours LB sorted by Perfect column (`amiga_records_hof_lb_target`) |
 | Player tournament history | `/amiga/player/tournaments.php` | Per-row `is_perfect_event` (badge/icon — UI slice); optional client filter |
-| Tournament catalog | `/amiga/tournaments.php` | `has_perfect_participant` facet (query param TBD in implementation plan) |
+| Tournament catalog | `/amiga/tournaments.php` | ~~`has_perfect_participant` facet~~ — **removed Jun 2026** (Perfect run toggle); data column retained in lib for other surfaces |
 | Player tournament list (same player) | `/amiga/player/tournaments.php?id=` | Same catalog filter on player’s events |
 | Profile (later) | `/amiga/player/profile.php` | Honours strip / recent tournaments — reuse rollup + flag |
 | Performance rating LB | `/amiga/leaderboards/performance-rating.php` | Cross-link copy only — no merge |

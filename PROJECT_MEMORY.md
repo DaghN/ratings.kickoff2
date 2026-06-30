@@ -131,6 +131,8 @@
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **Amiga tournaments index** — removed **Perfect run** facet toggle from `/amiga/tournaments.php` (player tournament history filter unchanged). |
+| 2026-06-30 | **Amiga perf-rating Perfect wing Date column** — body cells stay muted (`k2-amiga-lb-perf-rating-date`) when date is active sort; header keeps sorted chrome. |
 | 2026-06-30 | **Amiga perf-rating Perfect wing lede** — “Every perfect tournament run, `<span class="blue">`{count}`</span>` in total.” on `perfect.php`. |
 | 2026-06-30 | **Amiga game id links → video landing** — `k2_amiga_game_page_url()` hash from manifest: caption (1 video), menu (2+), else `#k2-game`. All id links via existing helper chain. |
 | 2026-06-30 | **Amiga game page hash landing** — `#k2-game` anchor + `$k2ScrollTargetId` (bare id URLs); `k2_amiga_game_page_url()` canonical helper; all inbound id links funnel through it (`amiga_rated_game_id_html` + H2H/moments/WC stats call sites). Short-page scroll via existing `k2_carry_scroll_restore.php` `ensureMinScrollHeight`. |
@@ -205,6 +207,7 @@
 | 2026-06-29 | **Amiga WC event-stats Medal column** — Gold/Silver/Bronze use `amiga_wc_podium_metal_label_markup()` (same gradient metal as player hero). |
 | 2026-06-29 | **Amiga tournament event-stats `#` rank column** — first col autorank (`data-k2-autorank="true"`); Player anchor col 1; default Pts sort col 11; ranks follow active sort (SSR = Pts desc tiebreak). |
 | 2026-06-28 | **Amiga game table flags fix** — player games + single-game queries now SELECT `country_a`/`country_b`/`tournament_country`; pages load `amiga-tournament.css` (helpers were correct; rows lacked data). |
+| 2026-06-30 | **Amiga tournaments index — Winner + Winning country filters** — faceted archive listboxes on `/amiga/tournaments.php` (`winner`, `winner_country`); pill URLs + summary line carry both; host-country facet now omits self (parity with year facet). |
 | 2026-06-28 | **Amiga tournament link strays** — country roster Last event + player videos Tournament col now `amiga_tournament_link()` (was hand-built `<a href>`). |
 | 2026-06-28 | **Amiga inline table flags shipped** — retired flag-only Country columns; `k2_amiga_country_roster_link()` + `k2_amiga_lb_country_cell()`; `amiga_tournament_link()` → `k2-link-star`; 17 table surfaces migrated per [`k2-table-entity-links-policy.md`](docs/k2-table-entity-links-policy.md). |
 | 2026-06-28 | **K2 table entity links policy** — [`k2-table-entity-links-policy.md`](docs/k2-table-entity-links-policy.md) locked; implementation same day (inline flags). |

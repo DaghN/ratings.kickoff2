@@ -226,7 +226,7 @@ Do not grow this into a generic table framework unless a real repeated need appe
 
 **Amiga player tournament history (`/amiga/player/tournaments.php`):** `$k2RankedCloak` + sortable assets; `amiga_profile_render_tournament_history_table()` — anchor col 1 (Tournament), default sort col 0 (Date desc); Event chrome-tab segment + Host country / Year listboxes (`amiga_player_tournaments_filters_nav.php` — catalog index parity); filter URLs carry `k2_sort`, `country`, `year`.
 
-**Amiga tournament catalog index (`/amiga/tournaments.php`):** same cloak/assets pattern; `amiga_tournament_index_render_table()` — anchor col 1 (Tournament), default sort col 0 (Date desc); WC / format / videos toggle pills + **Host country** / **Year** archive listboxes (`k2_archive_listbox`, `individual3-filters.js`); filter URLs via `amiga_tournament_index_filter_url()` carry `k2_sort`, `country`, `year`.
+**Amiga tournament catalog index (`/amiga/tournaments.php`):** same cloak/assets pattern; `amiga_tournament_index_render_table()` — anchor col 1 (Tournament), default sort col 0 (Date desc); WC / format / videos toggle pills + **Host country** / **Year** / **Winner** / **Winning country** archive listboxes (`k2_archive_listbox`, `individual3-filters.js`); filter URLs via `amiga_tournament_index_filter_url()` carry `k2_sort`, `country`, `year`, `winner`, `winner_country`.
 
 **Amiga live tournaments index (`/amiga/live-tournaments.php`):** cloak/assets; `amiga_live_tournament_index_render_table()` — anchor col 0 (Tournament), default sort col 1 (Date desc, matches `started_at`/`event_date` SQL order); `skip-initial-sort` on default.
 

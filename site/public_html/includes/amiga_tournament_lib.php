@@ -1295,6 +1295,26 @@ function amiga_tournament_index_matches_year_filter(array $row, int $yearFilter)
     return amiga_tournament_index_event_year($row) === $yearFilter;
 }
 
+/** Tournament index winner filter: 0 = all. */
+function amiga_tournament_index_matches_winner_filter(array $row, int $winnerFilter): bool
+{
+    if ($winnerFilter < 1) {
+        return true;
+    }
+
+    return (int) ($row['winner_player_id'] ?? 0) === $winnerFilter;
+}
+
+/** Tournament index winning-country filter: '' = all. */
+function amiga_tournament_index_matches_winner_country_filter(array $row, string $winnerCountryFilter): bool
+{
+    if ($winnerCountryFilter === '') {
+        return true;
+    }
+
+    return trim((string) ($row['winner_country'] ?? '')) === $winnerCountryFilter;
+}
+
 /**
  * Apply index filters; omit one dimension for faceted listbox counts.
  *
@@ -1310,10 +1330,14 @@ function amiga_tournament_index_filter_rows(
     bool $omitCountry = false,
     bool $omitYear = false,
     string $perfectFilter = '',
+    int $winnerFilter = 0,
+    string $winnerCountryFilter = '',
+    bool $omitWinner = false,
+    bool $omitWinnerCountry = false,
 ): array {
     return array_values(array_filter(
         $rows,
-        static function (array $row) use ($wcFilter, $typeFilter, $videosFilter, $countryFilter, $yearFilter, $omitCountry, $omitYear, $perfectFilter): bool {
+        static function (array $row) use ($wcFilter, $typeFilter, $videosFilter, $countryFilter, $yearFilter, $omitCountry, $omitYear, $perfectFilter, $winnerFilter, $winnerCountryFilter, $omitWinner, $omitWinnerCountry): bool {
             if (!amiga_tournament_index_matches_wc_filter($row, $wcFilter)) {
                 return false;
             }
@@ -1330,6 +1354,12 @@ function amiga_tournament_index_filter_rows(
                 return false;
             }
             if (!$omitYear && !amiga_tournament_index_matches_year_filter($row, $yearFilter)) {
+                return false;
+            }
+            if (!$omitWinner && !amiga_tournament_index_matches_winner_filter($row, $winnerFilter)) {
+                return false;
+            }
+            if (!$omitWinnerCountry && !amiga_tournament_index_matches_winner_country_filter($row, $winnerCountryFilter)) {
                 return false;
             }
 
@@ -1442,6 +1472,109 @@ function amiga_tournament_index_year_listbox_choices(array $counts, string $idle
 }
 
 /**
+ * @return array<int, array{name: string, count: int}> player id => winner facet row
+ */
+function amiga_tournament_index_winner_counts(array $rows): array
+{
+    $counts = [];
+    foreach ($rows as $row) {
+        $winnerId = (int) ($row['winner_player_id'] ?? 0);
+        if ($winnerId < 1) {
+            continue;
+        }
+        $name = trim((string) ($row['winner_name'] ?? ''));
+        if ($name === '') {
+            continue;
+        }
+        if (!isset($counts[$winnerId])) {
+            $counts[$winnerId] = ['name' => $name, 'count' => 0];
+        }
+        $counts[$winnerId]['count']++;
+    }
+    uasort(
+        $counts,
+        static fn (array $a, array $b): int => strcasecmp($a['name'], $b['name']),
+    );
+
+    return $counts;
+}
+
+/**
+ * @return array<string, int> winning country name => tournament count
+ */
+function amiga_tournament_index_winner_country_counts(array $rows): array
+{
+    $counts = [];
+    foreach ($rows as $row) {
+        $country = trim((string) ($row['winner_country'] ?? ''));
+        if ($country === '') {
+            continue;
+        }
+        $counts[$country] = ($counts[$country] ?? 0) + 1;
+    }
+    ksort($counts, SORT_STRING);
+
+    return $counts;
+}
+
+/**
+ * @param array<int, array{name: string, count: int}> $counts
+ * @return array<int, array{name: string, count: int}>
+ */
+function amiga_tournament_index_inject_selected_winner(array $counts, int $winnerId, string $winnerName = ''): array
+{
+    if ($winnerId < 1 || isset($counts[$winnerId])) {
+        return $counts;
+    }
+    $counts[$winnerId] = [
+        'name' => $winnerName !== '' ? $winnerName : ('Player #' . $winnerId),
+        'count' => 0,
+    ];
+    uasort(
+        $counts,
+        static fn (array $a, array $b): int => strcasecmp($a['name'], $b['name']),
+    );
+
+    return $counts;
+}
+
+/**
+ * @param array<string, int> $counts
+ * @return array<string, int>
+ */
+function amiga_tournament_index_inject_selected_winner_country(array $counts, string $country): array
+{
+    return amiga_tournament_index_inject_selected_country($counts, $country);
+}
+
+/**
+ * @param array<int, array{name: string, count: int}> $counts
+ * @return list<array{value: string, label: string, meta: string}>
+ */
+function amiga_tournament_index_winner_listbox_choices(array $counts): array
+{
+    $choices = [['value' => '0', 'label' => '', 'meta' => '']];
+    foreach ($counts as $winnerId => $row) {
+        $choices[] = [
+            'value' => (string) (int) $winnerId,
+            'label' => (string) $row['name'],
+            'meta' => (string) (int) $row['count'],
+        ];
+    }
+
+    return $choices;
+}
+
+/**
+ * @param array<string, int> $counts
+ * @return list<array{value: string, label: string, meta: string}>
+ */
+function amiga_tournament_index_winner_country_listbox_choices(array $counts): array
+{
+    return amiga_tournament_index_country_listbox_choices($counts);
+}
+
+/**
  * Plain-language count line for the filtered tournament catalog list.
  */
 function amiga_tournament_index_list_summary(
@@ -1453,6 +1586,9 @@ function amiga_tournament_index_list_summary(
     string $countryFilter = '',
     int $yearFilter = 0,
     string $perfectFilter = '',
+    int $winnerFilter = 0,
+    string $winnerCountryFilter = '',
+    string $winnerName = '',
 ): string {
     if ($count === 0) {
         if (!$hasAnyTournaments) {
@@ -1494,6 +1630,12 @@ function amiga_tournament_index_list_summary(
     if ($yearFilter > 0) {
         $suffix .= ' in ' . $yearFilter;
     }
+    if ($winnerFilter > 0) {
+        $suffix .= ' won by ' . ($winnerName !== '' ? $winnerName : ('player #' . $winnerFilter));
+    }
+    if ($winnerCountryFilter !== '') {
+        $suffix .= ' with winner from ' . $winnerCountryFilter;
+    }
 
     $hasFilters = $preNoun !== [] || $postNoun !== [] || $suffix !== '';
     if (!$hasFilters) {
@@ -1520,13 +1662,17 @@ function amiga_tournament_index_filters_active(
     string $countryFilter,
     int $yearFilter,
     string $perfectFilter = '',
+    int $winnerFilter = 0,
+    string $winnerCountryFilter = '',
 ): bool {
     return $wcFilter !== ''
         || $typeFilter !== ''
         || $videosFilter !== ''
         || $perfectFilter !== ''
         || $countryFilter !== ''
-        || $yearFilter > 0;
+        || $yearFilter > 0
+        || $winnerFilter > 0
+        || $winnerCountryFilter !== '';
 }
 
 function amiga_tournament_index_reset_url(): string
@@ -1543,7 +1689,9 @@ function amiga_tournament_index_filter_url(
     string $wcFilter = '',
     string $countryFilter = '',
     int $yearFilter = 0,
-    string $perfectFilter = ''
+    string $perfectFilter = '',
+    int $winnerFilter = 0,
+    string $winnerCountryFilter = '',
 ): string {
     require_once __DIR__ . '/k2_table_helpers.php';
     require_once __DIR__ . '/k2_amiga_routes.php';
@@ -1554,6 +1702,8 @@ function amiga_tournament_index_filter_url(
         $perfectFilter === 'with-participant' ? ['perfect' => 'with-participant'] : [],
         $countryFilter !== '' ? ['country' => $countryFilter] : [],
         $yearFilter > 0 ? ['year' => (string) $yearFilter] : [],
+        $winnerFilter > 0 ? ['winner' => (string) $winnerFilter] : [],
+        $winnerCountryFilter !== '' ? ['winner_country' => $winnerCountryFilter] : [],
         k2_table_sort_query_params(),
     );
 

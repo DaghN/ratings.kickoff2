@@ -44,11 +44,6 @@ if ($videosFilter !== 'with-videos') {
     $videosFilter = '';
 }
 
-$perfectFilter = isset($_GET['perfect']) ? (string) $_GET['perfect'] : '';
-if ($perfectFilter !== 'with-participant') {
-    $perfectFilter = '';
-}
-
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $con->query("SET time_zone = '+00:00'");
 $ctx = amiga_lb_context($con);
@@ -59,6 +54,8 @@ mysqli_close($con);
 
 $catalogCountries = array_keys(amiga_tournament_index_country_counts($allRows));
 $catalogYears = array_keys(amiga_tournament_index_year_counts($allRows));
+$catalogWinners = amiga_tournament_index_winner_counts($allRows);
+$catalogWinnerCountries = array_keys(amiga_tournament_index_winner_country_counts($allRows));
 
 $countryFilter = '';
 if (isset($_GET['country']) && is_string($_GET['country'])) {
@@ -76,6 +73,24 @@ if (isset($_GET['year'])) {
     }
 }
 
+$winnerFilter = 0;
+$winnerFilterName = '';
+if (isset($_GET['winner'])) {
+    $winnerCandidate = filter_var($_GET['winner'], FILTER_VALIDATE_INT);
+    if ($winnerCandidate !== false && $winnerCandidate > 0 && isset($catalogWinners[(int) $winnerCandidate])) {
+        $winnerFilter = (int) $winnerCandidate;
+        $winnerFilterName = (string) $catalogWinners[$winnerFilter]['name'];
+    }
+}
+
+$winnerCountryFilter = '';
+if (isset($_GET['winner_country']) && is_string($_GET['winner_country'])) {
+    $winnerCountryCandidate = trim($_GET['winner_country']);
+    if ($winnerCountryCandidate !== '' && in_array($winnerCountryCandidate, $catalogWinnerCountries, true)) {
+        $winnerCountryFilter = $winnerCountryCandidate;
+    }
+}
+
 $countryFacetRows = amiga_tournament_index_filter_rows(
     $allRows,
     $wcFilter,
@@ -83,9 +98,13 @@ $countryFacetRows = amiga_tournament_index_filter_rows(
     $videosFilter,
     $countryFilter,
     $yearFilter,
+    true,
     false,
+    '',
+    $winnerFilter,
+    $winnerCountryFilter,
     false,
-    $perfectFilter
+    false
 );
 $yearFacetRows = amiga_tournament_index_filter_rows(
     $allRows,
@@ -96,7 +115,41 @@ $yearFacetRows = amiga_tournament_index_filter_rows(
     $yearFilter,
     false,
     true,
-    $perfectFilter
+    '',
+    $winnerFilter,
+    $winnerCountryFilter,
+    false,
+    false
+);
+$winnerFacetRows = amiga_tournament_index_filter_rows(
+    $allRows,
+    $wcFilter,
+    $typeFilter,
+    $videosFilter,
+    $countryFilter,
+    $yearFilter,
+    false,
+    false,
+    '',
+    $winnerFilter,
+    $winnerCountryFilter,
+    true,
+    false
+);
+$winnerCountryFacetRows = amiga_tournament_index_filter_rows(
+    $allRows,
+    $wcFilter,
+    $typeFilter,
+    $videosFilter,
+    $countryFilter,
+    $yearFilter,
+    false,
+    false,
+    '',
+    $winnerFilter,
+    $winnerCountryFilter,
+    false,
+    true
 );
 
 $countryCounts = amiga_tournament_index_inject_selected_country(
@@ -107,11 +160,24 @@ $yearCounts = amiga_tournament_index_inject_selected_year(
     amiga_tournament_index_year_counts($yearFacetRows),
     $yearFilter
 );
+$winnerCounts = amiga_tournament_index_inject_selected_winner(
+    amiga_tournament_index_winner_counts($winnerFacetRows),
+    $winnerFilter,
+    $winnerFilterName
+);
+$winnerCountryCounts = amiga_tournament_index_inject_selected_winner_country(
+    amiga_tournament_index_winner_country_counts($winnerCountryFacetRows),
+    $winnerCountryFilter
+);
 
 $countryChoices = amiga_tournament_index_country_listbox_choices($countryCounts);
 $yearChoices = amiga_tournament_index_year_listbox_choices($yearCounts);
+$winnerChoices = amiga_tournament_index_winner_listbox_choices($winnerCounts);
+$winnerCountryChoices = amiga_tournament_index_winner_country_listbox_choices($winnerCountryCounts);
 $showCountryFilter = count($countryCounts) > 1 || $countryFilter !== '';
 $showYearFilter = count($yearCounts) > 1 || $yearFilter > 0;
+$showWinnerFilter = count($winnerCounts) > 1 || $winnerFilter > 0;
+$showWinnerCountryFilter = count($winnerCountryCounts) > 1 || $winnerCountryFilter !== '';
 
 $rows = amiga_tournament_index_filter_rows(
     $allRows,
@@ -122,7 +188,11 @@ $rows = amiga_tournament_index_filter_rows(
     $yearFilter,
     false,
     false,
-    $perfectFilter
+    '',
+    $winnerFilter,
+    $winnerCountryFilter,
+    false,
+    false
 );
 $listSummary = amiga_tournament_index_list_summary(
     count($rows),
@@ -132,7 +202,10 @@ $listSummary = amiga_tournament_index_list_summary(
     $videosFilter,
     $countryFilter,
     $yearFilter,
-    $perfectFilter,
+    '',
+    $winnerFilter,
+    $winnerCountryFilter,
+    $winnerFilterName
 );
 ?>
 
@@ -146,19 +219,24 @@ if (!amiga_snapshot_time_travel_active_from_request()) {
 $k2AmigaTournamentIndexWcFilter = $wcFilter;
 $k2AmigaTournamentIndexFilter = $typeFilter;
 $k2AmigaTournamentIndexVideosFilter = $videosFilter;
-$k2AmigaTournamentIndexPerfectFilter = $perfectFilter;
 $k2AmigaTournamentIndexCountryFilter = $countryFilter;
 $k2AmigaTournamentIndexYearFilter = $yearFilter;
+$k2AmigaTournamentIndexWinnerFilter = $winnerFilter;
+$k2AmigaTournamentIndexWinnerCountryFilter = $winnerCountryFilter;
 $k2AmigaTournamentIndexCountryChoices = $countryChoices;
 $k2AmigaTournamentIndexYearChoices = $yearChoices;
+$k2AmigaTournamentIndexWinnerChoices = $winnerChoices;
+$k2AmigaTournamentIndexWinnerCountryChoices = $winnerCountryChoices;
 $k2AmigaTournamentIndexShowCountryFilter = $showCountryFilter;
 $k2AmigaTournamentIndexShowYearFilter = $showYearFilter;
+$k2AmigaTournamentIndexShowWinnerFilter = $showWinnerFilter;
+$k2AmigaTournamentIndexShowWinnerCountryFilter = $showWinnerCountryFilter;
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_index_nav.php';
 ?>
 
 <div class="k2-player-games-status" data-k2-carry-scroll>
 	<?php echo k2_h($listSummary); ?>
-<?php if (amiga_tournament_index_filters_active($wcFilter, $typeFilter, $videosFilter, $countryFilter, $yearFilter, $perfectFilter)) { ?>
+<?php if (amiga_tournament_index_filters_active($wcFilter, $typeFilter, $videosFilter, $countryFilter, $yearFilter, '', $winnerFilter, $winnerCountryFilter)) { ?>
 	<a class="k2-player-games-reset" href="<?php echo k2_h(amiga_tournament_index_reset_url()); ?>">Reset filters</a>
 <?php } ?>
 </div>

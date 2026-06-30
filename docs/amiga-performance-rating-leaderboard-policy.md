@@ -83,7 +83,7 @@ Tooltips: `data-k2-help` on headers per [`k2-tooltip-policy.md`](k2-tooltip-poli
 | Top 100 | 3 (Perf.) | desc | 0 |
 | Perfect | 9 (Date) | desc | 0 |
 
-**Perfect:** default sort is newest-first via `event_date` / `event_chrono` on the Date column `data-k2-sort-value` (`event_chrono` primary, `tournament_id` tie-break).
+**Perfect:** default sort is newest-first via `event_date` / `event_chrono` on the Date column `data-k2-sort-value` (`event_chrono` primary, `tournament_id` tie-break). Date **body** cells use `k2-amiga-lb-perf-rating-date` so active-sort emphasis stays muted; Date **header** keeps normal sorted chrome (accent bar).
 
 ### 3.3 Top 100 sortable-within-set
 

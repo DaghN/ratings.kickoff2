@@ -28,6 +28,8 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows): vo
     $isPerfect = $view === 'perfect';
     $defaultSortCol = $isPerfect ? AMIGA_LB_PERF_RATING_COL_DATE : AMIGA_LB_PERF_RATING_COL_PERF;
     $lbSort = k2_lb_table_sort_state($defaultSortCol);
+    $tableClass = k2_table_ranked_leaderboard_class($isPerfect ? 'k2-table--perf-rating-perfect' : '');
+    $dateCellClass = 'k2-table-cell--right' . ($isPerfect ? ' k2-amiga-lb-perf-rating-date' : '');
 
     $perfHelp = amiga_perf_rating_column_help();
     $infinityHelp = amiga_perf_rating_perfect_infinity_help();
@@ -35,7 +37,7 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows): vo
 
     k2_table_wrap_open(true);
     ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr($defaultSortCol); ?>>
+<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr($defaultSortCol); ?>>
 
 <thead>
     <tr>
@@ -48,7 +50,7 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows): vo
         <th<?php echo k2_lb_th(6, $lbSort, ''); ?> data-k2-sort="number">D</th>
         <th<?php echo k2_lb_th(7, $lbSort, ''); ?> data-k2-sort="number">L</th>
         <th<?php echo k2_lb_th(8, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort="text">Event</th>
-        <th<?php echo k2_lb_th(9, $lbSort, 'k2-table-cell--right'); ?> data-k2-sort="number">Date</th>
+        <th<?php echo k2_lb_th(AMIGA_LB_PERF_RATING_COL_DATE, $lbSort, 'k2-table-cell--right'); ?> data-k2-sort="number">Date</th>
     </tr>
 </thead>
 
@@ -88,7 +90,7 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows): vo
                 (string) ($row['host_country'] ?? '')
             );
         ?></td>
-        <td<?php echo k2_lb_td(9, $lbSort, 'k2-table-cell--right'); ?> data-k2-sort-value="<?php echo k2_h($dateSortValue); ?>"><?php echo amiga_profile_format_event_date($row['event_date'] ?? null); ?></td>
+        <td<?php echo k2_lb_td(AMIGA_LB_PERF_RATING_COL_DATE, $lbSort, $dateCellClass); ?> data-k2-sort-value="<?php echo k2_h($dateSortValue); ?>"><?php echo amiga_profile_format_event_date($row['event_date'] ?? null); ?></td>
     </tr>
         <?php
         $rank++;
