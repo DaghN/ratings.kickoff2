@@ -1,7 +1,7 @@
 # With player stepper — implementation plan
 
-**Status:** **Complete (Jun 2026)** — slices **0 → 3** shipped.  
-**Policy:** [`with-player-stepper-policy.md`](with-player-stepper-policy.md)
+**Status:** **Complete (Jun 2026)** — slices **0 → 3** shipped; post-track: **`id_country=`**, faceted listbox counts, **filter auto-snap** (§5.8).  
+**Policy:** [`with-player-stepper-policy.md`](with-player-stepper-policy.md) · **Module map:** policy §10
 
 **Migration:** **L0** — read-time participation lookups only; **no Part B**.
 
@@ -21,15 +21,28 @@
 | Layer | Share? | Notes |
 |-------|--------|-------|
 | Participation key-set query | **Yes** | Amiga: `amiga_player_event_snapshots` (`NumberGames > 0`). Online slice 3: rated games in period. |
-| Pure step-key resolver | **Yes** | `{ catalog, current_key, eligible_key_set } → { prev_key, next_key }` — no URL, no realm fallback when filter on. Player participation is one way to build the eligible set; tournament catalog filters are others (§5.7). |
-| Eligible player list (A–Z, ≥1 game) | **Yes** per realm | Separate SQL; same listbox render |
-| URL param + propagation | **No** | `as_with` · `id_with` · `start_with` (+ future `id_*` catalog filters) — small helper families per surface |
+| Eligible player list (A–Z, ≥1 game) | **Yes** per realm | Separate SQL; same listbox render; tournament listboxes add faceted `meta` counts |
+| Pure step-key resolver | **Yes** | `k2_participation_step_keys()` + optional `k2_participation_snap_target_key()` — no URL |
+| Filter auto-snap (302) | **No** | **Separate entry per surface** (WP18) — TT `amiga_as_with_snap.php` + preamble; tournament `amiga_tournament_page.php`; league `k2_start_with_snap_bootstrap.php`. Must run **before HTML**. |
+| URL param + propagation | **No** | `as_with` · `id_with` · `id_country` · `start_with` (+ future `id_*`) — small helper families per surface |
 | Chevron href builders | **No** | Each surface owns the query key it moves. Tournament layer adds **wing-preserving href resolver** (§5.6) — separate from catalog stepping. |
 | Listbox form | **No** | Same widget; different field name and `action` path |
-| Tournament catalog builder | **No** (tournament-local) | Filter bag → chrono keys; slice 2 ships `id_with` only — see slice 2 § Architecture |
+| Tournament catalog builder | **No** (tournament-local) | Filter bag → eligible key set; ships `player_id` + `country` |
 | TT ribbon stepper | **No reuse for tournament** | WP15 — do not extend snapshot chrome/context for `id=` steps |
 
-**Explicit filter stepping (simpler than T18):** when a with-player param is set, prev/next only land on participated keys; **no** “realm back one event before debut” fallback.
+**Explicit filter stepping:** when a with-player / catalog filter param is set, prev/next only land on eligible keys; **no** T18 “realm back one event before debut” fallback.
+
+---
+
+## Module inventory (shipped)
+
+See policy **§10** for the full table. Probes:
+
+```powershell
+C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe scripts\oneoff\amiga_snapshot_context_probe.php
+C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe scripts\oneoff\amiga_tournament_step_probe.php
+C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe scripts\oneoff\k2_league_period_step_probe.php
+```
 
 ---
 
@@ -118,17 +131,21 @@ Opt-in filter on time-travel **Event** wing. Replaces removed T18 behaviour with
 | File | Role |
 |------|------|
 | **`includes/amiga_participation_step_lib.php`** (new) | `amiga_player_participated_event_keys($con, $playerId): list<string>` · `amiga_player_participated_event_key_set()` · `k2_participation_step_keys(array $catalog, string $currentKey, array $participatedSet): array{prev_key, next_key}` — extract pure stepping from deleted T18 lib (**drop realm fallback** on back) |
-| **`includes/amiga_as_with_url.php`** (new, or section in `amiga_snapshot_url.php`) | `amiga_as_with_from_request(): ?int` · `amiga_url_with_as_with(string $url, ?int $playerId): string` · append on `amiga_url_with_context()` / `amiga_url_with_as_param()` when request carries valid `as_with` |
+| **`includes/amiga_as_with_snap.php`** (new) | TT Event-wing filter auto-snap — **not** in `amiga_snapshot_context.php` (too late on HTML-first pages) |
+| **`includes/amiga_page_preamble.php`** (new) | `amiga_as_with_snap_try_from_request()` before DOCTYPE on TT-heavy Amiga pages |
+| **`includes/amiga_as_with_url.php`** | `as_with` parse + append on TT-aware URL helpers |
 
 ### Files to change
 
 | File | Change |
 |------|--------|
-| [`amiga_snapshot_context.php`](../site/public_html/includes/amiga_snapshot_context.php) | When `wing === 'event'` **and** valid `as_with` → override `prev_key` / `next_key` via `k2_participation_step_keys` + participation set |
+| [`amiga_snapshot_context.php`](../site/public_html/includes/amiga_snapshot_context.php) | When `wing === 'event'` **and** valid `as_with` → override `prev_key` / `next_key` via `k2_participation_step_keys` + participation set (**chevron only — not auto-snap**) |
+| [`amiga/leaderboards/*.php`](../site/public_html/amiga/leaderboards/) | `amiga_page_preamble.php` before DOCTYPE (all LB wings) |
+| [`amiga/hall-of-fame.php`](../site/public_html/amiga/hall-of-fame.php) | Same preamble |
 | [`amiga_snapshot_chrome.php`](../site/public_html/includes/amiga_snapshot_chrome.php) | Event wing: render with-player listbox (`as_with` field); `$pickerAccentKeys` when `as_with` set; carry `as_with` in picker form hidden fields + `amiga_snapshot_chrome_carry_query_params` |
-| [`amiga_snapshot_chrome.php`](../site/public_html/includes/amiga_snapshot_chrome.php) | Chevron hrefs: preserve `as_with` via URL helpers |
 | [`amiga_snapshot_url.php`](../site/public_html/includes/amiga_snapshot_url.php) | Propagate `as_with` on TT-aware links (mirror `as=` habit) |
 | [`k2_amiga_routes.php`](../site/public_html/includes/k2_amiga_routes.php) | If central Amiga route wrapper — ensure `as_with` passes through `k2_amiga_route()` |
+| [`js/k2-amiga-time-travel-url.js`](../site/public_html/js/k2-amiga-time-travel-url.js) | JS link carry for `as_with` (header search, charts) |
 | [`theme.css`](../site/public_html/stylesheets/theme.css) | Ribbon row layout if listbox needs width vars (follow Event picker spacing) |
 
 ### Player listbox (TT)
@@ -147,6 +164,7 @@ Opt-in filter on time-travel **Event** wing. Replaces removed T18 behaviour with
 - [x] Render listbox on Event ribbon; carry on picker + chevrons
 - [x] Optional: event picker link-star accents when `as_with` matches row
 - [x] Extend probe: `as_with=73` → next skips non-played events; forward clamp at TT cutoff
+- [x] **Filter auto-snap** — `amiga_as_with_snap.php` + preamble; probe `as_with_filter_snap_ok`
 
 ### Verification
 
@@ -157,6 +175,7 @@ C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe scripts\oneoff\amiga_snapsh
 **Browser:**
 
 - `/amiga/leaderboards/rating.php?as=event:{id}&as_with=73` — forward chevron skips gaps
+- `/amiga/leaderboards/rating.php?as=event:27&as_with=62` — **302** to nearest played event when off-filter
 - Hub tab click preserves `as_with`
 - Forward disabled at snapshot cutoff when later events exist in present day
 
@@ -168,11 +187,11 @@ C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe scripts\oneoff\amiga_snapsh
 
 ---
 
-## Slice 2 — Tournament chevrons (`id_with=`)
+## Slice 2 — Tournament chevrons (`id_with=` + catalog filters)
 
 ### Goal
 
-League-style prev/next on tournament entity nav; **independent** of `as_with=`. Structure code for **future catalog filters** (WC, host country, …) without shipping them — policy §5.5–§5.7.
+League-style prev/next on tournament entity nav; **independent** of `as_with=`. Filter bag extensible — ships **`id_with`** + **`id_country`** + faceted listbox counts + filter auto-snap.
 
 ### Architecture (slice 2 — locked)
 
@@ -192,12 +211,11 @@ filter bag → catalog builder → step keys → href resolver → chevron/listb
 **Filter bag (extensibility contract):**
 
 ```php
-// Slice 2
-['player_id' => ?int]   // from id_with; null/0 = no player filter
+// Shipped filter bag
+['player_id' => ?int, 'country' => ?string]   // from id_with / id_country
 
-// Future (examples — names TBD in policy §5.7)
+// Future (examples)
 // + 'wc' => '' | 'world-cup' | 'not-world-cup'
-// + 'country' => '' | host country code
 ```
 
 Catalog builder: `base_keys ∩ player_participated (if set) ∩ wc (if set) ∩ …`
@@ -226,9 +244,10 @@ See **Architecture** above. Optional merge: catalog + href into `amiga_tournamen
 
 | File | Change |
 |------|--------|
-| [`amiga_tournament_page.php`](../site/public_html/includes/amiga_tournament_page.php) | Include step nav after segment pills (both WC and non-WC nav blocks) |
-| [`amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php) | Optional shared row metadata for catalog filters (WC flag, host country) if not already on index rows |
-| [`theme.css`](../site/public_html/stylesheets/theme.css) | `.k2-amiga-tournament-nav` flex: pills + step cluster (reuse league period step spacing tokens) |
+| [`amiga_tournament_page.php`](../site/public_html/includes/amiga_tournament_page.php) | Include step nav after segment pills; **filter auto-snap** on entry |
+| [`amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php) | `amiga_tournament_href()` chains `id_with` + `id_country` |
+| [`amiga-tournament.css`](../site/public_html/stylesheets/amiga-tournament.css) | Step nav filter row — adjacent listboxes, ghost trigger width |
+| [`theme.css`](../site/public_html/stylesheets/theme.css) | Panel width override for step-nav listboxes (mirror realm games) |
 
 ### Stepping rules
 
@@ -260,7 +279,9 @@ After slice 2: add `id_wc`, … — one param, one listbox, one bag field, reuse
 - [x] Step nav render; wire into tournament page
 - [x] Present + TT browser smoke on e.g. tournament id 94
 - [x] Probe: `amiga_tournament_step_probe.php` — filtered step, deep-link disable, propagation, videos fallback
-- [x] **`id_country`** — host country listbox + filter bag + propagation (§5.7 extension)
+- [x] **`id_country`** — host country listbox + filter bag + propagation (§5.7)
+- [x] **Faceted counts** — cross-filter `meta` on player + country listboxes
+- [x] **Filter auto-snap** — `amiga_tournament_apply_step_filter_snap_redirect()` on tournament page entry
 
 ### Verification
 
@@ -290,6 +311,7 @@ Online parity: filter league period chevrons on `league.php`.
 | File | Role |
 |------|------|
 | **`includes/k2_league_period_with_player.php`** (new, or extend `k2_league_period_page.php`) | Online players ≥1 rated game; participation keys per `(cup, period, start)`; filtered `period_prev_start` / `period_next_start` |
+| **`k2_start_with_snap_bootstrap.php`** | First line of `league.php` — filter auto-snap before DOCTYPE |
 | **`k2_league_period_page.php`** | `k2_league_period_peer_href()` carries `start_with`; standings nav renders listbox beside period steps |
 
 ### Participation oracle (online)
@@ -317,7 +339,8 @@ For player P and league period key `start`:
 - [x] Period participation index (cache per request for player)
 - [x] Filtered step keys in period load
 - [x] Listbox + propagation on `league.php` peer links
-- [x] Optional: one-off probe script for period stepping
+- [x] **Filter auto-snap** — `k2_start_with_snap_bootstrap.php` on `league.php`
+- [x] Probe: `k2_league_period_step_probe.php` — filtered step + snap
 
 ### Verification
 
@@ -340,7 +363,7 @@ For player P and league period key `start`:
 | Surface | Hook | Intent |
 |---------|------|--------|
 | TT ribbon | `.k2-amiga-time-travel__controls` | Add listbox after event picker; may need `--k2-amiga-tt-picker-width` regression pass |
-| Tournament nav | `.k2-amiga-tournament-nav` | `display:flex; justify-content:space-between; align-items:center` — pills left, step cluster right |
+| Tournament nav | `.k2-amiga-tournament-nav` + `.k2-amiga-tournament-step-nav__filters` | Pills left; step cluster + filter listboxes right — [`amiga-tournament.css`](../site/public_html/stylesheets/amiga-tournament.css) |
 | League standings | `.k2-league-period__standings-nav` | Listbox after period steps, before sibling month/year link |
 
 Use existing chevron classes: `k2-player-games-day-steps`, `k2-player-games-day-step--prev/next`. Spacing: [`nav-spacing-policy.md`](nav-spacing-policy.md) — bottom-only gaps unchanged.
@@ -352,8 +375,8 @@ Use existing chevron classes: `k2-player-games-day-steps`, `k2-player-games-day-
 | Slice | URL |
 |-------|-----|
 | 0 | `/amiga/player/profile.php?id=73&as=event:100` vs `/amiga/leaderboards/rating.php?as=event:100` — same next chevron |
-| 1 | `/amiga/leaderboards/rating.php?as=event:100&as_with=73` |
-| 2 | `/amiga/tournament/event-stats.php?id=94` · `…&as=event:94&as_with=73&id_with=73` |
+| 1 | `/amiga/leaderboards/rating.php?as=event:100&as_with=73` · snap: `…&as=event:27&as_with=62` |
+| 2 | `/amiga/tournament/event-stats.php?id=94` · `…&id_with=73&id_country=Germany` |
 | 3 | `/league.php?cup=points&period=month&start=2026-02&start_with=1#k2-league-period` |
 
 Replace ids with known local fixtures if import differs.
@@ -365,11 +388,11 @@ Replace ids with known local fixtures if import differs.
 When track complete (or per-slice if user stops early):
 
 - [x] `PROJECT_MEMORY.md` — Recent log per shipped slice
-- [x] [`with-player-stepper-policy.md`](with-player-stepper-policy.md) — Status → implemented (or partial)
+- [x] [`with-player-stepper-policy.md`](with-player-stepper-policy.md) — §5.7–§5.8, §10 module map
 - [x] This plan — check off slices; Status line
-- [ ] [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) — remove “retire on ship” notes; delete T18 module row
-- [x] [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) — C13 → §5.3 shipped when all slices done
-- [x] `docs/coordination/feature-log.md` — one row (L0)
+- [x] [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) — §3.4 with-player register + snap preamble note
+- [x] [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) — C13 → §5.3 shipped
+- [x] `docs/coordination/feature-log.md` — row updated (L0)
 
 ---
 
@@ -388,6 +411,9 @@ When track complete (or per-slice if user stops early):
 
 | Date | Change |
 |------|--------|
+| 2026-06-30 | **Doc sweep** — policy §5.7–§5.8 + §10; plan module inventory; TT snap fix documented. |
+| 2026-06-30 | **TT as_with snap fix** — `amiga_as_with_snap.php` + `amiga_page_preamble.php`; not via snapshot context (headers_sent). |
+| 2026-06-30 | **`id_country` + faceted counts + filter auto-snap** — tournament step extensions; league bootstrap. |
 | 2026-06-30 | Slice 3 **shipped** — `start_with=` league period listbox + filtered stepping; `k2_league_period_with_player.php` + probe. |
 | 2026-06-30 | Slice 2 **shipped** — tournament chevrons + `id_with=` + wing-preserving href resolver + filter bag. |
 | 2026-06-30 | **Slice 2 architecture** — three-layer tournament step (catalog / step / href); filter bag for future WC/country filters; wing fallback §5.6; no TT reuse (WP15–WP17). |

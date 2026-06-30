@@ -236,6 +236,46 @@ function k2_league_period_with_player_adjacent_starts(
 }
 
 /**
+ * 302 to nearest eligible period when `start_with=` is active but current `start=` is off-filter.
+ * Prefers previous eligible neighbor, else next.
+ */
+function k2_league_period_apply_start_with_snap_redirect(
+    mysqli $con,
+    string $cup,
+    string $period,
+    string $periodStart,
+    DateTimeImmutable $serverNow,
+): void {
+    if (headers_sent()) {
+        return;
+    }
+
+    $playerId = k2_start_with_active_player_id($con);
+    if ($playerId < 1) {
+        return;
+    }
+
+    $normalizedStart = k2_league_period_normalize_start_param($period, $periodStart);
+    if ($normalizedStart === null) {
+        return;
+    }
+
+    $catalog = k2_league_period_step_catalog($con, $period, $serverNow);
+    if ($catalog === []) {
+        return;
+    }
+
+    $eligible = k2_league_period_step_eligible_start_set($con, $playerId, $period);
+    $targetStart = k2_participation_snap_target_key($catalog, $normalizedStart, $eligible);
+    if ($targetStart === null || $targetStart === $normalizedStart) {
+        return;
+    }
+
+    header('Location: ' . k2_league_period_peer_href($cup, $period, $targetStart), true, 302);
+    exit;
+}
+
+/**
  * @return array<string, scalar>
  */
 function k2_league_period_with_player_carry_query_params(string $cup, string $period, string $periodStart): array

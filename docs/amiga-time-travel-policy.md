@@ -100,9 +100,12 @@ Opt-in stepping filters — **separate from cutoff `as=`**. Full spec: [`with-pl
 |-------|---------|--------------|
 | `as_with` | TT Event ribbon | Amiga internal links that preserve `as=` |
 | `id_with` | Tournament chevrons | `/amiga/tournament/…` folder only |
+| `id_country` | Tournament chevrons | Same tournament folder family as `id_with` |
 | `start_with` | League period chevrons | `league.php` peer links only |
 
-Future tournament-step **catalog** filters (WC, host country, …) use separate `id_*` params on the same folder propagation family — policy [`with-player-stepper-policy.md`](with-player-stepper-policy.md) §5.7. Tournament chevrons are **not** implemented via TT ribbon / snapshot context (WP15).
+Tournament-step **catalog** filters use separate `id_*` params — policy [`with-player-stepper-policy.md`](with-player-stepper-policy.md) §5.7–§5.8. Tournament chevrons are **not** implemented via TT ribbon / snapshot context (WP15).
+
+**Filter auto-snap (302):** when a filter is active and the current Event/tournament/period is off-filter, redirect to nearest eligible slice (prev, else next). TT entry = [`amiga_page_preamble.php`](../site/public_html/includes/amiga_page_preamble.php) **before DOCTYPE** on LB wings + HoF — **not** from snapshot context load (HTML-first pages). Full table: with-player policy §5.8.
 
 **Agent habit (same class as T4 / T16 link carry):**
 
@@ -309,7 +312,11 @@ Implementation: `includes/amiga_hub_nav_lib.php` · `amiga_snapshot_redirect_pre
 
 | Module | Role |
 |--------|------|
-| `includes/amiga_participation_step_lib.php` | **Shipped slice 1** — participation lookup + step keys; **`as_with=`** on Event ribbon |
+| `includes/amiga_participation_step_lib.php` | Participation lookup + `k2_participation_step_keys()` — shared with tournament/league steppers |
+| `includes/amiga_as_with_url.php` | **`as_with=`** parse + TT URL propagation |
+| `includes/amiga_as_with_snap.php` | TT Event-wing filter auto-snap (302) — via `amiga_page_preamble.php` |
+| `includes/amiga_page_preamble.php` | Early hook before DOCTYPE on TT-heavy pages (LB wings, HoF) |
+| `includes/amiga_tournament_step_*.php` | Tournament chevrons — **`id_with=`**, **`id_country=`** — see with-player policy §10 |
 | `includes/amiga_player_snapshot_lib.php` | Hero + `amiga_player_load()` at cutoff |
 | `includes/amiga_elo_rank_lib.php` | Persisted `elo_rank` reads (present + time travel) |
 | `includes/amiga_snapshot_context.php` | Parse `as`, resolve cutoff, `is_active()`, `cutoff()`, `label()`, `query_suffix()` |

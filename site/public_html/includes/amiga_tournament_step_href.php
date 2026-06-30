@@ -9,6 +9,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/amiga_tournament_videos_lib.php';
 require_once __DIR__ . '/amiga_id_with_url.php';
+require_once __DIR__ . '/amiga_tournament_step_catalog.php';
 
 /**
  * @return array{
@@ -202,4 +203,40 @@ function amiga_tournament_step_target_href(mysqli $con, int $targetId, array $in
     require_once __DIR__ . '/amiga_snapshot_url.php';
 
     return amiga_tournament_href(amiga_tournament_step_target_url($con, $targetId, $intent));
+}
+
+/**
+ * 302 to nearest eligible tournament when step filters are active but current id is off-filter.
+ * Prefers previous eligible neighbor, else next (same as chevron nearest-neighbor rule).
+ *
+ * @param array{
+ *   view: string,
+ *   scope_type: string,
+ *   scope_key: string,
+ *   videos_mode: string
+ * } $intent
+ */
+function amiga_tournament_apply_step_filter_snap_redirect(
+    mysqli $con,
+    int $currentId,
+    array $intent,
+): void {
+    if ($currentId < 1) {
+        return;
+    }
+
+    $filterBag = amiga_tournament_step_filter_bag_from_request($con);
+    $catalog = amiga_tournament_step_catalog($con);
+    $targetKey = amiga_tournament_step_snap_target_key($con, $catalog, $currentId, $filterBag);
+    if ($targetKey === null) {
+        return;
+    }
+
+    $targetId = (int) $targetKey;
+    if ($targetId < 1 || $targetId === $currentId) {
+        return;
+    }
+
+    header('Location: ' . amiga_tournament_step_target_href($con, $targetId, $intent), true, 302);
+    exit;
 }

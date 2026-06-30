@@ -39,6 +39,17 @@ if ($tournamentPageId >= 1) {
         $_GET,
     );
 
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_href.php';
+    $stepSnapIntent = amiga_tournament_step_nav_intent_from_request(
+        $tournamentCanonicalScope['scope_type'],
+        $tournamentCanonicalScope['scope_key'],
+        $tournamentPageView,
+        isset($k2AmigaTournamentVideosMode) && is_string($k2AmigaTournamentVideosMode)
+            ? $k2AmigaTournamentVideosMode
+            : null,
+    );
+    amiga_tournament_apply_step_filter_snap_redirect($tournamentDb, $tournamentPageId, $stepSnapIntent);
+
     if ($tournamentPageView === 'videos') {
         $requestedVideosMode = isset($k2AmigaTournamentVideosMode) && is_string($k2AmigaTournamentVideosMode)
             ? $k2AmigaTournamentVideosMode

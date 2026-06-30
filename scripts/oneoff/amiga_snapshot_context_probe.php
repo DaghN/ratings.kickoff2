@@ -405,6 +405,32 @@ if ($ctxAsWithLast->nextKey() !== null) {
 }
 echo "as_with_event_stepping_ok\n";
 
+$asWithOffKey = null;
+foreach ($realmEvents as $eventRow) {
+    $key = (string) $eventRow['key'];
+    if (!isset($participatedLookup[$key])) {
+        $asWithOffKey = $key;
+        break;
+    }
+}
+if ($asWithOffKey === null) {
+    fwrite(STDERR, "need off-filter event for as_with snap\n");
+    exit(1);
+}
+$offSteps = k2_participation_step_keys($realmEvents, $asWithOffKey, $participatedLookup);
+$expectedAsWithSnap = $offSteps['prev_key'] ?? $offSteps['next_key'];
+$snapAsWith = k2_participation_snap_target_key($realmEvents, $asWithOffKey, $participatedLookup);
+if ($snapAsWith !== $expectedAsWithSnap) {
+    fwrite(STDERR, "as_with snap expected {$expectedAsWithSnap}, got " . ($snapAsWith ?? 'null') . "\n");
+    exit(1);
+}
+$snapOnFilter = k2_participation_snap_target_key($realmEvents, $asWithTestKey, $participatedLookup);
+if ($snapOnFilter !== null) {
+    fwrite(STDERR, "on-filter event should not snap\n");
+    exit(1);
+}
+echo "as_with_filter_snap_ok id={$asWithOffKey} snap={$expectedAsWithSnap}\n";
+
 $_GET['as'] = 'year:2010';
 amiga_snapshot_context_reset();
 $GLOBALS['_amiga_snapshot_context'] = null;

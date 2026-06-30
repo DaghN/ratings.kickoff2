@@ -95,6 +95,32 @@ if (($filtered['next'] ?? null) !== $expectedNext) {
 }
 echo 'start_with_nearest_neighbor_ok start=' . $testStart . ' skip=' . $realmNext . ' next=' . $expectedNext . PHP_EOL;
 
+$offStart = null;
+foreach ($catalog as $entry) {
+    $key = (string) $entry['key'];
+    if (!isset($lookup[$key])) {
+        $offStart = $key;
+        break;
+    }
+}
+if ($offStart === null) {
+    fwrite(STDERR, "need off-filter month for start_with snap\n");
+    exit(1);
+}
+$offSteps = k2_participation_step_keys($catalog, $offStart, $lookup);
+$expectedStartSnap = $offSteps['prev_key'] ?? $offSteps['next_key'];
+$startSnap = k2_participation_snap_target_key($catalog, $offStart, $lookup);
+if ($startSnap !== $expectedStartSnap) {
+    fwrite(STDERR, "start_with snap expected {$expectedStartSnap}, got " . ($startSnap ?? 'null') . "\n");
+    exit(1);
+}
+$snapOnPeriod = k2_participation_snap_target_key($catalog, $testStart, $lookup);
+if ($snapOnPeriod !== null) {
+    fwrite(STDERR, "on-filter period should not snap\n");
+    exit(1);
+}
+echo "start_with_filter_snap_ok start={$offStart} snap={$expectedStartSnap}\n";
+
 $unfiltered = k2_league_period_adjacent_starts($con, $period, $testStart, $serverNow);
 if (($unfiltered['next'] ?? null) !== $realmNext) {
     fwrite(STDERR, 'unfiltered next mismatch' . PHP_EOL);

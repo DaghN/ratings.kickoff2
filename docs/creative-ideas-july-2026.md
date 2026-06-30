@@ -143,7 +143,7 @@ LANDING             Status default                   News tab ◻ (placeholder)
 |---------|-------|-----|
 | **H2H rank comparison chart** | `/amiga/player/opponents/h2h.php` | [`amiga-player-rank-chart-h2h-policy.md`](amiga-player-rank-chart-h2h-policy.md) |
 | **Solo rank chart** | `/amiga/player/profile.php` | [`amiga-player-rank-chart-policy.md`](amiga-player-rank-chart-policy.md) |
-| **With player stepper filter** | TT Event (`as_with=`), tournament (`id_with=`), league (`start_with=`) | [`with-player-stepper-policy.md`](with-player-stepper-policy.md) |
+| **With player stepper filter** | TT Event (`as_with=`), tournament (`id_with=` + `id_country=`), league (`start_with=`) + filter auto-snap | [`with-player-stepper-policy.md`](with-player-stepper-policy.md) §10 |
 | Milestones v0, Time travel, Jukebox, Video embed, Fight poster, Countries/Rivals | (see origin stories) | respective policy docs |
 
 ---
@@ -250,6 +250,7 @@ Copy variants to explore: *One year ago today…* · *On this day…* · occasio
 |------|------|
 | 2026-06-30 | **C14–C15 promoted to approved** — firm to-do (was spark); Tournaments hub tournament-stats wing + Highlights biggest upsets board. `PROJECT_MEMORY` Next updated. |
 | 2026-06-30 | **C14–C15 sparks** — tournament metadata LB wing (debuts etc., WC hub pattern on Tournaments hub); Amiga Highlights **biggest upsets** board (rating gain). C08 notes: winner + debut in editorial band. §6.4–§6.5. |
+| 2026-06-30 | **C13 extensions documented** — `id_country`, faceted counts, filter auto-snap; policy §5.8 + §10. |
 | 2026-06-30 | **C13 with-player stepper shipped** — slices 0–3 complete; moved to §5.3. |
 | 2026-06-30 | **C13 planning revision** — per-surface params (`as_with` / `id_with` / `start_with`); slice 0 T18 removal; [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md). |
 | 2026-06-30 | **C13 with-player stepper** — policy locked [`with-player-stepper-policy.md`](with-player-stepper-policy.md); supersedes Amiga TT T18. |

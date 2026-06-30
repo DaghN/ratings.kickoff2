@@ -320,3 +320,67 @@ function amiga_id_country_active(mysqli $con, ?AmigaSnapshotContext $ctx = null)
 
     return '';
 }
+
+/**
+ * @param array{player_id: int|null, country: string|null} $filterBag
+ */
+function amiga_tournament_step_filter_active(array $filterBag): bool
+{
+    return ($filterBag['player_id'] ?? null) !== null
+        || trim((string) ($filterBag['country'] ?? '')) !== '';
+}
+
+/**
+ * @param list<array{key: string}> $catalog
+ * @param array{player_id: int|null, country: string|null} $filterBag
+ */
+function amiga_tournament_step_current_is_eligible(
+    mysqli $con,
+    array $catalog,
+    int $currentId,
+    array $filterBag,
+): bool {
+    if (!amiga_tournament_step_filter_active($filterBag)) {
+        return true;
+    }
+    $eligible = amiga_tournament_step_eligible_key_set($con, $catalog, $filterBag);
+
+    return isset($eligible[(string) $currentId]);
+}
+
+/**
+ * When filters are active and current tournament is off-filter, nearest snap target:
+ * prefer previous eligible (back in chrono), else next.
+ *
+ * @param list<array{key: string}> $catalog
+ * @param array{player_id: int|null, country: string|null} $filterBag
+ */
+function amiga_tournament_step_snap_target_key(
+    mysqli $con,
+    array $catalog,
+    int $currentId,
+    array $filterBag,
+): ?string {
+    if (!amiga_tournament_step_filter_active($filterBag)) {
+        return null;
+    }
+    if (amiga_tournament_step_current_is_eligible($con, $catalog, $currentId, $filterBag)) {
+        return null;
+    }
+
+    $steps = amiga_tournament_step_keys($con, $catalog, $currentId, $filterBag);
+    if (!$steps['in_base_catalog']) {
+        return null;
+    }
+
+    $prev = $steps['prev_key'];
+    if ($prev !== null && $prev !== '') {
+        return $prev;
+    }
+    $next = $steps['next_key'];
+    if ($next !== null && $next !== '') {
+        return $next;
+    }
+
+    return null;
+}

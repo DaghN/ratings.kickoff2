@@ -176,3 +176,32 @@ function k2_participation_step_keys(array $catalog, string $currentKey, array $p
 
     return ['prev_key' => $prevKey, 'next_key' => $nextKey];
 }
+
+/**
+ * When current key is off the participation filter, nearest snap target:
+ * prefer previous eligible (back in chrono), else next.
+ *
+ * @param list<array{key: string}> $catalog
+ * @param array<string, true> $participatedSet
+ */
+function k2_participation_snap_target_key(array $catalog, string $currentKey, array $participatedSet): ?string
+{
+    if ($participatedSet === [] || $catalog === []) {
+        return null;
+    }
+    if (isset($participatedSet[$currentKey])) {
+        return null;
+    }
+
+    $steps = k2_participation_step_keys($catalog, $currentKey, $participatedSet);
+    $prev = $steps['prev_key'];
+    if ($prev !== null && $prev !== '') {
+        return $prev;
+    }
+    $next = $steps['next_key'];
+    if ($next !== null && $next !== '') {
+        return $next;
+    }
+
+    return null;
+}

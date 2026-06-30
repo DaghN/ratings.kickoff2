@@ -113,6 +113,18 @@ if ($stepsOffFilter['next_key'] === null && $stepsOffFilter['prev_key'] === null
     fwrite(STDERR, "off-filter tournament expected at least one chevron when eligible exists\n");
     exit(1);
 }
+$expectedSnap = $stepsOffFilter['prev_key'] ?? $stepsOffFilter['next_key'];
+$snapTarget = amiga_tournament_step_snap_target_key($con, $catalog, $offFilterId, $bagFiltered);
+if ($snapTarget !== $expectedSnap) {
+    fwrite(STDERR, "snap expected {$expectedSnap}, got " . ($snapTarget ?? 'null') . "\n");
+    exit(1);
+}
+$snapOnFilter = amiga_tournament_step_snap_target_key($con, $catalog, $testKey, $bagFiltered);
+if ($snapOnFilter !== null) {
+    fwrite(STDERR, "on-filter tournament should not snap\n");
+    exit(1);
+}
+echo "id_with_filter_snap_ok id={$offFilterId} snap={$expectedSnap}\n";
 echo "id_with_nearest_neighbor_ok id={$offFilterId}\n";
 
 $stepsUnknown = amiga_tournament_step_keys($con, $catalog, 999999, $bagFiltered);
@@ -185,6 +197,30 @@ if ($stepsCountryRealm['next_key'] !== $countryNextRealm) {
     fwrite(STDERR, "realm next at country gap expected {$countryNextRealm}\n");
     exit(1);
 }
+$countryOffFilterId = null;
+foreach ($catalog as $entry) {
+    $key = (int) $entry['key'];
+    $row = $rowsById[$key] ?? null;
+    if ($row === null) {
+        continue;
+    }
+    if (!amiga_tournament_index_matches_country_filter($row, $countryBag['country'])) {
+        $countryOffFilterId = $key;
+        break;
+    }
+}
+if ($countryOffFilterId === null) {
+    fwrite(STDERR, "need off-filter country snap fixture\n");
+    exit(1);
+}
+$stepsCountryOff = amiga_tournament_step_keys($con, $catalog, $countryOffFilterId, $countryBag);
+$expectedCountrySnap = $stepsCountryOff['prev_key'] ?? $stepsCountryOff['next_key'];
+$countrySnap = amiga_tournament_step_snap_target_key($con, $catalog, $countryOffFilterId, $countryBag);
+if ($countrySnap !== $expectedCountrySnap) {
+    fwrite(STDERR, "country snap expected {$expectedCountrySnap}, got " . ($countrySnap ?? 'null') . "\n");
+    exit(1);
+}
+echo "id_country_filter_snap_ok id={$countryOffFilterId} snap={$expectedCountrySnap}\n";
 echo "id_country_nearest_neighbor_ok id={$countryFixture}\n";
 
 $_GET = ['id' => '94', 'id_country' => $countryBag['country']];
