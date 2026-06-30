@@ -21,11 +21,13 @@
 | Layer | Share? | Notes |
 |-------|--------|-------|
 | Participation key-set query | **Yes** | Amiga: `amiga_player_event_snapshots` (`NumberGames > 0`). Online slice 3: rated games in period. |
-| Pure step-key resolver | **Yes** | `{ catalog, current_key, participated_key_set } → { prev_key, next_key }` — no URL, no realm fallback when filter on |
+| Pure step-key resolver | **Yes** | `{ catalog, current_key, eligible_key_set } → { prev_key, next_key }` — no URL, no realm fallback when filter on. Player participation is one way to build the eligible set; tournament catalog filters are others (§5.7). |
 | Eligible player list (A–Z, ≥1 game) | **Yes** per realm | Separate SQL; same listbox render |
-| URL param + propagation | **No** | `as_with` · `id_with` · `start_with` — three small helper families |
-| Chevron href builders | **No** | Each surface owns the query key it moves |
+| URL param + propagation | **No** | `as_with` · `id_with` · `start_with` (+ future `id_*` catalog filters) — small helper families per surface |
+| Chevron href builders | **No** | Each surface owns the query key it moves. Tournament layer adds **wing-preserving href resolver** (§5.6) — separate from catalog stepping. |
 | Listbox form | **No** | Same widget; different field name and `action` path |
+| Tournament catalog builder | **No** (tournament-local) | Filter bag → chrono keys; slice 2 ships `id_with` only — see slice 2 § Architecture |
+| TT ribbon stepper | **No reuse for tournament** | WP15 — do not extend snapshot chrome/context for `id=` steps |
 
 **Explicit filter stepping (simpler than T18):** when a with-player param is set, prev/next only land on participated keys; **no** “realm back one event before debut” fallback.
 
@@ -170,7 +172,39 @@ C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe scripts\oneoff\amiga_snapsh
 
 ### Goal
 
-League-style prev/next on tournament entity nav; **independent** of `as_with=`.
+League-style prev/next on tournament entity nav; **independent** of `as_with=`. Structure code for **future catalog filters** (WC, host country, …) without shipping them — policy §5.5–§5.7.
+
+### Architecture (slice 2 — locked)
+
+Three **orthogonal** layers — do not merge:
+
+```text
+filter bag → catalog builder → step keys → href resolver → chevron/listbox render
+```
+
+| Module | Role |
+|--------|------|
+| **`amiga_tournament_step_catalog.php`** (new, or section in step lib) | `amiga_tournament_step_filter_bag_from_request()` · `amiga_tournament_step_catalog($con, $filterBag, ?cutoff)` → chrono asc tournament id keys. **Slice 2 bag:** `{ player_id: ?int }` from `id_with` only. |
+| **`amiga_tournament_step_href.php`** (new) | Capture **nav intent** from current request · `amiga_tournament_step_href($con, $targetId, $intent)` → wing-preserving URL (§5.6 fallback ladder). Uses existing `amiga_tournament_*_url()` helpers — not TT chrome. |
+| **`amiga_tournament_step_nav.php`** (new) | Read bag + current `id=` · build catalog · `k2_participation_step_keys()` · render chevrons + with-player listbox · hrefs via step_href. |
+| **`amiga_id_with_url.php`** (new) | `id_with` parse/append on tournament folder URLs only — **do not** merge with `as_with` or future `id_*` helpers |
+
+**Filter bag (extensibility contract):**
+
+```php
+// Slice 2
+['player_id' => ?int]   // from id_with; null/0 = no player filter
+
+// Future (examples — names TBD in policy §5.7)
+// + 'wc' => '' | 'world-cup' | 'not-world-cup'
+// + 'country' => '' | host country code
+```
+
+Catalog builder: `base_keys ∩ player_participated (if set) ∩ wc (if set) ∩ …`
+
+**Do not reuse:** `amiga_snapshot_context.php` stepping, `amiga_snapshot_chrome.php` stepper, `amiga_as_with_url.php` (WP15).
+
+**Do reuse:** `k2_participation_step_keys()`, `amiga_player_participated_event_key_set()`, tournament index match helpers when adding WC/country filters later.
 
 ### Placement (locked)
 
@@ -184,35 +218,47 @@ In [`amiga_tournament_page.php`](../site/public_html/includes/amiga_tournament_p
 - Visible **present day and TT**.
 - Reference markup: `k2_league_period_render_period_steps_html` + standings nav wrapper.
 
-### New modules
+### New modules (summary)
 
-| File | Role |
-|------|------|
-| **`includes/amiga_tournament_step_nav.php`** (new) | Load tournament event catalog (present: full public; TT: ≤ cutoff). Step `id=` with optional `id_with`. Render chevrons + listbox. |
-| **`includes/amiga_id_with_url.php`** (new) | `amiga_id_with_from_request()` · append on tournament folder URLs only — **do not** merge into `as_with` helpers |
+See **Architecture** above. Optional merge: catalog + href into `amiga_tournament_step_nav.php` if files stay small — but **functions stay logically separate** even in one file.
 
 ### Files to change
 
 | File | Change |
 |------|--------|
 | [`amiga_tournament_page.php`](../site/public_html/includes/amiga_tournament_page.php) | Include step nav after segment pills (both WC and non-WC nav blocks) |
-| [`amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php) | Optional: `amiga_tournament_catalog_for_stepping($con, ?cutoff)` — chrono asc keys |
+| [`amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php) | Optional shared row metadata for catalog filters (WC flag, host country) if not already on index rows |
 | [`theme.css`](../site/public_html/stylesheets/theme.css) | `.k2-amiga-tournament-nav` flex: pills + step cluster (reuse league period step spacing tokens) |
 
 ### Stepping rules
 
-- Param: **`id_with`**
-- Moves: **`id=`** on `/amiga/tournament/…` (preserve `scope`, `scope_key`, view path)
-- Reuse `amiga_participation_step_lib.php` for key resolution
-- When `as=event:` active: catalog truncated to ≤ cutoff for tournament chevrons; **`id=` is independent of `as=`** (slice 0) — no redirect sync
-- **`id_with` changes do not write `as_with`** and vice versa
+- Param (v1): **`id_with`**
+- Moves: **`id=`** via filtered catalog — href resolver picks wing path (§5.6)
+- Reuse `amiga_participation_step_lib.php` for player key set + `k2_participation_step_keys()`
+- When `as=event:` active: base catalog truncated to ≤ cutoff; filters apply within that set
+- **`id_with` does not write `as_with`** and vice versa
+- **Deep link:** current `id=` not in filtered catalog → page loads; **both chevrons disabled** (§5.7)
+- **Empty filtered catalog** → both chevrons disabled
+
+### Wing fallback (locked — §5.6)
+
+1. Same view + scope/mode when target supports it  
+2. Relax within view (videos games ↔ atmosphere)  
+3. Missing wing → **event-stats**  
+4. Do not carry games player filter or video deep links on step (v1)
+
+### Future catalog filters (out of slice 2 — §5.7)
+
+After slice 2: add `id_wc`, `id_country`, … — one param, one listbox, one bag field, reuse index matchers. No change to href fallback or TT ribbon.
 
 ### Tasks
 
-- [ ] Tournament catalog + step key builder for `id=`
-- [ ] `id_with` URL helpers + tournament href propagation
-- [ ] Render chevron + listbox include; wire into tournament page
+- [ ] Filter bag + catalog builder (v1: `player_id` only)
+- [ ] Nav intent capture + wing-preserving href resolver
+- [ ] `id_with` URL helpers + tournament folder propagation
+- [ ] Step nav render; wire into tournament page
 - [ ] Present + TT browser smoke on e.g. tournament id 94
+- [ ] Probe or one-off: filtered step skips gaps; wing fallback (videos → event-stats when target has no videos)
 
 ### Verification
 
@@ -337,6 +383,7 @@ When track complete (or per-slice if user stops early):
 
 | Date | Change |
 |------|--------|
+| 2026-06-30 | **Slice 2 architecture** — three-layer tournament step (catalog / step / href); filter bag for future WC/country filters; wing fallback §5.6; no TT reuse (WP15–WP17). |
 | 2026-06-30 | Slice 1 **shipped** — `as_with=` TT Event ribbon listbox + filtered stepping. |
 | 2026-06-30 | Slice 0 **shipped** — T18 + tournament id-follows-as retired. |
 | 2026-06-30 | Slice 0 expanded — retire tournament `id` follows `as=` (WP14) alongside T18. |

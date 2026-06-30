@@ -102,6 +102,8 @@ Opt-in stepping filters — **separate from cutoff `as=`**. Full spec: [`with-pl
 | `id_with` | Tournament chevrons | `/amiga/tournament/…` folder only |
 | `start_with` | League period chevrons | `league.php` peer links only |
 
+Future tournament-step **catalog** filters (WC, host country, …) use separate `id_*` params on the same folder propagation family — policy [`with-player-stepper-policy.md`](with-player-stepper-policy.md) §5.7. Tournament chevrons are **not** implemented via TT ribbon / snapshot context (WP15).
+
 **Agent habit (same class as T4 / T16 link carry):**
 
 - **PHP navigation:** `amiga_url_with_context()` / `k2_amiga_route()` — appends request `as_with` when active; `amiga_url_present()` strips `as=` **and** `as_with`.

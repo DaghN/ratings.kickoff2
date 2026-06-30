@@ -135,6 +135,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **With player slice 2 prep (docs)** — policy §5.5–§5.7 + plan: tournament step three layers, wing fallback, future catalog filters (`id_wc`, `id_country`) via filter bag; no TT reuse (WP15–WP17). |
 | 2026-06-30 | **Agent onboarding** — AGENTS traps + kool-workspace + TT policy §3.4 + page-structure checklist: with-player URL carry alongside `as=`. |
 | 2026-06-30 | **With player slice 1 fix** — shared `k2-amiga-time-travel-url.js`; header search + H2H chart games links preserve `as_with=`. |
 | 2026-06-30 | **With player slice 1** — `as_with=` on TT Event ribbon: participation lib, listbox, filtered Event chevrons, picker link-star accents, URL propagation. |
