@@ -29,6 +29,13 @@ function amiga_wc_countries_table_shell_close(): void
     k2_table_wrap_close();
 }
 
+function amiga_wc_countries_render_footnote(int $countryCount): void
+{
+    ?>
+<p class="k2-amiga-wc-countries-footnote" style="margin:0 0 2rem;color:var(--k2-text-secondary)"><?php echo number_format($countryCount); ?> countries with at least one World Cup player.</p>
+    <?php
+}
+
 /**
  * @param list<array<string, mixed>> $rows
  */
@@ -75,7 +82,7 @@ function amiga_wc_countries_render_honours(array $rows, int $countryCount): void
 </tbody>
 </table>
 <?php amiga_wc_countries_table_shell_close(); ?>
-<p class="k2-amiga-wc-countries-footnote" style="margin:0 0 2rem;color:var(--k2-text-secondary)"><?php echo number_format($countryCount); ?> countries with at least one World Cup player.</p>
+<?php amiga_wc_countries_render_footnote($countryCount); ?>
     <?php
 }
 
@@ -169,7 +176,7 @@ function amiga_wc_countries_render_results(array $rows, int $countryCount): void
 </tbody>
 </table>
 <?php amiga_wc_countries_table_shell_close(); ?>
-<p class="k2-amiga-wc-countries-footnote" style="margin:0 0 2rem;color:var(--k2-text-secondary)"><?php echo number_format($countryCount); ?> countries with at least one World Cup player. Match points: 3 for a win, 1 for a draw.</p>
+<?php amiga_wc_countries_render_footnote($countryCount); ?>
     <?php
 }
 
@@ -222,7 +229,7 @@ function amiga_wc_countries_render_participation(array $rows, int $countryCount)
 </tbody>
 </table>
 <?php amiga_wc_countries_table_shell_close(); ?>
-<p class="k2-amiga-wc-countries-footnote" style="margin:0 0 2rem;color:var(--k2-text-secondary)"><?php echo number_format($countryCount); ?> countries with at least one World Cup player.</p>
+<?php amiga_wc_countries_render_footnote($countryCount); ?>
     <?php
 }
 
@@ -309,7 +316,7 @@ function amiga_wc_countries_render_goals(array $rows, int $countryCount): void
 </tbody>
 </table>
 <?php amiga_wc_countries_table_shell_close(); ?>
-<p class="k2-amiga-wc-countries-footnote" style="margin:0 0 2rem;color:var(--k2-text-secondary)"><?php echo number_format($countryCount); ?> countries with at least one World Cup player. Best GF / worst GA and other extremes are single-game records by any national, not national totals.</p>
+<?php amiga_wc_countries_render_footnote($countryCount); ?>
     <?php
 }
 
@@ -366,7 +373,7 @@ function amiga_wc_countries_render_dds(array $rows, int $countryCount): void
 </tbody>
 </table>
 <?php amiga_wc_countries_table_shell_close(); ?>
-<p class="k2-amiga-wc-countries-footnote" style="margin:0 0 2rem;color:var(--k2-text-secondary)"><?php echo number_format($countryCount); ?> countries with at least one World Cup player.</p>
+<?php amiga_wc_countries_render_footnote($countryCount); ?>
     <?php
 }
 
@@ -419,7 +426,7 @@ function amiga_wc_countries_render_opponents(array $rows, int $countryCount): vo
 </tbody>
 </table>
 <?php amiga_wc_countries_table_shell_close(); ?>
-<p class="k2-amiga-wc-countries-footnote" style="margin:0 0 2rem;color:var(--k2-text-secondary)"><?php echo number_format($countryCount); ?> countries with at least one World Cup player. Geography and network counts are World Cup games only.</p>
+<?php amiga_wc_countries_render_footnote($countryCount); ?>
     <?php
 }
 

@@ -23,4 +23,3 @@ $nameMap = amiga_tournament_player_names($con, amiga_world_cup_stats_collect_pla
 mysqli_close($con);
 
 amiga_world_cup_stats_render_view($k2AmigaWorldCupsStatsView, $rows, $nameMap);
-amiga_world_cup_stats_render_footer(count($rows));

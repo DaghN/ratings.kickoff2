@@ -50,7 +50,7 @@
 
 **Detail pages stay at root or a stable path** when they are not sub-nav peers — e.g. `milestone.php?key=`, `game.php?id=` (key/id are entity lookup, not hub mode). Inbound game links use `k2_game_page_url($id)` → `/game.php?id=` + `#k2-game` so the viewport lands on the game table (hub chrome stays above the fold). Amiga: `k2_amiga_game_page_url($id)` → `/amiga/game.php?id=` + hash from manifest — `#k2-game` when no video; `#k2-amiga-game-videos-caption` (1 clip) or `#k2-amiga-game-videos-menu` (2+ clips). `$k2ScrollTargetId` on the page matches the same rule for bare id-only URLs.
 
-**Entity vs hub naming ([`navigation-model.md`](navigation-model.md) NM3/NM4):** an **entity page** (a single game / player / tournament / country / milestone) lives at the realm root as its **own singular namespace** — leaf file if single-page (`game.php`), folder if it has tabs (`player/`, `tournament/`). It is **never** nested inside a **hub-tab folder** (the **plural** form: `tournaments.php`, `countries/`, `world-cups/`, `leaderboards/`). Entity pages show **no active hub pill** (NM2).
+**Entity vs hub naming ([`navigation-model.md`](navigation-model.md) NM3/NM4):** an **entity page** (a single game / player / tournament / country / milestone) lives at the realm root as its **own singular namespace** — leaf file if single-page (`game.php`), folder if it has tabs (`player/`, `tournament/`). It is **never** nested inside a **hub-tab folder** (the **plural** form: `tournaments.php`, `countries.php`, `world-cups/`, `leaderboards/`). Entity pages show **no active hub pill** (NM2).
 
 ---
 
@@ -202,13 +202,13 @@ Query `?id=` required on all tabs. Optional `?player=` on games; `?scope=` / `?s
 
 ### Amiga hub tabs (present order)
 
-News · Leaderboards · **World Cups** (`/amiga/world-cups/chronology.php`) · Tournaments · **Countries** (`/amiga/countries/index.php`) · Games · Activity · Hall of Fame · Live — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · Tournaments · **Countries** · Games · Activity · Hall of Fame (editorial present-only: News · Live).
+News · Leaderboards · **World Cups** (`/amiga/world-cups/chronology.php`) · Tournaments · **Countries** (`/amiga/countries.php`) · Games · Activity · Hall of Fame · Live — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · Tournaments · **Countries** · Games · Activity · Hall of Fame (editorial present-only: News · Live).
 
 A single country is an **entity page** ([`navigation-model.md`](navigation-model.md) NM3): it lives in the singular `country/` namespace with a **Roster · Rivals** segment (NM6), not inside the plural `countries/` hub folder.
 
 | Route key | Path | Segment |
 |-----------|------|---------|
-| `amiga-countries` | `/amiga/countries/index.php` | Countries **hub place** (plural) — keeps active pill |
+| `amiga-countries` | `/amiga/countries.php` | Countries **hub place** (plural leaf, like `tournaments.php`) — keeps active pill |
 | `amiga-country-roster` | `/amiga/country/roster.php?country={token}` | Roster (default; career roster table) |
 | `amiga-country-rivals` | `/amiga/country/rivals.php?country={token}` | Rivals legacy redirect → `rivals/h2h.php` |
 | `amiga-country-rivals-h2h` | `/amiga/country/rivals/h2h.php?country={token}` | Rivals — Head-to-head (`rival={token}` drill-down; domestic A→A excluded) |
@@ -218,7 +218,7 @@ A single country is an **entity page** ([`navigation-model.md`](navigation-model
 
 **Rivals filter params (not navigation):** `rival=` = opponent nation on H2H and games links; `country=` on `/amiga/games/all.php` pairs with `rival=` for nation-pair game lists. Do **not** reuse `opponent=` (player id) on Rivals URLs.
 
-`k2_amiga_country_roster_href()` / `k2_amiga_country_rivals_href()` build these; every flag cell ([`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) CH9) routes through the roster helper. Legacy `amiga-countries-roster` (`/amiga/countries/roster.php`) is now a **302** to `/amiga/country/roster.php` (preserves `country` + `as`). The **Countries** pill is active only on `countries/index.php` (NM2); country entity pages carry no active pill. Policy: [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md).
+`k2_amiga_country_roster_href()` / `k2_amiga_country_rivals_href()` build these; every flag cell ([`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) CH9) routes through the roster helper. Legacy `amiga-countries-roster` (`/amiga/countries/roster.php`) is now a **302** to `/amiga/country/roster.php` (preserves `country` + `as`). Legacy `countries/index.php` **302** to `countries.php`. The **Countries** pill is active only on `countries.php` (NM2); country entity pages carry no active pill. Policy: [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md).
 
 ---
 

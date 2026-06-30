@@ -7,7 +7,7 @@
 | Page | Path |
 |------|------|
 | Hub nav | News · Leaderboards · World Cups · Tournaments · **Countries** · Games · Activity · Hall of Fame · Live (`includes/amiga_hub_nav.php`; default landing `/amiga/news.php`) |
-| **Countries hub** | `/amiga/countries/index.php` (hub index) · `/amiga/country/roster.php?country={token}` · `/amiga/country/rivals/{h2h,wdl,goals,dds}.php?country={token}` (+ `rival=` on H2H) — country entity **Roster · Rivals** — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) · Rivals grain [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) §1.1 |
+| **Countries hub** | `/amiga/countries.php` (hub index) · `/amiga/country/roster.php?country={token}` · `/amiga/country/rivals/{h2h,wdl,goals,dds}.php?country={token}` (+ `rival=` on H2H) — country entity **Roster · Rivals** — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) · Rivals grain [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) §1.1 |
 | Leaderboard (rating) | `/amiga/leaderboards/rating.php` (Leaderboards tab; `/amiga/rating.php` redirects) |
 | Leaderboard wings | Tab order in `amiga_lb_nav.php`: Rating · Tournament honours · Calendar &amp; geography · Goals · DDs &amp; CSs · Victims · Peak · Perf. rating *(World Cups player stats = hub only — not an LB wing)* |
 | Tournament honours LB | `/amiga/leaderboards/tournament-honours.php` (all-events medals; WC career stats → World Cups hub → Player stats) |
@@ -72,7 +72,7 @@ Participation **roster and W-D-L/goals** come from **`amiga_games`** — a row e
 ## Files
 
 - `includes/amiga_hub_nav.php` — realm hub tabs
-- `amiga/countries/index.php` (hub) · `amiga/country/roster.php`, `amiga/country/rivals.php` (country entity) — Countries hub + per-country roster by nationality
+- `amiga/countries.php` (hub) · `amiga/country/roster.php`, `amiga/country/rivals.php` (country entity) — Countries hub + per-country roster by nationality
 - `includes/amiga_countries_lib.php`, `includes/amiga_countries_index_table.php`, `includes/amiga_countries_roster_table.php`, `includes/amiga_country_hero.php`
 - `includes/k2_amiga_country_flag.php` — flag SVG map + optional roster link on nationality cells
 - `amiga/hall-of-fame.php` — HoF (generalstats + ratio leaders + WC medal panel)

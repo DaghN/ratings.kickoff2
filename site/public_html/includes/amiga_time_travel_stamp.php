@@ -47,6 +47,28 @@ function amiga_time_travel_stamp_context(): ?AmigaSnapshotContext
 }
 
 /**
+ * Year/month wings: LED follows the ribbon picker key (period end), not resolved cutoff tournament date.
+ * Event wing: actual cutoff tournament event_date.
+ */
+function amiga_time_travel_stamp_display_date(string $wing, string $key, string $cutoffEventDate): string
+{
+    $wing = amiga_rating_history_normalize_wing($wing);
+
+    if ($wing === 'year' && preg_match('/^\d{4}$/', $key)) {
+        return $key . '-12-31';
+    }
+
+    if ($wing === 'month' && preg_match('/^\d{4}-\d{2}$/', $key)) {
+        $date = DateTimeImmutable::createFromFormat('!Y-m-d', $key . '-01');
+        if ($date instanceof DateTimeImmutable) {
+            return $date->modify('last day of this month')->format('Y-m-d');
+        }
+    }
+
+    return $cutoffEventDate;
+}
+
+/**
  * @return list<array{text: string, sep: bool}>
  */
 function amiga_time_travel_stamp_led_parts(string $eventDateYmd, string $wing): array
@@ -127,13 +149,14 @@ function amiga_time_travel_stamp_view(?AmigaSnapshotContext $ctx = null): ?array
     }
 
     $wing = $ctx->wing();
-    $eventDate = (string) $cutoff['event_date'];
+    $key = $ctx->key();
+    $displayDate = amiga_time_travel_stamp_display_date($wing, $key, (string) $cutoff['event_date']);
 
     return [
         'wing' => $wing,
         'kicker' => amiga_time_travel_stamp_kicker($wing),
-        'led' => amiga_time_travel_stamp_led_parts($eventDate, $wing),
-        'a11y' => amiga_time_travel_stamp_a11y_label($eventDate),
+        'led' => amiga_time_travel_stamp_led_parts($displayDate, $wing),
+        'a11y' => amiga_time_travel_stamp_a11y_label($displayDate),
     ];
 }
 

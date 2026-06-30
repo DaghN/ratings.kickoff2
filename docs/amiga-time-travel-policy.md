@@ -185,7 +185,7 @@ Phase 1 proved the **data lens**: one `as=` cutoff, correct snapshot reads, link
 |------|--------|
 | **Placement** | Top of `k2-page-nav`: below wordmark / header mode toggle, **above** snapshot ribbon — on every Amiga page with active time travel (same surfaces as snapshot chrome; ops/import excluded) |
 | **Kicker** | `››` prompt + wing label: **YEAR END REACHED** · **MONTH END REACHED** · **TEMPORAL LINK ESTABLISHED** (event) |
-| **LED date** | From cutoff `event_date`: year wing → `Y`; month → `MM . Y`; event → `DD . MM . YYYY` (DSEG7 `.` separator; swap `AMIGA_TT_STAMP_LED_FIELD_SEP` in stamp PHP to try `:`) |
+| **LED date** | From active wing picker key — **year** → `Y`; **month** → `MM . Y` (last day of selected month); **event** → cutoff tournament `event_date` as `DD . MM . YYYY` (DSEG7 `.` separator; swap `AMIGA_TT_STAMP_LED_FIELD_SEP` in stamp PHP to try `:`). Year/month wings follow chevron/picker selection, not resolved cutoff tournament date (empty periods repeat prior snapshot state for data, not for display). |
 | **Typography** | DSEG7 Classic for LED segments only — display exception per [`design-direction.md`](design-direction.md) § Typography |
 | **Motion** | **Ambient:** blinking `_` cursor (click to pause/resume; `localStorage`). **Toggle entry** (`k2_tt_entry=1`): whole panel fade-in + kicker typewriter. **Wing tab change** (`k2_tt_entry=wing`): kicker typewriter + **LED clock opacity fade** (1100ms; no panel rise). **Typewriter:** fixed **32 cps** for toggle and wing (`TYPEWRITER_CPS` in `k2-amiga-tt-stamp.js`). Stepper/picker/hub nav/direct URL do not trigger. Hover tooltip follows pointer near `_`. **Load:** stamp JS sync after markup. |
 | **A11y** | `aria-label` plain English: *As of {j F Y}*; decorative kicker/LED `aria-hidden` |
@@ -206,7 +206,7 @@ Phase 1 proved the **data lens**: one `as=` cutoff, correct snapshot reads, link
 
 When inactive: header segment only; no ribbon below/above nav.
 
-**Hub chapter headers (when `as=` active):** omit `k2-hub-chapter` title + lede on snapshot hub tabs — Leaderboards (`amiga_lb_nav.php`), World Cups hub shell, **Countries** (`amiga/countries/*`), Activity, Hall of Fame, **Tournaments** (`amiga/tournaments.php`). **Leaderboards + World Cups:** no chapter in present day either (Jun 2026).
+**Hub chapter headers (when `as=` active):** omit `k2-hub-chapter` on snapshot hub tabs — Leaderboards (`amiga_lb_nav.php`), **Countries** (`amiga/countries.php`), Activity, Hall of Fame, **Tournaments** (`amiga/tournaments.php`). **Leaderboards:** no chapter in present day either (Jun 2026). **World Cups:** chapter **shown** under `as=` with snapshot WC count + `(except the Covid)` once first missed season has passed.
 
 **Temporal stamp (when `as=` active, v1 static):** see §5.0 for product intent. Implementation: shared `.k2-amiga-tt-stamp` in `k2-page-nav`, **below wordmark / above snapshot ribbon** on every Amiga page with active time travel. Render: `amiga_time_travel_stamp_render($ctx)` from `amiga_snapshot_chrome_render_active()`; helper in `includes/amiga_time_travel_stamp.php`.
 
@@ -333,7 +333,7 @@ Time travel does **not** add tables or writers. It only changes **read paths** a
 | Event stepper → tournament | Link lands on `tournament.php` with same `as=`; WC redirects keep `as=` |
 | Event wing on tournament.php | Chevrons / picker / `as=event:` change `id` to cutoff tournament (302 when mismatched) |
 | Event picker layout | Catalog-fixed width; closed date right-aligned; open panel = trigger width |
-| Temporal stamp | Visible on hub + player wings + tournament detail with `as=`; kicker matches wing; LED date matches cutoff |
+| Temporal stamp | Visible on hub + player wings + tournament detail with `as=`; kicker matches wing; LED date matches picker (year/month period end; event cutoff date) |
 | Stamp toggle arrival | One-shot `k2_tt_entry=1` from present → time travel; panel fade + 32 cps kicker typewriter; param stripped from URL |
 | Stamp wing arrival | Year · Month · Event tabs append one-shot `k2_tt_entry=wing`; 32 cps kicker + 1100ms LED opacity fade (no panel rise); stepper/picker do not trigger |
 | Hub chapters under `as=` | Snapshot hub tabs omit `k2-hub-chapter`; present day keeps chapters |

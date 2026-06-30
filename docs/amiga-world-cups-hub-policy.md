@@ -75,7 +75,7 @@ Wing 1 is the **WC catalog index** only. It does **not** host a second copy of t
 
 | Element | v1 | v2+ |
 |---------|----|-----|
-| **Intro** | None — hub tabs carry wing context (same present + TT) | Optional era copy elsewhere if needed |
+| **Intro** | Hub chapter lede + wing map (snapshot-aware count + Covid copy) | Optional extra era copy |
 | **List** | Sortable table — one row per WC: date, host flag, name, players, games, podium (flag + linked name per medal). **Date** is default sort (`event_date` desc) but uses `data-k2-quiet-sort-cols="0"` — no active-sort highlight (chronology reads as plain columns). | Filters by decade / host nation |
 | **Row link** | **`/amiga/tournament.php?id={tournament_id}&view=event-stats`** — via `amiga_tournament_event_stats_url($id)` + `amiga_tournament_href()` (preserves `as=`). Optional `#tournament` anchor for scroll. **Default WC landing tab** — already first in WC tournament nav. | Same URL; richer tab content |
 | **Per-event richness** | **Enrich `tournament.php`** — especially **`view=event-stats`** (realm row from `amiga_world_cup_stats` + existing per-player event stats). Bracket / stages / games = other `view=` tabs on the **same** `id`. | Extrema game links, podium narrative on existing tabs |
@@ -198,7 +198,7 @@ Registered in [`site/public_html/includes/k2_amiga_routes.php`](../site/public_h
 
 ## 8. Visual / UX notes
 
-- **No chapter block** above sub-nav — realm hub tabs + wing sub-nav only (present and TT).
+- **Hub chapter:** `k2_hub_chapter.inc.php` — title **World Cups**, Christmas lede with blue WC count + time-aware Covid parenthetical `(except the Covid)` once the first missed season has passed (Dec 2020+), wing map list. Respects `as=` cutoff for count + Covid wording.
 - **Sub-nav** segment track — same component family as Games / Milestones / LB wings.
 - **Tint / realm** — Amiga realm chrome only; no Online mirror unless Dagh explicitly asks.
 - **Design tokens** — [`design-direction.md`](design-direction.md); tables use standard `k2-table` sort patterns.

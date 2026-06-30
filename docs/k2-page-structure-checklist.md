@@ -66,7 +66,7 @@ If unsure: **grep** `k2_amiga_route(` / `k2_route(` in the nearest neighbour and
 | | Hub **place** (active pill OK) | **Entity** page (no active pill) |
 |--|-------------------------------|----------------------------------|
 | Naming | Plural: `tournaments.php`, `countries/`, `leaderboards/` | Singular: `tournament/`, `country/`, `player/` |
-| Example | `/amiga/countries/index.php` | `/amiga/country/roster.php?country=` |
+| Example | `/amiga/countries.php` | `/amiga/country/roster.php?country=` |
 | Hub bar | Present; pill lit on hub places only | Present; **no** active pill (NM2) |
 
 Full rules: [`navigation-model.md`](navigation-model.md).

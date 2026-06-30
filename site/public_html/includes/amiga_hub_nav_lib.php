@@ -43,7 +43,7 @@ function amiga_hub_all_tabs(): array
         'leaderboards' => ['href' => '/amiga/leaderboards/rating.php', 'label' => 'Leaderboards'],
         'world-cups' => ['href' => '/amiga/world-cups/chronology.php', 'label' => 'World Cups'],
         'tournaments' => ['href' => '/amiga/tournaments.php', 'label' => 'Tournaments'],
-        'countries' => ['href' => '/amiga/countries/index.php', 'label' => 'Countries'],
+        'countries' => ['href' => '/amiga/countries.php', 'label' => 'Countries'],
         'games' => ['href' => '/amiga/games/recent.php', 'label' => 'Games'],
         'activity' => ['href' => '/amiga/activity.php', 'label' => 'Activity'],
         'hall-of-fame' => ['href' => '/amiga/hall-of-fame.php', 'label' => 'Hall of Fame'],

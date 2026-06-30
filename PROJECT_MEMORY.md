@@ -131,6 +131,12 @@
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **Amiga Countries hub URL** — canonical hub moved `countries/index.php` → **`countries.php`** (Tournaments pattern); legacy index 302. Route `amiga-countries`, hub nav, policy docs updated. |
+| 2026-06-30 | **Amiga Countries index lede** — dropped WC country-stats cross-link sentence from chapter intro. |
+| 2026-06-30 | **Amiga TT stamp LED (year/month)** — temporal stamp LED + a11y follow ribbon picker key (period end), not resolved cutoff tournament date; fixes month chevrons through quiet months. [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md) §5.0 |
+| 2026-06-30 | **Amiga WC stats Year % read-time** — `share_of_year_games` derived at read from `amiga_community_stat_facts` at viewer cutoff (present or TT); latest fact row ≤ cutoff per calendar year (handles sparse tail snapshots). Fixes WC I 100% bug (e.g. 143/173). Writer/DB column cleanup deferred next slice. [`amiga-world-cup-stats-table-plan.md`](docs/amiga-world-cup-stats-table-plan.md) |
+| 2026-06-30 | **Amiga World Cups hub chapter lede** — Christmas intro + blue WC count; Covid clause time-aware (none / singular *year* / plural *years* by cutoff); chapter shown under `as=` with snapshot count. |
+| 2026-06-30 | **Amiga World Cups hub chapter** — `k2-hub-chapter` title + four-wing map list above sub-nav (`amiga_world_cups_hub_helpers.php`); `k2_hub_chapter` skips empty lede. |
 | 2026-06-30 | **Amiga tournaments index** — removed **Perfect run** facet toggle from `/amiga/tournaments.php` (player tournament history filter unchanged). |
 | 2026-06-30 | **Amiga perf-rating Perfect wing Date column** — body cells stay muted (`k2-amiga-lb-perf-rating-date`) when date is active sort; header keeps sorted chrome. |
 | 2026-06-30 | **Amiga perf-rating Perfect wing lede** — “Every perfect tournament run, `<span class="blue">`{count}`</span>` in total.” on `perfect.php`. |

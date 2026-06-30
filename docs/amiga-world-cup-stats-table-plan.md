@@ -101,6 +101,7 @@ Each row holds **intrinsic stats for that WC only** — games and aggregates sco
 |------|-----------|
 | **Visibility** | Row included in TT result set iff WC’s `(event_date, event_chrono, tournament_id)` ≤ cutoff tuple |
 | **Cell values** | Unchanged — still that WC’s own stats (not “WC games through cutoff”) |
+| **`share_of_year_games` (Year %)** | **Exception (Jun 2026):** read-time derive at cutoff — `rated_games ÷` realm `games` year fact from `amiga_community_stat_facts` at viewer cutoff (same source as **Q-WC-003**). Stored column retained until writer cleanup slice |
 | **Empty state** | Before first WC in history: zero rows |
 
 Contrast: community `world_cup` year facts at cutoff are **cumulative realm state through cutoff**; this table filters **which WCs exist** by cutoff.
@@ -331,6 +332,8 @@ Useful when two events share a year or when WC is small fraction of annual volum
 | `share_of_year_games` | This WC as % of all rated games in `calendar_year`? | derived rate | game | derive | Y — same ratio as **Q-WC-003** (year chart); per-WC row lens | N | nice |
 
 **Q-WC-003 vs `share_of_year_games`:** Not a contradiction. **Q-WC-003** is the Activity **year bar chart** (realm-wide: “in year *Y*, what % of all games were WC?”). **`share_of_year_games`** on each WC row is the **same ratio** shown in context on that tournament’s row (`rated_games ÷ realm games in calendar_year`). Numerator is this WC; denominator is community/year fact. Store on WC row for table sort/tooltip; chart stays on community facts.
+
+**Read path (Jun 2026):** Year % is **derived at read** from `amiga_community_stat_facts` at the viewer’s cutoff (`amiga_community_year_realm_games_at_cutoff` in `amiga_community_stats_lib.php`; applied in `amiga_world_cup_stats_read_lib.php`). Present = latest snapshot; time travel = cutoff tournament. Lookup = **latest fact row with `tournament_id` ≤ cutoff** per calendar year (not exact cutoff row only — tail snapshots may be sparse). Closed calendar years are stable; in-progress year uses rolling realm games through cutoff. Finalize-time stored `share_of_year_games` is **overridden** on read until a later slice removes the column.
 
 | Column / metric | Plain-language question | Category | Unit / basis | Derive or store | Also feeds community? | Player slice overlap? | Priority |
 |---------------|-------------------------|----------|--------------|-----------------|----------------------|----------------------|----------|

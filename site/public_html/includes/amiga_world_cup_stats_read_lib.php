@@ -7,12 +7,52 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_db.php';
+require_once __DIR__ . '/amiga_community_stats_lib.php';
 require_once __DIR__ . '/amiga_snapshot_context.php';
 
 /** Load time-travel context for World Cup stats pages. */
 function amiga_world_cup_stats_context(mysqli $con): AmigaSnapshotContext
 {
     return amiga_snapshot_context_from_request($con);
+}
+
+/**
+ * Year % = this WC's games ÷ realm games in that calendar year at the read cutoff.
+ *
+ * @see docs/amiga-world-cup-stats-table-plan.md §3.10
+ *
+ * @param list<array<string, mixed>> $rows
+ */
+function amiga_world_cup_stats_apply_share_of_year_games(mysqli $con, array &$rows, ?int $cutoffTournamentId): void
+{
+    if ($rows === [] || $cutoffTournamentId === null || $cutoffTournamentId <= 0) {
+        return;
+    }
+
+    $years = [];
+    foreach ($rows as $row) {
+        $year = (int) ($row['calendar_year'] ?? 0);
+        if ($year > 0) {
+            $years[$year] = true;
+        }
+    }
+    if ($years === []) {
+        return;
+    }
+
+    $realmGamesByYear = amiga_community_year_realm_games_at_cutoff(
+        $con,
+        $cutoffTournamentId,
+        array_keys($years),
+    );
+
+    foreach ($rows as &$row) {
+        $year = (int) ($row['calendar_year'] ?? 0);
+        $ratedGames = (int) ($row['rated_games'] ?? 0);
+        $denominator = $realmGamesByYear[$year] ?? null;
+        $row['share_of_year_games'] = amiga_community_share_ratio($ratedGames, (int) ($denominator ?? 0));
+    }
+    unset($row);
 }
 
 /**
@@ -53,6 +93,11 @@ function amiga_world_cup_stats_rows(mysqli $con, ?AmigaSnapshotContext $ctx = nu
             $rows[] = $row;
         }
         $res->free();
+        amiga_world_cup_stats_apply_share_of_year_games(
+            $con,
+            $rows,
+            amiga_community_cutoff_tournament_id_for_read($con, $ctx),
+        );
 
         return $rows;
     }
@@ -74,6 +119,11 @@ function amiga_world_cup_stats_rows(mysqli $con, ?AmigaSnapshotContext $ctx = nu
     }
     $res->free();
     $stmt->close();
+    amiga_world_cup_stats_apply_share_of_year_games(
+        $con,
+        $rows,
+        amiga_community_cutoff_tournament_id_for_read($con, $ctx),
+    );
 
     return $rows;
 }

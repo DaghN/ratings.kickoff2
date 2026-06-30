@@ -20,7 +20,9 @@ $k2HubChapterNav = $k2HubChapterNav ?? '';
 ?>
 <header class="k2-hub-chapter">
 	<h1 class="k2-hub-chapter__title"><?php echo htmlspecialchars($k2HubChapterTitle, ENT_QUOTES, 'UTF-8'); ?></h1>
+<?php if ($k2HubChapterLede !== '') { ?>
 	<p class="k2-hub-chapter__lede"><?php echo $k2HubChapterLede; ?></p>
+<?php } ?>
 <?php if ($k2HubChapterList !== '') { ?>
 	<?php echo $k2HubChapterList; ?>
 <?php } ?>

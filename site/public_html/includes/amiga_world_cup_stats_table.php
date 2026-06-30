@@ -293,17 +293,3 @@ function amiga_world_cup_stats_render_view(string $view, array $rows, array $nam
     <?php
 }
 
-/**
- * @param list<array<string, mixed>> $rows
- */
-function amiga_world_cup_stats_render_footer(int $rowCount): void
-{
-    require_once __DIR__ . '/amiga_snapshot_url.php';
-    $activityHref = htmlspecialchars(amiga_url_with_context('/amiga/activity.php'), ENT_QUOTES, 'UTF-8');
-    ?>
-<p class="k2-amiga-world-cups-stats-foot" style="margin:0 0 2rem;color:var(--k2-text-secondary)">
-	<?php echo number_format($rowCount); ?> World Cup<?php echo $rowCount === 1 ? '' : 's'; ?> in scope.
-	Realm-wide WC trends by calendar year: <a href="<?php echo $activityHref; ?>">Activity</a>.
-</p>
-    <?php
-}

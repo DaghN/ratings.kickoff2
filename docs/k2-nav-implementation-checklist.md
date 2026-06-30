@@ -18,7 +18,7 @@ Spacing contract: [`nav-spacing-policy.md`](nav-spacing-policy.md). Segment gram
 |----------|-------------------|-------------------|---------|
 | Online hub primary tabs | `includes/hub_nav.php` | Any online hub page after `site_header.php` | `.k2-hub-bar` > `.k2-hub-tabs` |
 | Amiga hub primary tabs | `includes/amiga_hub_nav.php` | Amiga hub pages | Same; TT stamp may precede bar |
-| Amiga Countries hub (index = place) | `amiga/countries/index.php` | Hub tab + chapter; active **Countries** pill | [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
+| Amiga Countries hub (index = place) | `amiga/countries.php` | Hub tab + chapter; active **Countries** pill | [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
 | Amiga country (entity — Roster · Rivals) | `includes/amiga_country_page.php` + `amiga_country_nav.php` + `amiga_country_rivals_nav.php`; entries `amiga/country/roster.php`, `country/rivals/{h2h,wdl,goals,dds}.php` | Entity page: hub bar **no** active pill (NM2); Roster · Rivals segment; Rivals inner wing row (H2H · W/D/L · Goals · DDs) | [`navigation-model.md`](navigation-model.md), [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md), [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) |
 | Hub chapter (title + lede) | `includes/k2_hub_chapter.inc.php` | LB wing, Games/Milestones hub, WC hub | Set `$k2HubChapterTitle` / `$k2HubChapterLede` before include |
 | Online LB wing ribbon | `includes/lb_nav.php` | `leaderboards/rating.php` | Pattern **A**: wing closes; content is **sibling** |
