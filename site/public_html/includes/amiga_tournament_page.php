@@ -332,7 +332,14 @@ if ($hasVideosTab) {
 
 $isStagesContentView = $pageView === 'stages' || ($pageView === 'standings' && !$isWorldCupEvent);
 
-mysqli_close($con);
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_href.php';
+
+$tournamentStepNavIntent = amiga_tournament_step_nav_intent_from_request(
+    $scopeType,
+    $scopeKey,
+    $pageView,
+    $pageView === 'videos' ? $tournamentVideosMode : null,
+);
 
 ?>
 
@@ -363,9 +370,13 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_hero.php';
 
 
 
-<?php if ($hasLeagueStandingsNav || $hasBracket || $hasGamesTab || $hasVideosTab || $eventStatsRows !== []) { ?>
+<?php if ($hasLeagueStandingsNav || $hasBracket || $hasGamesTab || $hasVideosTab || $eventStatsRows !== []) {
 
-<nav class="k2-amiga-tournament-nav k2-player-nav-bar" data-k2-carry-scroll aria-label="Tournament sections">
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.php';
+
+?>
+
+<nav class="k2-amiga-tournament-nav k2-player-nav-bar k2-amiga-tournament-nav--with-steps" data-k2-carry-scroll aria-label="Tournament sections">
 
   <div class="k2-player-nav k2-nav-pills">
 
@@ -492,6 +503,8 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_hero.php';
 
   </div>
 
+  <?php amiga_tournament_step_nav_render($con, $id, $tournamentStepNavIntent); ?>
+
 </nav>
 
 <?php if ($isWorldCupEvent && $pageView === 'stages' && ($hasLeagueStandingsNav || $hasBracket)) { ?>
@@ -514,7 +527,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_hero.php';
 
 <?php } ?>
 
-
+<?php mysqli_close($con); ?>
 
 <div class="k2-amiga-tournament-body">
 

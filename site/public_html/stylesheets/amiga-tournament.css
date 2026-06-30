@@ -84,6 +84,119 @@ body.k2-site .k2-amiga-tournament-nav .k2-player-nav {
 	justify-content: flex-start;
 }
 
+body.k2-site .k2-amiga-tournament-nav.k2-amiga-tournament-nav--with-steps {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem 1rem;
+	width: 100%;
+	max-width: 100%;
+}
+
+body.k2-site .k2-amiga-tournament-nav--with-steps .k2-player-nav {
+	flex: 0 0 auto;
+	width: fit-content;
+	max-width: 100%;
+	min-width: 0;
+}
+
+body.k2-site .k2-amiga-tournament-nav--with-steps .k2-player-nav__links {
+	flex: 0 1 auto;
+}
+
+body.k2-site .k2-amiga-tournament-step-nav {
+	display: inline-flex;
+	flex: 0 0 auto;
+	align-items: center;
+	flex-wrap: nowrap;
+	gap: 0.75rem;
+	margin-left: auto;
+}
+
+body.k2-site .k2-amiga-tournament-step-nav__steps {
+	flex: 0 0 auto;
+	gap: 0.55rem;
+	margin: 0;
+}
+
+body.k2-site .k2-amiga-tournament-step-nav__steps .k2-player-games-day-step {
+	color: var(--k2-accent);
+	background: color-mix(in srgb, var(--k2-accent) 14%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-accent) 42%, transparent);
+}
+
+body.k2-site .k2-amiga-tournament-step-nav__steps a.k2-player-games-day-step:hover,
+body.k2-site .k2-amiga-tournament-step-nav__steps a.k2-player-games-day-step:focus-visible {
+	color: var(--k2-accent);
+	background: color-mix(in srgb, var(--k2-accent) 20%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-accent) 52%, transparent);
+}
+
+body.k2-site .k2-amiga-tournament-step-nav__steps .k2-player-games-day-step.is-disabled {
+	opacity: 0.42;
+	background: color-mix(in srgb, var(--k2-accent) 8%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-accent) 24%, var(--k2-border-subtle));
+}
+
+body.k2-site .k2-amiga-tournament-step-nav__filters {
+	--k2-amiga-tournament-step-picker-width: 12rem;
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: nowrap;
+	margin: 0;
+	flex: 0 1 auto;
+	min-width: 0;
+}
+
+body.k2-site .k2-amiga-tournament-step-nav__filters .k2-amiga-tournament-step-nav__filter-fields {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: 0.75rem;
+	margin: 0;
+}
+
+body.k2-site .k2-amiga-tournament-step-nav__filters .k2-amiga-tournament-step-nav__filter-fields > .k2-player-games-controls__field {
+	flex: 0 0 auto;
+	width: auto;
+	min-width: 0;
+	max-width: var(--k2-amiga-tournament-step-picker-width);
+	margin: 0;
+	align-items: flex-start;
+}
+
+/* Match games/all realm picker stack — ghost box, trigger, and panel share one width. */
+body.k2-site .k2-amiga-tournament-step-nav__filters.k2-player-games-controls .k2-archive-listbox--ghost-sized {
+	position: relative;
+	display: inline-block;
+	width: auto !important;
+	max-width: 100% !important;
+	vertical-align: bottom;
+	align-self: flex-start;
+}
+
+body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__trigger {
+	box-sizing: border-box;
+	width: 100% !important;
+	max-width: 100% !important;
+	min-width: 0 !important;
+	min-height: calc(1.35em + 8px);
+}
+
+body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__panel {
+	left: 0;
+	right: auto;
+	box-sizing: border-box;
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
+}
+
+body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox--meta-options .k2-archive-listbox__panel {
+	font-size: 11px;
+	line-height: 1.25;
+}
+
 .k2-amiga-tournament-stages-nav {
 	margin-top: -0.35rem;
 	padding-left: 0.65rem;

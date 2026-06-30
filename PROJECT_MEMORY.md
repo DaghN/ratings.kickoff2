@@ -66,7 +66,7 @@
 
 - **Amiga time travel (Jun 2026):** **Phase 1 complete** — header **Present day | Time travel** + one-row ribbon above hub when active; LB (8 wings), HoF at cutoff; profile present-only. Smoke: `scripts/oneoff/amiga_time_travel_smoke.php`. [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md).
 
-- **Amiga time travel (Jun 2026):** **T13–T19** — snapshot-only TT hub; **T19** fixed mode-toggle homes; pre-debut hero **—** + note (`T17`); **with-player** opt-in **`as_with=`** on Event ribbon (slice 1); tournament **`id_with=`** + league **`start_with=`** pending slices 2–3. [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md) · [`with-player-stepper-policy.md`](docs/with-player-stepper-policy.md).
+- **Amiga time travel (Jun 2026):** **T13–T19** — snapshot-only TT hub; **with-player track complete** — **`as_with=`** (TT Event ribbon), **`id_with=`** (tournament chevrons), **`start_with=`** (league periods). [`with-player-stepper-policy.md`](docs/with-player-stepper-policy.md).
 - **Amiga Opponents wing (Jun 2026):** **W/D/L · Goals · DDs + H2H (slices D+F) shipped** — poster/pickers/pair detail/moments/charts on `amiga/player/opponents/h2h.php`; Amiga `realm=` API branches + event-step rating compare. Policy [`amiga-opponents-wing-policy.md`](docs/amiga-opponents-wing-policy.md). **Country grain (Jun 2026):** **OCG-1–OCG-7 complete** — roll-up + read-time country TPR; country **W/D/L · Goals · DDs** tables; country **H2H** (poster/pickers/detail/moments/game charts, no rating/rank compare); API `opp_country` + chart JS grain — [`amiga-opponents-country-grain-policy.md`](docs/amiga-opponents-country-grain-policy.md) · [`amiga-opponents-country-grain-implementation-plan.md`](docs/amiga-opponents-country-grain-implementation-plan.md).
 
 - **Amiga World Cups LB (Jun 2026):** **V2 UI** — five sub-wings on **World Cups hub → Player stats** only; LB wing **retired** Jun 2026 (legacy URLs 302). Writers proven Jun 2026-23. [`amiga-world-cups-leaderboard-policy.md`](docs/amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cups-player-slice-v2-policy.md`](docs/amiga-world-cups-player-slice-v2-policy.md).
@@ -135,6 +135,12 @@
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **Tournament step filter layout fix** — ghost listbox `align-self: flex-start` (panel = trigger width); theme panel override like games/all. |
+| 2026-06-30 | **Tournament step filter facets** — with-player + host-country listboxes show faceted tournament counts (`meta`); counts cross-filter (player↔country). |
+| 2026-06-30 | **Tournament step host country** — `id_country=` listbox after with-player on entity nav; filter bag + propagation via `amiga_id_country_url.php`; probe extended. |
+| 2026-06-30 | **League period UI** — period chevrons + with-player row above Standings heading; sibling cup link in intro lede. |
+| 2026-06-30 | **With player slice 3** — league period `start_with=` listbox + filtered chevrons; `k2_league_period_with_player.php`, `k2_start_with_url.php`; probe green; track complete. |
+| 2026-06-30 | **With player slice 2** — tournament chevrons + `id_with=` on entity nav; filter-bag catalog, wing-preserving hrefs, `amiga_tournament_step_*` modules; probe green. |
 | 2026-06-30 | **With player slice 2 prep (docs)** — policy §5.5–§5.7 + plan: tournament step three layers, wing fallback, future catalog filters (`id_wc`, `id_country`) via filter bag; no TT reuse (WP15–WP17). |
 | 2026-06-30 | **Agent onboarding** — AGENTS traps + kool-workspace + TT policy §3.4 + page-structure checklist: with-player URL carry alongside `as=`. |
 | 2026-06-30 | **With player slice 1 fix** — shared `k2-amiga-time-travel-url.js`; header search + H2H chart games links preserve `as_with=`. |

@@ -99,6 +99,8 @@ function k2_league_period_href(string $cup, string $period, string $periodStart)
 /** In-page league navigation (period steps, games pager) — no landing anchor; use with carry-scroll. */
 function k2_league_period_peer_href(string $cup, string $period, string $periodStart, int $offset = 0): string
 {
+    require_once __DIR__ . '/k2_start_with_url.php';
+
     $start = k2_league_period_normalize_start_param($period, $periodStart) ?? $periodStart;
     $params = [
         'cup' => $cup,
@@ -108,6 +110,8 @@ function k2_league_period_peer_href(string $cup, string $period, string $periodS
     if ($offset > 0) {
         $params['offset'] = $offset;
     }
+    $params = k2_start_with_append_to_query($params);
+    $params = array_merge($params, k2_table_scoped_sort_query_params());
 
     return k2_route('league', $params);
 }
@@ -455,6 +459,8 @@ function k2_league_period_render_intro(array $loaded): void
     $closeVerb = $isLive ? 'closes' : 'closed';
     $timeLeftHtml = k2_league_period_time_left_html((string) ($loaded['time_left'] ?? ''), $isLive);
     $cup = (string) ($loaded['cup'] ?? 'points');
+    $period = (string) ($loaded['period'] ?? '');
+    $periodStart = (string) ($loaded['start'] ?? '');
     ?>
 	<header class="k2-league-period__intro k2-hub-chapter">
 <?php k2_league_period_render_title_html($cup, $bounds); ?>
@@ -465,7 +471,7 @@ function k2_league_period_render_intro(array $loaded): void
 			    $playerCount,
 			    $totalGames,
 			    $isLive
-			); ?></p>
+			); ?><?php echo k2_league_period_sibling_link_html($cup, $period, $periodStart); ?></p>
 <?php if ($timeLeftHtml !== '') { ?>
 			<p><?php echo $timeLeftHtml; ?></p>
 <?php } ?>
@@ -477,14 +483,14 @@ function k2_league_period_render_intro(array $loaded): void
 /**
  * @param array<string, mixed> $loaded
  */
-function k2_league_period_render_standings_header(array $loaded): void
+function k2_league_period_render_standings_header(array $loaded, ?mysqli $con): void
 {
+    require_once __DIR__ . '/k2_league_period_with_player.php';
+
     $cup = (string) ($loaded['cup'] ?? 'points');
     $period = (string) ($loaded['period'] ?? '');
-    $periodStart = (string) ($loaded['start'] ?? '');
     ?>
 	<div class="k2-league-period__standings-head">
-		<h2 id="k2-league-period-standings-title" class="k2-panel-heading k2-league-period__standings-heading">Standings</h2>
 		<div class="k2-league-period__standings-nav">
 <?php k2_league_period_render_period_steps_html(
     isset($loaded['period_prev_start']) ? (string) $loaded['period_prev_start'] : null,
@@ -492,8 +498,11 @@ function k2_league_period_render_standings_header(array $loaded): void
     $cup,
     $period
 ); ?>
-			<?php echo k2_league_period_sibling_link_html($cup, $period, $periodStart); ?>
+<?php if ($con instanceof mysqli) {
+    k2_league_period_render_with_player_listbox($con, $loaded);
+} ?>
 		</div>
+		<h2 id="k2-league-period-standings-title" class="k2-panel-heading k2-league-period__standings-heading">Standings</h2>
 	</div>
 <?php
 }
@@ -626,6 +635,8 @@ function k2_league_period_fetch_games(
  */
 function k2_league_period_load(mysqli $con, string $cup, string $period, string $periodStart): ?array
 {
+    require_once __DIR__ . '/k2_league_period_with_player.php';
+
     $key = k2_league_key_from_period_start($period, $periodStart);
     if ($key === null) {
         return null;
@@ -650,7 +661,10 @@ function k2_league_period_load(mysqli $con, string $cup, string $period, string 
         $isLive = $endTs > 0 && $endTs > $serverNow->getTimestamp();
         $timeLeft = $isLive ? k2_status_format_league_time_left($endTs - $serverNow->getTimestamp()) : '';
         $playerCount = k2_league_period_player_count('points', $league, []);
-        $adjacent = k2_league_period_adjacent_starts($con, $period, $periodStart, $serverNow);
+        $startWithPlayerId = k2_start_with_active_player_id($con);
+        $adjacent = $startWithPlayerId > 0
+            ? k2_league_period_with_player_adjacent_starts($con, $period, $periodStart, $startWithPlayerId, $serverNow)
+            : k2_league_period_adjacent_starts($con, $period, $periodStart, $serverNow);
 
         return [
             'cup' => $cup,
@@ -678,7 +692,10 @@ function k2_league_period_load(mysqli $con, string $cup, string $period, string 
     $isLive = $endTs > 0 && $endTs > $serverNow->getTimestamp();
     $timeLeft = $isLive ? k2_status_format_league_time_left($endTs - $serverNow->getTimestamp()) : '';
     $playerCount = k2_league_period_player_count('activity', null, $entries);
-    $adjacent = k2_league_period_adjacent_starts($con, $period, $periodStart, $serverNow);
+    $startWithPlayerId = k2_start_with_active_player_id($con);
+    $adjacent = $startWithPlayerId > 0
+        ? k2_league_period_with_player_adjacent_starts($con, $period, $periodStart, $startWithPlayerId, $serverNow)
+        : k2_league_period_adjacent_starts($con, $period, $periodStart, $serverNow);
 
     return [
         'cup' => $cup,

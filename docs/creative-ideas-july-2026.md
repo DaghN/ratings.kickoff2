@@ -126,7 +126,6 @@ LANDING             Status default                   News tab ◻ (placeholder)
 | **C10** | **Online season in review** | How was my 2024? | Calendar year lens on profile — rank Jan vs Dec, games, streak, top rival | Online | Lightweight TT sibling; `player_period_*` tables |
 | **C11** | **WC highlight reel (editorial)** | Show me the best stuff across WC history | Curated story through WC years — a few videos per year + short editorial copy celebrating players | Amiga | **Must be editorial**, not algorithmic boards |
 | **C12** | **Country story page** | Who *are* the Italians? | Prose band: best WC, top player, default rival link | Amiga | **Parked** — interesting but authenticity / data-to-prose unclear |
-| **C13** | **With player stepper filter** | Step only where this person played | Opt-in listbox + chevrons: **`as_with=`** (TT Event), **`id_with=`** (tournament), **`start_with=`** (league); slice 0 retires T18 | Both | [`with-player-stepper-policy.md`](with-player-stepper-policy.md) · [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md). Pairs with **C02**. |
 | **C14** | **Tournament metadata leaderboard** | Which events had the most debuts / biggest fields / …? | **Tournament stats** sub-wing on **Tournaments hub** — sortable metadata boards beside the chronological searchable catalog (mirror **World Cups hub → Tournament stats**, not player/country stats) | Amiga | **Approved** (Jun 2026) — firm to-do; follow-on from **C08**; extend **`amiga_tournament_catalog_stats`** at finalize (debut count, etc.); player/country tournament grains stay in normal LBs — §6.4 |
 | **C15** | **Highlights: biggest upsets** | What were the wildest rating swings in a single game? | Fifth board on **`/amiga/games/highlights.php`** — games ranked by biggest **rating gain** for the winner (upset framing) | Amiga | **Approved** (Jun 2026) — firm to-do; small slice alongside existing four boards; read **`amiga_game_ratings`** deltas — §6.5 |
 
@@ -144,6 +143,7 @@ LANDING             Status default                   News tab ◻ (placeholder)
 |---------|-------|-----|
 | **H2H rank comparison chart** | `/amiga/player/opponents/h2h.php` | [`amiga-player-rank-chart-h2h-policy.md`](amiga-player-rank-chart-h2h-policy.md) |
 | **Solo rank chart** | `/amiga/player/profile.php` | [`amiga-player-rank-chart-policy.md`](amiga-player-rank-chart-policy.md) |
+| **With player stepper filter** | TT Event (`as_with=`), tournament (`id_with=`), league (`start_with=`) | [`with-player-stepper-policy.md`](with-player-stepper-policy.md) |
 | Milestones v0, Time travel, Jukebox, Video embed, Fight poster, Countries/Rivals | (see origin stories) | respective policy docs |
 
 ---
@@ -250,6 +250,7 @@ Copy variants to explore: *One year ago today…* · *On this day…* · occasio
 |------|------|
 | 2026-06-30 | **C14–C15 promoted to approved** — firm to-do (was spark); Tournaments hub tournament-stats wing + Highlights biggest upsets board. `PROJECT_MEMORY` Next updated. |
 | 2026-06-30 | **C14–C15 sparks** — tournament metadata LB wing (debuts etc., WC hub pattern on Tournaments hub); Amiga Highlights **biggest upsets** board (rating gain). C08 notes: winner + debut in editorial band. §6.4–§6.5. |
+| 2026-06-30 | **C13 with-player stepper shipped** — slices 0–3 complete; moved to §5.3. |
 | 2026-06-30 | **C13 planning revision** — per-surface params (`as_with` / `id_with` / `start_with`); slice 0 T18 removal; [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md). |
 | 2026-06-30 | **C13 with-player stepper** — policy locked [`with-player-stepper-policy.md`](with-player-stepper-policy.md); supersedes Amiga TT T18. |
 | 2026-06-30 | Creative session wrap — §4.0 discoverability; `UPDATE_DOCS` · `AGENTS.md` · `agent-track-playbook` cross-refs. |

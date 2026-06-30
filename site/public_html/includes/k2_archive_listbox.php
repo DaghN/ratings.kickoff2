@@ -16,7 +16,7 @@ function k2_archive_listbox_h(string $value): string
 function k2_archive_listbox_choice_trigger_label(array $choice, string $fixedTriggerLabel): string
 {
     $value = (string) ($choice['value'] ?? '');
-    if ($fixedTriggerLabel !== '' && $value === '-1') {
+    if ($fixedTriggerLabel !== '' && ($value === '-1' || $value === '')) {
         return $fixedTriggerLabel;
     }
 
@@ -150,7 +150,7 @@ function k2_archive_listbox_render(
     }
 
     if ($idleValue !== null && (string) $selectedValue === (string) $idleValue) {
-        $selectedLabel = '';
+        $selectedLabel = $fixedTriggerLabel !== '' ? $fixedTriggerLabel : '';
         $selectedMeta = '';
     }
 
@@ -241,7 +241,7 @@ function k2_archive_listbox_render(
         $labelClass .= ' k2-link-star';
     }
     $triggerLabelAttr = '';
-    if ($fixedTriggerLabel !== '' && $value === '-1') {
+    if ($fixedTriggerLabel !== '' && ($value === '-1' || $value === '')) {
         $triggerLabelAttr = ' data-trigger-label="' . k2_archive_listbox_h($fixedTriggerLabel) . '"';
     }
     $metaAttr = $meta !== '' ? ' data-option-meta="' . k2_archive_listbox_h($meta) . '"' : '';

@@ -2152,6 +2152,12 @@ body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__picker {
 	min-width: 0;
 }
 
+body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__picker .k2-archive-listbox--ghost-sized {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+}
+
 body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__picker .k2-archive-listbox {
 	width: 100%;
 	max-width: 100%;
@@ -2196,23 +2202,40 @@ body.k2-site .k2-amiga-history__controls .k2-player-games-controls.k2-amiga-hist
 	min-width: 0;
 }
 
+body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-time-travel__filter-row {
+	display: inline-flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: 1rem;
+	flex: 0 1 auto;
+	min-width: 0;
+}
+
 body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__as-with {
-	flex: 0 0 var(--k2-amiga-tt-as-with-width, 10rem);
-	width: var(--k2-amiga-tt-as-with-width, 10rem);
-	max-width: var(--k2-amiga-tt-as-with-width, 10rem);
+	flex: 0 1 auto;
+	width: auto;
+	max-width: 14rem;
 	min-width: 0;
 }
 
 body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__as-with .k2-archive-listbox {
-	width: 100%;
+	width: auto;
 	max-width: 100%;
 	min-width: 0;
 }
 
 body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__as-with .k2-archive-listbox__trigger {
-	width: 100%;
+	width: auto;
 	max-width: 100%;
 	box-sizing: border-box;
+}
+
+body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__as-with .k2-archive-listbox__panel {
+	left: 0;
+	right: auto;
+	width: max-content;
+	min-width: max(100%, var(--k2-amiga-tt-as-with-panel-width, 10rem));
+	max-width: min(var(--k2-amiga-tt-as-with-panel-width, 10rem), 92vw);
 }
 
 body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__picker .k2-archive-listbox__trigger.k2-link-star .k2-archive-listbox__label {
@@ -2234,9 +2257,9 @@ body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__picker .k2-arc
 }
 
 body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__picker .k2-archive-listbox--meta-options .k2-archive-listbox__panel {
-	width: 100%;
-	min-width: 100%;
-	max-width: 100%;
+	width: var(--k2-amiga-tt-picker-width, 18rem);
+	min-width: var(--k2-amiga-tt-picker-width, 18rem);
+	max-width: min(var(--k2-amiga-tt-picker-width, 18rem), 92vw);
 	right: 0;
 	left: auto;
 	box-sizing: border-box;
@@ -5151,8 +5174,9 @@ body.k2-site .k2-archive-listbox__panel {
 	color: var(--k2-text-secondary);
 }
 
-/* All games vault — dropdown panel matches trigger, not global 22em max-content default */
-body.k2-site .k2-realm-games-filters .k2-archive-listbox__panel {
+/* All games vault + tournament step filters — panel matches trigger, not global max-content default */
+body.k2-site .k2-realm-games-filters .k2-archive-listbox__panel,
+body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__panel {
 	left: 0;
 	right: auto;
 	width: 100%;

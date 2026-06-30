@@ -267,8 +267,8 @@ body.k2-site .k2-league-period__lede .blue {
 
 body.k2-site .k2-league-period__standings-head {
 	display: flex;
-	flex-wrap: nowrap;
-	align-items: center;
+	flex-direction: column;
+	align-items: stretch;
 	margin: 0 0 10px;
 }
 
@@ -277,7 +277,8 @@ body.k2-site .k2-league-period__standings-nav {
 	flex: 0 0 auto;
 	flex-wrap: nowrap;
 	align-items: center;
-	margin-left: 10px;
+	width: 100%;
+	margin: 0 0 10px;
 }
 
 .k2-league-period__standings-heading {
@@ -293,9 +294,27 @@ body.k2-site .k2-league-period__standings-nav .k2-league-period__period-steps {
 	white-space: nowrap;
 }
 
-body.k2-site .k2-league-period__standings-nav .k2-league-period__sibling {
-	margin-left: 12px;
+body.k2-site .k2-league-period__standings-nav .k2-league-period__with-player {
+	display: inline-flex;
+	align-items: center;
+	margin: 0 0 0 12px;
+	flex: 0 1 auto;
+	min-width: 9rem;
+	max-width: 14rem;
+}
+
+body.k2-site .k2-league-period__standings-nav .k2-league-period__with-player .k2-archive-listbox {
+	width: 100%;
+	min-width: 0;
+}
+
+body.k2-site .k2-league-period__lede .k2-league-period__sibling {
+	margin-left: 0.35em;
 	white-space: nowrap;
+}
+
+body.k2-site .k2-league-period__standings-nav .k2-league-period__with-player .k2-archive-listbox__trigger {
+	width: 100%;
 }
 
 /* Period + games pager chevrons — tier-pill fill (milestone unlock filter pattern) */

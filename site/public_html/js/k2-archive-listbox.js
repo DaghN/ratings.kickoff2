@@ -186,6 +186,9 @@
         if (box.closest('.k2-realm-games-filters')) {
             return;
         }
+        if (box.closest('.k2-amiga-tournament-step-nav__filters')) {
+            return;
+        }
         if (box.closest('.k2-amiga-history__picker')) {
             return;
         }

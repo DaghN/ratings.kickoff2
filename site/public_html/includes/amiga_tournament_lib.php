@@ -747,8 +747,12 @@ function amiga_tournament_url(int $id, string $scopeType = 'league', string $sco
 function amiga_tournament_href(string $tournamentUrl): string
 {
     require_once __DIR__ . '/amiga_snapshot_url.php';
+    require_once __DIR__ . '/amiga_id_with_url.php';
+    require_once __DIR__ . '/amiga_id_country_url.php';
 
-    return amiga_url_with_context($tournamentUrl);
+    return amiga_id_country_append_to_path(
+        amiga_id_with_append_to_path(amiga_url_with_context($tournamentUrl)),
+    );
 }
 
 /**

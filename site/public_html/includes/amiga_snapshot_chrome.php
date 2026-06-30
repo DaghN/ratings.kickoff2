@@ -124,7 +124,7 @@ function amiga_snapshot_chrome_render_as_with_listbox(mysqli $con, string $path,
         $choices,
         'With player',
         '',
-        'With player',
+        'With player...',
         false,
         '',
     ); ?>
@@ -234,27 +234,31 @@ function amiga_snapshot_chrome_render_wing_tabs(
     echo '</div></nav>';
 }
 
-function amiga_snapshot_chrome_event_layout_style(array $catalog): string
+function amiga_snapshot_chrome_event_layout_style(mysqli $con, array $catalog): string
 {
     $maxStepperChars = 20;
     $maxNameChars = 12;
-    $maxAsWithChars = 10;
+    $maxAsWithChars = mb_strlen('With player...');
     foreach ($catalog as $item) {
         $maxStepperChars = max($maxStepperChars, mb_strlen((string) ($item['label'] ?? '')));
         $maxNameChars = max($maxNameChars, mb_strlen((string) ($item['tournament_name'] ?? '')));
+    }
+    require_once __DIR__ . '/amiga_participation_step_lib.php';
+    foreach (amiga_participation_eligible_players($con) as $player) {
+        $maxAsWithChars = max($maxAsWithChars, mb_strlen((string) ($player['name'] ?? '')));
     }
 
     $stepperRem = min(28.0, max(16.0, $maxStepperChars * 0.5 + 3.0));
     // Picker: name column + fixed date column — do not size meta as if it were another full name.
     $nameRem = min(14.0, max(6.5, $maxNameChars * 0.4));
     $pickerRem = min(19.0, max(13.0, $nameRem + 4.5 + 0.25));
-    $asWithRem = min(14.0, max(9.0, $maxAsWithChars * 0.45 + 2.5));
+    $asWithPanelRem = min(16.0, max(9.0, $maxAsWithChars * 0.45 + 2.5));
 
     return sprintf(
-        '--k2-amiga-tt-stepper-width:%.1frem;--k2-amiga-tt-picker-width:%.1frem;--k2-amiga-tt-as-with-width:%.1frem',
+        '--k2-amiga-tt-stepper-width:%.1frem;--k2-amiga-tt-picker-width:%.1frem;--k2-amiga-tt-as-with-panel-width:%.1frem',
         $stepperRem,
         $pickerRem,
-        $asWithRem
+        $asWithPanelRem
     );
 }
 
@@ -283,7 +287,7 @@ function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $
     $sectionStyle = '';
     if ($wing === 'event') {
         $sectionClass .= ' k2-amiga-time-travel--event-wing';
-        $sectionStyle = amiga_snapshot_chrome_event_layout_style($catalog);
+        $sectionStyle = amiga_snapshot_chrome_event_layout_style($con, $catalog);
     }
 
     $pickerAccentKeys = null;
@@ -311,11 +315,15 @@ function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $
                 $ctx->entry(),
                 $currentAs,
             );
-            if ($catalog !== [] && $currentAs !== '') {
-                amiga_snapshot_chrome_render_picker($path, $wing, $currentAs, $catalog, $pickerAccentKeys);
-            }
             if ($wing === 'event' && $currentAs !== '') {
+                echo '<div class="k2-amiga-time-travel__filter-row">';
                 amiga_snapshot_chrome_render_as_with_listbox($con, $path, $currentAs);
+                if ($catalog !== []) {
+                    amiga_snapshot_chrome_render_picker($path, $wing, $currentAs, $catalog, $pickerAccentKeys);
+                }
+                echo '</div>';
+            } elseif ($catalog !== [] && $currentAs !== '') {
+                amiga_snapshot_chrome_render_picker($path, $wing, $currentAs, $catalog, $pickerAccentKeys);
             }
             ?>
         </div>

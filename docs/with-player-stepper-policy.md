@@ -1,6 +1,6 @@
 # With player — stepper filter policy
 
-**Status:** **Locked (Jun 2026)** — **slice 1 shipped** (`as_with=` TT Event ribbon); slices 2–3 pending.  
+**Status:** **Locked (Jun 2026)** — **all slices shipped** (`as_with=` TT ribbon, `id_with=` tournament chevrons, `start_with=` league periods).  
 **Implementation plan:** [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md)
 
 **Parent:** [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) (C02 sticky TT, C13 with-player stepper)
@@ -162,7 +162,7 @@ Tournament entity chevrons are a **separate control** from the TT Event ribbon. 
 
 | Layer | Responsibility | Share with TT? |
 |-------|----------------|----------------|
-| **Catalog builder** | Base public list (chrono asc; ≤ cutoff under TT) → apply **filter bag** → stepping key list | **No** — TT uses wing catalogs / `as=` |
+| **Catalog builder** | Base public list (chrono asc; ≤ cutoff under TT) → apply **filter bag** → **eligible key set** (not a shortened catalog) | **No** — TT uses wing catalogs / `as=` |
 | **Step resolver** | `{ catalog, current_key, eligible_key_set } → prev_key / next_key` | **Yes** — `k2_participation_step_keys()` (eligible set = output of filter stack) |
 | **Href resolver** | Target `id=` + current **nav intent** → wing-preserving tournament URL | **No** — TT uses `amiga_url_with_as_param()` |
 
@@ -209,7 +209,8 @@ The tournament hub index (`/amiga/tournaments.php`) already filters by WC, host 
 | **Matching logic** | Reuse or wrap tournament index matchers (`amiga_tournament_index_matches_wc_filter()`, `amiga_tournament_index_matches_country_filter()`, …) — **do not** duplicate filter rules in the step nav include. |
 | **Step helper** | `k2_participation_step_keys()` treats the post-filter key set as `eligible_key_set` — player participation is just one filter. |
 | **Empty catalog** | Both chevrons **disabled**; page still renders for requested `id=` — no 404. |
-| **Current `id=` ∉ filtered catalog** | Page **still loads** (deep links valid). **Both chevrons disabled** until the user clears a filter or picks a tournament inside the filtered set. *(Alternative “nearest chrono neighbor” stepping — possible later; not v1.)* |
+| **Current `id=` ∉ filtered set** | Page **still loads**. Chevrons step to the **nearest eligible tournament** before/after the current event in chrono order (same rule as TT `as_with=` / `k2_participation_step_keys`). Current tournament need not match the filter. |
+| **Unknown / non-catalog `id=`** | Both chevrons **disabled** (invalid or non-public tournament). |
 
 **Plausible future axes (non-exhaustive):**
 
@@ -217,7 +218,7 @@ The tournament hub index (`/amiga/tournaments.php`) already filters by WC, host 
 |------|---------------|-------|
 | With player | `id_with` | **Slice 2** |
 | WC vs all | `id_wc=world-cup` / `not-world-cup` | Mirror index semantics |
-| Host country | `id_country={code}` | Mirror index host-country filter |
+| Host country | `id_country={name}` | **Shipped** — mirror index host-country filter (country name string, not ISO code) |
 
 Adding a filter later = new param + parse/append helper + catalog bag field + one listbox — **not** a change to TT ribbon or href fallback rules.
 
@@ -291,6 +292,8 @@ Full checklist: [`with-player-stepper-implementation-plan.md`](with-player-stepp
 
 | Date | Change |
 |------|--------|
+| 2026-06-30 | Track **complete** — slice 3 `start_with=` on league period chevrons (`k2_league_period_with_player.php`, probe green). |
+| 2026-06-30 | §5.7 — current `id` off filter steps to **nearest eligible** neighbor (not disabled chevrons); base catalog never pre-filtered. |
 | 2026-06-30 | **WP15–WP17 + §5.5–§5.7** — tournament step architecture (three layers, wing fallback, future catalog filters with AND composition); slice 2 extensibility without TT reuse. |
 | 2026-06-30 | Slice 1 shipped — explicit `as_with=` on Event ribbon replaces T18. |
 | 2026-06-30 | **WP14** — retire tournament `id` follows TT `as=` (slice 0); tournament chevrons own `id=` navigation. |

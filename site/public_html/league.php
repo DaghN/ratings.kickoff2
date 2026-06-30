@@ -6,6 +6,8 @@
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="stylesheets/player-milestones.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-milestones.css'); ?>" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/individual3-filters.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/individual3-filters.js'); ?>" defer="defer"></script>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
 
 </head>
@@ -52,8 +54,8 @@ if ($request !== null) {
             $gamesError
         );
     }
-    mysqli_close($con);
 }
+$leagueCon = isset($con) && $con instanceof mysqli ? $con : null;
 ?>
 
 <article class="k2-league-period">
@@ -66,7 +68,7 @@ if ($request !== null) {
 <?php } else { ?>
 <?php k2_league_period_render_intro($loaded); ?>
 	<section class="k2-league-period__standings" aria-labelledby="k2-league-period-standings-title">
-<?php k2_league_period_render_standings_header($loaded); ?>
+<?php k2_league_period_render_standings_header($loaded, $leagueCon); ?>
 		<div class="k2-league-period__table">
 <?php k2_league_period_render_table($loaded); ?>
 		</div>
@@ -74,6 +76,10 @@ if ($request !== null) {
 <?php k2_league_period_render_games_section($loaded, $games, $gamesTotal, $gamesOffset, $gamesLimit); ?>
 <?php } ?>
 </article>
+
+<?php if ($leagueCon instanceof mysqli) {
+    mysqli_close($leagueCon);
+} ?>
 
 </div><!-- .k2-page-nav -->
 

@@ -1,6 +1,6 @@
 # With player stepper — implementation plan
 
-**Status:** **Ready to implement (Jun 2026)** — execute slices **0 → 1 → 2 → 3** in this order in one track.  
+**Status:** **Complete (Jun 2026)** — slices **0 → 3** shipped.  
 **Policy:** [`with-player-stepper-policy.md`](with-player-stepper-policy.md)
 
 **Migration:** **L0** — read-time participation lookups only; **no Part B**.
@@ -39,7 +39,7 @@
 |-------|-------------|-----------|
 | **0** | Retire T18 + TT tournament **`id` follows `as=`** sync | **Shipped Jun 2026** |
 | **1** | `as_with=` + TT Event ribbon listbox | **Shipped Jun 2026** |
-| **2** | `id_with=` + tournament nav chevrons | Tournament page: independent of `as_with` |
+| **2** | `id_with=` + tournament nav chevrons | **Shipped Jun 2026** |
 | **3** | `start_with=` + league period row | `league.php` period steps skip inactive months |
 
 ---
@@ -237,8 +237,9 @@ See **Architecture** above. Optional merge: catalog + href into `amiga_tournamen
 - Reuse `amiga_participation_step_lib.php` for player key set + `k2_participation_step_keys()`
 - When `as=event:` active: base catalog truncated to ≤ cutoff; filters apply within that set
 - **`id_with` does not write `as_with`** and vice versa
-- **Deep link:** current `id=` not in filtered catalog → page loads; **both chevrons disabled** (§5.7)
-- **Empty filtered catalog** → both chevrons disabled
+- **Off-filter tournament (current `id` ∉ eligible set):** chevrons step to nearest eligible neighbor in chrono order (§5.7)
+- **Unknown `id` (not in base catalog):** both chevrons disabled
+- **Empty eligible set after filters:** both chevrons disabled
 
 ### Wing fallback (locked — §5.6)
 
@@ -249,16 +250,17 @@ See **Architecture** above. Optional merge: catalog + href into `amiga_tournamen
 
 ### Future catalog filters (out of slice 2 — §5.7)
 
-After slice 2: add `id_wc`, `id_country`, … — one param, one listbox, one bag field, reuse index matchers. No change to href fallback or TT ribbon.
+After slice 2: add `id_wc`, … — one param, one listbox, one bag field, reuse index matchers. **`id_country` shipped** (host country listbox on entity nav). No change to href fallback or TT ribbon.
 
 ### Tasks
 
-- [ ] Filter bag + catalog builder (v1: `player_id` only)
-- [ ] Nav intent capture + wing-preserving href resolver
-- [ ] `id_with` URL helpers + tournament folder propagation
-- [ ] Step nav render; wire into tournament page
-- [ ] Present + TT browser smoke on e.g. tournament id 94
-- [ ] Probe or one-off: filtered step skips gaps; wing fallback (videos → event-stats when target has no videos)
+- [x] Filter bag + catalog builder (v1: `player_id` only)
+- [x] Nav intent capture + wing-preserving href resolver
+- [x] `id_with` URL helpers + tournament folder propagation
+- [x] Step nav render; wire into tournament page
+- [x] Present + TT browser smoke on e.g. tournament id 94
+- [x] Probe: `amiga_tournament_step_probe.php` — filtered step, deep-link disable, propagation, videos fallback
+- [x] **`id_country`** — host country listbox + filter bag + propagation (§5.7 extension)
 
 ### Verification
 
@@ -270,8 +272,10 @@ After slice 2: add `id_wc`, `id_country`, … — one param, one listbox, one ba
 
 ### Acceptance
 
-- [ ] Tournament chevrons work without `as=` (present day)
-- [ ] `id_with` propagates on tournament tab links, not on unrelated Amiga hub links
+- [x] Tournament chevrons work without `as=` (present day)
+- [x] `id_with` propagates on tournament tab links, not on unrelated Amiga hub links
+- [x] Independent of `as_with=` on same page
+- [x] Off-filter tournament → nearest eligible neighbor stepping (§5.7)
 
 ---
 
@@ -305,15 +309,15 @@ For player P and league period key `start`:
 |------|--------|
 | [`k2_league_period_page.php`](../site/public_html/includes/k2_league_period_page.php) | `k2_league_period_load()` or sibling: compute filtered prev/next when `start_with` set; render listbox in `k2_league_period_render_standings_header` |
 | [`k2_league_period_page.php`](../site/public_html/includes/k2_league_period_page.php) | `k2_league_period_peer_href` + games pager hrefs preserve `start_with` |
-| [`theme.css`](../site/public_html/stylesheets/theme.css) | `.k2-league-period__standings-nav` — room for listbox (already has chevrons + sibling link) |
+| [`player-milestones.css`](../site/public_html/stylesheets/player-milestones.css) | `.k2-league-period__standings-nav` — room for listbox (already has chevrons + sibling link) |
 
 ### Tasks
 
-- [ ] Online eligible player query
-- [ ] Period participation index (cache per request for player)
-- [ ] Filtered step keys in period load
-- [ ] Listbox + propagation on `league.php` peer links
-- [ ] Optional: one-off probe script for period stepping
+- [x] Online eligible player query
+- [x] Period participation index (cache per request for player)
+- [x] Filtered step keys in period load
+- [x] Listbox + propagation on `league.php` peer links
+- [x] Optional: one-off probe script for period stepping
 
 ### Verification
 
@@ -325,8 +329,9 @@ For player P and league period key `start`:
 
 ### Acceptance
 
-- [ ] Independent param — no interaction with Amiga `as_with` / `id_with`
-- [ ] Same listbox UX as Amiga surfaces
+- [x] Independent param — no interaction with Amiga `as_with` / `id_with`
+- [x] Same listbox UX as Amiga surfaces
+- [x] Off-filter period → nearest eligible neighbor stepping (same as §5.7 / `k2_participation_step_keys`)
 
 ---
 
@@ -359,12 +364,12 @@ Replace ids with known local fixtures if import differs.
 
 When track complete (or per-slice if user stops early):
 
-- [ ] `PROJECT_MEMORY.md` — Recent log per shipped slice
-- [ ] [`with-player-stepper-policy.md`](with-player-stepper-policy.md) — Status → implemented (or partial)
-- [ ] This plan — check off slices; Status line
+- [x] `PROJECT_MEMORY.md` — Recent log per shipped slice
+- [x] [`with-player-stepper-policy.md`](with-player-stepper-policy.md) — Status → implemented (or partial)
+- [x] This plan — check off slices; Status line
 - [ ] [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) — remove “retire on ship” notes; delete T18 module row
-- [ ] [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) — C13 → §5.3 shipped when all slices done
-- [ ] `docs/coordination/feature-log.md` — one row (L0)
+- [x] [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) — C13 → §5.3 shipped when all slices done
+- [x] `docs/coordination/feature-log.md` — one row (L0)
 
 ---
 
@@ -383,6 +388,8 @@ When track complete (or per-slice if user stops early):
 
 | Date | Change |
 |------|--------|
+| 2026-06-30 | Slice 3 **shipped** — `start_with=` league period listbox + filtered stepping; `k2_league_period_with_player.php` + probe. |
+| 2026-06-30 | Slice 2 **shipped** — tournament chevrons + `id_with=` + wing-preserving href resolver + filter bag. |
 | 2026-06-30 | **Slice 2 architecture** — three-layer tournament step (catalog / step / href); filter bag for future WC/country filters; wing fallback §5.6; no TT reuse (WP15–WP17). |
 | 2026-06-30 | Slice 1 **shipped** — `as_with=` TT Event ribbon listbox + filtered stepping. |
 | 2026-06-30 | Slice 0 **shipped** — T18 + tournament id-follows-as retired. |

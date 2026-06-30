@@ -81,6 +81,36 @@ function k2_table_sort_query_params(): array
     ];
 }
 
+/**
+ * Scoped table sort params (`k2_sort`, `k2_dir`, `k2_sort_league-standings`, …).
+ *
+ * @return array<string, string>
+ */
+function k2_table_scoped_sort_query_params(): array
+{
+    /** @var array<string, string> $params */
+    $params = [];
+    foreach ($_GET as $name => $value) {
+        if (!is_string($name) || $name === '' || is_array($value)) {
+            continue;
+        }
+        if (!preg_match('/^k2_(sort|dir)(_|$)/', $name)) {
+            continue;
+        }
+        if (str_starts_with($name, 'k2_sort')) {
+            $sort = filter_var($value, FILTER_VALIDATE_INT);
+            if ($sort === false || $sort < 0) {
+                continue;
+            }
+            $params[$name] = (string) $sort;
+            continue;
+        }
+        $params[$name] = $value === 'asc' ? 'asc' : 'desc';
+    }
+
+    return $params;
+}
+
 function k2_table_path_only(string $path): string
 {
     $qPos = strpos($path, '?');
