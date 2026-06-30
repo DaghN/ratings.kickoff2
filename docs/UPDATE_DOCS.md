@@ -60,6 +60,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | **Amiga perf. rating LB sub-wings** (Best · Top 100 · Perfect) | [`amiga-performance-rating-leaderboard-policy.md`](amiga-performance-rating-leaderboard-policy.md) |
 | **Amiga tournament videos** (YouTube embeds, manifest) | [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) · [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) · [`amiga-tournament-videos-implementation-plan.md`](amiga-tournament-videos-implementation-plan.md) |
 | Hall of Fame record C++ / staging defects | `docs/coordination/records-post-game-exception.md`, `docs/staging-post-game-record-defects.md` (when records behavior changes) |
+| **Creative / product brainstorm** (pre-track ideas, ledger updates — no code) | [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) — update §5 ledger + §8 changelog; one `PROJECT_MEMORY` line; **not** default cold-start read (see doc §4) |
 
 Skip specs with no change. **Do not** invent new spec files unless Dagh asks.
 

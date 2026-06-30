@@ -131,7 +131,8 @@
 
 | When | Note |
 |------|------|
-| 2026-06-30 | **Amiga Countries hub URL** — canonical hub moved `countries/index.php` → **`countries.php`** (Tournaments pattern); legacy index 302. Route `amiga-countries`, hub nav, policy docs updated. |
+| 2026-06-30 | **Creative session wrap** — [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) discoverability locked (§4.0); wired into `UPDATE_DOCS` · `AGENTS.md` (task-triggered) · `agent-track-playbook` Phase 0. Rank-chart H2H policy: online **not planned**. |
+| 2026-06-30 | **Creative ideas ledger** — [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md): Jul 2026 brainstorm (recipe, origin stories, C01–C12 approved/parked/rejected). Rank-chart docs: H2H compare marked **shipped Amiga-only** (was stale "not built"). |
 | 2026-06-30 | **Amiga Countries index lede** — dropped WC country-stats cross-link sentence from chapter intro. |
 | 2026-06-30 | **Amiga TT stamp LED (year/month)** — temporal stamp LED + a11y follow ribbon picker key (period end), not resolved cutoff tournament date; fixes month chevrons through quiet months. [`amiga-time-travel-policy.md`](docs/amiga-time-travel-policy.md) §5.0 |
 | 2026-06-30 | **Amiga WC stats Year % read-time** — `share_of_year_games` derived at read from `amiga_community_stat_facts` at viewer cutoff (present or TT); latest fact row ≤ cutoff per calendar year (handles sparse tail snapshots). Fixes WC I 100% bug (e.g. 143/173). Writer/DB column cleanup deferred next slice. [`amiga-world-cup-stats-table-plan.md`](docs/amiga-world-cup-stats-table-plan.md) |

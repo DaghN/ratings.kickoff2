@@ -7,7 +7,7 @@ PHP + MariaDB ladder and statistics for online Kick Off 2 play. Dagh develops lo
 | You are… | Read |
 |----------|------|
 | **Cursor agent (new chat)** | [`PROJECT_MEMORY.md`](PROJECT_MEMORY.md) → [`AGENTS.md`](AGENTS.md) → [`docs/PROJECT_MAP.md`](docs/PROJECT_MAP.md) |
-| **Human — product intent** | [`PROJECT_BRIEF.md`](PROJECT_BRIEF.md) |
+| **Human — product / creative ideas** | [`PROJECT_BRIEF.md`](PROJECT_BRIEF.md) · [`docs/creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) (pre-track ledger) |
 | **Run replay / SQL / deploy** | [`docs/OPERATIONS_QUICK_START.md`](docs/OPERATIONS_QUICK_START.md) |
 | **Prod cutover / Steve** | [`docs/coordination/cutover-readiness.md`](docs/coordination/cutover-readiness.md) · [`docs/prod-coordination.md`](docs/prod-coordination.md) |
 

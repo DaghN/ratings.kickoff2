@@ -44,7 +44,7 @@ Port the **profile solo rank chart** to Opponents **Head-to-head** as a **two-pl
 | **H8** | **Line style** | Stepped only; same transition edge-clip as solo (§solo R6) — applied **per series** |
 | **H9** | **Ceiling** | `max(ladderSize)` over **both** truncated series (union of displayed points) |
 | **H10** | **Time travel** | Both series truncated at cutoff; pre-debut player → same empty/status habit as solo |
-| **H11** | **Realm** | Amiga only in this slice — online H2H rank compare deferred |
+| **H11** | **Realm** | Amiga only — **online H2H rank compare not planned** |
 | **H12** | **Copy** | Heading: **Rank comparison vs {opponent}** · Hint: **End-of-day rank after each tournament day.** (same lede as profile) · Tooltips: player name prefix + `#rank of N (P%)` + date/tournament |
 
 ---
@@ -157,6 +157,5 @@ Run on `/amiga/player/opponents/h2h.php?id=109` with opponent picked.
 
 | Item | Notes |
 |------|-------|
-| Online H2H rank compare | After Amiga proof |
+| Online H2H rank compare | **Not planned** (Amiga shipped Jun 2026) |
 | Toolbar finalize-count meta | Nice-to-have |
-| Shared rank chart module refactor | Extract domain/clip from solo JS before or during H2H slice |

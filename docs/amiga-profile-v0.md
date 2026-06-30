@@ -49,7 +49,7 @@
 
 **Derived tables in use:** `amiga_game_ratings`, `amiga_player_event_snapshots`, `amiga_player_current`, `amiga_tournament_standings`, `amiga_player_matchup_summary`, `amiga_player_matchup_at_event`, `amiga_generalstats` (HoF table stale until next slice — matchup/network written at finalize). See [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) and [`amiga-data-contract.md`](amiga-data-contract.md).
 
-**Deferred on profile:** dedicated WC medals block, activity calendars, career strip DD/CS enrichment. **Opponents wing** shipped (`amiga/player/opponents/*` — W/D/L · Goals · DDs + **full H2H** poster/pair detail/moments/charts) — sortable ledger via `amiga_player_opponents_tables.php` (cloak on parent page; Tier B). Wide-table stack: [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md). See also [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md) §4.
+**Deferred on profile:** dedicated WC medals block, activity calendars, career strip DD/CS enrichment; **feast parity** (heatmaps, story bands, rivalry teaser — gestating **C01** in [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md)). **Opponents wing** shipped (`amiga/player/opponents/*` — W/D/L · Goals · DDs + **full H2H** poster/pair detail/moments/charts) — sortable ledger via `amiga_player_opponents_tables.php` (cloak on parent page; Tier B). Wide-table stack: [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md). See also [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md) §4.
 
 ### Participation points (read carefully)
 

@@ -5,7 +5,7 @@
 
 **Non-goals (v1 solo):** online realm · **in-chart X-axis date trim / zoom** (full community timeline only — see §5.1) · smart default-picker algorithm · milestone annotations · explanatory copy blocks · percentile range slider (presets only) · **canvas peak reference line** (dashed Y marker — rating chart only; rank uses text summary §5.9).
 
-**H2H compare:** [`amiga-player-rank-chart-h2h-policy.md`](amiga-player-rank-chart-h2h-policy.md) — policy locked Jun 2026; not implemented yet.
+**H2H compare:** [`amiga-player-rank-chart-h2h-policy.md`](amiga-player-rank-chart-h2h-policy.md) — **shipped** Jun 2026 on `/amiga/player/opponents/h2h.php` (Amiga only; online not planned).
 
 **Authority:** Rank persistence = [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · data contract = [`amiga-data-contract.md`](amiga-data-contract.md) · profile shell = [`amiga-profile-v0.md`](amiga-profile-v0.md) · time travel = [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · rating chart (parallel) = [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md)
 
@@ -296,8 +296,8 @@ Time travel: profile `?as=year:2003` — truncated series; hero rank matches las
 
 | Item | Notes |
 |------|-------|
-| H2H rank compare | [`amiga-player-rank-chart-h2h-policy.md`](amiga-player-rank-chart-h2h-policy.md) — policy locked Jun 2026; union Career default; dual peak text lines |
-| Online realm | After Amiga parity proof |
+| H2H rank compare | **Shipped** Jun 2026 — [`amiga-player-rank-chart-h2h-policy.md`](amiga-player-rank-chart-h2h-policy.md) · `/amiga/player/opponents/h2h.php` |
+| Online realm rank chart | **Not planned** for online H2H rank compare |
 | X-axis date-range zoom | **Not planned for Amiga v1** — product default is **full community timeline** only (§5.1). Sparse finalize cadence (~600 events / ~25 years); Y **Career** is not an X trim. Revisit only with much denser series (e.g. online daily play). |
 | Percentile slider (Option B) | After presets feel good |
 | Career Y refinement | Extend band to #1 when career best > K |

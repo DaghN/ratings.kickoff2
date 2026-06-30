@@ -1,11 +1,13 @@
 # Amiga player rank chart — implementation plan
 
-**Status:** Ready to execute (Jun 2026). **Slices 1–5 complete** local Jun 2026 + **post-ship tweak session** (Jun 2026).  
+**Status:** **Complete** (Jun 2026). Solo + H2H compare slices done local.  
 **Policy:** [`amiga-player-rank-chart-policy.md`](amiga-player-rank-chart-policy.md)
 
 **In scope (v1):** Solo rank-over-time chart on `/amiga/player/profile.php` · JSON API · scale/window controls · stepped line · time travel · Amiga only.
 
-**Out of scope (v1):** H2H rank compare · online realm · in-chart X date trim/zoom (full community `timelineStart` → today only) · smart default algorithm · milestone annotations · explainer copy · percentile slider · new DB tables · git commit --trailer "Co-authored-by: Cursor <cursoragent@cursor.com>" unless Dagh asks.
+**Out of scope (solo v1 only):** online realm · in-chart X date trim/zoom (full community `timelineStart` → today only) · smart default algorithm · milestone annotations · explainer copy · percentile slider · new DB tables.
+
+**H2H compare:** **Shipped** Jun 2026 — see § H2H compare slices + [`amiga-player-rank-chart-h2h-policy.md`](amiga-player-rank-chart-h2h-policy.md). **Online** H2H rank compare: **not planned** (Amiga only).
 
 **Migration:** **L0** — read `amiga_player_elo_rank_at_event` only; **no Part B**.
 

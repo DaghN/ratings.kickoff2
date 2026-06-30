@@ -52,6 +52,8 @@ Phase 4 — Slices      (execute one slice per session; handoff files)
 
 **Rule:** Exploration chats **decide**; execution chats **start from the starter prompt** after the trio exists. Do not begin slice 0 during an explore-only thread unless you explicitly switch modes.
 
+**Creative brainstorm (pre-track):** Product / "what else?" sessions that are **not** yet a locked track → read [`creative-ideas-july-2026.md`](../creative-ideas-july-2026.md) (ledger + recipe). Update that doc + `PROJECT_MEMORY` when Dagh closes a creative session — not on every cold start.
+
 ---
 
 ## The three artifacts

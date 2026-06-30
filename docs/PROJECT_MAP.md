@@ -55,6 +55,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | **Website data contract** | Stored/derived DB truth | `docs/website-data-contract.md` (online) · **`docs/amiga-data-contract.md`** (Amiga) |
 | **Session end** | Dagh says **“update docs”** | `docs/UPDATE_DOCS.md` |
 | **Multi-slice tracks** | Large features across chats | [`orchestration/agent-track-playbook.md`](orchestration/agent-track-playbook.md) |
+| **Creative / pre-track ideas** | Brainstorm, product passes, "what else?" | [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) — recipe, origin stories, idea ledger (not authority) |
 | **Cutover / live prod** | Steve go-live | [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md), `ops/docs/post-dagh-live-story.md` |
 
 **Migration is a side track** — not required for CSS-only days. See decision tree in `UPDATE_DOCS.md` § Migration pass.
