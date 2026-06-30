@@ -127,8 +127,8 @@ LANDING             Status default                   News tab ◻ (placeholder)
 | **C11** | **WC highlight reel (editorial)** | Show me the best stuff across WC history | Curated story through WC years — a few videos per year + short editorial copy celebrating players | Amiga | **Must be editorial**, not algorithmic boards |
 | **C12** | **Country story page** | Who *are* the Italians? | Prose band: best WC, top player, default rival link | Amiga | **Parked** — interesting but authenticity / data-to-prose unclear |
 | **C13** | **With player stepper filter** | Step only where this person played | Opt-in listbox + chevrons: **`as_with=`** (TT Event), **`id_with=`** (tournament), **`start_with=`** (league); slice 0 retires T18 | Both | [`with-player-stepper-policy.md`](with-player-stepper-policy.md) · [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md). Pairs with **C02**. |
-| **C14** | **Tournament metadata leaderboard** | Which events had the most debuts / biggest fields / …? | **Tournament stats** sub-wing on **Tournaments hub** — sortable metadata boards beside the chronological searchable catalog (mirror **World Cups hub → Tournament stats**, not player/country stats) | Amiga | **Spark** (Jun 2026) — follow-on from **C08** light editorial; generalizes per-tournament facts (debuts, etc.) into realm-wide LBs; likely extend **`amiga_tournament_catalog_stats`** at finalize; player/country tournament grains stay in normal LBs |
-| **C15** | **Highlights: biggest upsets** | What were the wildest rating swings in a single game? | Fifth board on **`/amiga/games/highlights.php`** — games ranked by biggest **rating gain** for the winner (upset framing) | Amiga | **Spark** (Jun 2026) — small add alongside most goals / biggest draws / biggest wins / top score; read stored **`amiga_game_ratings`** deltas |
+| **C14** | **Tournament metadata leaderboard** | Which events had the most debuts / biggest fields / …? | **Tournament stats** sub-wing on **Tournaments hub** — sortable metadata boards beside the chronological searchable catalog (mirror **World Cups hub → Tournament stats**, not player/country stats) | Amiga | **Approved** (Jun 2026) — firm to-do; follow-on from **C08**; extend **`amiga_tournament_catalog_stats`** at finalize (debut count, etc.); player/country tournament grains stay in normal LBs — §6.4 |
+| **C15** | **Highlights: biggest upsets** | What were the wildest rating swings in a single game? | Fifth board on **`/amiga/games/highlights.php`** — games ranked by biggest **rating gain** for the winner (upset framing) | Amiga | **Approved** (Jun 2026) — firm to-do; small slice alongside existing four boards; read **`amiga_game_ratings`** deltas — §6.5 |
 
 ### 5.2 Rejected (session) — do not re-pitch
 
@@ -178,7 +178,9 @@ Online already has **day leagues** — this reuses that muscle memory. Example t
 
 Copy variants to explore: *One year ago today…* · *On this day…* · occasional *Two years ago…* for variety.
 
-### 6.4 Tournament metadata LB (C14)
+### 6.4 Tournament metadata LB (C14) — approved
+
+**Status:** **Approved** — build when scheduled (Dagh Jun 2026).
 
 **Origin:** While sketching **C08** (light editorial on `tournament.php` — winner, biggest upset, perf rating, debuts), the follow-on question: *which tournaments had the most debuts?* That generalizes to **leaderboards of tournament metadata**.
 
@@ -195,7 +197,9 @@ Copy variants to explore: *One year ago today…* · *On this day…* · occasio
 
 **Pairs with:** **C08** per-event story band (micro) ↔ **C14** realm-wide metadata boards (macro).
 
-### 6.5 Highlights: biggest upsets (C15)
+### 6.5 Highlights: biggest upsets (C15) — approved
+
+**Status:** **Approved** — build when scheduled (Dagh Jun 2026).
 
 **Device:** One more board tab on Amiga **Games → Highlights** — games sorted by largest **single-game rating gain** (winner’s Δ), framed as upsets / shock results.
 
@@ -244,6 +248,7 @@ Copy variants to explore: *One year ago today…* · *On this day…* · occasio
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **C14–C15 promoted to approved** — firm to-do (was spark); Tournaments hub tournament-stats wing + Highlights biggest upsets board. `PROJECT_MEMORY` Next updated. |
 | 2026-06-30 | **C14–C15 sparks** — tournament metadata LB wing (debuts etc., WC hub pattern on Tournaments hub); Amiga Highlights **biggest upsets** board (rating gain). C08 notes: winner + debut in editorial band. §6.4–§6.5. |
 | 2026-06-30 | **C13 planning revision** — per-surface params (`as_with` / `id_with` / `start_with`); slice 0 T18 removal; [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md). |
 | 2026-06-30 | **C13 with-player stepper** — policy locked [`with-player-stepper-policy.md`](with-player-stepper-policy.md); supersedes Amiga TT T18. |

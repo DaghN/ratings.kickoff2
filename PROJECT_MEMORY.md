@@ -119,9 +119,13 @@
 
 1. **Amiga profile** — optional polish on v0 feast — [`amiga-profile-v0.md`](docs/amiga-profile-v0.md). (Online profile feast **complete** — [`player-profile-feast.md`](docs/player-profile-feast.md).)
 
+2. **Amiga Highlights — biggest upsets (C15)** — fifth board on `/amiga/games/highlights.php` (games by largest rating gain). **Approved** — [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) §6.5; small slice, no new hub tab.
+
+3. **Amiga Tournaments hub — tournament stats wing (C14)** — metadata leaderboards (most debuts, largest field, …) beside chronological catalog; WC hub pattern. **Approved** — §6.4; pairs **C08** editorial on `tournament.php`; likely extend `amiga_tournament_catalog_stats` at finalize.
+
 **Steve (when ready)**
 
-2. **Prod copy → live PHP ops** — migrate / seed / zero / simul / dispatch — [`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md); WinSCP `public_html/ops/`.
+4. **Prod copy → live PHP ops** — migrate / seed / zero / simul / dispatch — [`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md); WinSCP `public_html/ops/`.
 
 **Migration habit (not a numbered task):** stored-truth changes → [`UPDATE_DOCS.md`](docs/UPDATE_DOCS.md) Part B + [`prod-coordination.md`](docs/prod-coordination.md) registers.
 
@@ -138,6 +142,7 @@
 | 2026-06-30 | **With player stepper planning** — policy revised: separate params (`as_with` / `id_with` / `start_with`), shared lookup only, slice 0 = T18 removal; [`with-player-stepper-implementation-plan.md`](docs/with-player-stepper-implementation-plan.md). |
 | 2026-06-30 | **With player stepper policy** — locked spec [`with-player-stepper-policy.md`](docs/with-player-stepper-policy.md): opt-in listbox + chevrons (Amiga tournament nav, TT Event ribbon, online league); retires T18; creative **C13**. |
 | 2026-06-30 | **Amiga WC hub Covid lede fix** — `amiga_world_cups_hub_chapter_as_of()` uses calendar period end for year/month TT (not cutoff tournament date); `(except for Covid)` shows on `year:2020` at Dec 2020+. |
+| 2026-06-30 | **C14–C15 approved** — promoted from spark to firm to-do: Tournaments hub tournament-stats wing (C14) + Highlights biggest upsets board (C15). [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) §5.1 · `PROJECT_MEMORY` Next #2–3. |
 | 2026-06-30 | **Creative ledger C14–C15** — tournament metadata LB wing (most debuts etc., WC-style split on Tournaments hub); Amiga Highlights **biggest upsets** board (rating gain). [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) §5 · §6.4–§6.5. |
 | 2026-06-30 | **Creative session wrap** — [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) discoverability locked (§4.0); wired into `UPDATE_DOCS` · `AGENTS.md` (task-triggered) · `agent-track-playbook` Phase 0. Rank-chart H2H policy: online **not planned**. |
 | 2026-06-30 | **Creative ideas ledger** — [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md): Jul 2026 brainstorm (recipe, origin stories, C01–C12 approved/parked/rejected). Rank-chart docs: H2H compare marked **shipped Amiga-only** (was stale "not built"). |
