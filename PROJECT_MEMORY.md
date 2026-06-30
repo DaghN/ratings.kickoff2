@@ -131,6 +131,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **With player stepper plan** — slice 0 adds WP14 (retire tournament id-follows-as); full plan ready. |
 | 2026-06-30 | **With player stepper planning** — policy revised: separate params (`as_with` / `id_with` / `start_with`), shared lookup only, slice 0 = T18 removal; [`with-player-stepper-implementation-plan.md`](docs/with-player-stepper-implementation-plan.md). |
 | 2026-06-30 | **With player stepper policy** — locked spec [`with-player-stepper-policy.md`](docs/with-player-stepper-policy.md): opt-in listbox + chevrons (Amiga tournament nav, TT Event ribbon, online league); retires T18; creative **C13**. |
 | 2026-06-30 | **Creative session wrap** — [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) discoverability locked (§4.0); wired into `UPDATE_DOCS` · `AGENTS.md` (task-triggered) · `agent-track-playbook` Phase 0. Rank-chart H2H policy: online **not planned**. |

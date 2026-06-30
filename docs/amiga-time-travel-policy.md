@@ -220,7 +220,7 @@ Applies when Event granularity is active (`as=event:…`). Ribbon `<section>` ge
 |------|---------|-------------------|
 | **Stepper label** | Tournament name + event date | `M j, Y` (e.g. `Nov 14, 2006`); primary white link (`k2-amiga-history__label--link`), **not** linkstar |
 | **Stepper link** | `/amiga/tournament.php?id={cutoff_tournament_id}#tournament` | Active `as=` via `amiga_url_with_as_param()` in `amiga_snapshot_chrome_render_stepper()`. User stays in time travel on the tournament page (T16) |
-| **Event wing on `tournament.php`** | Chevrons, picker, and mismatched bookmarks | **`id` tracks cutoff event** — `amiga_snapshot_chrome_nav_href()` + picker carry + `amiga_tournament_apply_time_travel_event_id_redirect()` keep the tournament detail in sync with `as=event:{id}` (Jun 2026) |
+| **Event wing on `tournament.php`** | Chevrons, picker | **`id=` fixed** — TT ribbon steps **`as=` only** (WP14, [`with-player-stepper-policy.md`](with-player-stepper-policy.md)). ~~`id` tracks cutoff~~ retired slice 0. Tournament chevrons (slice 2) step `id=`. |
 | **Picker closed** | Tournament name · date | Name left, date **right-aligned** in a fixed-width box; date `M Y`. Width = catalog longest name + fixed date column (not `name+date` char sum) |
 | **Picker open** | Full realm catalog (newest first) | Panel width **matches** closed trigger; each row name left · date right. When **`as_with=`** active ([`with-player-stepper-policy.md`](with-player-stepper-policy.md)), participated events for that player may use linkstar on **name and date** (secondary) |
 
@@ -233,7 +233,7 @@ Applies when Event granularity is active (`as=event:…`). Ribbon `<section>` ge
 
 **Closed trigger layout:** CSS grid `minmax(0, 1fr) auto` with `0.4rem` gap — date sits at the right edge of the catalog-width box; short names leave space between text and date (intentional).
 
-**`tournament.php` link carry:** `amiga_tournament_href()` wraps tournament URLs with active `as=`. **Event wing:** sets `as=event:{id}` for the **linked** tournament (player list, profile, games column — avoids redirect to ribbon cutoff). **Year/Month wing:** preserves current cutoff. Chevron/picker on `tournament.php` still sync `id` via `amiga_snapshot_chrome_nav_href()` + `amiga_tournament_apply_time_travel_event_id_redirect()` when picker submits a stale hidden `id`.
+**`tournament.php` link carry:** `amiga_tournament_href()` wraps tournament URLs with active `as=`. **Event wing:** sets `as=event:{id}` for the **linked** tournament (inbound links from lists — aligns snapshot to destination). **Year/Month wing:** preserves current cutoff. ~~Chevron/picker sync `id` via redirect~~ — **retired** ([`with-player-stepper-policy.md`](with-player-stepper-policy.md) WP14); use tournament chevrons for `id=` steps.
 
 **Key files**
 

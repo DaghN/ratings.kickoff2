@@ -1,7 +1,7 @@
 # With player — stepper filter policy
 
 **Status:** **Locked (Jun 2026)** — product spec; **not yet implemented**.  
-**Implementation plan:** [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md)
+**Implementation plan:** [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md) — **ready to implement** (slices 0–3).
 
 **Parent:** [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) (C02 sticky TT, C13 with-player stepper)
 
@@ -44,6 +44,7 @@ League **period buckets** and Amiga **tournament events** are the same idea at d
 | **WP11** | **Chevron reference UX** | Online **league period** chevrons (`k2_league_period_render_period_steps_html`) are the visual reference: half-pill prev/next, `data-k2-carry-scroll`. Amiga tournament chevrons match. |
 | **WP12** | **Pairs with sticky TT** | Optional pinned TT ribbon (**C02**) — `as_with=` scrubbing on long pages is a primary use case; not a v1 dependency. |
 | **WP13** | **Independent filters on one page** | On `tournament.php` with time travel, **TT ribbon** (`as_with=` → steps `as=`) and **tournament row** (`id_with=` → steps `id=`) are independent. Either, both, or neither may be set. They must not share one URL param or one listbox state. |
+| **WP14** | **Retire tournament `id` follows `as=` (slice 0)** | On tournament entity pages, TT Event ribbon steps **`as=` only** — **`id=` stays fixed** (no 302, no chrome href rewrite). **Go to next tournament** = tournament chevrons (slice 2). **Keep:** `amiga_tournament_href()` sets `as=event:{id}` when **linking to** a tournament from elsewhere. |
 
 ---
 
@@ -59,7 +60,7 @@ League **period buckets** and Amiga **tournament events** are the same idea at d
 | **Catalog** | Public tournament catalog in chrono order |
 | **Activity test** | `amiga_player_event_snapshots`, `NumberGames > 0` |
 | **Visibility** | Present day and time travel |
-| **Stepping target** | Updates tournament `id=`; preserves other query params. Under TT Event wing, remain consistent with `as=event:{id}` sync ([`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §5.1.1) — **independent** of whether `as_with=` is set |
+| **Stepping target** | Updates tournament **`id=`** only (tournament chevrons). TT ribbon may change **`as=`** independently (WP14). |
 
 ### 3.2 Amiga — time-travel ribbon (Event wing)
 
@@ -150,18 +151,23 @@ When `as=` resolves to a cutoff:
 
 ---
 
-## 6. T18 retirement (slice 0)
+## 6. T18 and tournament id-sync retirement (slice 0)
 
-**Ship before** new with-player filters (WP10).
+**Ship before** new with-player filters (WP10, WP14).
 
 | Remove | Notes |
 |--------|-------|
 | `amiga_player_event_stepper_applies()` path sniffing | Player URLs behave like hub URLs for Event stepping |
 | Player-only prev/next in `amiga_snapshot_context.php` | Realm-global default |
-| Implicit picker accents on player paths | No accent without explicit `as_with=` (ships in slice 1) |
-| `amiga_player_event_stepper_lib.php` | Delete or reduce to participation query moved to shared lookup (slice 1) |
+| Implicit picker accents on player paths | No accent without explicit `as_with=` (slice 1) |
+| `amiga_tournament_apply_time_travel_event_id_redirect()` | No 302 when `id` ≠ `as=event:{id}` |
+| `amiga_snapshot_chrome_nav_href()` tournament id rewrite | TT chevrons on tournament page keep page `id=` |
+| Picker hidden `id` forced from `as=event:` | Carry actual page `id=` |
+| `amiga_player_event_stepper_lib.php` | Delete; participation query returns in slice 1 |
 
-Probe: `amiga_snapshot_context_probe.php` — player-path Event next/prev must match hub-path for same `as=`.
+**Keep:** `amiga_tournament_href()` Event-wing links **to** a tournament still set `as=event:{destination_id}` — entry alignment, not drag-along.
+
+Probe: player-path Event next = hub-path; tournament page with mismatched `id`/`as=` loads without redirect.
 
 ---
 
@@ -210,5 +216,6 @@ Full checklist: [`with-player-stepper-implementation-plan.md`](with-player-stepp
 
 | Date | Change |
 |------|--------|
+| 2026-06-30 | **WP14** — retire tournament `id` follows TT `as=` (slice 0); tournament chevrons own `id=` navigation. |
 | 2026-06-30 | Planning revision — per-surface params (`as_with`, `id_with`, `start_with`); shared participation lookup only; T18 slice 0 first; independent filters on tournament+TT (WP13). |
 | 2026-06-30 | Initial policy — creative session alignment. |
