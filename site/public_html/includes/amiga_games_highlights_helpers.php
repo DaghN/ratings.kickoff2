@@ -15,7 +15,7 @@ require_once __DIR__ . '/amiga_realm_games_hub_table.php';
 const AMIGA_GAMES_HIGHLIGHTS_LIMIT = 100;
 const AMIGA_GAMES_HIGHLIGHTS_ANCHOR = 'k2-amiga-games-highlights';
 
-/** @var array<string, array{label: string, heading: string, default_sort_key: string}> */
+/** @var array<string, array{label: string, heading: string, default_sort_key: string, help?: string}> */
 const AMIGA_GAMES_HIGHLIGHT_BOARDS = [
     'most_goals' => [
         'label' => 'Most goals',
@@ -36,8 +36,45 @@ const AMIGA_GAMES_HIGHLIGHT_BOARDS = [
         'label' => 'Top score',
         'heading' => 'Top score',
         'default_sort_key' => 'top_score',
+        'help' => 'The highest goals one player scored in a single game — e.g. 10 in a 10–2.',
+    ],
+    'biggest_upsets' => [
+        'label' => 'Biggest upsets',
+        'heading' => 'Biggest upsets',
+        'default_sort_key' => 'adjustment',
+        'help' => 'When the lower-rated player won — ranked by how many rating points they gained.',
     ],
 ];
+
+/** Decisive games where the winner had the lower pre-game rating (excludes flat early-era ties). */
+function amiga_games_highlights_underdog_win_sql(): string
+{
+    return ' AND ABS(r.ActualScore - 0.5) >= 0.001'
+        . ' AND ('
+        . '(ABS(r.ActualScore - 1.0) < 0.001 AND r.RatingA < r.RatingB)'
+        . ' OR (ABS(r.ActualScore - 0.0) < 0.001 AND r.RatingB < r.RatingA)'
+        . ')';
+}
+
+function amiga_games_highlights_winner_adjustment_sql(): string
+{
+    return 'CASE'
+        . ' WHEN ABS(r.ActualScore - 1.0) < 0.001 THEN r.AdjustmentA'
+        . ' WHEN ABS(r.ActualScore - 0.0) < 0.001 THEN r.AdjustmentB'
+        . ' ELSE 0'
+        . ' END';
+}
+
+/** @param array{label: string, heading: string, default_sort_key: string, help?: string} $meta */
+function amiga_games_highlights_board_tab_help_attrs(array $meta): string
+{
+    $help = trim((string) ($meta['help'] ?? ''));
+    if ($help === '') {
+        return '';
+    }
+
+    return ' data-k2-help="' . amiga_realm_games_all_h($help) . '" data-k2-tooltip-hide-title="1"';
+}
 
 function amiga_games_highlights_valid_board(string $board): string
 {
@@ -102,6 +139,10 @@ function amiga_games_highlights_fetch(
             $sql = $select . ' AND ABS(r.ActualScore - 0.5) >= 0.001'
                 . ' ORDER BY r.GoalDifference DESC, r.id ASC LIMIT ' . (int) $limit;
             break;
+        case 'biggest_upsets':
+            $sql = $select . amiga_games_highlights_underdog_win_sql()
+                . ' ORDER BY ' . amiga_games_highlights_winner_adjustment_sql() . ' DESC, r.id ASC LIMIT ' . (int) $limit;
+            break;
         case 'most_goals':
         default:
             $sql = $select . ' ORDER BY r.SumOfGoals DESC, r.id ASC LIMIT ' . (int) $limit;
@@ -128,7 +169,7 @@ function amiga_games_render_highlights_board_filter(string $activeBoard, string 
     ?>
 		<a href="<?php echo amiga_realm_games_all_h(amiga_games_highlights_context_href($boardId, false, $activeScope)); ?>"
 			class="k2-chrome-tabs__tab<?php echo $isActive ? ' is-active' : ''; ?>"
-			<?php echo $isActive ? ' aria-current="page"' : ''; ?>><?php echo amiga_realm_games_all_h($meta['label']); ?></a>
+			<?php echo $isActive ? ' aria-current="page"' : ''; ?><?php echo amiga_games_highlights_board_tab_help_attrs($meta); ?>><?php echo amiga_realm_games_all_h($meta['label']); ?></a>
 <?php } ?>
 	</div>
 </nav>
@@ -156,9 +197,15 @@ function amiga_games_render_highlights_table(array $rows, string $board, string 
     if ($scope === 'world-cup') {
         $heading .= ' — World Cups';
     }
-    $emptyMessage = $scope === 'world-cup'
-        ? 'No rated World Cup games match this board yet.'
-        : 'No rated games match this board yet.';
+    if ($board === 'biggest_upsets') {
+        $emptyMessage = $scope === 'world-cup'
+            ? 'No World Cup underdog wins match this board yet.'
+            : 'No underdog wins match this board yet.';
+    } else {
+        $emptyMessage = $scope === 'world-cup'
+            ? 'No rated World Cup games match this board yet.'
+            : 'No rated games match this board yet.';
+    }
     ?>
 <section class="k2-games-highlights" aria-labelledby="k2-amiga-games-highlights-heading">
 	<h2 class="k2-panel-heading" id="k2-amiga-games-highlights-heading"><?php echo amiga_realm_games_all_h($heading); ?></h2>

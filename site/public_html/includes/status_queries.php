@@ -79,6 +79,27 @@ function k2_status_server_clock(mysqli $con): array
     ];
 }
 
+/**
+ * Points day league for the same UTC calendar day one year before server now (C07).
+ *
+ * @param array{now_sql?: string}|null $serverClock from k2_status_load_room()['server_clock']
+ */
+function k2_status_on_this_day_last_year_href(?array $serverClock = null): string
+{
+    require_once __DIR__ . '/k2_league_period_page.php';
+    if (function_exists('k2_site_ensure_utc')) {
+        k2_site_ensure_utc();
+    }
+    $utc = new DateTimeZone('UTC');
+    $nowSql = is_array($serverClock) ? trim((string) ($serverClock['now_sql'] ?? '')) : '';
+    $now = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $nowSql, $utc);
+    if (!$now instanceof DateTimeImmutable) {
+        $now = new DateTimeImmutable('now', $utc);
+    }
+
+    return k2_league_period_href('points', 'day', $now->modify('-1 year')->format('Y-m-d'));
+}
+
 /** Unix epoch for league period end (UTC). */
 function k2_status_league_end_epoch(array $league): int
 {

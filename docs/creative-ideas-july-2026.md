@@ -120,14 +120,12 @@ LANDING             Status default                   News tab ◻ (placeholder)
 | **C04** | **News / present landing** | What's worth looking at in present mode? | Curated front page — not a blog: HoF (New!), featured clip, finalize pulse | Amiga | `/amiga/news.php` placeholder — pairs with jukebox hang-out |
 | **C05** | **Milestones Story feed** | What's unlocking across the ladder? | Server-wide tier-coloured chronology ticker | Online | Hub phase in [`milestones-hub-ia.md`](milestones-hub-ia.md) |
 | **C06** | **Chronology video glyph (TV-4)** | Which events have footage — at a glance? | Small **film glyph** on chronology row; click → tournament video landing | Amiga | **In addition to** "With videos" filter (filter = find; glyph = wow navigate). Column cost TBD — see §6.2. |
-| **C07** | **"One year ago today" league link** | What happened on this calendar date? | Status (or similar) link: *One year ago today…* → `league.php?cup=points&period=day&start=YYYY-MM-DD#k2-league-period` | Online | v1: **1 year ago**; optional later: 2y / 3y rotation. League infra already exists. |
 | **C08** | **Tournament story page** | What happened at this event? | Minimal narrative band: winner, biggest upset, perf rating, **who debuted** in their first official tournament here, moments cards, video — scale down for 4-player kitchen events | Amiga | Magazine spread on `tournament.php`; pairs with **C14** (realm-wide tournament metadata LBs) |
 | **C09** | **Rivalry teaser on profile** | Who's *the* rivalry? | One card → H2H poster | Both | **Deferred** with C01 (Amiga profile pass); online placeholder exists |
 | **C10** | **Online season in review** | How was my 2024? | Calendar year lens on profile — rank Jan vs Dec, games, streak, top rival | Online | Lightweight TT sibling; `player_period_*` tables |
 | **C11** | **WC highlight reel (editorial)** | Show me the best stuff across WC history | Curated story through WC years — a few videos per year + short editorial copy celebrating players | Amiga | **Must be editorial**, not algorithmic boards |
 | **C12** | **Country story page** | Who *are* the Italians? | Prose band: best WC, top player, default rival link | Amiga | **Parked** — interesting but authenticity / data-to-prose unclear |
 | **C14** | **Tournament metadata leaderboard** | Which events had the most debuts / biggest fields / …? | **Tournament stats** sub-wing on **Tournaments hub** — sortable metadata boards beside the chronological searchable catalog (mirror **World Cups hub → Tournament stats**, not player/country stats) | Amiga | **Approved** (Jun 2026) — firm to-do; follow-on from **C08**; extend **`amiga_tournament_catalog_stats`** at finalize (debut count, etc.); player/country tournament grains stay in normal LBs — §6.4 |
-| **C15** | **Highlights: biggest upsets** | What were the wildest rating swings in a single game? | Fifth board on **`/amiga/games/highlights.php`** — games ranked by biggest **rating gain** for the winner (upset framing) | Amiga | **Approved** (Jun 2026) — firm to-do; small slice alongside existing four boards; read **`amiga_game_ratings`** deltas — §6.5 |
 
 ### 5.2 Rejected (session) — do not re-pitch
 
@@ -144,6 +142,8 @@ LANDING             Status default                   News tab ◻ (placeholder)
 | **H2H rank comparison chart** | `/amiga/player/opponents/h2h.php` | [`amiga-player-rank-chart-h2h-policy.md`](amiga-player-rank-chart-h2h-policy.md) |
 | **Solo rank chart** | `/amiga/player/profile.php` | [`amiga-player-rank-chart-policy.md`](amiga-player-rank-chart-policy.md) |
 | **With player stepper filter** | TT Event (`as_with=`), tournament (`id_with=` + `id_country=`), league (`start_with=`) + filter auto-snap | [`with-player-stepper-policy.md`](with-player-stepper-policy.md) §10 |
+| **Highlights: biggest upsets (C15)** | `/amiga/games/highlights.php?board=biggest_upsets` | [`amiga_games_highlights_helpers.php`](../site/public_html/includes/amiga_games_highlights_helpers.php) · underdog-wins only — §6.5 |
+| **On this day last year (C07)** | Status arc panel → Points day league | [`status_queries.php`](../site/public_html/includes/status_queries.php) · §6.3 |
 | Milestones v0, Time travel, Jukebox, Video embed, Fight poster, Countries/Rivals | (see origin stories) | respective policy docs |
 
 ---
@@ -170,13 +170,17 @@ LANDING             Status default                   News tab ◻ (placeholder)
 
 **Column trade-off:** extra column vs inline glyph in an existing column (e.g. event name or a narrow icon column). Policy allows "column or icon" — [`amiga-tournament-videos-implementation-plan.md`](amiga-tournament-videos-implementation-plan.md) TV-4.
 
-### 6.3 "One year ago today" (C07)
+### 6.3 "One year ago today" (C07) — shipped
 
-Online already has **day leagues** — this reuses that muscle memory. Example target:
+**Status:** **Shipped** Jun 2026.
 
-`/league.php?cup=points&period=day&start=2025-06-11#k2-league-period`
+**Copy:** **On this day last year →** under the Status lifetime arc sentence.
 
-Copy variants to explore: *One year ago today…* · *On this day…* · occasional *Two years ago…* for variety.
+**Target:** Points day league for the same UTC calendar day one year before server now — `league.php?cup=points&period=day&start=YYYY-MM-DD#k2-league-period`.
+
+**Placement:** Status arc panel — `k2-status-room__arc-link` directly below the players/games since line, one line of spacing apart (`margin-top: 1.45em`).
+
+**Later (optional):** 2y / 3y rotation for variety.
 
 ### 6.4 Tournament metadata LB (C14) — approved
 
@@ -197,15 +201,15 @@ Copy variants to explore: *One year ago today…* · *On this day…* · occasio
 
 **Pairs with:** **C08** per-event story band (micro) ↔ **C14** realm-wide metadata boards (macro).
 
-### 6.5 Highlights: biggest upsets (C15) — approved
+### 6.5 Highlights: biggest upsets (C15) — shipped
 
-**Status:** **Approved** — build when scheduled (Dagh Jun 2026).
+**Status:** **Shipped** Jun 2026.
 
-**Device:** One more board tab on Amiga **Games → Highlights** — games sorted by largest **single-game rating gain** (winner’s Δ), framed as upsets / shock results.
+**Device:** Fifth board tab on Amiga **Games → Highlights** — games sorted by largest **single-game rating gain** for the winner, framed as upsets.
 
-**Scope:** Small slice — reuse existing highlights cluster (`AMIGA_GAMES_HIGHLIGHT_BOARDS` + table render); no new hub tab. WC scope filter (`all` / `wc`) can inherit from sibling boards if useful.
+**Rule:** **Underdog wins only** — winner’s pre-game rating must be **strictly lower** than the loser’s (excludes early 2001–2002 flat-rating noise and favourite wins). Decisive games only (no draws).
 
-**Feasibility:** **Yes** — `amiga_game_ratings` already stores per-game deltas; same read pattern as online spectacle boards.
+**Scope:** Reuses highlights cluster (`AMIGA_GAMES_HIGHLIGHT_BOARDS` + shared table); WC scope filter inherited from sibling boards.
 
 ---
 
@@ -248,6 +252,8 @@ Copy variants to explore: *One year ago today…* · *On this day…* · occasio
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **C07 shipped** — Status arc **On this day last year →** → Points day league one UTC year back; §6.3. |
+| 2026-06-30 | **C15 shipped** — Amiga Highlights fifth board **Biggest upsets** (`board=biggest_upsets`); underdog-wins only (lower-rated winner); §6.5. |
 | 2026-06-30 | **C14–C15 promoted to approved** — firm to-do (was spark); Tournaments hub tournament-stats wing + Highlights biggest upsets board. `PROJECT_MEMORY` Next updated. |
 | 2026-06-30 | **C14–C15 sparks** — tournament metadata LB wing (debuts etc., WC hub pattern on Tournaments hub); Amiga Highlights **biggest upsets** board (rating gain). C08 notes: winner + debut in editorial band. §6.4–§6.5. |
 | 2026-06-30 | **C13 extensions documented** — `id_country`, faceted counts, filter auto-snap; policy §5.8 + §10. |
