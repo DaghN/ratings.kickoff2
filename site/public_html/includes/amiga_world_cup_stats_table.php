@@ -25,7 +25,7 @@ function amiga_world_cup_stats_peak_cell(?int $metric, ?int $gameId): string
     }
     $value = (int) $metric;
     if ($gameId !== null && (int) $gameId > 0) {
-        $href = k2_h(k2_amiga_route('amiga-game', ['id' => (int) $gameId]));
+        $href = k2_h(k2_amiga_game_page_url((int) $gameId));
 
         return '<a href="' . $href . '">' . $value . '</a>';
     }

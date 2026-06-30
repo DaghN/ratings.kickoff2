@@ -6,7 +6,7 @@
 
 | Page | Path |
 |------|------|
-| Hub nav | News · Leaderboards · World Cups · **Countries** · Activity · Hall of Fame · Tournaments · Live tournaments (`includes/amiga_hub_nav.php`; default landing `/amiga/news.php`) |
+| Hub nav | News · Leaderboards · World Cups · Tournaments · **Countries** · Games · Activity · Hall of Fame · Live (`includes/amiga_hub_nav.php`; default landing `/amiga/news.php`) |
 | **Countries hub** | `/amiga/countries/index.php` (hub index) · `/amiga/country/roster.php?country={token}` · `/amiga/country/rivals/{h2h,wdl,goals,dds}.php?country={token}` (+ `rival=` on H2H) — country entity **Roster · Rivals** — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) · Rivals grain [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) §1.1 |
 | Leaderboard (rating) | `/amiga/leaderboards/rating.php` (Leaderboards tab; `/amiga/rating.php` redirects) |
 | Leaderboard wings | Tab order in `amiga_lb_nav.php`: Rating · Tournament honours · Calendar &amp; geography · Goals · DDs &amp; CSs · Victims · Peak · Perf. rating *(World Cups player stats = hub only — not an LB wing)* |

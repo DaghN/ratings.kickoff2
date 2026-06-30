@@ -1,6 +1,6 @@
 <?php
 /**
- * Amiga realm All games list — server sort + pagination (filters deferred).
+ * Amiga realm All games list — server sort + pagination + filters.
  */
 declare(strict_types=1);
 
@@ -11,6 +11,10 @@ require_once __DIR__ . '/amiga_country_rivals_load.php';
 require_once __DIR__ . '/amiga_country_rivals_h2h_games_lib.php';
 require_once __DIR__ . '/amiga_realm_games_hub_lib.php';
 require_once __DIR__ . '/amiga_snapshot_context.php';
+require_once __DIR__ . '/amiga_player_games_lib.php';
+require_once __DIR__ . '/amiga_player_current_lib.php';
+require_once __DIR__ . '/k2_ratedresults_games_filters.php';
+require_once __DIR__ . '/amiga_tournament_videos_lib.php';
 
 const AMIGA_REALM_GAMES_ALL_PAGE_SIZE = 250;
 
@@ -54,22 +58,105 @@ function amiga_realm_games_all_valid_sort(string $sortKey): string
     return isset($map[$sortKey]) ? $sortKey : 'id';
 }
 
+function amiga_realm_games_all_valid_player_via(string $via): string
+{
+    return in_array($via, ['search', 'rating', 'alpha'], true) ? $via : '';
+}
+
+function amiga_realm_games_all_valid_opponent_via(string $via): string
+{
+    return in_array($via, ['search', 'games', 'alpha'], true) ? $via : '';
+}
+
 function amiga_realm_games_all_build_url(array $params): string
 {
     return k2_amiga_route('amiga-games-all', $params);
 }
 
+/** @return list<int> */
+function amiga_realm_games_all_manifest_video_game_ids(): array
+{
+    static $cached = null;
+    if ($cached !== null) {
+        return $cached;
+    }
+
+    $ids = [];
+    foreach (amiga_tournament_videos_manifest()['videos'] as $row) {
+        if (!is_array($row) || ($row['kind'] ?? '') === 'excluded') {
+            continue;
+        }
+        $gameIds = $row['game_ids'] ?? [];
+        if (!is_array($gameIds)) {
+            continue;
+        }
+        foreach ($gameIds as $gid) {
+            $gid = (int) $gid;
+            if ($gid > 0) {
+                $ids[$gid] = true;
+            }
+        }
+    }
+
+    $cached = array_keys($ids);
+
+    return $cached;
+}
+
 /**
- * @return array{sort: string, dir: string, offset: int, country: string, rival: string}
+ * @return array{
+ *     sort: string,
+ *     dir: string,
+ *     offset: int,
+ *     country: string,
+ *     rival: string,
+ *     host: string,
+ *     event: string,
+ *     videos: string,
+ *     player: int,
+ *     opponent: int,
+ *     gd: int,
+ *     gs: int,
+ *     ts: int,
+ *     year: int,
+ *     year_mode: string,
+ *     player_via: string,
+ *     opponent_via: string
+ * }
  */
 function amiga_realm_games_all_request_state(): array
 {
     $sortKey = amiga_realm_games_all_valid_sort((string) ($_GET['sort'] ?? 'id'));
     $sortDirection = amiga_realm_games_all_valid_direction((string) ($_GET['dir'] ?? 'desc'));
     $offset = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
-    // Raw trim only — empty means no nation-pair filter (normalize would map '' → Unknown).
     $country = trim((string) ($_GET['country'] ?? ''));
     $rival = trim((string) ($_GET['rival'] ?? ''));
+    $host = trim((string) ($_GET['host'] ?? ''));
+    $event = amiga_games_valid_event_filter((string) ($_GET['filter'] ?? 'all'));
+    $videos = isset($_GET['videos']) && (string) $_GET['videos'] === 'with-videos' ? 'with-videos' : '';
+
+    $playerId = isset($_GET['player']) ? max(0, (int) $_GET['player']) : 0;
+    $opponentFilter = $playerId > 0 && isset($_GET['opponent']) ? max(0, (int) $_GET['opponent']) : 0;
+    $playerVia = amiga_realm_games_all_valid_player_via((string) ($_GET['player_via'] ?? ''));
+    $opponentVia = amiga_realm_games_all_valid_opponent_via((string) ($_GET['opponent_via'] ?? ''));
+
+    $goalDiffFilter = isset($_GET['gd']) ? (int) $_GET['gd'] : -1;
+    $goalsSumFilter = isset($_GET['gs']) ? (int) $_GET['gs'] : -1;
+    $topScoreFilter = isset($_GET['ts']) ? (int) $_GET['ts'] : -1;
+    if ($goalDiffFilter < -1) {
+        $goalDiffFilter = -1;
+    }
+    if ($goalsSumFilter < -1) {
+        $goalsSumFilter = -1;
+    }
+    if ($topScoreFilter < -1) {
+        $topScoreFilter = -1;
+    }
+
+    $year = isset($_GET['year']) ? max(0, (int) $_GET['year']) : 0;
+    $yearMode = $year > 0
+        ? k2_ratedresults_games_valid_year_mode((string) ($_GET['year_mode'] ?? 'in'))
+        : 'in';
 
     return [
         'sort' => $sortKey,
@@ -77,23 +164,185 @@ function amiga_realm_games_all_request_state(): array
         'offset' => $offset,
         'country' => $country,
         'rival' => $rival,
+        'host' => $host,
+        'event' => $event,
+        'videos' => $videos,
+        'player' => $playerId,
+        'opponent' => $opponentFilter,
+        'gd' => $goalDiffFilter,
+        'gs' => $goalsSumFilter,
+        'ts' => $topScoreFilter,
+        'year' => $year,
+        'year_mode' => $yearMode,
+        'player_via' => $playerVia,
+        'opponent_via' => $opponentVia,
     ];
 }
 
+function amiga_realm_games_all_sanitize_scalar_filter(
+    mysqli $con,
+    string $sql,
+    string $types,
+    array $params,
+): bool {
+    $rows = amiga_realm_games_hub_query_all($con, $sql, $types, $params);
+
+    return $rows !== [];
+}
+
+function amiga_realm_games_all_sanitize_filters(mysqli $con, array &$state, AmigaSnapshotContext $ctx): void
+{
+    if ($state['player'] > 0) {
+        $careerTable = amiga_player_career_table($con);
+        $playerRows = amiga_realm_games_hub_query_all(
+            $con,
+            'SELECT p.id FROM amiga_players p INNER JOIN `' . $careerTable . '` s ON s.player_id = p.id '
+                . 'WHERE p.id = ? AND s.NumberGames > 0 LIMIT 1',
+            'i',
+            [$state['player']]
+        );
+        if ($playerRows === []) {
+            $state['player'] = 0;
+            $state['opponent'] = 0;
+            $state['player_via'] = '';
+            $state['opponent_via'] = '';
+        }
+    } else {
+        $state['player'] = 0;
+        $state['opponent'] = 0;
+        $state['player_via'] = '';
+        $state['opponent_via'] = '';
+    }
+
+    if ($state['player'] <= 0) {
+        $state['player_via'] = '';
+    } else {
+        $state['player_via'] = amiga_realm_games_all_valid_player_via((string) ($state['player_via'] ?? ''));
+    }
+
+    $playerId = (int) $state['player'];
+    if ($playerId > 0 && $state['opponent'] > 0) {
+        $types = 'iiii';
+        $params = [$playerId, $state['opponent'], $playerId, $state['opponent']];
+        $cutoffTypes = '';
+        $cutoffParams = [];
+        $cutoffSql = amiga_snapshot_rated_game_cutoff_and_sql($ctx, $cutoffTypes, $cutoffParams);
+        $types .= $cutoffTypes;
+        $params = array_merge($params, $cutoffParams);
+        $validOpponent = amiga_realm_games_all_sanitize_scalar_filter(
+            $con,
+            'SELECT r.id ' . amiga_rated_games_from_sql()
+                . ' WHERE ((r.idA = ? AND r.idB = ?) OR (r.idB = ? AND r.idA = ?))' . $cutoffSql . ' LIMIT 1',
+            $types,
+            $params
+        );
+        if (!$validOpponent) {
+            $state['opponent'] = 0;
+        }
+    } else {
+        $state['opponent'] = 0;
+    }
+
+    if ($state['opponent'] <= 0) {
+        $state['opponent_via'] = '';
+    } else {
+        $state['opponent_via'] = amiga_realm_games_all_valid_opponent_via((string) ($state['opponent_via'] ?? ''));
+    }
+
+    if ($state['host'] !== '') {
+        $types = '';
+        $params = [];
+        $cutoffSql = amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params);
+        $validHost = amiga_realm_games_all_sanitize_scalar_filter(
+            $con,
+            'SELECT r.id ' . amiga_rated_games_from_sql()
+                . ' WHERE r.tournament_country = ?' . $cutoffSql . ' LIMIT 1',
+            's' . $types,
+            array_merge([$state['host']], $params)
+        );
+        if (!$validHost) {
+            $state['host'] = '';
+        }
+    }
+
+    if ($state['gd'] >= 0 && !amiga_realm_games_all_sanitize_scalar_filter(
+        $con,
+        'SELECT r.id ' . amiga_rated_games_from_sql() . ' WHERE r.GoalDifference = ? LIMIT 1',
+        'i',
+        [$state['gd']]
+    )) {
+        $state['gd'] = -1;
+    }
+
+    if ($state['gs'] >= 0 && !amiga_realm_games_all_sanitize_scalar_filter(
+        $con,
+        'SELECT r.id ' . amiga_rated_games_from_sql() . ' WHERE r.SumOfGoals = ? LIMIT 1',
+        'i',
+        [$state['gs']]
+    )) {
+        $state['gs'] = -1;
+    }
+
+    if ($state['ts'] >= 0 && !amiga_realm_games_all_sanitize_scalar_filter(
+        $con,
+        'SELECT r.id ' . amiga_rated_games_from_sql() . ' WHERE GREATEST(r.GoalsA, r.GoalsB) = ? LIMIT 1',
+        'i',
+        [$state['ts']]
+    )) {
+        $state['ts'] = -1;
+    }
+
+    if ($state['year'] > 0) {
+        $validYear = amiga_realm_games_all_sanitize_scalar_filter(
+            $con,
+            'SELECT r.id ' . amiga_rated_games_from_sql() . ' WHERE YEAR(r.`Date`) = ? LIMIT 1',
+            'i',
+            [$state['year']]
+        );
+        if (!$validYear) {
+            $state['year'] = 0;
+        }
+    } else {
+        $state['year'] = 0;
+    }
+
+    if ($state['year'] <= 0) {
+        $state['year_mode'] = 'in';
+    } else {
+        $state['year_mode'] = k2_ratedresults_games_valid_year_mode($state['year_mode']);
+    }
+
+    if ($state['event'] !== 'world-cup') {
+        $state['event'] = 'all';
+    }
+
+    if ($state['videos'] !== 'with-videos') {
+        $state['videos'] = '';
+    }
+}
+
+/**
+ * @param array<string, mixed> $state
+ * @param-out string $types
+ * @param-out list<int|string> $params
+ */
 function amiga_realm_games_all_where_sql(array $state, AmigaSnapshotContext $ctx, string &$types, array &$params): string
 {
-    $where = '1=1';
+    $where = ['1=1'];
+    $types = '';
+    $params = [];
+
     $heroRaw = trim((string) ($state['country'] ?? ''));
     $rivalRaw = trim((string) ($state['rival'] ?? ''));
     if ($heroRaw !== '' && $rivalRaw !== '') {
         $hero = amiga_country_rivals_normalize_token($heroRaw);
         $rival = amiga_country_rivals_normalize_token($rivalRaw);
         if (amiga_country_rivals_is_domestic_rival($hero, $rival)) {
-            $where .= ' AND 1=0';
+            $where[] = '1=0';
         } else {
             $tokenA = amiga_country_rivals_games_token_sql('r.country_a');
             $tokenB = amiga_country_rivals_games_token_sql('r.country_b');
-            $where .= ' AND ((' . $tokenA . ' = ? AND ' . $tokenB . ' = ?) OR (' . $tokenB . ' = ? AND ' . $tokenA . ' = ?))';
+            $where[] = '((' . $tokenA . ' = ? AND ' . $tokenB . ' = ?) OR (' . $tokenB . ' = ? AND ' . $tokenA . ' = ?))';
             $types .= 'ssss';
             $params[] = $hero;
             $params[] = $rival;
@@ -101,9 +350,98 @@ function amiga_realm_games_all_where_sql(array $state, AmigaSnapshotContext $ctx
             $params[] = $rival;
         }
     }
-    $where .= amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params);
 
-    return $where;
+    if (($state['event'] ?? 'all') === 'world-cup') {
+        $where[] = amiga_games_world_cup_name_sql('r.tournament_name');
+    }
+
+    if (($state['videos'] ?? '') === 'with-videos') {
+        $videoGameIds = amiga_realm_games_all_manifest_video_game_ids();
+        if ($videoGameIds === []) {
+            $where[] = '1=0';
+        } else {
+            $placeholders = implode(',', array_fill(0, count($videoGameIds), '?'));
+            $where[] = 'r.id IN (' . $placeholders . ')';
+            $types .= str_repeat('i', count($videoGameIds));
+            foreach ($videoGameIds as $gameId) {
+                $params[] = (int) $gameId;
+            }
+        }
+    }
+
+    $host = trim((string) ($state['host'] ?? ''));
+    if ($host !== '') {
+        $where[] = 'r.tournament_country = ?';
+        $types .= 's';
+        $params[] = $host;
+    }
+
+    $playerId = (int) ($state['player'] ?? 0);
+    if ($playerId > 0) {
+        $where[] = '(r.idA = ? OR r.idB = ?)';
+        $types .= 'ii';
+        $params[] = $playerId;
+        $params[] = $playerId;
+
+        $opponentId = (int) ($state['opponent'] ?? 0);
+        if ($opponentId > 0) {
+            $where[] = '((r.idA = ? AND r.idB = ?) OR (r.idB = ? AND r.idA = ?))';
+            $types .= 'iiii';
+            $params[] = $playerId;
+            $params[] = $opponentId;
+            $params[] = $playerId;
+            $params[] = $opponentId;
+        }
+    }
+
+    $gd = (int) ($state['gd'] ?? -1);
+    if ($gd >= 0) {
+        $where[] = 'r.GoalDifference = ?';
+        $types .= 'i';
+        $params[] = $gd;
+    }
+
+    $gs = (int) ($state['gs'] ?? -1);
+    if ($gs >= 0) {
+        $where[] = 'r.SumOfGoals = ?';
+        $types .= 'i';
+        $params[] = $gs;
+    }
+
+    $ts = (int) ($state['ts'] ?? -1);
+    if ($ts >= 0) {
+        $where[] = 'GREATEST(r.GoalsA, r.GoalsB) = ?';
+        $types .= 'i';
+        $params[] = $ts;
+    }
+
+    $year = (int) ($state['year'] ?? 0);
+    if ($year > 0) {
+        $yearMode = k2_ratedresults_games_valid_year_mode((string) ($state['year_mode'] ?? 'in'));
+        $yearStart = sprintf('%04d-01-01', $year);
+        $yearEnd = sprintf('%04d-01-01', $year + 1);
+        if ($yearMode === 'since') {
+            $where[] = 'r.`Date` >= ?';
+            $types .= 's';
+            $params[] = $yearStart;
+        } elseif ($yearMode === 'until') {
+            $where[] = 'r.`Date` < ?';
+            $types .= 's';
+            $params[] = $yearEnd;
+        } else {
+            $where[] = 'r.`Date` >= ? AND r.`Date` < ?';
+            $types .= 'ss';
+            $params[] = $yearStart;
+            $params[] = $yearEnd;
+        }
+    }
+
+    $cutoffSql = amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params);
+    if ($cutoffSql !== '') {
+        $where[] = ltrim($cutoffSql, ' AND');
+    }
+
+    return implode(' AND ', $where);
 }
 
 function amiga_realm_games_all_count(mysqli $con, array $state, AmigaSnapshotContext $ctx): int
@@ -122,7 +460,6 @@ function amiga_realm_games_all_count(mysqli $con, array $state, AmigaSnapshotCon
 }
 
 /**
- * @param array{sort: string, dir: string, offset: int, country: string, rival: string} $state
  * @return list<array<string, mixed>>
  */
 function amiga_realm_games_all_fetch_page(mysqli $con, array $state, AmigaSnapshotContext $ctx, int $limit): array
@@ -146,7 +483,23 @@ function amiga_realm_games_all_fetch_page(mysqli $con, array $state, AmigaSnapsh
     return amiga_realm_games_hub_query_all($con, $sql, $types, $params);
 }
 
-/** @param array{sort: string, dir: string, offset: int, country: string, rival: string} $state */
+/** @param array<string, mixed> $state */
+function amiga_realm_games_all_has_active_filters(array $state): bool
+{
+    return ($state['country'] ?? '') !== ''
+        || ($state['rival'] ?? '') !== ''
+        || ($state['host'] ?? '') !== ''
+        || ($state['event'] ?? 'all') === 'world-cup'
+        || ($state['videos'] ?? '') === 'with-videos'
+        || (int) ($state['player'] ?? 0) > 0
+        || (int) ($state['opponent'] ?? 0) > 0
+        || (int) ($state['gd'] ?? -1) >= 0
+        || (int) ($state['gs'] ?? -1) >= 0
+        || (int) ($state['ts'] ?? -1) >= 0
+        || (int) ($state['year'] ?? 0) > 0;
+}
+
+/** @param array<string, mixed> $state */
 function amiga_realm_games_all_query_params(array $state, bool $includeOffset = true): array
 {
     $params = [];
@@ -156,17 +509,291 @@ function amiga_realm_games_all_query_params(array $state, bool $includeOffset = 
     if (($state['rival'] ?? '') !== '') {
         $params['rival'] = (string) $state['rival'];
     }
-    if ($state['sort'] !== 'id') {
-        $params['sort'] = $state['sort'];
+    if (($state['host'] ?? '') !== '') {
+        $params['host'] = (string) $state['host'];
     }
-    if ($state['dir'] !== 'desc') {
-        $params['dir'] = $state['dir'];
+    if (($state['event'] ?? 'all') === 'world-cup') {
+        $params['filter'] = 'world-cup';
     }
-    if ($includeOffset && $state['offset'] > 0) {
-        $params['offset'] = $state['offset'];
+    if (($state['videos'] ?? '') === 'with-videos') {
+        $params['videos'] = 'with-videos';
+    }
+    if ((int) ($state['player'] ?? 0) > 0) {
+        $params['player'] = (int) $state['player'];
+        if (($state['player_via'] ?? '') !== '') {
+            $params['player_via'] = (string) $state['player_via'];
+        }
+        if ((int) ($state['opponent'] ?? 0) > 0) {
+            $params['opponent'] = (int) $state['opponent'];
+            if (($state['opponent_via'] ?? '') !== '') {
+                $params['opponent_via'] = (string) $state['opponent_via'];
+            }
+        }
+    }
+    if ((int) ($state['gd'] ?? -1) >= 0) {
+        $params['gd'] = (int) $state['gd'];
+    }
+    if ((int) ($state['gs'] ?? -1) >= 0) {
+        $params['gs'] = (int) $state['gs'];
+    }
+    if ((int) ($state['ts'] ?? -1) >= 0) {
+        $params['ts'] = (int) $state['ts'];
+    }
+    if ((int) ($state['year'] ?? 0) > 0) {
+        $params['year'] = (int) $state['year'];
+        if (($state['year_mode'] ?? 'in') !== 'in') {
+            $params['year_mode'] = (string) $state['year_mode'];
+        }
+    }
+    if (($state['sort'] ?? 'id') !== 'id') {
+        $params['sort'] = (string) $state['sort'];
+    }
+    if (($state['dir'] ?? 'desc') !== 'desc') {
+        $params['dir'] = (string) $state['dir'];
+    }
+    if ($includeOffset && (int) ($state['offset'] ?? 0) > 0) {
+        $params['offset'] = (int) $state['offset'];
     }
 
     return $params;
+}
+
+function amiga_realm_games_all_segment_url(array $state, string $event, string $videos): string
+{
+    $params = amiga_realm_games_all_query_params($state, false);
+    if ($event === 'world-cup') {
+        $params['filter'] = 'world-cup';
+    } else {
+        unset($params['filter']);
+    }
+    if ($videos === 'with-videos') {
+        $params['videos'] = 'with-videos';
+    } else {
+        unset($params['videos']);
+    }
+
+    return amiga_realm_games_all_build_url($params);
+}
+
+/**
+ * @return list<array{id: int, name: string, rating: int}>
+ */
+function amiga_realm_games_all_fetch_players(mysqli $con): array
+{
+    $careerTable = amiga_player_career_table($con);
+    $rows = amiga_realm_games_hub_query_all(
+        $con,
+        'SELECT p.id AS id, p.name AS name, ROUND(s.Rating) AS rating '
+            . 'FROM amiga_players p INNER JOIN `' . $careerTable . '` s ON s.player_id = p.id '
+            . 'WHERE s.NumberGames > 0 AND p.name IS NOT NULL AND TRIM(p.name) <> \'\' '
+            . 'ORDER BY p.name ASC, s.Rating DESC',
+        '',
+        []
+    );
+
+    $players = [];
+    foreach ($rows as $row) {
+        $players[] = [
+            'id' => (int) $row['id'],
+            'name' => (string) $row['name'],
+            'rating' => (int) $row['rating'],
+        ];
+    }
+
+    return $players;
+}
+
+/** @return list<int> */
+function amiga_realm_games_all_fetch_years(mysqli $con, AmigaSnapshotContext $ctx): array
+{
+    $types = '';
+    $params = [];
+    $cutoffSql = amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params);
+    $rows = amiga_realm_games_hub_query_all(
+        $con,
+        'SELECT DISTINCT YEAR(r.`Date`) AS y ' . amiga_rated_games_from_sql()
+            . ' WHERE 1=1' . $cutoffSql . ' ORDER BY y DESC',
+        $types,
+        $params
+    );
+
+    $years = [];
+    foreach ($rows as $row) {
+        $years[] = (int) $row['y'];
+    }
+
+    return $years;
+}
+
+function amiga_realm_games_all_gd_label(int $value): string
+{
+    if ($value > 0) {
+        return '+' . $value;
+    }
+
+    return (string) $value;
+}
+
+/**
+ * @param list<array{id: int, name: string, rating: int}> $players
+ * @return list<array{value: string, label: string, meta: string}>
+ */
+function amiga_realm_games_all_player_rating_choices(array $players): array
+{
+    $byRating = $players;
+    usort(
+        $byRating,
+        static function (array $a, array $b): int {
+            $cmp = $b['rating'] <=> $a['rating'];
+            if ($cmp !== 0) {
+                return $cmp;
+            }
+
+            return strcasecmp((string) $a['name'], (string) $b['name']);
+        }
+    );
+
+    $choices = [['value' => '0', 'label' => '', 'meta' => '']];
+    foreach ($byRating as $player) {
+        $choices[] = [
+            'value' => (string) $player['id'],
+            'label' => $player['name'],
+            'meta' => (string) $player['rating'],
+        ];
+    }
+
+    return $choices;
+}
+
+/**
+ * @param list<array{id: int, name: string, rating: int}> $players
+ * @return list<array{value: string, label: string, meta: string}>
+ */
+function amiga_realm_games_all_player_alpha_choices(array $players): array
+{
+    $choices = [['value' => '0', 'label' => '', 'meta' => '']];
+    foreach ($players as $player) {
+        $choices[] = [
+            'value' => (string) $player['id'],
+            'label' => $player['name'],
+            'meta' => (string) $player['rating'],
+        ];
+    }
+
+    return $choices;
+}
+
+/**
+ * @param list<array{opponent_id: int, opponent_name: string, games: int}> $rows
+ * @return list<array{value: string, label: string, meta: string}>
+ */
+function amiga_realm_games_all_opponent_games_choices(array $rows): array
+{
+    $choices = [['value' => '0', 'label' => '', 'meta' => '']];
+    foreach ($rows as $row) {
+        $choices[] = [
+            'value' => (string) (int) $row['opponent_id'],
+            'label' => (string) $row['opponent_name'],
+            'meta' => amiga_realm_games_all_games_meta_label((int) $row['games']),
+        ];
+    }
+
+    return $choices;
+}
+
+/**
+ * @param list<array{opponent_id: int, opponent_name: string, games: int}> $rows
+ * @return list<array{value: string, label: string}>
+ */
+function amiga_realm_games_all_opponent_alpha_choices(array $rows): array
+{
+    $byAlpha = $rows;
+    usort(
+        $byAlpha,
+        static function (array $a, array $b): int {
+            return strcasecmp((string) $a['opponent_name'], (string) $b['opponent_name']);
+        }
+    );
+
+    $choices = [['value' => '0', 'label' => '']];
+    foreach ($byAlpha as $row) {
+        $choices[] = [
+            'value' => (string) (int) $row['opponent_id'],
+            'label' => (string) $row['opponent_name'],
+        ];
+    }
+
+    return $choices;
+}
+
+function amiga_realm_games_all_games_meta_label(int $games): string
+{
+    return $games . ' game' . ($games === 1 ? '' : 's');
+}
+
+/**
+ * @param list<int> $years
+ * @return list<array{value: string, label: string}>
+ */
+function amiga_realm_games_all_year_choices(array $years): array
+{
+    $choices = [['value' => '0', 'label' => '']];
+    foreach ($years as $year) {
+        $choices[] = [
+            'value' => (string) $year,
+            'label' => (string) $year,
+        ];
+    }
+
+    return $choices;
+}
+
+/** @return list<array{value: string, label: string}> */
+function amiga_realm_games_all_year_mode_choices(): array
+{
+    return [
+        ['value' => 'in', 'label' => 'Just this year'],
+        ['value' => 'since', 'label' => 'Since this year'],
+        ['value' => 'until', 'label' => 'Until this year'],
+    ];
+}
+
+function amiga_realm_games_all_name_from_players(int $playerId, array $players): string
+{
+    if ($playerId <= 0) {
+        return '';
+    }
+    foreach ($players as $player) {
+        if ((int) $player['id'] === $playerId) {
+            return (string) $player['name'];
+        }
+    }
+
+    return '';
+}
+
+function amiga_realm_games_all_name_from_opponents(int $opponentId, array $opponentRows, array $players): string
+{
+    if ($opponentId <= 0) {
+        return '';
+    }
+    foreach ($opponentRows as $row) {
+        if ((int) $row['opponent_id'] === $opponentId) {
+            return (string) $row['opponent_name'];
+        }
+    }
+
+    return amiga_realm_games_all_name_from_players($opponentId, $players);
+}
+
+function amiga_realm_games_all_listbox_selected_id(int $entityId, string $via, string $expectedVia): string
+{
+    return $entityId > 0 && $via === $expectedVia ? (string) $entityId : '0';
+}
+
+function amiga_realm_games_all_active_search_input_class(string $baseClass, bool $active): string
+{
+    return $active ? trim($baseClass . ' k2-link-star') : $baseClass;
 }
 
 function amiga_realm_games_all_sort_col_index(string $sortKey, bool $withRank = false): int
@@ -195,7 +822,7 @@ function amiga_realm_games_all_sort_col_index(string $sortKey, bool $withRank = 
     return ($map[$key] ?? 0) + $offset;
 }
 
-/** @param array{sort: string, dir: string, offset: int, country: string, rival: string} $state */
+/** @param array<string, mixed> $state */
 function amiga_realm_games_all_sort_header(
     string $key,
     string $label,

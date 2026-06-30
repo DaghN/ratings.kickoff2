@@ -48,7 +48,7 @@
 | Player milestones | `player/milestones/` | `garden.php`, `chronology.php` |
 | Amiga tournament Videos (nested under entity tab) | `amiga/tournament/videos/` | `games.php`, `atmosphere.php` |
 
-**Detail pages stay at root or a stable path** when they are not sub-nav peers — e.g. `milestone.php?key=`, `game.php?id=` (key/id are entity lookup, not hub mode). Inbound game links use `k2_game_page_url($id)` → `/game.php?id=` + `#k2-game` so the viewport lands on the game table (hub chrome stays above the fold).
+**Detail pages stay at root or a stable path** when they are not sub-nav peers — e.g. `milestone.php?key=`, `game.php?id=` (key/id are entity lookup, not hub mode). Inbound game links use `k2_game_page_url($id)` → `/game.php?id=` + `#k2-game` so the viewport lands on the game table (hub chrome stays above the fold). Amiga: `k2_amiga_game_page_url($id)` → `/amiga/game.php?id=` + `#k2-game` (same anchor id + `k2_carry_scroll_restore.php` pre-paint scroll; bare id-only URLs also set `$k2ScrollTargetId = 'k2-game'` on the page).
 
 **Entity vs hub naming ([`navigation-model.md`](navigation-model.md) NM3/NM4):** an **entity page** (a single game / player / tournament / country / milestone) lives at the realm root as its **own singular namespace** — leaf file if single-page (`game.php`), folder if it has tabs (`player/`, `tournament/`). It is **never** nested inside a **hub-tab folder** (the **plural** form: `tournaments.php`, `countries/`, `world-cups/`, `leaderboards/`). Entity pages show **no active hub pill** (NM2).
 
@@ -202,7 +202,7 @@ Query `?id=` required on all tabs. Optional `?player=` on games; `?scope=` / `?s
 
 ### Amiga hub tabs (present order)
 
-News · Leaderboards · **World Cups** (`/amiga/world-cups/chronology.php`) · **Countries** (`/amiga/countries/index.php`) · Activity · Hall of Fame · Tournaments · Live tournaments — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · **Countries** · Activity · Hall of Fame · **Tournaments** · Games (editorial present-only: News · Live).
+News · Leaderboards · **World Cups** (`/amiga/world-cups/chronology.php`) · Tournaments · **Countries** (`/amiga/countries/index.php`) · Games · Activity · Hall of Fame · Live — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · Tournaments · **Countries** · Games · Activity · Hall of Fame (editorial present-only: News · Live).
 
 A single country is an **entity page** ([`navigation-model.md`](navigation-model.md) NM3): it lives in the singular `country/` namespace with a **Roster · Rivals** segment (NM6), not inside the plural `countries/` hub folder.
 

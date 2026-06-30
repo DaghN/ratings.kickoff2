@@ -24,6 +24,10 @@ if ($k2AmigaGamesEnqueueTableJs) {
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
 <?php if ($k2AmigaGamesEnqueueTableJs) { include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; } ?>
+<?php if ($k2AmigaGamesHubView === 'all') { ?>
+<script type="text/javascript" src="/js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/k2-realm-games-filters.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-realm-games-filters.js'); ?>" defer="defer"></script>
+<?php } ?>
 </head>
 <body class="k2-site">
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>

@@ -89,6 +89,16 @@ function k2_amiga_route(string $name, array $params = []): string
 	return amiga_url_with_context($url . '?' . http_build_query($params));
 }
 
+function k2_amiga_game_page_anchor_hash(): string
+{
+	return '#k2-game';
+}
+
+function k2_amiga_game_page_url(int $gameId): string
+{
+	return k2_amiga_route('amiga-game', ['id' => $gameId]) . k2_amiga_game_page_anchor_hash();
+}
+
 /** 302 redirect preserving the request query string (legacy Amiga player URLs). */
 function k2_amiga_legacy_redirect(string $canonicalPath): void
 {

@@ -1,7 +1,7 @@
 <?php
 /**
- * Amiga realm hub tabs — present: News · Leaderboards · World Cups · Countries · Activity · HoF · Tournaments · Live tournaments (last).
- * Time travel: Leaderboards · World Cups · Countries · Activity · Hall of Fame · Tournaments · Games (editorial present-only: News · Live).
+ * Amiga realm hub tabs — present: News · Leaderboards · World Cups · Tournaments · Countries · Games · Activity · HoF · Live (last).
+ * Time travel: Leaderboards · World Cups · Tournaments · Countries · Games · Activity · Hall of Fame (editorial present-only: News · Live).
  *
  * Set $k2AmigaHubTabActive before include: news | world-cups | countries | leaderboards | tournaments | games | activity | hall-of-fame | live-tournaments
  *

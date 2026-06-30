@@ -21,7 +21,7 @@ function amiga_countries_render_index_table(array $rows, int $countryCount): voi
     $lbSort = k2_lb_table_sort_state(2, 1);
     ?>
 <?php k2_table_wrap_open(true); ?>
-<table class="<?php echo k2_h(k2_table_ranked_sortable_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(9); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_sortable_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-sort-tie-order="match" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(2); ?>>
 <thead>
     <tr>
         <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">Rank</th>
@@ -41,7 +41,7 @@ function amiga_countries_render_index_table(array $rows, int $countryCount): voi
     foreach ($rows as $row) {
         $countryToken = (string) $row['country_token'];
         ?>
-    <tr>
+    <tr data-k2-sort-tie-value="<?php echo (int) $row['games']; ?>">
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo k2_amiga_lb_country_cell($countryToken); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo (int) $row['players']; ?></td>

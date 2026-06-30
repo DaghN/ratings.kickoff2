@@ -14,7 +14,7 @@ require_once __DIR__ . '/amiga_snapshot_url.php';
  *
  * @var list<string>
  */
-const K2_AMIGA_HUB_TIME_TRAVEL_TAB_IDS = ['leaderboards', 'world-cups', 'countries', 'activity', 'hall-of-fame', 'tournaments', 'games'];
+const K2_AMIGA_HUB_TIME_TRAVEL_TAB_IDS = ['leaderboards', 'world-cups', 'tournaments', 'countries', 'games', 'activity', 'hall-of-fame'];
 
 /**
  * Editorial / live-ops paths: direct `?as=` is stripped (302 to present).
@@ -42,11 +42,11 @@ function amiga_hub_all_tabs(): array
         'news' => ['href' => '/amiga/news.php', 'label' => 'News'],
         'leaderboards' => ['href' => '/amiga/leaderboards/rating.php', 'label' => 'Leaderboards'],
         'world-cups' => ['href' => '/amiga/world-cups/chronology.php', 'label' => 'World Cups'],
+        'tournaments' => ['href' => '/amiga/tournaments.php', 'label' => 'Tournaments'],
         'countries' => ['href' => '/amiga/countries/index.php', 'label' => 'Countries'],
+        'games' => ['href' => '/amiga/games/recent.php', 'label' => 'Games'],
         'activity' => ['href' => '/amiga/activity.php', 'label' => 'Activity'],
         'hall-of-fame' => ['href' => '/amiga/hall-of-fame.php', 'label' => 'Hall of Fame'],
-        'tournaments' => ['href' => '/amiga/tournaments.php', 'label' => 'Tournaments'],
-        'games' => ['href' => '/amiga/games/recent.php', 'label' => 'Games'],
         'live-tournaments' => ['href' => '/amiga/live-tournaments.php', 'label' => 'Live'],
     ];
 }

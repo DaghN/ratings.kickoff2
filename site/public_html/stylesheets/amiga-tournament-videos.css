@@ -247,3 +247,38 @@ body.k2-site .k2-tournament-videos--wc .k2-table--tournament-games .k2-amiga-tga
 body.k2-site .k2-tournament-videos--wc .k2-table--tournament-games .k2-amiga-tgame-goal--win {
 	font-weight: 700;
 }
+
+/* Amiga single game page — embedded match video(s) below the game table. */
+body.k2-site .k2-amiga-game-videos {
+	margin-top: var(--k2-nav-gap);
+}
+
+body.k2-site .k2-amiga-game-videos__menu {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.2rem;
+	margin: 0 0 0.65rem;
+}
+
+body.k2-site .k2-amiga-game-videos__menu-link {
+	font-size: 0.95rem;
+	line-height: 1.35;
+	text-decoration: none;
+}
+
+body.k2-site .k2-amiga-game-videos__menu-link--muted {
+	color: var(--k2-text-secondary);
+}
+
+body.k2-site .k2-amiga-game-videos__menu-link--muted:hover,
+body.k2-site .k2-amiga-game-videos__menu-link--muted:focus-visible {
+	color: var(--k2-link-star);
+}
+
+body.k2-site .k2-amiga-game-videos .k2-tournament-videos__spotlight .k2-game-page__video-wrap {
+	width: min(
+		calc((100svh - var(--k2-tv-spotlight-chrome)) * 16 / 9),
+		100%
+	);
+}

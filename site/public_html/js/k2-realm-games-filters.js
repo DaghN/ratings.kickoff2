@@ -5,6 +5,11 @@
     'use strict';
 
     var OPPONENT_API = '/api/player_h2h_opponent_search.php';
+
+    function filterRealm(form) {
+        var realm = form.getAttribute('data-k2-realm-games-realm') || 'online';
+        return realm === 'amiga' ? 'amiga' : 'online';
+    }
     var DEBOUNCE_MS = 200;
     var MIN_CHARS = 2;
 
@@ -252,7 +257,8 @@
                 return;
             }
             timer = setTimeout(function () {
-                var url = OPPONENT_API + '?player_id=' + encodeURIComponent(playerId) + '&q=' + encodeURIComponent(q);
+                var url = OPPONENT_API + '?realm=' + encodeURIComponent(filterRealm(form))
+                    + '&player_id=' + encodeURIComponent(playerId) + '&q=' + encodeURIComponent(q);
                 fetch(url, { credentials: 'same-origin' })
                     .then(function (res) {
                         return res.json();

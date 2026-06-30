@@ -36,12 +36,12 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 | # | Decision | Rule |
 |---|----------|------|
 | **CH1** | **Hub tab** | **Countries** is a **top-level Amiga hub tab** — present in full hub nav and in **time-travel** hub tab set (`K2_AMIGA_HUB_TIME_TRAVEL_TAB_IDS`). |
-| **CH2** | **Tab order (present)** | After **World Cups**, before **Activity**: News · Leaderboards · World Cups · **Countries** · Activity · Hall of Fame · Tournaments · Live tournaments. |
+| **CH2** | **Tab order (present)** | After **Tournaments**, before **Games**: News · Leaderboards · World Cups · Tournaments · **Countries** · Games · Activity · Hall of Fame · Live. |
 | **CH3** | **URL shape** | **Hub place** = plural `countries/`: `/amiga/countries/index.php` (Countries hub tab, default). **Entity page** = singular `country/` per [`navigation-model.md`](navigation-model.md) NM3: `/amiga/country/roster.php?country={token}` (Roster, default segment) · `/amiga/country/rivals.php?country={token}` (Rivals). `country` query param = **country token** lookup (entity key), not hub mode. Register routes in `k2_amiga_routes.php`. **Shipped Jun 2026** — relocated from `countries/roster.php` (old path 302s to the new `country/roster.php`, preserving `country` + `as`). Shared shell `includes/amiga_country_page.php` + segment `includes/amiga_country_nav.php`. |
 | **CH4** | **Country token** | `TRIM(amiga_players.country)` when non-empty ([**H8**](amiga-hof-tournament-geo-policy.md)); empty/NULL → literal **`Unknown`**. |
 | **CH5** | **Index row eligibility** | One row per country token with **≥1 national** where `NumberGames > 0` at the active cutoff (present or time travel). |
 | **CH6** | **Roster eligibility** | All nationals with `NumberGames > 0` at cutoff, sorted **rating descending** (default). |
-| **CH7** | **Index default sort** | **Player count descending** (largest nations first). |
+| **CH7** | **Index default sort** | **Player count descending** (largest nations first); tiebreak **games descending**, then country token ascending. |
 | **CH8** | **Roster default sort** | **Float `Rating` descending** (strongest first); display still `ROUND(Rating)`; tiebreak `player_id` ASC. |
 | **CH9** | **Flag + entity links** | **Every mapped Amiga country flag** links to that country’s roster with `#k2-country-roster` — via `k2_amiga_country_flag_link()` (`k2-country-roster-link` on the **img** only). **Entity name links** (player, tournament, country text) use **`k2-link-star`** via shared helpers — see [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md). **Tables:** inline `[flag][name]` compositors (`k2_amiga_lb_player_cell`, `k2_amiga_lb_tournament_cell`, `k2_amiga_lb_country_cell`); **no dedicated flag-only Country columns** (migration list in entity-links policy §4). **No text fallback** for unmapped flag tokens. **Not** filter listbox labels. Video spotlight caption: `flag_link(..., tgame class + decorative)`. |
 | **CH10** | **Roster flag column** | **One flag per roster row** — same country flag repeated on every player row; **each flag links** to that roster (`#k2-country-roster`). |
@@ -84,7 +84,7 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 | 9 | **Silver** | `SUM(wc_silver)` |
 | 10 | **Bronze** | `SUM(wc_bronze)` |
 
-**Default sort:** Players descending (**CH7**).
+**Default sort:** Players descending (**CH7**); equal player counts → games descending, then country token ascending.
 
 ### 3.2 Country roster
 

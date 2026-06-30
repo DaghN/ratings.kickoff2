@@ -300,6 +300,11 @@ function amiga_countries_index_rows(array $playerRows): array
             return $cmp;
         }
 
+        $cmp = $b['games'] <=> $a['games'];
+        if ($cmp !== 0) {
+            return $cmp;
+        }
+
         return strcmp((string) $a['country_token'], (string) $b['country_token']);
     });
 

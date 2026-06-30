@@ -131,6 +131,10 @@
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **Amiga game page hash landing** — `#k2-game` anchor + `$k2ScrollTargetId` (bare id URLs); `k2_amiga_game_page_url()` canonical helper; all inbound id links funnel through it (`amiga_rated_game_id_html` + H2H/moments/WC stats call sites). Short-page scroll via existing `k2_carry_scroll_restore.php` `ensureMinScrollHeight`. |
+| 2026-06-30 | **Amiga game page hub nav** — `/amiga/game.php?id=` includes `amiga_hub_nav.php` with `$k2AmigaHubTabActive = ''` (NM1/NM2 entity page; matches online `game.php` + tournament entity pattern). |
+| 2026-06-30 | **Amiga game page video embed** — `/amiga/game.php?id=` shows spotlight player + scoreboard caption when manifest links a clip; multi-video games get stacked “Video 1/2…” picker (`?v=` deep link); `amiga-game-video.js`. |
+| 2026-06-30 | **Amiga Countries index default tiebreak** — equal player counts sort by games DESC (then country token); fixed `data-k2-skip-initial-sort` col + `data-k2-sort-tie-order="match"` for client parity. |
 | 2026-06-30 | **Amiga Countries index lede** — narrative chapter copy with blue country count + roster/rivals CTA; `amiga_countries_index_chapter_lede_html()`; WC country stats cross-link kept. |
 | 2026-06-30 | **Jukebox popup white flash** — sync dark boot `document.write` on `about:blank` before `location.replace`; `color-scheme:dark` + panel `#131922` pre-paint in `jukebox.php`; prefetch `/jukebox.php` from FAB. |
 | 2026-06-30 | **Jukebox first-open flash fix** — single `window.open('/jukebox.php', …)` (no blank→close→recreate); main tab keeps focus until player `ready`; inline `#0b0f14` pre-paint in `jukebox.php`; `k2-jukebox-popup-live` session flag. Doc: `k2-jukebox-popup.md`. |
@@ -152,6 +156,7 @@
 | 2026-06-29 | **Amiga tournament hero — feast grid** — entity pages + live view use country-hero layout (host flag 124×93, name, Date/Players/Games/Winner stats); `amiga_tournament_hero.php` + `amiga_tournament_winner()`. |
 | 2026-06-29 | **Amiga import — Ian Ka / Klaus L aliases** — merge into Ian K and Klaus Le; all game players now have country (471 → 469). |
 | 2026-06-29 | **Amiga import — player fixes** — Diego L → Italy; Joerg D/S alias merge into Jorg D/S (`PLAYER_NAME_ALIASES`); player count 471 (−2 dupes). |
+| 2026-06-30 | **Amiga Games All — full filter panel** — `amiga/games/all.php`: online-parity filters (player search/pickers, opponent row, faceted GD/Sum/TS, year+mode) + segment bars All/World Cup + All/Videos + **Host country** listbox (`host=`); rivals `country`+`rival` preserved; Reset pill; `k2-realm-games-filters.js` Amiga realm. |
 | 2026-06-29 | **Amiga import — Norway player countries** — `PLAYER_COUNTRY_OVERRIDES` in `import_corrections.py` for Ingvald E, Kjetil D, Oyvind H (missing L2 identity); wired into import manifest; local `import --incremental` applied. |
 | 2026-06-29 | **Docs — status hygiene** — corrected stale Current focus: WC HoF **complete** (WCH-1…8), country Rivals **shipped** (CRV-1–7), online profile feast **complete** (Amiga profile = polish only); fixed WC10 row in WC LB policy + WC hub out-of-scope; `player-profile-feast.md` archived v1+ backlog section. |
 | 2026-06-29 | **Amiga WC player stats — LB wing retired** — removed World Cups tab from Leaderboards; `/amiga/leaderboards/world-cups/*` 302 → hub `world-cups/players/*`; HoF/profile/tournament-honours links retargeted; deleted LB-only nav/shell includes. |
@@ -345,6 +350,7 @@
 | 2026-06-25 | **Amiga profile rank chart — post-ship tweak session** — Linear · Percentile only (log dropped); toolbar `data-range-mode` + Career-first band order; stepped-only line; transition edge-clip + empty-band axes (no status); percentile Career meta; Y-axis tick colour fix; policy/plan/profile-v0 updated. |
 | 2026-06-25 | **Amiga profile rating chart default** — `player-rating-chart.js` respects markup initial tab; Amiga profile opens **By date** (online profile still **By game #**). |
 | 2026-06-25 | **Header search + Amiga time travel** — `player-search.js` carries active `as=` on Amiga profile picks (T16); Online picks unchanged. |
+| 2026-06-30 | **Amiga hub tab order** — present: News · Leaderboards · World Cups · Tournaments · Countries · Games · Activity · HoF · Live; TT bar: LB · WC · Tournaments · Countries · Games · Activity · HoF (`amiga_hub_nav_lib.php`). |
 | 2026-06-26 | **Amiga tournament event-stats Country column** — first col player nationality flag (`pl.country`) with roster link `#k2-country-roster`; anchor col → Player (1); default Pts sort col 11. |
 | 2026-06-25 | **Amiga tournament folder URLs** — `amiga/tournament/{event-stats,standings,stages,games}.php?id=`; shared `includes/amiga_tournament_page.php`; legacy `tournament.php?view=` 302; `index.php` redirect-only (not a nav tab). |
 | 2026-06-25 | **Amiga tournament default tab** — all events open on **Event stats** (leftmost); ordinary standings nav uses `standings.php` (WC → `stages.php`). |

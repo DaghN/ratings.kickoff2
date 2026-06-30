@@ -79,7 +79,7 @@ function amiga_country_rivals_h2h_games_rows(
             continue;
         }
         $norm = player_opponents_h2h_normalize_game_row($row, $subjectId);
-        $norm['href'] = k2_amiga_route('amiga-game', ['id' => (int) $norm['game_id']]);
+        $norm['href'] = k2_amiga_game_page_url((int) $norm['game_id']);
         $rows[] = $norm;
     }
 

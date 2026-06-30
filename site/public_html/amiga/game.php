@@ -1,3 +1,30 @@
+<?php
+$id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_rated_game_row.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_videos_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_game_videos_render.inc.php';
+include __DIR__ . '/../../config/ko2amiga_config.php';
+
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
+$con->query("SET time_zone = '+00:00'");
+
+$row = $id > 0 ? amiga_rated_game_load($con, $id) : null;
+$gameVideos = $row !== null ? amiga_videos_for_game_id($id) : [];
+$gameVideoActiveIndex = amiga_game_videos_active_index(
+    $gameVideos,
+    isset($_GET['v']) ? (string) $_GET['v'] : null,
+);
+$gameHasVideos = $gameVideos !== [];
+
+$k2ScrollTargetId = '';
+if ($row !== null) {
+    $hasVideoPick = isset($_GET['v']) && amiga_tournament_videos_sanitize_youtube_id((string) $_GET['v']) !== '';
+    $k2ScrollTargetId = $hasVideoPick ? 'k2-amiga-game-videos' : 'k2-game';
+}
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" data-realm="amiga">
 <head>
@@ -5,6 +32,10 @@
 <title>Amiga rated game</title>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
+<?php if ($gameHasVideos) { ?>
+<link href="/stylesheets/amiga-tournament-videos.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament-videos.css'); ?>" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/js/amiga-game-video.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/amiga-game-video.js'); ?>" defer="defer"></script>
+<?php } ?>
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php'; k2_table_js_enqueue(); ?>
 </head>
 <body class="k2-site">
@@ -12,18 +43,11 @@
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
 
 <?php
-$id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_db.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_rated_game_row.php';
-include __DIR__ . '/../../config/ko2amiga_config.php';
-
-$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
-$con->query("SET time_zone = '+00:00'");
-
-$row = $id > 0 ? amiga_rated_game_load($con, $id) : null;
+$k2AmigaHubTabActive = '';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 ?>
+
+<div id="k2-game" class="k2-game-page-anchor" tabindex="-1"></div>
 
 <div class="k2-table-wrap">
 
@@ -54,13 +78,17 @@ $row = $id > 0 ? amiga_rated_game_load($con, $id) : null;
 </thead>
 
 <tbody class="black">
-	<?php echo amiga_rated_game_row_html($row, ['id_mode' => 'plain'], $con); ?>
+	<?php echo amiga_rated_game_row_html($row, [], $con); ?>
 </tbody>
 
 </table>
 <?php } ?>
 
 </div><!-- .k2-table-wrap -->
+
+<?php if ($row !== null && $gameHasVideos) {
+    amiga_game_videos_render_section($row, $gameVideos, $gameVideoActiveIndex);
+} ?>
 
 <?php mysqli_close($con); ?>
 

@@ -182,6 +182,20 @@ Shared: `includes/k2_archive_listbox.php`, `js/k2-archive-listbox.js`, `js/indiv
 
 ---
 
+## Amiga All Games Contract (Jun 2026)
+
+`amiga/games/all.php` + `includes/amiga_realm_games_all.php` + `includes/amiga_realm_games_all_filters_ui.php` + `includes/amiga_realm_games_filter_facets.php`:
+
+- **Parity with online All games filters** — Player (search + Rating + A–Z), Opponent row (when player set), Score-line (GD / Sum / TS faceted), Year + mode.
+- **Amiga-only segment bars** (side-by-side, above filter rows): **All / World Cup** (`filter=world-cup`) · **All / Videos** (`videos=with-videos`; games linked in `tournament_videos.json`).
+- **Host country** listbox before Player row — URL param **`host=`** (tournament host / `r.tournament_country`); meta = game counts descending. **Not** `country=` — that pair with `rival=` stays reserved for Country Rivals nation-pair deep links.
+- **URL params:** `host`, `filter`, `videos`, `player`, `opponent`, `player_via`, `opponent_via`, `gd`, `gs`, `ts`, `year`, `year_mode`, `country`, `rival`, `sort`, `dir`, `offset`, plus `as=` when time-travel active.
+- **JS:** shared `k2-realm-games-filters.js` + `data-k2-realm-games-realm="amiga"` (opponent search API `realm=amiga`); `player-search.js` filter mode with `data-player-search-realm="amiga"`.
+- **Reset filters:** shown when any filter/segment active; clears rivals pair + all pickers + segments.
+- **`#matching-games` anchor** preserved for rivals H2H drill-downs.
+
+---
+
 ## `k2-table.js` Contract
 
 Current supported behavior:

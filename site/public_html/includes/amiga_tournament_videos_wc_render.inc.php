@@ -220,8 +220,14 @@ function amiga_tournament_videos_render_wc_extras_table(
     <?php
 }
 
-function amiga_tournament_videos_render_spotlight(string $youtubeId, string $label, int $startSec = 0, string $indexUrl = '', string $labelHtml = ''): void
-{
+function amiga_tournament_videos_render_spotlight(
+    string $youtubeId,
+    string $label,
+    int $startSec = 0,
+    string $indexUrl = '',
+    string $labelHtml = '',
+    bool $showBackLink = true,
+): void {
     $hasVideo = $youtubeId !== '';
     $embedUrl = $hasVideo ? amiga_tournament_video_embed_url($youtubeId, $startSec) : '';
     $emptyClass = $hasVideo ? '' : ' k2-tournament-videos__spotlight--empty';
@@ -249,7 +255,9 @@ function amiga_tournament_videos_render_spotlight(string $youtubeId, string $lab
       ></iframe>
     </div>
   </div>
+  <?php if ($showBackLink) { ?>
   <a class="k2-tournament-videos__back" data-k2-tv-back="1" href="<?php echo k2_h($backHref); ?>">&#8593; All videos</a>
+  <?php } ?>
   </div>
 </div>
     <?php

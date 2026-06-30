@@ -32,7 +32,7 @@ function amiga_rated_game_id_html(int $gameId, string $idMode = 'link'): string
         return (string) $gameId;
     }
 
-    return '<a href="' . k2_h(k2_amiga_route('amiga-game', ['id' => $gameId])) . '">' . $gameId . '</a>';
+    return '<a href="' . k2_h(k2_amiga_game_page_url($gameId)) . '">' . $gameId . '</a>';
 }
 
 /**

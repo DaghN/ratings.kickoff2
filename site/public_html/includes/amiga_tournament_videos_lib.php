@@ -812,3 +812,92 @@ function amiga_tournament_videos_play_button_html(
         . '<path fill="currentColor" d="M8 5v14l11-7z"/>'
         . '</svg></span></a>';
 }
+
+/**
+ * Manifest match clips linked to one rated game id (read-only).
+ *
+ * @return list<array{game_id: int, youtube_id: string, video: array<string, mixed>, sort: int}>
+ */
+function amiga_videos_for_game_id(int $gameId): array
+{
+    if ($gameId < 1) {
+        return [];
+    }
+
+    $rows = [];
+    foreach (amiga_tournament_videos_manifest()['videos'] as $video) {
+        if (!is_array($video)) {
+            continue;
+        }
+        if (($video['kind'] ?? '') === 'excluded') {
+            continue;
+        }
+        $yt = amiga_tournament_videos_sanitize_youtube_id((string) ($video['youtube_id'] ?? ''));
+        if ($yt === '') {
+            continue;
+        }
+        $gameIds = isset($video['game_ids']) && is_array($video['game_ids']) ? $video['game_ids'] : [];
+        foreach ($gameIds as $gid) {
+            if ((int) $gid !== $gameId) {
+                continue;
+            }
+            $rows[] = [
+                'game_id' => $gameId,
+                'youtube_id' => $yt,
+                'video' => $video,
+                'sort' => (int) ($video['sort'] ?? 999),
+            ];
+            break;
+        }
+    }
+
+    usort(
+        $rows,
+        static function (array $a, array $b): int {
+            if ($a['sort'] !== $b['sort']) {
+                return $a['sort'] <=> $b['sort'];
+            }
+
+            return strcmp($a['youtube_id'], $b['youtube_id']);
+        },
+    );
+
+    return $rows;
+}
+
+function amiga_game_videos_url(int $gameId, ?string $youtubeId = null): string
+{
+    require_once __DIR__ . '/k2_amiga_routes.php';
+    $params = ['id' => $gameId];
+    $yt = amiga_tournament_videos_sanitize_youtube_id($youtubeId ?? '');
+    if ($yt !== '') {
+        $params['v'] = $yt;
+
+        return k2_amiga_route('amiga-game', $params);
+    }
+
+    return k2_amiga_game_page_url($gameId);
+}
+
+/**
+ * @param list<array{game_id: int, youtube_id: string, video: array<string, mixed>, sort: int}> $videos
+ */
+function amiga_game_videos_active_index(array $videos, ?string $requestVideoId = null): int
+{
+    if ($videos === []) {
+        return 0;
+    }
+
+    $vid = amiga_tournament_videos_sanitize_youtube_id($requestVideoId ?? '');
+    if ($vid === '') {
+        return 0;
+    }
+
+    foreach ($videos as $index => $video) {
+        if ((string) ($video['youtube_id'] ?? '') === $vid) {
+            return $index;
+        }
+    }
+
+    return 0;
+}

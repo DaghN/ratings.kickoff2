@@ -29,7 +29,7 @@ Full behaviour contract and page inventory: [`k2-table-and-games-plan.md`](k2-ta
 | Tournament standings + games (Amiga) | `amiga_tournament_render_standings_table()` / `amiga_tournament_render_games_table()` in `amiga_tournament_lib.php` | Page cloak on `amiga/tournament.php`; dynamic anchor col on games table |
 | Amiga WC stats / players LB | `includes/amiga_world_cup_stats_table.php`, `includes/amiga_wc_players_table.php` | Shell: `amiga_wc_*_lb_shell_start.inc.php` |
 | Amiga WC hub events catalog | `includes/amiga_world_cups_events_table.php` + `amiga/world-cups/chronology.php` | Tournaments-index columns minus Format; medal SVG headers; podium = flag + player link; **Date** default sort with `data-k2-quiet-sort-cols="0"` (no active-sort emphasis) |
-| Amiga Countries hub (index + roster) | `includes/amiga_countries_index_table.php`, `includes/amiga_countries_roster_table.php` + `amiga/countries/index.php`, `roster.php` | Medal SVG headers; flag per roster row; default sort players DESC / rating DESC — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
+| Amiga Countries hub (index + roster) | `includes/amiga_countries_index_table.php`, `includes/amiga_countries_roster_table.php` + `amiga/countries/index.php`, `roster.php` | Medal SVG headers; flag per roster row; default sort players DESC / games DESC tiebreak (index) · rating DESC (roster) — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
 | League period games | `includes/k2_league_period_page.php` | Mirror + sortable |
 | Static / header-help only | `game.php` | No sortable bundle |
 | Status league (compact, no mirror) | `includes/k2_league_table_render.php` | Calm-stats; not hub LB |

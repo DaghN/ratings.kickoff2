@@ -14,7 +14,7 @@
 |---------|---------------|---------|--------|
 | **WC tournament Videos tab** | `/amiga/tournament/videos/games.php?id=` · `/amiga/tournament/videos/atmosphere.php?id=` | [§2](#2-wc-tournament-videos-tab) | **Phase A shipped** · Phase B deferred |
 | Player profile **Videos** wing | TBD | [§3](#3-player-profile-videos-wing-reserved) | Reserved |
-| Online / other embed pages | TBD (e.g. `game.php`) | [§4](#4-other-surfaces-reserved) | Reserved |
+| Online / other embed pages | TBD (e.g. `game.php`) | [§4](#4-other-surfaces-reserved) | **Amiga `game.php` shipped** (Jun 2026) |
 
 When adding a surface: copy the **URL param table** and **session vs cold** rules from §2; define surface-specific index defaults and param names only if they must differ.
 
@@ -169,7 +169,21 @@ Copy-from-address-bar after in-session navigation reflects the current clip (His
 
 ## 4. Other surfaces (reserved)
 
-**Status:** Not specced.
+**Status:** Amiga **`/amiga/game.php`** shipped Jun 2026; online realm still TBD.
+
+### 4.1 Amiga single game page (shipped Jun 2026)
+
+**Route:** `/amiga/game.php?id={game_id}` · optional `?v={youtube_id}` when multiple manifest clips link the same game.
+
+| Behaviour | Rule |
+|-----------|------|
+| **When shown** | Only when `amiga_videos_for_game_id()` finds ≥1 manifest match row for the game id |
+| **Layout** | Game table unchanged above; spotlight player + scoreboard caption below (same caption stack as tournament/player Videos) |
+| **Single clip** | Player visible on load; no picker menu |
+| **Multiple clips** | Stacked text links “Video 1”, “Video 2”, … (manifest sort); active = `k2-link-star`, others muted secondary; JS swaps iframe by node replacement + `replaceState` for `?v=` |
+| **Back / index** | No “↑ All videos” control (no video index on this page) |
+
+**Implementation:** `amiga_videos_for_game_id()` · `amiga_game_videos_render.inc.php` · `js/amiga-game-video.js` · reuses `amiga-tournament-videos.css` spotlight sizing.
 
 Examples: online `game.php` watch links, realm-wide video index, non-WC tournament Videos cards. Each gets a row in the [document map](#document-map-expandable) before implementation.
 

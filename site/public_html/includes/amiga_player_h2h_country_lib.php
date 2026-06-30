@@ -87,7 +87,7 @@ function amiga_player_h2h_country_games_rows(
     $rows = [];
     foreach ($rawRows as $row) {
         $norm = player_opponents_h2h_normalize_game_row($row, $playerId);
-        $norm['href'] = k2_amiga_route('amiga-game', ['id' => (int) $norm['game_id']]);
+        $norm['href'] = k2_amiga_game_page_url((int) $norm['game_id']);
         $rows[] = $norm;
     }
 
