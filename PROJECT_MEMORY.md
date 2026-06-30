@@ -148,6 +148,7 @@
 | 2026-06-30 | **With player slice 0 follow-up** — `amiga_tournament_href()` no longer rewrites `as=event:{linked id}`; removed dead `amiga_tournament_snapshot_as_param()`. |
 | 2026-06-30 | **With player stepper plan** — slice 0 adds WP14 (retire tournament id-follows-as); full plan ready. |
 | 2026-06-30 | **With player stepper planning** — policy revised: separate params (`as_with` / `id_with` / `start_with`), shared lookup only, slice 0 = T18 removal; [`with-player-stepper-implementation-plan.md`](docs/with-player-stepper-implementation-plan.md). |
+| 2026-06-30 | **Amiga sticky TT ribbon (C02)** — pushpin on time-travel bar; pins Year/Month/Event + stepper + listboxes (`k2-amiga-time-travel-pin.js`); default off; `localStorage`. [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) §6.1. |
 | 2026-06-30 | **Status — On this day last year (C07)** — arc panel link **On this day last year →** → Points day league (`start=` UTC today − 1 year); [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) §6.3. |
 | 2026-06-30 | **Amiga Highlights — biggest upsets (C15)** — fifth board on `/amiga/games/highlights.php?board=biggest_upsets`; underdog-wins only (lower-rated winner); TT + WC scope inherited. [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) §6.5. |
 | 2026-06-30 | **With player stepper policy** — locked spec [`with-player-stepper-policy.md`](docs/with-player-stepper-policy.md): opt-in listbox + chevrons (Amiga tournament nav, TT Event ribbon, online league); retires T18; creative **C13**. |

@@ -115,7 +115,6 @@ LANDING             Status default                   News tab ◻ (placeholder)
 | ID | Idea | Human question | Device | Realm | Notes |
 |----|------|----------------|--------|-------|-------|
 | **C01** | **Amiga profile feast parity** | What was this player's rhythm across decades? | Played-days/weeks heatmaps, bursts, story bands — **shrink/grow with time travel** | Amiga | **Gestating** until surrounding infra fully visible (same defer pattern as online profile was last). Bundles **rivalry teaser** (C09). |
-| **C02** | **Optional sticky time-travel ribbon** | I scroll deep but want chevrons without losing place | **Pin button** toggles sticky on TT picker bar only (not forced sticky) | Amiga | Control-room feel; default off. See §6.1. |
 | **C03** | **Community stats → Activity wings** | What kind of scene was this? | Question-catalog charts (46 Qs drafted); year bars + snapshot timeline; TT-aware | Amiga | Writers done; UI TBD — [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) |
 | **C04** | **News / present landing** | What's worth looking at in present mode? | Curated front page — not a blog: HoF (New!), featured clip, finalize pulse | Amiga | `/amiga/news.php` placeholder — pairs with jukebox hang-out |
 | **C05** | **Milestones Story feed** | What's unlocking across the ladder? | Server-wide tier-coloured chronology ticker | Online | Hub phase in [`milestones-hub-ia.md`](milestones-hub-ia.md) |
@@ -144,25 +143,28 @@ LANDING             Status default                   News tab ◻ (placeholder)
 | **With player stepper filter** | TT Event (`as_with=`), tournament (`id_with=` + `id_country=`), league (`start_with=`) + filter auto-snap | [`with-player-stepper-policy.md`](with-player-stepper-policy.md) §10 |
 | **Highlights: biggest upsets (C15)** | `/amiga/games/highlights.php?board=biggest_upsets` | [`amiga_games_highlights_helpers.php`](../site/public_html/includes/amiga_games_highlights_helpers.php) · underdog-wins only — §6.5 |
 | **On this day last year (C07)** | Status arc panel → Points day league | [`status_queries.php`](../site/public_html/includes/status_queries.php) · §6.3 |
+| **Sticky TT ribbon pin (C02)** | Amiga time-travel ribbon | [`k2-amiga-time-travel-pin.js`](../site/public_html/js/k2-amiga-time-travel-pin.js) · §6.1 |
 | Milestones v0, Time travel, Jukebox, Video embed, Fight poster, Countries/Rivals | (see origin stories) | respective policy docs |
 
 ---
 
 ## 6. Design notes (approved sparks)
 
-### 6.1 Optional sticky time-travel ribbon (C02)
+### 6.1 Optional sticky time-travel ribbon (C02) — shipped
 
-**Problem:** TT chevrons live at top of page; long profile/tournament scroll loses the navigator. Always-on sticky felt **too intrusive**.
+**Status:** **Shipped** Jun 2026.
 
-**Proposal:** Small **Pin** control on the TT ribbon (`k2-amiga-time-travel__bar`). Default **unpinned** (current behaviour). When pinned:
+**Problem:** TT chevrons at top of page; long profile/tournament scroll loses the navigator. Always-on sticky felt too intrusive.
 
-- Add class e.g. `k2-amiga-time-travel--pinned`
-- `position: sticky; top: <below site header>` on the ribbon block
-- Persist preference in `localStorage` for the session or until unpinned
+**Solution:** Pushpin icon at the trailing end of the ribbon bar. **Default unpinned.** When pinned:
 
-**Feasibility:** **Yes** — ribbon is already an isolated block (`amiga_snapshot_chrome.php` + `theme.css` `.k2-amiga-time-travel`). Watch z-index stack (header 1300, hub 1210, ribbon 1220). Event-wing wide picker layout needs a pinned regression pass.
+- Class `k2-amiga-time-travel--pinned` on the ribbon section
+- **`position: fixed; top: 0`** on **`k2-amiga-time-travel__bar`**; **`z-index: 1390`** on **`.k2-amiga-time-travel--pinned`** (beats header 1300; bar z-index alone cannot escape ancestor 1220); opaque `k2-bg-surface` panel
+- TT stamp and “unwired” note scroll away
+- Preference in **`localStorage`** (`k2-amiga-tt-ribbon-pinned`) until unpinned
+- **`k2-amiga-time-travel-pin.js`** + pin tooltip via `data-k2-help`
 
-**Pairs with:** C01 heatmaps building/shrinking under TT — pinned bar makes scrubbing years while reading story bands practical.
+**Event wing:** pinned bar may wrap (`flex-wrap`) so wide picker + `as_with` rows stay usable.
 
 ### 6.2 Chronology video glyph (C06)
 
@@ -252,6 +254,7 @@ LANDING             Status default                   News tab ◻ (placeholder)
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **C02 shipped** — optional TT ribbon pin (pushpin icon); sticky full control bar; `localStorage`; §6.1. |
 | 2026-06-30 | **C07 shipped** — Status arc **On this day last year →** → Points day league one UTC year back; §6.3. |
 | 2026-06-30 | **C15 shipped** — Amiga Highlights fifth board **Biggest upsets** (`board=biggest_upsets`); underdog-wins only (lower-rated winner); §6.5. |
 | 2026-06-30 | **C14–C15 promoted to approved** — firm to-do (was spark); Tournaments hub tournament-stats wing + Highlights biggest upsets board. `PROJECT_MEMORY` Next updated. |
