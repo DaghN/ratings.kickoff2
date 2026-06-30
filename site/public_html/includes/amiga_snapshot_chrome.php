@@ -108,15 +108,6 @@ function amiga_snapshot_chrome_carry_query_params(string $path): array
         $carry[$name] = $value;
     }
 
-    require_once __DIR__ . '/amiga_tournament_lib.php';
-    if (amiga_tournament_page_request_path($path)) {
-        $asRaw = isset($_GET['as']) ? trim((string) $_GET['as']) : '';
-        $parsed = $asRaw !== '' ? amiga_snapshot_parse_as_param($asRaw) : null;
-        if ($parsed !== null && $parsed['wing'] === 'event') {
-            $carry['id'] = $parsed['key'];
-        }
-    }
-
     return $carry;
 }
 
@@ -236,23 +227,6 @@ function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $
         $nextAs = amiga_snapshot_format_as_param($wing, $ctx->nextKey());
     }
 
-    $pickerAccentKeys = null;
-    if ($wing === 'event') {
-        require_once __DIR__ . '/amiga_player_event_stepper_lib.php';
-        if (amiga_player_event_stepper_applies($path)) {
-            $pickerPlayerId = isset($_GET['id']) ? max(0, (int) $_GET['id']) : 0;
-            if ($pickerPlayerId < 1) {
-                global $playerId;
-                if (isset($playerId) && (int) $playerId > 0) {
-                    $pickerPlayerId = (int) $playerId;
-                }
-            }
-            if ($pickerPlayerId > 0) {
-                $pickerAccentKeys = amiga_player_participated_event_key_set($con, $pickerPlayerId);
-            }
-        }
-    }
-
     $wings = [
         ['wing' => 'year', 'label' => 'Year'],
         ['wing' => 'month', 'label' => 'Month'],
@@ -282,7 +256,7 @@ function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $
                 $currentAs,
             );
             if ($catalog !== [] && $currentAs !== '') {
-                amiga_snapshot_chrome_render_picker($path, $wing, $currentAs, $catalog, $pickerAccentKeys);
+                amiga_snapshot_chrome_render_picker($path, $wing, $currentAs, $catalog, null);
             }
             ?>
         </div>

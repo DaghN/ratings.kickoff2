@@ -131,6 +131,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **With player slice 0 follow-up** — `amiga_tournament_href()` no longer rewrites `as=event:{linked id}`; removed dead `amiga_tournament_snapshot_as_param()`. |
 | 2026-06-30 | **With player stepper plan** — slice 0 adds WP14 (retire tournament id-follows-as); full plan ready. |
 | 2026-06-30 | **With player stepper planning** — policy revised: separate params (`as_with` / `id_with` / `start_with`), shared lookup only, slice 0 = T18 removal; [`with-player-stepper-implementation-plan.md`](docs/with-player-stepper-implementation-plan.md). |
 | 2026-06-30 | **With player stepper policy** — locked spec [`with-player-stepper-policy.md`](docs/with-player-stepper-policy.md): opt-in listbox + chevrons (Amiga tournament nav, TT Event ribbon, online league); retires T18; creative **C13**. |

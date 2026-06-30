@@ -204,26 +204,6 @@ function amiga_tournament_id_from_request(): int
     return isset($_GET['id']) ? max(0, (int) $_GET['id']) : 0;
 }
 
-/** `as=event:ID` when tournament is in the realm event catalog (event ribbon on `tournament.php` — §5.1.1; not mode toggle — T19). */
-function amiga_tournament_snapshot_as_param(mysqli $con, int $tournamentId): ?string
-{
-    if ($tournamentId < 1) {
-        return null;
-    }
-    require_once __DIR__ . '/amiga_rating_history_lib.php';
-    require_once __DIR__ . '/amiga_snapshot_context.php';
-
-    $entry = amiga_rating_history_catalog_entry_by_key(
-        amiga_rating_history_catalog_event($con),
-        (string) $tournamentId,
-    );
-    if ($entry === null) {
-        return null;
-    }
-
-    return amiga_snapshot_format_as_param('event', (string) $tournamentId);
-}
-
 /**
  * SQL fragment: tournaments visible on public pages.
  */
@@ -758,42 +738,15 @@ function amiga_tournament_url(int $id, string $scopeType = 'league', string $sco
     return amiga_tournament_path_for_view($view) . '?' . http_build_query($params);
 }
 
-/** Tournament id from a tournament page URL query string (`id=`). */
-function amiga_tournament_id_from_url(string $tournamentUrl): int
-{
-    $qPos = strpos($tournamentUrl, '?');
-    if ($qPos === false) {
-        return 0;
-    }
-    /** @var array<string, mixed> $params */
-    $params = [];
-    parse_str(substr($tournamentUrl, $qPos + 1), $params);
-
-    return isset($params['id']) ? max(0, (int) $params['id']) : 0;
-}
-
 /**
  * Preserve active `as=` when building tournament page links (T16).
  *
- * Event wing: align `as=event:{id}` with the linked tournament so list/deep links
- * are not rewritten by `amiga_tournament_apply_time_travel_event_id_redirect()` (picker/chevron
- * sync still uses that redirect + `amiga_snapshot_chrome_nav_href()`).
+ * Carries the current time-travel lens only — does not rewrite `as=` to match
+ * the linked tournament id (snapshot changes belong in the TT picker).
  */
 function amiga_tournament_href(string $tournamentUrl): string
 {
     require_once __DIR__ . '/amiga_snapshot_url.php';
-    require_once __DIR__ . '/amiga_snapshot_context.php';
-
-    $ctx = amiga_snapshot_context_peek();
-    if ($ctx instanceof AmigaSnapshotContext && $ctx->isActive() && $ctx->wing() === 'event') {
-        $tournamentId = amiga_tournament_id_from_url($tournamentUrl);
-        if ($tournamentId > 0) {
-            return amiga_url_with_as_param(
-                $tournamentUrl,
-                amiga_snapshot_format_as_param('event', (string) $tournamentId),
-            );
-        }
-    }
 
     return amiga_url_with_context($tournamentUrl);
 }
@@ -1016,58 +969,6 @@ function amiga_tournament_standings_nav_url(
     bool $isWorldCup = false,
 ): string {
     return amiga_tournament_url($id, $scopeType, $scopeKey, $isWorldCup ? 'stages' : 'standings');
-}
-
-/**
- * When time travel Event wing is active, keep `id` aligned with `as=event:{id}`.
- *
- * @param array<string, mixed> $query
- */
-function amiga_tournament_apply_time_travel_event_id_redirect(array $query): void
-{
-    require_once __DIR__ . '/amiga_snapshot_url.php';
-
-    if (!amiga_tournament_page_request_path()) {
-        return;
-    }
-
-    $asRaw = isset($query['as']) ? trim((string) $query['as']) : '';
-    if ($asRaw === '') {
-        return;
-    }
-
-    $parsed = amiga_snapshot_parse_as_param($asRaw);
-    if ($parsed === null || $parsed['wing'] !== 'event') {
-        return;
-    }
-
-    $eventId = (int) $parsed['key'];
-    if ($eventId < 1) {
-        return;
-    }
-
-    $pageId = isset($query['id']) ? (int) $query['id'] : 0;
-    if ($pageId === $eventId) {
-        return;
-    }
-
-    $scopeType = isset($query['scope']) ? (string) $query['scope'] : 'league';
-    $scopeKey = isset($query['scope_key']) ? (string) $query['scope_key'] : '';
-    $view = amiga_tournament_view_from_request();
-    if ($view === null) {
-        $viewRaw = (string) ($query['view'] ?? '');
-        $view = in_array($viewRaw, ['event-stats', 'standings', 'stages', 'games', 'videos'], true) ? $viewRaw : 'event-stats';
-    }
-
-    header(
-        'Location: ' . amiga_url_with_as_param(
-            amiga_tournament_url($eventId, $scopeType, $scopeKey, $view),
-            $asRaw,
-        ),
-        true,
-        302,
-    );
-    exit;
 }
 
 /**

@@ -198,23 +198,6 @@ function amiga_snapshot_context_from_request(mysqli $con): AmigaSnapshotContext
         return $ctx;
     }
 
-    if ($view['wing'] === 'event') {
-        require_once __DIR__ . '/amiga_player_event_stepper_lib.php';
-        if (amiga_player_event_stepper_applies()) {
-            $playerId = isset($_GET['id']) ? max(0, (int) $_GET['id']) : 0;
-            if ($playerId > 0) {
-                $steps = amiga_player_event_wing_step_keys(
-                    $con,
-                    $playerId,
-                    $view['catalog'],
-                    (string) $view['key']
-                );
-                $view['prev_key'] = $steps['prev_key'];
-                $view['next_key'] = $steps['next_key'];
-            }
-        }
-    }
-
     $ctx = AmigaSnapshotContext::fromCatalogView($view);
     $GLOBALS['_amiga_snapshot_context'] = $ctx;
 

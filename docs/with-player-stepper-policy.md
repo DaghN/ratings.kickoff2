@@ -44,7 +44,7 @@ League **period buckets** and Amiga **tournament events** are the same idea at d
 | **WP11** | **Chevron reference UX** | Online **league period** chevrons (`k2_league_period_render_period_steps_html`) are the visual reference: half-pill prev/next, `data-k2-carry-scroll`. Amiga tournament chevrons match. |
 | **WP12** | **Pairs with sticky TT** | Optional pinned TT ribbon (**C02**) — `as_with=` scrubbing on long pages is a primary use case; not a v1 dependency. |
 | **WP13** | **Independent filters on one page** | On `tournament.php` with time travel, **TT ribbon** (`as_with=` → steps `as=`) and **tournament row** (`id_with=` → steps `id=`) are independent. Either, both, or neither may be set. They must not share one URL param or one listbox state. |
-| **WP14** | **Retire tournament `id` follows `as=` (slice 0)** | On tournament entity pages, TT Event ribbon steps **`as=` only** — **`id=` stays fixed** (no 302, no chrome href rewrite). **Go to next tournament** = tournament chevrons (slice 2). **Keep:** `amiga_tournament_href()` sets `as=event:{id}` when **linking to** a tournament from elsewhere. |
+| **WP14** | **Retire tournament `id` follows `as=` (slice 0)** | On tournament entity pages, TT Event ribbon steps **`as=` only** — **`id=` stays fixed**. **`amiga_tournament_href()`** carries active `as=` only — never rewrites to `as=event:{linked id}`. Snapshot changes = TT picker (or future steppers), not inbound links. |
 
 ---
 
@@ -161,11 +161,13 @@ When `as=` resolves to a cutoff:
 | Player-only prev/next in `amiga_snapshot_context.php` | Realm-global default |
 | Implicit picker accents on player paths | No accent without explicit `as_with=` (slice 1) |
 | `amiga_tournament_apply_time_travel_event_id_redirect()` | No 302 when `id` ≠ `as=event:{id}` |
+| Event-wing `as=event:{linked id}` in `amiga_tournament_href()` | Preserve active `as=` only |
+| `amiga_tournament_snapshot_as_param()` | Dead helper removed |
 | `amiga_snapshot_chrome_nav_href()` tournament id rewrite | TT chevrons on tournament page keep page `id=` |
 | Picker hidden `id` forced from `as=event:` | Carry actual page `id=` |
 | `amiga_player_event_stepper_lib.php` | Delete; participation query returns in slice 1 |
 
-**Keep:** `amiga_tournament_href()` Event-wing links **to** a tournament still set `as=event:{destination_id}` — entry alignment, not drag-along.
+**Retired with slice 0:** `amiga_tournament_apply_time_travel_event_id_redirect()`, Event-wing `as=event:{linked id}` rewrite in `amiga_tournament_href()`, dead `amiga_tournament_snapshot_as_param()`.
 
 Probe: player-path Event next = hub-path; tournament page with mismatched `id`/`as=` loads without redirect.
 

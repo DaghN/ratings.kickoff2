@@ -6,7 +6,8 @@ $_SERVER['REQUEST_URI'] = '/amiga/player/tournaments.php?id=354&as=event%3A94';
 
 require __DIR__ . '/../../site/config/ko2amiga_config.php';
 require_once __DIR__ . '/../../site/public_html/includes/amiga_snapshot_context.php';
-require __DIR__ . '/../../site/public_html/includes/amiga_tournament_lib.php';
+require_once __DIR__ . '/../../site/public_html/includes/amiga_snapshot_url.php';
+require_once __DIR__ . '/../../site/public_html/includes/amiga_tournament_lib.php';
 
 $con = mysqli_connect($dbhost, $username, $password, $database, $dbportnum ?? 3306);
 if (!$con instanceof mysqli) {
@@ -26,8 +27,12 @@ if (!preg_match('/[?&]id=' . $otherId . '(?:&|$)/', $listHref)) {
     fwrite(STDERR, "tournament href missing id={$otherId}: {$listHref}\n");
     exit(1);
 }
-if (!str_contains($listHref, 'as=event%3A' . $otherId) && !str_contains($listHref, 'as=event:' . $otherId)) {
-    fwrite(STDERR, "event wing list link should align as=event:{$otherId} not snapshot: {$listHref}\n");
+if (!str_contains($listHref, 'as=event%3A94') && !str_contains($listHref, 'as=event:94')) {
+    fwrite(STDERR, "tournament href should preserve active as=event:94: {$listHref}\n");
+    exit(1);
+}
+if (str_contains($listHref, 'as=event%3A' . $otherId) || str_contains($listHref, 'as=event:' . $otherId)) {
+    fwrite(STDERR, "tournament href must not rewrite as= to linked tournament id: {$listHref}\n");
     exit(1);
 }
 
@@ -49,11 +54,11 @@ if (!str_contains($stepperHref, 'as=event')) {
 }
 
 $_GET = ['id' => '5', 'as' => 'event:6'];
-$_SERVER['REQUEST_URI'] = '/amiga/tournament.php?id=5&as=event%3A6';
+$_SERVER['REQUEST_URI'] = '/amiga/tournament/event-stats.php?id=5&as=event%3A6';
 
 $chevronHref = amiga_snapshot_chrome_nav_href('/amiga/tournament/event-stats.php', 'event:6', 'event');
-if (!preg_match('/[?&]id=6(?:&|$)/', $chevronHref)) {
-    fwrite(STDERR, "event chevron href missing id=6: {$chevronHref}\n");
+if (!preg_match('/[?&]id=5(?:&|$)/', $chevronHref)) {
+    fwrite(STDERR, "event chevron href should keep page id=5: {$chevronHref}\n");
     exit(1);
 }
 if (!str_contains($chevronHref, 'as=event%3A6') && !str_contains($chevronHref, 'as=event:6')) {

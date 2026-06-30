@@ -6,8 +6,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 
-amiga_tournament_apply_time_travel_event_id_redirect($_GET);
-
 $tournamentPageId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
 $tournamentScopeType = isset($_GET['scope']) ? (string) $_GET['scope'] : 'league';

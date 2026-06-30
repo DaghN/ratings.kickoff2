@@ -145,11 +145,11 @@ if (!isset($presentTabs['news'], $presentTabs['live-tournaments'])) {
     fwrite(STDERR, "present hub missing news or live-tournaments\n");
     exit(1);
 }
-if (isset($travelTabs['news']) || isset($travelTabs['live-tournaments']) || isset($travelTabs['tournaments'])) {
-    fwrite(STDERR, "time-travel hub should omit present-only / collection tabs\n");
+if (isset($travelTabs['news']) || isset($travelTabs['live-tournaments'])) {
+    fwrite(STDERR, "time-travel hub should omit present-only tabs (news, live-tournaments)\n");
     exit(1);
 }
-if (!isset($travelTabs['leaderboards'], $travelTabs['activity'], $travelTabs['hall-of-fame'])) {
+if (!isset($travelTabs['leaderboards'], $travelTabs['tournaments'], $travelTabs['activity'], $travelTabs['hall-of-fame'])) {
     fwrite(STDERR, "time-travel hub missing snapshot tabs\n");
     exit(1);
 }
@@ -310,47 +310,36 @@ if ($firstAs === null || !str_starts_with($firstAs, 'event:')) {
 }
 echo 'player_first_snapshot=' . $firstAs . PHP_EOL;
 
-$accent73 = amiga_player_participated_event_key_set($con, 73);
-if (count($accent73) < 2) {
-    fwrite(STDERR, "player 73 needs picker accent keys for stepper test\n");
-    exit(1);
-}
-echo 'player_picker_accent_count=' . count($accent73) . PHP_EOL;
 $realmEvents = amiga_rating_history_catalog_event($con);
-$played73 = amiga_player_participated_event_keys($con, 73);
-if (count($played73) < 2) {
-    fwrite(STDERR, "player 73 needs at least 2 played events for stepper test\n");
+if (count($realmEvents) < 2) {
+    fwrite(STDERR, "need at least 2 events for stepping parity test\n");
     exit(1);
 }
-$firstPlayed = $played73[0];
-$secondPlayed = $played73[1];
-$realmFirst = amiga_rating_history_catalog_position($realmEvents, $firstPlayed);
-$playerSteps = amiga_player_event_wing_step_keys($con, 73, $realmEvents, $firstPlayed);
-if ($playerSteps['next_key'] !== $secondPlayed) {
-    fwrite(STDERR, "player stepper next expected {$secondPlayed}, got " . ($playerSteps['next_key'] ?? 'null') . "\n");
+$testKey = (string) $realmEvents[5]['key'];
+$realmPos = amiga_rating_history_catalog_position($realmEvents, $testKey);
+$expectedNext = $realmPos['next_key'];
+if ($expectedNext === null || $expectedNext === '') {
+    fwrite(STDERR, "test event needs a realm next key\n");
     exit(1);
 }
-if ($playerSteps['prev_key'] !== $realmFirst['prev_key']) {
-    fwrite(STDERR, "player stepper prev at debut should be realm prev\n");
-    exit(1);
-}
-$_SERVER['REQUEST_URI'] = '/amiga/player/profile.php?id=73&as=event%3A' . $firstPlayed;
-$_GET = ['id' => '73', 'as' => 'event:' . $firstPlayed];
+$_SERVER['REQUEST_URI'] = '/amiga/player/profile.php?id=73&as=event%3A' . $testKey;
+$_GET = ['id' => '73', 'as' => 'event:' . $testKey];
 amiga_snapshot_context_reset();
 $ctxPlayerEvent = amiga_snapshot_context_from_request($con);
-if ($ctxPlayerEvent->nextKey() !== $secondPlayed) {
-    fwrite(STDERR, "context player event next mismatch\n");
+if ($ctxPlayerEvent->nextKey() !== $expectedNext) {
+    fwrite(STDERR, "player path event next should match hub: expected {$expectedNext}, got "
+        . ($ctxPlayerEvent->nextKey() ?? 'null') . "\n");
     exit(1);
 }
-$_SERVER['REQUEST_URI'] = '/amiga/leaderboards/rating.php?as=event%3A' . $firstPlayed;
-$_GET = ['as' => 'event:' . $firstPlayed];
+$_SERVER['REQUEST_URI'] = '/amiga/leaderboards/rating.php?as=event%3A' . $testKey;
+$_GET = ['as' => 'event:' . $testKey];
 amiga_snapshot_context_reset();
 $ctxHubEvent = amiga_snapshot_context_from_request($con);
-if ($ctxHubEvent->nextKey() !== $realmFirst['next_key']) {
-    fwrite(STDERR, "hub event next should stay realm-global\n");
+if ($ctxHubEvent->nextKey() !== $expectedNext) {
+    fwrite(STDERR, "hub event next mismatch\n");
     exit(1);
 }
-echo "player_event_stepper_ok\n";
+echo "player_path_event_stepping_parity_ok\n";
 
 $_GET['as'] = 'year:2010';
 amiga_snapshot_context_reset();

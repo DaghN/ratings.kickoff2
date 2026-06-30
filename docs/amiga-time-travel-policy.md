@@ -233,7 +233,7 @@ Applies when Event granularity is active (`as=event:…`). Ribbon `<section>` ge
 
 **Closed trigger layout:** CSS grid `minmax(0, 1fr) auto` with `0.4rem` gap — date sits at the right edge of the catalog-width box; short names leave space between text and date (intentional).
 
-**`tournament.php` link carry:** `amiga_tournament_href()` wraps tournament URLs with active `as=`. **Event wing:** sets `as=event:{id}` for the **linked** tournament (inbound links from lists — aligns snapshot to destination). **Year/Month wing:** preserves current cutoff. ~~Chevron/picker sync `id` via redirect~~ — **retired** ([`with-player-stepper-policy.md`](with-player-stepper-policy.md) WP14); use tournament chevrons for `id=` steps.
+**`tournament.php` link carry:** `amiga_tournament_href()` preserves active `as=` via `amiga_url_with_context()` — **does not** rewrite Event wing to `as=event:{linked id}`. Use TT picker for snapshot changes; tournament chevrons (slice 2) for `id=` navigation.
 
 **Key files**
 
@@ -290,7 +290,7 @@ Implementation: `includes/amiga_hub_nav_lib.php` · `amiga_snapshot_redirect_pre
 
 | Module | Role |
 |--------|------|
-| `includes/amiga_player_event_stepper_lib.php` | *(retire on ship)* T18 — superseded by [`with-player-stepper-policy.md`](with-player-stepper-policy.md) |
+| `includes/amiga_participation_step_lib.php` | *(slice 1)* participation lookup + step keys — replaces retired T18 lib |
 | `includes/amiga_player_snapshot_lib.php` | Hero + `amiga_player_load()` at cutoff |
 | `includes/amiga_elo_rank_lib.php` | Persisted `elo_rank` reads (present + time travel) |
 | `includes/amiga_snapshot_context.php` | Parse `as`, resolve cutoff, `is_active()`, `cutoff()`, `label()`, `query_suffix()` |
@@ -298,7 +298,7 @@ Implementation: `includes/amiga_hub_nav_lib.php` · `amiga_snapshot_redirect_pre
 | `includes/amiga_snapshot_chrome.php` | Ribbon HTML; Event wing layout vars; stepper tournament link |
 | `includes/amiga_time_mode_nav.php` | Header Present day \| Time travel; fixed homes T14/T19 |
 | `includes/amiga_time_travel_stamp.php` | Hub temporal stamp (LED date + kicker) when `as=` active |
-| `includes/amiga_tournament_lib.php` | `amiga_tournament_href()`; event-wing `tournament.php` sync (§5.1.1) |
+| `includes/amiga_tournament_lib.php` | `amiga_tournament_href()` |
 | `includes/k2_archive_listbox.php` | Shared listbox; Event picker `triggerShowsMeta` + split rows |
 | Generalized catalog | Extend `amiga_rating_history_lib.php` or thin wrapper — **do not** duplicate cutoff SQL |
 | Read libs | Branch: `$ctx->isActive()` → snapshot table path |
@@ -331,7 +331,7 @@ Time travel does **not** add tables or writers. It only changes **read paths** a
 | Player before debut at cutoff | Hero — / — / — + note; no 404 (T17) |
 | With player filter | Opt-in **`as_with=`** on Event ribbon; picker linkstar secondary — [`with-player-stepper-policy.md`](with-player-stepper-policy.md) (T18 removed slice 0) |
 | Event stepper → tournament | Link lands on `tournament.php` with same `as=`; WC redirects keep `as=` |
-| Event wing on tournament.php | Chevrons / picker / `as=event:` change `id` to cutoff tournament (302 when mismatched) |
+| Event wing on tournament.php | TT ribbon steps `as=` only; `id=` fixed; links preserve `as=` | [`with-player-stepper-policy.md`](with-player-stepper-policy.md) WP14 |
 | Event picker layout | Catalog-fixed width; closed date right-aligned; open panel = trigger width |
 | Temporal stamp | Visible on hub + player wings + tournament detail with `as=`; kicker matches wing; LED date matches picker (year/month period end; event cutoff date) |
 | Stamp toggle arrival | One-shot `k2_tt_entry=1` from present → time travel; panel fade + 32 cps kicker typewriter; param stripped from URL |

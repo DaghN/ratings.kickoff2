@@ -35,7 +35,7 @@
 
 | Slice | Deliverable | STOP gate |
 |-------|-------------|-----------|
-| **0** | Retire T18 + TT tournament **`id` follows `as=`** sync | Probes green; tournament page keeps fixed `id=` when TT Event steps |
+| **0** | Retire T18 + TT tournament **`id` follows `as=`** sync | **Shipped Jun 2026** |
 | **1** | `as_with=` + TT Event ribbon listbox | Probe + browser: filtered Event chevrons |
 | **2** | `id_with=` + tournament nav chevrons | Tournament page: independent of `as_with` |
 | **3** | `start_with=` + league period row | `league.php` period steps skip inactive months |
@@ -51,9 +51,7 @@ Remove **two** implicit time-travel behaviors before shipping explicit controls:
 1. **T18** — player-page Event chevrons step only that player's tournaments; picker link-star accents.
 2. **Tournament `id` follows `as=`** — on tournament entity pages, TT Event chevrons/picker/redirect no longer change `id=` to match `as=event:{id}`. The tournament you're viewing stays fixed; the **global lens** (`as=`) may change independently. **Navigate to another tournament** = dedicated tournament chevrons (slice 2), not the TT ribbon.
 
-After slice 0: Event wing prev/next is realm-global everywhere; tournament pages do not 302 when `id` ≠ `as=event:{id}`.
-
-**Keep (not in scope for removal):** `amiga_tournament_href()` still sets `as=event:{id}` when **linking to** a tournament from tables/lists (Event wing) — that aligns snapshot to the destination tournament, not drag-along on an open page.
+After slice 0: Event wing prev/next is realm-global everywhere; tournament pages do not 302 when `id` ≠ `as=event:{id}`; tournament links preserve active `as=` without rewriting to the destination tournament id.
 
 ### T18 — files to change
 
@@ -77,10 +75,10 @@ After slice 0: Event wing prev/next is realm-global everywhere; tournament pages
 
 ### Tasks
 
-- [ ] Remove T18 branching from context + chrome; delete stepper lib
-- [ ] Remove tournament id-sync redirect + chrome nav href rewrite + picker hidden-id override
-- [ ] Update both probes; grep for `apply_time_travel_event_id_redirect` / id-tracks-cutoff docs
-- [ ] Run probe CLIs
+- [x] Remove T18 branching from context + chrome; delete stepper lib
+- [x] Remove tournament id-sync redirect + chrome nav href rewrite + picker hidden-id override
+- [x] Update both probes; grep for `apply_time_travel_event_id_redirect` / id-tracks-cutoff docs
+- [x] Run probe CLIs (`amiga_tournament_tt_link_probe.php` green; context probe hub-tab assert fixed)
 
 ### Verification
 
@@ -98,10 +96,10 @@ C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.exe scripts\oneoff\amiga_tourna
 
 ### Acceptance
 
-- [ ] No `amiga_player_event_stepper_applies` references
-- [ ] No 302 when `id` ≠ `as=event:{id}` on tournament pages
-- [ ] TT ribbon on tournament page steps `as=` only; `id=` unchanged until user uses tournament nav or explicit tournament link
-- [ ] Probes exit 0
+- [x] No `amiga_player_event_stepper_applies` references
+- [x] No 302 when `id` ≠ `as=event:{id}` on tournament pages
+- [x] TT ribbon on tournament page steps `as=` only; `id=` unchanged until user uses tournament nav or explicit tournament link
+- [x] Probes exit 0 (tournament TT link probe; context probe hub IA assert updated for T13b)
 
 **No new UI in slice 0.**
 
@@ -339,6 +337,7 @@ When track complete (or per-slice if user stops early):
 
 | Date | Change |
 |------|--------|
+| 2026-06-30 | Slice 0 **shipped** — T18 + tournament id-follows-as retired. |
 | 2026-06-30 | Slice 0 expanded — retire tournament `id` follows `as=` (WP14) alongside T18. |
 | 2026-06-30 | Full plan — per-slice files, verification, layout; no handover prompt; implement in single chat track. |
 | 2026-06-30 | Initial slice outline. |
