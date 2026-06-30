@@ -21,8 +21,11 @@ $gameHasVideos = $gameVideos !== [];
 
 $k2ScrollTargetId = '';
 if ($row !== null) {
-    $hasVideoPick = isset($_GET['v']) && amiga_tournament_videos_sanitize_youtube_id((string) $_GET['v']) !== '';
-    $k2ScrollTargetId = $hasVideoPick ? 'k2-amiga-game-videos' : 'k2-game';
+    if ($gameHasVideos) {
+        $k2ScrollTargetId = amiga_game_videos_scroll_target_id(count($gameVideos));
+    } else {
+        $k2ScrollTargetId = 'k2-game';
+    }
 }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

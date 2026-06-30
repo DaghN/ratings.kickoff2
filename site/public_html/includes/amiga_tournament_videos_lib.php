@@ -13,6 +13,9 @@ const AMIGA_TOURNAMENT_VIDEOS_MANIFEST_PATH = __DIR__ . '/../data/amiga/tourname
 
 const AMIGA_TOURNAMENT_VIDEOS_PLAYER_FRAGMENT = 'k2-tournament-video-player';
 
+const AMIGA_GAME_VIDEOS_MENU_FRAGMENT = 'k2-amiga-game-videos-menu';
+const AMIGA_GAME_VIDEOS_CAPTION_FRAGMENT = 'k2-amiga-game-videos-caption';
+
 /** @var array<string, mixed>|null */
 $GLOBALS['_amiga_tournament_videos_manifest'] = null;
 
@@ -865,15 +868,28 @@ function amiga_videos_for_game_id(int $gameId): array
     return $rows;
 }
 
-function amiga_game_videos_url(int $gameId, ?string $youtubeId = null): string
+function amiga_game_videos_scroll_target_id(int $videoCount): string
+{
+    if ($videoCount > 1) {
+        return AMIGA_GAME_VIDEOS_MENU_FRAGMENT;
+    }
+
+    return AMIGA_GAME_VIDEOS_CAPTION_FRAGMENT;
+}
+
+function amiga_game_videos_url(int $gameId, ?string $youtubeId = null, int $videoCount = 0): string
 {
     require_once __DIR__ . '/k2_amiga_routes.php';
     $params = ['id' => $gameId];
     $yt = amiga_tournament_videos_sanitize_youtube_id($youtubeId ?? '');
     if ($yt !== '') {
         $params['v'] = $yt;
+        $url = k2_amiga_route('amiga-game', $params);
+        if ($videoCount > 0) {
+            $url .= '#' . amiga_game_videos_scroll_target_id($videoCount);
+        }
 
-        return k2_amiga_route('amiga-game', $params);
+        return $url;
     }
 
     return k2_amiga_game_page_url($gameId);

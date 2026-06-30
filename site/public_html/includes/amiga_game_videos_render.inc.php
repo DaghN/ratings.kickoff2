@@ -28,9 +28,11 @@ function amiga_game_videos_render_section(array $gameRow, array $videos, int $ac
     $spotlightLabel = amiga_tournament_videos_wc_game_spotlight_label($entry);
     $spotlightLabelHtml = amiga_tournament_videos_wc_game_caption_html($entry);
     $showMenu = count($videos) > 1;
+    $videoCount = count($videos);
     ?>
-<section class="k2-amiga-game-videos k2-tournament-videos--wc" id="k2-amiga-game-videos" aria-label="Game video">
+<section class="k2-amiga-game-videos k2-tournament-videos--wc" aria-label="Game video">
   <?php if ($showMenu) { ?>
+  <div id="<?php echo k2_h(AMIGA_GAME_VIDEOS_MENU_FRAGMENT); ?>" class="k2-amiga-tournament-page-anchor" tabindex="-1"></div>
   <nav class="k2-amiga-game-videos__menu" aria-label="Videos for this game">
     <?php foreach ($videos as $index => $video) {
         $yt = (string) ($video['youtube_id'] ?? '');
@@ -38,7 +40,7 @@ function amiga_game_videos_render_section(array $gameRow, array $videos, int $ac
             continue;
         }
         $isActive = $index === $activeIndex;
-        $href = amiga_game_videos_url($gameId, $yt);
+        $href = amiga_game_videos_url($gameId, $yt, $videoCount);
         $linkClass = 'k2-amiga-game-videos__menu-link';
         if ($isActive) {
             $linkClass .= ' k2-link-star';
@@ -54,6 +56,8 @@ function amiga_game_videos_render_section(array $gameRow, array $videos, int $ac
     >Video <?php echo (int) ($index + 1); ?></a>
     <?php } ?>
   </nav>
+  <?php } else { ?>
+  <div id="<?php echo k2_h(AMIGA_GAME_VIDEOS_CAPTION_FRAGMENT); ?>" class="k2-amiga-tournament-page-anchor" tabindex="-1"></div>
   <?php } ?>
 
   <?php amiga_tournament_videos_render_spotlight(

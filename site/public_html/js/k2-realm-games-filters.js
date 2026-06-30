@@ -96,6 +96,72 @@
         setVia(form, 'opponent', '');
     }
 
+    /**
+     * Clearing the player/opponent search field (native X or delete-to-empty) drops that
+     * filter only — other active filters are preserved.
+     */
+    function initActiveSearchClear(form, config) {
+        var entityKey = config.entityKey;
+        var entityInput = hiddenInput(form, entityKey);
+        var viaInputEl = viaInput(form, entityKey);
+        if (!entityInput) {
+            return;
+        }
+
+        var searchRoot = form.querySelector(config.rootSelector);
+        if (!searchRoot) {
+            return;
+        }
+
+        var input = searchRoot.querySelector('.player-search-input');
+        if (!input) {
+            return;
+        }
+
+        var pendingClear = false;
+
+        function isActiveViaSearch() {
+            if (String(entityInput.value || '0') === '0') {
+                return false;
+            }
+
+            return viaInputEl && viaInputEl.value === 'search';
+        }
+
+        function clearFilterIfEmpty() {
+            if (pendingClear || !isActiveViaSearch() || input.value.trim() !== '') {
+                return;
+            }
+
+            pendingClear = true;
+            var updates = {};
+            updates[entityKey] = null;
+            updates[entityKey + '_via'] = null;
+            if (entityKey === 'player') {
+                updates.opponent = null;
+                updates.opponent_via = null;
+            }
+            navigateFilterUrl(form, updates);
+        }
+
+        input.addEventListener('search', clearFilterIfEmpty);
+        input.addEventListener('input', clearFilterIfEmpty);
+    }
+
+    function initPlayerSearchClear(form) {
+        initActiveSearchClear(form, {
+            entityKey: 'player',
+            rootSelector: '.player-search[data-player-search-mode="filter"]'
+        });
+    }
+
+    function initOpponentSearchClear(form) {
+        initActiveSearchClear(form, {
+            entityKey: 'opponent',
+            rootSelector: '[data-k2-realm-games-opponent-search] .player-search'
+        });
+    }
+
     function initListboxPicker(form, valueInputId, entityKey, via, onChange) {
         var valueInput = form.querySelector('#' + valueInputId);
         if (!valueInput) {
@@ -299,6 +365,8 @@
         initYearModeCoupling(form);
         initPlayerPickers(form);
         initOpponentPickers(form);
+        initPlayerSearchClear(form);
+        initOpponentSearchClear(form);
         initOpponentSearch(form);
     }
 

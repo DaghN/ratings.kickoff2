@@ -131,6 +131,8 @@
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **Amiga perf-rating Perfect wing lede** — “Every perfect tournament run, `<span class="blue">`{count}`</span>` in total.” on `perfect.php`. |
+| 2026-06-30 | **Amiga game id links → video landing** — `k2_amiga_game_page_url()` hash from manifest: caption (1 video), menu (2+), else `#k2-game`. All id links via existing helper chain. |
 | 2026-06-30 | **Amiga game page hash landing** — `#k2-game` anchor + `$k2ScrollTargetId` (bare id URLs); `k2_amiga_game_page_url()` canonical helper; all inbound id links funnel through it (`amiga_rated_game_id_html` + H2H/moments/WC stats call sites). Short-page scroll via existing `k2_carry_scroll_restore.php` `ensureMinScrollHeight`. |
 | 2026-06-30 | **Amiga game page hub nav** — `/amiga/game.php?id=` includes `amiga_hub_nav.php` with `$k2AmigaHubTabActive = ''` (NM1/NM2 entity page; matches online `game.php` + tournament entity pattern). |
 | 2026-06-30 | **Amiga game page video embed** — `/amiga/game.php?id=` shows spotlight player + scoreboard caption when manifest links a clip; multi-video games get stacked “Video 1/2…” picker (`?v=` deep link); `amiga-game-video.js`. |
@@ -156,7 +158,7 @@
 | 2026-06-29 | **Amiga tournament hero — feast grid** — entity pages + live view use country-hero layout (host flag 124×93, name, Date/Players/Games/Winner stats); `amiga_tournament_hero.php` + `amiga_tournament_winner()`. |
 | 2026-06-29 | **Amiga import — Ian Ka / Klaus L aliases** — merge into Ian K and Klaus Le; all game players now have country (471 → 469). |
 | 2026-06-29 | **Amiga import — player fixes** — Diego L → Italy; Joerg D/S alias merge into Jorg D/S (`PLAYER_NAME_ALIASES`); player count 471 (−2 dupes). |
-| 2026-06-30 | **Amiga Games All — full filter panel** — `amiga/games/all.php`: online-parity filters (player search/pickers, opponent row, faceted GD/Sum/TS, year+mode) + segment bars All/World Cup + All/Videos + **Host country** listbox (`host=`); rivals `country`+`rival` preserved; Reset pill; `k2-realm-games-filters.js` Amiga realm. |
+| 2026-06-30 | **Amiga Games All — full filter panel** — `amiga/games/all.php`: online-parity filters (player search/pickers, opponent row, faceted GD/Sum/TS, year+mode) + segment bars All/World Cup + All/Videos + **Host country** listbox (`host=`); rivals `country`+`rival` preserved; Reset pill; `k2-realm-games-filters.js` Amiga realm. **Search ×** clears player/opponent picker only (online + Amiga All games). |
 | 2026-06-29 | **Amiga import — Norway player countries** — `PLAYER_COUNTRY_OVERRIDES` in `import_corrections.py` for Ingvald E, Kjetil D, Oyvind H (missing L2 identity); wired into import manifest; local `import --incremental` applied. |
 | 2026-06-29 | **Docs — status hygiene** — corrected stale Current focus: WC HoF **complete** (WCH-1…8), country Rivals **shipped** (CRV-1–7), online profile feast **complete** (Amiga profile = polish only); fixed WC10 row in WC LB policy + WC hub out-of-scope; `player-profile-feast.md` archived v1+ backlog section. |
 | 2026-06-29 | **Amiga WC player stats — LB wing retired** — removed World Cups tab from Leaderboards; `/amiga/leaderboards/world-cups/*` 302 → hub `world-cups/players/*`; HoF/profile/tournament-honours links retargeted; deleted LB-only nav/shell includes. |

@@ -89,14 +89,22 @@ function k2_amiga_route(string $name, array $params = []): string
 	return amiga_url_with_context($url . '?' . http_build_query($params));
 }
 
-function k2_amiga_game_page_anchor_hash(): string
+function k2_amiga_game_page_anchor_hash(int $gameId = 0): string
 {
+	if ($gameId > 0) {
+		require_once __DIR__ . '/amiga_tournament_videos_lib.php';
+		$videos = amiga_videos_for_game_id($gameId);
+		if ($videos !== []) {
+			return '#' . amiga_game_videos_scroll_target_id(count($videos));
+		}
+	}
+
 	return '#k2-game';
 }
 
 function k2_amiga_game_page_url(int $gameId): string
 {
-	return k2_amiga_route('amiga-game', ['id' => $gameId]) . k2_amiga_game_page_anchor_hash();
+	return k2_amiga_route('amiga-game', ['id' => $gameId]) . k2_amiga_game_page_anchor_hash($gameId);
 }
 
 /** 302 redirect preserving the request query string (legacy Amiga player URLs). */

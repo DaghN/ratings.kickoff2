@@ -253,6 +253,10 @@ body.k2-site .k2-amiga-game-videos {
 	margin-top: var(--k2-nav-gap);
 }
 
+body.k2-site .k2-amiga-game-videos .k2-amiga-tournament-page-anchor {
+	scroll-margin-top: 0.75rem;
+}
+
 body.k2-site .k2-amiga-game-videos__menu {
 	display: flex;
 	flex-direction: column;

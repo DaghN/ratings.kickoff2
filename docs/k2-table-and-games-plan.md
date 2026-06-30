@@ -174,7 +174,7 @@ Shared: `includes/k2_archive_listbox.php`, `js/k2-archive-listbox.js`, `js/indiv
   - **Score-line** — `gd`, `gs`, `ts` listboxes (realm-wide distinct values + game counts). **Faceted counts (Jun 2026):** each listbox `meta` reflects other active filters (player, opponent, year, sibling score-line filters); absolute `GoalDifference` for GD; interior zero gaps kept. `k2_realm_games_filter_facets.php`.
   - **Year** — `year` + `year_mode` (`in` \| `since` \| `until`).
 - **URL params:** `player`, `opponent`, `gd`, `gs`, `ts`, `year`, `year_mode`, `sort`, `dir`, `offset`.
-- **JS:** `k2-realm-games-filters.js` + `k2-archive-listbox.js`; form `data-k2-carry-scroll`.
+- **JS:** `k2-realm-games-filters.js` + `k2-archive-listbox.js`; form `data-k2-carry-scroll`. Player/opponent search **×** (or delete-to-empty when filtered via search) clears that picker only; other filters stay.
 - **Filter listbox contract (Jun 2026):** `k2_archive_listbox_render(..., $idleValue)` — empty trigger at idle, link-star when active; JS reads `data-k2-listbox-idle-value`. **Year mode** row hidden until year chosen (`hidden`, like Opponent row); when visible, `$accentActive` (always accented).
 - **Reset filters:** accent pill in status row (`k2-realm-games-all__status`); `data-k2-carry-scroll`.
 - Sort/pager links preserve active filter params; filter change drops `offset`.
@@ -190,7 +190,7 @@ Shared: `includes/k2_archive_listbox.php`, `js/k2-archive-listbox.js`, `js/indiv
 - **Amiga-only segment bars** (side-by-side, above filter rows): **All / World Cup** (`filter=world-cup`) · **All / Videos** (`videos=with-videos`; games linked in `tournament_videos.json`).
 - **Host country** listbox before Player row — URL param **`host=`** (tournament host / `r.tournament_country`); meta = game counts descending. **Not** `country=` — that pair with `rival=` stays reserved for Country Rivals nation-pair deep links.
 - **URL params:** `host`, `filter`, `videos`, `player`, `opponent`, `player_via`, `opponent_via`, `gd`, `gs`, `ts`, `year`, `year_mode`, `country`, `rival`, `sort`, `dir`, `offset`, plus `as=` when time-travel active.
-- **JS:** shared `k2-realm-games-filters.js` + `data-k2-realm-games-realm="amiga"` (opponent search API `realm=amiga`); `player-search.js` filter mode with `data-player-search-realm="amiga"`.
+- **JS:** shared `k2-realm-games-filters.js` + `data-k2-realm-games-realm="amiga"` (opponent search API `realm=amiga`); `player-search.js` filter mode with `data-player-search-realm="amiga"`. Clearing the player/opponent search field (native **×** or delete-to-empty) drops that picker only; other filters stay.
 - **Reset filters:** shown when any filter/segment active; clears rivals pair + all pickers + segments.
 - **`#matching-games` anchor** preserved for rivals H2H drill-downs.
 

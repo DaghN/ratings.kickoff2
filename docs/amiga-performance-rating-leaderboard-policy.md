@@ -162,7 +162,7 @@ Segment `href`s pass through `amiga_url_with_context()`.
 |----------|----------------|
 | **Best** | Best single-event performance rating per player. Loosely speaking, the best tournament performance. However, perfect win or loss records cannot define a performance rating, so such **perfect tournaments** (link → Perfect wing, carry-scroll) are not included here. Only tournaments where you had at least one draw or loss can qualify. |
 | **Top 100** | The hundred highest single-event performance ratings. A player may appear more than once. |
-| **Perfect** | Every perfect tournament run. |
+| **Perfect** | Every perfect tournament run, `<span class="blue">`{count}`</span>` in total. |
 
 ---
 
