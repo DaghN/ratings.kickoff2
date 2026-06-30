@@ -131,6 +131,7 @@
 
 | When | Note |
 |------|------|
+| 2026-06-30 | **Amiga Countries index lede** — narrative chapter copy with blue country count + roster/rivals CTA; `amiga_countries_index_chapter_lede_html()`; WC country stats cross-link kept. |
 | 2026-06-30 | **Jukebox popup white flash** — sync dark boot `document.write` on `about:blank` before `location.replace`; `color-scheme:dark` + panel `#131922` pre-paint in `jukebox.php`; prefetch `/jukebox.php` from FAB. |
 | 2026-06-30 | **Jukebox first-open flash fix** — single `window.open('/jukebox.php', …)` (no blank→close→recreate); main tab keeps focus until player `ready`; inline `#0b0f14` pre-paint in `jukebox.php`; `k2-jukebox-popup-live` session flag. Doc: `k2-jukebox-popup.md`. |
 | 2026-06-30 | **Jukebox playlist row hover** — track title picks up `--k2-link-star` accent when the playlist row is hovered/focused. |

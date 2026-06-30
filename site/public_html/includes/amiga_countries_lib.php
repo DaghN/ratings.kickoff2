@@ -33,6 +33,17 @@ function k2_amiga_country_roster_anchor_markup(): string
     return '<div id="' . k2_amiga_country_roster_anchor_id() . '" class="k2-countries-scroll-anchor" tabindex="-1"></div>';
 }
 
+function amiga_countries_index_chapter_lede_html(int $countryCount): string
+{
+    $countHtml = '<span class="blue">' . number_format($countryCount) . '</span>';
+    $wcStatsHref = htmlspecialchars(k2_amiga_route('amiga-world-cups-countries-honours'), ENT_QUOTES, 'UTF-8');
+
+    return 'Over the years, ' . $countHtml
+        . ' countries have sent their best and brightest to compete in official Kick Off 2 tournaments worldwide. '
+        . 'Click any country to see their roster and rivalries. World Cup '
+        . '<a href="' . $wcStatsHref . '">country stats</a> cover WC-only performance.';
+}
+
 function amiga_countries_token_sql(string $playerAlias = 'p'): string
 {
     return 'CASE WHEN TRIM(' . $playerAlias . '.country) IS NULL OR TRIM(' . $playerAlias . '.country) = \'\' '

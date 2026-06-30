@@ -69,7 +69,7 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 **Path:** `/amiga/countries/index.php`  
 **Hub:** `$k2AmigaHubTabActive = 'countries'`
 
-**Chapter lede (proposed):** *Browse players by country — roster size, activity, and World Cup footprint.*
+**Chapter lede:** *Over the years, **N** countries have sent their best and brightest…* — dynamic `<span class="blue">` count; roster + rivalries CTA; WC **country stats** cross-link. Helper: `amiga_countries_index_chapter_lede_html()`.
 
 | # | Column | Definition |
 |---|--------|------------|

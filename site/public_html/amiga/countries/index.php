@@ -29,8 +29,7 @@ $countryCount = count($indexRows);
 mysqli_close($con);
 
 $k2HubChapterTitle = 'Countries';
-$k2HubChapterLede = 'Browse players by country — roster size, activity, and World Cup footprint. '
-    . 'World Cup <a href="' . htmlspecialchars(k2_amiga_route('amiga-world-cups-countries-honours'), ENT_QUOTES, 'UTF-8') . '">country stats</a> cover WC-only performance.';
+$k2HubChapterLede = amiga_countries_index_chapter_lede_html($countryCount);
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 ?>
 
