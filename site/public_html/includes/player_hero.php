@@ -6,6 +6,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_hero_glow_experiment.php';
 
 if (empty($Name)) {
 	return;
@@ -26,7 +27,7 @@ $heroRankLinked = $heroDisplay && isset($rank);
 $heroRatingLinked = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
 ?>
 <div id="<?php echo k2_h(K2_PLAYER_PAGE_FRAGMENT); ?>" class="k2-player-page-anchor" tabindex="-1"></div>
-<article class="k2-player-hero k2-player-hero--feast">
+<article class="<?php echo k2_h(k2_player_hero_article_class()); ?>">
 	<div class="k2-player-hero__inner">
 		<div class="k2-player-hero__media"><?php
 			if ($heroProfileHref !== '') {

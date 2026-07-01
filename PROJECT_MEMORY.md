@@ -133,6 +133,9 @@
 
 | When | Note |
 |------|------|
+| 2026-07-01 | **League points table W/L colour** — Status Leagues + `league.php` points standings: W `.blue`, L `.red` (`k2_league_table_render.php`, `status-period-competitions.js`). |
+| 2026-07-01 | **Player hero spacing** — `.k2-player-hero` gets +12px below hero (`calc(--k2-nav-gap + 12px)`); country/tournament heroes unchanged. |
+| 2026-07-01 | **Player hero glow experiment (ON)** — H2H-style panel + avatar glow on `.k2-player-hero--glow` (online + Amiga player wing). **Revert:** `K2_PLAYER_HERO_GLOW_EXPERIMENT = false` in `includes/k2_player_hero_glow_experiment.php`. |
 | 2026-07-01 | **C16 universe map** — gestating in creative doc §6.6: map-first wow piece, creator nodes, three-audience intent (newcomers / veterans / creators). |
 | 2026-07-01 | **Creative C16 spark** — KO2 universe map in [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) §5.4 / §6.6 (Misc Scene leaf; visual vs atlas TBD). |
 | 2026-07-01 | **Present layer & site completion doc** — expanded [`present-layer-ia.md`](docs/present-layer-ia.md): Misc lifecycle, leaf pages (PL14), footer/about (PL12–13, PL15), shippable v1 checklist §12, post-ship growth PL16. |

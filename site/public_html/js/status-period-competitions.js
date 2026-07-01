@@ -1350,9 +1350,9 @@
             html += '<td class="k2-status-table__player"><a class="k2-link-star" href="/player/profile.php?id=' + row.id + PLAYER_PROFILE_ANCHOR + '">'
                 + escapeHtml(row.name) + '</a></td>';
             html += '<td class="k2-status-table__num">' + row.played + '</td>';
-            html += '<td class="k2-status-table__num">' + row.wins + '</td>';
+            html += '<td class="k2-status-table__num"><span class="blue">' + row.wins + '</span></td>';
             html += '<td class="k2-status-table__num">' + row.draws + '</td>';
-            html += '<td class="k2-status-table__num">' + row.losses + '</td>';
+            html += '<td class="k2-status-table__num"><span class="red">' + row.losses + '</span></td>';
             html += '<td class="k2-status-table__num">' + row.gf + '</td>';
             html += '<td class="k2-status-table__num">' + row.ga + '</td>';
             html += '<td class="k2-status-table__num">' + (gd > 0 ? '+' + gd : String(gd)) + '</td>';

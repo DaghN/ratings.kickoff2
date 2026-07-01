@@ -10,6 +10,7 @@ require_once __DIR__ . '/k2_ratedresults_games_filters.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_lb_lib.php';
 require_once __DIR__ . '/amiga_wc_podium_th.php';
+require_once __DIR__ . '/k2_player_hero_glow_experiment.php';
 
 if (empty($Name)) {
     return;
@@ -56,7 +57,7 @@ foreach ([1 => (int) ($k2AmigaPlayerHeroWcGold ?? 0), 2 => (int) ($k2AmigaPlayer
 }
 ?>
 <div id="<?php echo k2_h(K2_PLAYER_PAGE_FRAGMENT); ?>" class="k2-player-page-anchor" tabindex="-1"></div>
-<article class="k2-player-hero k2-player-hero--feast">
+<article class="<?php echo k2_h(k2_player_hero_article_class()); ?>">
 	<div class="k2-player-hero__inner">
 		<div class="k2-player-hero__media"><?php
 			if ($heroProfileHref !== '') {

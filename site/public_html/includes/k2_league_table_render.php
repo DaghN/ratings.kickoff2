@@ -197,9 +197,9 @@ if (!function_exists('k2_status_render_league_table')) {
 							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, $rank); ?>><?php echo $rank; ?></td>
 							<td class="k2-status-table__player"<?php echo k2_league_table_sort_value_attr($sortable, $playerName); ?>><?php echo k2_status_player_link($playerId, $playerName); ?></td>
 							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['played']); ?>><?php echo (int) $row['played']; ?></td>
-							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['wins']); ?>><?php echo (int) $row['wins']; ?></td>
+							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['wins']); ?>><span class="blue"><?php echo (int) $row['wins']; ?></span></td>
 							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['draws']); ?>><?php echo (int) $row['draws']; ?></td>
-							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['losses']); ?>><?php echo (int) $row['losses']; ?></td>
+							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['losses']); ?>><span class="red"><?php echo (int) $row['losses']; ?></span></td>
 							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['gf']); ?>><?php echo (int) $row['gf']; ?></td>
 							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['ga']); ?>><?php echo (int) $row['ga']; ?></td>
 							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, $gd); ?>><?php echo $gd > 0 ? '+' . $gd : (string) $gd; ?></td>

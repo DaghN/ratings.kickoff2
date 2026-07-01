@@ -1934,6 +1934,10 @@ body.k2-site .k2-status-table td .blue {
 	font-weight: 600;
 }
 
+body.k2-site .k2-status-table td .red {
+	font-weight: 600;
+}
+
 body.k2-site .holo {
 	color: var(--k2-chart-holo);
 }
@@ -3880,7 +3884,7 @@ body.k2-site .k2-player-page-anchor {
 .k2-player-hero {
 	position: relative;
 	overflow: hidden;
-	margin-bottom: var(--k2-nav-gap);
+	margin-bottom: calc(var(--k2-nav-gap) + 12px);
 	padding: 0;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-lg);

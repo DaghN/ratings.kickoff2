@@ -20,7 +20,7 @@
 | Nav pills | `includes/player_nav.php` — Profile · **Opponents** · Milestones · Games |
 | Opponents wing | `player/opponents/*.php` — inner tabs Head-to-head · W/D/L · Goals · DDs |
 | Milestones | `player/milestones/garden.php` · `player/milestones/chronology.php` — inner wings **Garden** · **Chronology**; Chronology = player-filtered Recent feed (tier filter, newest-first, no player column); tier garden on Garden (`#garden-aspirational` …); helpers `includes/player_milestones_helpers.php`, `includes/player_milestones_lib.php` |
-| CSS | `player-feast.css`, `player-feast-sections.css`, `player-feast-glance.css`, `player-feast-story.css`, `player-feast-personal-bests.css`; hero milestones in `theme.css`; garden in `player-milestones.css` |
+| CSS | `player-feast.css`, `player-feast-sections.css`, `player-feast-glance.css`, `player-feast-story.css`, `player-feast-personal-bests.css`; hero milestones in `theme.css`; garden in `player-milestones.css`; **hero glow experiment:** `player-hero-glow-experiment.css` + toggle `k2_player_hero_glow_experiment.php` |
 | Calendar | `api/player_feast/player_calendar_days.php`, `player_calendar_day_games.php`, `player_calendar_weeks.php`, `player_calendar_week_games.php`; `js/player-feast/player-calendar.js`, `player-calendar-weeks.js` |
 
 ---
