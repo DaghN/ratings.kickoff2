@@ -22,7 +22,7 @@ function amiga_world_cups_hub_chapter_list_html(): string
 {
     return '<ul class="k2-hub-chapter__list">'
         . '<li><strong>Chronology</strong> — a brief overview and a link to every World Cup page.</li>'
-        . '<li><strong>Player stats</strong> — a look at players.</li>'
+        . '<li><strong>Player stats</strong> — a look at players and their World Cup exploits.</li>'
         . '<li><strong>Country stats</strong> — a look at nations.</li>'
         . '<li><strong>Tournament stats</strong> — a look at World Cups.</li>'
         . '</ul>';
@@ -92,14 +92,27 @@ function amiga_world_cups_hub_covid_exception_clause(?DateTimeInterface $asOf = 
         : '';
 }
 
-function amiga_world_cups_hub_chapter_lede_html(int $wcCount, ?DateTimeInterface $asOf = null): string
-{
-    $countHtml = '<span class="blue">' . number_format($wcCount) . '</span>';
+function amiga_world_cups_hub_chapter_lede_html(
+    int $wcCount,
+    int $playerCount,
+    int $countryCount,
+    ?DateTimeInterface $asOf = null
+): string {
+    $wcHtml = '<span class="blue">' . number_format($wcCount) . '</span>';
+    $playersHtml = '<span class="blue">' . number_format($playerCount) . '</span>';
+    $countriesHtml = '<span class="blue">' . number_format($countryCount) . '</span>';
+    $wcLabel = $wcCount === 1 ? 'World Cup' : 'World Cups';
+    $playerLabel = $playerCount === 1 ? 'player' : 'players';
+    $countryLabel = $countryCount === 1 ? 'country' : 'countries';
 
-    return 'Christmas always comes early in Kick Off 2 with a World Cup in November or October every year since '
+    return 'Christmas comes early in Kick Off 2 with a World Cup in November or October every year since '
         . (string) AMIGA_WORLD_CUP_FIRST_YEAR
         . amiga_world_cups_hub_covid_exception_clause($asOf)
         . ', for a total of '
-        . $countHtml
-        . ' World Cups so far.';
+        . $wcHtml
+        . ' ' . $wcLabel . ' so far with '
+        . $playersHtml
+        . ' ' . $playerLabel . ' from '
+        . $countriesHtml
+        . ' ' . $countryLabel . '.';
 }

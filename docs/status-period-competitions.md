@@ -26,7 +26,7 @@ UI heading: **Leagues** (paired Activity + Points tables on `status.php`).
 | Tables | **Activity** (rank, player, games) + **Points** (existing columns); same period + scope |
 | Layout | Side-by-side when width allows; **stack Activity above Points** when not — **no toggle** |
 | Navigation | **← / →** step by period type; **picker** for exact jump; lock-step keys across day/week/month/year |
-| Meta | Period label, total rated games, end boundary, time left (reuse league meta behaviour) |
+| Meta | Period label, total rated games, end boundary, time left (reuse league meta behaviour). Label order: **Week 49, 2025 League** (period in `.blue`, then “League”); rated-games count uses `.blue` |
 | SSR | **Default period** (week) tables in HTML; `current_keys` for all four; other periods load via API on navigate |
 | Medals | Podium when period has **ended** (`end ≤ now`), not scope-based. **Persisted rules:** [`leagues-rules-spec.md`](leagues-rules-spec.md) |
 | Archive behaviour | Picker or step → API refresh for **both** tables |
@@ -47,7 +47,7 @@ Leagues
 
                     ←  [ picker ]  →
 
-Meta: Week 22, 2026 · N rated games · ends … UTC · … left
+Meta: Week 22, 2026 League · N rated games · ends … UTC · … left
 
 ┌ Activity league ─────────┐  ┌ Points league ────────────────┐
 │ #  Player  Games          │  │ # Player Pld W D L GF GA GD Pts │

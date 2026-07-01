@@ -44,17 +44,26 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/amiga_world_cup_stats_read_lib.php';
 require_once __DIR__ . '/amiga_world_cups_hub_helpers.php';
+require_once __DIR__ . '/amiga_wc_lb_lib.php';
+require_once __DIR__ . '/amiga_wc_countries_lb_lib.php';
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $con->query("SET time_zone = '+00:00'");
 $wcChapterCtx = amiga_world_cup_stats_context($con);
 $k2AmigaWorldCupsChapterCount = count(amiga_world_cup_stats_rows($con, $wcChapterCtx));
+$k2AmigaWorldCupsChapterPlayerCount = amiga_wc_honours_player_count($con, $wcChapterCtx);
+$k2AmigaWorldCupsChapterCountryCount = amiga_wc_country_count($con, $wcChapterCtx);
 $k2AmigaWorldCupsChapterAsOf = amiga_world_cups_hub_chapter_as_of($wcChapterCtx);
 mysqli_close($con);
 
 $k2HubChapterTitle = 'World Cups';
-$k2HubChapterLede = amiga_world_cups_hub_chapter_lede_html($k2AmigaWorldCupsChapterCount, $k2AmigaWorldCupsChapterAsOf);
+$k2HubChapterLede = amiga_world_cups_hub_chapter_lede_html(
+    $k2AmigaWorldCupsChapterCount,
+    $k2AmigaWorldCupsChapterPlayerCount,
+    $k2AmigaWorldCupsChapterCountryCount,
+    $k2AmigaWorldCupsChapterAsOf
+);
 $k2HubChapterList = amiga_world_cups_hub_chapter_list_html();
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_world_cups_hub_nav.php';

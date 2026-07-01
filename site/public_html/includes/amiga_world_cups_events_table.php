@@ -116,6 +116,5 @@ function amiga_world_cups_events_render_table(array $rows, array $nameMap, array
 </table>
 <?php k2_table_wrap_close(); ?>
 </div>
-<p class="k2-amiga-world-cups-events-footnote" style="margin:0 0 2rem;color:var(--k2-text-secondary)"><?php echo number_format(count($rows)); ?> World Cup<?php echo count($rows) === 1 ? '' : 's'; ?>.</p>
     <?php
 }

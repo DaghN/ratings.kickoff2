@@ -110,9 +110,9 @@
         var isLive = endEpoch > now;
         var text = '';
         if (label) {
-            text += 'League <span class="blue">' + escapeHtml(label) + '</span>';
+            text += '<span class="blue">' + escapeHtml(label) + '</span> League';
         }
-        text += ' · <span class="holo">'
+        text += ' · <span class="blue">'
             + total.toLocaleString('en-US') + '</span> ' + pluralRatedGames(total);
         if (isLive) {
             text += ' · ends ' + escapeHtml(endLabel) + ' UTC';
@@ -129,7 +129,7 @@
             if (remaining === 'ended') {
                 text += ' · ' + escapeHtml(remaining);
             } else {
-                text += ' · <span class="blue">' + escapeHtml(remaining) + '</span> left';
+                text += ' · <span class="blue">' + escapeHtml(remaining) + ' left</span>';
             }
         }
         return text;

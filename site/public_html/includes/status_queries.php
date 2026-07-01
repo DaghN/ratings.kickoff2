@@ -299,7 +299,7 @@ function k2_status_league_meta_line_for_clock(array $league, DateTimeImmutable $
     $isLive = $endTs !== false && $endTs > $nowTs;
     $verb = $isLive ? 'ends' : 'ended';
     $periodLabel = trim((string) ($league['label'] ?? ''));
-    $text = ($periodLabel !== '' ? 'League ' . $periodLabel : '') . ' · ' . $totalGames . ' ' . $gamesLabel;
+    $text = ($periodLabel !== '' ? $periodLabel . ' League' : '') . ' · ' . $totalGames . ' ' . $gamesLabel;
     if ($endLabel !== '') {
         $text .= ' · ' . $verb . ' ' . $endLabel . ' UTC';
     }
@@ -324,9 +324,9 @@ function k2_status_league_meta_html_for_clock(array $league, DateTimeImmutable $
 
     $text = '';
     if ($periodLabel !== '') {
-        $text .= 'League <span class="blue">' . k2_status_h($periodLabel) . '</span>';
+        $text .= '<span class="blue">' . k2_status_h($periodLabel) . '</span> League';
     }
-    $text .= ' · <span class="holo">'
+    $text .= ' · <span class="blue">'
         . number_format($totalGames) . '</span> ' . $gamesLabel;
     if ($endLabel !== '') {
         if ($isLive) {
@@ -345,7 +345,7 @@ function k2_status_league_meta_html_for_clock(array $league, DateTimeImmutable $
         if ($remaining === 'ended') {
             $text .= ' · ' . k2_status_h($remaining);
         } else {
-            $text .= ' · <span class="blue">' . k2_status_h($remaining) . '</span> left';
+            $text .= ' · <span class="blue">' . k2_status_h($remaining) . ' left</span>';
         }
     }
 

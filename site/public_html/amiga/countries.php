@@ -33,7 +33,7 @@ $k2HubChapterLede = amiga_countries_index_chapter_lede_html($countryCount);
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 ?>
 
-<?php amiga_countries_render_index_table($indexRows, $countryCount); ?>
+<?php amiga_countries_render_index_table($indexRows); ?>
 
 </div><!-- .k2-page-nav -->
 

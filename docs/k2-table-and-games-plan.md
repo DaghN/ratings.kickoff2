@@ -244,7 +244,7 @@ All hub wing tables use **`ranked-pages-table`**: uniform `8px` horizontal cell 
 | `leaderboards/rating.php` (Results) | 2 — Elo |
 | `leaderboards/milestones.php` (Milestones) | 8 — Milestones total |
 | `leaderboards/activity/peaks.php` | 2 — ELO rating |
-| `leaderboards/activity/participation.php` | 2 — ELO rating |
+| `leaderboards/activity/participation.php` | 3 — Games (`.blue` values); default sort col 4 — Active days |
 | `leaderboards/activity/in-a-row.php` | 2 — ELO rating |
 | `league_honours_panel.php` | 4 — Gold |
 | Status active leaderboard | 2 — Elo |

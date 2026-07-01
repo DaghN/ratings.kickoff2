@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/k2_amiga_routes.php';
 require_once __DIR__ . '/amiga_snapshot_url.php';
+require_once __DIR__ . '/amiga_lb_lib.php';
 
 $k2AmigaLbWingActive = $k2AmigaLbWingActive ?? 'rating';
 
@@ -33,6 +34,10 @@ $k2AmigaLbWingTabs = [
         'label' => 'Perf. rating',
     ],
 ];
+
+$k2HubChapterTitle = 'Leaderboards';
+$k2HubChapterLede = amiga_lb_chapter_lede_html_for_request();
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 ?>
 <div class="k2-chrome-tabs k2-amiga-lb-tabs">
 	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Amiga leaderboard view">

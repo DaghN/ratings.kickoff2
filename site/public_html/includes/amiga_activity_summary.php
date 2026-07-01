@@ -7,6 +7,8 @@ declare(strict_types=1);
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_community_stats_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_context.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_snapshot_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2amiga_config.php';
 
@@ -45,14 +47,20 @@ $DoubleDigitsRatio = $row['DoubleDigitsRatio'];
 $CleanSheetsRatio = $row['CleanSheetsRatio'];
 
 $ActivitySinceLabel = amiga_community_first_event_label($con);
+$countryCount = amiga_lb_rated_country_count($con, $ctx);
+$tournamentCount = amiga_tournament_index_count($con, $ctx);
+$countryLabel = $countryCount === 1 ? 'country' : 'countries';
+$tournamentLabel = $tournamentCount === 1 ? 'tournament' : 'tournaments';
 
 mysqli_close($con);
 unset($con);
 ?>
 <section class="server-activity-summary" aria-label="Activity summary">
     <p class="server-activity-summary__lede">
-        <span class="blue"><?php echo number_format($NumberOfPlayers); ?></span> players played
-        <span class="blue"><?php echo number_format($GamesPlayed); ?></span> rated games since <?php echo $ActivitySinceLabel; ?>.
+        <span class="blue"><?php echo number_format($NumberOfPlayers); ?></span> players from
+        <span class="blue"><?php echo number_format($countryCount); ?></span> <?php echo $countryLabel; ?> played
+        <span class="blue"><?php echo number_format($GamesPlayed); ?></span> rated games in
+        <span class="blue"><?php echo number_format($tournamentCount); ?></span> <?php echo $tournamentLabel; ?> since <?php echo $ActivitySinceLabel; ?>.
     </p>
     <div class="server-activity-summary__stats" aria-label="Activity highlights">
         <div class="server-activity-summary__stat">
@@ -75,10 +83,8 @@ unset($con);
             <span class="server-activity-summary__value"><?php echo number_format($CleanSheets); ?></span>
             <span class="server-activity-summary__note"><?php echo number_format(100 * (float) $CleanSheetsRatio, 1); ?> per 100 games</span>
         </div>
-        <div class="server-activity-summary__stat">
-            <span class="server-activity-summary__label">Games per player</span>
-            <span class="server-activity-summary__value"><?php echo number_format((float) $GamesPlayedAverage, 1); ?></span>
-            <span class="server-activity-summary__note"><?php echo number_format((float) $DifferentOpponentsAverage, 1); ?> different opponents avg.</span>
-        </div>
     </div>
+    <p class="server-activity-summary__texture">
+        Players average <span class="blue"><?php echo number_format((float) $GamesPlayedAverage, 1); ?></span> rated games and <span class="blue"><?php echo number_format((float) $DifferentOpponentsAverage, 1); ?></span> different opponents.
+    </p>
 </section>

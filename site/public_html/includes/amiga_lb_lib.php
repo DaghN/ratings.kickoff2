@@ -78,3 +78,43 @@ function amiga_lb_tournament_honours_order_sql(string $alias = 't'): string
 
     return "{$a}.event_gold DESC, {$a}.event_silver DESC, {$a}.event_bronze DESC, {$a}.tournaments_played DESC, {$a}.player_id ASC";
 }
+
+function amiga_lb_chapter_lede_html(int $gameCount, int $tournamentCount): string
+{
+    $gamesHtml = '<span class="blue">' . number_format($gameCount) . '</span>';
+    $tournamentsHtml = '<span class="blue">' . number_format($tournamentCount) . '</span>';
+
+    return 'Leaderboards from ' . $gamesHtml
+        . ' Amiga games played in ' . $tournamentsHtml
+        . ' official KOA tournaments. Elo ratings and tournament honours, goals, double digits and clean sheets, victims and culprits, peak and performance ratings — sort any column to see who leads a different way.';
+}
+
+function amiga_lb_chapter_lede_html_for_request(): string
+{
+    static $cached = null;
+    if ($cached !== null) {
+        return $cached;
+    }
+
+    require_once __DIR__ . '/k2_safety.php';
+    require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
+    require_once __DIR__ . '/amiga_tournament_lib.php';
+
+    $configPath = __DIR__ . '/../../config/ko2amiga_config.php';
+    if (!is_file($configPath)) {
+        $cached = amiga_lb_chapter_lede_html(0, 0);
+
+        return $cached;
+    }
+    include $configPath;
+
+    $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
+    $ctx = amiga_lb_context($con);
+    $gameCount = amiga_lb_games_count($con, $ctx);
+    $tournamentCount = amiga_tournament_index_count($con, $ctx);
+    mysqli_close($con);
+
+    $cached = amiga_lb_chapter_lede_html($gameCount, $tournamentCount);
+
+    return $cached;
+}

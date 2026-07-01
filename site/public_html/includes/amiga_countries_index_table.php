@@ -17,7 +17,7 @@ require_once __DIR__ . '/amiga_countries_lib.php';
 /**
  * @param list<array<string, mixed>> $rows
  */
-function amiga_countries_render_index_table(array $rows, int $countryCount): void
+function amiga_countries_render_index_table(array $rows): void
 {
     $lbSort = k2_lb_table_sort_state(2, 1);
     ?>
@@ -60,6 +60,5 @@ function amiga_countries_render_index_table(array $rows, int $countryCount): voi
 </tbody>
 </table>
 <?php k2_table_wrap_close(); ?>
-<p class="k2-amiga-countries-footnote" style="margin:0 0 2rem;color:var(--k2-text-secondary)"><?php echo number_format($countryCount); ?> countries with at least one rated player.</p>
     <?php
 }

@@ -114,6 +114,56 @@ function amiga_lb_games_count(mysqli $con, AmigaSnapshotContext $ctx): int
     return $row !== false ? (int) ($row['n'] ?? 0) : 0;
 }
 
+/** Country token for DISTINCT counts — keep in sync with amiga_countries_token_sql(). */
+function amiga_lb_country_token_sql(string $playerAlias = 'p'): string
+{
+    return 'CASE WHEN TRIM(' . $playerAlias . '.country) IS NULL OR TRIM(' . $playerAlias . '.country) = \'\' '
+        . 'THEN \'Unknown\' ELSE TRIM(' . $playerAlias . '.country) END';
+}
+
+function amiga_lb_rated_country_count(mysqli $con, AmigaSnapshotContext $ctx): int
+{
+    $whereSql = amiga_lb_player_where_sql();
+    $tokenSql = amiga_lb_country_token_sql('p');
+    if (!$ctx->isActive()) {
+        $sql = 'SELECT COUNT(DISTINCT ' . $tokenSql . ') AS n '
+            . amiga_player_base_from_sql($con) . ' WHERE ' . $whereSql;
+        $res = mysqli_query($con, $sql);
+        if ($res === false) {
+            return 0;
+        }
+        $row = mysqli_fetch_assoc($res);
+        mysqli_free_result($res);
+
+        return (int) ($row['n'] ?? 0);
+    }
+
+    $cutoff = $ctx->cutoff();
+    if ($cutoff === null) {
+        return 0;
+    }
+
+    $sql = 'SELECT COUNT(DISTINCT ' . $tokenSql . ') AS n '
+        . amiga_lb_snapshot_from_sql('s') . ' WHERE ' . $whereSql;
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        return 0;
+    }
+    $eventDate = $cutoff['event_date'];
+    $chrono = $cutoff['chrono'];
+    $tournamentId = $cutoff['tournament_id'];
+    $stmt->bind_param('sdi', $eventDate, $chrono, $tournamentId);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : false;
+    if ($res) {
+        $res->free();
+    }
+    $stmt->close();
+
+    return $row !== false ? (int) ($row['n'] ?? 0) : 0;
+}
+
 /**
  * @return list<array<string, mixed>>
  */

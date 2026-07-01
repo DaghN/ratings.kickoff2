@@ -47,7 +47,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_activity_nav.php';
 <p class="server-peak-period-leaderboard-status">Could not load activity participation.</p>
 <?php } else { ?>
 <?php k2_table_wrap_open(true); ?>
-<?php $lbSort = k2_lb_table_sort_state(4); ?>
+<?php $lbSort = k2_lb_table_sort_state(4, 3); ?>
 <table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
 <thead>
 	<tr>
@@ -81,7 +81,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 		<td<?php echo k2_lb_td(0, $lbSort); ?>></td>
 		<td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_player_link($playerId, (string) $row['Name']); ?></td>
 		<td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
-		<td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
+		<td<?php echo k2_lb_td(3, $lbSort); ?>><span class="blue"><?php echo k2_fmt_games_played($games); ?></span></td>
 		<?php k2_lb_activity_echo_count_td($activeDays, $activeDays > 0 ? k2_lb_activity_participation_period_tie_value($row['active_days_reached_at'] ?? null) : null); ?>
 		<?php k2_lb_activity_echo_count_td($activeWeeks, $activeWeeks > 0 ? k2_lb_activity_participation_period_tie_value($row['active_weeks_reached_at'] ?? null) : null); ?>
 		<?php k2_lb_activity_echo_count_td($activeMonths, $activeMonths > 0 ? k2_lb_activity_participation_period_tie_value($row['active_months_reached_at'] ?? null) : null); ?>
