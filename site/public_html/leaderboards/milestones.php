@@ -32,7 +32,6 @@ $k2LbWingActive = 'milestones';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav.php';
 ?>
 
-<?php echo k2_lb_table_anchor_markup(); ?>
 <?php k2_table_wrap_open(true); ?>
 <?php $lbSort = k2_lb_table_sort_state(8); ?>
 

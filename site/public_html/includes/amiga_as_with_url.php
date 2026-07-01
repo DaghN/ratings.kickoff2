@@ -1,6 +1,6 @@
 <?php
 /**
- * Amiga time travel — `as_with=` URL parse and propagation (TT Event ribbon).
+ * Amiga time travel — `as_with=` URL parse and propagation (TT ribbon).
  *
  * @see docs/with-player-stepper-policy.md
  */

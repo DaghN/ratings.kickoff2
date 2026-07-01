@@ -80,9 +80,9 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows): vo
             }
         ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo k2_fmt_games_played($eventGames); ?></td>
-        <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo $wins; ?></td>
-        <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo $draws; ?></td>
-        <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo $losses; ?></td>
+        <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo amiga_profile_tournament_wdl_cell($wins, 'win'); ?></td>
+        <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo amiga_profile_tournament_wdl_cell($draws, 'draw'); ?></td>
+        <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo amiga_profile_tournament_wdl_cell($losses, 'loss'); ?></td>
         <td<?php echo k2_lb_td(8, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h((string) ($row['tournament_name'] ?? '')); ?>"><?php
             echo k2_amiga_lb_tournament_cell(
                 (int) ($row['tournament_id'] ?? 0),

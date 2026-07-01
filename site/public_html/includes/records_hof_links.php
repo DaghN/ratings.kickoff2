@@ -3,8 +3,7 @@
  * Hall of Fame (hall-of-fame.php) — deep links on record values.
  *
  * Single-game spectacle rows link to Games highlights boards (with #k2-games-highlights); career/ratio
- * rows link to leaderboard
- * wings. Ratio/average HoF rows append provisional=0 (matches HoF >=20 eligibility). Other LB rows
+ * rows link to leaderboard wings with #k2-lb-table (table scroll anchor). Ratio/average HoF rows append provisional=0 (matches HoF >=20 eligibility). Other LB rows
  * use default leaderboard pool (both include toggles on). k2_sort / k2_dir see js/k2-table.js.
  */
 
@@ -135,12 +134,13 @@ function records_hof_lb_href(string $metric): ?string
 	}
 
 	if ($target['sort'] < 0) {
-		return $target['page'];
+		return $target['page'] . k2_lb_table_anchor_hash();
 	}
 
 	$params = records_hof_lb_query_params($metric);
+	$path = $target['page'] . ($params === [] ? '' : '?' . http_build_query($params));
 
-	return $target['page'] . ($params === [] ? '' : '?' . http_build_query($params));
+	return $path . k2_lb_table_anchor_hash();
 }
 
 /** Leaderboard link on the value cell (skipped when value is "-"). */

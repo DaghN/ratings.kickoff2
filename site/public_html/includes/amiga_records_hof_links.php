@@ -3,13 +3,14 @@
  * Amiga Hall of Fame — deep links on record values.
  *
  * Single-game spectacle rows link to Games highlights boards (with #k2-amiga-games-highlights);
- * career/ratio rows link to leaderboard wings. WC single-game rows use the same boards with
+ * career/ratio rows link to leaderboard wings with #k2-lb-table via amiga_lb_table_href(). WC single-game rows use the same boards with
  * scope=world-cup. Column indices match Amiga wing tables (0-based k2_sort).
  */
 declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_snapshot_url.php';
 require_once __DIR__ . '/amiga_games_highlights_helpers.php';
+require_once __DIR__ . '/amiga_lb_lib.php';
 
 /**
  * @return array{wing: string, sort: int, dir: 'asc'|'desc'}|null
@@ -126,7 +127,7 @@ function amiga_records_hof_lb_href(string $metric): ?string
         return null;
     }
 
-    return amiga_url_with_context(
+    return amiga_lb_table_href(
         amiga_records_hof_lb_wing_path($target['wing']),
         [
             'k2_sort' => (string) $target['sort'],

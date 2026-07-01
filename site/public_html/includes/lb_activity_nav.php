@@ -6,6 +6,7 @@
 declare(strict_types=1);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
 
 $k2LbActivityView = $k2LbActivityView ?? 'peaks';
 $k2LbActivityTabs = [
@@ -25,3 +26,4 @@ $k2LbActivityTabs = [
 <?php } ?>
 	</nav>
 </div>
+<?php echo k2_lb_table_anchor_markup(); ?>

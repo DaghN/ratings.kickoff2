@@ -16,12 +16,14 @@ require_once __DIR__ . '/k2_league_table_render.php';
 require_once __DIR__ . '/k2_amiga_country_flag.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_wc_lb_lib.php';
+require_once __DIR__ . '/lb_player_filters.php';
 
 /** @var list<string> */
 const AMIGA_WC_PLAYERS_VIEWS = ['honours', 'results', 'goals', 'dds', 'opponents'];
 
 function amiga_wc_players_table_shell_open(): void
 {
+    echo k2_lb_table_anchor_markup();
     k2_table_wrap_open(true);
 }
 

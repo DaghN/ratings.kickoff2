@@ -133,10 +133,11 @@
 
 | When | Note |
 |------|------|
+| 2026-07-01 | **HoF record value scroll anchors** — online + Amiga HoF leaderboard links append `#k2-lb-table`; online LB anchor consolidated in `lb_nav.php` / `lb_activity_nav.php` / `league_honours_panel.php`; Amiga WC player wings via `amiga_wc_players_table_shell_open()`. |
 | 2026-07-01 | **Games hub lede** — chapter intro adds “since June 9, 2017” after rated-game count (`games_hub_shell_start.inc.php`). |
 | 2026-07-01 | **Amiga tournament nav order** — WC pills: Event stats · Games · Stages · Videos (Games before Stages; Videos last). |
 | 2026-07-01 | **Rating LB Δ tooltip label** — time-travel Δ column title `Rating change (time travel mode)`; present-day WC Δ stays `Rating change`. |
-| 2026-07-01 | **TT as_with Year/Month** — with-player filter + filtered chevrons + auto-snap on all TT ribbon wings (not Event-only); policy WP7 updated. |
+| 2026-07-01 | **TT as_with Year/Month** — with-player filter + filtered chevrons + auto-snap on all TT ribbon wings; snap/chevron hrefs preserve `as_with=` via `amiga_url_with_as_param()`. |
 | 2026-07-01 | **Tournament video DB anchors** — `sync_db_ids` + `verify-tournament-videos` in `prove`; manifest player/game/tournament ids refreshed from stable CSV names; 282-row sync; policy §12. |
 | 2026-07-01 | **Player Videos tab — Thor S id fix** — manifest had Thor at wrong id; superseded by anchor sync pipeline. |
 | 2026-07-01 | **C06 cleanup** — removed dev glyph picker page/lib; consolidated `amiga_tournament_video_column_cell()`; CSS scoped to `.k2-table-cell--video-glyph` only. |
@@ -197,6 +198,8 @@
 | 2026-06-29 | **Amiga player hero — inline country flag** — `amiga_player_hero.php` uses `k2_amiga_inline_flag_and_link()` beside the name (H2H fighter-card parity); separate Country stat removed; 24×18 flag in `theme.css`. |
 | 2026-06-29 | **Amiga country roster — Elo links** — Elo column links to rating LB row anchor (`#k2-lb-player-{id}`) via `k2_amiga_lb_rating_cell_link()`; preserves `as=` time travel; `k2-link-star` (entity drill-down parity with player/tournament cells). |
 | 2026-06-29 | **Amiga country Rivals H2H poster — card symmetry** — nation-pair poster passes `subject`/`opponent` into `k2_h2h_poster_country_card_html()` so hero hugs `vs` from the left (blue) and rival from the right (red). |
+| 2026-07-01 | **Perf-rating LB W/L color** — Best · Top 100 · Perfect tables: W/L cells use `.blue` / `.red` via `amiga_profile_tournament_wdl_cell()`. |
+| 2026-07-01 | **Rating LB W/L color** — Wins/Losses cells on online + Amiga `/leaderboards/rating.php` use `.blue` / `.red` (via `k2_fmt_wdl_count()`); zero stays plain. |
 | 2026-06-29 | **Amiga games All games — empty filter fix** — `amiga_realm_games_all_request_state()` no longer maps missing `country`/`rival` to `Unknown` (was filtering to zero games); nation-pair filter applies only when both params are present in the URL. |
 | 2026-06-29 | **Amiga tournament hero — feast grid** — entity pages + live view use country-hero layout (host flag 124×93, name, Date/Players/Games/Winner stats); `amiga_tournament_hero.php` + `amiga_tournament_winner()`. |
 | 2026-06-29 | **Amiga import — Ian Ka / Klaus L aliases** — merge into Ian K and Klaus Le; all game players now have country (471 → 469). |

@@ -198,6 +198,37 @@ function k2_fmt_count(mixed $val, mixed $games = null, string $empty = '-'): str
 	return $empty;
 }
 
+/** W/D/L count with win (blue) or loss (red) tone; zero stays plain. */
+function k2_wdl_count_cell(int $value, string $tone): string
+{
+	if ($value === 0) {
+		return '0';
+	}
+	if ($tone === 'win') {
+		return '<span class="blue">' . $value . '</span>';
+	}
+	if ($tone === 'loss') {
+		return '<span class="red">' . $value . '</span>';
+	}
+
+	return (string) $value;
+}
+
+/**
+ * Career W/D/L count column — same dash/0 rules as k2_fmt_count, with optional win/loss tone.
+ *
+ * @param mixed $games Pass playertable `NumberGames` (or null to use legacy dash-on-NULL only).
+ */
+function k2_fmt_wdl_count(mixed $val, mixed $games, string $tone, string $empty = '-'): string
+{
+	$text = k2_fmt_count($val, $games, $empty);
+	if ($text === $empty || $text === '0') {
+		return $text;
+	}
+
+	return k2_wdl_count_cell((int) $text, $tone);
+}
+
 /**
  * Ratio stored as 0–1 fraction; $games gates dash vs 0% (see parity display policy in playertable-schema.md).
  */

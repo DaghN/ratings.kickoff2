@@ -6,7 +6,7 @@
 
 
 
-- **All record values** link to the matching Leaderboards wing via `includes/records_hof_links.php`, plus `k2_sort` / `k2_dir` on ranked wings. **Ratio/average rows only** also pass `provisional=0` (same ≥20 pool as HoF eligibility). Count/streak/single-game rows omit that param so leaderboards open with default include toggles **on**. `js/k2-table.js` applies sort on load for `ranked-pages-table` only. Labels stay plain text.
+- **All record values** link to the matching Leaderboards wing via `includes/records_hof_links.php` (Amiga: `amiga_records_hof_links.php`), plus `k2_sort` / `k2_dir` on ranked wings and **`#k2-lb-table`** so the destination lands flush above the sorted table (highlights rows use `#k2-games-highlights` / `#k2-amiga-games-highlights`). **Ratio/average rows only** also pass `provisional=0` (same ≥20 pool as HoF eligibility). Count/streak/single-game rows omit that param so leaderboards open with default include toggles **on**. `js/k2-table.js` applies sort on load for `ranked-pages-table` only. Labels stay plain text.
 
 - **`*GameID` columns** (`MostGoalsScoredInOneGameGameID`, etc.) remain in `generalstatstable` (post-game writers); HoF does not SELECT them — establishing games are on the linked leaderboards / Highlights boards.
 

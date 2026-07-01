@@ -46,3 +46,10 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 <?php } ?>
 	</nav>
 </div>
+<?php
+// Table scroll target for #k2-lb-table (hero stat links, HoF record values). Activity and league-honours
+// wings emit the anchor after their deeper sub-nav includes instead.
+if (!in_array($k2LbWingActive, ['activity', 'league-honours'], true)) {
+	echo k2_lb_table_anchor_markup();
+}
+?>

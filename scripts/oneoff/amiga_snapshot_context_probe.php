@@ -575,6 +575,13 @@ if (!str_contains($asWithHref, 'as_with=73')) {
     fwrite(STDERR, "as_with propagation fail: {$asWithHref}\n");
     exit(1);
 }
+$_GET = ['as' => 'year:2001', 'as_with' => '73'];
+$_SERVER['REQUEST_URI'] = '/amiga/leaderboards/rating.php?as=year:2001&as_with=73';
+$snapHref = amiga_url_with_as_param('/amiga/leaderboards/rating.php', 'year:2008');
+if (!str_contains($snapHref, 'as_with=73')) {
+    fwrite(STDERR, "as_with snap href fail: {$snapHref}\n");
+    exit(1);
+}
 $presentHref = amiga_url_present('/amiga/leaderboards/rating.php');
 if (str_contains($presentHref, 'as_with=')) {
     fwrite(STDERR, "amiga_url_present should strip as_with: {$presentHref}\n");

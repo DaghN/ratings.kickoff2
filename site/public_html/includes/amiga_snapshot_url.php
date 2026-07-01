@@ -219,6 +219,7 @@ function amiga_url_with_as_param(string $path, string $asParam, array $extraQuer
 
     $query['as'] = $asParam;
     unset($query['wing'], $query['at']);
+    $query = amiga_as_with_append_to_query($query);
 
     return $pathPart . '?' . http_build_query($query);
 }

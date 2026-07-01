@@ -75,7 +75,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Status league stack | L4 | SCH-008 | Yes | **Proven** | **Not executed** | — | `player_period_league`; PHP ops post-game at live cutover |
 | Player games server-side filters/sort | L0 | — | — | — | — | — | Read-time |
 | Hall of Fame aggregate read path | L0 | — | — | — | — | — | Peak/period cache + participation (Nth-period ties) + milestones/league read-time (Jun 2026) |
-| Hall of Fame context links | L0 | — | — | — | — | — | ranked wings + `k2_sort` (May 2026) |
+| Hall of Fame context links | L0 | — | — | — | — | — | ranked wings + `k2_sort` + `#k2-lb-table` scroll anchor (Jul 2026); highlights boards use `#k2-games-highlights` |
 | Player stat `k2-table.js` migration | L0 | — | — | — | — | — | JS only |
 | Leaderboard `k2-table.js` migration | L0 | — | — | — | — | — | Sort + anchor column (May 2026) |
 | Games tab 14-day buckets | L0 | — | — | — | — | — | **Recent** on `games/recent.php` |

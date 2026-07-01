@@ -11,6 +11,7 @@ require_once __DIR__ . '/k2_league_table_render.php';
 require_once __DIR__ . '/lb_column_help.php';
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_table_helpers.php';
+require_once __DIR__ . '/lb_player_filters.php';
 
 $honoursView = $honoursView ?? k2_lb_league_honours_parse_view();
 $honoursRows = $honoursRows ?? [];
@@ -82,6 +83,7 @@ foreach ($cupTabs as $cupId => $label) {
 	<p class="muted">League honours data is not available on this database yet.</p>
 <?php } ?>
 
+<?php echo k2_lb_table_anchor_markup(); ?>
 <?php k2_table_wrap_open(true); ?>
 <?php $lbSort = k2_lb_table_sort_state(4); ?>
 		<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
