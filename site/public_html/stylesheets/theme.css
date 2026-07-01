@@ -1493,6 +1493,120 @@ body.k2-site .k2-table-tooltip__action {
 	font-size: 11px;
 }
 
+/* Peak rating LB — games-around-peak hover (profile cal list + rating delta column) */
+body.k2-site .k2-table-tooltip.k2-table-tooltip--lb-peak-context {
+	max-width: min(640px, calc(100vw - 24px));
+	padding: 10px 12px;
+}
+
+body.k2-site .k2-table-tooltip--lb-peak-context .k2-table-tooltip__body {
+	margin-bottom: 0;
+	white-space: normal;
+}
+
+body.k2-site .k2-lb-peak-context-games-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	width: max-content;
+	max-width: 100%;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: 12px;
+}
+
+body.k2-site .k2-lb-peak-context-games-list__row {
+	display: grid;
+	grid-template-columns: 11.5em auto 2.1ch 0.95ch 2.1ch auto 4.5em;
+	column-gap: 6px;
+	align-items: baseline;
+	padding: 4px 6px;
+	border-bottom: 1px solid var(--k2-border-subtle);
+}
+
+body.k2-site .k2-lb-peak-context-games-list__row:last-child {
+	border-bottom: none;
+}
+
+body.k2-site .k2-lb-peak-context-games-list__row--peak {
+	background: color-mix(in srgb, var(--k2-link-star) 16%, transparent);
+	border-radius: var(--k2-radius-sm);
+	border-bottom-color: transparent;
+}
+
+body.k2-site .k2-lb-peak-context-games-list__cell {
+	padding: 0;
+}
+
+body.k2-site .k2-lb-peak-context-games-list__when {
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+	color: var(--k2-text-muted);
+	font-size: 11px;
+}
+
+body.k2-site .k2-lb-peak-context-games-list__side--a {
+	text-align: right;
+	white-space: nowrap;
+}
+
+body.k2-site .k2-lb-peak-context-games-list__goals,
+body.k2-site .k2-lb-peak-context-games-list__score-sep {
+	font-variant-numeric: tabular-nums;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+}
+
+body.k2-site .k2-lb-peak-context-games-list__goals--a {
+	text-align: right;
+	margin-right: -3px;
+}
+
+body.k2-site .k2-lb-peak-context-games-list__score-sep {
+	text-align: center;
+	margin-left: -3px;
+	margin-right: -3px;
+}
+
+body.k2-site .k2-lb-peak-context-games-list__goals--b {
+	text-align: left;
+	margin-left: -3px;
+}
+
+body.k2-site .k2-lb-peak-context-games-list__side--b {
+	text-align: left;
+	white-space: nowrap;
+}
+
+body.k2-site .k2-lb-peak-context-games-list__delta {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+body.k2-site .k2-lb-peak-context-games-list__delta.k2-lb-peak-context__delta--muted {
+	color: var(--k2-text-muted);
+	font-weight: 400;
+}
+
+body.k2-site .k2-table tbody td.k2-lb-peak-context-cell {
+	cursor: help;
+}
+
+body.k2-site .k2-table-tooltip--lb-peak-context .pm3-cal__tip-rating {
+	font-variant-numeric: tabular-nums;
+	font-weight: 600;
+}
+
+body.k2-site .k2-table-tooltip--lb-peak-context .pm3-cal__tip-loading,
+body.k2-site .k2-table-tooltip--lb-peak-context .pm3-cal__tip-empty {
+	margin: 0;
+	color: var(--k2-text-muted);
+	font-size: 12px;
+}
+
 body.k2-site .k2-table thead th.k2-table-sortable a {
 	display: block;
 	color: inherit;
@@ -1575,6 +1689,67 @@ body.k2-site .k2-table.k2-table--calm-stats tbody td a.k2-table-cell-link:hover,
 body.k2-site .k2-table.k2-table--calm-stats tbody td a.k2-table-cell-link:focus-visible {
 	color: var(--k2-text-primary);
 	text-decoration: underline;
+}
+
+/* Amiga peak-rating LB — Peak column links keep stat green .blue (not calm cell-link inherit) */
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-link,
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-link:visited {
+	color: var(--k2-table-positive);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-link:hover,
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-link:focus-visible {
+	color: var(--k2-table-positive);
+	text-decoration: underline;
+}
+
+/* Amiga peak-rating LB — Peak rank links inherit calm cell ink */
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-rank-link,
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-rank-link:visited {
+	color: inherit;
+	font-weight: inherit;
+	text-decoration: none;
+}
+
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-rank-link:hover,
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-rank-link:focus-visible {
+	color: var(--k2-text-primary);
+	text-decoration: underline;
+}
+
+/* Amiga rating LB — TT event Δ links: same blue/red as plain cells; underline on hover only */
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link,
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link:visited {
+	font-weight: inherit;
+	text-decoration: none;
+}
+
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--pos,
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--pos:visited {
+	color: var(--k2-table-positive);
+}
+
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--neg,
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--neg:visited {
+	color: var(--k2-table-negative);
+}
+
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--pos:hover,
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--pos:focus-visible {
+	color: var(--k2-table-positive);
+	font-weight: 600;
+	text-decoration: underline;
+	text-decoration-color: var(--k2-table-positive);
+}
+
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--neg:hover,
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--neg:focus-visible {
+	color: var(--k2-table-negative);
+	font-weight: 600;
+	text-decoration: underline;
+	text-decoration-color: var(--k2-table-negative);
 }
 
 /* Colspan empty-state rows (e.g. server3 â€œno gamesâ€) â€” stay calm secondary even when sort col is 0 */

@@ -680,7 +680,7 @@ function amiga_lb_wc_start_rating_delta_map(mysqli $con): array
     return $map;
 }
 
-function amiga_lb_rating_delta_cell(?float $delta): string
+function amiga_lb_rating_delta_cell(?float $delta, ?int $linkTournamentId = null): string
 {
     if ($delta === null) {
         return k2_fmt_dash();
@@ -692,10 +692,29 @@ function amiga_lb_rating_delta_cell(?float $delta): string
     }
 
     if ($rounded > 0) {
-        return '<span class="blue">+' . $rounded . '</span>';
+        $display = '+' . $rounded;
+        $toneClass = 'k2-lb-amiga-rating-delta-link--pos';
+    } else {
+        $display = (string) $rounded;
+        $toneClass = 'k2-lb-amiga-rating-delta-link--neg';
     }
 
-    return '<span class="red">' . $rounded . '</span>';
+    if ($linkTournamentId === null || $linkTournamentId < 1) {
+        if ($rounded > 0) {
+            return '<span class="blue">' . $display . '</span>';
+        }
+
+        return '<span class="red">' . $display . '</span>';
+    }
+
+    require_once __DIR__ . '/amiga_tournament_lib.php';
+
+    $href = amiga_tournament_href(amiga_tournament_event_stats_url($linkTournamentId))
+        . '#' . AMIGA_TOURNAMENT_PAGE_FRAGMENT;
+
+    return '<a class="k2-lb-amiga-rating-delta-link ' . $toneClass . '" href="' . k2_h($href) . '"'
+        . ' aria-label="Open this tournament event stats">'
+        . k2_h($display) . '</a>';
 }
 
 function amiga_lb_rating_delta_sort_value(?float $delta): string
@@ -720,15 +739,30 @@ function amiga_lb_rating_delta_sort_value(?float $delta): string
 function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx): mysqli_result
 {
     $selectBase = 'SELECT p.id AS ID, p.name AS Name, s.Rating, p.country AS Country, s.NumberGames, '
-        . 's.PeakRating, s.LowestRating, s.AverageOpponentRating, s.HighestRatedVictim, s.LowestRatedCulprit, ';
+        . 's.PeakRating, s.LowestRating, s.AverageOpponentRating, s.HighestRatedVictim, s.LowestRatedCulprit, '
+        . 's.peak_rating_tournament_id, tpr.name AS peak_rating_tournament_name, peak_snap.rating_delta AS peak_rating_delta, ';
+
+    $joinPeakSnap = ' LEFT JOIN amiga_player_event_snapshots peak_snap '
+        . 'ON peak_snap.player_id = p.id AND peak_snap.tournament_id = s.peak_rating_tournament_id ';
+
+    $peakRankPlayedJoinPresent = ' LEFT JOIN amiga_player_event_snapshots pr_rank_snap '
+        . 'ON pr_rank_snap.player_id = p.id AND pr_rank_snap.tournament_id = s.peak_elo_rank_tournament_id '
+        . 'AND pr_rank_snap.NumberGames > 0 ';
+    $peakRankPlayedJoinTt = ' LEFT JOIN amiga_player_event_snapshots pr_rank_snap '
+        . 'ON pr_rank_snap.player_id = p.id AND pr_rank_snap.tournament_id = er.peak_elo_rank_tournament_id '
+        . 'AND pr_rank_snap.NumberGames > 0 ';
 
     if (!$ctx->isActive()) {
         $sql = $selectBase
-            . 'tpr.event_date AS peak_rating_date, s.peak_elo_rank, tpke.event_date AS peak_elo_rank_date '
+            . 'tpr.event_date AS peak_rating_date, s.peak_elo_rank, s.peak_elo_rank_tournament_id, '
+            . 'tpke.name AS peak_elo_rank_tournament_name, tpke.event_date AS peak_elo_rank_date, '
+            . '(pr_rank_snap.player_id IS NOT NULL) AS peak_elo_rank_played_in_event '
             . 'FROM amiga_players p '
             . 'INNER JOIN amiga_player_current s ON s.player_id = p.id '
             . 'LEFT JOIN tournaments tpr ON tpr.id = s.peak_rating_tournament_id '
+            . $joinPeakSnap
             . 'LEFT JOIN tournaments tpke ON tpke.id = s.peak_elo_rank_tournament_id '
+            . $peakRankPlayedJoinPresent
             . 'WHERE ' . amiga_lb_player_where_sql() . ' '
             . 'ORDER BY s.PeakRating DESC, s.Rating DESC';
 
@@ -741,9 +775,12 @@ function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx): mys
     }
 
     $sql = $selectBase
-        . 'tpr.event_date AS peak_rating_date, er.peak_elo_rank, tpke.event_date AS peak_elo_rank_date '
+        . 'tpr.event_date AS peak_rating_date, er.peak_elo_rank, er.peak_elo_rank_tournament_id, '
+        . 'tpke.name AS peak_elo_rank_tournament_name, tpke.event_date AS peak_elo_rank_date, '
+        . '(pr_rank_snap.player_id IS NOT NULL) AS peak_elo_rank_played_in_event '
         . amiga_lb_snapshot_from_sql('s')
         . ' LEFT JOIN tournaments tpr ON tpr.id = s.peak_rating_tournament_id '
+        . $joinPeakSnap
         . ' LEFT JOIN ('
         . '    SELECT x.player_id, x.peak_elo_rank, x.peak_elo_rank_tournament_id FROM ('
         . '        SELECT er.player_id, er.peak_elo_rank, er.peak_elo_rank_tournament_id,'
@@ -756,6 +793,7 @@ function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx): mys
         . '    ) x WHERE x.rn = 1'
         . ') er ON er.player_id = p.id '
         . 'LEFT JOIN tournaments tpke ON tpke.id = er.peak_elo_rank_tournament_id '
+        . $peakRankPlayedJoinTt
         . 'WHERE ' . amiga_lb_player_where_sql() . ' '
         . 'ORDER BY s.PeakRating DESC, s.Rating DESC';
 

@@ -21,6 +21,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_country_flag.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_profile_blocks.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_peak_rating_lib.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
@@ -68,9 +69,9 @@ while ($row = mysqli_fetch_assoc($result)) {
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_amiga_lb_player_cell((int) $row['ID'], $playerName, (string) ($row['Country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
-        <td<?php echo k2_lb_td(4, $lbSort); ?>><span class="blue"><?php echo k2_fmt_peak_rating($row['PeakRating']); ?></span></td>
+        <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo amiga_lb_peak_rating_peak_cell_html($row); ?></td>
         <td<?php echo k2_lb_td(5, $lbSort, 'k2-table-cell--right'); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value(['event_date' => $row['peak_rating_date'] ?? null]); ?>"><?php echo amiga_profile_format_event_date($row['peak_rating_date'] ?? null); ?></td>
-        <td<?php echo k2_lb_td(6, $lbSort); ?><?php echo amiga_lb_peak_elo_rank_cell_sort_attrs($row['peak_elo_rank'] ?? null, $row['peak_elo_rank_date'] ?? null); ?>><?php echo k2_fmt_peak_elo_rank($row['peak_elo_rank'] ?? null); ?></td>
+        <td<?php echo k2_lb_td(6, $lbSort); ?><?php echo amiga_lb_peak_elo_rank_cell_sort_attrs($row['peak_elo_rank'] ?? null, $row['peak_elo_rank_date'] ?? null); ?>><?php echo amiga_lb_peak_rating_peak_rank_cell_html($row); ?></td>
         <td<?php echo k2_lb_td(7, $lbSort, 'k2-table-cell--right'); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value(['event_date' => $row['peak_elo_rank_date'] ?? null]); ?>"><?php echo amiga_profile_format_event_date($row['peak_elo_rank_date'] ?? null); ?></td>
         <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo k2_fmt_nadir_rating($row['LowestRating']); ?></td>
         <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo k2_fmt_lb_stat($row['AverageOpponentRating'], $games); ?></td>

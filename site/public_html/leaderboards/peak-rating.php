@@ -7,6 +7,7 @@
 <?php $k2RankedCloak = true; include $_SERVER["DOCUMENT_ROOT"] . "/includes/k2_head.php"; ?>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_lb_sortable_table_head.inc.php'; ?>
 <script type="text/javascript" src="/js/player-search.js" defer="defer"></script>
+<script src="/js/lb-peak-rating-tooltip.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/lb-peak-rating-tooltip.js'); ?>" defer="defer"></script>
 
 </head>
 
@@ -67,16 +68,19 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     $rank = 1;
     while ($row = mysqli_fetch_assoc($result)) {
         $games = (int) ($row['NumberGames'] ?? 0);
+        $playerId = (int) $row['id'];
         $peakDate = $row['peak_rating_date'] ?? null;
+        $peakCtxClass = k2_lb_peak_rating_context_cell_class($row['PeakRating'] ?? null, $row['peak_rating_game_id'] ?? null);
+        $peakCtxAttrs = k2_lb_peak_rating_context_cell_attrs($playerId, $row['PeakRating'] ?? null, $row['peak_rating_game_id'] ?? null);
 	?>
     
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
-        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_player_link((int) $row['id'], (string) $row['Name']); ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_player_link($playerId, (string) $row['Name']); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
-        <td<?php echo k2_lb_td(4, $lbSort); ?>><span class="blue"><?php echo k2_fmt_peak_rating($row['PeakRating']); ?></span></td>
-        <td<?php echo k2_lb_td(5, $lbSort, 'k2-table-cell--right'); ?> data-k2-sort-value="<?php echo k2_h(k2_lb_peak_rating_date_sort_value($peakDate)); ?>"><?php echo k2_h(k2_lb_peak_rating_format_event_date($peakDate)); ?></td>
+        <td<?php echo k2_lb_td(4, $lbSort, $peakCtxClass); ?><?php echo $peakCtxAttrs; ?>><span class="blue"><?php echo k2_fmt_peak_rating($row['PeakRating']); ?></span></td>
+        <td<?php echo k2_lb_td(5, $lbSort, trim('k2-table-cell--right ' . $peakCtxClass)); ?><?php echo $peakCtxAttrs; ?> data-k2-sort-value="<?php echo k2_h(k2_lb_peak_rating_date_sort_value($peakDate)); ?>"><?php echo k2_h(k2_lb_peak_rating_format_event_date($peakDate)); ?></td>
         <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo k2_fmt_nadir_rating($row['LowestRating']); ?></td>
         <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo k2_fmt_lb_stat($row['AverageOpponentRating'], $games); ?></td>
         <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo k2_fmt_lb_stat($row['HighestRatedVictim'], $games); ?></td>

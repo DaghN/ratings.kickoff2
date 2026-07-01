@@ -50,6 +50,16 @@ if ($showRatingDelta) {
     $deltaByPlayer = [];
 }
 $showDeltaColumn = $showRatingDelta || $showWcStartDelta;
+$deltaLinkTournamentId = null;
+if ($showRatingDelta && $ctx->wing() === 'event') {
+    $deltaCutoff = $ctx->cutoff();
+    if ($deltaCutoff !== null) {
+        $deltaLinkTournamentId = (int) $deltaCutoff['tournament_id'];
+        if ($deltaLinkTournamentId < 1) {
+            $deltaLinkTournamentId = null;
+        }
+    }
+}
 $deltaColumnHelpAttrs = $showRatingDelta
     ? k2_lb_amiga_rating_delta_column_help_attrs()
     : k2_lb_amiga_wc_start_rating_delta_column_help_attrs();
@@ -109,7 +119,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_amiga_lb_player_cell($playerId, $playerName, (string) ($row['Country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td($colElo, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
 <?php if ($showDeltaColumn) { ?>
-        <td<?php echo k2_lb_td($colDelta, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h(amiga_lb_rating_delta_sort_value($delta)); ?>"><?php echo amiga_lb_rating_delta_cell($delta); ?></td>
+        <td<?php echo k2_lb_td($colDelta, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h(amiga_lb_rating_delta_sort_value($delta)); ?>"><?php echo amiga_lb_rating_delta_cell($delta, $deltaLinkTournamentId); ?></td>
 <?php } ?>
         <td<?php echo k2_lb_td($colGames, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
         <td<?php echo k2_lb_td($colWins, $lbSort); ?>><?php echo k2_fmt_wdl_count($row['NumberWins'], $games, 'win'); ?></td>
