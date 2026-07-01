@@ -19,6 +19,7 @@ site/public_html/ops/config/dispatch-http.ini
 # Amiga Access snapshot + discovery exports (large; may contain personal data)
 /data/amiga/source/*
 !/data/amiga/source/.gitkeep
+!/data/amiga/source/koatd.mdb
 /data/amiga/exports/*
 !/data/amiga/exports/.gitkeep
 

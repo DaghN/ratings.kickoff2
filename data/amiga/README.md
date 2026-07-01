@@ -1,6 +1,8 @@
-# Amiga realm — source data (gitignored contents)
+# Amiga realm — source data
 
-Microsoft Access snapshot for the offline / Amiga 500 ladder (~27k games). **Not in Git** — same rules as [`../dumps/`](../dumps/).
+Microsoft Access snapshot for the offline / Amiga 500 ladder (~27k games).
+
+**Canonical L0 in Git:** `source/koatd.mdb` (~5.6 MB, May 2026 drop) — tracked so clone + `prove` needs no separate KOA fetch. Other files under `source/` stay gitignored (extra `.mdb` / `.accdb` drops).
 
 ---
 
