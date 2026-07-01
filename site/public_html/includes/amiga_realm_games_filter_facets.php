@@ -38,6 +38,10 @@ function amiga_realm_games_facet_where(
         $facetState['gs'] = -1;
     } elseif ($omitFacet === 'ts') {
         $facetState['ts'] = -1;
+    } elseif ($omitFacet === 'gf') {
+        $facetState['gf'] = -1;
+    } elseif ($omitFacet === 'ga') {
+        $facetState['ga'] = -1;
     } elseif ($omitFacet === 'year') {
         $facetState['year'] = 0;
         $facetState['year_mode'] = 'in';

@@ -212,6 +212,14 @@ Table **Games** column and H2H **all games** link → **`/amiga/games/all.php`**
 - `country={hero_token}` (hero nation — same param name as entity)
 - `rival={rival_token}` (opponent nation)
 
+**Chart / heatmap drill-down** (same destination, extra filters when `country` + `rival` both set):
+
+- `gf=` — goals scored by **hero** nation's side in the pairing
+- `ga=` — goals scored by **rival** nation's side
+- `gs=` — combined goal sum (`SumOfGoals`, same as realm score-line filter)
+
+`gf` / `ga` are **ignored** on All games unless both nation-pair params are present (reserved for Rivals H2H chart links; not player-games semantics).
+
 Implement filter in [`amiga_realm_games_hub_lib.php`](../site/public_html/includes/amiga_realm_games_hub_lib.php) or sibling — **directed A→B** (hero national on side A perspective: wins = A national won). Preserve `as=`. Hash `#matching-games` or existing games hub anchor.
 
 **Rejected v1:** link to a single player's games page (no hero player on this surface).

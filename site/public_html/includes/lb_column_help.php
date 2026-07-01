@@ -39,7 +39,7 @@ function k2_lb_help_games(): string
 
 function k2_lb_help_peak(): string
 {
-    return 'Your career high Elo after 20 rated games. Dash (—) until then.';
+    return 'Your career high Elo after 20 rated games.';
 }
 
 function k2_lb_help_peak_elo_rank(): string
@@ -50,6 +50,11 @@ function k2_lb_help_peak_elo_rank(): string
 function k2_lb_help_peak_rating_date(): string
 {
     return 'Tournament day when your peak rating was first reached (event finalize, not per-game).';
+}
+
+function k2_lb_help_online_peak_rating_date(): string
+{
+    return 'UTC day when your career peak rating was reached (rated game date).';
 }
 
 function k2_lb_help_peak_elo_rank_date(): string

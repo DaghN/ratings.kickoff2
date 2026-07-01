@@ -91,11 +91,15 @@
             url = gamesBasePath(el) + '?id=' + encodeURIComponent(String(playerId));
         }
         var key;
+        var nationPairBase = realmFrom(el) === 'amiga' && h2hGrainFrom(el) === 'nation-pair';
         for (key in queryParams) {
             if (!Object.prototype.hasOwnProperty.call(queryParams, key)) {
                 continue;
             }
             if (queryParams[key] == null || queryParams[key] === '') {
+                continue;
+            }
+            if (nationPairBase && (key === 'country' || key === 'rival')) {
                 continue;
             }
             url += '&' + key + '=' + encodeURIComponent(String(queryParams[key]));

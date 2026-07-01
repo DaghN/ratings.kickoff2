@@ -133,6 +133,7 @@
 
 | When | Note |
 |------|------|
+| 2026-07-01 | **Amiga Rivals H2H chart drill-down** — nation-pair `gf`/`ga`/`gs` on `/amiga/games/all.php`; combined-goals chart ctx fix; dedupe URL params; player games 404 before output. |
 | 2026-07-01 | **Amiga WC country Opponents wing** — Opponents column `.blue` on `/amiga/world-cups/countries/opponents.php` (parity with players Opponents wing). |
 | 2026-07-01 | **Amiga WC country Results Pts colour** — Pts column `.blue` on `/amiga/world-cups/countries/results.php` (parity with players Results wing). |
 | 2026-07-01 | **Amiga World Cups Chronology footer** — removed events table footnote (WC count stays in hub chapter lede). |
@@ -142,6 +143,8 @@
 | 2026-07-01 | **Amiga Leaderboards chapter lede** — shortened to games + tournament counts only (removed player/country clause); still dynamic blue + TT cutoff. |
 | 2026-07-01 | **Amiga TT hub chapters** — Tournaments, HoF, Activity no longer suppress `k2-hub-chapter` under `as=`; stamp + ribbon sit above chapter. Policy: `amiga-time-travel-policy.md` §5.0, `design-direction.md`, `hub-ia-agreement.md`. |
 | 2026-07-01 | **Amiga Goals LB GD/g column** — `(GF − GA) / games` on `/amiga/leaderboards/goals.php` after GA/g (parity with WC player stats Goals wing; no tooltip). |
+| 2026-07-01 | **Online Peak rating LB Peak date column** — col 5 after Peak (`PeakRatingGameID` → `ratedresults.Date`); sortable; header help `k2_lb_help_online_peak_rating_date()`; replaced prior Peak hover-only tooltip. |
+| 2026-07-01 | **Online Peak rating LB hover date** — Peak column tooltip via `PeakRatingGameID` → `ratedresults.Date` (`lb_peak_rating_lib.php`); same K2 body-cell pattern as streaks/activity peaks. |
 | 2026-07-01 | **Tint picker — close on navigation** — open state no longer persisted in `sessionStorage`; every page load starts closed (`theme_boot_head.php` + `k2-tint-toggle.js`); clicking any site link closes the panel immediately; bfcache back also closes. Docs: `tint-vs-realm.md`, `design-direction.md`, `hub-ia-agreement.md`, `self-hosted-assets.md`. |
 | 2026-07-01 | **Amiga calendar-geo LB Peak games colour** — Peak games column values wrapped in `.blue` on `/amiga/leaderboards/calendar-geo.php`. |
 | 2026-07-01 | **Amiga Perf. rating LB** — Perf. column `.blue` + `k2-table--perf-rating-lb` CSS so stat green wins over anchor link-star (Best/Top anchor col 3; Perfect ∞). |
@@ -238,7 +241,7 @@
 | 2026-06-29 | **Amiga player hero — inline country flag** — `amiga_player_hero.php` uses `k2_amiga_inline_flag_and_link()` beside the name (H2H fighter-card parity); separate Country stat removed; 24×18 flag in `theme.css`. |
 | 2026-06-29 | **Amiga country roster — Elo links** — Elo column links to rating LB row anchor (`#k2-lb-player-{id}`) via `k2_amiga_lb_rating_cell_link()`; preserves `as=` time travel; `k2-link-star` (entity drill-down parity with player/tournament cells). |
 | 2026-06-29 | **Amiga country Rivals H2H poster — card symmetry** — nation-pair poster passes `subject`/`opponent` into `k2_h2h_poster_country_card_html()` so hero hugs `vs` from the left (blue) and rival from the right (red). |
-| 2026-07-01 | **Activity Participation LB** — Games column anchor (col 3) + `.blue` values; default sort stays Active days. |
+| 2026-07-01 | **Activity Participation LB** — Games column anchor + default sort (col 3) + `.blue` values; SQL `ORDER BY NumberGames DESC`. |
 | 2026-07-01 | **Amiga Activity summary — player averages** — removed Games per player card; prose below cards matches online (`Players average … rated games and … different opponents.`). |
 | 2026-07-01 | **Perf-rating LB W/L color** — Best · Top 100 · Perfect tables: W/L cells use `.blue` / `.red` via `amiga_profile_tournament_wdl_cell()`. |
 | 2026-07-01 | **Rating LB W/L color** — Wins/Losses cells on online + Amiga `/leaderboards/rating.php` use `.blue` / `.red` (via `k2_fmt_wdl_count()`); zero stays plain. |

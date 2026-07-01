@@ -114,6 +114,12 @@ function amiga_realm_games_all_render_filters(
 		<?php if (($state['rival'] ?? '') !== '') { ?>
 		<input type="hidden" name="rival" value="<?php echo amiga_realm_games_all_h((string) $state['rival']); ?>" />
 		<?php } ?>
+		<?php if ((int) ($state['gf'] ?? -1) >= 0) { ?>
+		<input type="hidden" name="gf" value="<?php echo (int) $state['gf']; ?>" />
+		<?php } ?>
+		<?php if ((int) ($state['ga'] ?? -1) >= 0) { ?>
+		<input type="hidden" name="ga" value="<?php echo (int) $state['ga']; ?>" />
+		<?php } ?>
 		<?php if ($eventFilter === 'world-cup') { ?>
 		<input type="hidden" name="filter" value="world-cup" />
 		<?php } ?>

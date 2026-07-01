@@ -189,7 +189,7 @@ Shared: `includes/k2_archive_listbox.php`, `js/k2-archive-listbox.js`, `js/indiv
 - **Parity with online All games filters** — Player (search + Rating + A–Z), Opponent row (when player set), Score-line (GD / Sum / TS faceted), Year + mode.
 - **Amiga-only segment bars** (side-by-side, above filter rows): **All / World Cup** (`filter=world-cup`) · **All / Videos** (`videos=with-videos`; games linked in `tournament_videos.json`).
 - **Host country** listbox before Player row — URL param **`host=`** (tournament host / `r.tournament_country`); meta = game counts descending. **Not** `country=` — that pair with `rival=` stays reserved for Country Rivals nation-pair deep links.
-- **URL params:** `host`, `filter`, `videos`, `player`, `opponent`, `player_via`, `opponent_via`, `gd`, `gs`, `ts`, `year`, `year_mode`, `country`, `rival`, `sort`, `dir`, `offset`, plus `as=` when time-travel active.
+- **URL params:** `host`, `filter`, `videos`, `player`, `opponent`, `player_via`, `opponent_via`, `gd`, `gs`, `ts`, `year`, `year_mode`, `country`, `rival`, `gf`, `ga`, `sort`, `dir`, `offset`, plus `as=` when time-travel active. **`gf` / `ga`** apply only when **`country` + `rival`** are both set (Rivals H2H chart drill-down — hero-side / rival-side goals in the directed pairing).
 - **JS:** shared `k2-realm-games-filters.js` + `data-k2-realm-games-realm="amiga"` (opponent search API `realm=amiga`); `player-search.js` filter mode with `data-player-search-realm="amiga"`. Clearing the player/opponent search field (native **×** or delete-to-empty) drops that picker only; other filters stay.
 - **Reset filters:** shown when any filter/segment active; clears rivals pair + all pickers + segments.
 - **`#matching-games` anchor** preserved for rivals H2H drill-downs.
@@ -244,7 +244,7 @@ All hub wing tables use **`ranked-pages-table`**: uniform `8px` horizontal cell 
 | `leaderboards/rating.php` (Results) | 2 — Elo |
 | `leaderboards/milestones.php` (Milestones) | 8 — Milestones total |
 | `leaderboards/activity/peaks.php` | 2 — ELO rating |
-| `leaderboards/activity/participation.php` | 3 — Games (`.blue` values); default sort col 4 — Active days |
+| `leaderboards/activity/participation.php` | 3 — Games (`.blue` values); default sort col 3 — Games |
 | `leaderboards/activity/in-a-row.php` | 2 — ELO rating |
 | `league_honours_panel.php` | 4 — Gold |
 | Status active leaderboard | 2 — Elo |

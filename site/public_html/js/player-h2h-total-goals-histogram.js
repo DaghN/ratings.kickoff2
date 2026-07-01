@@ -284,7 +284,8 @@
                         window.location.href = gamesListUrl(
                             playerId,
                             series.goalValues[el.index],
-                            opponentId || null
+                            opponentId || null,
+                            root
                         );
                     }
                 });
