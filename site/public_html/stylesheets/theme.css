@@ -1537,10 +1537,18 @@ body.k2-site .k2-table.k2-status-table.k2-table--calm-stats tbody td:not(.k2-tab
 }
 
 body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td.k2-table-anchor-cell,
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td.k2-table-anchor-cell .blue,
 body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td.k2-table-anchor-cell .red {
 	color: var(--k2-link-star);
 	font-weight: 600;
+}
+
+/* Hub ranked LBs — editorial .blue/.red keep stat palette (not anchor link-star recolor) */
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td .blue {
+	color: var(--k2-table-positive);
+}
+
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td .red {
+	color: var(--k2-table-negative);
 }
 
 /* Calm leaderboards: active sort (non-anchor) = primary + 600 */
@@ -3285,6 +3293,13 @@ body.k2-site .k2-table.k2-table--perf-rating-perfect.k2-table--calm-stats tbody 
 	font-weight: inherit;
 }
 
+/* Perf-rating LB — Perf. column .blue uses stat green, not anchor link-star ink (Best · Top 100 · Perfect ∞) */
+body.k2-site .k2-table.k2-table--perf-rating-lb.k2-table--calm-stats.ranked-pages-table tbody td.k2-table-anchor-cell .blue,
+body.k2-site .k2-table.k2-table--perf-rating-lb.k2-table--calm-stats.ranked-pages-table tbody td .blue {
+	color: var(--k2-table-positive);
+	font-weight: 600;
+}
+
 body.k2-site .k2-table.k2-table--player-games.k2-table--calm-stats tbody td.k2-table-col-sorted .blue,
 body.k2-site .k2-table.k2-table--player-games.k2-table--calm-stats tbody td.k2-table-col-sorted .red,
 body.k2-site .k2-table.k2-table--player-matchup.k2-table--calm-stats tbody td.k2-table-col-sorted .blue,
@@ -4869,11 +4884,51 @@ body.k2-site .k2-lb-league-honours__bar {
 	width: 20px;
 }
 
+/* Honour-table medal column values — gradient ink @ table size; primary + 600 on Gold · Silver · Bronze always */
+body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-lb-honours-medal-td {
+	color: var(--k2-text-primary);
+	font-weight: 600;
+	text-align: center;
+}
+
+body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-lb-honours-medal-td .k2-country-hero__medal-value {
+	display: inline;
+	width: auto;
+	min-height: 0;
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
+	color: transparent;
+}
+
+/* Honour-table medal values — keep in sync with honoursPalettes in k2_league_table_render.php */
+body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-lb-honours-medal-td .k2-country-hero__medal-value--gold {
+	background-image: linear-gradient(165deg, #fffef8 0%, #fff59d 24%, #ffeb3b 44%, #ffc107 70%, #ffab00 100%);
+	filter: drop-shadow(0 0 1px rgba(255, 220, 80, 0.55)) drop-shadow(0 1px 1px rgba(146, 102, 0, 0.4));
+}
+
+body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-lb-honours-medal-td .k2-country-hero__medal-value--silver {
+	background-image: linear-gradient(165deg, #ffffff 0%, #f5f9fc 22%, #dce6ef 46%, #b0bec9 72%, #8899a8 100%);
+	filter: drop-shadow(0 0 1px rgba(220, 232, 244, 0.6)) drop-shadow(0 1px 1px rgba(61, 72, 82, 0.32));
+}
+
+body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-lb-honours-medal-td .k2-country-hero__medal-value--bronze {
+	background-image: linear-gradient(165deg, #fff6ed 0%, #ffbc85 28%, #ff9a5c 50%, #e07a3a 74%, #c4622d 100%);
+	filter: drop-shadow(0 0 1px rgba(255, 170, 110, 0.5)) drop-shadow(0 1px 1px rgba(122, 74, 31, 0.35));
+}
+
 body.k2-site .k2-table thead th.k2-lb-honours-medal-th {
 	text-align: center;
 	vertical-align: middle;
 	padding-left: 6px;
 	padding-right: 6px;
+}
+
+body.k2-site .k2-table thead th.k2-lb-honours-medal-th .k2-status-medal {
+	display: inline-flex;
+	width: 100%;
+	justify-content: center;
 }
 
 body.k2-site .k2-table thead th.k2-lb-honours-medal-th .k2-status-medal__svg {
@@ -4888,6 +4943,13 @@ body.k2-site .k2-table.k2-table--countries-roster.ranked-pages-table td.k2-count
 body.k2-site .k2-table.k2-table--countries-roster.ranked-pages-table th.k2-countries-roster-medal-pad-end,
 body.k2-site .k2-table.k2-table--countries-roster.ranked-pages-table td.k2-countries-roster-medal-pad-end {
 	padding-right: 11px;
+}
+
+/* Roster medal cols — symmetric pad so glyphs/values sit centered */
+body.k2-site .k2-table.k2-table--countries-roster.ranked-pages-table th.k2-lb-honours-medal-th,
+body.k2-site .k2-table.k2-table--countries-roster.ranked-pages-table td.k2-lb-honours-medal-td {
+	padding-left: 8px;
+	padding-right: 8px;
 }
 
 .k2-table--world-cups-events-wrap .k2-amiga-wc-podium-th-cell {

@@ -27,8 +27,12 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows): vo
     $view = in_array($view, ['best', 'top', 'perfect'], true) ? $view : 'best';
     $isPerfect = $view === 'perfect';
     $defaultSortCol = $isPerfect ? AMIGA_LB_PERF_RATING_COL_DATE : AMIGA_LB_PERF_RATING_COL_PERF;
-    $lbSort = k2_lb_table_sort_state($defaultSortCol);
-    $tableClass = k2_table_ranked_leaderboard_class($isPerfect ? 'k2-table--perf-rating-perfect' : '');
+    $lbSort = $isPerfect
+        ? k2_lb_table_sort_state($defaultSortCol)
+        : k2_lb_table_sort_state($defaultSortCol, AMIGA_LB_PERF_RATING_COL_PERF);
+    $tableClass = k2_table_ranked_leaderboard_class(
+        'k2-table--perf-rating-lb' . ($isPerfect ? ' k2-table--perf-rating-perfect' : '')
+    );
     $dateCellClass = 'k2-table-cell--right' . ($isPerfect ? ' k2-amiga-lb-perf-rating-date' : '');
 
     $perfHelp = amiga_perf_rating_column_help();
@@ -72,13 +76,13 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows): vo
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_amiga_lb_player_cell($playerId, $playerName, (string) ($row['country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
-        <td<?php echo k2_lb_td(3, $lbSort); ?><?php echo $isPerfect ? ' data-k2-sort-value="0"' : ''; ?>><?php
+        <td<?php echo k2_lb_td(3, $lbSort); ?><?php echo $isPerfect ? ' data-k2-sort-value="0"' : ''; ?>><span class="blue"><?php
             if ($isPerfect) {
                 echo performance_rating_infinity_cell_html();
             } else {
                 echo amiga_profile_tournament_rating_cell($row['performance_rating'] ?? null);
             }
-        ?></td>
+        ?></span></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo k2_fmt_games_played($eventGames); ?></td>
         <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo amiga_profile_tournament_wdl_cell($wins, 'win'); ?></td>
         <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo amiga_profile_tournament_wdl_cell($draws, 'draw'); ?></td>

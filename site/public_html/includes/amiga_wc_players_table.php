@@ -16,6 +16,7 @@ require_once __DIR__ . '/k2_league_table_render.php';
 require_once __DIR__ . '/k2_amiga_country_flag.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_wc_lb_lib.php';
+require_once __DIR__ . '/amiga_wc_podium_th.php';
 require_once __DIR__ . '/lb_player_filters.php';
 
 /** @var list<string> */
@@ -54,9 +55,9 @@ function amiga_wc_players_render_honours(array $rows, int $playerCount): void
         <th<?php echo k2_lb_th(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort="text">Player</th>
         <th<?php echo k2_lb_th_elo(2, $lbSort); ?> data-k2-sort="number"<?php echo k2_lb_elo_column_help_attrs(); ?>>Elo</th>
         <th<?php echo k2_lb_th(3, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_played(), ENT_QUOTES, 'UTF-8'); ?>">WCs</th>
-        <th<?php echo k2_lb_th(4, $lbSort, 'k2-lb-honours-medal-th'); ?> data-k2-sort="number" data-k2-tooltip-label="WC gold" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_gold(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_status_league_podium_medal(1); ?><span class="visually-hidden">WC gold</span></th>
-        <th<?php echo k2_lb_th(5, $lbSort, 'k2-lb-honours-medal-th'); ?> data-k2-sort="number" data-k2-tooltip-label="WC silver" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_silver(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_status_league_podium_medal(2); ?><span class="visually-hidden">WC silver</span></th>
-        <th<?php echo k2_lb_th(6, $lbSort, 'k2-lb-honours-medal-th'); ?> data-k2-sort="number" data-k2-tooltip-label="WC bronze" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_bronze(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_status_league_podium_medal(3); ?><span class="visually-hidden">WC bronze</span></th>
+        <th<?php echo k2_lb_th(4, $lbSort, 'k2-lb-honours-medal-th'); ?> data-k2-sort="number" data-k2-tooltip-label="WC gold" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_gold(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_lb_honours_medal_th(1); ?><span class="visually-hidden">WC gold</span></th>
+        <th<?php echo k2_lb_th(5, $lbSort, 'k2-lb-honours-medal-th'); ?> data-k2-sort="number" data-k2-tooltip-label="WC silver" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_silver(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_lb_honours_medal_th(2); ?><span class="visually-hidden">WC silver</span></th>
+        <th<?php echo k2_lb_th(6, $lbSort, 'k2-lb-honours-medal-th'); ?> data-k2-sort="number" data-k2-tooltip-label="WC bronze" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_bronze(), ENT_QUOTES, 'UTF-8'); ?>"><?php echo k2_lb_honours_medal_th(3); ?><span class="visually-hidden">WC bronze</span></th>
         <th<?php echo k2_lb_th(7, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_podiums(), ENT_QUOTES, 'UTF-8'); ?>">Podiums</th>
         <th<?php echo k2_lb_th(8, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_perfect_events(), ENT_QUOTES, 'UTF-8'); ?>">Perfect</th>
     </tr>
@@ -73,9 +74,9 @@ function amiga_wc_players_render_honours(array $rows, int $playerCount): void
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_amiga_lb_player_cell($playerId, $playerName, (string) ($row['country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['rating']); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo (int) $row['wc_played']; ?></td>
-        <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo (int) $row['wc_gold']; ?></td>
-        <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo (int) $row['wc_silver']; ?></td>
-        <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo (int) $row['wc_bronze']; ?></td>
+        <td<?php echo k2_lb_td(4, $lbSort, 'k2-lb-honours-medal-td'); ?>><?php echo amiga_wc_podium_medal_value_markup((int) $row['wc_gold'], 1); ?></td>
+        <td<?php echo k2_lb_td(5, $lbSort, 'k2-lb-honours-medal-td'); ?>><?php echo amiga_wc_podium_medal_value_markup((int) $row['wc_silver'], 2); ?></td>
+        <td<?php echo k2_lb_td(6, $lbSort, 'k2-lb-honours-medal-td'); ?>><?php echo amiga_wc_podium_medal_value_markup((int) $row['wc_bronze'], 3); ?></td>
         <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo (int) $row['wc_podiums']; ?></td>
         <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo (int) ($row['wc_perfect_events'] ?? 0); ?></td>
     </tr>
@@ -136,7 +137,7 @@ function amiga_wc_players_render_results(array $rows, int $playerCount): void
         <td<?php echo k2_lb_td(5, $lbSort); ?>><span class="blue"><?php echo $wins; ?></span></td>
         <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo (int) $row['draws']; ?></td>
         <td<?php echo k2_lb_td(7, $lbSort); ?>><span class="red"><?php echo (int) $row['losses']; ?></span></td>
-        <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo $points; ?></td>
+        <td<?php echo k2_lb_td(8, $lbSort); ?>><span class="blue"><?php echo $points; ?></span></td>
         <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo $ptsPerGame !== null ? k2_fmt_decimal($ptsPerGame, $games) : k2_fmt_dash(); ?></td>
         <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo k2_fmt_pct_from_ratio($winRate, $games); ?></td>
     </tr>
@@ -339,7 +340,7 @@ function amiga_wc_players_render_opponents(array $rows, int $playerCount): void
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_amiga_lb_player_cell($playerId, $playerName, (string) ($row['country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['rating']); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
-        <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo k2_fmt_count($row['different_opponents'] ?? 0, $games); ?></td>
+        <td<?php echo k2_lb_td(4, $lbSort); ?>><span class="blue"><?php echo k2_fmt_count($row['different_opponents'] ?? 0, $games); ?></span></td>
         <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo k2_fmt_count($row['different_victims'] ?? 0, $games); ?></td>
         <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo k2_fmt_count($row['double_digits_victims'] ?? 0, $games); ?></td>
         <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo k2_fmt_count($row['clean_sheets_victims'] ?? 0, $games); ?></td>

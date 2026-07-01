@@ -133,7 +133,14 @@
 
 | When | Note |
 |------|------|
-| 2026-07-01 | **Activity summary `.blue`** — removed 62% muted mix; lede/averages use full `--k2-table-positive` (online + Amiga share `.server-activity-summary`). |
+| 2026-07-01 | **Amiga calendar-geo LB Peak games colour** — Peak games column values wrapped in `.blue` on `/amiga/leaderboards/calendar-geo.php`. |
+| 2026-07-01 | **Amiga Perf. rating LB** — Perf. column `.blue` + `k2-table--perf-rating-lb` CSS so stat green wins over anchor link-star (Best/Top anchor col 3; Perfect ∞). |
+| 2026-07-01 | **Amiga Peak rating LB** — Peak column values wrapped in `.blue` (parity with online `leaderboards/peak-rating.php`). |
+| 2026-07-01 | **Amiga Victims LB Opponents** — column values wrapped in `.blue` (parity with online `leaderboards/victims.php`). |
+| 2026-07-01 | **Amiga WC players Opponents wing** — Opponents column values wrapped in `.blue` on `/amiga/world-cups/players/opponents.php`. |
+| 2026-07-01 | **Amiga WC countries Participation wing** — Entries column values wrapped in `.blue` on `/amiga/world-cups/countries/participation.php`. |
+| 2026-07-01 | **Amiga WC players Results wing** — Pts column values wrapped in `.blue` on `/amiga/world-cups/players/results.php`. |
+| 2026-07-01 | **Honours-table medal columns** — bright value gradients; header SVGs via `k2_lb_honours_medal_th()` (honours palette matches values; classic palette unchanged elsewhere). |
 | 2026-07-01 | **Milestones meta LB tier counts** — `k2-table--milestones-meta-lb`: four tier columns always weight 600 (hue unchanged; sort emphasis on header + Milestones total / Games only). |
 | 2026-07-01 | **Stat green tune** — `--k2-stat-positive-green` `#bdd852` → `#c4e84c` (between loud `#c6ef4a` and dull nudge). |
 | 2026-07-01 | **Status league Pts/Games → `.blue`** — removed `k2-table--league-anchor-cross`, `--k2-league-anchor-*`, and `data-k2-anchor-col` on league tables; Pts + Games use stat palette (`--k2-table-positive`). PHP + `status-period-competitions.js` + docs. |

@@ -45,3 +45,15 @@ function amiga_wc_podium_metal_label_markup(int $place): string
         . '<span class="k2-amiga-wc-podium-th__metal">' . k2_h($m['label']) . '</span>'
         . '</span>';
 }
+
+/** Podium count — gradient metal text (player hero medals, tournament honours LB). */
+function amiga_wc_podium_medal_value_markup(int $count, int $place): string
+{
+    $m = amiga_wc_podium_meta($place);
+    if ($m === null) {
+        return k2_h((string) $count);
+    }
+
+    return '<span class="k2-country-hero__medal-value k2-country-hero__medal-value--' . k2_h($m['variant']) . '">'
+        . k2_h((string) $count) . '</span>';
+}

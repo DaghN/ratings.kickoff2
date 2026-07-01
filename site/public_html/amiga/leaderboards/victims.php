@@ -77,7 +77,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_amiga_lb_player_cell((int) $row['ID'], $playerName, (string) ($row['Country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
-        <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo k2_fmt_count($row['DifferentOpponents'], $games); ?></td>
+        <td<?php echo k2_lb_td(4, $lbSort); ?>><span class="blue"><?php echo k2_fmt_count($row['DifferentOpponents'], $games); ?></span></td>
         <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo k2_fmt_count($row['DifferentVictims'], $games); ?></td>
         <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo k2_fmt_count($row['DoubleDigitsVictims'], $games); ?></td>
         <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo k2_fmt_count($row['CleanSheetsVictims'], $games); ?></td>

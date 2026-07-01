@@ -62,7 +62,7 @@ foreach ($rows as $row) {
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_amiga_lb_player_cell($playerId, $playerName, (string) ($row['country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['rating']); ?></td>
-        <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo (int) $row['peak_year_games']; ?></td>
+        <td<?php echo k2_lb_td(3, $lbSort); ?>><span class="blue"><?php echo (int) $row['peak_year_games']; ?></span></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo $row['peak_year_games_year'] !== null ? (int) $row['peak_year_games_year'] : '—'; ?></td>
         <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo (int) $row['peak_year_tournaments']; ?></td>
         <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo $row['peak_year_tournaments_year'] !== null ? (int) $row['peak_year_tournaments_year'] : '—'; ?></td>

@@ -35,7 +35,7 @@ if (!function_exists('k2_status_player_link_or_name')) {
 }
 
 if (!function_exists('k2_status_league_podium_medal')) {
-    function k2_status_league_podium_medal(int $rank): string
+    function k2_status_league_podium_medal(int $rank, string $paletteSet = 'classic'): string
     {
         static $medalByRank = [
             1 => ['gold', '1st place', '1'],
@@ -51,13 +51,19 @@ if (!function_exists('k2_status_league_podium_medal')) {
         ++$medalInstance;
         [$variant, $ariaLabel, $place] = $medalByRank[$rank];
 
-        return k2_status_league_podium_medal_svg($variant, $ariaLabel, $place, $medalInstance);
+        return k2_status_league_podium_medal_svg($variant, $ariaLabel, $place, $medalInstance, $paletteSet);
     }
 
-    function k2_status_league_podium_medal_svg(string $variant, string $ariaLabel, string $place, int $instance): string
+    /** Honour-table column headers — SVG disk matches k2-lb-honours-medal-td value gradients. */
+    function k2_lb_honours_medal_th(int $rank): string
+    {
+        return k2_status_league_podium_medal($rank, 'honours');
+    }
+
+    function k2_status_league_podium_medal_svg(string $variant, string $ariaLabel, string $place, int $instance, string $paletteSet = 'classic'): string
     {
         $id = 'k2-medal-' . $variant . '-' . $instance;
-        $palettes = [
+        $classicPalettes = [
             'gold' => [
                 'disk' => ['#fff9e6', '#ffe566', '#d4af37', '#8b6914'],
                 'rim' => '#5c4508',
@@ -83,6 +89,34 @@ if (!function_exists('k2_status_league_podium_medal')) {
                 'ribbonFold' => '#1b4332',
             ],
         ];
+        /* Keep in sync with honour-table .k2-country-hero__medal-value--* gradients in theme.css */
+        $honoursPalettes = [
+            'gold' => [
+                'disk' => ['#fffef8', '#fff59d', '#ffc107', '#ffab00'],
+                'rim' => '#c88600',
+                'glyph' => '#5a4200',
+                'glyphShadow' => '#ffe082',
+                'ribbon' => ['#ff4d6d', '#c9184a', '#800f2f'],
+                'ribbonFold' => '#590d22',
+            ],
+            'silver' => [
+                'disk' => ['#ffffff', '#f5f9fc', '#b0bec9', '#8899a8'],
+                'rim' => '#5c6773',
+                'glyph' => '#2a3238',
+                'glyphShadow' => '#f0f4f8',
+                'ribbon' => ['#4cc9f0', '#4895ef', '#2b4a7a'],
+                'ribbonFold' => '#1b2f4d',
+            ],
+            'bronze' => [
+                'disk' => ['#fff6ed', '#ffbc85', '#e07a3a', '#c4622d'],
+                'rim' => '#a04e22',
+                'glyph' => '#4a280f',
+                'glyphShadow' => '#ffbc85',
+                'ribbon' => ['#95d5b2', '#52b788', '#2d6a4f'],
+                'ribbonFold' => '#1b4332',
+            ],
+        ];
+        $palettes = $paletteSet === 'honours' ? $honoursPalettes : $classicPalettes;
         $p = $palettes[$variant] ?? $palettes['bronze'];
         $aria = k2_status_h($ariaLabel);
         $placeEsc = k2_status_h($place);
