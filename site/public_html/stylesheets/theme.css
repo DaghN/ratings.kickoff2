@@ -43,6 +43,8 @@
 
 	--k2-stat-positive-base: #4fc3f7;
 	--k2-stat-negative-base: #f06292;
+	/* .blue on chrome/holo tint — neon stat green; charts/milestones keep --k2-pure-pitch */
+	--k2-stat-positive-green: #c6ef4a;
 
 	--k2-font-body: "IBM Plex Sans", Verdana, Arial, sans-serif;
 	--k2-font-display: "Exo 2", "IBM Plex Sans", sans-serif;
@@ -120,8 +122,9 @@ html[data-k2-accent="chrome"] {
 	--k2-accent: var(--k2-pure-chrome);
 	--k2-accent-muted: rgba(100, 181, 246, 0.14);
 	--k2-accent-glow: rgba(100, 181, 246, 0.38);
-	/* Cyan positive stats clash with chrome links â€” use pitch hue instead */
-	--k2-stat-positive-base: var(--k2-pure-pitch);
+	/* Cyan positive stats clash with chrome links — .blue uses stat green (not chart pitch) */
+	--k2-stat-positive-base: var(--k2-stat-positive-green);
+	--k2-table-positive: var(--k2-stat-positive-green);
 	--k2-league-anchor-pure: var(--k2-pure-pitch);
 	--k2-league-anchor-ink: color-mix(in srgb, var(--k2-league-anchor-pure) 85%, var(--k2-text-primary));
 }
@@ -130,8 +133,9 @@ html[data-k2-accent="holo"] {
 	--k2-accent: var(--k2-pure-holo);
 	--k2-accent-muted: rgba(179, 136, 255, 0.14);
 	--k2-accent-glow: rgba(179, 136, 255, 0.45);
-	/* Cyan positives clash with violet accent â€” use pitch hue (same rule as chrome) */
-	--k2-stat-positive-base: var(--k2-pure-pitch);
+	/* Cyan positives clash with violet accent — .blue uses stat green (same rule as chrome) */
+	--k2-stat-positive-base: var(--k2-stat-positive-green);
+	--k2-table-positive: var(--k2-stat-positive-green);
 	--k2-league-anchor-pure: var(--k2-pure-pitch);
 	--k2-league-anchor-ink: color-mix(in srgb, var(--k2-league-anchor-pure) 85%, var(--k2-text-primary));
 }

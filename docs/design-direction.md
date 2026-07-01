@@ -131,7 +131,7 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 | Active tint pill **dot** | `--k2-accent-swatch` = pure | Colour chip shows true hue |
 | Include inactive / provisional filter **on** dot | `--k2-accent` (pure) | Small control; full accent + glow |
 | Avatar ring, calendar day fill | `--k2-accent` (pure) | Structure, not prose |
-| Win / league meta / ticker counts | `.blue` / `.holo` | **Stat palette**, not `--k2-pure-*` or tint |
+| Win / league meta / ticker counts | `.blue` / `.holo` | **Stat palette**, not tint; amber/pitch tint → 78% cyan mix; chrome/holo tint → **`--k2-stat-positive-green`** (`#c6ef4a`, brighter than chart `--k2-pure-pitch`) |
 | Body copy, career stat value | `--k2-text-primary` | Neutral |
 
 ### Chart role aliases (`--k2-chart-*`)

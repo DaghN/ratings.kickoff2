@@ -745,8 +745,8 @@ function amiga_tournament_render_event_stats_table(array $rows, bool $isWorldCup
 			<td<?php echo k2_table_body_td_attr(3, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_wdl_cell($wins, 'win'); ?></td>
 			<td<?php echo k2_table_body_td_attr(4, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_wdl_cell($draws, 'draw'); ?></td>
 			<td<?php echo k2_table_body_td_attr(5, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_wdl_cell($losses, 'loss'); ?></td>
-			<td<?php echo k2_table_body_td_attr(6, $anchorCol, $defaultSortCol); ?>><?php echo $goalsFor; ?></td>
-			<td<?php echo k2_table_body_td_attr(7, $anchorCol, $defaultSortCol); ?>><?php echo $goalsAgainst; ?></td>
+			<td<?php echo k2_table_body_td_attr(6, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_wdl_cell($goalsFor, 'win'); ?></td>
+			<td<?php echo k2_table_body_td_attr(7, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_wdl_cell($goalsAgainst, 'loss'); ?></td>
 			<td<?php echo k2_table_body_td_attr(8, $anchorCol, $defaultSortCol); ?>><?php echo $goalDiff > 0 ? '+' . $goalDiff : (string) $goalDiff; ?></td>
 			<td<?php echo k2_table_body_td_attr(9, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_avg_goals_cell($row['avg_goals_for'] ?? null, $games); ?></td>
 			<td<?php echo k2_table_body_td_attr(10, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_avg_goals_cell($row['avg_goals_against'] ?? null, $games); ?></td>

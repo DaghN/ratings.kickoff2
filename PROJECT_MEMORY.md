@@ -133,6 +133,8 @@
 
 | When | Note |
 |------|------|
+| 2026-07-01 | **`.blue` chrome/holo — stat green** — `--k2-stat-positive-green` `#c6ef4a` for `--k2-table-positive` (replaces pure pitch); amber/pitch tint unchanged (78% cyan). League-anchor ink stays soft `--k2-pure-pitch`. |
+| 2026-07-01 | **Amiga tournament Event stats GF/GA colour** — GF column `blue`, GA column `red` on `/amiga/tournament/event-stats.php` (all tournaments). |
 | 2026-07-01 | **Amiga Highlights biggest upsets tooltip** — board tab help copy: "The biggest rating gaps overcome by the underdog." |
 | 2026-07-01 | **Amiga HoF win rate** — "Highest winning frequency" row = read-time `(wins + ½·draws) ÷ games` via `amiga_hof_win_rate_holder()` (matches rating LB Win rate column; stored `BiggestWinRatio`/`WinRatio` unchanged). |
 | 2026-07-01 | **Tournament video DB anchors — doc sweep** — policy §12, implementation plan TV-2b, ground-stack/import/staging/profile/k2-embedded/navigation-model/**OPERATIONS_QUICK_START**/**amiga-derived-write-policy** updated; `sync_db_ids` + `verify-tournament-videos` in `prove`. |
