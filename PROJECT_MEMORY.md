@@ -133,6 +133,10 @@
 
 | When | Note |
 |------|------|
+| 2026-07-01 | **C16 universe map** — gestating in creative doc §6.6: map-first wow piece, creator nodes, three-audience intent (newcomers / veterans / creators). |
+| 2026-07-01 | **Creative C16 spark** — KO2 universe map in [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) §5.4 / §6.6 (Misc Scene leaf; visual vs atlas TBD). |
+| 2026-07-01 | **Present layer & site completion doc** — expanded [`present-layer-ia.md`](docs/present-layer-ia.md): Misc lifecycle, leaf pages (PL14), footer/about (PL12–13, PL15), shippable v1 checklist §12, post-ship growth PL16. |
+| 2026-07-01 | **Present layer IA intent doc** — [`present-layer-ia.md`](docs/present-layer-ia.md): News scrollable roll (~weekly), pulse rail (~daily, online-heavy), Misc phased shelf, Play & Setup vs Amiga onboarding; PL1–PL12; hub-ia + C04 cross-links. |
 | 2026-07-01 | **Amiga Rivals H2H chart drill-down** — nation-pair `gf`/`ga`/`gs` on `/amiga/games/all.php`; combined-goals chart ctx fix; dedupe URL params; player games 404 before output. |
 | 2026-07-01 | **Amiga WC country Opponents wing** — Opponents column `.blue` on `/amiga/world-cups/countries/opponents.php` (parity with players Opponents wing). |
 | 2026-07-01 | **Amiga WC country Results Pts colour** — Pts column `.blue` on `/amiga/world-cups/countries/results.php` (parity with players Results wing). |

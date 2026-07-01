@@ -2,7 +2,7 @@
 
 **Status:** current hub/navigation contract, May 2026. Phase A hub shell and Status Phase B v1.2 are shipped in repo. This file is no longer a phase diary; use it to answer "what is the hub supposed to be?"
 
-**Related:** `docs/design-direction.md` for visual rules, `docs/STATUS_PAGE_DATA.md` for Status panel data, `docs/tint-vs-realm.md` for tint/realm separation, `docs/url-routes.md` for page paths and `k2_routes.php`, `docs/milestones-hub-ia.md` for **future** hub phases (Story / Charts migration ? not required for current v0). **[`navigation-model.md`](navigation-model.md)** for the hub-vs-entity invariants (NM1–NM6: hub bar always present, active pill only on places, entity pages at realm root).
+**Related:** `docs/design-direction.md` for visual rules, `docs/STATUS_PAGE_DATA.md` for Status panel data, `docs/tint-vs-realm.md` for tint/realm separation, `docs/url-routes.md` for page paths and `k2_routes.php`, `docs/milestones-hub-ia.md` for **future** hub phases (Story / Charts migration ? not required for current v0). **[`navigation-model.md`](navigation-model.md)** for the hub-vs-entity invariants (NM1–NM6: hub bar always present, active pill only on places, entity pages at realm root). **Present layer (editorial completion track):** [`present-layer-ia.md`](present-layer-ia.md) — News roll, pulse rail, Misc shelf, onboarding split (intent; Jul 2026).
 
 ---
 
@@ -90,6 +90,19 @@ Still open with Steve / prod:
 | Wide games tables | Hub `games/recent.php` + `games/highlights.php` and player games (`player/games.php`, `/amiga/player/games.php`): `data-k2-scroll-mirror` on `.k2-table-wrap` + `k2-table-scroll-mirror.js` — top horizontal bar when the table overflows; syncs `scrollLeft` with the wrap below. |
 
 The old hub-nav A/B tuning path is removed; segment track + outline active cell is now the fixed product contract.
+
+---
+
+## Present layer (editorial — completion track)
+
+**Stats-plane hub tabs** (Leaderboards, Games, HoF, …) are largely shipped. Remaining IA work is the **present layer** — realm front doors and editorial discoverability. Full intent: [`present-layer-ia.md`](present-layer-ia.md).
+
+| Realm | Present landing | Onboarding |
+|-------|-----------------|------------|
+| **Online** | **Status** (`status.php`) — live pulse | **Play & Setup** (`join.php`) — last hub tab |
+| **Amiga** | **News** (`/amiga/news.php`) — scrollable **weekly** news roll + **daily** pulse sidebar (especially online-linked widgets) | Sidebar CTA on News → Play & Setup — **no** Amiga join hub tab |
+
+**Misc** (evergreen guides, universe map, remarkable games, site about) — phased shelf; News teasers first, catalog or hub tab later when warranted. **Site chrome:** global minimal footer + `/about.php` leaf — not hub tabs. Full intent: [`present-layer-ia.md`](present-layer-ia.md) (PL1–PL16, shippable checklist §12).
 
 ---
 

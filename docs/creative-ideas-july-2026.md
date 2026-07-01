@@ -116,7 +116,7 @@ LANDING             Status default                   News tab ◻ (placeholder)
 |----|------|----------------|--------|-------|-------|
 | **C01** | **Amiga profile feast parity** | What was this player's rhythm across decades? | Played-days/weeks heatmaps, bursts, story bands — **shrink/grow with time travel** | Amiga | **Gestating** until surrounding infra fully visible (same defer pattern as online profile was last). Bundles **rivalry teaser** (C09). |
 | **C03** | **Community stats → Activity wings** | What kind of scene was this? | Question-catalog charts (46 Qs drafted); year bars + snapshot timeline; TT-aware | Amiga | Writers done; UI TBD — [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) |
-| **C04** | **News / present landing** | What's worth looking at in present mode? | Curated front page — not a blog: HoF (New!), featured clip, finalize pulse | Amiga | `/amiga/news.php` placeholder — pairs with jukebox hang-out |
+| **C04** | **News / present landing** | What's worth looking at in present mode? | Scrollable **weekly** news roll + **daily** pulse sidebar (HoF (New!), online activity → Status, finalize, clips) | Amiga | `/amiga/news.php` placeholder — **intent:** [`present-layer-ia.md`](present-layer-ia.md) PL1–PL3; pairs with jukebox hang-out |
 | **C05** | **Milestones Story feed** | What's unlocking across the ladder? | Server-wide tier-coloured chronology ticker | Online | Hub phase in [`milestones-hub-ia.md`](milestones-hub-ia.md) |
 | **C08** | **Tournament story page** | What happened at this event? | Minimal narrative band: winner, biggest upset, perf rating, **who debuted** in their first official tournament here, moments cards, video — scale down for 4-player kitchen events | Amiga | Magazine spread on `tournament.php`; pairs with **C14** (realm-wide tournament metadata LBs) |
 | **C09** | **Rivalry teaser on profile** | Who's *the* rivalry? | One card → H2H poster | Both | **Deferred** with C01 (Amiga profile pass); online placeholder exists |
@@ -124,6 +124,12 @@ LANDING             Status default                   News tab ◻ (placeholder)
 | **C11** | **WC highlight reel (editorial)** | Show me the best stuff across WC history | Curated story through WC years — a few videos per year + short editorial copy celebrating players | Amiga | **Must be editorial**, not algorithmic boards |
 | **C12** | **Country story page** | Who *are* the Italians? | Prose band: best WC, top player, default rival link | Amiga | **Parked** — interesting but authenticity / data-to-prose unclear |
 | **C14** | **Tournament metadata leaderboard** | Which events had the most debuts / biggest fields / …? | **Tournament stats** sub-wing on **Tournaments hub** — sortable metadata boards beside the chronological searchable catalog (mirror **World Cups hub → Tournament stats**, not player/country stats) | Amiga | **Approved** (Jun 2026) — firm to-do; follow-on from **C08**; extend **`amiga_tournament_catalog_stats`** at finalize (debut count, etc.); player/country tournament grains stay in normal LBs — §6.4 |
+
+### 5.4 Sparks — needs Dagh pass before build
+
+| ID | Idea | Human question | Device | Realm | Notes |
+|----|------|----------------|--------|-------|-------|
+| **C16** | **KO2 universe map** | Where does Kick Off 2 live on the internet — and how does *this* site fit in? | **Visual map** — illustrated ecosystem with glowing nodes, regions, and curated creator anchors; optional accessible list below | **Both** | **Gestating** (Jul 2026) — map-first wow piece; §6.6 · [`present-layer-ia.md`](present-layer-ia.md) §6 |
 
 ### 5.2 Rejected (session) — do not re-pitch
 
@@ -219,6 +225,85 @@ LANDING             Status default                   News tab ◻ (placeholder)
 
 **Scope:** Reuses highlights cluster (`AMIGA_GAMES_HIGHLIGHT_BOARDS` + shared table); WC scope filter inherited from sibling boards.
 
+### 6.6 KO2 universe map (C16) — gestating
+
+**Status:** **Gestating** (Jul 2026) — **map-first** product intent locked; visual grammar and build track TBD.
+
+**Origin:** Site-completion / Misc brainstorm. Dagh (Jul 2026): not a link dump — a **real map** with **wow** factor: entice newcomers, re-engage veterans, give content creators an attractive umbrella to **carve out a visible place**. [`present-layer-ia.md`](present-layer-ia.md) · Misc **Scene** bucket.
+
+**Human question:** *Where does Kick Off 2 live — and where do **I** belong in it?*
+
+---
+
+#### Product intent (locked)
+
+| Audience | Job the map does |
+|----------|------------------|
+| **Newcomers** | Orientation without overwhelm — “here is the whole scene; here is where you start playing; here is why this site matters.” |
+| **Oldcomers** | Re-engagement — rediscover forums, channels, and corners they forgot; feel the scene is **still alive**, not a dead spreadsheet. |
+| **Content creators** | **Carve-out** — YouTube channels, streamers, sites, and community projects get **named nodes** on the map (curated), not buried in a footer link list. The umbrella should feel **worth being on**. |
+
+**Wow bar:** This should be a page people **show friends** — comparable to box art story or jukebox in “stay awhile” mood, not a sitemap.
+
+---
+
+#### Device — visual map (primary)
+
+**Primary surface:** an **illustrated universe map** on a dark canvas — neon-noir kin to [`design-direction.md`](design-direction.md) (deep bg, accent glow on nodes and paths, no pixel fonts for labels).
+
+| Element | Intent |
+|---------|--------|
+| **Nodes** | Destinations — sites, forums, Discord, YouTube channels, wikis, key community projects |
+| **Regions / territories** | Loose geography — e.g. **Play online** · **Amiga offline** · **Community & forums** · **Video & creators** · **History & archives** — not rigid borders, more like labelled space |
+| **Paths / constellations** | Visual relationships (play → stats → video; offline ↔ online) — suggest journey, not just a grid |
+| **You are here** | **This ratings site** is an explicit anchor — the stats hub in the middle of the ecosystem, not an afterthought |
+| **Live pulse (optional v1.1)** | Subtle glow or pulse on “hot” nodes (e.g. Discord, live online scene) — ties to daily pulse idea on News |
+
+**Accessibility / maintenance:** Map is hero; **structured list or table below** (same data) for screen readers, search, and dead-link audits — hybrid for a11y, not a replacement for the map.
+
+**Not:** auto-scraped directory, wiki, comments, or infinite user-submitted pins without curation.
+
+---
+
+#### Creator carve-out (intent)
+
+Creators and community projects are **first-class map citizens**, not a footnote category:
+
+- Each creator node: **name · one-line blurb · link · optional icon/thumbnail treatment**
+- **Curated inclusion** — Dagh/community nomination; map stays trustworthy
+- Room to **add nodes over time** without redrawing the whole universe (new star in a region, or new satellite)
+- Long-term: map becomes the **social proof** of a living scene (“look who is here”)
+
+Open: nomination process, max nodes per region, whether inactive channels grey out vs drop off.
+
+---
+
+#### Seed inventory (starter set)
+
+Canonical outbound URLs in [`join_page_links.php`](../site/public_html/includes/join_page_links.php): Discord, kickoff2.net, kickoff2.com, KOA forum, KO2CV YouTube, tutorials/playlists. Expand with wikis, gathering sites, notable channels — **map layout drives what makes the cut**, not “every link we know.”
+
+---
+
+#### Placement & discovery
+
+| | |
+|--|--|
+| **URL** | Tier-3 Misc leaf — **`/misc/ko2-universe.php`** (cross-realm) |
+| **Discover** | News “From the shelf” · Misc catalog · About · Play & Setup “wider scene” · optional Status hook |
+| **Hub tab** | No — leaf page (NM2) |
+
+**Jukebox test:** Strong yes — immersion + exploration.
+
+---
+
+#### Still open before build track
+
+1. **Visual grammar** — constellation vs island archipelago vs metro-style vs stylised pitch/planet (one mood board pass).
+2. **Interaction** — pan/zoom canvas vs fixed illustration with clickable hotspots vs scroll-reveal sections.
+3. **Data model** — static PHP/JSON manifest of nodes vs DB (likely **manifest in repo** for v1).
+4. **Illustration** — custom art / CSS-SVG / generative layout from node coordinates.
+5. **Promotion** — **gestating** → **approved** when visual direction is chosen; then policy + slices per [`agent-track-playbook.md`](orchestration/agent-track-playbook.md).
+
 ---
 
 ## 7. Blueprint for future creative sessions
@@ -260,6 +345,8 @@ LANDING             Status default                   News tab ◻ (placeholder)
 
 | When | Note |
 |------|------|
+| 2026-07-01 | **C16 gestating** — map-first wow intent: visual universe map, three audiences (newcomers / oldcomers / creators), creator carve-out nodes; atlas demoted to a11y fallback; §6.6 expanded. |
+| 2026-07-01 | **C16 spark** — KO2 universe map (Misc Scene leaf; visual map and/or link atlas); §5.4 + §6.6; ties to [`present-layer-ia.md`](present-layer-ia.md). |
 | 2026-07-01 | **C06 cleanup** — dev glyph picker removed; production-only `amiga_tournament_video_column_cell()` + scoped CSS; §6.2. |
 | 2026-07-01 | **C06 table polish** — blank Videos header; empty cells without footage; no glyph tooltips; tournaments catalog Players/Games centered (WC parity); §6.2. |
 | 2026-07-01 | **C06 column layout** — video glyph moved from inline Tournament cell to dedicated Videos column (before Players) on tournaments catalog + WC chronology; sortable; §6.2. |

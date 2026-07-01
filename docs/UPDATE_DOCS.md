@@ -37,6 +37,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | Player profile layout / v1 build | `docs/player-profile-feast.md`, `docs/profile-build-playbook.md` (v1 decisions: `docs/archive/profile-content-candidates.md`) |
 | Milestones feature (phases, catalog, tier plan) | `docs/milestones-README.md`, `docs/milestones-catalog.md` (regen script), `docs/milestones-project.md`, `docs/milestones-product-spec.md` |
 | Hub tabs / IA | `docs/hub-ia-agreement.md` |
+| **Present layer** (News, pulse rail, Misc, leaf pages, footer/about, shippable checklist) | [`present-layer-ia.md`](present-layer-ia.md) |
 | URL routes / new sub-hub tabs | `docs/url-routes.md` § Sub-hub navigation |
 | **New page / tab / mode (URL + placement)** | **`docs/k2-page-structure-checklist.md`** (then `url-routes.md`, `navigation-model.md` NM3–NM4) |
 | Play & setup / join page | `docs/join-play-setup.md` |
