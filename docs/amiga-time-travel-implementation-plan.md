@@ -114,7 +114,7 @@ Users can turn time travel on/off; navigation preserves `as` on wired pages.
 - [x] Header **Present day | Time travel** in `amiga_time_mode_nav.php` (later **T19**: fixed homes — Present → News; Time travel → rating LB + `as=`)
 - [x] Include chrome from a single Amiga layout hook after `amiga_hub_nav.php` on hub pages
 - [x] Include chrome after `amiga_player_nav.php` on player wings
-- [x] Hub entry when inactive: **Time travel** link → first year `as=year:{yyyy}`
+- [x] Hub entry when inactive: **Time travel** link → first ladder event `as=event:{id}` (Event wing)
 - [x] Update `amiga_hub_nav.php` — `href`s via `amiga_url_with_context()`
 - [x] Update `amiga_lb_nav.php` — wing tab hrefs
 - [x] Update `k2_amiga_route()` / `k2_amiga_player_link()` — append context when active

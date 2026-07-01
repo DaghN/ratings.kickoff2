@@ -29,6 +29,7 @@ from scripts.amiga.verify_stored_id_date_pairs import main as verify_stored_id_d
 from scripts.amiga.verify_player_slice import main as verify_player_slice_main
 from scripts.amiga.verify_country_slice import main as verify_country_slice_main
 from scripts.amiga.verify_wc_hof import main as verify_wc_hof_main
+from scripts.amiga.verify_tournament_videos import main as verify_tournament_videos_main
 from scripts.amiga.verify_perfect_event import main as verify_perfect_event_main
 from scripts.amiga.tournament_format import main as verify_tournament_formats_main
 
@@ -53,6 +54,7 @@ _VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
     ("verify-hof-peak-rating-holder", verify_hof_peak_rating_holder_main),
     ("verify-stored-id-date-pairs", verify_stored_id_date_pairs_main),
     ("verify-import-manifest", verify_import_manifest_main),
+    ("verify-tournament-videos", verify_tournament_videos_main),
     ("verify-l2-l3", lambda: verify_l2_l3_boundary_main([])),
     ("verify-tournament-formats", lambda: verify_tournament_formats_main([])),
 ]
@@ -109,6 +111,13 @@ def run_prove(
     if dry_run:
         log.info("prove: dry-run — skipping verify suite")
         return 0
+
+    log.info("prove: sync tournament video DB anchors")
+    from scripts.amiga.tournament_videos.sync_db_ids import run as sync_tournament_video_db
+
+    if sync_tournament_video_db(write=True, resolve_matches=True, rebuild=True) != 0:
+        log.error("prove failed at tournament-video DB anchor sync")
+        return 1
 
     for name, verify_fn in _VERIFY_STEPS:
         log.info("prove: %s", name)

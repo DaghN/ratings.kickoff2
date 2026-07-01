@@ -37,7 +37,7 @@ League **period buckets** and Amiga **tournament events** are the same idea at d
 | **WP4** | **Per-surface URL params** | Each stepper owns its param — tied to the query key it moves (§3.4). Absent, zero, or unknown player id → filter off for **that surface only** (silent ignore; no 404). |
 | **WP5** | **Scoped link propagation** | Each param propagates only on links that stay in the **same surface family** and preserve the stepped axis. Never drop a with-player param without user intent (cancel row). **Do not** copy TT filter params onto unrelated surfaces or vice versa. |
 | **WP6** | **Shared lookup only — not shared URL/engine** | **Share:** participation key-set query per realm + optional pure helper `{ catalog, current_key, participated_set, direction } → next/prev key` (no URL knowledge). **Separate:** param names, parse/append helpers, form actions, chevron href builders, propagation rules per surface. No unified “stepper controller” that tries to infer context. |
-| **WP7** | **v1 granularity (Amiga TT)** | **Event wing only** on the time-travel ribbon. Year / Month wings stay realm-global in v1. |
+| **WP7** | **TT ribbon granularity** | **`as_with=`** filters stepping on **Year, Month, and Event** wings (participation keyed by calendar year, YYYY-MM month, or tournament id). |
 | **WP8** | **Present + time travel** | Tournament chevrons work in **both** present day and active time travel. TT ribbon filter requires active `as=` (Event wing). |
 | **WP9** | **Snapshot clamp (TT)** | When `as=` is active, TT Event chevrons **must not step forward past the resolved cutoff**. Same clamp with or without `as_with=`. Tournament chevrons use their own catalog clamp rules under TT (§5.4). |
 | **WP10** | **Retire T18 first (slice 0)** | Remove path-based auto-stepping on `/amiga/player/…` **before** shipping new filters. After slice 0, all pages use realm-global Event stepping until `as_with=` ships. Implicit picker accents without an explicit filter param are removed with T18. |
@@ -71,17 +71,17 @@ League **period buckets** and Amiga **tournament events** are the same idea at d
 | **Wing on step** | Preserve current wing **intent** with per-target fallback — §5.6 |
 | **Implementation** | Tournament-local modules only — §5.5, §10; **not** TT ribbon reuse (WP15) |
 
-### 3.2 Amiga — time-travel ribbon (Event wing)
+### 3.2 Amiga — time-travel ribbon (Year · Month · Event)
 
 | Item | Rule |
 |------|------|
-| **When** | Active `as=` and **Event** wing on snapshot ribbon |
-| **Placement** | Ribbon control row — listbox beside Event chevrons / event picker |
-| **URL param** | **`as_with={player_id}`** — filters stepping of **`as=`** (Event wing) only |
-| **Catalog** | Full realm event catalog (cutoff-truncated when `as=` active) |
-| **Stepping target** | Updates `as=event:{id}`; does not replace tournament `id_with=` |
-| **Off-filter snap** | When `as_with=` is active on the **Event** wing and current event is off-filter → **302** to nearest eligible event (prev, else next). Year/Month wings unchanged. Entry: `includes/amiga_as_with_snap.php` via `amiga_page_preamble.php` **before DOCTYPE** (redirect must run before HTML output — not from snapshot context load). |
-| **Picker accents** | When `as_with=` active, participated events for that player may use link-star in the open event list (secondary). Primary signal = listbox trigger |
+| **When** | Active `as=` on snapshot ribbon (any wing) |
+| **Placement** | Ribbon control row — listbox beside wing chevrons / snapshot picker |
+| **URL param** | **`as_with={player_id}`** — filters stepping of **`as=`** for the **active wing** (year / month / event keys) |
+| **Catalog** | Full realm wing catalog (cutoff-truncated when `as=` active) |
+| **Stepping target** | Updates `as={wing}:{key}`; does not replace tournament `id_with=` |
+| **Off-filter snap** | When `as_with=` is active and the current year/month/event is off-filter → **302** to nearest eligible slice (prev, else next). Entry: `includes/amiga_as_with_snap.php` via `amiga_page_preamble.php` **before DOCTYPE**. |
+| **Picker accents** | When `as_with=` active, participated years/months/events for that player may use link-star in the open picker list (secondary). Primary signal = listbox trigger |
 
 ### 3.3 Online — league period chevrons (extend)
 
@@ -99,7 +99,7 @@ League **period buckets** and Amiga **tournament events** are the same idea at d
 
 | Surface | Param | Steps | Propagate on |
 |---------|------------|-------|--------------|
-| TT Event ribbon | `as_with` | `as=` (Event wing) | Amiga internal links that preserve `as=` (TT-aware propagation) |
+| TT Event ribbon | `as_with` | `as=` (Year / Month / Event wing) | Amiga internal links that preserve `as=` (TT-aware propagation) |
 | Tournament entity | `id_with` | `id=` (via catalog) | Tournament folder URLs (`/amiga/tournament/…`) |
 | Tournament entity | `id_country` | `id=` (via catalog) | Same tournament folder family as `id_with` |
 | League period | `start_with` | `start=` | `league.php` peer links (`cup` + `period` preserved) |

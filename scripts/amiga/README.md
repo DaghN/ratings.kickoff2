@@ -19,7 +19,7 @@ python -m scripts.amiga prove
 powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
 ```
 
-`prove` = L1 `import-pristine` → L2 `import-prune` → L3 `import-witness` → L4 `apply-structure` → L5 `replay` → verify suite (strict stack, slices 1–11 complete).
+`prove` = L1 `import-pristine` → L2 `import-prune` → L3 `import-witness` → L4 `apply-structure` → L5 `replay` → **tournament-video DB anchor sync** → verify suite (strict stack, slices 1–11 complete). Includes `verify-tournament-videos` — see [`tournament_videos/README.md`](tournament_videos/README.md).
 
 **Strict stack policy:** [`docs/amiga-ground-stack.md`](../../docs/amiga-ground-stack.md) · [`docs/amiga-ground-layers-policy.md`](../../docs/amiga-ground-layers-policy.md) (v3).
 

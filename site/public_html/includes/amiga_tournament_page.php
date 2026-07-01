@@ -457,15 +457,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
 
       if ($isWorldCupEvent) {
           $eventStatsNav();
-          $videosNav();
-          if ($hasStagesTab) {
-              $stagesActive = $pageView === 'stages';
-              ?>
-      <a href="<?php echo k2_h($stagesEntryUrl); ?>" class="k2-player-nav__btn<?php echo $stagesActive ? ' is-active' : ''; ?>"<?php
-              echo $stagesActive ? ' aria-current="page"' : '';
-              ?>>Stages</a>
-              <?php
-          }
           if ($hasGamesTab) {
               $gamesActive = $pageView === 'games';
               ?>
@@ -474,9 +465,17 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
               ?>>Games</a>
               <?php
           }
+          if ($hasStagesTab) {
+              $stagesActive = $pageView === 'stages';
+              ?>
+      <a href="<?php echo k2_h($stagesEntryUrl); ?>" class="k2-player-nav__btn<?php echo $stagesActive ? ' is-active' : ''; ?>"<?php
+              echo $stagesActive ? ' aria-current="page"' : '';
+              ?>>Stages</a>
+              <?php
+          }
+          $videosNav();
       } else {
           $eventStatsNav();
-          $videosNav();
           if ($showLeagueTableTab) {
               $leagueTableActive = $scopeType === 'league' && $scopeKey === '' && $pageView === 'standings';
               ?>
@@ -507,6 +506,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
               ?>>Games</a>
               <?php
           }
+          $videosNav();
       }
       ?>
 

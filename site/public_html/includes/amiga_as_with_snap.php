@@ -1,6 +1,6 @@
 <?php
 /**
- * TT Event ribbon — filter auto-snap (`as_with=`).
+ * TT ribbon — filter auto-snap (`as_with=`) on Year / Month / Event wings.
  *
  * Separate from tournament `id_with` / league `start_with` (WP6). Tournament and league
  * keep their own entry redirects; this module is TT-only.
@@ -9,7 +9,7 @@
  */
 declare(strict_types=1);
 
-/** 302 to nearest eligible event when `as_with=` active and current event is off-filter. */
+/** 302 to nearest eligible snapshot when `as_with=` active and current slice is off-filter. */
 function amiga_as_with_apply_snap_redirect(): void
 {
     if (headers_sent()) {
@@ -25,7 +25,8 @@ function amiga_as_with_apply_snap_redirect(): void
     }
 
     $parsed = amiga_snapshot_parse_as_param($asRaw);
-    if ($parsed === null || ($parsed['wing'] ?? '') !== 'event') {
+    $wing = is_array($parsed) ? (string) ($parsed['wing'] ?? '') : '';
+    if ($parsed === null || !in_array($wing, ['year', 'month', 'event'], true)) {
         return;
     }
 
@@ -57,22 +58,21 @@ function amiga_as_with_apply_snap_redirect(): void
     }
 
     $view = amiga_snapshot_resolve_as($con, $asRaw);
-    if ($view === null || ($view['wing'] ?? '') !== 'event') {
+    if ($view === null || ($view['wing'] ?? '') !== $wing) {
         $con->close();
 
         return;
     }
 
     $currentKey = (string) $view['key'];
-    $participatedSet = amiga_player_participated_event_key_set($con, $playerId);
+    $participatedSet = amiga_player_participated_wing_key_set($con, $playerId, $wing);
     if (isset($participatedSet[$currentKey])) {
         $con->close();
 
         return;
     }
 
-    $steps = k2_participation_step_keys($view['catalog'], $currentKey, $participatedSet);
-    $targetKey = $steps['prev_key'] ?? $steps['next_key'];
+    $targetKey = k2_participation_snap_target_key($view['catalog'], $currentKey, $participatedSet);
     if ($targetKey === null || $targetKey === '' || $targetKey === $currentKey) {
         $con->close();
 
@@ -83,7 +83,7 @@ function amiga_as_with_apply_snap_redirect(): void
 
     $href = amiga_url_with_as_param(
         amiga_snapshot_request_path(),
-        amiga_snapshot_format_as_param('event', $targetKey),
+        amiga_snapshot_format_as_param($wing, $targetKey),
     );
     $con->close();
 
@@ -115,12 +115,9 @@ function amiga_as_with_snap_try_from_request(): void
     if ($as === '') {
         return;
     }
-    if (isset($_GET['wing'], $_GET['at']) && trim((string) $_GET['at']) !== '') {
-        $wing = strtolower(trim((string) $_GET['wing']));
-        if ($wing !== 'event') {
-            return;
-        }
-    } elseif (!str_starts_with(strtolower($as), 'event:')) {
+    require_once __DIR__ . '/amiga_rating_history_lib.php';
+    $parsed = amiga_snapshot_parse_as_param($as);
+    if ($parsed === null || !in_array((string) ($parsed['wing'] ?? ''), ['year', 'month', 'event'], true)) {
         return;
     }
 

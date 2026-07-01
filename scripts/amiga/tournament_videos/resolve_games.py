@@ -486,7 +486,16 @@ def run(*, only_missing: bool = True) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    return run(only_missing=True)
+    import argparse
+
+    p = argparse.ArgumentParser(description="Resolve game_id_guess on review.csv")
+    p.add_argument(
+        "--all",
+        action="store_true",
+        help="Re-resolve every match row (default: only rows missing game_id_guess)",
+    )
+    args = p.parse_args(argv)
+    return run(only_missing=not args.all)
 
 
 if __name__ == "__main__":

@@ -2233,7 +2233,7 @@ body.k2-site .k2-amiga-history__controls .k2-player-games-controls.k2-amiga-hist
 	min-width: 0;
 }
 
-body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-time-travel__filter-row {
+body.k2-site .k2-amiga-time-travel .k2-amiga-time-travel__filter-row {
 	display: inline-flex;
 	flex-wrap: nowrap;
 	align-items: center;
@@ -2242,26 +2242,26 @@ body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-time-travel__filter-row
 	min-width: 0;
 }
 
-body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__as-with {
+body.k2-site .k2-amiga-time-travel .k2-amiga-history__as-with {
 	flex: 0 1 auto;
 	width: auto;
 	max-width: 14rem;
 	min-width: 0;
 }
 
-body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__as-with .k2-archive-listbox {
+body.k2-site .k2-amiga-time-travel .k2-amiga-history__as-with .k2-archive-listbox {
 	width: auto;
 	max-width: 100%;
 	min-width: 0;
 }
 
-body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__as-with .k2-archive-listbox__trigger {
+body.k2-site .k2-amiga-time-travel .k2-amiga-history__as-with .k2-archive-listbox__trigger {
 	width: auto;
 	max-width: 100%;
 	box-sizing: border-box;
 }
 
-body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__as-with .k2-archive-listbox__panel {
+body.k2-site .k2-amiga-time-travel .k2-amiga-history__as-with .k2-archive-listbox__panel {
 	left: 0;
 	right: auto;
 	width: max-content;
@@ -2269,7 +2269,7 @@ body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__as-with .k2-ar
 	max-width: min(var(--k2-amiga-tt-as-with-panel-width, 10rem), 92vw);
 }
 
-body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__picker .k2-archive-listbox__trigger.k2-link-star .k2-archive-listbox__label {
+body.k2-site .k2-amiga-time-travel .k2-amiga-history__picker .k2-archive-listbox__trigger.k2-link-star .k2-archive-listbox__label {
 	color: var(--k2-link-star);
 	font-weight: 600;
 }
@@ -2302,7 +2302,7 @@ body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__picker .k2-arc
 	text-overflow: ellipsis;
 }
 
-body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__picker .k2-archive-listbox__option-meta.k2-link-star {
+body.k2-site .k2-amiga-time-travel .k2-amiga-history__picker .k2-archive-listbox__option-meta.k2-link-star {
 	color: var(--k2-link-star);
 	font-weight: 600;
 }

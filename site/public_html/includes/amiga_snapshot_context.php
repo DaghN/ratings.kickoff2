@@ -198,15 +198,13 @@ function amiga_snapshot_context_from_request(mysqli $con): AmigaSnapshotContext
         return $ctx;
     }
 
-    if ($view['wing'] === 'event') {
-        require_once __DIR__ . '/amiga_participation_step_lib.php';
-        $asWithPlayerId = amiga_as_with_active_player_id($con);
-        if ($asWithPlayerId > 0) {
-            $participatedSet = amiga_player_participated_event_key_set($con, $asWithPlayerId);
-            $steps = k2_participation_step_keys($view['catalog'], (string) $view['key'], $participatedSet);
-            $view['prev_key'] = $steps['prev_key'];
-            $view['next_key'] = $steps['next_key'];
-        }
+    require_once __DIR__ . '/amiga_participation_step_lib.php';
+    $asWithPlayerId = amiga_as_with_active_player_id($con);
+    if ($asWithPlayerId > 0) {
+        $participatedSet = amiga_player_participated_wing_key_set($con, $asWithPlayerId, (string) $view['wing']);
+        $steps = k2_participation_step_keys($view['catalog'], (string) $view['key'], $participatedSet);
+        $view['prev_key'] = $steps['prev_key'];
+        $view['next_key'] = $steps['next_key'];
     }
 
     $ctx = AmigaSnapshotContext::fromCatalogView($view);
@@ -284,17 +282,17 @@ function amiga_snapshot_wing_key_from_cutoff(?array $cutoff, string $targetWing)
     };
 }
 
-/** Default time-travel entry — first calendar year (`year:{yyyy}`). */
+/** Default time-travel entry — first ladder event (`event:{id}`), Event wing. */
 function amiga_snapshot_latest_as_param(mysqli $con): ?string
 {
-    $catalog = amiga_rating_history_catalog_year($con);
+    $catalog = amiga_rating_history_catalog_event($con);
     if ($catalog === []) {
         return null;
     }
 
     $first = $catalog[0];
 
-    return amiga_snapshot_format_as_param('year', (string) $first['key']);
+    return amiga_snapshot_format_as_param('event', (string) $first['key']);
 }
 
 /**

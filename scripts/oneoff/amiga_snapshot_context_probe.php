@@ -28,19 +28,19 @@ if ($yearCatalog === []) {
     fwrite(STDERR, "no years in catalog\n");
     exit(1);
 }
+$events = amiga_rating_history_catalog_event($con);
+if ($events === []) {
+    fwrite(STDERR, "no events in catalog\n");
+    exit(1);
+}
 $defaultAs = amiga_snapshot_latest_as_param($con);
-$expectedDefault = amiga_snapshot_format_as_param('year', (string) $yearCatalog[0]['key']);
+$expectedDefault = amiga_snapshot_format_as_param('event', (string) $events[0]['key']);
 if ($defaultAs !== $expectedDefault) {
     fwrite(STDERR, "default entry expected {$expectedDefault}, got {$defaultAs}\n");
     exit(1);
 }
 echo 'default_entry=' . $defaultAs . PHP_EOL;
 
-$events = amiga_rating_history_catalog_event($con);
-if ($events === []) {
-    fwrite(STDERR, "no events in catalog\n");
-    exit(1);
-}
 $lastEvent = $events[count($events) - 1];
 $lastId = (string) $lastEvent['key'];
 
@@ -166,8 +166,8 @@ if (!str_contains($ttFromPlayer, '/amiga/leaderboards/rating.php')) {
     fwrite(STDERR, "TT entry from player should be rating LB: {$ttFromPlayer}\n");
     exit(1);
 }
-if (!str_contains($ttFromPlayer, 'as=year%3A') && !str_contains($ttFromPlayer, 'as=year:')) {
-    fwrite(STDERR, "TT entry should use first calendar year: {$ttFromPlayer}\n");
+if (!str_contains($ttFromPlayer, 'as=event%3A') && !str_contains($ttFromPlayer, 'as=event:')) {
+    fwrite(STDERR, "TT entry should use first ladder event: {$ttFromPlayer}\n");
     exit(1);
 }
 if (str_contains($ttFromPlayer, 'id=')) {
@@ -182,8 +182,8 @@ if (!str_contains($tournamentTtHref, '/amiga/leaderboards/rating.php')) {
     fwrite(STDERR, "TT entry from tournament should be rating LB: {$tournamentTtHref}\n");
     exit(1);
 }
-if (!str_contains($tournamentTtHref, 'as=year%3A') && !str_contains($tournamentTtHref, 'as=year:')) {
-    fwrite(STDERR, "TT entry from tournament should use first calendar year: {$tournamentTtHref}\n");
+if (!str_contains($tournamentTtHref, 'as=event%3A') && !str_contains($tournamentTtHref, 'as=event:')) {
+    fwrite(STDERR, "TT entry from tournament should use first ladder event: {$tournamentTtHref}\n");
     exit(1);
 }
 if (str_contains($tournamentTtHref, 'id=')) {
@@ -430,6 +430,105 @@ if ($snapOnFilter !== null) {
     exit(1);
 }
 echo "as_with_filter_snap_ok id={$asWithOffKey} snap={$expectedAsWithSnap}\n";
+
+$yearCatalog = amiga_rating_history_catalog_year($con);
+$yearParticipated = amiga_player_participated_wing_key_set($con, $asWithPlayerId, 'year');
+$yearTestKey = null;
+$yearExpectedNext = null;
+foreach ($yearCatalog as $i => $yearRow) {
+    if ($i >= count($yearCatalog) - 1) {
+        break;
+    }
+    $currentYearKey = (string) $yearRow['key'];
+    $realmNextYearKey = (string) $yearCatalog[$i + 1]['key'];
+    if (isset($yearParticipated[$realmNextYearKey])) {
+        continue;
+    }
+    $filteredYearNext = null;
+    for ($j = $i + 1; $j < count($yearCatalog); $j++) {
+        $candidateYearKey = (string) $yearCatalog[$j]['key'];
+        if (isset($yearParticipated[$candidateYearKey])) {
+            $filteredYearNext = $candidateYearKey;
+            break;
+        }
+    }
+    if ($filteredYearNext === null || !isset($yearParticipated[$currentYearKey])) {
+        continue;
+    }
+    $yearTestKey = $currentYearKey;
+    $yearExpectedNext = $filteredYearNext;
+    break;
+}
+if ($yearTestKey === null || $yearExpectedNext === null) {
+    fwrite(STDERR, "could not find as_with stepping fixture in year catalog\n");
+    exit(1);
+}
+$_GET = ['as' => 'year:' . $yearTestKey, 'as_with' => (string) $asWithPlayerId];
+amiga_snapshot_context_reset();
+$ctxAsWithYear = amiga_snapshot_context_from_request($con);
+if ($ctxAsWithYear->nextKey() !== $yearExpectedNext) {
+    fwrite(STDERR, "as_with year next expected {$yearExpectedNext}, got " . ($ctxAsWithYear->nextKey() ?? 'null') . "\n");
+    exit(1);
+}
+$yearOffKey = null;
+foreach ($yearCatalog as $yearRow) {
+    $key = (string) $yearRow['key'];
+    if (!isset($yearParticipated[$key])) {
+        $yearOffKey = $key;
+        break;
+    }
+}
+if ($yearOffKey === null) {
+    fwrite(STDERR, "need off-filter year for as_with snap\n");
+    exit(1);
+}
+$yearSnap = k2_participation_snap_target_key($yearCatalog, $yearOffKey, $yearParticipated);
+if ($yearSnap === null) {
+    fwrite(STDERR, "year snap target missing for off-filter year {$yearOffKey}\n");
+    exit(1);
+}
+echo "as_with_year_stepping_ok key={$yearTestKey} next={$yearExpectedNext} snap={$yearSnap}\n";
+
+$monthCatalog = amiga_rating_history_catalog_month($con);
+$monthParticipated = amiga_player_participated_wing_key_set($con, $asWithPlayerId, 'month');
+$monthTestKey = null;
+$monthExpectedNext = null;
+foreach ($monthCatalog as $i => $monthRow) {
+    if ($i >= count($monthCatalog) - 1) {
+        break;
+    }
+    $currentMonthKey = (string) $monthRow['key'];
+    $realmNextMonthKey = (string) $monthCatalog[$i + 1]['key'];
+    if (isset($monthParticipated[$realmNextMonthKey])) {
+        continue;
+    }
+    $filteredMonthNext = null;
+    for ($j = $i + 1; $j < count($monthCatalog); $j++) {
+        $candidateMonthKey = (string) $monthCatalog[$j]['key'];
+        if (isset($monthParticipated[$candidateMonthKey])) {
+            $filteredMonthNext = $candidateMonthKey;
+            break;
+        }
+    }
+    if ($filteredMonthNext === null || !isset($monthParticipated[$currentMonthKey])) {
+        continue;
+    }
+    $monthTestKey = $currentMonthKey;
+    $monthExpectedNext = $filteredMonthNext;
+    break;
+}
+if ($monthTestKey === null || $monthExpectedNext === null) {
+    fwrite(STDERR, "could not find as_with stepping fixture in month catalog\n");
+    exit(1);
+}
+$_GET = ['as' => 'month:' . $monthTestKey, 'as_with' => (string) $asWithPlayerId];
+amiga_snapshot_context_reset();
+$ctxAsWithMonth = amiga_snapshot_context_from_request($con);
+if ($ctxAsWithMonth->nextKey() !== $monthExpectedNext) {
+    fwrite(STDERR, "as_with month next expected {$monthExpectedNext}, got " . ($ctxAsWithMonth->nextKey() ?? 'null') . "\n");
+    exit(1);
+}
+echo "as_with_month_stepping_ok key={$monthTestKey} next={$monthExpectedNext}\n";
 
 $_GET['as'] = 'year:2010';
 amiga_snapshot_context_reset();

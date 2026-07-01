@@ -930,7 +930,7 @@ function k2_lb_help_amiga_wc_country_losses(): string
 
 function k2_lb_amiga_rating_delta_tooltip_label(): string
 {
-    return 'Rating change';
+    return 'Rating change (time travel mode)';
 }
 
 function k2_lb_help_amiga_rating_delta(): string
@@ -953,7 +953,7 @@ function k2_lb_help_amiga_wc_start_rating_delta(): string
 /** data-k2-tooltip-label + data-k2-help for present-day World Cup Δ column (header text: Δ). */
 function k2_lb_amiga_wc_start_rating_delta_column_help_attrs(): string
 {
-    return ' data-k2-tooltip-label="' . htmlspecialchars(k2_lb_amiga_rating_delta_tooltip_label(), ENT_QUOTES, 'UTF-8') . '"'
+    return ' data-k2-tooltip-label="Rating change"'
         . ' data-k2-help="' . htmlspecialchars(k2_lb_help_amiga_wc_start_rating_delta(), ENT_QUOTES, 'UTF-8') . '"';
 }
 

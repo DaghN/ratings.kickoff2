@@ -303,12 +303,10 @@ function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $
     }
 
     $pickerAccentKeys = null;
-    if ($wing === 'event') {
-        require_once __DIR__ . '/amiga_participation_step_lib.php';
-        $asWithPlayerId = amiga_as_with_active_player_id($con);
-        if ($asWithPlayerId > 0) {
-            $pickerAccentKeys = amiga_player_participated_event_key_set($con, $asWithPlayerId);
-        }
+    require_once __DIR__ . '/amiga_participation_step_lib.php';
+    $asWithPlayerId = amiga_as_with_active_player_id($con);
+    if ($asWithPlayerId > 0) {
+        $pickerAccentKeys = amiga_player_participated_wing_key_set($con, $asWithPlayerId, $wing);
     }
 
     require_once __DIR__ . '/amiga_time_travel_stamp.php';
@@ -327,15 +325,13 @@ function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $
                 $ctx->entry(),
                 $currentAs,
             );
-            if ($wing === 'event' && $currentAs !== '') {
+            if ($currentAs !== '') {
                 echo '<div class="k2-amiga-time-travel__filter-row">';
                 amiga_snapshot_chrome_render_as_with_listbox($con, $path, $currentAs);
                 if ($catalog !== []) {
                     amiga_snapshot_chrome_render_picker($path, $wing, $currentAs, $catalog, $pickerAccentKeys);
                 }
                 echo '</div>';
-            } elseif ($catalog !== [] && $currentAs !== '') {
-                amiga_snapshot_chrome_render_picker($path, $wing, $currentAs, $catalog, $pickerAccentKeys);
             }
             ?>
         </div>

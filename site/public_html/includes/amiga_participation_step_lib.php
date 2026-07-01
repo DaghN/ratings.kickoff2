@@ -70,6 +70,92 @@ function amiga_player_participated_event_key_set(mysqli $con, int $playerId): ar
 }
 
 /**
+ * Calendar period keys (year or YYYY-MM month) where the player has rated games.
+ *
+ * @return list<string>
+ */
+function amiga_player_participated_period_keys(mysqli $con, int $playerId, string $wing): array
+{
+    static $cache = [];
+
+    if ($playerId < 1) {
+        return [];
+    }
+
+    $wing = amiga_rating_history_normalize_wing($wing);
+    $prefixLen = match ($wing) {
+        'year' => 4,
+        'month' => 7,
+        default => 0,
+    };
+    if ($prefixLen === 0) {
+        return [];
+    }
+
+    $cacheKey = $wing . ':' . $playerId;
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
+    $sql = 'SELECT DISTINCT SUBSTRING(event_date, 1, ?) AS period_key '
+        . 'FROM amiga_player_event_snapshots '
+        . 'WHERE player_id = ? AND NumberGames > 0 '
+        . 'AND event_date IS NOT NULL AND CHAR_LENGTH(event_date) >= ? '
+        . 'ORDER BY period_key ASC';
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        $cache[$cacheKey] = [];
+
+        return $cache[$cacheKey];
+    }
+    $stmt->bind_param('iii', $prefixLen, $playerId, $prefixLen);
+    if (!$stmt->execute()) {
+        $stmt->close();
+        $cache[$cacheKey] = [];
+
+        return $cache[$cacheKey];
+    }
+    $res = $stmt->get_result();
+    $keys = [];
+    while ($row = $res->fetch_assoc()) {
+        $key = trim((string) ($row['period_key'] ?? ''));
+        if ($key !== '') {
+            $keys[] = $key;
+        }
+    }
+    if ($res) {
+        $res->free();
+    }
+    $stmt->close();
+
+    $cache[$cacheKey] = $keys;
+
+    return $keys;
+}
+
+/**
+ * Participation key-set for the active TT ribbon wing catalog.
+ *
+ * @return array<string, true>
+ */
+function amiga_player_participated_wing_key_set(mysqli $con, int $playerId, string $wing): array
+{
+    $wing = amiga_rating_history_normalize_wing($wing);
+    $keys = match ($wing) {
+        'event' => amiga_player_participated_event_keys($con, $playerId),
+        'year', 'month' => amiga_player_participated_period_keys($con, $playerId, $wing),
+        default => [],
+    };
+
+    $set = [];
+    foreach ($keys as $key) {
+        $set[$key] = true;
+    }
+
+    return $set;
+}
+
+/**
  * @return list<array{id: int, name: string}>
  */
 function amiga_participation_eligible_players(mysqli $con): array
@@ -105,7 +191,7 @@ function amiga_participation_eligible_players(mysqli $con): array
 }
 
 /**
- * Resolve active with-player filter for TT Event ribbon (`as_with=`).
+ * Resolve active with-player filter for TT ribbon (`as_with=`).
  *
  * Unknown id or player with no rated games → filter off (silent).
  */

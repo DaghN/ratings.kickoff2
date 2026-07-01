@@ -301,7 +301,38 @@ Re-open either queue only on **new harvest**, **manual adds**, or a **specific m
 
 ---
 
-## 12. Coverage snapshot (exploration, not canonical)
+## 12. DB anchors vs editorial keys (Jul 2026)
+
+Full L3 witness reimport (`import-witness`, `python -m scripts.amiga prove`) **truncates and rebuilds** `amiga_players`, `amiga_games`, and `tournaments`. Auto-increment ids are **not stable** across holy loops — player merges and catalog changes shift ids for everyone after the affected sort position.
+
+### Stable (do not lose)
+
+| Layer | Keys |
+|-------|------|
+| Editorial | `youtube_id`, video title, `kind`, relations, harvest metadata |
+| Human mapping | `tournament_guess_label` (canonical `tournaments.name`), `player_a_guess` / `player_b_guess`, `score`, `stage`, `leg` |
+
+### DB cache (must refresh after every full reimport)
+
+| Field | Source of truth after sync |
+|-------|----------------------------|
+| `guessed_tournament_id` / manifest `tournament_id` | `tournaments.name` lookup; label corrected from id when id is authoritative |
+| `player_*_id_guess` / manifest `player_*_id` | Player display name lookup; then first linked `amiga_games` row |
+| `game_id_guess` / manifest `game_ids` | Re-resolved from tournament + players + score via `resolve_games` |
+
+**Player profile Videos tab** indexes on manifest `player_a_id` / `player_b_id` — stale ids hide the tab from the correct player and may attach clips to the wrong profile even when tournament Videos tabs still work (they use `game_ids`).
+
+### Process (locked)
+
+1. **`python -m scripts.amiga.tournament_videos.sync_db_ids`** — refresh CSV caches from live `ko2amiga_db`, re-resolve match `game_id`s, rebuild `tournament_videos.json`. Flags: `--dry-run`, `--no-resolve`, `--no-rebuild`.
+2. **`python -m scripts.amiga.verify_tournament_videos`** — read-only oracle (also **`prove`** step `verify-tournament-videos`).
+3. **`python -m scripts.amiga prove`** — after L5 replay, runs **sync_db_ids** automatically, then verify suite includes tournament-video oracle.
+
+Harvest / manual ROW_PATCHES edit **stable keys** only; never hand-edit numeric ids except via sync output.
+
+---
+
+## 13. Coverage snapshot (exploration, not canonical)
 
 Approximate counts from Jun 2026 browser harvest:
 
@@ -318,7 +349,7 @@ Treat this table as **exploration notes** — manifest counts after Slice 0 are 
 
 ---
 
-## 13. Open questions
+## 14. Open questions
 
 1. **Manifest path** — **Locked in plan:** shipped JSON at `site/public_html/data/amiga/tournament_videos.json`; harvest/review under `data/amiga/tournament_videos/`.
 2. **Greek Championships 2011** — map to existing `Athens LXX*` row or new disposition.
@@ -328,7 +359,7 @@ Treat this table as **exploration notes** — manifest counts after Slice 0 are 
 
 ---
 
-## 14. References
+## 15. References
 
 | Item | Link |
 |------|------|

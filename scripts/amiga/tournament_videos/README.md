@@ -37,13 +37,37 @@ Fallback: export flat playlists manually into `data/amiga/tournament_videos/raw/
 
 ## Re-harvest cadence
 
-Re-run when Steve or community uploads new tournament footage, or after forum index edits. Then `python -m scripts.amiga.tournament_videos.build_manifest`.
+Re-run when Steve or community uploads new tournament footage, or after forum index edits. Then:
+
+```powershell
+python -m scripts.amiga.tournament_videos.apply_review
+python -m scripts.amiga.tournament_videos.sync_db_ids
+```
+
+## DB anchor sync (after every full L3 reimport)
+
+Numeric ids in `review.csv` / `tournament_videos.json` are **DB caches**, not stable keys. After `import-witness` or `python -m scripts.amiga prove`:
+
+```powershell
+python -m scripts.amiga.tournament_videos.sync_db_ids
+python -m scripts.amiga.verify_tournament_videos
+```
+
+`prove` runs **sync_db_ids** automatically after L5 replay. Use `--dry-run` on sync to preview changes without writing.
+
+Resolve all match game ids (not only missing):
+
+```powershell
+python -m scripts.amiga.tournament_videos.resolve_games --all
+python -m scripts.amiga.tournament_videos.sync_db_ids
+```
 
 ## Manifest build (TV-2)
 
 ```powershell
 python -m scripts.amiga.tournament_videos.build_manifest
 python -m scripts.amiga.tournament_videos.validate_manifest
+python -m scripts.amiga.verify_tournament_videos
 ```
 
 Default includes all mapped rows; `--verified-only` if you want strict CSV gate. Manifest `verified` mirrors CSV (`Y` → true).
