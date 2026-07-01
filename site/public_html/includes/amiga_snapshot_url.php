@@ -95,7 +95,7 @@ function amiga_snapshot_merge_request_query_for_path(string $targetPath, array $
             if (!is_string($name) || $name === '' || is_array($value)) {
                 continue;
             }
-            if (in_array($name, ['as', 'wing', 'at', 'k2_tt_entry'], true)) {
+            if (in_array($name, AMIGA_SNAPSHOT_PRESENT_STRIP_QUERY_KEYS, true)) {
                 continue;
             }
             $carry[$name] = $value;
@@ -126,8 +126,32 @@ function amiga_snapshot_time_travel_active_from_request(): bool
     return $ctx instanceof AmigaSnapshotContext && $ctx->isActive();
 }
 
-/** Exit time travel — same path without `as`, `wing`, or `at`. */
-/** Strip `as` / legacy wing params from a path — URL helper (not the mode toggle; toggle → News per T19). */
+/** Params stripped when exiting time travel to present on the same path. */
+const AMIGA_SNAPSHOT_PRESENT_STRIP_QUERY_KEYS = [
+    'as',
+    'wing',
+    'at',
+    'as_with',
+    'id_with',
+    'id_country',
+    'start_with',
+    'k2_tt_entry',
+];
+
+/**
+ * @param array<string, scalar|null> $query
+ * @return array<string, scalar|null>
+ */
+function amiga_snapshot_strip_present_query_keys(array $query): array
+{
+    foreach (AMIGA_SNAPSHOT_PRESENT_STRIP_QUERY_KEYS as $key) {
+        unset($query[$key]);
+    }
+
+    return $query;
+}
+
+/** Exit time travel — same path without snapshot or with-player lens params. */
 function amiga_url_present(string $path, array $extraQuery = []): string
 {
     $pathPart = $path;
@@ -154,6 +178,7 @@ function amiga_url_present(string $path, array $extraQuery = []): string
     unset($query['as'], $query['wing'], $query['at'], $query['as_with']);
 
     $query = amiga_snapshot_merge_request_query_for_path($pathPart, $query);
+    $query = amiga_snapshot_strip_present_query_keys($query);
 
     if ($query === []) {
         return $pathPart;

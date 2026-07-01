@@ -42,8 +42,8 @@ There is **no** per-page “Current | Historical” split. One chrome control, o
 | **T11** | **Streaks** | No time-travel surfaces for match streaks (Amiga product policy — non-authoritative columns) |
 | **T12** | **Profile blocks deferred** | Hero rank/rating/games at cutoff **shipped** (`amiga_player_snapshot_lib.php`). Remaining profile career blocks — phase 2+ |
 | **T13** | **Present-only hub tabs** | **News** (present realm landing), **Live tournaments** (last tab in present order), and future editorial hubs (e.g. **Misc**) appear **only** in Present day hub nav. When `as=` is active, **omit** them from the hub bar. Direct requests to those paths **drop `as=`** (302 to present URL). |
-| **T14** | **Mode toggle — fixed homes (T19)** | Header **Time travel** from present → **`/amiga/leaderboards/rating.php?as=event:{first}`** always (first ladder event in catalog — Event wing; Dartford WC). Header **Present day** from time travel → **`/amiga/news.php`** always. Same paths from every page; no contextual path or `as=` on toggle entry. |
-| **T19** | **Toggle vs ribbon** | **Present day \| Time travel** = mode boundary (fixed homes, T14). **Year · Month · Event ribbon** = move through time **inside** the lens while keeping the current view (except event wing on `tournament.php` — §5.1.1). |
+| **T14** | **Mode toggle — asymmetric homes (T19)** | Header **Time travel** from present → **`/amiga/leaderboards/rating.php?as=event:{first}`** always (first ladder event — Event wing). Header **Present day** from time travel → **same page without `as=`** (stable query params kept). Header **Present day** when already present → **`/amiga/news.php`**. |
+| **T19** | **Toggle vs ribbon** | **Present day \| Time travel** = mode boundary (T14). **Time travel** entry from present = fixed rating LB + first event; **Present day** exit from lens = contextual same-page present URL. **Year · Month · Event ribbon** = move through time **inside** the lens while keeping the current view (except event wing on `tournament.php` — §5.1.1). |
 | ~~**T14b**~~ | *(superseded by T19)* | ~~Player-wing contextual toggle entry~~ — ribbon remains; player Event stepping → [`with-player-stepper-policy.md`](with-player-stepper-policy.md). |
 | ~~**T14c**~~ | *(superseded by T19)* | ~~Tournament-page contextual toggle entry~~ — event ribbon on `tournament.php` (§5.1.1) remains. |
 | **T15** | **Uniform lens** | **Hub (time travel):** only snapshot-worthy tabs (T13b); all derived stats at cutoff. **Player wings:** hero, games, tournaments, opponents, profile — everything at cutoff when wired; preserve `as=` on links. No silent present-day numbers on wired surfaces. |
@@ -218,7 +218,7 @@ Phase 1 proved the **data lens**: one `as=` cutoff, correct snapshot reads, link
 
 ### 5.1 Time travel chrome
 
-**Header (Amiga only):** segment beside realm switcher — **Present day | Time travel** (`data-k2-carry-scroll` on nav — same scroll lock as hub pills). **Present day** always → **`/amiga/news.php`** (T19). **Time travel** from present → **`/amiga/leaderboards/rating.php?as=event:{first}`** (Event wing, first ladder tournament); when already in the lens → rating LB with **active `as=`** (same as wordmark / realm home). In-lens time stepping uses the **ribbon**, not the toggle. In **present** mode only, hover **Time travel** for a `data-k2-help` tooltip (`amiga_time_mode_nav_time_travel_help_text()` — warning copy + side-effects punchline). `amiga_url_present()` strips `as=` on links — **not** used by the mode toggle.
+**Header (Amiga only):** segment beside realm switcher — **Present day | Time travel** (`data-k2-carry-scroll` on nav — same scroll lock as hub pills). **Present day** from time travel → **same page without `as=`** (`amiga_time_mode_nav_present_href()`); when already present → **`/amiga/news.php`**. **Time travel** from present → **`/amiga/leaderboards/rating.php?as=event:{first}`** (Event wing, first ladder tournament); when already in the lens → rating LB with **active `as=`** (same as wordmark / realm home). In-lens time stepping uses the **ribbon**, not the toggle. In **present** mode only, hover **Time travel** for a `data-k2-help` tooltip (`amiga_time_mode_nav_time_travel_help_text()` — warning copy + side-effects punchline). `amiga_url_present()` strips lens params on same-path present links.
 
 **Hub bar (when `as=` active):** **Leaderboards · World Cups · Tournaments · Countries · Games · Activity · Hall of Fame** (T13b). Present-day order: **News · Leaderboards · World Cups · Tournaments · Countries · Games · Activity · Hall of Fame · Live** (last). News and Live are **hidden** under time travel.
 
@@ -352,7 +352,8 @@ Time travel does **not** add tables or writers. It only changes **read paths** a
 | Present mode | With no `as`, byte-identical behaviour to pre-time-travel pages (regression) |
 | Link carry | Hub → LB → HoF preserves `as=`; present-only hub pages strip `as=`; header search → Amiga profile preserves `as=` and `as_with=` |
 | Enter time travel (toggle, present) | Always rating LB + `as=event:{first}` — Event wing, first ladder tournament (T14/T19) |
-| Present day toggle (from time travel) | Always `/amiga/news.php` (T19); `amiga_url_present()` strips `as=` on in-page links — not the toggle |
+| Present day toggle (from time travel) | Same page without `as=` / with-player lens params; stable filters (`id`, sort, …) kept |
+| Present day toggle (already present) | `/amiga/news.php` |
 | Time travel toggle (already in lens) | Rating LB + active `as=` (wordmark parity) |
 | Player before debut at cutoff | Hero — / — / — + note; no 404 (T17) |
 | With player filter | Opt-in **`as_with=`** on Event ribbon; picker linkstar secondary — [`with-player-stepper-policy.md`](with-player-stepper-policy.md) (T18 removed slice 0) |
@@ -393,6 +394,6 @@ Time travel does **not** add tables or writers. It only changes **read paths** a
 
 ## 10. Agent policy
 
-- **T13b–T19** hub IA + player pre-debut + player event stepper + **T19 fixed toggle homes**: snapshot-only time-travel bar; player wings at cutoff; mode toggle = News ↔ rating LB + `as=`; ribbon for in-lens time; no silent `as=` exit on wired links (T16).
+- **T13b–T19** hub IA + player pre-debut + player event stepper + **T19 asymmetric toggle homes**: snapshot-only time-travel bar; player wings at cutoff; mode toggle = present same-page exit ↔ rating LB + first-event entry; ribbon for in-lens time; no silent `as=` exit on wired links (T16).
 - Do not wire games/tournament catalogs or profile until explicitly scheduled in §4.4.
 - After phase 1 ship: UPDATE_DOCS Part A; feature-log row; cross-link from `amiga-data-contract.md` authority map.

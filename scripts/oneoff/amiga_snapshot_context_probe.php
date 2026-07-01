@@ -207,7 +207,29 @@ if (str_contains($ttInLens, 'k2_tt_entry=')) {
     exit(1);
 }
 if (amiga_hub_present_entry_path() !== '/amiga/news.php') {
-    fwrite(STDERR, "present toggle target should be news\n");
+    fwrite(STDERR, "present realm home should be news\n");
+    exit(1);
+}
+$_GET = [];
+amiga_snapshot_context_reset();
+$_SERVER['REQUEST_URI'] = '/amiga/player/profile.php?id=73';
+$presentFromPresent = amiga_time_mode_nav_present_href();
+if ($presentFromPresent !== '/amiga/news.php') {
+    fwrite(STDERR, "present toggle from present mode should be news: {$presentFromPresent}\n");
+    exit(1);
+}
+$_GET['as'] = 'year:2003';
+$_GET['as_with'] = '73';
+$_GET['id'] = '73';
+amiga_snapshot_context_reset();
+$_SERVER['REQUEST_URI'] = '/amiga/player/profile.php?id=73';
+$presentFromTt = amiga_time_mode_nav_present_href();
+if ($presentFromTt !== '/amiga/player/profile.php?id=73') {
+    fwrite(STDERR, "present toggle from TT should stay on same page without lens: {$presentFromTt}\n");
+    exit(1);
+}
+if (str_contains($presentFromTt, 'as=') || str_contains($presentFromTt, 'as_with=')) {
+    fwrite(STDERR, "present toggle from TT should strip lens params: {$presentFromTt}\n");
     exit(1);
 }
 echo "mode_toggle_hrefs_ok\n";

@@ -37,7 +37,7 @@ $k2HubChapterTitle = 'Games';
 $k2GamesPlayedLede = ($k2GamesHubArc !== null)
 	? '<span class="blue">' . number_format((int) $k2GamesHubArc['games']) . '</span> rated games'
 	: 'rated games';
-$k2HubChapterLede = 'The Kick Off 2 online server has a long history with ' . $k2GamesPlayedLede . '.';
+$k2HubChapterLede = 'The Kick Off 2 online server has a long history with ' . $k2GamesPlayedLede . ' since June 9, 2017.';
 $k2HubChapterList = k2_games_hub_chapter_list_html($k2GamesRecent14Count);
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/games_hub_nav.php';

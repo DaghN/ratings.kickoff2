@@ -111,7 +111,7 @@ Users can turn time travel on/off; navigation preserves `as` on wired pages.
 - [x] Create `site/public_html/includes/amiga_snapshot_chrome.php`
   - Ribbon when active (policy §5.1)
   - Wing tabs Year · Month · Event; chevrons; picker (extract from `history.php`)
-- [x] Header **Present day | Time travel** in `amiga_time_mode_nav.php` (later **T19**: fixed homes — Present → News; Time travel → rating LB + `as=`)
+- [x] Header **Present day | Time travel** in `amiga_time_mode_nav.php` (**T19**: Time travel → rating LB + first event; Present from lens → same page without `as=`; Present when already present → News)
 - [x] Include chrome from a single Amiga layout hook after `amiga_hub_nav.php` on hub pages
 - [x] Include chrome after `amiga_player_nav.php` on player wings
 - [x] Hub entry when inactive: **Time travel** link → first ladder event `as=event:{id}` (Event wing)
@@ -127,7 +127,7 @@ Users can turn time travel on/off; navigation preserves `as` on wired pages.
 - Enable `?as=year:2010` on `/amiga/leaderboards/rating.php`
 - Click HoF hub tab → URL still has same `as`
 - Click player name → profile URL carries `as` but profile shows present data
-- **Present day** toggle → `/amiga/news.php` (T19); `amiga_url_present()` still strips `as=` on generic exit links
+- **Present day** toggle from time travel → same page via `amiga_url_present()`; from present mode → `/amiga/news.php`
 
 ---
 
@@ -273,7 +273,7 @@ Shipped after phase 1 data lens was green — UX polish, **L0**, no Part B:
 | Temporal stamp (DSEG7 LED + kicker) | **Done** | `amiga_time_travel_stamp.php`; above ribbon on all TT surfaces |
 | Hub chapter suppression under `as=` | **Done** | Leaderboards, World Cups, Activity, HoF |
 | Present-mode TT entry tooltip | **Done** | `amiga_time_mode_nav_time_travel_help_text()` |
-| **T19** fixed mode-toggle homes | **Done** | Present → News; Time travel → rating LB + `as=`; ribbon for in-lens time |
+| **T19** asymmetric mode-toggle homes | **Done** | Present from lens → same page; Time travel from present → rating LB + first event; ribbon for in-lens time |
 | Temporal stamp motion (phase 2a) | **Done** | Toggle `k2_tt_entry=1` (panel fade + 32 cps typewriter); wing tabs `k2_tt_entry=wing` (32 cps + 1100ms LED opacity fade); clickable cursor; sync JS after stamp markup |
 | Rating LB Δ column | **Done** | Wing-step delta when `as=`; `amiga_lb_rating_delta_*` |
 

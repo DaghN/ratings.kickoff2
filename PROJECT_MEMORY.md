@@ -133,6 +133,7 @@
 
 | When | Note |
 |------|------|
+| 2026-07-01 | **Games hub lede** — chapter intro adds “since June 9, 2017” after rated-game count (`games_hub_shell_start.inc.php`). |
 | 2026-07-01 | **Amiga tournament nav order** — WC pills: Event stats · Games · Stages · Videos (Games before Stages; Videos last). |
 | 2026-07-01 | **Rating LB Δ tooltip label** — time-travel Δ column title `Rating change (time travel mode)`; present-day WC Δ stays `Rating change`. |
 | 2026-07-01 | **TT as_with Year/Month** — with-player filter + filtered chevrons + auto-snap on all TT ribbon wings (not Event-only); policy WP7 updated. |
@@ -538,6 +539,7 @@
 
 | When | What |
 |------|------|
+| 2026-07 | **Amiga TT Present day toggle** — from time travel, **Present day** stays on the same page without `as=` (filters kept); entry to time travel unchanged (rating LB + first event). |
 | 2026-07 | **Amiga time travel entry default** — header **Time travel** from present opens **Event** wing at first ladder tournament (`as=event:26` Dartford WC), not first calendar year. |
 | 2026-06 | **Amiga Games hub** — `/amiga/games/{recent,highlights,all}.php`; hub tab (present + time travel); TT-sensitive counts; Recent = last 5 tournaments, **ID desc**; Highlights = four boards; All games = server sort + 250/page (filters deferred); table = tournament games + Date + Tournament (host flag); **player flags always** when country known (tournament games + hub). |
 | 2026-06-22 | **Amiga fresh prove + staging export** — full `python -m scripts.amiga prove` green (~6 min, 27 418 games); export 31 parts incl. `slice_totals` + `slice_at_event` (221 / 3050 rows); ready WinSCP + browser import. |

@@ -55,6 +55,16 @@ function amiga_time_mode_nav_time_travel_href(?string $path = null): ?string
     return amiga_url_with_as_param(amiga_hub_time_travel_entry_path(), $asParam, amiga_time_travel_stamp_arrival_entry_query());
 }
 
+/** Present-day toggle — same page without lens when in time travel; News when already present. */
+function amiga_time_mode_nav_present_href(): string
+{
+    if (amiga_snapshot_time_travel_active_from_request()) {
+        return amiga_url_present(amiga_snapshot_request_path());
+    }
+
+    return amiga_hub_present_entry_path();
+}
+
 function amiga_time_mode_nav_time_travel_help_text(): string
 {
     return 'WARNING! You will be taken back in time and see the world and its data as they were at that moment in time. Side effects may include outdated Elo, lost wins, lost bragging rights, missing holy shields, acute nostalgia, and an uncontrollable urge to rematch everyone from 2003.';
@@ -67,7 +77,7 @@ function amiga_time_mode_nav_render(): void
     }
 
     $timeTravelActive = amiga_snapshot_time_travel_active_from_request();
-    $presentHref = amiga_hub_present_entry_path();
+    $presentHref = amiga_time_mode_nav_present_href();
     $timeTravelHref = amiga_time_mode_nav_time_travel_href();
     if ($timeTravelHref === null) {
         return;

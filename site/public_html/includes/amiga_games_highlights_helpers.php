@@ -33,7 +33,7 @@ const AMIGA_GAMES_HIGHLIGHT_BOARDS = [
         'default_sort_key' => 'gd',
     ],
     'top_score' => [
-        'label' => 'Top score',
+        'label' => 'Top scores',
         'heading' => 'Top score',
         'default_sort_key' => 'top_score',
         'help' => 'The highest goals one player scored in a single game — e.g. 10 in a 10–2.',
