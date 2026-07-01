@@ -86,7 +86,8 @@ Online SQL sources verified from `site/public_html/leaderboards/*.php`. Amiga an
 | Biggest win margin / draw / sum of goals | `generalstatstable` + game ids | stats extremes + game ids | generalstats | **Ship** |
 | Highest peak rating (server record) | read-time `PeakRating` oracle | `MAX(PeakRating)` on player snapshots | none (not stored) | **Ship** |
 | Longest win / undefeated / draw streaks | `generalstatstable` | `Longest*` on stats (non-authoritative) | — | **Skip** — same within-day order problem as streaks wing |
-| Best attack/defense avg, goal ratio, win %, DD/CS % | `records_ratio_leaders.php` → `playertable` | same columns on `amiga_player_stats` | No (read-time) | **Ship** (read-time query) |
+| Best attack/defense avg, goal ratio, DD/CS % | stored ratio leaders on snapshots | same columns on player snapshots | generalstats | **Ship** |
+| Highest winning frequency (win rate) | read-time `(wins + ½·draws) ÷ games` oracle | same formula as rating LB col 8 | none (HoF display; stored `BiggestWinRatio`/`WinRatio` legacy) | **Ship** |
 | **WC gold/silver/bronze** (Access) | `added_players` (reference) | Derive from `amiga_tournament_standings` + cup flags | **Tournament honours** aggregate | **Amiga-native Ship** |
 | **Marathon league wins** (e.g. London XXIII) | — | `amiga_tournament_standings` overall `position=1` | Roll-up table optional | **Amiga-native Ship** |
 

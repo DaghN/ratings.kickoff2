@@ -55,7 +55,9 @@ WinSCP sync `public_html/` (must include `amiga/run_import_ko2amiga.php` + `amig
 
 Preview must show the manifest **part count** from the latest export and the importer build tag. Apply runs part 1 (schema) through the last part; each part auto-continues (~2s). Expect **~473 players**, **~27k games**, **`amiga_player_event_snapshots`** + **`amiga_player_current`** + **`amiga_player_elo_rank_at_event`** (time-travel hero rank), **`tournament_entrants`**, and **`lifecycle_status`** columns after import completes.
 
-**Post-import verify (local or after staging refresh):** `python -m scripts.amiga prove` against a clone, or spot-check `verify-rating-events` + `verify-chronology` on the imported DB. Staging does not run Python replay automatically — export must come from a local DB that already passed full replay.
+**Post-import verify (local or after staging refresh):** `python -m scripts.amiga prove` against a clone, or spot-check `verify-rating-events` + `verify-chronology` + **`verify-tournament-videos`** on the imported DB. Staging does not run Python replay automatically — export must come from a local DB that already passed full replay.
+
+**Tournament video manifest:** After a full local reimport or player-merge export, run **`python -m scripts.amiga.tournament_videos.sync_db_ids`** (or full **`prove`**, which runs it automatically) before WinSCP sync — commit updated `review.csv` + `tournament_videos.json` with the SQL export so staging player **Videos** tabs stay correct ([`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §12).
 
 Password is **`coffee`** (`&pwd=coffee` in URL, or type it on the prompt page).
 

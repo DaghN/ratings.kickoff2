@@ -39,7 +39,7 @@ MySQL ground truth (tournaments, amiga_games, amiga_players)
 derived truth (ratings, stats, standings)
     │
     ▼  python -m scripts.amiga prove
-verify suite (0 errors = shippable)
+verify suite (0 errors = shippable) — includes **`verify-tournament-videos`**; **`prove`** runs **`sync_db_ids`** first to refresh tournament video manifest DB caches after L3 id reassignment ([`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §12)
 ```
 
 **Holy Amiga loop (target):** `prove` runs **L1 → L2 → L3 → L4 → L5 → verify** from a fresh L0 drop — no `.mdb` read inside L3. No incremental schema ladder; see [`scripts/amiga/sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md).

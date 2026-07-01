@@ -84,7 +84,7 @@
 - **Amiga perfect event (Jun 2026):** **Shipped** — SCH-045; honours LB + WC **Perfect** column; catalog filter; HoF **Most perfect events**. [`amiga-perfect-event-policy.md`](docs/amiga-perfect-event-policy.md).
 - **Amiga perf. rating LB (Jun 2026):** **Shipped** — folder `performance-rating/{best,top,perfect}.php` + segment nav; W-D-L columns; Top 100 fixed set; Perfect shows **∞**. [`amiga-performance-rating-leaderboard-policy.md`](docs/amiga-performance-rating-leaderboard-policy.md).
 
-- **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~299** videos; unified embed UI; **C06** dedicated Videos column on tournaments catalog + WC chronology (blank header, no tooltips); **With videos** filter. Player Videos wing. Human review sign-off on orphans + tournaments index. [`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md).
+- **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~299** videos; unified embed UI; **C06** dedicated Videos column; **With videos** filter; **player profile Videos wing**. **Jul 2026:** **TV-2b DB anchor sync** — `sync_db_ids` + `verify-tournament-videos` in `prove` ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md) §12).
 
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
@@ -133,13 +133,23 @@
 
 | When | Note |
 |------|------|
+| 2026-07-01 | **Amiga Highlights biggest upsets tooltip** — board tab help copy: "The biggest rating gaps overcome by the underdog." |
+| 2026-07-01 | **Amiga HoF win rate** — "Highest winning frequency" row = read-time `(wins + ½·draws) ÷ games` via `amiga_hof_win_rate_holder()` (matches rating LB Win rate column; stored `BiggestWinRatio`/`WinRatio` unchanged). |
+| 2026-07-01 | **Tournament video DB anchors — doc sweep** — policy §12, implementation plan TV-2b, ground-stack/import/staging/profile/k2-embedded/navigation-model/**OPERATIONS_QUICK_START**/**amiga-derived-write-policy** updated; `sync_db_ids` + `verify-tournament-videos` in `prove`. |
+| 2026-07-01 | **Amiga career DDs LB colour** — Double Digits column `blue`, DD conceded column `red` on `/amiga/leaderboards/double-digits.php`. |
+| 2026-07-01 | **Amiga career Goals LB GF/GA colour** — GF column `blue`, GA column `red` on `/amiga/leaderboards/goals.php`. |
+| 2026-07-01 | **Amiga WC player Honours gold colour reverted** — removed `blue` from WC gold medal column on `/amiga/world-cups/players/honours.php`. |
+| 2026-07-01 | **Amiga WC country DDs colour** — Double digits column `blue`, DD against column `red` on `/amiga/world-cups/countries/dds.php`. |
+| 2026-07-01 | **Amiga WC country Goals GF/GA colour** — GF column `blue`, GA column `red` on `/amiga/world-cups/countries/goals.php`. |
+| 2026-07-01 | **Amiga WC country Results W/L colour** — W column `blue`, L column `red` on `/amiga/world-cups/countries/results.php`. |
+| 2026-07-01 | **Amiga WC player DDs colour** — Double Digits column `blue`, DD C column `red` on `/amiga/world-cups/players/dds.php`. |
+| 2026-07-01 | **Amiga WC player Goals GF/GA colour** — GF column `blue`, GA column `red` on `/amiga/world-cups/players/goals.php`. |
+| 2026-07-01 | **Amiga WC player Results W/L colour** — W column values `blue`, L column values `red` on `/amiga/world-cups/players/results.php`. |
 | 2026-07-01 | **HoF record value scroll anchors** — online + Amiga HoF leaderboard links append `#k2-lb-table`; online LB anchor consolidated in `lb_nav.php` / `lb_activity_nav.php` / `league_honours_panel.php`; Amiga WC player wings via `amiga_wc_players_table_shell_open()`. |
 | 2026-07-01 | **Games hub lede** — chapter intro adds “since June 9, 2017” after rated-game count (`games_hub_shell_start.inc.php`). |
 | 2026-07-01 | **Amiga tournament nav order** — WC pills: Event stats · Games · Stages · Videos (Games before Stages; Videos last). |
 | 2026-07-01 | **Rating LB Δ tooltip label** — time-travel Δ column title `Rating change (time travel mode)`; present-day WC Δ stays `Rating change`. |
 | 2026-07-01 | **TT as_with Year/Month** — with-player filter + filtered chevrons + auto-snap on all TT ribbon wings; snap/chevron hrefs preserve `as_with=` via `amiga_url_with_as_param()`. |
-| 2026-07-01 | **Tournament video DB anchors** — `sync_db_ids` + `verify-tournament-videos` in `prove`; manifest player/game/tournament ids refreshed from stable CSV names; 282-row sync; policy §12. |
-| 2026-07-01 | **Player Videos tab — Thor S id fix** — manifest had Thor at wrong id; superseded by anchor sync pipeline. |
 | 2026-07-01 | **C06 cleanup** — removed dev glyph picker page/lib; consolidated `amiga_tournament_video_column_cell()`; CSS scoped to `.k2-table-cell--video-glyph` only. |
 | 2026-07-01 | **C06 + tournaments index table** — Videos column (blank header, empty when no footage, no tooltips); Players + Games columns centered (`k2-table-cell--center`, parity with WC chronology). |
 | 2026-07-01 | **C06 column polish** — empty Videos column header; blank cells when no footage; no glyph tooltips. |

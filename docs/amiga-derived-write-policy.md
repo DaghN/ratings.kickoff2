@@ -25,9 +25,15 @@
 
 `prove` ends with verify modules that **recompute in Python and compare** to stored rows. They **do not write**.
 
-Examples: `verify-realm-snapshots` (`build_generalstats_payload`), `verify-community-stats`, `verify-player-matchups`, `verify-event-snapshots`.
+Examples: `verify-realm-snapshots` (`build_generalstats_payload`), `verify-community-stats`, `verify-player-matchups`, `verify-event-snapshots`, **`verify-tournament-videos`**.
 
 Oracle **functions** in `scripts/amiga/*.py` exist for verify and unit tests — not as a second write path.
+
+---
+
+## Tournament video manifest sync (not L5 derived)
+
+After L5 replay, **`prove`** runs **`sync_db_ids`** before the verify suite. This refreshes **checked-in** `review.csv` + `tournament_videos.json` DB caches (`tournament_id`, `player_*_id`, `game_ids`) from stable editorial keys — not a new aggregate table. Player **Videos** tabs depend on live id alignment. Policy: [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §12.
 
 ---
 

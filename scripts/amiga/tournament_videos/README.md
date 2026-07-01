@@ -78,7 +78,7 @@ Dagh-supplied URLs not from harvest → edit `scripts/amiga/tournament_videos/ma
 
 ```powershell
 python -m scripts.amiga.tournament_videos.apply_review
-python -m scripts.amiga.tournament_videos.build_manifest
+python -m scripts.amiga.tournament_videos.sync_db_ids
 ```
 
 Fix wrong mappings in chat or via future bulk-verify page. Policy: [`docs/amiga-tournament-videos-policy.md`](../../../docs/amiga-tournament-videos-policy.md)
@@ -89,7 +89,7 @@ When a harvested row is not Kick Off 2 tournament material (channel noise, unrel
 
 ```powershell
 python -m scripts.amiga.tournament_videos.drop_video YOUTUBE_ID --reason "Not KO2 related — …"
-python -m scripts.amiga.tournament_videos.build_manifest
+python -m scripts.amiga.tournament_videos.sync_db_ids
 ```
 
 - Removes the row from `review.csv`

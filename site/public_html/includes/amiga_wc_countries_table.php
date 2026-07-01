@@ -160,9 +160,9 @@ function amiga_wc_countries_render_results(array $rows, int $countryCount): void
         ?>
     <tr>
 <?php amiga_wc_countries_results_shared_prefix_td($row, $lbSort, $rank); ?>
-        <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo $wins; ?></td>
+        <td<?php echo k2_lb_td(5, $lbSort); ?>><span class="blue"><?php echo $wins; ?></span></td>
         <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo $draws; ?></td>
-        <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo $losses; ?></td>
+        <td<?php echo k2_lb_td(7, $lbSort); ?>><span class="red"><?php echo $losses; ?></span></td>
         <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo $points; ?></td>
         <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo $ptsPerGame !== null ? k2_fmt_decimal($ptsPerGame, $games) : k2_fmt_dash(); ?></td>
         <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo k2_fmt_pct_from_ratio($row['win_rate'] ?? null, $games); ?></td>
@@ -281,8 +281,8 @@ function amiga_wc_countries_render_goals(array $rows, int $countryCount): void
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo k2_amiga_lb_country_cell($countryToken); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo (int) $row['players']; ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
-        <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo k2_fmt_count($gf, $games); ?></td>
-        <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo k2_fmt_count($ga, $games); ?></td>
+        <td<?php echo k2_lb_td(4, $lbSort); ?>><span class="blue"><?php echo k2_fmt_count($gf, $games); ?></span></td>
+        <td<?php echo k2_lb_td(5, $lbSort); ?>><span class="red"><?php echo k2_fmt_count($ga, $games); ?></span></td>
         <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo k2_fmt_count($gd, $games); ?></td>
         <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo $gfPer !== null ? k2_fmt_decimal($gfPer, $games) : k2_fmt_dash(); ?></td>
         <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo $gaPer !== null ? k2_fmt_decimal($gaPer, $games) : k2_fmt_dash(); ?></td>
@@ -357,11 +357,11 @@ function amiga_wc_countries_render_dds(array $rows, int $countryCount): void
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo k2_amiga_lb_country_cell($countryToken); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo (int) $row['players']; ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
-        <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo k2_fmt_count($row['double_digits'] ?? 0, $games); ?></td>
+        <td<?php echo k2_lb_td(4, $lbSort); ?>><span class="blue"><?php echo k2_fmt_count($row['double_digits'] ?? 0, $games); ?></span></td>
         <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo k2_fmt_count($row['clean_sheets'] ?? 0, $games); ?></td>
         <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo k2_fmt_pct_from_ratio($row['double_digits_ratio'] ?? null, $games); ?></td>
         <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo k2_fmt_pct_from_ratio($row['clean_sheets_ratio'] ?? null, $games); ?></td>
-        <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo k2_fmt_count($row['double_digits_conceded'] ?? 0, $games); ?></td>
+        <td<?php echo k2_lb_td(8, $lbSort); ?>><span class="red"><?php echo k2_fmt_count($row['double_digits_conceded'] ?? 0, $games); ?></span></td>
         <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo k2_fmt_count($row['clean_sheets_conceded'] ?? 0, $games); ?></td>
         <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo k2_fmt_pct_from_ratio($row['double_digits_conceded_ratio'] ?? null, $games); ?></td>
         <td<?php echo k2_lb_td(11, $lbSort); ?>><?php echo k2_fmt_pct_from_ratio($row['clean_sheets_conceded_ratio'] ?? null, $games); ?></td>

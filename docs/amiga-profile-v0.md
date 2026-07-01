@@ -17,6 +17,7 @@
 | Tournament history | `/amiga/player/tournaments.php?id={amiga_players.id}` |
 | Opponents | `/amiga/player/opponents/h2h.php?id={id}` (default wing) · `wdl.php` · `goals.php` · `dds.php` |
 | Games | `/amiga/player/games.php?id={amiga_players.id}` |
+| Videos | `/amiga/player/videos.php?id={id}` — when manifest has match rows ([`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §9.5 · §12) |
 | Single game | `/amiga/game.php?id={amiga_games.id}` |
 | Tournament index | `/amiga/tournaments.php` |
 | Tournament standings | `/amiga/tournament.php?id={tournaments.id}` |
@@ -26,7 +27,7 @@
 ## What v0 shows
 
 - **Hero** — same feast shell as online (`amiga_player_hero.php`): avatar + name → Profile tab; **rank** from stored `elo_rank` (present: `amiga_player_current`; time travel: `amiga_player_elo_rank_at_event`); rating → Rating LB; games → player games tab; rank · rating · games stat values use link-star + glow; **country** (fourth stat column — label + flag when mapped; **flag links to country roster**); unmapped country strings show as stat text; pre-debut at cutoff → — + note (T17)
-- **Player nav** — Profile · Opponents · Tournaments · Games (`amiga_player_nav.php`)
+- **Player nav** — Profile · Opponents · Tournaments · Games · **Videos** (when manifest has clips for player — [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §9.5 · §12)
 - **Career strip** — `amiga_players` + `amiga_player_current` (W/D/L, goals, peak, opp avg)
 - **Honours strip** — `amiga_player_current` honours columns: career WC medal counts (`wc_gold`/`wc_silver`/`wc_bronze`), tournaments won (`event_gold`), event podiums (`event_podiums`), optional last event date; links to tournament honours LB and WC-filtered history when applicable; hidden when no WC medals, wins, or podiums
 - **Performance rating** — best event + latest event (snapshots, games ≥ 2); links to perf LB and tournament history; hidden when no qualifying perf rows
@@ -159,7 +160,7 @@ After `python -m scripts.amiga replay`, spot-check locally:
 4. **Knockout bracket** — World Cup XI — bracket shows semi winners Gianni T over Lorenzo C (10–6) and Alkis P over Andy G; columns scroll on desktop, stack ~375px
 5. **Knockout fixture** — click semi score → leg table; Gianni T / Lorenzo C (`scope_key=Semi Finals|149-253`) — 2 legs, winner Gianni T (10–6). Penalties: open a tied placement tie (e.g. `Places 17-24|445-467`) — leg row shows `extra` text on the score line (e.g. `(4-4) 5-4 p.k.`)
 6. **Games links** — busy player games tab — tournament name → overall/group; phase → group or knockout scope
-7. **Profile** — recent tournaments block; **Moments** (e.g. Oliver St `id=345` shows 26–0 goal festival); cups with knockouts link to `#bracket`; rating chart **By tournament #** has no zigzags inside multi-game events; busy player with 10+ events in one year readable on calendar axis
+7. **Profile** — recent tournaments block; **Moments**; **Videos** tab when player has manifest clips (spot-check after `sync_db_ids` — e.g. Oliver St `id=341`); cups with knockouts link to `#bracket`; rating chart **By tournament #** has no zigzags inside multi-game events; busy player with 10+ events in one year readable on calendar axis
 7b. **Tournament history** — `/amiga/player/tournaments.php?id=<busy_player>` — all events listed; **Pts** = `event_points`; WC rows show medal finish not group rank; **country** pills reduce row set (e.g. Dagh N `id=73`: 2 cups, 5 in England)
 8. **Hall of Fame** — `/amiga/hall-of-fame.php` loads; record holders link to profiles; metric cells deep-link to LB wings; no streak rows
 8b. **Tier A LB** — `/amiga/leaderboards/goals.php` (and siblings) sort; wing nav complete; HoF links land correctly

@@ -301,3 +301,73 @@ function amiga_hof_peak_rating_holder(mysqli $con, AmigaSnapshotContext $ctx): a
         'date' => $row['peak_date'] !== null ? (string) $row['peak_date'] : null,
     ];
 }
+
+/**
+ * HoF "Highest winning frequency" — read-time win rate (draws = half a win).
+ *
+ * Matches rating LB `amiga_wc_lb_win_rate()` / sort column 8; not stored `WinRatio`.
+ *
+ * @return array{value: float|null, player_id: int, name: string}
+ */
+function amiga_hof_win_rate_holder(mysqli $con, AmigaSnapshotContext $ctx): array
+{
+    require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
+    require_once __DIR__ . '/amiga_lb_lib.php';
+
+    $empty = ['value' => null, 'player_id' => 0, 'name' => ''];
+    $minGames = (int) k2_established_min_games();
+    $winRateExpr = '(s.NumberWins + 0.5 * s.NumberDraws) / s.NumberGames';
+
+    if (!$ctx->isActive()) {
+        $sql = 'SELECT p.id AS player_id, p.name AS name, '
+            . $winRateExpr . ' AS win_rate_value '
+            . 'FROM amiga_players p '
+            . 'INNER JOIN amiga_player_current s ON s.player_id = p.id '
+            . 'WHERE ' . amiga_lb_player_where_sql()
+            . ' AND s.NumberGames >= ' . $minGames . ' '
+            . 'ORDER BY win_rate_value DESC, p.id ASC LIMIT 1';
+        $result = k2_query_or_public_error($con, $sql, 'amiga hof win rate holder');
+        $row = mysqli_fetch_assoc($result);
+        mysqli_free_result($result);
+    } else {
+        $cutoff = $ctx->cutoff();
+        if ($cutoff === null) {
+            return $empty;
+        }
+        $sql = 'SELECT p.id AS player_id, p.name AS name, '
+            . $winRateExpr . ' AS win_rate_value '
+            . amiga_lb_snapshot_from_sql('s')
+            . ' WHERE ' . amiga_lb_player_where_sql()
+            . ' AND s.NumberGames >= ' . $minGames . ' '
+            . 'ORDER BY win_rate_value DESC, p.id ASC LIMIT 1';
+        $stmt = $con->prepare($sql);
+        if ($stmt === false) {
+            throw new RuntimeException('prepare amiga hof win rate holder: ' . $con->error);
+        }
+        $eventDate = $cutoff['event_date'];
+        $chrono = (float) $cutoff['chrono'];
+        $tournamentId = (int) $cutoff['tournament_id'];
+        $stmt->bind_param('sdi', $eventDate, $chrono, $tournamentId);
+        if (!$stmt->execute()) {
+            $err = $stmt->error;
+            $stmt->close();
+            throw new RuntimeException('execute amiga hof win rate holder: ' . $err);
+        }
+        $res = $stmt->get_result();
+        $row = $res ? $res->fetch_assoc() : false;
+        if ($res) {
+            $res->free();
+        }
+        $stmt->close();
+    }
+
+    if (!is_array($row)) {
+        return $empty;
+    }
+
+    return [
+        'value' => $row['win_rate_value'] !== null ? (float) $row['win_rate_value'] : null,
+        'player_id' => (int) $row['player_id'],
+        'name' => (string) $row['name'],
+    ];
+}

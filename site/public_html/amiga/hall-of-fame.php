@@ -40,6 +40,7 @@ if (!$records) {
 }
 
 $peakHolder = amiga_hof_peak_rating_holder($con, $ctx);
+$winRateHolder = amiga_hof_win_rate_holder($con, $ctx);
 
 // World Cup HoF block (sparse store; present row or time-travel snapshot).
 $wcRecords = amiga_wc_hof_records_load($con, $ctx) ?? [];
@@ -59,6 +60,9 @@ if ($ctx->isActive()) {
 $hofHolderIds = amiga_hof_holder_ids_from_records($records);
 if (($peakHolder['player_id'] ?? 0) > 0) {
     $hofHolderIds[] = (int) $peakHolder['player_id'];
+}
+if (($winRateHolder['player_id'] ?? 0) > 0) {
+    $hofHolderIds[] = (int) $winRateHolder['player_id'];
 }
 foreach (amiga_wc_hof_holder_ids_from_records($wcRecords) as $wcHolderId) {
     $hofHolderIds[] = $wcHolderId;
@@ -297,8 +301,8 @@ amiga_records_render_row(
 amiga_records_render_spacer_row();
 amiga_records_render_row(
     'Highest winning frequency',
-    amiga_records_percent_or_dash($records['BiggestWinRatio'] ?? null),
-    amiga_records_holder_player((int) ($records['BiggestWinRatioID'] ?? 0), (string) ($records['BiggestWinRatioName'] ?? ''), $hofCountryByPlayer),
+    amiga_records_percent_or_dash($winRateHolder['value'] ?? null),
+    amiga_records_holder_player((int) ($winRateHolder['player_id'] ?? 0), (string) ($winRateHolder['name'] ?? ''), $hofCountryByPlayer),
     '-',
     amiga_records_hof_lb_href('win_ratio')
 );

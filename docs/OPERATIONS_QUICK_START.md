@@ -147,8 +147,8 @@ Not online ladder ops. Local build any way you like → export snapshot → sync
 | Step | Command / URL |
 |------|----------------|
 | Build local `ko2amiga_db` | `scripts\setup_ko2amiga_db.ps1` or `python -m scripts.amiga run` |
-| **Sign-off / derived rebuild** | `python -m scripts.amiga prove` — L0→L5 + verify ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md); no batch `*-rebuild` CLIs) |
-| **Export SQL (agent runs this)** | `scripts\export_ko2amiga_db.ps1` → `site/public_html/amiga/_import/ko2amiga_db.sql` |
+| **Sign-off / derived rebuild** | `python -m scripts.amiga prove` — L0→L5 + tournament-video DB anchor sync + verify ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md); manifest sync [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §12) |
+| **Export SQL (agent runs this)** | `scripts\export_ko2amiga_db.ps1` → `site/public_html/amiga/_import/ko2amiga_db.sql` — run **`sync_db_ids`** (or full **`prove`**) first if player merges shifted ids; commit `review.csv` + `tournament_videos.json` with export |
 | Deploy (Dagh) | WinSCP sync `site/public_html/` |
 | **Staging import (preview)** | https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee |
 | **Staging import (apply)** | same + `&apply=1` |

@@ -122,7 +122,8 @@ import-prune        # L1 → L2
 import-witness      # L2 → L3  (not .mdb)
 apply-structure     # L3 → L4
 replay              # L3 (+ L4) → L5
-verify suite
+sync tournament video DB anchors   # review.csv + tournament_videos.json (L0 editorial, not L5)
+verify suite        # includes verify-tournament-videos
 ```
 
 **L5 derived writes:** [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) — `prove` / finalize only; batch `*-rebuild` CLIs retired Jun 2026.

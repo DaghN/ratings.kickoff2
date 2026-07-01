@@ -47,7 +47,7 @@ Follows the foldered-sub-hub rule in [`url-routes.md`](url-routes.md):
 Do not light a hub pill because of where the user came from, or where the data is "stored". A **World Cup is also a tournament** — reached from both the World Cups hub and the Tournaments hub — so it belongs to **no** hub exclusively. Multi-parent entities are exactly why entity pages carry no pill.
 
 **NM6 — An entity may carry its own context sub-nav (below the hub bar).**
-Having internal tabs does **not** change NM1–NM3. The hub bar stays; the entity adds its own nav *below* it — e.g. player Profile / Opponents / Milestones / Games; tournament Event stats / Standings / Games / Videos; country Roster / Rivals. This is a property of the entity, not a separate page tier. (There is no "hub bar gets replaced" tier — see history below.)
+Having internal tabs does **not** change NM1–NM3. The hub bar stays; the entity adds its own nav *below* it — e.g. player Profile / Opponents / Tournaments / Games / **Videos** (when manifest has clips); tournament Event stats / Standings / Games / Videos; country Roster / Rivals. This is a property of the entity, not a separate page tier. (There is no "hub bar gets replaced" tier — see history below.)
 
 **NM7 — Domain mini-universes are not Leaderboard wings (Amiga).**
 Some verticals get their **own hub tab** with foldered wings — **World Cups** (`world-cups/`), **Countries** (`countries.php` hub + `country/` entity). Career stats for that domain live there, **not** duplicated under **Leaderboards** (`leaderboards/` + `amiga_lb_nav.php`). Leaderboards = realm-wide career lenses (Rating, Goals, Peak, …). HoF and profile deep-links target the canonical hub path. Legacy bookmarks may 302 — see [`url-routes.md`](url-routes.md).

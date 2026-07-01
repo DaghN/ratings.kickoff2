@@ -1,6 +1,6 @@
 # Amiga tournament videos — policy
 
-**Status:** **Catalog live (Jun 2026)** — manifest + WC Videos tab shipped (TV-3 / TV-3b). **URL / deep-link interaction** for the WC spotlight player is specced separately in [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) (not implemented yet).
+**Status:** **Catalog live (Jun 2026)** — manifest + tournament Videos tab + player profile **Videos** wing shipped. **DB anchor sync (Jul 2026)** — `sync_db_ids` + `verify-tournament-videos` in `prove` after every full L3 reimport ([§12](#12-db-anchors-vs-editorial-keys-jul-2026)). Deep-link interaction: [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md).
 
 **Parent:** [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) · [`url-routes.md`](url-routes.md) · [`design-direction.md`](design-direction.md) · [`join-play-setup.md`](join-play-setup.md)
 
@@ -20,9 +20,10 @@ Embed **official tournament match video** on the Amiga site — primarily **Worl
 - Tab appears **only** when the tournament has ≥1 catalogued clip.
 - **Chronology** wing flags tournaments that have video.
 - **Tournaments** hub filter **Has videos** — honest discovery (“unless video, it didn’t happen”).
-- **Curated JSON manifest** in repo (no DB migration in v1).
+- **Player profile Videos** wing when manifest has match rows for that player ([§9.5](#95-player-profile--videos-wing)).
+- **Curated JSON manifest** in repo (no DB migration — editorial keys in CSV; numeric FKs are DB caches refreshed by sync — [§12](#12-db-anchors-vs-editorial-keys-jul-2026)).
 
-**Later (explicitly out of v1):** player profile **Videos** wing; realm-wide video index page; game-row “watch this match” links; splitting long streams into per-game clips (Steve-assisted).
+**Later (explicitly out of scope):** realm-wide video index page; game-row “watch this match” links on every table; splitting long streams into per-game clips (Steve-assisted).
 
 ---
 
@@ -34,7 +35,7 @@ Embed **official tournament match video** on the Amiga site — primarily **Worl
 | **TV2** | **Tab placement** | New foldered tab under `amiga/tournament/` — same nav pattern as `event-stats.php`, `stages.php`, `games.php` ([`url-routes.md`](url-routes.md)). Show tab only when manifest has rows for `tournament_id`. |
 | **TV3** | **Primary home** | Per-tournament **Videos** tab is v1 home. WC **Chronology** + **Tournaments → Has videos** are discovery surfaces. |
 | **TV4** | **Embed host** | YouTube via `youtube-nocookie.com/embed/…?origin={site}` — `k2_youtube_embed_url()` / JS `embedUrl()`; page `<meta name="referrer" content="strict-origin-when-cross-origin">` + iframe `referrerpolicy`. Same habit as `game.php` and `join_page_section.php`. |
-| **TV5** | **Stored truth v1** | Checked-in manifest JSON — **not** a new DB table until admin UI or player reverse-index forces it. |
+| **TV5** | **Stored truth v1** | Checked-in manifest JSON — **not** a new DB table. **`youtube_id` + player/tournament names in `review.csv`** are stable editorial keys; **`tournament_id` / `player_*_id` / `game_ids`** are DB caches — must be re-synced after every full L3 witness reimport ([§12](#12-db-anchors-vs-editorial-keys-jul-2026)). |
 | **TV6** | **Player association** | **`match`** clips with two clearly identified players → store `player_a_id` + `player_b_id` (nullable FKs to `amiga_players.id`). |
 | **TV7** | **Streams** | Long multi-hour **day/stream** uploads → `kind: stream`; link to tournament; **no** player IDs. |
 | **TV8** | **Ceremony / atmosphere** | Presentations, medals, venue mood → `kind: ceremony` or `atmosphere`; tournament link when obvious; no players. |
@@ -44,7 +45,7 @@ Embed **official tournament match video** on the Amiga site — primarily **Worl
 | **TV12** | **Forum index** | [KO-Gathering t=15358](https://ko-gathering.com/forum/viewtopic.php?t=15358) is the **structured bootstrap** (scores, stages, alternate URLs). Parse before blind channel crawl. |
 | **TV13** | **Non-Amiga events** | Online WC, pure tutorials, unrelated compilations → `kind: excluded` or omit from tournament pages (may still link from Join / elsewhere). |
 | **TV14** | **Time travel** | Video is historical artifact — show under `as=` cutoffs (same as ceremony photos intent in [`design-direction.md`](design-direction.md)). |
-| **TV15** | **No new derived writers** | Read-only editorial catalog — does not touch `prove` or post-game contract. |
+| **TV15** | **No new derived writers** | Read-only editorial catalog — no new L5 aggregate tables or post-game writers. **`prove`** runs **`sync_db_ids`** to refresh manifest DB caches only ([§12](#12-db-anchors-vs-editorial-keys-jul-2026)). |
 
 ---
 
@@ -54,7 +55,7 @@ Embed **official tournament match video** on the Amiga site — primarily **Worl
 
 - A **merged catalog** of community tournament footage from multiple YouTube channels + Dagh’s forum vault + playlist spine.
 - A way to connect **stats tables** to **proof** — finals, knockouts, presentations, streams.
-- A foundation for future **player Videos** tabs (reverse index on `player_a_id` / `player_b_id`).
+- A foundation for **player Videos** tabs (reverse index on `player_a_id` / `player_b_id` — shipped Jul 2026; requires fresh DB anchors — §12).
 
 **Is not:**
 
@@ -160,7 +161,7 @@ Steve’s forum reply: thread covers most of his camcorder tapes; **tape origina
 
 ## 8. Data model (manifest v1)
 
-**Path (proposed):** `data/amiga_tournament_videos.json` (or `site/public_html/data/amiga_tournament_videos.json` if PHP reads locally — decide in implementation plan).
+**Path (locked):** `site/public_html/data/amiga/tournament_videos.json` (PHP reads at runtime). Source queue: `data/amiga/tournament_videos/review.csv` (mirrored under `site/public_html/data/amiga/tournament_videos/` on build).
 
 **Row shape:**
 
@@ -195,7 +196,7 @@ Steve’s forum reply: thread covers most of his camcorder tapes; **tape origina
 - `verified`: true only after human review CSV sign-off
 - `external_url`: optional sibling to YouTube for WMV mirrors
 
-**PHP read lib (future):** `includes/amiga_tournament_videos_lib.php` — load JSON, index by `tournament_id`, by player id, expose `amiga_tournament_has_videos($id)`.
+**PHP read libs (shipped):** `includes/amiga_tournament_videos_lib.php` (tournament index) · `includes/amiga_player_videos_lib.php` (player reverse index) — load JSON once per request; `amiga_tournament_has_videos($id)` · `amiga_player_has_videos($id)`.
 
 ---
 
@@ -231,7 +232,7 @@ Steve’s forum reply: thread covers most of his camcorder tapes; **tape origina
 ### 9.5 Player profile — Videos wing
 
 - **Route:** `/amiga/player/videos.php?id={player_id}` — `amiga-player-videos` in `k2_amiga_routes.php`.
-- **Nav:** **Videos** pill on player wing nav when `amiga_player_has_videos($id)` (manifest match rows with `game_ids` for that player).
+- **Nav:** **Videos** pill on player wing nav when `amiga_player_has_videos($id)` (manifest match rows indexed by **`player_a_id` / `player_b_id`** — must match live `amiga_players.id` after sync; §12).
 - **Index:** cross-tournament game table, **reverse chronological** (game date, tournament chrono fallback); ID · Date · Tournament · game row · play button.
 - **Filter:** opponent listbox above table (same stack as player **Games** — `k2_archive_listbox`, `individual3-filters.js`); options = opponents with ≥1 linked video, **A–Z**, game count in panel meta; `?opponent={id}`.
 - **Time travel:** index rows ≤ active cutoff (tournament event tuple on linked game); opponent facets recomputed on filtered set.

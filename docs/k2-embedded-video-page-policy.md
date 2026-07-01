@@ -13,7 +13,7 @@
 | Surface | Route (Amiga) | Section | Status |
 |---------|---------------|---------|--------|
 | **WC tournament Videos tab** | `/amiga/tournament/videos/games.php?id=` · `/amiga/tournament/videos/atmosphere.php?id=` | [§2](#2-wc-tournament-videos-tab) | **Phase A shipped** · Phase B deferred |
-| Player profile **Videos** wing | TBD | [§3](#3-player-profile-videos-wing-reserved) | Reserved |
+| Player profile **Videos** wing | `/amiga/player/videos.php?id=` | [§3](#3-player-profile-videos-wing) | **Shipped (Jul 2026)** |
 | Online / other embed pages | TBD (e.g. `game.php`) | [§4](#4-other-surfaces-reserved) | **Amiga `game.php` shipped** (Jun 2026) |
 
 When adding a surface: copy the **URL param table** and **session vs cold** rules from §2; define surface-specific index defaults and param names only if they must differ.
@@ -159,11 +159,20 @@ Copy-from-address-bar after in-session navigation reflects the current clip (His
 
 ---
 
-## 3. Player profile Videos wing (reserved)
+## 3. Player profile Videos wing
 
-**Status:** Not specced.
+**Status:** **Shipped (Jul 2026).**
 
-**Placeholder intent:** Reverse index on manifest `player_a_id` / `player_b_id`; likely same **`v=`** playback param and optional **`game=`** when index is game-centric. Define index default and Back behaviour when this wing is designed.
+**Route:** `/amiga/player/videos.php?id={player_id}` — `amiga-player-videos` in `k2_amiga_routes.php`.
+
+| Behaviour | Rule |
+|-----------|------|
+| **Nav** | **Videos** pill when `amiga_player_has_videos($id)` — manifest reverse index on **`player_a_id` / `player_b_id`** (must match live DB after sync — [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §12) |
+| **Index** | Cross-tournament game table + opponent filter; same spotlight stack as tournament Games wing |
+| **URL params** | **`v=`** · optional **`game=`** · **`t=`** start offset — same contract as §1.2 |
+| **Back / index** | Same History API + “↑ All videos” patterns as §2 where applicable |
+
+**Implementation:** `includes/amiga_player_videos_lib.php` · `includes/amiga_player_videos_render.inc.php` · reuses `amiga-tournament-videos.js` / CSS.
 
 ---
 
@@ -195,7 +204,8 @@ Examples: online `game.php` watch links, realm-wide video index, non-WC tourname
 |------|----------|
 | WC Videos catalog policy | [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) |
 | Implementation slices | [`amiga-tournament-videos-implementation-plan.md`](amiga-tournament-videos-implementation-plan.md) |
-| PHP lib + game index | [`amiga_tournament_videos_lib.php`](../site/public_html/includes/amiga_tournament_videos_lib.php) |
+| PHP lib + game index | [`amiga_tournament_videos_lib.php`](../site/public_html/includes/amiga_tournament_videos_lib.php) · [`amiga_player_videos_lib.php`](../site/public_html/includes/amiga_player_videos_lib.php) |
+| DB anchor sync | [`manifest_db.py`](../scripts/amiga/tournament_videos/manifest_db.py) · [`sync_db_ids.py`](../scripts/amiga/tournament_videos/sync_db_ids.py) · [`verify_tournament_videos.py`](../scripts/amiga/verify_tournament_videos.py) |
 | WC render + spotlight | [`amiga_tournament_videos_wc_render.inc.php`](../site/public_html/includes/amiga_tournament_videos_wc_render.inc.php) |
 | Click handler (today — no URL yet) | [`amiga-tournament-videos.js`](../site/public_html/js/amiga-tournament-videos.js) |
 | URL builder | `amiga_tournament_videos_url()` in [`amiga_tournament_lib.php`](../site/public_html/includes/amiga_tournament_lib.php) — `$mode` = `games` \| `atmosphere` |

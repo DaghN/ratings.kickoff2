@@ -42,7 +42,7 @@ const AMIGA_GAMES_HIGHLIGHT_BOARDS = [
         'label' => 'Biggest upsets',
         'heading' => 'Biggest upsets',
         'default_sort_key' => 'adjustment',
-        'help' => 'When the lower-rated player won — ranked by how many rating points they gained.',
+        'help' => 'The biggest rating gaps overcome by the underdog.',
     ],
 ];
 

@@ -1,6 +1,6 @@
 # Amiga tournament videos — implementation plan
 
-**Status:** **In progress (Jun 2026)** — policy locked; **TV-0–TV-3 shipped**; **TV-1 human review sign-off (Jun 2026)** — tournaments index + orphan→tournament queues complete (see policy §10). **TV-URL** shipped (embedded player + deep links). **TV-FOLDER** shipped (Games/Atmosphere folder modes — [`amiga-tournament-videos-folder-modes-plan.md`](amiga-tournament-videos-folder-modes-plan.md)). **TV-4** shipped — **With videos** filter + **Chronology video glyph** (C06: Phosphor `play-circle-fill` in dedicated **Videos** column before Players on `/amiga/tournaments.php` + World Cups chronology; `amiga_tournament_video_column_cell()`; click → Videos tab at `#tournament`). Future: admin bulk-verify page.
+**Status:** **In progress (Jun 2026)** — policy locked; **TV-0–TV-4 shipped**; **player profile Videos wing shipped (Jul 2026)**; **TV-2b DB anchor sync shipped (Jul 2026)** — `manifest_db.py`, `sync_db_ids`, `verify-tournament-videos` in `prove` ([policy §12](amiga-tournament-videos-policy.md)). **TV-URL** shipped (embedded player + deep links). **TV-FOLDER** shipped (Games/Atmosphere folder modes). Future: admin bulk-verify page.
 
 **Policy:** [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md)
 
@@ -27,12 +27,13 @@
 ## How to use this plan
 
 1. Execute slices **TV-1 → TV-6** in order (**TV-0** = policy + plan — done).
-2. **CSV review:** fix wrong `game_id` / tournament mappings as found (chat or future bulk-verify UI). Full `verified=Y` on every row is **not** a ship blocker — manifest carries `verified: true|false` per row.
+2. **CSV review:** fix **stable keys** (tournament label, player names, score, kind, relations) — not numeric ids. Run **`sync_db_ids`** to refresh DB caches. Full `verified=Y` on every row is **not** a ship blocker — manifest carries `verified: true|false` per row.
 3. **Future:** dedicated bulk-verify page — embed + proposed `game.php` link side-by-side (Dagh Jun 2026).
-4. **STOP** if manifest JSON fails schema validation or references unknown `tournament_id` / `player_*_id`.
+4. **STOP** if manifest JSON fails schema validation or references unknown `tournament_id` / `player_*_id` / `game_ids` (**run `verify-tournament-videos`** — oracle checks live DB alignment).
 5. **STOP** if Videos tab appears on tournaments with zero manifest rows, or is missing when rows exist.
-6. One slice per session; handoff note in chat + MEMORY line when a slice completes.
-6. After **TV-6**: UPDATE_DOCS Part A (`url-routes.md`, policy status, MEMORY, feature-log row).
+6. **After full L3 reimport / `prove`:** manifest DB caches refresh automatically; if editing CSV by hand, run **`sync_db_ids`** before commit (policy §12).
+7. One slice per session; handoff note in chat + MEMORY line when a slice completes.
+8. After **TV-6**: UPDATE_DOCS Part A (`url-routes.md`, policy status, MEMORY, feature-log row).
 
 ---
 
@@ -43,13 +44,14 @@ See policy **TV1–TV15**. Compressed for implementers:
 | # | Rule |
 |---|------|
 | Tab label | **Videos** (not Media) |
-| Data | JSON manifest — **no DB table v1** |
+| Data | JSON manifest — **no DB table**; numeric FKs are **DB caches** (policy §12) |
 | Dedupe | **One row per `youtube_id`** — relation groups only, never merge by match metadata |
 | Players | Set on `kind: match` when resolvable; **null** on streams/ceremony |
+| DB anchors | **`sync_db_ids`** after every full L3 reimport; **`verify-tournament-videos`** in `prove` |
 | Sources | Six feeds + forum bootstrap (policy §4) |
 | Embed | `youtube-nocookie.com` + lazy load |
 | Discovery | Chronology flag + Tournaments **Has videos** filter |
-| Out of v1 | Player Videos tab, global index, game-row links, stream splitting |
+| Out of scope | Global video index, game-row links on every table, stream splitting |
 
 ### Manifest paths (locked here)
 
@@ -61,7 +63,7 @@ See policy **TV1–TV15**. Compressed for implementers:
 
 PHP load path: `$_SERVER['DOCUMENT_ROOT'] . '/data/amiga/tournament_videos.json'`.
 
-Build flow: harvest → `review.csv` → Dagh verifies → `scripts/amiga/build_tournament_videos_manifest.py` (or equivalent) writes shipped JSON.
+Build flow: harvest → `review.csv` → Dagh verifies stable keys (names, tournament label, score) → **`sync_db_ids`** → shipped JSON. Do **not** hand-edit numeric ids — sync derives them from live `ko2amiga_db`.
 
 ---
 
@@ -92,7 +94,8 @@ Build flow: harvest → `review.csv` → Dagh verifies → `scripts/amiga/build_
 |-------|-------------|-----------|
 | **TV-0** | Policy + this plan | Dagh OK — **done** |
 | **TV-1** | Harvest tooling + `review.csv` | All six sources represented; **no row merges**; relation_group hints on forum dual-URL bullets |
-| **TV-2** | Verified `tournament_videos.json` | Dagh sign-off; JSON validates; all `verified: true` rows have valid FKs |
+| **TV-2** | Verified `tournament_videos.json` | Dagh sign-off; JSON validates; match rows have valid DB FKs |
+| **TV-2b** | **DB anchor sync + oracle** | **`sync_db_ids`** + **`verify-tournament-videos`**; wired into **`prove`**; player Videos tab ids match live DB |
 | **TV-3** | PHP read lib + Videos tab (pilot WC XXIII) | Browser: Milan 2025 shows tab, grouped sections, lazy embed, player links |
 | **TV-4** | Chronology video flag + **Has videos** filter | Browser: filter only lists tournaments with clips; Chronology icon/count correct |
 | **TV-5** | Rollout remaining mapped tournaments | Spot-check 3 WCs + 1 non-WC; tournaments without video unchanged |
@@ -165,18 +168,45 @@ Turn `review.csv` into shipped manifest (pragmatic v1: all non-`excluded` rows w
   - Optional `--verified-only` for strict gate.
   - Writes `site/public_html/data/amiga/tournament_videos.json` with per-row `verified` from CSV.
   - `game_id_guess` → `game_ids` array in JSON.
-- [x] **`scripts/amiga/tournament_videos/validate_manifest.py`** — unique IDs, FK spot-check, one canonical per relation group.
+- [x] **`scripts/amiga/tournament_videos/validate_manifest.py`** — structural checks + DB oracle via `manifest_db.validate_catalog()`.
 
 ### Verification
 
 ```powershell
 python -m scripts.amiga.tournament_videos.build_manifest
 python -m scripts.amiga.tournament_videos.validate_manifest
-# validate exits 0
+python -m scripts.amiga.verify_tournament_videos
+# all exit 0
 # JSON pretty-print; count verified rows matches Dagh expectation
 ```
 
-**STOP:** Do not start TV-3 until Dagh confirms ambiguous rows resolved (policy §13 open questions).
+**STOP:** Do not start TV-3 until Dagh confirms ambiguous rows resolved (policy §14 open questions).
+
+---
+
+## TV-2b — DB anchor sync (Jul 2026)
+
+### Goal
+
+Keep manifest **`tournament_id` / `player_*_id` / `game_ids`** aligned with live `ko2amiga_db` after every full L3 witness reimport (player merges shift auto-increment ids).
+
+### Tasks
+
+- [x] **`scripts/amiga/tournament_videos/manifest_db.py`** — shared sync + validate (stable keys vs DB caches).
+- [x] **`scripts/amiga/tournament_videos/sync_db_ids.py`** — refresh `review.csv`, re-resolve match games, rebuild manifest (`--dry-run`, `--no-resolve`, `--no-rebuild`).
+- [x] **`scripts/amiga/verify_tournament_videos.py`** — read-only oracle; step in **`prove`** verify suite.
+- [x] **`prove`** — runs **`sync_db_ids`** automatically after L5 replay (before verify suite).
+- [x] **`resolve_games --all`** — re-resolve every match row, not only rows missing `game_id_guess`.
+
+### Verification
+
+```powershell
+python -m scripts.amiga.tournament_videos.sync_db_ids
+python -m scripts.amiga.verify_tournament_videos
+# exit 0 — spot-check player Videos tab for a known clip owner (e.g. Thor id=440)
+```
+
+Policy: [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §12 · README: [`tournament_videos/README.md`](../scripts/amiga/tournament_videos/README.md).
 
 ---
 
@@ -319,7 +349,7 @@ All verified manifest rows live; no regressions elsewhere.
 
 ```text
 Manual spot-check 5 tournaments (see tasks).
-validate_manifest.py still 0 errors.
+python -m scripts.amiga.verify_tournament_videos  # exit 0
 No PHP notices on empty sections (tournament with 1 clip only in one section).
 ```
 
