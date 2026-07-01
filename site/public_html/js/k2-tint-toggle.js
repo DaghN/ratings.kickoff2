@@ -1,43 +1,14 @@
 /**
  * Tint palette disclosure (hub + player nav).
- * Closed by default; open state persisted in sessionStorage.
+ * Closed by default; does not persist open state across page loads.
  */
 (function () {
 	'use strict';
 
 	var root = document.documentElement;
-	var OPEN_KEY = 'k2-accent-palette-open';
-	var LEGACY_HIDE_KEY = 'k2-accent-pills-hidden';
 
 	function isOpen() {
 		return root.getAttribute('data-k2-accent-palette-open') === '1';
-	}
-
-	function readSession(key) {
-		try {
-			return sessionStorage.getItem(key);
-		} catch (e) {
-			return null;
-		}
-	}
-
-	function writeSession(key, value) {
-		try {
-			sessionStorage.setItem(key, value);
-		} catch (e) {
-			/* ignore */
-		}
-	}
-
-	function migrateLegacyHidden() {
-		if (readSession(OPEN_KEY) !== null) {
-			return;
-		}
-		if (readSession(LEGACY_HIDE_KEY) === '0') {
-			writeSession(OPEN_KEY, '1');
-		} else if (readSession(LEGACY_HIDE_KEY) === '1') {
-			writeSession(OPEN_KEY, '0');
-		}
 	}
 
 	function setOpen(open) {
@@ -48,11 +19,14 @@
 			root.removeAttribute('data-k2-accent-palette-open');
 			root.setAttribute('data-k2-accent-palette-hidden', '1');
 		}
-		try {
-			writeSession(OPEN_KEY, open ? '1' : '0');
-		} catch (e) {
-			/* ignore */
+	}
+
+	function closeIfOpen() {
+		if (!isOpen()) {
+			return;
 		}
+		setOpen(false);
+		syncToggleButtons();
 	}
 
 	function syncToggleButtons() {
@@ -74,13 +48,22 @@
 	}
 
 	function init() {
-		migrateLegacyHidden();
-		if (readSession(OPEN_KEY) === '1') {
-			setOpen(true);
-		} else {
-			setOpen(false);
-		}
+		setOpen(false);
 		syncToggleButtons();
+	}
+
+	function isNavLink(el) {
+		if (!el || el.tagName !== 'A') {
+			return false;
+		}
+		if (el.closest('.k2-tint-menu')) {
+			return false;
+		}
+		var href = el.getAttribute('href');
+		if (!href || href === '#' || href.indexOf('javascript:') === 0) {
+			return false;
+		}
+		return true;
 	}
 
 	function boot() {
@@ -98,12 +81,25 @@
 	window.__k2TintToggleBound = true;
 
 	document.addEventListener('click', function (ev) {
-		var btn = ev.target && ev.target.closest ? ev.target.closest('.k2-tint-menu__toggle') : null;
-		if (!btn) {
+		var target = ev.target;
+		if (!target || !target.closest) {
 			return;
 		}
-		setOpen(!isOpen());
-		syncToggleButtons();
+		var toggle = target.closest('.k2-tint-menu__toggle');
+		if (toggle) {
+			setOpen(!isOpen());
+			syncToggleButtons();
+			return;
+		}
+		if (isNavLink(target.closest('a[href]'))) {
+			closeIfOpen();
+		}
+	});
+
+	window.addEventListener('pageshow', function (ev) {
+		if (ev.persisted) {
+			closeIfOpen();
+		}
 	});
 
 	if (window.k2PageReady) {

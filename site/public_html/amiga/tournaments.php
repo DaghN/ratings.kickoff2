@@ -212,9 +212,7 @@ $listSummary = amiga_tournament_index_list_summary(
 <?php
 $k2HubChapterTitle = 'Tournaments';
 $k2HubChapterLede = amiga_tournament_index_chapter_lede_html(count($allRows));
-if (!amiga_snapshot_time_travel_active_from_request()) {
-    include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
-}
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 
 $k2AmigaTournamentIndexWcFilter = $wcFilter;
 $k2AmigaTournamentIndexFilter = $typeFilter;

@@ -133,6 +133,9 @@
 
 | When | Note |
 |------|------|
+| 2026-07-01 | **Amiga TT hub chapters** — Tournaments, HoF, Activity no longer suppress `k2-hub-chapter` under `as=`; stamp + ribbon sit above chapter. Policy: `amiga-time-travel-policy.md` §5.0, `design-direction.md`, `hub-ia-agreement.md`. |
+| 2026-07-01 | **Amiga Goals LB GD/g column** — `(GF − GA) / games` on `/amiga/leaderboards/goals.php` after GA/g (parity with WC player stats Goals wing; no tooltip). |
+| 2026-07-01 | **Tint picker — close on navigation** — open state no longer persisted in `sessionStorage`; every page load starts closed (`theme_boot_head.php` + `k2-tint-toggle.js`); clicking any site link closes the panel immediately; bfcache back also closes. Docs: `tint-vs-realm.md`, `design-direction.md`, `hub-ia-agreement.md`, `self-hosted-assets.md`. |
 | 2026-07-01 | **Amiga calendar-geo LB Peak games colour** — Peak games column values wrapped in `.blue` on `/amiga/leaderboards/calendar-geo.php`. |
 | 2026-07-01 | **Amiga Perf. rating LB** — Perf. column `.blue` + `k2-table--perf-rating-lb` CSS so stat green wins over anchor link-star (Best/Top anchor col 3; Perfect ∞). |
 | 2026-07-01 | **Amiga Peak rating LB** — Peak column values wrapped in `.blue` (parity with online `leaderboards/peak-rating.php`). |
@@ -140,7 +143,8 @@
 | 2026-07-01 | **Amiga WC players Opponents wing** — Opponents column values wrapped in `.blue` on `/amiga/world-cups/players/opponents.php`. |
 | 2026-07-01 | **Amiga WC countries Participation wing** — Entries column values wrapped in `.blue` on `/amiga/world-cups/countries/participation.php`. |
 | 2026-07-01 | **Amiga WC players Results wing** — Pts column values wrapped in `.blue` on `/amiga/world-cups/players/results.php`. |
-| 2026-07-01 | **Honours-table medal columns** — bright value gradients; header SVGs via `k2_lb_honours_medal_th()` (honours palette matches values; classic palette unchanged elsewhere). |
+| 2026-07-01 | **Honours-table medal columns** — gradient + fw600 when count > 0; plain muted `0` (no active-sort brightening). |
+| 2026-07-01 | **Amiga Countries hub Players column** — `.blue` on `/amiga/countries.php` index table. |
 | 2026-07-01 | **Milestones meta LB tier counts** — `k2-table--milestones-meta-lb`: four tier columns always weight 600 (hue unchanged; sort emphasis on header + Milestones total / Games only). |
 | 2026-07-01 | **Stat green tune** — `--k2-stat-positive-green` `#bdd852` → `#c4e84c` (between loud `#c6ef4a` and dull nudge). |
 | 2026-07-01 | **Status league Pts/Games → `.blue`** — removed `k2-table--league-anchor-cross`, `--k2-league-anchor-*`, and `data-k2-anchor-col` on league tables; Pts + Games use stat palette (`--k2-table-positive`). PHP + `status-period-competitions.js` + docs. |

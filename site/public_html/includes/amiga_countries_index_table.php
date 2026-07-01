@@ -45,7 +45,7 @@ function amiga_countries_render_index_table(array $rows, int $countryCount): voi
     <tr data-k2-sort-tie-value="<?php echo (int) $row['games']; ?>">
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($countryToken); ?>"><?php echo k2_amiga_lb_country_cell($countryToken); ?></td>
-        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo (int) $row['players']; ?></td>
+        <td<?php echo k2_lb_td(2, $lbSort); ?>><span class="blue"><?php echo (int) $row['players']; ?></span></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo (int) $row['games']; ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo k2_h(number_format((float) $row['games_per_player'], 1, '.', '')); ?></td>
         <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo (int) $row['wc_entries']; ?></td>

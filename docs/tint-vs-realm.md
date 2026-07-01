@@ -9,7 +9,7 @@
 | **Tint** (`data-k2-accent` on `<html>`) | UI accent — links, nav rings, glows, chrome. **Not** tied to Online/Amiga. |
 | **Realm** (`data-realm`) | Which ladder/universe (data, copy, APIs later). **Does not** set site paint. |
 
-**Default tint on load:** follows a **six-hour rotation** when the visitor has not chosen a pill manually (see schedule below). CSS still defaults to amber when `data-k2-accent` is absent. Hub/player nav: **Tint** disclosure (closed by default) reveals **Amber · Pitch · Chrome · Holo** swatch pills to the left of the fixed right-side Tint anchor (Pulse removed — clashed with stat colours). Inactive choices stay subdued when open; palette stays open after a pick until the visitor closes it.
+**Default tint on load:** follows a **six-hour rotation** when the visitor has not chosen a pill manually (see schedule below). CSS still defaults to amber when `data-k2-accent` is absent. Hub/player nav: **Tint** disclosure (closed by default) reveals **Amber · Pitch · Chrome · Holo** swatch pills to the left of the fixed right-side Tint anchor (Pulse removed — clashed with stat colours). Inactive choices stay subdued when open; on the **same page** the palette stays open after a pick until the visitor toggles **Tint** closed — **any site navigation** (link click or full page load) closes it (`k2-tint-toggle.js`; open state is not persisted).
 
 **Six-hour schedule** (`js/k2-tint-schedule.js`, booted from `theme_boot_head.php`):
 
@@ -93,3 +93,4 @@ Each pill sets `--k2-accent: var(--k2-pure-*)`. That drives link-star and nav mi
 5. **Header search** — type a name on Status or `/amiga/rating.php`; hits from both ladders when applicable; realm label + correct profile URL per row.
 6. **status.php**, **leaderboards/rating.php**, **player/profile.php** — player names follow tint.
 7. **Long-open tab** — scheduled tint updates within ~1s of six-hour boundary (no reload).
+8. **Tint disclosure** — open picker, click any hub/link → panel closed on arrival (not carried across navigation).

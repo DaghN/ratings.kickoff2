@@ -37,7 +37,7 @@ Loaded per page as `<script src="js/...">` — not from a CDN at runtime.
 | **activity-charts-v2.js** | `js/activity-charts-v2.js` | Activity page |
 | **chart-theme.js**, **chart-date-range.js** | `js/chart-theme.js`, `js/chart-date-range.js` | Chart pages |
 | **player-search.js** | `js/player-search.js` | Header search, many pages |
-| **realm-switch.js**, **k2-tint-toggle.js** | `js/` | Tint picker (hub + player nav) |
+| **realm-switch.js**, **k2-tint-toggle.js** | `js/` | Tint picker (hub + player nav): swatch choice + schedule override (`realm-switch.js`); disclosure open/close (`k2-tint-toggle.js`, closes on navigation) |
 | Profile feast charts | `js/player-*-chart.js`, `js/player-feast/*` | `player/profile.php` |
 | Status leagues | `js/status-period-competitions.js`, `js/k2-archive-listbox.js` | `status.php` |
 | Other site JS | `js/*.js` | Page-specific |

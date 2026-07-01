@@ -11,24 +11,6 @@ $k2DocRoot = $_SERVER['DOCUMENT_ROOT'];
 (function () {
 	var root = document.documentElement;
 	var S = window.K2TintSchedule;
-	var OPEN_KEY = 'k2-accent-palette-open';
-	var LEGACY_HIDE_KEY = 'k2-accent-pills-hidden';
-
-	function readLocal(key) {
-		try {
-			return localStorage.getItem(key);
-		} catch (e) {
-			return null;
-		}
-	}
-
-	function readSession(key) {
-		try {
-			return sessionStorage.getItem(key);
-		} catch (e) {
-			return null;
-		}
-	}
 
 	if (S) {
 		S.applyAccentToRoot(root, S.resolveAccent());
@@ -67,11 +49,7 @@ $k2DocRoot = $_SERVER['DOCUMENT_ROOT'];
 		})();
 	}
 
-	/* Default: palette closed. OPEN_KEY "1" or legacy hide "0" = leave open for first paint */
-	if (readSession(OPEN_KEY) === '1' || readSession(LEGACY_HIDE_KEY) === '0') {
-		root.setAttribute('data-k2-accent-palette-open', '1');
-	} else {
-		root.setAttribute('data-k2-accent-palette-hidden', '1');
-	}
+	/* Palette always closed on load (open state is not kept across navigation). */
+	root.setAttribute('data-k2-accent-palette-hidden', '1');
 })();
 </script>

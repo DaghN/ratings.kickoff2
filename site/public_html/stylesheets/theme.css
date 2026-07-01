@@ -4884,11 +4884,21 @@ body.k2-site .k2-lb-league-honours__bar {
 	width: 20px;
 }
 
-/* Honour-table medal column values — gradient ink @ table size; primary + 600 on Gold · Silver · Bronze always */
-body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-lb-honours-medal-td {
+/* Honour-table medal column values — gradient ink @ table size; primary + 600 when count > 0 */
+body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-lb-honours-medal-td:has(.k2-country-hero__medal-value) {
 	color: var(--k2-text-primary);
 	font-weight: 600;
 	text-align: center;
+}
+
+body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-lb-honours-medal-td:not(:has(.k2-country-hero__medal-value)) {
+	text-align: center;
+}
+
+/* Zero medal counts — stay muted even when this column is the active sort */
+body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-lb-honours-medal-td.k2-table-col-sorted:not(:has(.k2-country-hero__medal-value)) {
+	color: var(--k2-text-secondary);
+	font-weight: inherit;
 }
 
 body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-lb-honours-medal-td .k2-country-hero__medal-value {

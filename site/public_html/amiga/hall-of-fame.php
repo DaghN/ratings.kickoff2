@@ -74,16 +74,14 @@ mysqli_close($con);
 ?>
 
 <?php
-if (!$ctx->isActive()) {
-    $k2HubChapterTitle = 'Hall of Fame';
-    $k2HubChapterLede = 'What is the all-time Amiga record? Who holds it, and when was it set?';
-    $k2HubChapterList = '<ul class="k2-hub-chapter__list">'
-        . '<li>Records less than six months old are shown as &quot;<span class="blue">(New!)</span>&quot;.</li>'
-        . '<li>Records more than five years old are shown as &quot;<span class="holo">(Legendary)</span>&quot;.</li>'
-        . '<li>A player must play ' . (int) k2_established_min_games() . ' games for ratios and averages to take effect.</li>'
-        . '</ul>';
-    include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
-}
+$k2HubChapterTitle = 'Hall of Fame';
+$k2HubChapterLede = 'What is the all-time Amiga record? Who holds it, and when was it set?';
+$k2HubChapterList = '<ul class="k2-hub-chapter__list">'
+    . '<li>Records less than six months old are shown as &quot;<span class="blue">(New!)</span>&quot;.</li>'
+    . '<li>Records more than five years old are shown as &quot;<span class="holo">(Legendary)</span>&quot;.</li>'
+    . '<li>A player must play ' . (int) k2_established_min_games() . ' games for ratios and averages to take effect.</li>'
+    . '</ul>';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 
 // Static row labels — keep in sync with amiga_records_render_row calls below (shared col 1 width).
 $k2HofRecordLabels = [

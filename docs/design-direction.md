@@ -191,7 +191,7 @@ Do not add one-off hex in page CSS when a token exists.
 | Amiga rating LB Δ column header | Flat-top **Δ** on `th.k2-table-col-delta` — 12px/500 (Plex Sans) |
 | Display chrome | Exo 2 for wordmark, hero name/stat values, avatar initial (self-hosted; preloaded in `k2_fonts_head.php`) |
 | Panel/chart headings | `.k2-panel-heading`: small, muted, weight 600 |
-| Hub section chapter title | `.k2-hub-chapter__title`: 1.25rem (~20px), weight 600, **primary** — editorial “you are here” landmark above wing tabs; accent/glow reserved for wordmark, league/H2H destinations, semantic data; pairs with muted `__lede`. **Amiga time travel:** snapshot hub tabs **omit** chapter block when `as=` active — temporal stamp + ribbon replace it ([`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §5.0). |
+| Hub section chapter title | `.k2-hub-chapter__title`: 1.25rem (~20px), weight 600, **primary** — editorial “you are here” landmark above wing tabs; accent/glow reserved for wordmark, league/H2H destinations, semantic data; pairs with muted `__lede`. **Amiga time travel:** hub chapters **stay visible** under `as=`; stamp + ribbon sit above them ([`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §5.0). |
 | Amiga time-travel LED stamp | **DSEG7 Classic** (`fonts/dseg7-classic-regular.woff2`) — **display-only** on `.k2-amiga-tt-stamp__segment`; never for body/table/chart text. Mono kicker uses IBM Plex Mono. Motion (32 cps typewriter; toggle panel fade; wing LED fade): [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §5.0. |
 | Text selection (drag highlight) | `::selection` on `body.k2-site` � `--k2-text-selection-bg` (tint mix), primary ink; replaces OS/browser default blue |
 
@@ -214,7 +214,7 @@ Navigation pattern:
 - Hub, player, and leaderboard wings use **segment track + outline active cell**.
 - **Page nav vertical spacing** -- Phases 1-3 shipped (Jun 2026): [`nav-spacing-policy.md`](nav-spacing-policy.md) + [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md). **New nav bars:** [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md). Single **`--k2-nav-gap` (12px)**; bottom-only ownership.
 - Hub and player nav no longer support A/B style overrides; the preview/tuning scaffolding has been pruned.
-- Tint picker: compact right-anchored **Tint** disclosure pill (current swatch dot when closed); four swatch choices open to its left; closed by default; segment-outline active choice; inactive swatches dimmed (`k2_tint_picker.php`, `k2-tint-toggle.js`).
+- Tint picker: compact right-anchored **Tint** disclosure pill (current swatch dot when closed); four swatch choices open to its left; closed by default and **closes on any site navigation** (not persisted across page loads); segment-outline active choice; inactive swatches dimmed (`k2_tint_picker.php`, `k2-tint-toggle.js`).
 - Secondary actions can use quiet rounded pills when they act like controls rather than content links (e.g. Player Games `Reset` / pager actions); Status Leagues keeps period tabs separate from its spacious prev/picker/next stepper.
 
 Imagery:
@@ -226,7 +226,7 @@ Imagery:
 - Status heritage box may use a clipped tint-following halo behind the art; the inset boundary contains the light.
 - Dense tables and charts should start high on the page.
 - **In-page scrollbars** (`.k2-table-wrap`, archive listbox panels, heatmaps, bracket rails, etc.): thin muted thumb via `--k2-scrollbar-*` tokens in `theme.css` — not OS default gray, not tint accent. Page-level vertical scroll stays native unless we extend tokens to `html` later.
-- **Amiga time travel chrome (when `as=` active):** header **Present day | Time travel** (**T19** fixed homes) → **temporal stamp** (LED date + kicker; ambient cursor blink; toggle/wing arrival motion per policy §5.0) → **snapshot ribbon** (Year · Month · Event) → hub/player content. Present mode: no stamp/ribbon; hub chapters stay. Intent + locked rules: [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §5.0.
+- **Amiga time travel chrome (when `as=` active):** header **Present day | Time travel** (**T19** fixed homes) → **temporal stamp** (LED date + kicker; ambient cursor blink; toggle/wing arrival motion per policy §5.0) → **snapshot ribbon** (Year · Month · Event) → **hub chapter** (title + lede) → wing sub-nav / page body. Present mode: no stamp/ribbon. Intent + locked rules: [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §5.0.
 
 **Surface rhythm (mixed containment):** Not every data block needs the same bordered panel. Use **open page background** when the visual is the content (profile heatmaps: played days/weeks on `--k2-bg-hover` cells). Use **chart panels** (`k2-chart-panel`, `k2-chart-frame`) when Chart.js, toggles, and fixed frames need a reading device � Activity and profile charts share this. Use **light tiles/mosaics** for small stat or story clusters. Alternating open and contained blocks creates scroll rhythm; uniform panel stacks feel generic. Profile contract: [`player-profile-feast.md`](player-profile-feast.md) � Surface rhythm. Do not panel everything for �consistency� unless the module type warrants it.
 

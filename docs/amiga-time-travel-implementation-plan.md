@@ -271,7 +271,7 @@ Shipped after phase 1 data lens was green — UX polish, **L0**, no Part B:
 | Item | Status | Notes |
 |------|--------|-------|
 | Temporal stamp (DSEG7 LED + kicker) | **Done** | `amiga_time_travel_stamp.php`; above ribbon on all TT surfaces |
-| Hub chapter suppression under `as=` | **Done** | Leaderboards, World Cups, Activity, HoF |
+| Hub chapters under `as=` | **Retired suppression (Jul 2026)** — chapters always visible; was briefly omitted on Tournaments/HoF/Activity |
 | Present-mode TT entry tooltip | **Done** | `amiga_time_mode_nav_time_travel_help_text()` |
 | **T19** asymmetric mode-toggle homes | **Done** | Present from lens → same page; Time travel from present → rating LB + first event; ribbon for in-lens time |
 | Temporal stamp motion (phase 2a) | **Done** | Toggle `k2_tt_entry=1` (panel fade + 32 cps typewriter); wing tabs `k2_tt_entry=wing` (32 cps + 1100ms LED opacity fade); clickable cursor; sync JS after stamp markup |

@@ -46,9 +46,13 @@ function amiga_wc_podium_metal_label_markup(int $place): string
         . '</span>';
 }
 
-/** Podium count — gradient metal text (player hero medals, tournament honours LB). */
+/** Podium count — gradient metal text (honour tables); plain 0 matches default cell ink. */
 function amiga_wc_podium_medal_value_markup(int $count, int $place): string
 {
+    if ($count === 0) {
+        return k2_h('0');
+    }
+
     $m = amiga_wc_podium_meta($place);
     if ($m === null) {
         return k2_h((string) $count);
