@@ -118,7 +118,8 @@ if ($grain === 'country') {
             $h2hCountryToken,
             $h2hDefaultCountry,
             $h2hPickSource,
-            $ctx
+            $ctx,
+            (string) ($pm['country'] ?? '')
         );
     } else {
         ?>

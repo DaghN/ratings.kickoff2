@@ -74,7 +74,8 @@ Spacing migration must sweep **margin-bottom** on every block that separates nav
 | Sub-nav chrome (activity, games hub, ms hub, WC, player opponents/milestones) | mixed 12/16px + `margin-top` lists | `margin-bottom: var(--k2-nav-gap)` or N6 exception; **`margin-top: 0`** |
 | `.k2-lb-league-honours` panel | bespoke `margin-top` + subnav `margin-bottom` | drop panel `margin-top`; subnav `margin-bottom: var(--k2-nav-gap)` |
 | `.k2-player-nav-bar` | **20px** default; **12px** on `body.k2-player-wing` | **20->12px** or documented exception (N10) |
-| `.k2-player-hero` / `.k2-amiga-tournament-hero` | player wing **6px**; tournament **16px** | **`margin-bottom: var(--k2-nav-gap)`** (entity heroes in chrome stack) |
+| `.k2-player-hero` | **`calc(var(--k2-nav-gap) + 12px)`** (24px at default token) | Player-wing hero only — extra air before player nav; H2H-style glow panel |
+| `.k2-amiga-tournament-hero` | tournament **16px** → **`var(--k2-nav-gap)`** | Entity hero in chrome stack (quiet surface) |
 | Amiga tournament detail nav | reuses `.k2-player-nav-bar` on `tournament.php` | **12px** via shared `.k2-player-nav-bar` rule (N10) |
 | Amiga tournaments index filter | `.k2-chrome-tabs` in `.k2-amiga-tournament-index-segment-filters` | segment rows: inner `gap: --k2-nav-gap`; segment block → listbox: parent `.k2-player-games-filters` default **6px**; one `--k2-nav-gap` below whole filter block |
 | Player wing top tabs | `.k2-chrome-tabs.k2-player-wing-tabs` | segment width; tournament detail keeps full-width `.k2-player-nav-bar` |
@@ -101,7 +102,8 @@ Grep pass on nav-like blocks in `theme.css`. **Token-only** swaps (12px → `var
 | Item | Value | Why |
 |------|-------|-----|
 | `.k2-player-opponents:has(.k2-player-opponents-h2h) .k2-player-opponents__nav` | `margin-bottom: 20px` | H2H picker block needs more air than table wing |
-| `.k2-player-opponents__nav-row` (shipped Jun 2026) | flex row; `gap: var(--k2-nav-gap)` between wing + grain segments | Amiga Opponents **vs Player · vs Country** beside wing tabs — [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md) §6 |
+| `.k2-player-hero` | `calc(var(--k2-nav-gap) + 12px)` | Player-wing hero only — extra gap before `.k2-player-nav-bar`; country/tournament heroes stay `--k2-nav-gap` |
+| `.k2-player-opponents__nav-row` (shipped Jun 2026) | flex row; `gap: calc(var(--k2-nav-gap) * 2)` between wing + grain segments | Amiga Opponents **vs Player · vs Country** beside wing tabs — [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md) §6 |
 | `.k2-hub-bar` top margin | `16px` | Header-to-hub rhythm, not `--k2-nav-gap` |
 | `.k2-hub-chapter-to-content-gap` | `22px` | HoF-only editorial gap; out of nav stack v1 |
 | `.k2-page-nav .k2-table` | `margin-bottom: 16px` | Profile multi-table stack spacing, not page chrome |

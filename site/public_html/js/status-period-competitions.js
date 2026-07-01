@@ -1307,7 +1307,7 @@
             html += '<td class="k2-status-table__num">' + rank + '</td>';
             html += '<td class="k2-status-table__player"><a class="k2-link-star" href="/player/profile.php?id=' + e.player_id + PLAYER_PROFILE_ANCHOR + '">'
                 + escapeHtml(e.player_name) + '</a></td>';
-            html += '<td class="k2-status-table__num"><span class="blue">' + e.games + '</span></td>';
+            html += '<td class="k2-status-table__num"><span class="blue k2-status-table__hero-stat">' + e.games + '</span></td>';
             if (showMedals) {
                 html += '<td class="k2-status-table__medal">' + medalHtml(root, rank) + '</td>';
             }
@@ -1353,10 +1353,10 @@
             html += '<td class="k2-status-table__num"><span class="blue">' + row.wins + '</span></td>';
             html += '<td class="k2-status-table__num">' + row.draws + '</td>';
             html += '<td class="k2-status-table__num"><span class="red">' + row.losses + '</span></td>';
-            html += '<td class="k2-status-table__num">' + row.gf + '</td>';
-            html += '<td class="k2-status-table__num">' + row.ga + '</td>';
+            html += '<td class="k2-status-table__num"><span class="blue">' + row.gf + '</span></td>';
+            html += '<td class="k2-status-table__num"><span class="red">' + row.ga + '</span></td>';
             html += '<td class="k2-status-table__num">' + (gd > 0 ? '+' + gd : String(gd)) + '</td>';
-            html += '<td class="k2-status-table__num"><span class="blue">' + row.pts + '</span></td>';
+            html += '<td class="k2-status-table__num"><span class="blue k2-status-table__hero-stat">' + row.pts + '</span></td>';
             if (showMedals) {
                 html += '<td class="k2-status-table__medal">' + medalHtml(root, rank) + '</td>';
             }

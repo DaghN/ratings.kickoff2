@@ -133,9 +133,14 @@
 
 | When | Note |
 |------|------|
-| 2026-07-01 | **League points table W/L colour** — Status Leagues + `league.php` points standings: W `.blue`, L `.red` (`k2_league_table_render.php`, `status-period-competitions.js`). |
-| 2026-07-01 | **Player hero spacing** — `.k2-player-hero` gets +12px below hero (`calc(--k2-nav-gap + 12px)`); country/tournament heroes unchanged. |
-| 2026-07-01 | **Player hero glow experiment (ON)** — H2H-style panel + avatar glow on `.k2-player-hero--glow` (online + Amiga player wing). **Revert:** `K2_PLAYER_HERO_GLOW_EXPERIMENT = false` in `includes/k2_player_hero_glow_experiment.php`. |
+| 2026-07-02 | **Amiga TT ribbon with-player panel** — dropdown panel only: `min-width: 100%` + name-based max (decoupled from trigger); trigger/ribbon spacing unchanged. |
+| 2026-07-01 | **Amiga Opponents country H2H default** — when `country=` omitted, default picker skips hero's own nation (most-played foreign country; fallback top bucket if all domestic). |
+| 2026-07-01 | **Amiga player Tournaments filter segments** — `.k2-amiga-tournament-index-segment-filters` flex gap moved to `theme.css` so All/World Cups ↔ Perfect run rows get `--k2-nav-gap` without loading `amiga-tournament.css`. |
+| 2026-07-01 | **Amiga Opponents nav row gap** — wing ↔ grain segment spacing doubled (`calc(var(--k2-nav-gap) * 2)` on `.k2-player-opponents__nav-row`). |
+| 2026-07-01 | **Profile at-a-glance Presence** — swapped row order: Last rated game above First rated game (`player_feast_presence_stat_rows`). |
+| 2026-07-01 | **Status Leagues meta line** — period label, rated-games count, and end date/countdown `.blue` spans bold in competitions meta. |
+| 2026-07-01 | **League points table stat colours** — Status + `league.php` points standings: W/GF `.blue`, L/GA `.red` (colour only; Pts/Games keep `k2-status-table__hero-stat` bold). |
+| 2026-07-01 | **Player hero chrome shipped** — `.k2-player-hero` (online + Amiga player wing): H2H-style accent border + panel/avatar glow in `theme.css`; +12px below hero (`calc(--k2-nav-gap + 12px)`). Country/tournament heroes unchanged. Experiment toggle removed. |
 | 2026-07-01 | **C16 universe map** — gestating in creative doc §6.6: map-first wow piece, creator nodes, three-audience intent (newcomers / veterans / creators). |
 | 2026-07-01 | **Creative C16 spark** — KO2 universe map in [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) §5.4 / §6.6 (Misc Scene leaf; visual vs atlas TBD). |
 | 2026-07-01 | **Present layer & site completion doc** — expanded [`present-layer-ia.md`](docs/present-layer-ia.md): Misc lifecycle, leaf pages (PL14), footer/about (PL12–13, PL15), shippable v1 checklist §12, post-ship growth PL16. |

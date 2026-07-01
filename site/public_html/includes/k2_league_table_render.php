@@ -200,10 +200,10 @@ if (!function_exists('k2_status_render_league_table')) {
 							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['wins']); ?>><span class="blue"><?php echo (int) $row['wins']; ?></span></td>
 							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['draws']); ?>><?php echo (int) $row['draws']; ?></td>
 							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['losses']); ?>><span class="red"><?php echo (int) $row['losses']; ?></span></td>
-							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['gf']); ?>><?php echo (int) $row['gf']; ?></td>
-							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['ga']); ?>><?php echo (int) $row['ga']; ?></td>
+							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['gf']); ?>><span class="blue"><?php echo (int) $row['gf']; ?></span></td>
+							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['ga']); ?>><span class="red"><?php echo (int) $row['ga']; ?></span></td>
 							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, $gd); ?>><?php echo $gd > 0 ? '+' . $gd : (string) $gd; ?></td>
-							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['pts']); ?>><span class="blue"><?php echo (int) $row['pts']; ?></span></td>
+							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['pts']); ?>><span class="blue k2-status-table__hero-stat"><?php echo (int) $row['pts']; ?></span></td>
 <?php if ($showPodiumMedals) { ?>
 							<td class="k2-status-table__medal"><?php echo $rank <= 3 ? k2_status_league_podium_medal($rank) : ''; ?></td>
 <?php } ?>
@@ -263,7 +263,7 @@ if (!function_exists('k2_status_render_activity_competition_table')) {
             echo '<tr' . ($sortable ? ' data-k2-sort-tie-value="' . $rank . '"' : '') . '>';
             echo '<td class="k2-status-table__num"' . k2_league_table_sort_value_attr($sortable, $rank) . '>' . $rank . '</td>';
             echo '<td class="k2-status-table__player"' . k2_league_table_sort_value_attr($sortable, $playerName) . '>' . k2_status_player_link($playerId, $playerName) . '</td>';
-            echo '<td class="k2-status-table__num"' . k2_league_table_sort_value_attr($sortable, $games) . '><span class="blue">' . $games . '</span></td>';
+            echo '<td class="k2-status-table__num"' . k2_league_table_sort_value_attr($sortable, $games) . '><span class="blue k2-status-table__hero-stat">' . $games . '</span></td>';
             if ($showPodiumMedals) {
                 echo '<td class="k2-status-table__medal">' . ($rank <= 3 ? k2_status_league_podium_medal($rank) : '') . '</td>';
             }

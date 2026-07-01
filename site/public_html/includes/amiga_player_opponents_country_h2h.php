@@ -53,6 +53,29 @@ function amiga_player_opponents_h2h_played_countries(
 }
 
 /**
+ * Default H2H country when `country=` is omitted: most-played opponent country,
+ * excluding the hero's own nation (falls back to top bucket if all are domestic).
+ *
+ * @param list<array{country_token: string, games: int}> $played sorted by games desc
+ */
+function amiga_player_opponents_h2h_default_country_token(array $played, string $heroCountry = ''): string
+{
+    if ($played === []) {
+        return '';
+    }
+
+    $heroToken = amiga_player_opponents_country_token_from_field($heroCountry);
+    foreach ($played as $row) {
+        $token = (string) $row['country_token'];
+        if ($token !== $heroToken) {
+            return $token;
+        }
+    }
+
+    return (string) $played[0]['country_token'];
+}
+
+/**
  * @return array{country_token: string, games: int}|null
  */
 function amiga_player_opponents_h2h_resolve_country(
@@ -347,7 +370,8 @@ function amiga_player_opponents_render_country_h2h_panel(
     string $selectedCountryToken = '',
     bool $defaultToTopCountry = false,
     ?string $pickSource = null,
-    ?AmigaSnapshotContext $ctx = null
+    ?AmigaSnapshotContext $ctx = null,
+    string $heroCountry = ''
 ): void {
     $playerId = max(0, $playerId);
     $playerName = trim($playerName);
@@ -358,7 +382,7 @@ function amiga_player_opponents_render_country_h2h_panel(
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
     $played = amiga_player_opponents_h2h_played_countries($con, $playerId, $ctx);
     if ($defaultToTopCountry && $selectedCountryToken === '' && $played !== []) {
-        $selectedCountryToken = (string) $played[0]['country_token'];
+        $selectedCountryToken = amiga_player_opponents_h2h_default_country_token($played, $heroCountry);
     }
 
     $byAlpha = $played;

@@ -51,7 +51,7 @@ Full table and policy links: [`amiga-country-rivals-policy.md`](amiga-country-ri
 | **OCG2** | **Wing preserved on toggle** | Switching grain keeps the active wing: W/D/L → W/D/L, H2H → H2H, etc. |
 | **OCG3** | **Default grain** | **Player**. Opponents pill default href remains `amiga-player-opponents-h2h` (player path). |
 | **OCG4** | **Segment labels** | **vs Player** · **vs Country** (exact copy). |
-| **OCG5** | **Segment placement** | **One nav row**, horizontal: wing segment **left**, grain segment **right**, `gap: var(--k2-nav-gap)` between the two segment tracks (see §6). **Not** a second row below the wings on viewports ≥ policy breakpoint. |
+| **OCG5** | **Segment placement** | **One nav row**, horizontal: wing segment **left**, grain segment **right**, `gap: calc(var(--k2-nav-gap) * 2)` between the two segment tracks (see §6). **Not** a second row below the wings on viewports ≥ policy breakpoint. |
 | **OCG6** | **Country token** | `TRIM(amiga_players.country)` when non-empty ([**H8**](amiga-hof-tournament-geo-policy.md)); empty/NULL opponent nationality → literal **`Unknown`**. |
 | **OCG7** | **Directed hero perspective** | All stats are **hero → opponent country**: cumulative results of the subject player against all nationals from that token through cutoff. |
 | **OCG8** | **Own country row** | Include games vs **compatriots** (hero vs own country token). Copy/tooltips: *players from {country}*, not “national team”. **Contrast:** country Rivals (`country/rivals/*`) **excludes** domestic A→A — see [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) CRV7. |
@@ -210,7 +210,7 @@ Extend [`includes/amiga_player_opponents_nav.php`](../site/public_html/includes/
       .k2-chrome-tabs.k2-player-opponents__grain  ← vs Player · vs Country
 ```
 
-- **Horizontal layout:** `display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: var(--k2-nav-gap);`
+- **Horizontal layout:** `display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: calc(var(--k2-nav-gap) * 2);`
 - **Order:** wings first (inline-start), grain second (to the **right** of wings with gap — **OCG5**).
 - **Spacing:** inner `__nav` keeps `margin-bottom: var(--k2-nav-gap)` to content (Pattern B). H2H picker exception (`20px` when `.k2-player-opponents-h2h` present) unchanged.
 - **Markup grammar:** both children use standard `.k2-chrome-tabs` + `.k2-chrome-tabs__bar` + `.k2-chrome-tabs__tab` ([`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) §2).
@@ -239,7 +239,7 @@ Path: `opponents/country/h2h.php`. Reuse poster/moments/chart CSS where possible
 | `opponent={id}` | `country={token}` |
 
 - Options = countries appearing in hero’s rolled-up buckets at cutoff.
-- Default when `country` omitted: country with most games (URL stays without `country=` until user picks another — mirror player H2H default).
+- Default when `country` omitted: country with most games **excluding the hero’s own nation** (URL stays without `country=` until user picks another — mirror player H2H default). Falls back to top bucket if every opponent country is domestic.
 
 **No player search** in country grain v1.
 

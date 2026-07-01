@@ -239,8 +239,8 @@ function player_feast_render_stat_value(string $value): void
 function player_feast_presence_stat_rows(array $pm): array
 {
     return [
-        ['label' => 'First rated game', 'value' => (string) $pm['first_game_date']],
         ['label' => 'Last rated game', 'value' => (string) $pm['last_game']],
+        ['label' => 'First rated game', 'value' => (string) $pm['first_game_date']],
         ['label' => 'Days this year', 'value' => number_format((int) ($pm['days_this_year'] ?? 0))],
         ['label' => 'Games this year', 'value' => (string) (int) $pm['games_this_year']],
     ];

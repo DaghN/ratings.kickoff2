@@ -154,7 +154,7 @@ User can switch grain and wing; country pages load shell with placeholder body.
   - Grain links: same `$view`, toggle grain only.
   - `aria-label` on grain nav: e.g. *Opponent grouping*.
 - [x] **`theme.css`** (under `.k2-player-opponents` block):
-  - `.k2-player-opponents__nav-row` — flex row, align center, wrap, gap `var(--k2-nav-gap)`.
+  - `.k2-player-opponents__nav-row` — flex row, align center, wrap, gap `calc(var(--k2-nav-gap) * 2)`.
   - `.k2-player-opponents__wings`, `.k2-player-opponents__grain` — `margin: 0`; inner bars `width: fit-content`.
   - Preserve H2H `20px` nav margin rule when `.k2-player-opponents-h2h` present.
 - [x] **`amiga_player_opponents_page.php`:**
@@ -239,7 +239,7 @@ Country drill-down parity with player H2H minus charts.
   - [x] `amiga_player_opponents_h2h_parse_country_param(mixed $raw): string` — normalize via `amiga_countries_normalize_country_param()` or shared helper; empty = no selection.
   - [x] `amiga_player_opponents_render_country_h2h_panel(...)` — parallel to player panel.
   - [x] **Pickers:** two listboxes only (games desc · A–Z); options from `amiga_player_opponents_country_rows()`; values = country token strings.
-  - [x] **Default opponent country:** when `country` param absent, use top bucket for **display** only (mirror player H2H — URL without param until user picks).
+  - [x] **Default opponent country:** when `country` param absent, use top **foreign** bucket for **display** only (skip hero nation; mirror player H2H — URL without param until user picks).
   - [x] **Poster:** reuse `player_opponents_render_h2h_poster()` only if adaptable; otherwise add `player_opponents_render_h2h_country_poster()` — hero card + **country card** (flag, token, roster link) + centre W/D/L from bucket.
   - [x] **Pair detail:** W/D/L + country Perf. (read-time).
   - [x] **All games link:** hero games `opp_country=` filter.
