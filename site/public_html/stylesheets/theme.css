@@ -135,7 +135,13 @@ html[data-k2-accent="holo"] {
 
 html {
 	background-color: var(--k2-bg-page);
+	color-scheme: dark;
 	scrollbar-gutter: stable;
+}
+
+/* Hotwired Turbo progress (removed Jun 2026) — hide if a stale cached bundle still intercepts nav. */
+.turbo-progress-bar {
+	display: none !important;
 }
 
 body.k2-site {

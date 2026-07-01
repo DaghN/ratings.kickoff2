@@ -138,7 +138,7 @@
 | 2026-07-01 | **Amiga World Cups Chronology footer** — removed events table footnote (WC count stays in hub chapter lede). |
 | 2026-07-01 | **Amiga World Cups wing map + Countries footer** — Player stats bullet: "…World Cup exploits"; removed Countries index footnote (count stays in chapter lede). |
 | 2026-07-01 | **Amiga World Cups hub chapter lede** — dropped "always"; blue counts for WCs + WC players + WC countries (`amiga_world_cups_hub_chapter_lede_html()`); shell loads via `amiga_wc_honours_player_count()` / `amiga_wc_country_count()`. |
-| 2026-07-01 | **Amiga Activity summary lede** — players + countries + rated games + tournaments (blue counts, TT-aware); `amiga_lb_rated_country_count()` restored for country total. |
+| 2026-07-01 | **Amiga Activity summary lede** — players + countries + rated games + tournaments (blue counts, TT-aware); `amiga_lb_rated_country_count()` restored for country total. Lede verb: **have played** (ongoing cumulative, vs bare “played”). |
 | 2026-07-01 | **Amiga Leaderboards chapter lede** — shortened to games + tournament counts only (removed player/country clause); still dynamic blue + TT cutoff. |
 | 2026-07-01 | **Amiga TT hub chapters** — Tournaments, HoF, Activity no longer suppress `k2-hub-chapter` under `as=`; stamp + ribbon sit above chapter. Policy: `amiga-time-travel-policy.md` §5.0, `design-direction.md`, `hub-ia-agreement.md`. |
 | 2026-07-01 | **Amiga Goals LB GD/g column** — `(GF − GA) / games` on `/amiga/leaderboards/goals.php` after GA/g (parity with WC player stats Goals wing; no tooltip). |
@@ -215,13 +215,14 @@
 | 2026-06-30 | **Amiga tournaments index** — removed **Perfect run** facet toggle from `/amiga/tournaments.php` (player tournament history filter unchanged). |
 | 2026-06-30 | **Amiga perf-rating Perfect wing Date column** — body cells stay muted (`k2-amiga-lb-perf-rating-date`) when date is active sort; header keeps sorted chrome. |
 | 2026-06-30 | **Amiga perf-rating Perfect wing lede** — “Every perfect tournament run, `<span class="blue">`{count}`</span>` in total.” on `perfect.php`. |
+| 2026-07-01 | **Mobile nav load bar** — restored `.turbo-progress-bar { display:none }` in `theme.css` (stale Turbo cache on phone); site-wide `theme-color` + `color-scheme: dark` in `k2_head.php` so browser chrome progress blends with page bg. |
 | 2026-06-30 | **Amiga game id links → video landing** — `k2_amiga_game_page_url()` hash from manifest: caption (1 video), menu (2+), else `#k2-game`. All id links via existing helper chain. |
 | 2026-06-30 | **Amiga game page hash landing** — `#k2-game` anchor + `$k2ScrollTargetId` (bare id URLs); `k2_amiga_game_page_url()` canonical helper; all inbound id links funnel through it (`amiga_rated_game_id_html` + H2H/moments/WC stats call sites). Short-page scroll via existing `k2_carry_scroll_restore.php` `ensureMinScrollHeight`. |
 | 2026-06-30 | **Amiga game page hub nav** — `/amiga/game.php?id=` includes `amiga_hub_nav.php` with `$k2AmigaHubTabActive = ''` (NM1/NM2 entity page; matches online `game.php` + tournament entity pattern). |
 | 2026-06-30 | **Amiga game page video embed** — `/amiga/game.php?id=` shows spotlight player + scoreboard caption when manifest links a clip; multi-video games get stacked “Video 1/2…” picker (`?v=` deep link); `amiga-game-video.js`. |
 | 2026-06-30 | **Amiga Countries index default tiebreak** — equal player counts sort by games DESC (then country token); fixed `data-k2-skip-initial-sort` col + `data-k2-sort-tie-order="match"` for client parity. |
 | 2026-06-30 | **Amiga Countries index lede** — narrative chapter copy with blue country count + roster/rivals CTA; `amiga_countries_index_chapter_lede_html()`; WC country stats cross-link kept. |
-| 2026-06-30 | **Jukebox popup white flash** — sync dark boot `document.write` on `about:blank` before `location.replace`; `color-scheme:dark` + panel `#131922` pre-paint in `jukebox.php`; prefetch `/jukebox.php` from FAB. |
+| 2026-06-30 | **Jukebox popup white flash** — sync dark boot `document.write` on `about:blank` before `location.replace`; `color-scheme:dark` + panel `#131922` pre-paint in `jukebox.php`; prefetch `/jukebox.php` from FAB + head. |
 | 2026-06-30 | **Jukebox first-open flash fix** — single `window.open('/jukebox.php', …)` (no blank→close→recreate); main tab keeps focus until player `ready`; inline `#0b0f14` pre-paint in `jukebox.php`; `k2-jukebox-popup-live` session flag. Doc: `k2-jukebox-popup.md`. |
 | 2026-06-30 | **Jukebox playlist row hover** — track title picks up `--k2-link-star` accent when the playlist row is hovered/focused. |
 | 2026-06-30 | **Jukebox FAB glow — final timing** — auto-advance glow 2.6s; gentle rise to a sharp peak (~38%, rise ~1s) then prompt-but-gradual fade (`cubic-bezier(0.25,0,0.45,1)`, ~1.6s tail, no plateau); subtle glow-forward bloom, thin 1px rim. Launcher fallback timer 3.0s. |

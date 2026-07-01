@@ -58,7 +58,7 @@ unset($con);
 <section class="server-activity-summary" aria-label="Activity summary">
     <p class="server-activity-summary__lede">
         <span class="blue"><?php echo number_format($NumberOfPlayers); ?></span> players from
-        <span class="blue"><?php echo number_format($countryCount); ?></span> <?php echo $countryLabel; ?> played
+        <span class="blue"><?php echo number_format($countryCount); ?></span> <?php echo $countryLabel; ?> have played
         <span class="blue"><?php echo number_format($GamesPlayed); ?></span> rated games in
         <span class="blue"><?php echo number_format($tournamentCount); ?></span> <?php echo $tournamentLabel; ?> since <?php echo $ActivitySinceLabel; ?>.
     </p>
