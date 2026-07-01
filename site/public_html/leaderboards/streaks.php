@@ -89,7 +89,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav.php';
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_player_link($playerId, (string) $row['Name']); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
-        <?php k2_lb_activity_echo_tooltip_td($winMeta, (int) ($row['LongestWinningStreak'] ?? 0), '', k2_lb_activity_streak_achieved_tie_value($row[$aliasWin . '_end_at'] ?? null)); ?>
+        <?php k2_lb_activity_echo_tooltip_td($winMeta, (int) ($row['LongestWinningStreak'] ?? 0), '', k2_lb_activity_streak_achieved_tie_value($row[$aliasWin . '_end_at'] ?? null), 'blue'); ?>
         <?php k2_lb_activity_echo_tooltip_td($undefMeta, (int) ($row['LongestNonLossStreak'] ?? 0), '', k2_lb_activity_streak_achieved_tie_value($row[$aliasUndef . '_end_at'] ?? null)); ?>
         <?php k2_lb_activity_echo_tooltip_td($drawMeta, (int) ($row['LongestDrawingStreak'] ?? 0), '', k2_lb_activity_streak_achieved_tie_value($row[$aliasDraw . '_end_at'] ?? null)); ?>
         <?php k2_lb_activity_echo_tooltip_td($decMeta, (int) ($row['LongestNonDrawStreak'] ?? 0), '', k2_lb_activity_streak_achieved_tie_value($row[$aliasDec . '_end_at'] ?? null)); ?>

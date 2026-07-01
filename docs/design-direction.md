@@ -121,6 +121,7 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 |---------|----------------|-----|
 | Milestone garden unlocked title, border, glow | `--k2-ms-accent` ? `--k2-pure-*` | Full saturation; must not use `--k2-chart-amber` (soft) |
 | Hero / ranked10 tier label (pitch/chrome/amber/holo) | `--k2-pure-*`; legendary ? `--k2-ms-holo` on `.k2-lb-ms-tier--holo` | Tier identity, not chart ink |
+| Meta milestones LB tier count cells (`k2-table--milestones-meta-lb`) | Same `--k2-pure-*` / holo on span; **weight 600 always** (not sort-gated) | Four tier columns pop together; sort emphasis stays on header + non-tier cols |
 | Amber chart series (play-texture amber, �) | `T.amber()` ? `--k2-chart-amber` ? `--k2-amber-soft` | Bars need soft mix on dark UI; not tint-following |
 | Pitch / chrome / holo chart series | `T.pitch()` etc. ? `--k2-chart-*` ? `--k2-pure-*` | Full palette ink (no extra softening yet) |
 | H2H pair charts (cumulative wins, rating compare) | `T.h2hSubject*` ? chrome; `T.h2hOpponent*` ? `--k2-table-negative` | Matches poster rivalry band; **not** pitch/chrome profile compare; opponent red is table ink, not `T.magenta()` |
@@ -131,7 +132,7 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 | Active tint pill **dot** | `--k2-accent-swatch` = pure | Colour chip shows true hue |
 | Include inactive / provisional filter **on** dot | `--k2-accent` (pure) | Small control; full accent + glow |
 | Avatar ring, calendar day fill | `--k2-accent` (pure) | Structure, not prose |
-| Win / league meta / ticker counts | `.blue` / `.holo` | **Stat palette**, not tint; amber/pitch tint → 78% cyan mix; chrome/holo tint → **`--k2-stat-positive-green`** (`#c6ef4a`, brighter than chart `--k2-pure-pitch`) |
+| Win / league meta / ticker counts | `.blue` / `.holo` | **Stat palette**, not tint; amber/pitch tint → 78% cyan mix; chrome/holo tint → **`--k2-stat-positive-green`** (`#c4e84c`, brighter than chart `--k2-pure-pitch`) |
 | Body copy, career stat value | `--k2-text-primary` | Neutral |
 
 ### Chart role aliases (`--k2-chart-*`)
@@ -164,12 +165,12 @@ Chart-only (no tint pill, no `--k2-pure-*` twin): `--k2-chart-teal` `#4db6ac`, `
 | Prose/footer links | `--k2-link` |
 | Positive/negative table stats | `.blue` / `.red` on profile/games rows, Status ticker/meta, record **date markers** (`(New!)` / `(Legendary)` on `hall-of-fame.php`); **not** on calm leaderboard value cells |
 | HoF record row label + date column | `server-records-table` col 1 + 4 ? `--k2-text-muted`; value (anchor) + holder unchanged; online two-panel HoF: shared col 1 via `--k2-hof-label-col-ch` (`includes/records_hof_table.php` + label register in `hall-of-fame.php`) |
-| Hub `ranked-pages-table`, Activity peaks, Status `k2-status-table` calm body cells | default `--k2-text-secondary`; anchor ? link-star or league-anchor-ink; `k2-table-col-sorted` ? primary 600 |
+| Hub `ranked-pages-table`, Activity peaks, Status `k2-status-table` calm body cells | default `--k2-text-secondary`; anchor → link-star; `k2-table-col-sorted` → primary 600 |
 | Player games (`player/games.php`, `k2-table--player-games`) | Calm secondary body; **keep** `.blue`/`.red` on Result/Diff/Adjustment; active sort column ? primary 600 (PHP `k2-table-col-sorted`); sorted editorial cells ? weight 700 on `.blue`/`.red` (trial) |
 | Player matchup W/D/L (`individual2a`, `k2-table--player-matchup`) | Calm-stats; **Games** anchor; `.blue`/`.red` editorial; bolder when sort column (700) |
 | Player Goals + DDs matchup (`individual2b/c`) | Hub LB parity (`ranked2` / `ranked3`); calm-stats, no editorial blue/red; **Games** anchor; `lb_column_help` headers/tooltips |
-| Leaderboard / Status **anchor** column (one per table) | `data-k2-anchor-col` + `k2-table-anchor-cell` ? `--k2-link-star`, weight 600; permanent. **Online hub leaderboards:** **Elo** (col 2, centered header; tooltip title **Elo rating**) on every wing; default sort stays each wing's hero stat. Status active board: league-anchor-cross on Pts/Games only. |
-| Status **league** anchors (Pts / Games) | `k2-table--league-anchor-cross` ? `--k2-league-anchor-ink` (85% pure + primary, same recipe as link-star): **chrome** when tint is amber or pitch; **pitch** when tint is chrome or holo � not `--k2-accent`. |
+| Leaderboard / Status **anchor** column (one per table) | `data-k2-anchor-col` + `k2-table-anchor-cell` → `--k2-link-star`, weight 600; permanent. **Online hub leaderboards:** **Elo** (col 2, centered header; tooltip title **Elo rating**) on every wing; default sort stays each wing's hero stat. Status active Elo board uses anchor; **Status league Pts/Games** use `.blue` (stat palette), not anchor. |
+| Status **league** hero stats (Pts · Games) | `<span class="blue">` → `--k2-table-positive`; weight 600 in `.k2-status-table` — same stat ink as games results / meta highlights |
 | Calm LB active sort (not anchor) | `k2-table--calm-stats` + `k2-table-col-sorted` ? `--k2-text-primary`, weight 600 (tunable; avoids faux link-star) |
 | **Calm-stats default body** (Jun 2026) | All `k2-table--calm-stats` body cells ? `--k2-text-secondary` unless anchor or sorted; ranked leaderboards also use `ranked-pages-table ranked-table-pending` + `$k2RankedCloak`; anchor/sort classes server-rendered via `k2_table_helpers.php` on first paint |
 | Other sortable tables (non-calm) | `k2-table-col-sorted` ? `--k2-segment-active-text`, weight 600 |

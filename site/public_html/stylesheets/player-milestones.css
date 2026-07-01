@@ -415,6 +415,14 @@ body.k2-site .k2-league-period__games-status .k2-player-games-day-steps.k2-realm
 .k2-lb-ms-tier--amber { color: var(--k2-pure-amber); }
 .k2-lb-ms-tier--holo { color: var(--k2-ms-holo); }
 
+/* Meta-LB tier counts — always active-sort weight; hue stays on span (not sort-gated) */
+body.k2-site .k2-table.k2-table--milestones-meta-lb tbody td .k2-lb-ms-tier--pitch,
+body.k2-site .k2-table.k2-table--milestones-meta-lb tbody td .k2-lb-ms-tier--chrome,
+body.k2-site .k2-table.k2-table--milestones-meta-lb tbody td .k2-lb-ms-tier--amber,
+body.k2-site .k2-table.k2-table--milestones-meta-lb tbody td .k2-lb-ms-tier--holo {
+	font-weight: 600;
+}
+
 /* Garden / catalog tier section titles — beat muted .k2-panel-heading */
 .k2-panel-heading.k2-ms-garden__heading.k2-lb-ms-tier--pitch { color: var(--k2-pure-pitch); }
 .k2-panel-heading.k2-ms-garden__heading.k2-lb-ms-tier--chrome { color: var(--k2-pure-chrome); }

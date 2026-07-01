@@ -116,11 +116,15 @@ function k2_lb_activity_peak_period_filter_label(string $period, string $anchorY
     return k2_format_peak_period($period, $anchorYmd);
 }
 
-function k2_lb_activity_echo_tooltip_td(array $meta, ?int $sortValue = null, string $class = '', ?int $sortTieValue = null): void
+function k2_lb_activity_echo_tooltip_td(array $meta, ?int $sortValue = null, string $class = '', ?int $sortTieValue = null, string $valueClass = ''): void
 {
     $classAttr = $class !== '' ? ' class="' . htmlspecialchars($class, ENT_QUOTES, 'UTF-8') . '"' : '';
     $sortAttr = $sortValue !== null ? ' data-k2-sort-value="' . (int) $sortValue . '"' : '';
     $tieAttr = $sortTieValue !== null ? ' data-k2-sort-tie-value="' . (int) $sortTieValue . '"' : '';
+    $display = htmlspecialchars($meta['display'], ENT_QUOTES, 'UTF-8');
+    if ($valueClass !== '') {
+        $display = '<span class="' . htmlspecialchars($valueClass, ENT_QUOTES, 'UTF-8') . '">' . $display . '</span>';
+    }
 
     echo '<td' . $classAttr . $sortAttr . $tieAttr;
     if ($meta['help'] !== null) {
@@ -132,10 +136,10 @@ function k2_lb_activity_echo_tooltip_td(array $meta, ?int $sortValue = null, str
     echo '>';
     if (!empty($meta['href'])) {
         echo '<a class="k2-table-cell-link" href="' . htmlspecialchars((string) $meta['href'], ENT_QUOTES, 'UTF-8') . '">';
-        echo htmlspecialchars($meta['display'], ENT_QUOTES, 'UTF-8');
+        echo $display;
         echo '</a>';
     } else {
-        echo htmlspecialchars($meta['display'], ENT_QUOTES, 'UTF-8');
+        echo $display;
     }
     echo '</td>';
 }

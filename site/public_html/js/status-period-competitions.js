@@ -242,7 +242,7 @@
         var bCell = goalsB > goalsA
             ? '<strong class="blue">' + goalsB + '</strong>'
             : String(goalsB);
-        return aCell + '–' + bCell;
+        return aCell + '<span class="k2-scoreline-sep" aria-hidden="true">–</span>' + bCell;
     }
 
     function renderDayGamesHtml(games) {
@@ -340,18 +340,6 @@
         };
     }
 
-    function applyCompetitionTableAnchors(root) {
-        if (typeof window.k2TableApplyAnchors !== 'function') {
-            return;
-        }
-        var slots = competitionSlots(root);
-        if (!slots.activity || !slots.points) {
-            return;
-        }
-        window.k2TableApplyAnchors(slots.activity);
-        window.k2TableApplyAnchors(slots.points);
-    }
-
     function applyPeriodCacheToSlots(root, snap) {
         var slots = competitionSlots(root);
         if (!snap || !slots.activity || !slots.points) {
@@ -361,7 +349,6 @@
         slots.points.innerHTML = snap.points;
         restorePanelAttrs(slots.points, snap.pointsAttrs);
         slots.points.setAttribute('data-competition-points-panel', '');
-        applyCompetitionTableAnchors(root);
         syncDayGamesPanel(root, snap);
         updateMeta(root);
     }
@@ -1320,7 +1307,7 @@
             html += '<td class="k2-status-table__num">' + rank + '</td>';
             html += '<td class="k2-status-table__player"><a class="k2-link-star" href="/player/profile.php?id=' + e.player_id + PLAYER_PROFILE_ANCHOR + '">'
                 + escapeHtml(e.player_name) + '</a></td>';
-            html += '<td class="k2-status-table__num">' + e.games + '</td>';
+            html += '<td class="k2-status-table__num"><span class="blue">' + e.games + '</span></td>';
             if (showMedals) {
                 html += '<td class="k2-status-table__medal">' + medalHtml(root, rank) + '</td>';
             }
@@ -1335,7 +1322,7 @@
             ? '<th class="k2-status-table__medal" scope="col"><span class="visually-hidden">Award</span></th>'
             : '';
         var podiumClass = showMedals ? ' k2-status-table--podium' : '';
-        return '<div class="k2-table-wrap k2-table-wrap--compact"><table class="k2-table k2-status-table k2-status-table--dense k2-table--calm-stats k2-table--league-anchor-cross k2-status-period-competitions__activity-table' + podiumClass + '" data-k2-anchor-col="2">'
+        return '<div class="k2-table-wrap k2-table-wrap--compact"><table class="k2-table k2-status-table k2-status-table--dense k2-table--calm-stats k2-status-period-competitions__activity-table' + podiumClass + '">'
             + '<thead><tr><th class="k2-status-table__num">#</th><th class="k2-status-table__player">Player</th>'
             + '<th class="k2-status-table__num">Games</th>' + medalHead + '</tr></thead></table></div>';
     }
@@ -1344,8 +1331,8 @@
         if (!rows || !rows.length) {
             return '';
         }
-        var html = '<div class="k2-table-wrap k2-table-wrap--compact"><table class="k2-table k2-status-table k2-status-table--dense k2-table--calm-stats k2-table--league-anchor-cross'
-            + (showMedals ? ' k2-status-table--podium' : '') + '" data-k2-anchor-col="9"><thead><tr>'
+        var html = '<div class="k2-table-wrap k2-table-wrap--compact"><table class="k2-table k2-status-table k2-status-table--dense k2-table--calm-stats'
+            + (showMedals ? ' k2-status-table--podium' : '') + '"><thead><tr>'
             + '<th class="k2-status-table__num">#</th><th class="k2-status-table__player">Player</th>'
             + '<th class="k2-status-table__num">Pld</th><th class="k2-status-table__num">W</th><th class="k2-status-table__num">D</th>'
             + '<th class="k2-status-table__num">L</th><th class="k2-status-table__num">GF</th><th class="k2-status-table__num">GA</th>'
@@ -1369,7 +1356,7 @@
             html += '<td class="k2-status-table__num">' + row.gf + '</td>';
             html += '<td class="k2-status-table__num">' + row.ga + '</td>';
             html += '<td class="k2-status-table__num">' + (gd > 0 ? '+' + gd : String(gd)) + '</td>';
-            html += '<td class="k2-status-table__num">' + row.pts + '</td>';
+            html += '<td class="k2-status-table__num"><span class="blue">' + row.pts + '</span></td>';
             if (showMedals) {
                 html += '<td class="k2-status-table__medal">' + medalHtml(root, rank) + '</td>';
             }
@@ -1405,9 +1392,6 @@
             return;
         }
         table.insertAdjacentHTML('beforeend', buildActivityTbody(entries, showMedals, root));
-        if (typeof window.k2TableApplyAnchors === 'function') {
-            window.k2TableApplyAnchors(table);
-        }
     }
 
     function injectPoints(slot, data, showMedals, root) {
@@ -1422,10 +1406,6 @@
         }
         slot.innerHTML = buildPointsTbody(data.rows, showMedals, root);
         slot.setAttribute('data-competition-points-panel', '');
-        var pointsTable = slot.querySelector('table[data-k2-anchor-col]');
-        if (pointsTable && typeof window.k2TableApplyAnchors === 'function') {
-            window.k2TableApplyAnchors(pointsTable);
-        }
     }
 
     function renderPeriodSnapshot(root, entries, pointsBody, showMedals) {

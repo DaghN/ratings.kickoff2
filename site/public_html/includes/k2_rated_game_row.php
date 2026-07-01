@@ -27,7 +27,7 @@ function k2_rated_game_goal_cell_html(int $goals, int $goalsOpponent): string
 function k2_rated_game_scoreline_html(int $goalsA, int $goalsB): string
 {
     return k2_rated_game_goal_cell_html($goalsA, $goalsB)
-        . '–'
+        . '<span class="k2-scoreline-sep" aria-hidden="true">–</span>'
         . k2_rated_game_goal_cell_html($goalsB, $goalsA);
 }
 

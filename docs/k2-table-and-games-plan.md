@@ -26,7 +26,7 @@
 | `player/games.php` | Server-side filters/sort/**500-row** slices; shared row renderer; calm-stats + player-games modifier; PHP `k2-table-col-sorted`; archive listbox filters. |
 | `league.php` period games | `includes/k2_league_period_page.php` — sortable + mirror; scoped `k2_sort` via `data-k2-sort-scope`. |
 | `game.php` | Static single-game table with `k2-table.js` header help only; no sorting; **TS** column after Sum. |
-| `status.php` | Active LB: sort + Elo anchor; league tables: calm-stats + Pts/Games anchors — **PHP** (`k2_league_table_render.php`) and **JS** (`status-period-competitions.js`). |
+| `status.php` | Active LB: sort + Elo anchor; league tables: calm-stats + `.blue` on Pts/Games — **PHP** (`k2_league_table_render.php`) and **JS** (`status-period-competitions.js`). |
 | `hall-of-fame.php` | HoF record panels: calm-stats; Value column anchor; static/special table JS usage. |
 | `activity.php` | Activity summary cards plus static themed tables; no general sortable table JS. |
 | `player/profile.php` | Profile/charts; no general data table behavior. |
@@ -264,8 +264,8 @@ All hub sortable LB rows above use **`k2-table--calm-stats`**: neutral body cell
 |---------|------------------------------|----------|
 | `ranked8` period panels (day/week/month/year/all-time) | 3 — Games | Calendar grid: no; All-time panel: yes |
 | `ranked8` Longevity | 4 — Days | yes |
-| Status points league | 9 — Pts | no |
-| Status activity league | 2 — Games | no |
+| Status points league | Pts — `<span class="blue">` | no |
+| Status activity league | Games — `<span class="blue">` | no |
 | `hall-of-fame.php` records (both panels) | 1 — Value column | no |
 
 `data-k2-anchor-col` on non-sortable tables is applied on load via `k2-table.js` `initAnchorTables()`. Legacy `individual2a/b/c` paths retired — use player Opponents wing.

@@ -35,7 +35,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav.php';
 <?php k2_table_wrap_open(true); ?>
 <?php $lbSort = k2_lb_table_sort_state(8); ?>
 
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(8); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class('k2-table--milestones-meta-lb')); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(8); ?>>
 
 <thead>
     <tr>

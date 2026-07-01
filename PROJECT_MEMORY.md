@@ -133,13 +133,22 @@
 
 | When | Note |
 |------|------|
-| 2026-07-01 | **`.blue` chrome/holo — stat green** — `--k2-stat-positive-green` `#c6ef4a` for `--k2-table-positive` (replaces pure pitch); amber/pitch tint unchanged (78% cyan). League-anchor ink stays soft `--k2-pure-pitch`. |
+| 2026-07-01 | **Activity summary `.blue`** — removed 62% muted mix; lede/averages use full `--k2-table-positive` (online + Amiga share `.server-activity-summary`). |
+| 2026-07-01 | **Milestones meta LB tier counts** — `k2-table--milestones-meta-lb`: four tier columns always weight 600 (hue unchanged; sort emphasis on header + Milestones total / Games only). |
+| 2026-07-01 | **Stat green tune** — `--k2-stat-positive-green` `#bdd852` → `#c4e84c` (between loud `#c6ef4a` and dull nudge). |
+| 2026-07-01 | **Status league Pts/Games → `.blue`** — removed `k2-table--league-anchor-cross`, `--k2-league-anchor-*`, and `data-k2-anchor-col` on league tables; Pts + Games use stat palette (`--k2-table-positive`). PHP + `status-period-competitions.js` + docs. |
+| 2026-07-01 | **`.blue` chrome/holo — stat green** — `--k2-stat-positive-green` `#c6ef4a` for `--k2-table-positive` (replaces pure pitch); amber/pitch tint unchanged (78% cyan). |
 | 2026-07-01 | **Amiga tournament Event stats GF/GA colour** — GF column `blue`, GA column `red` on `/amiga/tournament/event-stats.php` (all tournaments). |
 | 2026-07-01 | **Amiga Highlights biggest upsets tooltip** — board tab help copy: "The biggest rating gaps overcome by the underdog." |
 | 2026-07-01 | **Amiga HoF win rate** — "Highest winning frequency" row = read-time `(wins + ½·draws) ÷ games` via `amiga_hof_win_rate_holder()` (matches rating LB Win rate column; stored `BiggestWinRatio`/`WinRatio` unchanged). |
 | 2026-07-01 | **Tournament video DB anchors — doc sweep** — policy §12, implementation plan TV-2b, ground-stack/import/staging/profile/k2-embedded/navigation-model/**OPERATIONS_QUICK_START**/**amiga-derived-write-policy** updated; `sync_db_ids` + `verify-tournament-videos` in `prove`. |
 | 2026-07-01 | **Amiga career DDs LB colour** — Double Digits column `blue`, DD conceded column `red` on `/amiga/leaderboards/double-digits.php`. |
+| 2026-07-01 | **Online DDs LB colour** — Double Digits column `blue`, DD conceded column `red` on `/leaderboards/double-digits.php` (Amiga parity). |
 | 2026-07-01 | **Amiga career Goals LB GF/GA colour** — GF column `blue`, GA column `red` on `/amiga/leaderboards/goals.php`. |
+| 2026-07-01 | **Online Goals LB GF/GA colour** — GF column `blue`, GA column `red` on `/leaderboards/goals.php` (Amiga parity). |
+| 2026-07-01 | **Online Streaks LB Wins colour** — Wins column `blue` on `/leaderboards/streaks.php`. |
+| 2026-07-01 | **Online Peak rating LB Peak colour** — Peak column `blue` on `/leaderboards/peak-rating.php`. |
+| 2026-07-01 | **Online Victims LB Opponents colour** — Opponents column `blue` on `/leaderboards/victims.php`. |
 | 2026-07-01 | **Amiga WC player Honours gold colour reverted** — removed `blue` from WC gold medal column on `/amiga/world-cups/players/honours.php`. |
 | 2026-07-01 | **Amiga WC country DDs colour** — Double digits column `blue`, DD against column `red` on `/amiga/world-cups/countries/dds.php`. |
 | 2026-07-01 | **Amiga WC country Goals GF/GA colour** — GF column `blue`, GA column `red` on `/amiga/world-cups/countries/goals.php`. |

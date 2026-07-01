@@ -119,7 +119,7 @@ if (!function_exists('k2_status_render_league_table')) {
         if ($monthly === null || $monthly['rows'] === []) {
             return;
         }
-        $tableClass = 'k2-table k2-status-table k2-status-table--dense k2-table--calm-stats k2-table--league-anchor-cross';
+        $tableClass = 'k2-table k2-status-table k2-status-table--dense k2-table--calm-stats';
         if ($showPodiumMedals) {
             $tableClass .= ' k2-status-table--podium';
         }
@@ -127,9 +127,9 @@ if (!function_exists('k2_status_render_league_table')) {
             // Status league tables: sortable + cloak only — not hub Rank/Player column widths.
             $tableClass .= ' ranked-pages-table ranked-table-pending';
         }
-        $tableAttrs = ' data-k2-anchor-col="9"';
+        $tableAttrs = '';
         if ($sortable) {
-            $tableAttrs .= ' data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="9" data-k2-default-direction="desc" data-k2-sort-scope="league-standings"';
+            $tableAttrs = ' data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="9" data-k2-default-direction="desc" data-k2-sort-scope="league-standings"';
         }
         ?>
 			<div class="k2-table-wrap k2-table-wrap--compact">
@@ -169,7 +169,7 @@ if (!function_exists('k2_status_render_league_table')) {
 							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['gf']); ?>><?php echo (int) $row['gf']; ?></td>
 							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['ga']); ?>><?php echo (int) $row['ga']; ?></td>
 							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, $gd); ?>><?php echo $gd > 0 ? '+' . $gd : (string) $gd; ?></td>
-							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['pts']); ?>><?php echo (int) $row['pts']; ?></td>
+							<td class="k2-status-table__num"<?php echo k2_league_table_sort_value_attr($sortable, (int) $row['pts']); ?>><span class="blue"><?php echo (int) $row['pts']; ?></span></td>
 <?php if ($showPodiumMedals) { ?>
 							<td class="k2-status-table__medal"><?php echo $rank <= 3 ? k2_status_league_podium_medal($rank) : ''; ?></td>
 <?php } ?>
@@ -194,7 +194,7 @@ if (!function_exists('k2_status_render_activity_competition_table')) {
         if ($entries === []) {
             return;
         }
-        $tableClass = 'k2-table k2-status-table k2-status-table--dense k2-table--calm-stats k2-table--league-anchor-cross k2-status-period-competitions__activity-table';
+        $tableClass = 'k2-table k2-status-table k2-status-table--dense k2-table--calm-stats k2-status-period-competitions__activity-table';
         if ($showPodiumMedals) {
             $tableClass .= ' k2-status-table--podium';
         }
@@ -202,9 +202,9 @@ if (!function_exists('k2_status_render_activity_competition_table')) {
             // Status league tables: sortable + cloak only — not hub Rank/Player column widths.
             $tableClass .= ' ranked-pages-table ranked-table-pending';
         }
-        $tableAttrs = ' data-k2-anchor-col="2"';
+        $tableAttrs = '';
         if ($sortable) {
-            $tableAttrs .= ' data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="2" data-k2-default-direction="desc" data-k2-sort-scope="league-standings"';
+            $tableAttrs = ' data-k2-table="sortable" data-k2-autorank="true" data-k2-default-sort="2" data-k2-default-direction="desc" data-k2-sort-scope="league-standings"';
         }
         ?>
 			<div class="k2-table-wrap k2-table-wrap--compact">
@@ -229,7 +229,7 @@ if (!function_exists('k2_status_render_activity_competition_table')) {
             echo '<tr' . ($sortable ? ' data-k2-sort-tie-value="' . $rank . '"' : '') . '>';
             echo '<td class="k2-status-table__num"' . k2_league_table_sort_value_attr($sortable, $rank) . '>' . $rank . '</td>';
             echo '<td class="k2-status-table__player"' . k2_league_table_sort_value_attr($sortable, $playerName) . '>' . k2_status_player_link($playerId, $playerName) . '</td>';
-            echo '<td class="k2-status-table__num"' . k2_league_table_sort_value_attr($sortable, $games) . '>' . $games . '</td>';
+            echo '<td class="k2-status-table__num"' . k2_league_table_sort_value_attr($sortable, $games) . '><span class="blue">' . $games . '</span></td>';
             if ($showPodiumMedals) {
                 echo '<td class="k2-status-table__medal">' . ($rank <= 3 ? k2_status_league_podium_medal($rank) : '') . '</td>';
             }
