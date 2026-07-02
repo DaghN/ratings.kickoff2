@@ -39,6 +39,12 @@ if (is_file($k2JukeboxJsPath)) {
 	echo '<script type="text/javascript" src="/js/k2-jukebox-launcher.js?v=' . (int) filemtime($k2JukeboxJsPath) . '" defer="defer"></script>' . "\n";
 }
 $k2ReqPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+$k2GlanceSkip = is_string($k2ReqPath)
+	&& (str_contains($k2ReqPath, '/amiga/ops/') || str_contains($k2ReqPath, 'run_import_ko2amiga.php'));
+if (!$k2GlanceSkip) {
+	require_once $k2DocRoot . '/includes/amiga_player_glance_config.php';
+	k2_player_glance_assets_head();
+}
 if (is_string($k2ReqPath)
 	&& str_contains($k2ReqPath, '/amiga/')
 	&& !str_contains($k2ReqPath, '/amiga/ops/')
@@ -53,8 +59,6 @@ if (is_string($k2ReqPath)
 		$dseg7Ver = (int) filemtime($dseg7Path);
 		echo '<link rel="preload" href="/fonts/dseg7-classic-regular.woff2?v=' . $dseg7Ver . '" as="font" type="font/woff2" crossorigin="anonymous" />' . "\n";
 	}
-	require_once $k2DocRoot . '/includes/amiga_player_glance_config.php';
-	amiga_player_glance_assets_head();
 }
 ?>
 <?php if (!empty($k2RankedCloak)) {

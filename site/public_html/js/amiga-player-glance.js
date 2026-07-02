@@ -1,15 +1,17 @@
 /**
- * Amiga player name hover glance — tiers A (compact) and B (hero stat strip).
- * Tier toggle: includes/amiga_player_glance_config.php → K2_AMIGA_PLAYER_GLANCE_TIER
+ * Player name hover glance (online + Amiga) — tiers A (compact) and B (hero stat strip).
+ * Tier toggle: includes/amiga_player_glance_config.php → K2_PLAYER_GLANCE_TIER
  */
 (function (global) {
 	'use strict';
 
 	var TIP_ID = 'k2-amiga-player-glance-tooltip';
-	var API = '/api/amiga_player_glance.php';
-	var SHOW_DELAY_MS = 280;
+	var API_AMIGA = '/api/amiga_player_glance.php';
+	var API_ONLINE = '/api/player_glance.php';
+	var SHOW_DELAY_MS = 100;
 	var HIDE_DELAY_MS = 100;
-	var tier = (global.K2AmigaPlayerGlance && global.K2AmigaPlayerGlance.tier === 'B') ? 'B' : 'A';
+	var glanceCfg = global.K2PlayerGlance || global.K2AmigaPlayerGlance;
+	var tier = (glanceCfg && glanceCfg.tier === 'B') ? 'B' : 'A';
 
 	var cache = new Map();
 	var pending = new Map();
@@ -17,6 +19,7 @@
 	var hideTimer = null;
 	var activeAnchor = null;
 	var activePlayerId = null;
+	var activeRealm = null;
 	var bound = false;
 
 	function onReady(fn) {
@@ -76,12 +79,16 @@
 			+ '</div>';
 	}
 
-	function heroStatHtml(label, value, accent) {
+	function heroStatHtml(label, value, accent, extraStatClass) {
 		var valueClass = 'k2-player-hero__stat-value' + (accent ? ' k2-player-hero__stat-value--accent' : '');
 		if (label === 'Rank') {
 			valueClass = 'k2-player-hero__stat-value k2-player-hero__stat-value--rank';
 		}
-		return '<div class="k2-player-hero__stat">'
+		if (label === 'Milestones') {
+			valueClass = 'k2-player-hero__stat-value k2-player-hero__stat-value--milestones';
+		}
+		var statClass = 'k2-player-hero__stat' + (extraStatClass ? ' ' + extraStatClass : '');
+		return '<div class="' + statClass + '">'
 			+ '<span class="k2-player-hero__stat-label">' + escapeHtml(label) + '</span>'
 			+ '<span class="' + valueClass + '">' + escapeHtml(value) + '</span>'
 			+ '</div>';
@@ -146,6 +153,33 @@
 			+ '</div>';
 	}
 
+	function renderTierBOnline(data) {
+		var initial = (data.name || '?').charAt(0).toUpperCase();
+		var rank = !data.display ? '—' : (data.rank ? '#' + data.rank : '—');
+		var rating = !data.display ? '—' : fmtInt(data.rating);
+		var games = fmtInt(data.games);
+		var stats = heroStatHtml('Rank', rank, false)
+			+ heroStatHtml('Rating', rating, true)
+			+ heroStatHtml('Games', games, true);
+		if (data.milestones !== null && data.milestones !== undefined) {
+			stats += heroStatHtml('Milestones', fmtInt(data.milestones), true, 'k2-player-hero__stat--milestones');
+		}
+
+		return '<div class="k2-amiga-player-glance k2-amiga-player-glance--b k2-amiga-player-glance--online">'
+			+ '<article class="k2-player-hero k2-player-hero--feast k2-amiga-player-glance__hero" aria-hidden="true">'
+			+ '<div class="k2-player-hero__inner">'
+			+ '<div class="k2-player-hero__media"><div class="k2-player-hero__avatar">' + escapeHtml(initial) + '</div></div>'
+			+ '<div class="k2-player-hero__body">'
+			+ '<h2 class="k2-player-hero__name">' + escapeHtml(data.name || '') + '</h2>'
+			+ '<div class="k2-player-hero__stats">'
+			+ stats
+			+ '</div>'
+			+ '</div>'
+			+ '</div>'
+			+ '</article>'
+			+ '</div>';
+	}
+
 	function renderTierB(data) {
 		var initial = (data.name || '?').charAt(0).toUpperCase();
 		var rank = data.pre_debut || !data.display ? '—' : (data.rank ? '#' + data.rank : '—');
@@ -176,8 +210,11 @@
 			+ '</div>';
 	}
 
-	function renderGlance(data) {
-		return tier === 'B' ? renderTierB(data) : renderTierA(data);
+	function renderGlance(data, realm) {
+		if (tier === 'B') {
+			return realm === 'online' ? renderTierBOnline(data) : renderTierB(data);
+		}
+		return renderTierA(data);
 	}
 
 	function glanceTooltip() {
@@ -222,31 +259,35 @@
 		tip.style.top = Math.round(top) + 'px';
 	}
 
-	function cacheKey(playerId) {
+	function cacheKey(playerId, realm) {
 		var suffix = '';
-		var TT = global.K2AmigaTimeTravelUrl;
-		if (TT && TT.navigationQuerySuffix) {
-			suffix = TT.navigationQuerySuffix();
+		if (realm === 'amiga') {
+			var TT = global.K2AmigaTimeTravelUrl;
+			if (TT && TT.navigationQuerySuffix) {
+				suffix = TT.navigationQuerySuffix();
+			}
 		}
-		return String(playerId) + suffix;
+		return realm + ':' + String(playerId) + suffix;
 	}
 
-	function fetchGlance(playerId) {
-		var key = cacheKey(playerId);
+	function fetchGlance(playerId, realm) {
+		var key = cacheKey(playerId, realm);
 		if (cache.has(key)) {
 			return Promise.resolve(cache.get(key));
 		}
 		if (pending.has(key)) {
 			return pending.get(key);
 		}
-		var url = API + '?id=' + encodeURIComponent(String(playerId));
-		var TT = global.K2AmigaTimeTravelUrl;
-		if (TT && TT.appendParams) {
-			var params = new URLSearchParams();
-			TT.appendParams(params);
-			var asVal = params.get('as');
-			if (asVal) {
-				url += '&as=' + encodeURIComponent(asVal);
+		var url = (realm === 'amiga' ? API_AMIGA : API_ONLINE) + '?id=' + encodeURIComponent(String(playerId));
+		if (realm === 'amiga') {
+			var TT = global.K2AmigaTimeTravelUrl;
+			if (TT && TT.appendParams) {
+				var params = new URLSearchParams();
+				TT.appendParams(params);
+				var asVal = params.get('as');
+				if (asVal) {
+					url += '&as=' + encodeURIComponent(asVal);
+				}
 			}
 		}
 		var promise = fetch(url)
@@ -277,9 +318,10 @@
 		}
 		activeAnchor = null;
 		activePlayerId = null;
+		activeRealm = null;
 	}
 
-	function showLoading(anchor, playerId) {
+	function showLoading(anchor, playerId, realm) {
 		var tip = glanceTooltip();
 		var bodyEl = tip.querySelector('.k2-table-tooltip__body');
 		if (bodyEl) {
@@ -288,18 +330,20 @@
 		tip.setAttribute('aria-hidden', 'false');
 		activeAnchor = anchor;
 		activePlayerId = playerId;
+		activeRealm = realm;
 		positionTooltip(anchor, tip);
 	}
 
-	function showGlance(anchor, playerId, data) {
+	function showGlance(anchor, playerId, realm, data) {
 		var tip = glanceTooltip();
 		var bodyEl = tip.querySelector('.k2-table-tooltip__body');
 		if (bodyEl) {
-			bodyEl.innerHTML = renderGlance(data);
+			bodyEl.innerHTML = renderGlance(data, realm);
 		}
 		tip.setAttribute('aria-hidden', 'false');
 		activeAnchor = anchor;
 		activePlayerId = playerId;
+		activeRealm = realm;
 		positionTooltip(anchor, tip);
 	}
 
@@ -325,18 +369,18 @@
 		}, HIDE_DELAY_MS);
 	}
 
-	function scheduleShow(anchor, playerId) {
+	function scheduleShow(anchor, playerId, realm) {
 		clearShowTimer();
 		clearHideTimer();
 		showTimer = setTimeout(function () {
 			showTimer = null;
-			showLoading(anchor, playerId);
-			fetchGlance(playerId)
+			showLoading(anchor, playerId, realm);
+			fetchGlance(playerId, realm)
 				.then(function (data) {
-					if (activeAnchor !== anchor || activePlayerId !== playerId) {
+					if (activeAnchor !== anchor || activePlayerId !== playerId || activeRealm !== realm) {
 						return;
 					}
-					showGlance(anchor, playerId, data);
+					showGlance(anchor, playerId, realm, data);
 				})
 				.catch(function () {
 					hideTooltip();
@@ -344,28 +388,53 @@
 		}, SHOW_DELAY_MS);
 	}
 
+	function profileMetaFromHref(href) {
+		try {
+			var url = new URL(href, global.location.origin);
+			if (/\/amiga\/player\/profile\.php$/i.test(url.pathname)) {
+				var amigaId = parseInt(url.searchParams.get('id') || '0', 10);
+				return amigaId > 0 ? { realm: 'amiga', playerId: amigaId } : null;
+			}
+			if (/\/player\/profile\.php$/i.test(url.pathname)) {
+				var onlineId = parseInt(url.searchParams.get('id') || '0', 10);
+				return onlineId > 0 ? { realm: 'online', playerId: onlineId } : null;
+			}
+		} catch (e) {
+			return null;
+		}
+		return null;
+	}
+
+	function realmFromAnchor(anchor) {
+		if (!anchor || anchor.nodeType !== 1) {
+			return null;
+		}
+		if (anchor.getAttribute('data-k2-amiga-player-glance')) {
+			return 'amiga';
+		}
+		if (anchor.getAttribute('data-k2-player-glance')) {
+			return 'online';
+		}
+		var hrefMeta = profileMetaFromHref(anchor.getAttribute('href') || '');
+		return hrefMeta ? hrefMeta.realm : null;
+	}
+
 	function playerIdFromAnchor(anchor) {
 		if (!anchor || anchor.nodeType !== 1) {
 			return 0;
 		}
-		var attr = anchor.getAttribute('data-k2-amiga-player-glance');
-		if (attr) {
-			var fromAttr = parseInt(attr, 10);
-			if (fromAttr > 0) {
-				return fromAttr;
+		var attrs = ['data-k2-amiga-player-glance', 'data-k2-player-glance'];
+		for (var i = 0; i < attrs.length; i++) {
+			var attr = anchor.getAttribute(attrs[i]);
+			if (attr) {
+				var fromAttr = parseInt(attr, 10);
+				if (fromAttr > 0) {
+					return fromAttr;
+				}
 			}
 		}
-		try {
-			var href = anchor.getAttribute('href') || '';
-			var url = new URL(href, global.location.origin);
-			if (!/\/amiga\/player\/profile\.php$/i.test(url.pathname)) {
-				return 0;
-			}
-			var id = parseInt(url.searchParams.get('id') || '0', 10);
-			return id > 0 ? id : 0;
-		} catch (e) {
-			return 0;
-		}
+		var hrefMeta = profileMetaFromHref(anchor.getAttribute('href') || '');
+		return hrefMeta ? hrefMeta.playerId : 0;
 	}
 
 	function isGlanceTrigger(anchor) {
@@ -375,7 +444,7 @@
 		if (anchor.closest('.k2-player-hero, .k2-amiga-player-glance, .k2-h2h2-card')) {
 			return false;
 		}
-		return playerIdFromAnchor(anchor) > 0;
+		return playerIdFromAnchor(anchor) > 0 && realmFromAnchor(anchor) !== null;
 	}
 
 	function onPointerOver(event) {
@@ -384,14 +453,15 @@
 			return;
 		}
 		var playerId = playerIdFromAnchor(anchor);
-		if (playerId < 1) {
+		var realm = realmFromAnchor(anchor);
+		if (playerId < 1 || !realm) {
 			return;
 		}
-		if (activeAnchor === anchor && activePlayerId === playerId) {
+		if (activeAnchor === anchor && activePlayerId === playerId && activeRealm === realm) {
 			clearHideTimer();
 			return;
 		}
-		scheduleShow(anchor, playerId);
+		scheduleShow(anchor, playerId, realm);
 	}
 
 	function onPointerOut(event) {

@@ -5,8 +5,9 @@
  * Lift shadow (Jul 2026): neutral halo around the card on busy table backgrounds.
  * - Token: --k2-amiga-glance-lift-shadow (tiers A + B)
  * - Zero x/y offset — even falloff on all sides (not a downward drop shadow)
- * - Layered blurs + 1px dark ring; accent border glow stays separate underneath
- * - Tune strength here only; do not reintroduce vertical offset without product pass
+ * - Layered blurs + 1px dark ring; accent border glow stays separate (instant)
+ * - Lift halo fades in over 0.85s (box-shadow keyframes on the card — not a ::before layer)
+ * - Tune strength in token only; do not reintroduce vertical offset without product pass
  */
 
 body.k2-site .k2-table-tooltip.k2-table-tooltip--amiga-player-glance {
@@ -44,18 +45,76 @@ body.k2-site .k2-amiga-player-glance__note {
 body.k2-site .k2-amiga-player-glance--a .k2-amiga-player-glance__card,
 body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero {
 	--k2-amiga-glance-lift-shadow:
+		0 0 140px rgba(0, 0, 0, 0.92),
 		0 0 96px rgba(0, 0, 0, 0.88),
-		0 0 48px rgba(0, 0, 0, 0.76),
-		0 0 20px rgba(0, 0, 0, 0.66),
-		0 0 4px rgba(0, 0, 0, 0.56),
-		0 0 0 1px rgba(0, 0, 0, 0.62);
+		0 0 56px rgba(0, 0, 0, 0.78),
+		0 0 24px rgba(0, 0, 0, 0.70),
+		0 0 6px rgba(0, 0, 0, 0.60),
+		0 0 0 1px rgba(0, 0, 0, 0.68);
+}
+
+@keyframes k2-amiga-glance-card-shadow-in {
+	0% {
+		box-shadow:
+			0 0 140px rgba(0, 0, 0, 0),
+			0 0 96px rgba(0, 0, 0, 0),
+			0 0 56px rgba(0, 0, 0, 0),
+			0 0 24px rgba(0, 0, 0, 0),
+			0 0 6px rgba(0, 0, 0, 0),
+			0 0 0 1px rgba(0, 0, 0, 0),
+			0 0 8px color-mix(in srgb, var(--k2-amiga-glance-side) 16%, transparent),
+			0 0 18px color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent),
+			0 0 28px color-mix(in srgb, var(--k2-amiga-glance-side) 5%, transparent),
+			inset 0 1px 0 color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent);
+	}
+	100% {
+		box-shadow:
+			0 0 140px rgba(0, 0, 0, 0.92),
+			0 0 96px rgba(0, 0, 0, 0.88),
+			0 0 56px rgba(0, 0, 0, 0.78),
+			0 0 24px rgba(0, 0, 0, 0.70),
+			0 0 6px rgba(0, 0, 0, 0.60),
+			0 0 0 1px rgba(0, 0, 0, 0.68),
+			0 0 8px color-mix(in srgb, var(--k2-amiga-glance-side) 16%, transparent),
+			0 0 18px color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent),
+			0 0 28px color-mix(in srgb, var(--k2-amiga-glance-side) 5%, transparent),
+			inset 0 1px 0 color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent);
+	}
+}
+
+@keyframes k2-amiga-glance-hero-shadow-in {
+	0% {
+		box-shadow:
+			0 0 140px rgba(0, 0, 0, 0),
+			0 0 96px rgba(0, 0, 0, 0),
+			0 0 56px rgba(0, 0, 0, 0),
+			0 0 24px rgba(0, 0, 0, 0),
+			0 0 6px rgba(0, 0, 0, 0),
+			0 0 0 1px rgba(0, 0, 0, 0),
+			0 0 8px color-mix(in srgb, var(--k2-player-hero-glow-side) 16%, transparent),
+			0 0 18px color-mix(in srgb, var(--k2-player-hero-glow-side) 10%, transparent),
+			0 0 28px color-mix(in srgb, var(--k2-player-hero-glow-side) 5%, transparent),
+			inset 0 1px 0 color-mix(in srgb, var(--k2-player-hero-glow-side) 10%, transparent);
+	}
+	100% {
+		box-shadow:
+			0 0 140px rgba(0, 0, 0, 0.92),
+			0 0 96px rgba(0, 0, 0, 0.88),
+			0 0 56px rgba(0, 0, 0, 0.78),
+			0 0 24px rgba(0, 0, 0, 0.70),
+			0 0 6px rgba(0, 0, 0, 0.60),
+			0 0 0 1px rgba(0, 0, 0, 0.68),
+			0 0 8px color-mix(in srgb, var(--k2-player-hero-glow-side) 16%, transparent),
+			0 0 18px color-mix(in srgb, var(--k2-player-hero-glow-side) 10%, transparent),
+			0 0 28px color-mix(in srgb, var(--k2-player-hero-glow-side) 5%, transparent),
+			inset 0 1px 0 color-mix(in srgb, var(--k2-player-hero-glow-side) 10%, transparent);
+	}
 }
 
 /* ===== Tier A — compact H2H-card scale ===== */
 
 body.k2-site .k2-amiga-player-glance--a .k2-amiga-player-glance__card {
 	--k2-amiga-glance-side: var(--k2-accent);
-	position: relative;
 	display: grid;
 	grid-template-columns: auto 1fr;
 	align-items: center;
@@ -67,12 +126,7 @@ body.k2-site .k2-amiga-player-glance--a .k2-amiga-player-glance__card {
 	box-sizing: border-box;
 	min-width: 240px;
 	max-width: min(320px, calc(100vw - 24px));
-	box-shadow:
-		var(--k2-amiga-glance-lift-shadow),
-		0 0 8px color-mix(in srgb, var(--k2-amiga-glance-side) 16%, transparent),
-		0 0 18px color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent),
-		0 0 28px color-mix(in srgb, var(--k2-amiga-glance-side) 5%, transparent),
-		inset 0 1px 0 color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent);
+	animation: k2-amiga-glance-card-shadow-in 0.85s ease-out forwards;
 }
 
 body.k2-site .k2-amiga-player-glance--a .k2-amiga-player-glance__avatar {
@@ -156,12 +210,7 @@ body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero {
 	--k2-amiga-glance-avatar: 56px;
 	--k2-amiga-glance-name: 18px;
 	--k2-amiga-glance-value: 14px;
-	box-shadow:
-		var(--k2-amiga-glance-lift-shadow),
-		0 0 8px color-mix(in srgb, var(--k2-player-hero-glow-side) 16%, transparent),
-		0 0 18px color-mix(in srgb, var(--k2-player-hero-glow-side) 10%, transparent),
-		0 0 28px color-mix(in srgb, var(--k2-player-hero-glow-side) 5%, transparent),
-		inset 0 1px 0 color-mix(in srgb, var(--k2-player-hero-glow-side) 10%, transparent);
+	animation: k2-amiga-glance-hero-shadow-in 0.85s ease-out forwards;
 }
 
 body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero .k2-player-hero__inner {
@@ -249,4 +298,26 @@ body.k2-site .k2-amiga-player-glance--loading {
 	background: var(--k2-bg-surface);
 	color: var(--k2-text-muted);
 	font-size: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	body.k2-site .k2-amiga-player-glance--a .k2-amiga-player-glance__card {
+		animation: none;
+		box-shadow:
+			var(--k2-amiga-glance-lift-shadow),
+			0 0 8px color-mix(in srgb, var(--k2-amiga-glance-side) 16%, transparent),
+			0 0 18px color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent),
+			0 0 28px color-mix(in srgb, var(--k2-amiga-glance-side) 5%, transparent),
+			inset 0 1px 0 color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent);
+	}
+
+	body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero {
+		animation: none;
+		box-shadow:
+			var(--k2-amiga-glance-lift-shadow),
+			0 0 8px color-mix(in srgb, var(--k2-player-hero-glow-side) 16%, transparent),
+			0 0 18px color-mix(in srgb, var(--k2-player-hero-glow-side) 10%, transparent),
+			0 0 28px color-mix(in srgb, var(--k2-player-hero-glow-side) 5%, transparent),
+			inset 0 1px 0 color-mix(in srgb, var(--k2-player-hero-glow-side) 10%, transparent);
+	}
 }

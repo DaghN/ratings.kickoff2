@@ -133,6 +133,8 @@
 
 | When | Note |
 |------|------|
+| 2026-07-02 | **Online player name hover glance** — tier **B** on online player links (Rank · Rating · Games · Milestones); API `player_glance.php`; shared JS/CSS with Amiga; `data-k2-player-glance` on `k2_player_link()`; href fallback for game rows. |
+| 2026-07-02 | **Player hero feast width** — `.k2-player-hero--feast` shrink-wraps to content (`fit-content` + inner `max-content` grid); online + Amiga player wing tabs. Popover glance unchanged. |
 | 2026-07-02 | **Amiga player name hover glance** — read-only tier **B** default on Amiga player links; API `amiga_player_glance.php`. **Lift shadow:** omnidirectional neutral halo (`--k2-amiga-glance-lift-shadow` in `amiga-player-glance.css`) — zero offset, layered blurs + 1px ring; separate from accent border glow; tuned for busy table backgrounds. |
 | 2026-07-02 | **Amiga Activity Texture — low-scoring rate** — `low_scoring_games` year/realm fact + `low_scoring_rate` API + 6th Texture panel (≤3 goals, per 100 games); registry + Python/PHP writers; **`prove` green** local. |
 | 2026-07-02 | **Amiga WC stats wings** — removed Activity cross-link intro from all Tournament stats sub-wings (`amiga_world_cup_stats_wing_body.inc.php`). |

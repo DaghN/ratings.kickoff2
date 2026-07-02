@@ -4240,6 +4240,17 @@ body.k2-site .k2-player-page-anchor {
 		inset 0 1px 0 color-mix(in srgb, var(--k2-player-hero-glow-side) 12%, transparent);
 }
 
+body.k2-site .k2-player-hero.k2-player-hero--feast {
+	width: fit-content;
+	max-width: 100%;
+}
+
+body.k2-site .k2-player-hero.k2-player-hero--feast .k2-player-hero__inner {
+	grid-template-columns: auto max-content;
+	width: max-content;
+	max-width: 100%;
+}
+
 .k2-player-hero__inner {
 	--k2-player-hero-avatar-air: 32px;
 	display: grid;

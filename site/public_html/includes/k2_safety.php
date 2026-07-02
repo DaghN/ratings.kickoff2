@@ -139,7 +139,10 @@ function k2_player_profile_href(int $id, string $fragment = K2_PLAYER_PAGE_FRAGM
 
 function k2_player_link(int|string $id, mixed $name, string $fragment = K2_PLAYER_PAGE_FRAGMENT): string
 {
-	return '<a class="k2-link-star" href="' . k2_h(k2_player_profile_href((int) $id, $fragment)) . '">' . k2_h($name) . '</a>';
+	$pid = (int) $id;
+
+	return '<a class="k2-link-star" href="' . k2_h(k2_player_profile_href($pid, $fragment)) . '"'
+		. ' data-k2-player-glance="' . $pid . '">' . k2_h($name) . '</a>';
 }
 
 /**
