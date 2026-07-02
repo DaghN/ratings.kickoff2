@@ -280,6 +280,7 @@
 | 2026-06-29 | **Amiga country Rivals H2H poster — card symmetry** — nation-pair poster passes `subject`/`opponent` into `k2_h2h_poster_country_card_html()` so hero hugs `vs` from the left (blue) and rival from the right (red). |
 | 2026-07-01 | **Activity Participation LB** — Games column anchor + default sort (col 3) + `.blue` values; SQL `ORDER BY NumberGames DESC`. |
 | 2026-07-02 | **Amiga Activity Growth wing** — section title *How much Kick Off 2 have we been playing?*; cumulative games/tournaments/goals tooltips use HTML external tooltip (host flag + tournament name, event delta + total); snapshot series API adds `host`. |
+| 2026-07-02 | **Amiga Activity Geography — Add country trigger** — race-add listbox idle trigger reads *Add country* (fixed label survives JS rebuild via `data-k2-listbox-fixed-trigger-label`). |
 | 2026-07-02 | **Amiga Activity Geography — race list not pills** — Race line countries render as flat flag + link rows (no pill chrome); click toggles line, shift+click removes. |
 | 2026-07-02 | **Amiga Activity Geography — filter row labels** — Compare / Race lines use shared `k2-realm-games-filters__row-label` row headers (games-filter convention), not bespoke muted spans. |
 | 2026-07-02 | **Amiga Activity Geography — Compare B required** — removed "—" empty option from second Compare listbox; B always resolves to a country (default Germany / second by volume). |

@@ -310,7 +310,30 @@
         return null;
     }
 
+    function isIdleListboxValue(box, value) {
+        if (!box || value == null) {
+            return false;
+        }
+        if (box.hasAttribute('data-k2-listbox-idle-value')) {
+            return String(value) === String(box.getAttribute('data-k2-listbox-idle-value'));
+        }
+        return value === '' || value === '-1';
+    }
+
+    function fixedTriggerLabelForBox(box) {
+        if (!box) {
+            return '';
+        }
+        return box.getAttribute('data-k2-listbox-fixed-trigger-label') || '';
+    }
+
     function labelForValue(box, value) {
+        if (isIdleListboxValue(box, value)) {
+            var fixed = fixedTriggerLabelForBox(box);
+            if (fixed) {
+                return fixed;
+            }
+        }
         var opt = findOption(box, value);
         if (opt) {
             return optionTriggerLabel(opt) || opt.textContent || value;
@@ -581,7 +604,7 @@
             return;
         }
         var text = label || labelForValue(box, value);
-        if (!isInline(box)) {
+        if (!isInline(box) && !(isIdleListboxValue(box, value) && fixedTriggerLabelForBox(box))) {
             ensureOption(box, value, text);
         }
         var input = valueInput(box);

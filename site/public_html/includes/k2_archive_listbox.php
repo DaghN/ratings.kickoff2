@@ -174,6 +174,9 @@ function k2_archive_listbox_render(
     if ($idleValue !== null) {
         $boxAttrs .= ' data-k2-listbox-idle-value="' . k2_archive_listbox_h($idleValue) . '"';
     }
+    if ($fixedTriggerLabel !== '') {
+        $boxAttrs .= ' data-k2-listbox-fixed-trigger-label="' . k2_archive_listbox_h($fixedTriggerLabel) . '"';
+    }
     if ($accentActive) {
         $boxAttrs .= ' data-k2-listbox-accent-active="1"';
     }

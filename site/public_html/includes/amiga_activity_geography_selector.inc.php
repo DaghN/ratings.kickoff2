@@ -114,7 +114,7 @@ $k2GeoListboxTriggerClass = 'k2-amiga-act-geo-listbox';
 				<div class="k2-amiga-act-geo-race" aria-labelledby="k2-amiga-act-geo-race-label">
 					<div class="k2-amiga-act-geo-race-list" aria-label="Countries in the race chart"></div>
 					<label class="k2-amiga-act-geo-race-add-wrap">
-						<?php k2_archive_listbox_render('geo_race_add', 'k2-amiga-act-geo-race-add', '', $k2GeoRaceAddChoices, 'Add country to race', $k2GeoListboxTriggerClass, '+ add country', false, ''); ?>
+						<?php k2_archive_listbox_render('geo_race_add', 'k2-amiga-act-geo-race-add', '', $k2GeoRaceAddChoices, 'Add country to race', $k2GeoListboxTriggerClass, 'Add country', false, ''); ?>
 					</label>
 				</div>
 			</div>

@@ -197,7 +197,7 @@ Two control patterns, both Geography-only in v1:
 ### Pattern B — Cumulative race (multi-line)
 
 - Default series: **top 5 countries by all-time volume at the current cutoff**, one line each.
-- Race country list toggles lines (click hide/show; shift+click remove); **"+ add country"** dropdown appends a series (cap ~7).
+- Race country list toggles lines (click hide/show; shift+click remove); **Add country** listbox appends a series (cap ~7).
 - Same URL state mechanics as Pattern A (CSV param drives the full series list when present).
 
 ### Shared rules
