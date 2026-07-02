@@ -944,7 +944,7 @@ function amiga_tournament_games_rows(mysqli $con, int $tournamentId, int $player
         $params[] = $playerFilter;
         $params[] = $playerFilter;
     }
-    $sql .= ' ORDER BY r.`Date` ASC, r.id ASC';
+    $sql .= ' ORDER BY r.`Date` DESC, r.id DESC';
 
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
@@ -2470,11 +2470,11 @@ function amiga_tournament_render_games_table(array $rows): void
 
     $anchorCol = $idCol;
     $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_TOURNAMENT_GAMES_DEFAULT_SORT_COL);
-    $defaultSortDir = k2_table_default_sort_dir_from_request('asc');
+    $defaultSortDir = k2_table_default_sort_dir_from_request('desc');
     $tableClass = k2_table_ranked_sortable_class('k2-table--tournament-games');
-    // No date/order column — rows arrive in event chronology; preserve that on first paint.
+    // No date/order column — rows arrive in reverse event chronology; preserve that on first paint.
     $skipInitialSort = $defaultSortCol === AMIGA_TOURNAMENT_GAMES_DEFAULT_SORT_COL
-        && $defaultSortDir === 'asc'
+        && $defaultSortDir === 'desc'
         && k2_table_sort_query_params() === [];
     ?>
 <?php k2_table_wrap_open(true); ?>

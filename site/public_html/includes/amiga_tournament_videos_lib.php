@@ -460,10 +460,10 @@ function amiga_tournament_videos_wc_game_index(mysqli $con, int $tournamentId, a
         $entries,
         static function (array $a, array $b): int {
             if ($a['sort_bucket'] !== $b['sort_bucket']) {
-                return $a['sort_bucket'] <=> $b['sort_bucket'];
+                return $b['sort_bucket'] <=> $a['sort_bucket'];
             }
 
-            return $a['game_id'] <=> $b['game_id'];
+            return $b['game_id'] <=> $a['game_id'];
         },
     );
 

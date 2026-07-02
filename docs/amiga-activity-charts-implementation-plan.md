@@ -1,6 +1,6 @@
 # Amiga Activity charts — implementation plan
 
-**Status:** **In progress** (Jul 2026) — **slices 0–1 shipped** (platform + Growth wing live); slices 2–10 next. Read-only chart track: **no finalize writers, no DDL** (unless a slice-8 probe promotes a histogram to S6 — separate sign-off + Part B).
+**Status:** **In progress** (Jul 2026) — **slices 0–2 shipped** (platform + Growth + People wings live); slices 3–10 next. Read-only chart track: **no finalize writers, no DDL** (unless a slice-8 probe promotes a histogram to S6 — separate sign-off + Part B).
 **Locked IA / product:** [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) — wings, panel order, selectors, TT rules, bucket defaults.
 **Questions:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 46 ship IDs → 45 panels.
 **Pattern source:** online [`activity-charts.md`](activity-charts.md) (module, frames, mobile rules).
@@ -27,7 +27,7 @@
 |-------|-------------|----------------|--------|
 | **0** | Platform: folder + routes + shell/nav + 302 + JS module skeleton + read helpers + first 2 APIs | 0 (placeholder pages) | **Done** Jul 2026 |
 | **1** | Growth wing | 7 | **Done** Jul 2026 |
-| **2** | People wing | 5 | — |
+| **2** | People wing | 5 | **Done** Jul 2026 |
 | **3** | Texture wing (rates API + reference lines) | 5 | — |
 | **4** | World Cups wing (ghost bars + overlay) | 6 | — |
 | **5** | Geography selector platform (duel + race controls, slice_series API) | 0 | — |
@@ -192,9 +192,11 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 **STOP:** Dagh visual sign-off on Growth (desktop + phone scroll) before replicating the pattern to other wings.
 
-### Slice 2 — People (5 panels)
+### Slice 2 — People (5 panels) — **Done** (Jul 2026)
 
 - Note in markup: cumulative players panel is the VOL-004 + SHP-010 merge (policy §4).
+
+*Shipped notes:* panels in `includes/amiga_activity_people_panels.inc.php` — active players + debuts year bars (chrome + holo, shared x-axis span), cumulative players line (holo, merge note in panel intro), distinct pairs year bar + cumulative line (teal). Reuses slice-1 mounts only; no new APIs. TT verified (`as=year:2005` → 5 year bars, 148 curve points, chapter lede at cutoff).
 
 ### Slice 3 — Texture (5 panels)
 

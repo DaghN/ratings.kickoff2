@@ -527,6 +527,44 @@
         }
     });
 
+    /* --- People wing (slice 2) --- */
+
+    registerPanel({
+        id: 'active-players-year',
+        selector: '.amiga-act-active-players-year-chart',
+        run: function (root) {
+            return mountYearFacts(root, { metric: 'active_players', tone: 'chrome', label: 'Active players', noun: 'players' });
+        }
+    });
+    registerPanel({
+        id: 'debuts-year',
+        selector: '.amiga-act-debuts-year-chart',
+        run: function (root) {
+            return mountYearFacts(root, { metric: 'player_debuts', tone: 'holo', label: 'New players', noun: 'debuts' });
+        }
+    });
+    registerPanel({
+        id: 'players-cumulative',
+        selector: '.amiga-act-players-cumulative-chart',
+        run: function (root) {
+            return mountCumulative(root, { metric: 'NumberOfPlayers', tone: 'holo', label: 'Cumulative players', noun: 'players' });
+        }
+    });
+    registerPanel({
+        id: 'pairs-year',
+        selector: '.amiga-act-pairs-year-chart',
+        run: function (root) {
+            return mountYearFacts(root, { metric: 'distinct_pairs', tone: 'teal', label: 'Distinct pairs', noun: 'pairings' });
+        }
+    });
+    registerPanel({
+        id: 'pairs-cumulative',
+        selector: '.amiga-act-pairs-cumulative-chart',
+        run: function (root) {
+            return mountCumulative(root, { metric: 'DistinctOpponentPairs', tone: 'teal', label: 'Cumulative distinct pairs', noun: 'pairings' });
+        }
+    });
+
     function isAmigaActivityChartsPage() {
         return document.body && document.body.classList.contains('k2-amiga-activity-charts');
     }
