@@ -1,6 +1,12 @@
 /**
  * Amiga player name hover glance — tiers A (compact) and B (hero stat strip).
  * Popover shell extends .k2-table-tooltip; toggle tier in amiga_player_glance_config.php.
+ *
+ * Lift shadow (Jul 2026): neutral halo around the card on busy table backgrounds.
+ * - Token: --k2-amiga-glance-lift-shadow (tiers A + B)
+ * - Zero x/y offset — even falloff on all sides (not a downward drop shadow)
+ * - Layered blurs + 1px dark ring; accent border glow stays separate underneath
+ * - Tune strength here only; do not reintroduce vertical offset without product pass
  */
 
 body.k2-site .k2-table-tooltip.k2-table-tooltip--amiga-player-glance {
@@ -34,13 +40,15 @@ body.k2-site .k2-amiga-player-glance__note {
 	text-align: center;
 }
 
-/* Neutral lift — separates glance card from busy table ink behind the accent border */
+/* Neutral lift — omnidirectional; see file header for intent */
 body.k2-site .k2-amiga-player-glance--a .k2-amiga-player-glance__card,
 body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero {
 	--k2-amiga-glance-lift-shadow:
-		0 8px 26px rgba(0, 0, 0, 0.44),
-		0 2px 8px rgba(0, 0, 0, 0.3),
-		0 0 0 1px rgba(0, 0, 0, 0.28);
+		0 0 96px rgba(0, 0, 0, 0.88),
+		0 0 48px rgba(0, 0, 0, 0.76),
+		0 0 20px rgba(0, 0, 0, 0.66),
+		0 0 4px rgba(0, 0, 0, 0.56),
+		0 0 0 1px rgba(0, 0, 0, 0.62);
 }
 
 /* ===== Tier A — compact H2H-card scale ===== */

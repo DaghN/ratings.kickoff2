@@ -133,7 +133,7 @@
 
 | When | Note |
 |------|------|
-| 2026-07-02 | **Amiga player name hover glance** — read-only tiers **A** (compact card) / **B** (hero stat strip + WC medals) on Amiga player links; toggle `K2_AMIGA_PLAYER_GLANCE_TIER` in `amiga_player_glance_config.php` or `?k2_glance=A|B`; API `amiga_player_glance.php`. |
+| 2026-07-02 | **Amiga player name hover glance** — read-only tier **B** default on Amiga player links; API `amiga_player_glance.php`. **Lift shadow:** omnidirectional neutral halo (`--k2-amiga-glance-lift-shadow` in `amiga-player-glance.css`) — zero offset, layered blurs + 1px ring; separate from accent border glow; tuned for busy table backgrounds. |
 | 2026-07-02 | **Amiga Activity Texture — low-scoring rate** — `low_scoring_games` year/realm fact + `low_scoring_rate` API + 6th Texture panel (≤3 goals, per 100 games); registry + Python/PHP writers; **`prove` green** local. |
 | 2026-07-02 | **Amiga WC stats wings** — removed Activity cross-link intro from all Tournament stats sub-wings (`amiga_world_cup_stats_wing_body.inc.php`). |
 | 2026-07-02 | **Amiga Activity Texture — high-scoring hint** — `k2-chart-block__hint` under High-scoring rate panel (ten+ goals both sides, per 100 games); matches online Activity chart hint pattern. |
