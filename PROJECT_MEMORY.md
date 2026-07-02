@@ -133,6 +133,7 @@
 
 | When | Note |
 |------|------|
+| 2026-07-02 | **Amiga Activity Nations — distinct nationalities tooltip** — new stored fact `year × player_nationality × active_players`; `year_facts` returns `nationality_active_by_year` breakdown; bar hover lists flag + country + active player count (HTML tooltip). Re-prove `ko2amiga_db` to populate facts. |
 | 2026-07-02 | **Amiga tournament video game links GL-5…6 shipped** — `video_game_links.csv` sidecar merge (`stream_map` mode), manifest `game_start_sec[]`, sync/verify/build wired; policy + README + implementation plan trimmed. Sidecar empty until stream curation. |
 | 2026-07-02 | **Amiga tournament video game links GL-1…4 shipped** — `game_links.py` + `audit_game_links.py`; sync remap/locks; 8 dual-leg manifest rows; `verify_tournament_videos` **0 errors**. |
 | 2026-07-02 | **Amiga tournament video game links policy (GL-0)** — [`amiga-tournament-videos-game-links-policy.md`](docs/amiga-tournament-videos-game-links-policy.md): match facts authoritative, `amiga_games.id` cache only, sync remap + verify oracle plan (GL-1…6); dual-leg/stream N-game links. |
@@ -280,6 +281,10 @@
 | 2026-06-29 | **Amiga country Rivals H2H poster — card symmetry** — nation-pair poster passes `subject`/`opponent` into `k2_h2h_poster_country_card_html()` so hero hugs `vs` from the left (blue) and rival from the right (red). |
 | 2026-07-01 | **Activity Participation LB** — Games column anchor + default sort (col 3) + `.blue` values; SQL `ORDER BY NumberGames DESC`. |
 | 2026-07-02 | **Amiga Activity Growth wing** — section title *How much Kick Off 2 have we been playing?*; cumulative games/tournaments/goals tooltips use HTML external tooltip (host flag + tournament name, event delta + total); snapshot series API adds `host`. |
+| 2026-07-02 | **Amiga Activity Geography — race country links** — roster hrefs append `#k2-country-roster` (hero anchor), matching `k2_amiga_country_roster_href()`. |
+| 2026-07-02 | **Amiga Activity Geography Nations intro** — race-line hint: *Click on a flag to toggle a country on or off.* |
+| 2026-07-02 | **Amiga Activity Geography — compare listbox layout** — reverted `duel-pair` / `contain: layout` (z-index regression); geo controls use games-filter + TT pattern (panel width = trigger, `inline-flex` compare row, controls `z-index: 20`). |
+| 2026-07-02 | **Amiga Activity Geography — race line cap 9** — race country list / `?hosts=` / `?nats=` CSV allow up to 9 series (was 7); JS + PHP + APIs aligned via `AMIGA_COMMUNITY_GEO_RACE_KEYS_MAX`. |
 | 2026-07-02 | **Amiga Activity Geography — Add country trigger** — race-add listbox idle trigger reads *Add country* (fixed label survives JS rebuild via `data-k2-listbox-fixed-trigger-label`). |
 | 2026-07-02 | **Amiga Activity Geography — race list not pills** — Race line countries render as flat flag + link rows (no pill chrome); click toggles line, shift+click removes. |
 | 2026-07-02 | **Amiga Activity Geography — filter row labels** — Compare / Race lines use shared `k2-realm-games-filters__row-label` row headers (games-filter convention), not bespoke muted spans. |

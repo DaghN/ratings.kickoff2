@@ -56,7 +56,7 @@ Realm-wide cumulative scalars at present and at every finalized event: players, 
 
 ### Facts (`amiga_community_stat_facts`) — v1 registry (8 patterns)
 
-Calendar-**year** grains only: realm games/goals/active_players; host_country games; player_nationality games/goals; all_time host_country and nationality games.
+Calendar-**year** grains only: realm games/goals/active_players; host_country games; player_nationality games/goals/**active_players**; all_time host_country and nationality games.
 
 ### Website
 

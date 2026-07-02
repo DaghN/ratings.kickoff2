@@ -41,6 +41,7 @@ class _FactAccum:
     def __init__(self) -> None:
         self._values: dict[tuple[str, str, str, str, str, str], float] = defaultdict(float)
         self._active_players: dict[tuple[str, str, str], set[int]] = defaultdict(set)
+        self._active_players_by_nationality: dict[tuple[str, str], set[int]] = defaultdict(set)
         self._nationalities_by_year: dict[str, set[str]] = defaultdict(set)
         self._nationalities_wc_by_year: dict[str, set[str]] = defaultdict(set)
         self._host_countries_by_year: dict[str, set[str]] = defaultdict(set)
@@ -137,6 +138,10 @@ class _FactAccum:
 
             self._active_players[("year", year, "realm")].add(player_a_id)
             self._active_players[("year", year, "realm")].add(player_b_id)
+            if country_a is not None:
+                self._active_players_by_nationality[(year, country_a)].add(player_a_id)
+            if country_b is not None:
+                self._active_players_by_nationality[(year, country_b)].add(player_b_id)
             if is_wc:
                 self._active_players[("year", year, "world_cup")].add(player_a_id)
                 self._active_players[("year", year, "world_cup")].add(player_b_id)
@@ -195,6 +200,12 @@ class _FactAccum:
             self._values[
                 (period_type, period_key, slice_type, slice_key, "active_players", "game")
             ] = float(len(players))
+
+        for (year, country), players in self._active_players_by_nationality.items():
+            if players:
+                self._values[
+                    ("year", year, "player_nationality", country, "active_players", "participant")
+                ] = float(len(players))
 
         for year, countries in self._nationalities_by_year.items():
             if countries:

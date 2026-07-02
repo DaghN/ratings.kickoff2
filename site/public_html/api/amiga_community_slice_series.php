@@ -3,7 +3,7 @@
  * JSON per-country cumulative series for Amiga Activity geography race lines.
  *
  * GET: slice (host_country | player_nationality), metric (games | goals | tournaments),
- * optional keys (CSV, max 7; default top 5 by all-time games at cutoff), as.
+ * optional keys (CSV, max 9; default top 5 by all-time games at cutoff), as.
  *
  * @see docs/amiga-activity-charts-implementation-plan.md §3
  */
@@ -79,9 +79,9 @@ try {
 
     if ($keysCsv !== '') {
         $resolvedKeys = amiga_community_geo_validate_keys(
-            amiga_community_geo_parse_keys_csv($keysCsv, 7),
+            amiga_community_geo_parse_keys_csv($keysCsv, AMIGA_COMMUNITY_GEO_RACE_KEYS_MAX),
             $availableRanked,
-            7
+            AMIGA_COMMUNITY_GEO_RACE_KEYS_MAX
         );
     } else {
         $resolvedKeys = [];

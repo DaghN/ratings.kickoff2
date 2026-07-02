@@ -3,7 +3,7 @@
  * JSON calendar-year facts for the Amiga Activity charts (year bars).
  *
  * GET: slice (realm | host_country | player_nationality | world_cup), metric,
- * optional keys (CSV slice keys, max 7, validated), as (time travel cutoff).
+ * optional keys (CSV slice keys, max 9, validated), as (time travel cutoff).
  *
  * @see docs/amiga-activity-charts-implementation-plan.md §3
  */
@@ -50,6 +50,7 @@ const K2_ACT_HOST_COUNTRY_YEAR_METRICS = [
 const K2_ACT_PLAYER_NATIONALITY_YEAR_METRICS = [
     'games',
     'goals',
+    'active_players',
 ];
 
 $slice = isset($_GET['slice']) ? strtolower(trim((string) $_GET['slice'])) : 'realm';
@@ -122,9 +123,9 @@ try {
 
         if ($keysCsv !== '') {
             $resolvedKeys = amiga_community_geo_validate_keys(
-                amiga_community_geo_parse_keys_csv($keysCsv, 7),
+                amiga_community_geo_parse_keys_csv($keysCsv, AMIGA_COMMUNITY_GEO_RACE_KEYS_MAX),
                 $availableRanked,
-                7
+                AMIGA_COMMUNITY_GEO_RACE_KEYS_MAX
             );
         } else {
             $resolvedKeys = [];
@@ -156,13 +157,17 @@ try {
 
     $filled = amiga_community_year_series_filled_at_cutoff($con, $cutoffTid, $slice, $metric, true);
 
-    echo json_encode([
+    $payload = [
         'slice' => $slice,
         'metric' => $metric,
         'years' => $filled['years'],
         'series' => [['key' => $sliceConfig['key'], 'values' => $filled['values']]],
         'cutoff' => $cutoffInfo,
-    ]);
+    ];
+    if ($slice === 'realm' && $metric === 'distinct_nationalities') {
+        $payload['nationality_active_by_year'] = amiga_community_nationality_active_by_year_at_cutoff($con, $cutoffTid);
+    }
+    echo json_encode($payload);
 } catch (RuntimeException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'query_failed']);

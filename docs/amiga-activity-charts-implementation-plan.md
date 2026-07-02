@@ -132,7 +132,7 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 ### `api/amiga_community_year_facts.php`
 
-- Params: `slice` (realm | host_country | player_nationality | world_cup), `metric` (registry metric key), optional `keys` (CSV slice keys, max 7, validated), `as`.
+- Params: `slice` (realm | host_country | player_nationality | world_cup), `metric` (registry metric key), optional `keys` (CSV slice keys, max 9, validated), `as`.
 - Response: `{ "years": [2001, …], "series": [{ "key": "England", "values": [...] }], "available_keys": ["England", …], "cutoff": { "label": "...", "event_date": "Y-m-d", "partial_year": 2003 } }`.
 - Realm slice returns one series with `key: "*"`. `available_keys` only for dimensional slices (drives pickers).
 - Read: facts rows `WHERE tournament_id = {cutoff} AND period_type = 'year' AND slice_type = {slice} AND metric_key = {metric}`.
@@ -144,7 +144,7 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 ### `api/amiga_community_slice_series.php`
 
-- Params: `slice` (host_country | player_nationality), `metric` (games | goals | tournaments), `keys` (CSV, max 7; default top 5 by all-time value at cutoff), `as`.
+- Params: `slice` (host_country | player_nationality), `metric` (games | goals | tournaments), `keys` (CSV, max 9; default top 5 by all-time value at cutoff), `as`.
 - Response: per key, `{ "points": [{ "t", "date", "name", "value" }] }` from **`all_time` facts across snapshots** <= cutoff; plus `available_keys` ranked by all-time value at cutoff (drives race defaults + add-country).
 
 ### `api/amiga_community_year_rates.php`
@@ -214,7 +214,7 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 ### Slice 5 — Geography selector platform (no panels) — **Done** (Jul 2026)
 
-- Module controls: **duel** (two flag dropdowns, grouped bars) + **race** (legend chips, add-country, cap 7).
+- Module controls: **duel** (two flag dropdowns, grouped bars) + **race** (country list, add-country, cap 9).
 - URL state: `?hosts=` / `?nats=` CSV; `history.replaceState` on change; PHP prefills selects from GET; invalid keys → defaults (England, Germany).
 - `slice_series` API ships here.
 - Option lists + race defaults from `available_keys` (cutoff-aware).
@@ -235,7 +235,7 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 - Registry §2 order; one duel state drives all Pattern-A charts on the page.
 
-*Shipped notes:* `includes/amiga_activity_geography_nations_panels.inc.php` — appearances + goals duel/race panels (`player_nationality` slice via shared selector state) + realm `distinct_nationalities` year bar; harness preview charts removed from selector include. Reuses slice-6 `registerGeoPanel()` / `mountGeoDuelYear()` / `mountGeoRace()` unchanged.
+*Shipped notes:* `includes/amiga_activity_geography_nations_panels.inc.php` — appearances + goals duel/race panels (`player_nationality` slice via shared selector state) + realm `distinct_nationalities` year bar; harness preview charts removed from selector include. Reuses slice-6 `registerGeoPanel()` / `mountGeoDuelYear()` / `mountGeoRace()` unchanged. **Jul 2026+:** distinct-nationalities year bar hover tooltip — per-country active players (`year × player_nationality × active_players` stored fact; `year_facts` field `nationality_active_by_year`; `mountNationalitiesYear()` HTML tooltip).
 
 ### Slice 8 — Shape probes (IA-4 STOP gate — no UI) — **Done** (Jul 2026)
 

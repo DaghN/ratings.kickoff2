@@ -62,6 +62,7 @@ V1_FACT_SPECS: tuple[CommunityFactSpec, ...] = (
     CommunityFactSpec("year", "host_country", "games", "game"),
     CommunityFactSpec("year", "player_nationality", "games", "participant"),
     CommunityFactSpec("year", "player_nationality", "goals", "participant"),
+    CommunityFactSpec("year", "player_nationality", "active_players", "participant"),
     CommunityFactSpec("all_time", "host_country", "games", "game"),
     CommunityFactSpec("all_time", "player_nationality", "games", "participant"),
 )

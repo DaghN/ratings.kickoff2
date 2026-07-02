@@ -82,7 +82,7 @@ $k2GeoListboxTriggerClass = 'k2-amiga-act-geo-listbox';
 	<header class="k2-activity-section__head">
 		<h2 class="k2-panel-heading" id="k2-act-geography-selector-title"><?php echo $k2GeoView === 'nations' ? 'Where do we come from?' : 'Who\'s hosting tournaments?'; ?></h2>
 		<p class="k2-activity-section__intro"><?php echo $k2GeoView === 'nations'
-    ? 'Compare nationalities side by side, or race cumulative totals.'
+    ? 'Compare nationalities side by side, or race cumulative totals. Click on a flag to toggle a country on or off.'
     : 'Compare host countries side by side, or race cumulative totals.'; ?></p>
 	</header>
 

@@ -10,6 +10,9 @@ require_once __DIR__ . '/amiga_community_stat_registry.php';
 require_once __DIR__ . '/amiga_snapshot_context.php';
 require_once __DIR__ . '/k2_safety.php';
 
+/** Max countries in Geography race-line selection (?hosts= / ?nats= CSV). */
+const AMIGA_COMMUNITY_GEO_RACE_KEYS_MAX = 9;
+
 /**
  * @return array<string, mixed>|null
  */
@@ -497,6 +500,47 @@ function amiga_community_year_series_filled_at_cutoff(
 }
 
 /**
+ * Per-nationality active player counts by calendar year at cutoff (tooltip breakdown).
+ *
+ * @return array<string, list<array{key: string, count: int}>>
+ */
+function amiga_community_nationality_active_by_year_at_cutoff(mysqli $con, int $cutoffTournamentId): array
+{
+    $facts = amiga_community_year_facts_at_cutoff(
+        $con,
+        $cutoffTournamentId,
+        'player_nationality',
+        'active_players'
+    );
+    $out = [];
+    foreach ($facts as $country => $byYear) {
+        foreach ($byYear as $year => $count) {
+            $n = (int) round((float) $count);
+            if ($n <= 0) {
+                continue;
+            }
+            $yearKey = (string) $year;
+            $out[$yearKey][] = ['key' => (string) $country, 'count' => $n];
+        }
+    }
+    foreach ($out as $yearKey => &$rows) {
+        usort(
+            $rows,
+            static function (array $a, array $b): int {
+                if ($a['count'] !== $b['count']) {
+                    return $b['count'] <=> $a['count'];
+                }
+
+                return strcmp($a['key'], $b['key']);
+            }
+        );
+    }
+    unset($rows);
+
+    return $out;
+}
+
+/**
  * Calendar year with the most realm rated games at a community-stat cutoff.
  *
  * @return array{year: int, games: int}|null
@@ -534,7 +578,7 @@ function amiga_community_busiest_year_at_cutoff(mysqli $con, int $cutoffTourname
  *
  * @return list<string>
  */
-function amiga_community_geo_parse_keys_csv(string $csv, int $max = 7): array
+function amiga_community_geo_parse_keys_csv(string $csv, int $max = AMIGA_COMMUNITY_GEO_RACE_KEYS_MAX): array
 {
     $out = [];
     foreach (explode(',', $csv) as $part) {
@@ -596,7 +640,7 @@ function amiga_community_geo_default_race_keys(array $validKeys, int $count = 5)
         $out[] = $duelB;
     }
     foreach ($validKeys as $key) {
-        if (count($out) >= min($count, 7)) {
+        if (count($out) >= min($count, AMIGA_COMMUNITY_GEO_RACE_KEYS_MAX)) {
             break;
         }
         if (!in_array($key, $out, true)) {
@@ -604,7 +648,7 @@ function amiga_community_geo_default_race_keys(array $validKeys, int $count = 5)
         }
     }
 
-    return array_slice($out, 0, min($count, 7));
+    return array_slice($out, 0, min($count, AMIGA_COMMUNITY_GEO_RACE_KEYS_MAX));
 }
 
 /**
@@ -629,7 +673,7 @@ function amiga_community_geo_page_selection(?string $csv, array $availableRanked
     }
 
     $race = [];
-    foreach (amiga_community_geo_parse_keys_csv($csv, 7) as $key) {
+    foreach (amiga_community_geo_parse_keys_csv($csv, AMIGA_COMMUNITY_GEO_RACE_KEYS_MAX) as $key) {
         if (isset($availableRanked[$key]) && !in_array($key, $race, true)) {
             $race[] = $key;
         }
@@ -659,7 +703,7 @@ function amiga_community_geo_page_selection(?string $csv, array $availableRanked
  * @param array<string, float> $availableRanked
  * @return list<string>
  */
-function amiga_community_geo_validate_keys(array $keys, array $availableRanked, int $max = 7): array
+function amiga_community_geo_validate_keys(array $keys, array $availableRanked, int $max = AMIGA_COMMUNITY_GEO_RACE_KEYS_MAX): array
 {
     $out = [];
     foreach ($keys as $key) {

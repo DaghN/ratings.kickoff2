@@ -66,6 +66,8 @@ function amiga_community_build_realm_scan(mysqli $con, int $tournamentId): array
     $values = [];
     /** @var array<string, array<int, true>> $activePlayers */
     $activePlayers = [];
+    /** @var array<string, array<int, true>> $activePlayersByNationality year\0country => player ids */
+    $activePlayersByNationality = [];
     /** @var array<string, array<string, true>> $nationalitiesByYear */
     $nationalitiesByYear = [];
     /** @var array<string, array<string, true>> $nationalitiesWcByYear */
@@ -171,6 +173,12 @@ function amiga_community_build_realm_scan(mysqli $con, int $tournamentId): array
 
             $activePlayers['year' . "\0" . $year . "\0" . 'realm'][$playerA] = true;
             $activePlayers['year' . "\0" . $year . "\0" . 'realm'][$playerB] = true;
+            if ($countryA !== null) {
+                $activePlayersByNationality[$year . "\0" . $countryA][$playerA] = true;
+            }
+            if ($countryB !== null) {
+                $activePlayersByNationality[$year . "\0" . $countryB][$playerB] = true;
+            }
             if ($isWc) {
                 $activePlayers['year' . "\0" . $year . "\0" . 'world_cup'][$playerA] = true;
                 $activePlayers['year' . "\0" . $year . "\0" . 'world_cup'][$playerB] = true;
@@ -264,6 +272,15 @@ function amiga_community_build_realm_scan(mysqli $con, int $tournamentId): array
         $sliceType = $sliceKind === 'realm' ? 'realm' : 'world_cup';
         $sliceKey = $sliceType === 'realm' ? AMIGA_COMMUNITY_REALM_SLICE_KEY : AMIGA_COMMUNITY_WORLD_CUP_SLICE_KEY;
         $values[$factKey($periodType, $periodKey, $sliceType, $sliceKey, 'active_players', 'game')] = (float) count($players);
+    }
+
+    foreach ($activePlayersByNationality as $natKey => $players) {
+        if ($players === []) {
+            continue;
+        }
+        [$year, $country] = explode("\0", $natKey, 2);
+        $values[$factKey('year', (string) $year, 'player_nationality', (string) $country, 'active_players', 'participant')] =
+            (float) count($players);
     }
 
     foreach ($nationalitiesByYear as $year => $countries) {

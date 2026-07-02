@@ -1053,6 +1053,8 @@ body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-controls {
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
 	background: var(--k2-bg-surface-raised, var(--k2-bg-surface));
+	position: relative;
+	z-index: 20;
 }
 
 body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-controls .k2-amiga-act-geo-controls__row {
@@ -1066,7 +1068,16 @@ body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-controls .k2-realm-games
 	padding-bottom: 0;
 }
 
-body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-duel,
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-duel {
+	display: inline-flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: 8px 10px;
+	flex: 0 1 auto;
+	min-width: 0;
+	max-width: 100%;
+}
+
 body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race {
 	display: flex;
 	flex-wrap: wrap;
@@ -1081,6 +1092,7 @@ body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-duel-field {
 	align-items: center;
 	gap: 6px;
 	margin: 0;
+	flex: 0 0 auto;
 }
 
 body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-duel-flag .k2-amiga-country-flag-img {
@@ -1090,18 +1102,28 @@ body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-duel-flag .k2-amiga-coun
 body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-vs {
 	color: var(--k2-text-muted);
 	font-size: 0.9rem;
+	flex: 0 0 auto;
 }
 
-body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-duel-field .k2-archive-listbox,
-body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race-add-wrap .k2-archive-listbox {
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-controls .k2-amiga-act-geo-duel-field .k2-archive-listbox--ghost-sized,
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-controls .k2-amiga-act-geo-race-add-wrap .k2-archive-listbox--ghost-sized {
+	position: relative;
+	display: inline-block;
+	width: auto;
+	max-width: min(14rem, 42vw);
+	vertical-align: bottom;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-controls .k2-amiga-act-geo-duel-field .k2-archive-listbox,
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-controls .k2-amiga-act-geo-race-add-wrap .k2-archive-listbox {
 	flex: 0 1 auto;
 	min-width: 9rem;
 	max-width: min(14rem, 42vw);
-	width: 100%;
 }
 
 body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-duel-field .k2-archive-listbox__trigger.k2-amiga-act-geo-listbox,
 body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race-add-wrap .k2-archive-listbox__trigger.k2-amiga-act-geo-listbox {
+	box-sizing: border-box;
 	width: 100%;
 	max-width: 100%;
 	min-height: calc(1.25em + 8px);
@@ -1112,11 +1134,13 @@ body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race-add-wrap .k2-archiv
 	background-position: right 6px center;
 }
 
-body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-duel-field .k2-archive-listbox--meta-options .k2-archive-listbox__panel,
-body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race-add-wrap .k2-archive-listbox--meta-options .k2-archive-listbox__panel {
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-controls .k2-archive-listbox__panel {
+	left: 0;
+	right: auto;
+	box-sizing: border-box;
 	width: 100%;
 	min-width: 0;
-	max-width: min(14rem, 42vw);
+	max-width: 100%;
 }
 
 body.k2-site.k2-amiga-activity-charts .k2-archive-listbox__option--with-flag {
@@ -1236,6 +1260,56 @@ body.k2-site.k2-amiga-activity-charts .k2-amiga-act-cumulative-tooltip__flag .k2
 	width: 100%;
 	height: 100%;
 	border-radius: 0;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-nationalities-tooltip__title {
+	margin-bottom: 4px;
+	color: var(--k2-tooltip-title);
+	font-weight: 600;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-nationalities-tooltip__summary {
+	margin-bottom: 6px;
+	color: var(--k2-tooltip-body);
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-nationalities-tooltip__list {
+	display: grid;
+	gap: 4px;
+	max-height: min(280px, 40vh);
+	overflow-y: auto;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-nationalities-tooltip__row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-nationalities-tooltip__flag {
+	display: inline-flex;
+	flex-shrink: 0;
+	width: 20px;
+	height: 15px;
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-nationalities-tooltip__flag .k2-amiga-country-flag-img {
+	width: 100%;
+	height: 100%;
+	border-radius: 0;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-nationalities-tooltip__name {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-nationalities-tooltip__count {
+	flex-shrink: 0;
+	color: var(--k2-tooltip-body);
+	white-space: nowrap;
 }
 
 body.k2-site.k2-amiga-activity-charts .k2-chart-frame--short {
