@@ -87,7 +87,7 @@ try {
         $resolvedKeys = [];
     }
     if ($resolvedKeys === []) {
-        $resolvedKeys = amiga_community_geo_default_race_keys($availableKeys, 5);
+        $resolvedKeys = amiga_community_geo_default_race_keys($availableKeys);
     }
 
     $series = amiga_community_slice_series($con, $slice, $metric, $resolvedKeys, $cutoffChrono);

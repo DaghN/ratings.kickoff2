@@ -196,13 +196,13 @@ Two control patterns, both Geography-only in v1:
 ### Pattern A — Country duel (single-country year bars)
 
 - Compact control row above the chart: **[flag ▾ Country A] vs [flag ▾ Country B]** — two-series grouped bars in two accent colours.
-- Defaults: **England vs Germany** (top two by all-time volume) for both hosts and nations pages.
+- Defaults: **England** (top by volume when England absent) vs **empty Host B** (`...country` placeholder) — single-series compare until a second country is picked; same on nations page.
 - Change → client-side refetch → chart update in place → `history.replaceState` so `?hosts=England,Italy` / `?nats=England,Greece` is bookmarkable and shareable. **No full page reload.**
 - PHP prefills the selects from GET on first render; invalid names fall back to defaults.
 
 ### Pattern B — Cumulative race (multi-line)
 
-- Default series: **top 5 countries by all-time volume at the current cutoff**, one line each.
+- Default series: **top 4 countries by all-time volume at the current cutoff**, one line each.
 - Race country list toggles lines (click hide/show; shift+click remove); **Add country** listbox appends a series (cap **9**).
 - Same URL state mechanics as Pattern A (CSV param drives the full series list when present).
 

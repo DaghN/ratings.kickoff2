@@ -59,12 +59,12 @@ League **period buckets** and Amiga **tournament events** are the same idea at d
 | Item | Rule |
 |------|------|
 | **Pages** | Tournament entity folder (`/amiga/tournament/{event-stats,standings,games,videos,…}.php?id=`) — PHP-first via `amiga_tournament_page.php` (redirects before HTML) |
-| **Placement** | Fixed position **to the right of the tournament segment nav**. Same row: **prev · next · with-player listbox · host-country listbox** (§5.7). |
-| **URL params** | **`id_with={player_id}`** · **`id_country={host country name}`** — separate listboxes; filter bag ANDs them |
+| **Placement** | Fixed position **to the right of the tournament segment nav**. Same row: **prev · next · WC-only pill · with-player listbox · host-country listbox** (§5.7). |
+| **URL params** | **`id_with={player_id}`** · **`id_country={host country name}`** · **`id_wc=world-cup`** (WC-only toggle) — separate controls; filter bag ANDs them |
 | **Catalog** | Public tournament catalog in chrono order (≤ TT cutoff when `as=` active); narrowed by active **step filter stack** (§5.7) |
 | **Activity test (player)** | `amiga_player_event_snapshots`, `NumberGames > 0` |
 | **Match test (country)** | Tournament index host country — `amiga_tournament_index_matches_country_filter()` |
-| **Faceted counts** | Listbox `meta` = tournament count in stepping catalog after cross-filter (player ↔ country) |
+| **Faceted counts** | Listbox `meta` = tournament count in stepping catalog after cross-filter (player ↔ country ↔ WC-only) |
 | **Visibility** | Present day and time travel |
 | **Stepping target** | Updates tournament **`id=`** only (tournament chevrons). TT ribbon may change **`as=`** independently (WP14). |
 | **Off-filter snap** | **302** on page entry when any step filter active and current `id=` off-filter — §5.8 |
@@ -210,7 +210,7 @@ Entity-page chevrons expose a **subset** of tournament-index filter ideas as **s
 | **Composition** | Filters **AND** together: `eligible = base_catalog ∩ filter₁ ∩ filter₂ ∩ …` |
 | **Separate URL params** | One param per filter axis — **`id_*` prefix** on entity pages (not hub `wc=` / `country=`). |
 | **Propagation** | Tournament folder URLs only — alongside `id_with`, `id_country`, `as=`, scope when applicable. Never on TT ribbon or unrelated Amiga links (WP5). |
-| **Controls** | Same listbox grammar (cancel row, link-star when active, no search, faceted `meta` counts). Adjacent triggers in one filter row — see `amiga-tournament.css` § step nav filters. |
+| **Controls** | Listboxes: cancel row, link-star when active, no search, faceted `meta` counts. **WC-only:** Shuffle-style pill toggle (jukebox grammar) — first filter after chevrons. Adjacent triggers in one filter row — see `amiga-tournament.css` § step nav filters. |
 | **Matching logic** | Reuse tournament index matchers — **do not** duplicate rules in the step nav include. |
 | **Step helper** | `k2_participation_step_keys()` on eligible key set (player filter builds a set; country/WC filters use index matchers). |
 | **Empty eligible set** | Both chevrons **disabled**; page still renders for requested `id=` — no 404. |
@@ -221,13 +221,14 @@ Entity-page chevrons expose a **subset** of tournament-index filter ideas as **s
 | Axis | Param | Notes |
 |------|-------|-------|
 | With player | `id_with` | Slice 2 |
-| Host country | `id_country` | Country **name string** (index semantics), listbox after with-player |
+| Host country | `id_country` | Country **name string** (index semantics), listbox after WC pill |
+| WC only | `id_wc=world-cup` | Pill toggle (off = param absent); reuses index WC matcher |
 
 **Plausible extensions (not shipped):**
 
 | Axis | Example param | Notes |
 |------|---------------|-------|
-| WC vs all | `id_wc=world-cup` / `not-world-cup` | Mirror index semantics |
+| Non-WC only | `id_wc=not-world-cup` | Mirror index `not-world-cup` if needed later |
 
 Adding a filter = new param + parse/append helper + bag field + one listbox — **not** a change to TT ribbon or href fallback rules.
 
@@ -328,6 +329,7 @@ Full checklist: [`with-player-stepper-implementation-plan.md`](with-player-stepp
 | [`amiga_snapshot_context.php`](../site/public_html/includes/amiga_snapshot_context.php) | TT | Chevron `prev_key` / `next_key` override when `as_with` + Event wing — **not** auto-snap |
 | [`amiga_id_with_url.php`](../site/public_html/includes/amiga_id_with_url.php) | Tournament | `id_with` parse + append |
 | [`amiga_id_country_url.php`](../site/public_html/includes/amiga_id_country_url.php) | Tournament | `id_country` parse + append |
+| [`amiga_id_wc_url.php`](../site/public_html/includes/amiga_id_wc_url.php) | Tournament | `id_wc` parse + append + toggle href |
 | [`amiga_tournament_step_catalog.php`](../site/public_html/includes/amiga_tournament_step_catalog.php) | Tournament | Filter bag, catalog, step keys, snap target |
 | [`amiga_tournament_step_href.php`](../site/public_html/includes/amiga_tournament_step_href.php) | Tournament | Wing-preserving hrefs + `amiga_tournament_apply_step_filter_snap_redirect()` |
 | [`amiga_tournament_step_nav.php`](../site/public_html/includes/amiga_tournament_step_nav.php) | Tournament | Chevrons + listboxes render |
@@ -345,7 +347,7 @@ Full checklist: [`with-player-stepper-implementation-plan.md`](with-player-stepp
 |------|-----|
 | TT filter + snap | `/amiga/leaderboards/rating.php?as=event:27&as_with=62` → 302 to nearest played event |
 | TT filter stepping | `/amiga/leaderboards/rating.php?as=event:{id}&as_with=73` |
-| Tournament filters | `/amiga/tournament/event-stats.php?id=598&id_with=…&id_country=…` |
+| Tournament filters | `/amiga/tournament/event-stats.php?id=598&id_with=…&id_country=…&id_wc=world-cup` |
 | League filter + snap | `/league.php?cup=points&period=month&start=…&start_with=…` |
 
 ---
@@ -354,6 +356,7 @@ Full checklist: [`with-player-stepper-implementation-plan.md`](with-player-stepp
 
 | Date | Change |
 |------|--------|
+| 2026-07-02 | **`id_wc=world-cup`** — WC-only pill on tournament chevrons (Shuffle-style); faceted counts + snap + propagation; §3.1 / §5.7 / §10. |
 | 2026-06-30 | **Doc sweep** — §5.7 shipped (`id_country`), §5.8 auto-snap entry points (WP18), §10 module map; TT preamble page list; league/tournament snap docs aligned. |
 | 2026-06-30 | Track **complete** — slice 3 `start_with=`; post-track **`id_country`**, faceted counts, filter auto-snap all surfaces. |
 | 2026-06-30 | **WP15–WP17 + §5.5–§5.7** — tournament step architecture (three layers, wing fallback, future catalog filters with AND composition); slice 2 extensibility without TT reuse. |

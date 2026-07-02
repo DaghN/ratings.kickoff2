@@ -1653,6 +1653,8 @@
 
     var GEO_RACE_TONES = ['pitch', 'chrome', 'holo', 'amber', 'teal', 'magenta'];
     var GEO_RACE_KEYS_MAX = 9;
+    var GEO_RACE_KEYS_DEFAULT = 4;
+    var GEO_DUEL_B_EMPTY_LABEL = '...country';
     var GEO_FLAG_CODES = {
         'Germany': 'de',
         'England': 'gb-eng',
@@ -1726,28 +1728,6 @@
             url += TT.navigationQuerySuffix();
         }
         return url + '#k2-country-roster';
-    }
-
-    function geoDefaultDuelB(state) {
-        var keys = state.availableKeys || [];
-        if (!keys.length) {
-            return '';
-        }
-        var a = state.duelA || keys[0];
-        var b = keys.indexOf('Germany') !== -1 ? 'Germany' : (keys[1] || keys[0]);
-        if (b === a && keys.length > 1) {
-            b = keys[1];
-        }
-        if (b === a) {
-            b = keys[0];
-        }
-        return b;
-    }
-
-    function ensureGeoDuelB(state) {
-        if (!state.duelB && state.availableKeys.length) {
-            state.duelB = geoDefaultDuelB(state);
-        }
     }
 
     function getGeoDuelKeys(state) {
@@ -1987,10 +1967,10 @@
         return input ? String(input.value) : '';
     }
 
-    function geoCountryChoices(keys, withEmpty) {
+    function geoCountryChoices(keys, withEmpty, emptyLabel) {
         var choices = [];
         if (withEmpty) {
-            choices.push({ value: '', label: '—' });
+            choices.push({ value: '', label: emptyLabel || '—' });
         }
         var i;
         for (i = 0; i < keys.length; i++) {
@@ -2017,7 +1997,6 @@
         if (!LB) {
             return;
         }
-        ensureGeoDuelB(state);
         LB.rebuild(
             geoListboxBox(state.root, 'k2-amiga-act-geo-duel-a'),
             geoCountryChoices(state.availableKeys, false),
@@ -2025,7 +2004,7 @@
         );
         LB.rebuild(
             geoListboxBox(state.root, 'k2-amiga-act-geo-duel-b'),
-            geoCountryChoices(state.availableKeys, false),
+            geoCountryChoices(state.availableKeys, true, GEO_DUEL_B_EMPTY_LABEL),
             state.duelB || ''
         );
         var addChoices = [];
@@ -2230,9 +2209,8 @@
             hidden: {},
             harnessNoun: slice === 'player_nationality' ? 'appearances' : 'hosted games'
         };
-        ensureGeoDuelB(state);
         if (!state.raceKeys.length && state.availableKeys.length) {
-            state.raceKeys = normalizeRaceKeys(state.availableKeys.slice(0, 5));
+            state.raceKeys = normalizeRaceKeys(state.availableKeys.slice(0, GEO_RACE_KEYS_DEFAULT));
         }
         geoStates.set(root, state);
 
@@ -2297,7 +2275,7 @@
                         state.duelA = state.raceKeys[0] || '';
                     }
                     if (state.duelB === country) {
-                        state.duelB = state.raceKeys[1] || '';
+                        state.duelB = '';
                     }
                     applyGeoStateChange(state);
                     return;

@@ -470,7 +470,6 @@ $sortMap = [
     'team_a' => 'r.NameA',
     'team_b' => 'r.NameB',
     'result' => "CASE WHEN ((r.idA = $playerIdSql AND ABS(r.ActualScore - 1.0) < 0.001) OR (r.idB = $playerIdSql AND ABS(r.ActualScore) < 0.001)) THEN 2 WHEN ABS(r.ActualScore - 0.5) < 0.001 THEN 1 ELSE 0 END",
-    'opponent' => "CASE WHEN r.idA = $playerIdSql THEN r.NameB ELSE r.NameA END",
     'goals_for' => "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA ELSE r.GoalsB END",
     'against' => "CASE WHEN r.idA = $playerIdSql THEN r.GoalsB ELSE r.GoalsA END",
     'diff' => "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA - r.GoalsB ELSE r.GoalsB - r.GoalsA END",
@@ -896,8 +895,6 @@ if ($filterChoices !== null) {
     <th></th>
     <th></th>
     <?php echo individual3_sort_header('team_b', 'Team B', 'left', $sortState, 'Player listed as Team B in the original game record.'); ?>
-    <?php echo individual3_sort_header('result', 'Result', 'left', $sortState, 'Result from this player\'s perspective: win, draw, or loss.', 'Result', 'k2-table-cell--pad-left-xl'); ?>
-    <?php echo individual3_sort_header('opponent', 'Opponent', 'left', $sortState, 'Opponent in this game.'); ?>
     <?php echo individual3_sort_header('goals_for', 'GF', 'right', $sortState, 'Goals scored by this player.', 'Goals for', 'k2-table-cell--pad-left-md'); ?>
     <?php echo individual3_sort_header('against', 'GA', 'right', $sortState, 'Goals conceded by this player.', 'Goals against'); ?>
     <?php echo individual3_sort_header('diff', 'GD', 'right', $sortState, 'Goal difference from this player\'s perspective.', 'GD'); ?>
@@ -905,6 +902,7 @@ if ($filterChoices !== null) {
     <?php echo individual3_sort_header('player_rating', individual3_h($name), 'right', $sortState, 'This player\'s Elo rating before the game.', $name . ' rating', 'k2-table-cell--pad-left-md'); ?>
     <?php echo individual3_sort_header('opponent_rating', 'Opponent', 'right', $sortState, 'Opponent Elo rating before the game.', 'Opponent rating'); ?>
     <?php echo individual3_sort_header('es', 'ES ' . individual3_h($name), 'right', $sortState, 'Expected score for this player before the game, based on the rating difference.', 'Expected score'); ?>
+    <?php echo individual3_sort_header('result', 'Result', 'left', $sortState, 'Result from this player\'s perspective: win, draw, or loss.', 'Result'); ?>
     <?php echo individual3_sort_header('adjustment', 'Adjustment', 'right', $sortState, 'Rating points gained or lost by this player after the game.'); ?>
     </tr>
 </thead>
@@ -912,7 +910,7 @@ if ($filterChoices !== null) {
 <tbody>
     <?php if ($games === []) { ?>
     <tr>
-        <td colspan="16" class="k2-table-cell--left k2-games-day__empty">No games match these filters.</td>
+        <td colspan="15" class="k2-table-cell--left k2-games-day__empty">No games match these filters.</td>
     </tr>
     <?php } ?>
     <?php foreach ($games as $game) { ?>

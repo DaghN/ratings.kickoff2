@@ -1,6 +1,6 @@
 <?php
 /**
- * Tournament entity page — prev/next chevrons + with-player / host-country listboxes.
+ * Tournament entity page — prev/next chevrons + WC-only pill + with-player / host-country listboxes.
  *
  * @see docs/with-player-stepper-policy.md §3.1
  */
@@ -14,6 +14,7 @@ require_once __DIR__ . '/amiga_tournament_step_catalog.php';
 require_once __DIR__ . '/amiga_tournament_step_href.php';
 require_once __DIR__ . '/amiga_id_with_url.php';
 require_once __DIR__ . '/amiga_id_country_url.php';
+require_once __DIR__ . '/amiga_id_wc_url.php';
 
 /**
  * @return array<string, scalar>
@@ -26,7 +27,7 @@ function amiga_tournament_step_carry_query_params(int $tournamentId): array
         if (!is_string($name) || $name === '' || is_array($value)) {
             continue;
         }
-        if (in_array($name, ['id', 'id_with', 'id_country'], true)) {
+        if (in_array($name, ['id', 'id_with', 'id_country', 'id_wc'], true)) {
             continue;
         }
         $carry[$name] = $value;
@@ -73,6 +74,9 @@ function amiga_tournament_step_nav_render(
     $countryFilter = amiga_id_country_active($con);
     $selectedCountry = $countryFilter !== '' ? $countryFilter : '';
     $countryChoices = amiga_tournament_step_country_choices($con);
+
+    $wcOnly = amiga_id_wc_active($con);
+    $wcToggleHref = amiga_id_wc_toggle_href($requestPath, $tournamentId, !$wcOnly);
     ?>
 <div class="k2-amiga-tournament-step-nav" data-k2-carry-scroll>
     <nav class="k2-player-games-day-steps k2-amiga-tournament-step-nav__steps" aria-label="Tournament sequence">
@@ -103,8 +107,14 @@ function amiga_tournament_step_nav_render(
     foreach (k2_table_sort_query_params() as $sortName => $sortValue) {
         echo '<input type="hidden" name="' . k2_h($sortName) . '" value="' . k2_h((string) $sortValue) . '" />';
     }
+    if ($wcOnly) {
+        echo '<input type="hidden" name="id_wc" value="world-cup" />';
+    }
 ?>
         <div class="k2-player-games-controls__fields k2-amiga-tournament-step-nav__filter-fields">
+            <div class="k2-player-games-controls__field k2-amiga-tournament-step-nav__wc-field">
+                <a href="<?php echo k2_h($wcToggleHref); ?>" class="k2-amiga-tournament-step-nav__wc-pill<?php echo $wcOnly ? ' is-active' : ''; ?>" aria-pressed="<?php echo $wcOnly ? 'true' : 'false'; ?>" data-k2-carry-scroll>WC only</a>
+            </div>
             <div class="k2-player-games-controls__field">
 <?php
     k2_archive_listbox_render(

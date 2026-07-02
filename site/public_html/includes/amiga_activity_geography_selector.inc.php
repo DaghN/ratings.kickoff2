@@ -42,11 +42,11 @@ $k2GeoCsvResolved = $k2GeoSelection['csv'];
 /**
  * @return list<array{value: string, label: string, flag_html?: string}>
  */
-function k2_amiga_act_geo_country_choices(array $keys, bool $withEmpty = false): array
+function k2_amiga_act_geo_country_choices(array $keys, bool $withEmpty = false, string $emptyLabel = '—'): array
 {
     $choices = [];
     if ($withEmpty) {
-        $choices[] = ['value' => '', 'label' => '—'];
+        $choices[] = ['value' => '', 'label' => $emptyLabel];
     }
     foreach ($keys as $key) {
         $key = (string) $key;
@@ -61,11 +61,8 @@ function k2_amiga_act_geo_country_choices(array $keys, bool $withEmpty = false):
 }
 
 $k2GeoDuelAChoices = k2_amiga_act_geo_country_choices($k2GeoAvailableKeys);
-$k2GeoDuelBChoices = k2_amiga_act_geo_country_choices($k2GeoAvailableKeys);
-if ($k2GeoDuelB === null || $k2GeoDuelB === '') {
-    [, $k2GeoDefaultB] = amiga_community_geo_default_duel($k2GeoAvailableKeys);
-    $k2GeoDuelB = $k2GeoDefaultB ?? '';
-}
+$k2GeoDuelBChoices = k2_amiga_act_geo_country_choices($k2GeoAvailableKeys, true, '...country');
+$k2GeoDuelB = $k2GeoDuelB ?? '';
 $k2GeoRaceAddChoices = [];
 foreach ($k2GeoAvailableKeys as $k2GeoAddKey) {
     if (!in_array($k2GeoAddKey, $k2GeoRaceKeys, true)) {
@@ -105,7 +102,7 @@ $k2GeoListboxTriggerClass = 'k2-amiga-act-geo-listbox';
 					<span class="k2-amiga-act-geo-vs">vs</span>
 					<label class="k2-amiga-act-geo-duel-field">
 						<span class="k2-amiga-act-geo-duel-flag" data-k2-geo-flag-for="duel-b" aria-hidden="true"><?php echo k2_amiga_country_flag_img((string) $k2GeoDuelB, ['decorative' => true]); ?></span>
-						<?php k2_archive_listbox_render('geo_duel_b', 'k2-amiga-act-geo-duel-b', (string) $k2GeoDuelB, $k2GeoDuelBChoices, $k2GeoDuelLabelB, $k2GeoListboxTriggerClass); ?>
+						<?php k2_archive_listbox_render('geo_duel_b', 'k2-amiga-act-geo-duel-b', (string) $k2GeoDuelB, $k2GeoDuelBChoices, $k2GeoDuelLabelB, $k2GeoListboxTriggerClass, '...country'); ?>
 					</label>
 				</div>
 			</div>

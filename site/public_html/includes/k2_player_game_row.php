@@ -122,16 +122,15 @@ function k2_player_game_sort_col_index(string $sortKey): int
         'date' => 1,
         'team_a' => 2,
         'team_b' => 5,
-        'result' => 6,
-        'opponent' => 7,
-        'goals_for' => 8,
-        'against' => 9,
-        'diff' => 10,
-        'sum' => 11,
-        'player_rating' => 12,
-        'opponent_rating' => 13,
-        'es' => 14,
-        'adjustment' => 15,
+        'goals_for' => 6,
+        'against' => 7,
+        'diff' => 8,
+        'sum' => 9,
+        'player_rating' => 10,
+        'opponent_rating' => 11,
+        'es' => 12,
+        'result' => 13,
+        'adjustment' => 14,
     ];
 
     return $map[$sortKey] ?? 0;
@@ -161,8 +160,6 @@ function k2_player_game_row_html(array $row, int $playerId, int $sortedColIndex 
     $processed = k2_rated_game_is_processed($row);
     $game = k2_player_game_normalize_row($row);
     $isPlayerA = $game['idA'] === $playerId;
-    $opponentId = $isPlayerA ? $game['idB'] : $game['idA'];
-    $opponentName = $isPlayerA ? $game['NameB'] : $game['NameA'];
     $goalsFor = $isPlayerA ? $game['GoalsA'] : $game['GoalsB'];
     $goalsAgainst = $isPlayerA ? $game['GoalsB'] : $game['GoalsA'];
     $sumGoals = (int) $game['GoalsA'] + (int) $game['GoalsB'];
@@ -215,15 +212,14 @@ function k2_player_game_row_html(array $row, int $playerId, int $sortedColIndex 
         . k2_player_game_td($goalsACell, 3, $sortedColIndex)
         . k2_player_game_td($goalsBCell, 4, $sortedColIndex, 'k2-table-cell--left')
         . k2_player_game_td(k2_player_game_player_link($game['idB'], $game['NameB']), 5, $sortedColIndex, 'k2-table-cell--left')
-        . k2_player_game_td($resultCell, 6, $sortedColIndex, 'k2-table-cell--left k2-table-cell--pad-left-xl')
-        . k2_player_game_td(k2_player_game_player_link($opponentId, $opponentName), 7, $sortedColIndex, 'k2-table-cell--left')
-        . k2_player_game_td((string) $goalsFor, 8, $sortedColIndex)
-        . k2_player_game_td((string) $goalsAgainst, 9, $sortedColIndex)
-        . k2_player_game_td($diffCell, 10, $sortedColIndex)
-        . k2_player_game_td($sumCell, 11, $sortedColIndex)
-        . k2_player_game_td($playerRatingCell, 12, $sortedColIndex)
-        . k2_player_game_td($opponentRatingCell, 13, $sortedColIndex)
-        . k2_player_game_td($esCell, 14, $sortedColIndex)
-        . k2_player_game_td($adjustmentCell, 15, $sortedColIndex)
+        . k2_player_game_td((string) $goalsFor, 6, $sortedColIndex)
+        . k2_player_game_td((string) $goalsAgainst, 7, $sortedColIndex)
+        . k2_player_game_td($diffCell, 8, $sortedColIndex)
+        . k2_player_game_td($sumCell, 9, $sortedColIndex)
+        . k2_player_game_td($playerRatingCell, 10, $sortedColIndex)
+        . k2_player_game_td($opponentRatingCell, 11, $sortedColIndex)
+        . k2_player_game_td($esCell, 12, $sortedColIndex)
+        . k2_player_game_td($resultCell, 13, $sortedColIndex, 'k2-table-cell--left')
+        . k2_player_game_td($adjustmentCell, 14, $sortedColIndex)
         . '</tr>';
 }

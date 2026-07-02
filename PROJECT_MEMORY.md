@@ -133,6 +133,10 @@
 
 | When | Note |
 |------|------|
+| 2026-07-02 | **Amiga Activity Geography — Compare B empty default** — second Compare listbox adds top `...country` placeholder (default empty); duel year bars start single-series (England only); default race lines = top **4** countries (`AMIGA_COMMUNITY_GEO_RACE_KEYS_DEFAULT`); reverts same-day “Compare B required” rule. |
+| 2026-07-03 | **Online player games table** — **Result** column moved to just before **Adjustment**; sort-col index map + row renderer updated (`player/games.php`, `k2_player_game_row.php`). |
+| 2026-07-02 | **Online player games table** — dropped redundant **Opponent** name column (Team A/B already show both players); updated `k2_player_game_sort_col_index()` + row renderer column indexes (`player/games.php`, `k2_player_game_row.php`). |
+| 2026-07-02 | **Amiga tournament stepper — WC only pill** — `id_wc=world-cup` toggle on entity chevrons (Shuffle-style pill before with-player); faceted listbox counts + auto-snap; propagates on wing/chevron links — [`with-player-stepper-policy.md`](docs/with-player-stepper-policy.md) §5.7. |
 | 2026-07-02 | **Status Leagues period nav** — wrapper transparent (no segment chrome); **60px** `column-gap` between period tabs and step nav; stacked-row JS uses line-break detection (`theme.css`, `status-period-competitions.js`). |
 | 2026-07-02 | **Games hub mobile viewport fix (both realms)** — root cause: absolute `.visually-hidden` th spans (Adjustment lost) escaped unpositioned `.k2-table-wrap` and widened the document → phones zoomed the whole site out. Fix: `.k2-table-wrap { position: relative }` + `overflow-x: hidden` safety on `html`/`body`/hub wrappers. Amiga Highlights → compact `k2-games-highlights-table` (online parity, no scroll mirror; `amiga_rated_game_highlights_row_html()`). |
 | 2026-07-02 | **Status west recency lists** — New players / Recent logins / Recent games: subgrid date column (widest row per panel) + 8px gap; names align without widening panels (`theme.css`). |

@@ -13,6 +13,9 @@ require_once __DIR__ . '/k2_safety.php';
 /** Max countries in Geography race-line selection (?hosts= / ?nats= CSV). */
 const AMIGA_COMMUNITY_GEO_RACE_KEYS_MAX = 9;
 
+/** Default race-line count when ?hosts= / ?nats= is absent. */
+const AMIGA_COMMUNITY_GEO_RACE_KEYS_DEFAULT = 4;
+
 /**
  * @return array<string, mixed>|null
  */
@@ -684,7 +687,7 @@ function amiga_community_geo_parse_keys_csv(string $csv, int $max = AMIGA_COMMUN
 }
 
 /**
- * Default duel pair: England vs Germany when present, else top two by volume.
+ * Default duel pair: England (or top by volume) vs empty Host B / Nationality B.
  *
  * @param list<string> $validKeys ranked desc
  * @return array{0: string, 1: string|null}
@@ -696,15 +699,8 @@ function amiga_community_geo_default_duel(array $validKeys): array
     }
 
     $a = in_array('England', $validKeys, true) ? 'England' : $validKeys[0];
-    $b = in_array('Germany', $validKeys, true) ? 'Germany' : ($validKeys[1] ?? null);
-    if ($b === $a) {
-        $b = $validKeys[1] ?? null;
-    }
-    if ($b === $a) {
-        $b = null;
-    }
 
-    return [$a, $b];
+    return [$a, null];
 }
 
 /**
@@ -713,7 +709,10 @@ function amiga_community_geo_default_duel(array $validKeys): array
  * @param list<string> $validKeys ranked desc
  * @return list<string>
  */
-function amiga_community_geo_default_race_keys(array $validKeys, int $count = 5): array
+function amiga_community_geo_default_race_keys(
+    array $validKeys,
+    int $count = AMIGA_COMMUNITY_GEO_RACE_KEYS_DEFAULT
+): array
 {
     if ($validKeys === []) {
         return [];
@@ -748,7 +747,7 @@ function amiga_community_geo_default_race_keys(array $validKeys, int $count = 5)
 function amiga_community_geo_page_selection(?string $csv, array $availableRanked): array
 {
     $validKeys = array_keys($availableRanked);
-    $defaultRace = amiga_community_geo_default_race_keys($validKeys, 5);
+    $defaultRace = amiga_community_geo_default_race_keys($validKeys);
     [$defaultA, $defaultB] = amiga_community_geo_default_duel($validKeys);
 
     if ($csv === null || trim($csv) === '') {
@@ -779,7 +778,7 @@ function amiga_community_geo_page_selection(?string $csv, array $availableRanked
     return [
         'race_keys' => $race,
         'duel_a' => $race[0],
-        'duel_b' => $race[1] ?? null,
+        'duel_b' => null,
         'csv' => implode(',', $race),
     ];
 }

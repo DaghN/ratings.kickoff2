@@ -11,9 +11,10 @@ require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/amiga_participation_step_lib.php';
 require_once __DIR__ . '/amiga_id_with_url.php';
 require_once __DIR__ . '/amiga_id_country_url.php';
+require_once __DIR__ . '/amiga_id_wc_url.php';
 
 /**
- * @return array{player_id: int|null, country: string|null}
+ * @return array{player_id: int|null, country: string|null, wc_only: bool}
  */
 function amiga_tournament_step_filter_bag_from_request(mysqli $con): array
 {
@@ -23,6 +24,7 @@ function amiga_tournament_step_filter_bag_from_request(mysqli $con): array
     return [
         'player_id' => $playerId > 0 ? $playerId : null,
         'country' => $country !== '' ? $country : null,
+        'wc_only' => amiga_id_wc_active($con),
     ];
 }
 
@@ -114,7 +116,7 @@ function amiga_tournament_step_player_choices(
  * Facet counts: stepping-catalog tournaments per player; other filters apply, not player.
  *
  * @param list<array{key: string}> $catalog
- * @param array{player_id: int|null, country: string|null} $filterBag
+ * @param array{player_id: int|null, country: string|null, wc_only?: bool} $filterBag
  * @return array<int, int>
  */
 function amiga_tournament_step_player_facet_counts(mysqli $con, array $catalog, array $filterBag): array
@@ -122,6 +124,7 @@ function amiga_tournament_step_player_facet_counts(mysqli $con, array $catalog, 
     $facetBag = [
         'player_id' => null,
         'country' => $filterBag['country'] ?? null,
+        'wc_only' => (bool) ($filterBag['wc_only'] ?? false),
     ];
     $eligible = amiga_tournament_step_eligible_key_set($con, $catalog, $facetBag);
     /** @var array<int, int> $counts */
@@ -147,7 +150,7 @@ function amiga_tournament_step_player_facet_counts(mysqli $con, array $catalog, 
  * Facet counts: stepping-catalog tournaments per host country; other filters apply, not country.
  *
  * @param list<array{key: string}> $catalog
- * @param array{player_id: int|null, country: string|null} $filterBag
+ * @param array{player_id: int|null, country: string|null, wc_only?: bool} $filterBag
  * @return array<string, int>
  */
 function amiga_tournament_step_country_facet_counts(
@@ -159,6 +162,7 @@ function amiga_tournament_step_country_facet_counts(
     $facetBag = [
         'player_id' => $filterBag['player_id'] ?? null,
         'country' => null,
+        'wc_only' => (bool) ($filterBag['wc_only'] ?? false),
     ];
     $eligible = amiga_tournament_step_eligible_key_set($con, $catalog, $facetBag);
     $rowsById = amiga_tournament_step_row_by_id($con, $ctx);
@@ -205,7 +209,7 @@ function amiga_tournament_step_catalog(
 
 /**
  * @param list<array{key: string}> $catalog
- * @param array{player_id: int|null, country: string|null} $filterBag
+ * @param array{player_id: int|null, country: string|null, wc_only?: bool} $filterBag
  * @return array<string, true>
  */
 function amiga_tournament_step_eligible_key_set(mysqli $con, array $catalog, array $filterBag): array
@@ -214,6 +218,19 @@ function amiga_tournament_step_eligible_key_set(mysqli $con, array $catalog, arr
     $eligible = [];
     foreach ($catalog as $entry) {
         $eligible[(string) $entry['key']] = true;
+    }
+
+    if ((bool) ($filterBag['wc_only'] ?? false)) {
+        $rowsById = amiga_tournament_step_row_by_id($con);
+        /** @var array<string, true> $filtered */
+        $filtered = [];
+        foreach ($eligible as $key => $_) {
+            $row = $rowsById[(int) $key] ?? null;
+            if ($row !== null && amiga_tournament_index_matches_wc_filter($row, 'world-cup')) {
+                $filtered[$key] = true;
+            }
+        }
+        $eligible = $filtered;
     }
 
     $countryFilter = trim((string) ($filterBag['country'] ?? ''));
@@ -249,7 +266,7 @@ function amiga_tournament_step_eligible_key_set(mysqli $con, array $catalog, arr
 
 /**
  * @param list<array{key: string}> $catalog base chrono catalog (never pre-filtered)
- * @param array{player_id: int|null, country: string|null} $filterBag
+ * @param array{player_id: int|null, country: string|null, wc_only?: bool} $filterBag
  * @return array{prev_key: string|null, next_key: string|null, in_base_catalog: bool}
  */
 function amiga_tournament_step_keys(
@@ -288,6 +305,23 @@ function amiga_tournament_step_keys(
     ];
 }
 
+/** Resolve active WC-only filter for tournament chevrons (`id_wc=world-cup`). */
+function amiga_id_wc_active(mysqli $con, ?AmigaSnapshotContext $ctx = null): bool
+{
+    if (amiga_id_wc_from_request() !== 'world-cup') {
+        return false;
+    }
+
+    $rowsById = amiga_tournament_step_row_by_id($con, $ctx);
+    foreach ($rowsById as $row) {
+        if (amiga_tournament_index_matches_wc_filter($row, 'world-cup')) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 /** Resolve active with-player filter for tournament chevrons (`id_with=`). */
 function amiga_id_with_active_player_id(mysqli $con): int
 {
@@ -322,17 +356,18 @@ function amiga_id_country_active(mysqli $con, ?AmigaSnapshotContext $ctx = null)
 }
 
 /**
- * @param array{player_id: int|null, country: string|null} $filterBag
+ * @param array{player_id: int|null, country: string|null, wc_only?: bool} $filterBag
  */
 function amiga_tournament_step_filter_active(array $filterBag): bool
 {
     return ($filterBag['player_id'] ?? null) !== null
-        || trim((string) ($filterBag['country'] ?? '')) !== '';
+        || trim((string) ($filterBag['country'] ?? '')) !== ''
+        || (bool) ($filterBag['wc_only'] ?? false);
 }
 
 /**
  * @param list<array{key: string}> $catalog
- * @param array{player_id: int|null, country: string|null} $filterBag
+ * @param array{player_id: int|null, country: string|null, wc_only?: bool} $filterBag
  */
 function amiga_tournament_step_current_is_eligible(
     mysqli $con,
@@ -353,7 +388,7 @@ function amiga_tournament_step_current_is_eligible(
  * prefer previous eligible (back in chrono), else next.
  *
  * @param list<array{key: string}> $catalog
- * @param array{player_id: int|null, country: string|null} $filterBag
+ * @param array{player_id: int|null, country: string|null, wc_only?: bool} $filterBag
  */
 function amiga_tournament_step_snap_target_key(
     mysqli $con,
