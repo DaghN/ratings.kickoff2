@@ -9,6 +9,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/amiga_snapshot_context.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/amiga_participation_step_lib.php';
+require_once __DIR__ . '/k2_amiga_country_flag.php';
 require_once __DIR__ . '/amiga_id_with_url.php';
 require_once __DIR__ . '/amiga_id_country_url.php';
 require_once __DIR__ . '/amiga_id_wc_url.php';
@@ -50,10 +51,53 @@ function amiga_tournament_step_row_by_id(
 }
 
 /**
+ * @return array<int, string>
+ */
+function amiga_tournament_step_player_country_by_id(mysqli $con): array
+{
+    static $cache = null;
+    if (is_array($cache)) {
+        return $cache;
+    }
+
+    /** @var array<int, string> $byId */
+    $byId = [];
+    $res = $con->query(
+        'SELECT id, country FROM amiga_players WHERE country IS NOT NULL AND TRIM(country) <> \'\''
+    );
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $id = (int) ($row['id'] ?? 0);
+            if ($id > 0) {
+                $byId[$id] = trim((string) ($row['country'] ?? ''));
+            }
+        }
+        $res->free();
+    }
+    $cache = $byId;
+
+    return $byId;
+}
+
+/** @param array{value: string, label: string, meta?: string, flag_html?: string} $choice */
+function amiga_tournament_step_listbox_choice_with_country_flag(array $choice, string $country): array
+{
+    if ($country === '') {
+        return $choice;
+    }
+    $flagHtml = k2_amiga_country_flag_img($country, ['decorative' => true]);
+    if ($flagHtml !== '') {
+        $choice['flag_html'] = $flagHtml;
+    }
+
+    return $choice;
+}
+
+/**
  * Host countries present in the stepping catalog (TT cutoff when active).
  * Faceted: respects active with-player filter, not host-country filter.
  *
- * @return list<array{value: string, label: string, meta: string}>
+ * @return list<array{value: string, label: string, meta: string, flag_html?: string}>
  */
 function amiga_tournament_step_country_choices(
     mysqli $con,
@@ -66,11 +110,11 @@ function amiga_tournament_step_country_choices(
     $counts = amiga_tournament_index_inject_selected_country($counts, amiga_id_country_from_request());
     $choices = [['value' => '', 'label' => 'All countries']];
     foreach ($counts as $country => $count) {
-        $choices[] = [
+        $choices[] = amiga_tournament_step_listbox_choice_with_country_flag([
             'value' => $country,
             'label' => $country,
             'meta' => (string) (int) $count,
-        ];
+        ], $country);
     }
 
     return $choices;
@@ -80,7 +124,7 @@ function amiga_tournament_step_country_choices(
  * Players with rated tournament participation; facet count = stepping-catalog tournaments
  * matching other active filters (e.g. host country).
  *
- * @return list<array{value: string, label: string, meta: string}>
+ * @return list<array{value: string, label: string, meta: string, flag_html?: string}>
  */
 function amiga_tournament_step_player_choices(
     mysqli $con,
@@ -96,17 +140,18 @@ function amiga_tournament_step_player_choices(
     }
 
     $choices = [['value' => '', 'label' => 'All players']];
+    $countryById = amiga_tournament_step_player_country_by_id($con);
     foreach (amiga_participation_eligible_players($con) as $player) {
         $playerId = (int) $player['id'];
         $count = $counts[$playerId] ?? 0;
         if ($count < 1 && $playerId !== $selectedId) {
             continue;
         }
-        $choices[] = [
+        $choices[] = amiga_tournament_step_listbox_choice_with_country_flag([
             'value' => (string) $playerId,
             'label' => (string) $player['name'],
             'meta' => (string) $count,
-        ];
+        ], $countryById[$playerId] ?? '');
     }
 
     return $choices;

@@ -44,7 +44,7 @@ Player WC stats answer *who dominated?* Country stats answer *which nations domi
 | **WCCS2** | **Six sub-wings** | Honours · Results · Participation · Goals · DDs & CSs · Opponents. |
 | **WCCS3** | **Row key** | `country_token` — `TRIM(amiga_players.country)` when non-empty ([**H8**](amiga-hof-tournament-geo-policy.md)); empty/NULL → literal **`Unknown`**. |
 | **WCCS4** | **Eligibility** | Rows where **≥1 distinct player** from that token has WC slice `tournaments_played ≥ 1` (equivalent to ≥1 WC player-game in practice). **`Unknown`** row when any such player has blank country. |
-| **WCCS5** | **Leading columns** | **Rank · Country** (flag when mapped) · **Players** (distinct WC participants) · data columns. **No Elo.** |
+| **WCCS5** | **Leading columns** | **Rank · Country** (flag when mapped) · **WC players** (distinct WC participants; tooltip **World Cup players**) · data columns. **No Elo.** |
 | **WCCS6** | **Honours medals** | **Sum** all podium medals of nationals — two Italians on the same podium both count toward Italy. |
 | **WCCS7** | **Games accounting** | **Player-games** — each rated WC game contributes **once per participating national** on that side. Italy vs Italy = **2** toward Italy’s games. |
 | **WCCS8** | **Goal extremes** | **Max across players** — country `most_goals_scored` = max of each national’s WC `most_goals_scored`; same for Max GA, Max win, Max loss, Max sum, Max draw. |
@@ -95,7 +95,7 @@ Player WC stats answer *who dominated?* Country stats answer *which nations domi
 
 | Slice column | UI label (proposed) | Definition |
 |--------------|---------------------|------------|
-| `players` | Players | Distinct nationals with `tournaments_played ≥ 1` on player WC slice |
+| `players` | WC players | Distinct nationals with `tournaments_played ≥ 1` on player WC slice |
 | `wc_participations` | WC participations | Σ per-WC headcount of nationals (one Italian × one WC = 1; seven Italians × one WC = 7) |
 | `wc_participations_per_player` | Participations / player | `wc_participations ÷ players` |
 | `games_per_player` | Games / player | `games ÷ players` |
@@ -137,7 +137,7 @@ Player WC stats answer *who dominated?* Country stats answer *which nations domi
 
 ### 5.3a Participation sub-wing
 
-**Path:** `…/participation.php` — default sort **Entries** desc. Prefix **Rank · Country · Players · WCs · Games**; then §5.1 participation / geography / realm-share columns (`wc_participations` → **Entries**).
+**Path:** `…/participation.php` — default sort **Entries** desc. Prefix **Rank · Country · WC players · WCs · Games**; then §5.1 participation / geography / realm-share columns (`wc_participations` → **Entries**).
 
 #### 5.3.1 Performance rating (nation)
 

@@ -139,6 +139,7 @@
 | 2026-07-03 | **Online player games table** — hero/opponent rating cols → **Rating A** / **Rating B** (Team A/B pre-game Elo; tooltips match Amiga games recent); sort keys `rating_a`/`rating_b`. |
 | 2026-07-03 | **Online player games table** — **Result** column moved to just before **Adjustment**; sort-col index map + row renderer updated (`player/games.php`, `k2_player_game_row.php`). |
 | 2026-07-02 | **Online player games table** — dropped redundant **Opponent** name column (Team A/B already show both players); updated `k2_player_game_sort_col_index()` + row renderer column indexes (`player/games.php`, `k2_player_game_row.php`). |
+| 2026-07-03 | **Amiga tournament stepper listboxes — option flags** — with-player (nationality) + host-country dropdown rows use `flag_html` + Activity Geography listbox CSS pattern; closed trigger unchanged. |
 | 2026-07-02 | **Amiga tournament stepper — WC only pill** — `id_wc=world-cup` toggle on entity chevrons (Shuffle-style pill before with-player); faceted listbox counts + auto-snap; propagates on wing/chevron links — [`with-player-stepper-policy.md`](docs/with-player-stepper-policy.md) §5.7. |
 | 2026-07-02 | **Status Leagues period nav** — wrapper transparent (no segment chrome); **60px** `column-gap` between period tabs and step nav; stacked-row JS uses line-break detection (`theme.css`, `status-period-competitions.js`). |
 | 2026-07-02 | **Games hub mobile viewport fix (both realms)** — root cause: absolute `.visually-hidden` th spans (Adjustment lost) escaped unpositioned `.k2-table-wrap` and widened the document → phones zoomed the whole site out. Fix: `.k2-table-wrap { position: relative }` + `overflow-x: hidden` safety on `html`/`body`/hub wrappers. Amiga Highlights → compact `k2-games-highlights-table` (online parity, no scroll mirror; `amiga_rated_game_highlights_row_html()`). |
@@ -151,6 +152,7 @@
 | 2026-07-02 | **Amiga WC stats wings** — removed Activity cross-link intro from all Tournament stats sub-wings (`amiga_world_cup_stats_wing_body.inc.php`). |
 | 2026-07-02 | **Amiga Activity Texture — high-scoring hint** — `k2-chart-block__hint` under High-scoring rate panel (ten+ goals both sides, per 100 games); matches online Activity chart hint pattern. |
 | 2026-07-02 | **Activity summary copy** — second sentence “We average…” (online + Amiga activity lede). |
+| 2026-07-03 | **Amiga WC country stats — WC players column** — all six sub-wings: header **WC players**, tooltip label **World Cup players** (`amiga_wc_countries_table.php`). |
 | 2026-07-02 | **Amiga player hero Events anchor** — Events stat + profile tournament history links land on `#k2-player-tournaments-table` (all-events filter). |
 | 2026-07-02 | **Amiga player tournaments table anchor** — `#k2-player-tournaments-table` above history table + scroll pad; hero World Cups + honours WC history links land there (`k2_carry_scroll_restore`). |
 | 2026-07-02 | **Amiga player hero layout** — World Cups with core stats (Rank–Games); WC medals alone after 20px gap (country-hero parity). |

@@ -210,7 +210,7 @@ Entity-page chevrons expose a **subset** of tournament-index filter ideas as **s
 | **Composition** | Filters **AND** together: `eligible = base_catalog ∩ filter₁ ∩ filter₂ ∩ …` |
 | **Separate URL params** | One param per filter axis — **`id_*` prefix** on entity pages (not hub `wc=` / `country=`). |
 | **Propagation** | Tournament folder URLs only — alongside `id_with`, `id_country`, `as=`, scope when applicable. Never on TT ribbon or unrelated Amiga links (WP5). |
-| **Controls** | Listboxes: cancel row, link-star when active, no search, faceted `meta` counts. **WC-only:** Shuffle-style pill toggle (jukebox grammar) — first filter after chevrons. Adjacent triggers in one filter row — see `amiga-tournament.css` § step nav filters. |
+| **Controls** | Listboxes: cancel row, link-star when active, no search, faceted `meta` counts; **option rows** may carry nationality/host `flag_html` (decorative 20×15 img — closed trigger text-only). **WC-only:** Shuffle-style pill toggle (jukebox grammar) — first filter after chevrons. Adjacent triggers in one filter row — see `amiga-tournament.css` § step nav filters. |
 | **Matching logic** | Reuse tournament index matchers — **do not** duplicate rules in the step nav include. |
 | **Step helper** | `k2_participation_step_keys()` on eligible key set (player filter builds a set; country/WC filters use index matchers). |
 | **Empty eligible set** | Both chevrons **disabled**; page still renders for requested `id=` — no 404. |

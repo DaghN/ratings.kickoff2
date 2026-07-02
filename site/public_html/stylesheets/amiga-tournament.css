@@ -189,6 +189,7 @@ body.k2-site .k2-amiga-tournament-step-nav__wc-pill:focus-visible {
 	color: var(--k2-text-secondary);
 	border-color: var(--k2-border-strong);
 	outline: none;
+	text-decoration: none;
 }
 
 body.k2-site .k2-amiga-tournament-step-nav__wc-pill.is-active {
@@ -236,6 +237,31 @@ body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__panel {
 body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox--meta-options .k2-archive-listbox__panel {
 	font-size: 11px;
 	line-height: 1.25;
+}
+
+body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option--with-flag {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 6px;
+}
+
+body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox--meta-options .k2-archive-listbox__option--with-flag.k2-archive-listbox__option--split {
+	justify-content: flex-start;
+}
+
+body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option-flag {
+	flex: 0 0 auto;
+	line-height: 0;
+}
+
+body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option-flag .k2-amiga-country-flag-img {
+	display: block;
+}
+
+body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option--with-flag .k2-archive-listbox__option-label {
+	flex: 1 1 auto;
+	min-width: 0;
 }
 
 .k2-amiga-tournament-stages-nav {

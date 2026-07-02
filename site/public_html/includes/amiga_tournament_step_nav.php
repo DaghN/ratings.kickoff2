@@ -113,7 +113,7 @@ function amiga_tournament_step_nav_render(
 ?>
         <div class="k2-player-games-controls__fields k2-amiga-tournament-step-nav__filter-fields">
             <div class="k2-player-games-controls__field k2-amiga-tournament-step-nav__wc-field">
-                <a href="<?php echo k2_h($wcToggleHref); ?>" class="k2-amiga-tournament-step-nav__wc-pill<?php echo $wcOnly ? ' is-active' : ''; ?>" aria-pressed="<?php echo $wcOnly ? 'true' : 'false'; ?>" data-k2-carry-scroll>WC only</a>
+                <a href="<?php echo k2_h($wcToggleHref); ?>" class="k2-amiga-tournament-step-nav__wc-pill k2-carry-scroll-link<?php echo $wcOnly ? ' is-active' : ''; ?>" aria-pressed="<?php echo $wcOnly ? 'true' : 'false'; ?>">WC only</a>
             </div>
             <div class="k2-player-games-controls__field">
 <?php
