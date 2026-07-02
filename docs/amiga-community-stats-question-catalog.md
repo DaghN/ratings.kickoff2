@@ -43,6 +43,7 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 | `double_digits` / year / realm | **Q-TEX-008** | Q-VOL-013 cut |
 | `clean_sheets` / year / realm | **Q-TEX-009** | Q-VOL-014 cut |
 | `high_scoring_games` / year / realm | **Q-TEX-013** | Q-TEX-010 cut |
+| `low_scoring_games` / year / realm | **Q-TEX-014** | *Added Jul 2026* |
 | `goals` / year / `world_cup` | **Q-WC-011** | Q-WC-005 cut |
 
 ---
@@ -75,14 +76,15 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 |---------|-------------|-------------|
 | **C0 — Snapshot charts** | Q-VOL-002,004,008 · (no TEX L2 ship) | Chart APIs |
 | **C1 — v1 fact charts** | Q-VOL-001,003,007 · Q-GEO-001,002,005,006,007 | `facts_query` + panels |
-| **C2 — Realm year numerators** | Q-VOL-005 · Q-SHP-001,009 · hidden: `draws`, `dd`, `cs`, `high_scoring` | One writer extension |
+| **C2 — Realm year numerators** | Q-VOL-005 · Q-SHP-001,009 · hidden: `draws`, `dd`, `cs`, `high_scoring`, `low_scoring` | One writer extension |
 | **C3 — Host country** | Q-GEO-003,004,008,010 · Q-GEO-013,014 | Year + `all_time` goals/tournaments |
 | **C4 — Nationality cumulative goals** | Q-GEO-015 | `all_time` + `player_nationality` + `goals` |
 | **C4b — Nationality player headcount** | Q-GEO-016 · 017 · 018 · GEO-010 tooltip | `player_nationality` + `active_players` (year + all_time), `player_debuts` (year) — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md) |
+| **C4c — Year-bar tooltip breakdowns** | GEO-008 · Q-VOL-005 · Q-WC-006 · Q-WC-007 | `host_country×tournaments` (year); `player_nationality×wc_active_players` (year, sparse) — read via `year_facts` payload fields |
 | **C5 — World Cup slice** | Q-WC-001,003,006,007 · numerators for Q-WC-011 | `world_cup` year facts + Q-WC-002 S1 |
 | **C7 — Headline S1** | Q-VOL-006 · Q-GEO-009 · Q-SHP-002,010 | Snapshot cols |
 | **C8 — L4 probes → APIs** | Q-SHP-003–008,014–016 | Read oracles + TT |
-| **C9 — Derive charts** | Q-TEX-006–009,013 · Q-WC-003,011 · Q-ECO-004 | API math only |
+| **C9 — Derive charts** | Q-TEX-006–009,013–014 · Q-WC-003,011 · Q-ECO-004 | API math only |
 
 **Dropped clusters for v2:** C6 event class (all cut).
 
@@ -96,7 +98,7 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 | Q-VOL-002 | Cumulative rated games after each event? | L2 | line | S0 | chart-only | yes | **ship** | |
 | Q-VOL-003 | Active players per calendar year? | L1 | bar | S0v | v1 | yes | **ship** | |
 | Q-VOL-004 | Cumulative players after each event? | L2 | line | S0 | chart-only | yes | **ship** | |
-| Q-VOL-005 | Tournaments finalized per calendar year? | L1 | bar | S2 | new-writer | yes | **ship** | |
+| Q-VOL-005 | Tournaments finalized per calendar year? | L1 | bar | S2 | new-writer | yes | **ship** | + host event tooltip |
 | Q-VOL-006 | Cumulative tournament count after each event? | L2 | line | S1 | new-writer | yes | **ship** | |
 | Q-VOL-007 | Goals per calendar year? | L1 | bar | S0v | v1 | yes | **ship** | |
 | Q-VOL-008 | Cumulative goals after each event? | L2 | line | S0 | chart-only | yes | **ship** | |
@@ -120,7 +122,7 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 | Q-GEO-005 | Nationality X appearances per year? | L1 | bar | S0v | v1 | yes | **ship** | |
 | Q-GEO-006 | Goals by nationality X per year? | L1 | bar | S0v | v1 | yes | **ship** | + Q-GEO-015 cumulative |
 | Q-GEO-007 | Cumulative nationality X appearances? | L2 | multi-line | S0v | v1 | yes | **ship** | |
-| Q-GEO-008 | Distinct host countries per year? | L1 | bar | S2 | new-writer | yes | **ship** | |
+| Q-GEO-008 | Distinct host countries per year? | L1 | bar | S2 | new-writer | yes | **ship** | + host event tooltip |
 | Q-GEO-009 | Cumulative distinct host countries? | L2 | line | S1 | new-writer | yes | **ship** | |
 | Q-GEO-010 | Distinct nationalities active per year? | L1 | bar | S2 | new-writer | yes | **ship** | |
 | Q-GEO-011 | When did each host country first appear? | L2 | table | S5 | probe | yes | cut | |
@@ -143,8 +145,8 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 | Q-WC-003 | % of games in year Y that were WC? | L3 | bar % | S0d | derive | yes | **ship** | |
 | Q-WC-004 | WC tournaments per calendar year? | L1 | bar | S2 | new-writer | yes | cut | Prefer per-WC table (backlog) |
 | Q-WC-005 | Goals in WC games per year? | L1 | bar | S2 | numerator-only | yes | cut | **Writer:** WC `goals` for Q-WC-011 |
-| Q-WC-006 | Distinct nations in WC games per year? | L1 | bar | S2 | new-writer | yes | **ship** | |
-| Q-WC-007 | Distinct active players in WC per year? | L1 | bar | S2 | new-writer | yes | **ship** | ~WC participants; see WC table backlog |
+| Q-WC-006 | Distinct nations in WC games per year? | L1 | bar | S2 | new-writer | yes | **ship** | + WC players/nation tooltip |
+| Q-WC-007 | Distinct active players in WC per year? | L1 | bar | S2 | new-writer | yes | **ship** | Same tooltip list as Q-WC-006 |
 | Q-WC-009 | WC draw rate in year Y? | L3 | bar | S2 | new-writer | yes | cut | Per-WC table backlog |
 | Q-WC-010 | Cumulative WC goals per game after each event? | L2 | line | S0d | derive | yes | cut | |
 | Q-WC-011 | WC goals per game in year Y only? | L3 | bar | S0d | derive | yes | **ship** | *Added step 3*; Q-WC-005 goals ÷ Q-WC-001 games |
@@ -167,6 +169,7 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 | Q-TEX-010 | High-scoring games (sum ≥ 10) per year? | L1 | bar | S2 | numerator-only | yes | cut | Rate only — Q-TEX-013 |
 | Q-TEX-011 | 0–0 draws per year? | L1 | bar | S2 | new-writer | yes | cut | |
 | Q-TEX-013 | High-scoring game rate (sum ≥ 10) in year Y? | L3 | bar | S0d | derive | yes | **ship** | *Added step 3* |
+| Q-TEX-014 | Low-scoring game rate (sum ≤ 3) in year Y? | L3 | bar | S0d | derive | yes | **ship** | *Added Jul 2026*; mirrors WC `low_scoring_*` threshold |
 
 ---
 
@@ -223,11 +226,11 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 
 ## Registry v2 sketch (step 4 input — ship-driven)
 
-**Year facts — realm:** `tournaments`, `draws`, `double_digits`, `clean_sheets`, `high_scoring_games`, `distinct_pairs`, `player_debuts` (+ v1 `games`, `goals`, `active_players`)
+**Year facts — realm:** `tournaments`, `draws`, `double_digits`, `clean_sheets`, `high_scoring_games`, `low_scoring_games`, `distinct_pairs`, `player_debuts` (+ v1 `games`, `goals`, `active_players`)
 
 **Year facts — host_country:** `goals`, `tournaments`, `distinct_host_countries` (realm), `distinct_nationalities_active` (realm)
 
-**Year facts — player_nationality:** `games`, `goals`, `active_players` (year), `player_debuts` (year)
+**Year facts — player_nationality:** `games`, `goals`, `active_players` (year), `player_debuts` (year), **`wc_active_players`** (year — WC games only; Q-WC-006/007 tooltip breakdown)
 
 **Year facts — all_time at snapshot:** `host_country` + `goals` / `tournaments`; `player_nationality` + `games` / `goals` / **`active_players`**
 

@@ -1541,6 +1541,19 @@
         }
     });
     registerPanel({
+        id: 'low-scoring-rate-year',
+        selector: '.amiga-act-low-scoring-rate-year-chart',
+        run: function (root) {
+            return mountYearRate(root, {
+                rate: 'low_scoring_rate',
+                tone: 'teal',
+                label: 'Low-scoring rate',
+                noun: 'low-scoring rate',
+                format: 'per100'
+            });
+        }
+    });
+    registerPanel({
         id: 'high-scoring-rate-year',
         selector: '.amiga-act-high-scoring-rate-year-chart',
         run: function (root) {

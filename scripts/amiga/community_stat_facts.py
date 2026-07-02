@@ -104,6 +104,8 @@ class _FactAccum:
                         self._bump(spec, year, REALM_SLICE_KEY, metrics.cs_slots)
                     elif spec.metric_key == "high_scoring_games" and metrics.is_high_scoring:
                         self._bump(spec, year, REALM_SLICE_KEY, 1)
+                    elif spec.metric_key == "low_scoring_games" and metrics.is_low_scoring:
+                        self._bump(spec, year, REALM_SLICE_KEY, 1)
                 elif spec.slice_type == "host_country" and host_country is not None:
                     if spec.metric_key == "games":
                         self._bump(spec, year, host_country, 1)

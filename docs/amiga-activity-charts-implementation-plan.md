@@ -51,7 +51,7 @@ Load order = table order per page. Panel class doubles as registry id.
 |---|-------------|----------|-------|-------|
 | 1 | `.amiga-act-games-year-chart` | `year_facts?slice=realm&metric=games` | bar, category years | Q-VOL-001 |
 | 2 | `.amiga-act-games-cumulative-chart` | `snapshot_series?metric=GamesPlayed` | line, time | Q-VOL-002 |
-| 3 | `.amiga-act-tournaments-year-chart` | `year_facts?slice=realm&metric=tournaments` | bar | Q-VOL-005 |
+| 3 | `.amiga-act-tournaments-year-chart` | `year_facts?slice=realm&metric=tournaments` (+ `host_tournaments_by_year`) | bar + HTML tooltip | Q-VOL-005 |
 | 4 | `.amiga-act-tournaments-cumulative-chart` | `snapshot_series?metric=TournamentsFinalized` | line | Q-VOL-006 |
 | 5 | `.amiga-act-goals-year-chart` | `year_facts?slice=realm&metric=goals` | bar | Q-VOL-007 |
 | 6 | `.amiga-act-goals-cumulative-chart` | `snapshot_series?metric=GoalsScored` | line | Q-VOL-008 |
@@ -77,7 +77,7 @@ Load order = table order per page. Panel class doubles as registry id.
 | 4 | `.amiga-act-host-tournaments-race-chart` | `slice_series?slice=host_country&metric=tournaments&keys=` | multi-line | Q-GEO-014 |
 | 5 | `.amiga-act-host-goals-year-chart` | `year_facts?slice=host_country&metric=goals&keys=` | grouped bar | Q-GEO-003 |
 | 6 | `.amiga-act-host-goals-race-chart` | `slice_series?slice=host_country&metric=goals&keys=` | multi-line | Q-GEO-013 |
-| 7 | `.amiga-act-host-countries-year-chart` | `year_facts?slice=realm&metric=distinct_host_countries` | bar | Q-GEO-008 |
+| 7 | `.amiga-act-host-countries-year-chart` | `year_facts?slice=realm&metric=distinct_host_countries` (+ `host_tournaments_by_year`) | bar + HTML tooltip | Q-GEO-008 |
 | 8 | `.amiga-act-host-countries-cumulative-chart` | `snapshot_series?metric=DistinctHostCountries` | stepped line | Q-GEO-009 |
 
 ### Geography Nations — `amiga/activity/geography/nations.php` (duel state `?nats=A,B`)
@@ -103,8 +103,8 @@ Policy order: *who → volume → breadth* — [`amiga-activity-geography-nation
 | 2 | `.amiga-act-wc-share-year-chart` | `year_rates?rate=wc_share` | % bar | Q-WC-003 |
 | 3 | `.amiga-act-wc-games-cumulative-chart` | `snapshot_series?metric=WcGamesPlayed` | line | Q-WC-002 |
 | 4 | `.amiga-act-wc-goals-per-game-year-chart` | `year_rates?rate=wc_goals_per_game` (+realm rate overlay) | bar + line overlay | Q-WC-011 |
-| 5 | `.amiga-act-wc-nations-year-chart` | `year_facts?slice=world_cup&metric=distinct_nationalities` | bar | Q-WC-006 |
-| 6 | `.amiga-act-wc-players-year-chart` | `year_facts?slice=world_cup&metric=active_players` | bar | Q-WC-007 |
+| 5 | `.amiga-act-wc-nations-year-chart` | `year_facts?slice=world_cup&metric=distinct_nationalities` (+ `wc_nationality_active_by_year`) | bar + HTML tooltip | Q-WC-006 |
+| 6 | `.amiga-act-wc-players-year-chart` | `year_facts?slice=world_cup&metric=active_players` (+ `wc_nationality_active_by_year`) | bar + HTML tooltip | Q-WC-007 |
 
 ### Texture — `amiga/activity/texture.php` (all with all-time reference line)
 
@@ -114,7 +114,8 @@ Policy order: *who → volume → breadth* — [`amiga-activity-geography-nation
 | 2 | `.amiga-act-draw-rate-year-chart` | `year_rates?rate=draw_rate` | Q-TEX-006 |
 | 3 | `.amiga-act-dd-rate-year-chart` | `year_rates?rate=dd_rate` | Q-TEX-008 |
 | 4 | `.amiga-act-cs-rate-year-chart` | `year_rates?rate=cs_rate` | Q-TEX-009 |
-| 5 | `.amiga-act-high-scoring-rate-year-chart` | `year_rates?rate=high_scoring_rate` | Q-TEX-013 |
+| 5 | `.amiga-act-low-scoring-rate-year-chart` | `year_rates?rate=low_scoring_rate` | Q-TEX-014 |
+| 6 | `.amiga-act-high-scoring-rate-year-chart` | `year_rates?rate=high_scoring_rate` | Q-TEX-013 |
 
 ### Shape — `amiga/activity/shape.php` (bucket edges finalized at slice 8)
 
@@ -154,7 +155,7 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 ### `api/amiga_community_year_rates.php`
 
-- Params: `rate` (goals_per_game | draw_rate | dd_rate | cs_rate | high_scoring_rate | games_per_tournament | wc_share | wc_goals_per_game), `as`. *(Texture + WC rates shipped slices 3–4.)*
+- Params: `rate` (goals_per_game | draw_rate | dd_rate | cs_rate | low_scoring_rate | high_scoring_rate | games_per_tournament | wc_share | wc_goals_per_game), `as`. *(Texture + WC rates shipped slices 3–4; low_scoring_rate Jul 2026.)*
 - Response: `{ "years": [...], "values": [...], "reference": N|null, "overlay": { "label": "...", "values": [...] }|null, "cutoff": {...}|null }` — `cutoff` mirrors `year_facts` (`label`, `event_date`, `partial_year`).
 - Derivations (all from year facts at cutoff): rates = numerator ÷ realm `games` (goals_per_game = goals ÷ games; games_per_tournament = games ÷ tournaments; wc_share = wc games ÷ realm games; wc_goals_per_game = wc goals ÷ wc games, overlay = realm goals_per_game). `reference` = all-time average from headline row at cutoff (texture rates only). Zero-denominator years → `null` values, skipped by Chart.js.
 
@@ -301,7 +302,7 @@ Encoded in `amiga_community_histogram_bucket_defs()`: range buckets for career g
 - Registry parity check: **48 panels ↔ 49 ship IDs** (incl. Q-GEO-016…018), per-panel checklist from [`activity-charts.md`](activity-charts.md) §6.
 - Docs: this plan statuses; policy status line; [`url-routes.md`](url-routes.md); catalog plan step 6 → done; MEMORY; feature-log row (Part A). Part B only if S6 shipped.
 
-*Shipped notes:* **Mobile** — `theme.css` coarse-pointer rule extended to `k2-amiga-activity-charts` panels/canvases (matches online Activity). Tooltips already off on coarse via `chart-theme.js` `activityChartOptions`. **Loader** — `buildPanelQueue()` mounts only panels present on the page; `loadTier: 'deferred'` queues geography **race** multi-lines + Shape `goal_sum` / `active_years` after lighter panels on that page. **Cross-links** — Geography intro → Countries hub (`amiga_url_with_context`); WC wing → World Cups hub (slice 4); geo chip roster hrefs carry `as=` via `K2AmigaTimeTravelUrl`; cumulative click-through already carried `as=` (slice 1). **Registry parity** — **48 panels = 49 ship IDs** with **Q-VOL-004 + Q-SHP-010** merged in one cumulative-players panel (policy §4); Jul 2026 Nations extension adds Q-GEO-016…018 on `nations.php` (8 panels); GEO-010 rich tooltip uses stored `nationality_active_by_year` (full list height, no inner scroll); all registry selectors wired in `amiga-activity-charts.js`.
+*Shipped notes:* **Mobile** — `theme.css` coarse-pointer rule extended to `k2-amiga-activity-charts` panels/canvases (matches online Activity). Tooltips already off on coarse via `chart-theme.js` `activityChartOptions`. **Loader** — `buildPanelQueue()` mounts only panels present on the page; `loadTier: 'deferred'` queues geography **race** multi-lines + Shape `goal_sum` / `active_years` after lighter panels on that page. **Cross-links** — Geography intro → Countries hub (`amiga_url_with_context`); WC wing → World Cups hub (slice 4); geo chip roster hrefs carry `as=` via `K2AmigaTimeTravelUrl`; cumulative click-through already carried `as=` (slice 1). **Registry parity** — **48 panels = 49 ship IDs** with **Q-VOL-004 + Q-SHP-010** merged in one cumulative-players panel (policy §4); Jul 2026 Nations extension adds Q-GEO-016…018 on `nations.php` (8 panels). **Jul 2026 tooltips** — `renderBreakdownYearBar()` on GEO-008, Q-VOL-005, GEO-010, Q-WC-006, Q-WC-007; stored breakdown facts + `prove` green local. All registry selectors wired in `amiga-activity-charts.js`.
 
 ---
 

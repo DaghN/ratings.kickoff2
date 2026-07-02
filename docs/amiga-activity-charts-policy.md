@@ -39,10 +39,10 @@ Design gift vs online Activity: **every cumulative-curve point is a real tournam
 | **Geography — Hosts** | `/amiga/activity/geography/hosts.php` | 8 | GEO-001 · 002 · 004 · 014 · 003 · 013 · 008 · 009 |
 | **Geography — Nations** | `/amiga/activity/geography/nations.php` | 8 | GEO-016 · 017 · 018 · 005 · 007 · 006 · 015 · 010 |
 | **World Cups** | `/amiga/activity/world-cups.php` | 6 | WC-001 · 003 · 002 · 011 · 006 · 007 |
-| **Texture** | `/amiga/activity/texture.php` | 5 | TEX-007 · 006 · 008 · 009 · 013 |
+| **Texture** | `/amiga/activity/texture.php` | 6 | TEX-007 · 006 · 008 · 009 · 014 · 013 |
 | **Shape** | `/amiga/activity/shape.php` | 9 | SHP-007 · 008 · 014 · 015 · 003 · 004 · 016 · 005 · 006 |
 
-**49 question IDs → 48 panels** (one merge, §4). Every leaf lands at 5–9 charts — inside the 6–10 sub-wing heuristic; the sequential loader only ever handles its own wing.
+**50 question IDs → 49 panels** (one merge, §4). Every leaf lands at 5–9 charts — inside the 6–10 sub-wing heuristic; the sequential loader only ever handles its own wing.
 
 ### 3.1 Navigation chrome
 
@@ -79,7 +79,7 @@ Design gift vs online Activity: **every cumulative-curve point is a real tournam
 |----------|------|
 | **VOL-004 ≡ SHP-010 merge** | `NumberOfPlayers` = `PlayersDebuted` at every snapshot (a debut is what makes a player; verified 469/469, 468/468, …). **One panel** — *Cumulative player* — satisfies both IDs. |
 | **Q-TEX-012 stays cut** | No online-style combined 4-line texture chart, even though it would be cheap. Each texture rate is its own bar chart. |
-| **Scope** | This policy consumes exactly the **49 ship IDs** — no resurrections from the cut log, no new questions without a catalog row first. |
+| **Scope** | This policy consumes the **ship ID set** in the question catalog — no resurrections from the cut log without a catalog row first. **Q-TEX-014** (low-scoring rate) added Jul 2026. |
 ---
 
 ## 5. Wing specs
@@ -159,9 +159,9 @@ Community WC lens — deliberately distinct from the World Cups hub per-event ta
 | 5 | Nations at the World Cup per year | Q-WC-006 | Bar (+ WC players per nation tooltip breakdown) |
 | 6 | WC players per year | Q-WC-007 | Bar (+ same WC players-per-nation tooltip as Q-WC-006) |
 
-### 5.5 Texture — "How did the games feel, year by year?" (5 panels)
+### 5.5 Texture — "How did the games feel, year by year?" (6 panels)
 
-All five are year-local rate bars (L3, derived at the API from stored numerators). Quality move: **each bar chart gets a horizontal all-time-average reference line** from the headline stats at cutoff (`GoalsPerGameAverage`, `DrawsRatio`, `DoubleDigitsRatio`, `CleanSheetsRatio`; high-scoring average derived) — every year visibly reads as scratchier or wilder than the era average, at zero storage cost.
+All six are year-local rate bars (L3, derived at the API from stored numerators). Quality move: **each bar chart gets a horizontal all-time-average reference line** from the headline stats at cutoff (`GoalsPerGameAverage`, `DrawsRatio`, `DoubleDigitsRatio`, `CleanSheetsRatio`; high- and low-scoring averages derived from summed year facts) — every year visibly reads as tighter or wilder than the era average, at zero storage cost.
 
 | # | Panel | ID(s) |
 |---|-------|-------|
@@ -169,7 +169,8 @@ All five are year-local rate bars (L3, derived at the API from stored numerators
 | 2 | Draw rate per year | Q-TEX-006 |
 | 3 | Double-digit rate per year | Q-TEX-008 |
 | 4 | Clean-sheet rate per year | Q-TEX-009 |
-| 5 | High-scoring rate per year (sum ≥ 10) | Q-TEX-013 |
+| 5 | Low-scoring rate per year (sum ≤ 3) | Q-TEX-014 |
+| 6 | High-scoring rate per year (sum ≥ 10) | Q-TEX-013 |
 
 ### 5.6 Shape — "What is the community made of?" (9 panels)
 
@@ -226,6 +227,7 @@ Two control patterns, both Geography-only in v1:
 
 - L2 event-timeline lines: title = **tournament name**, body = date + value. This is the rabbit-hole detail — every point has a name.
 - Year bars: year + value; partial years under TT labelled (§8).
+- **Year-bar breakdown (Jul 2026):** selected realm/WC count bars use Chart.js **external HTML tooltips** (`renderBreakdownYearBar()` in `amiga-activity-charts.js`): summary line = bar total (`N host countries` / `N tournaments` / `N nationalities` / `N players`), then flag + country + per-row count. Data from `year_facts` payload fields at the same cutoff — **`host_tournaments_by_year`** (GEO-008, Q-VOL-005), **`nationality_active_by_year`** (GEO-010), **`wc_nationality_active_by_year`** from stored **`wc_active_players`** facts (Q-WC-006, Q-WC-007; sparse ~few WC years). Full list height, no inner scroll.
 - Histograms: bucket + count + % of population.
 - Phone: Chart.js tooltips off on coarse pointers; `touch-action: pan-y pinch-zoom` (online mobile rules).
 

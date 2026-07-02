@@ -53,6 +53,8 @@ if (is_string($k2ReqPath)
 		$dseg7Ver = (int) filemtime($dseg7Path);
 		echo '<link rel="preload" href="/fonts/dseg7-classic-regular.woff2?v=' . $dseg7Ver . '" as="font" type="font/woff2" crossorigin="anonymous" />' . "\n";
 	}
+	require_once $k2DocRoot . '/includes/amiga_player_glance_config.php';
+	amiga_player_glance_assets_head();
 }
 ?>
 <?php if (!empty($k2RankedCloak)) {

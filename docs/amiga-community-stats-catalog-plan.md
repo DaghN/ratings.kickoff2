@@ -56,7 +56,7 @@ Realm-wide cumulative scalars at present and at every finalized event: players, 
 
 ### Facts (`amiga_community_stat_facts`) — v1 registry (8 patterns) + Jul 2026 nationality player extension
 
-Calendar-**year** grains: realm games/goals/active_players; host_country games; player_nationality games/goals/**active_players**/**player_debuts**; all_time host_country and nationality games/**active_players**.
+Calendar-**year** grains: realm games/goals/active_players; host_country games; player_nationality games/goals/**active_players**/**player_debuts**/**wc_active_players**; all_time host_country and nationality games/**active_players**.
 
 Detail: [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md) §4.
 

@@ -52,6 +52,7 @@ Tooltips **inside** an embedded player (YouTube controls, progress bar, etc.) ar
 | WC Videos spotlight caption Elo links | `amiga_tournament_videos_lib.php` → `amiga_tournament_videos_wc_game_caption_html()` | `data-k2-help` on `.k2-tournament-videos__rating-link`; re-bind via `k2TableInitHelpTooltips()` after in-session caption swap |
 | Embedded video iframe | `game.php`, `amiga_tournament_videos_*.inc.php`, `join_page_section.php`, `amiga-tournament-videos.js` | iframe `title` kept; player-internal tooltips out of scope (see § Cross-origin embeds) |
 | Player calendar day hover | `js/player-feast/player-calendar.js` | Programmatic `.k2-table-tooltip` |
+| Amiga player name hover glance | `js/amiga-player-glance.js`, `includes/amiga_player_glance_config.php` | Read-only hero-style popover on `data-k2-amiga-player-glance` links; tiers **A** (compact) / **B** (full stat strip); toggle `K2_AMIGA_PLAYER_GLANCE_TIER` or `?k2_glance=A|B` |
 | H2H scoreline heatmap cell | `js/player-h2h-scoreline-heatmap.js` | Programmatic `.k2-table-tooltip` |
 
 If unsure: **grep** `data-k2-help` in `site/public_html/` and open the nearest neighbour.

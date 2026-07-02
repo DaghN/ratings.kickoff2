@@ -187,6 +187,7 @@ function k2_amiga_player_link(int $id, string $name, string $fragment = K2_PLAYE
 {
     $href = k2_amiga_player_profile_href($id, $fragment);
 
-    return '<a class="k2-link-star" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">'
+    return '<a class="k2-link-star" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '"'
+        . ' data-k2-amiga-player-glance="' . $id . '">'
         . k2_h($name) . '</a>';
 }

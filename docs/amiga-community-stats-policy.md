@@ -95,7 +95,7 @@ Between finalizes, community derived truth is unchanged — same habit as player
 | `period_key` | e.g. `2003` · sentinel `*` where type allows |
 | `slice_type` | Registry enum — e.g. `realm`, `host_country`, `player_nationality`, `world_cup` |
 | `slice_key` | Dimension value — e.g. `England`, or `*` for whole-realm within that slice family |
-| `metric_key` | Registry enum — e.g. `games`, `goals`, `active_players`, `player_debuts` |
+| `metric_key` | Registry enum — e.g. `games`, `goals`, `active_players`, `player_debuts`, `wc_active_players` |
 | `count_basis` | `game` \| `participant` |
 | `value` | Numeric total **as of** `tournament_id` cutoff |
 

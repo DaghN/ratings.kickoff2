@@ -136,6 +136,9 @@ function amiga_community_build_realm_scan(mysqli $con, int $tournamentId): array
             if ($metrics['is_high_scoring']) {
                 $bump($factKey('year', $year, 'realm', AMIGA_COMMUNITY_REALM_SLICE_KEY, 'high_scoring_games', 'game'), 1);
             }
+            if ($metrics['is_low_scoring']) {
+                $bump($factKey('year', $year, 'realm', AMIGA_COMMUNITY_REALM_SLICE_KEY, 'low_scoring_games', 'game'), 1);
+            }
             if ($hostCountry !== null) {
                 $bump($factKey('year', $year, 'host_country', $hostCountry, 'games', 'game'), 1);
                 $bump($factKey('year', $year, 'host_country', $hostCountry, 'goals', 'game'), (float) ($goalsA + $goalsB));

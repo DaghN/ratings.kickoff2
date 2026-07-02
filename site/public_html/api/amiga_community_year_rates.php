@@ -28,6 +28,7 @@ const K2_ACT_YEAR_RATES = [
     'dd_rate' => 'realm_ratio_headline',
     'cs_rate' => 'realm_ratio_headline',
     'high_scoring_rate' => 'realm_ratio_headline',
+    'low_scoring_rate' => 'realm_ratio_headline',
     'wc_share' => 'wc_share',
     'wc_goals_per_game' => 'wc_goals_per_game',
 ];
@@ -40,6 +41,7 @@ const K2_ACT_REALM_RATE_METRICS = [
     'dd_rate' => ['double_digits', 'games'],
     'cs_rate' => ['clean_sheets', 'games'],
     'high_scoring_rate' => ['high_scoring_games', 'games'],
+    'low_scoring_rate' => ['low_scoring_games', 'games'],
 ];
 
 $rate = isset($_GET['rate']) ? strtolower(trim((string) $_GET['rate'])) : '';

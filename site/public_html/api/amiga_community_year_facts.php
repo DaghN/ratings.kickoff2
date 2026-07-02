@@ -28,6 +28,7 @@ const K2_ACT_REALM_YEAR_METRICS = [
     'double_digits',
     'clean_sheets',
     'high_scoring_games',
+    'low_scoring_games',
     'distinct_pairs',
     'player_debuts',
     'distinct_host_countries',

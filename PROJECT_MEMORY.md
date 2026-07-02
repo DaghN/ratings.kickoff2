@@ -133,6 +133,8 @@
 
 | When | Note |
 |------|------|
+| 2026-07-02 | **Amiga player name hover glance** — read-only tiers **A** (compact card) / **B** (hero stat strip + WC medals) on Amiga player links; toggle `K2_AMIGA_PLAYER_GLANCE_TIER` in `amiga_player_glance_config.php` or `?k2_glance=A|B`; API `amiga_player_glance.php`. |
+| 2026-07-02 | **Amiga Activity Texture — low-scoring rate** — `low_scoring_games` year/realm fact + `low_scoring_rate` API + 6th Texture panel (≤3 goals, per 100 games); registry + Python/PHP writers; **`prove` green** local. |
 | 2026-07-02 | **Amiga WC stats wings** — removed Activity cross-link intro from all Tournament stats sub-wings (`amiga_world_cup_stats_wing_body.inc.php`). |
 | 2026-07-02 | **Amiga Activity Texture — high-scoring hint** — `k2-chart-block__hint` under High-scoring rate panel (ten+ goals both sides, per 100 games); matches online Activity chart hint pattern. |
 | 2026-07-02 | **Activity summary copy** — second sentence “We average…” (online + Amiga activity lede). |
@@ -141,10 +143,8 @@
 | 2026-07-02 | **Amiga player hero layout** — World Cups with core stats (Rank–Games); WC medals alone after 20px gap (country-hero parity). |
 | 2026-07-02 | **Amiga player hero World Cups stat** — WC slice `tournaments_played` before medal counts; links to Tournaments wing World Cups filter; TT cutoff from slice-at-event row. |
 | 2026-07-02 | **Amiga player hero Events stat** — stored `tournaments_played` between Rating and Games; links to Tournaments wing; TT cutoff from snapshot row. |
-| 2026-07-02 | **WC Q-WC-006 tooltip (stored)** — `year×player_nationality×wc_active_players` in community facts; tooltip reads stored rows (sparse). **Run prove** once to backfill. |
-| 2026-07-02 | **Growth Q-VOL-005 tooltip** — Tournaments/year bar hover: total + host-country event breakdown (same `host_tournaments_by_year` as GEO-008). |
-| 2026-07-02 | **Hosts GEO-008 tooltip** — distinct host countries/year bar hover lists flag + country + events hosted; read-time from stored `year×host_country×tournaments` (no DDL/prove). |
-| 2026-07-02 | **Nations player grains — docs + prove** — Activity now **48 panels / 49 Q-IDs**; community fact registry +3 grains (no DDL); `prove` green local; policy/plan/catalog/feature-log synced. |
+| 2026-07-02 | **Activity year-bar HTML tooltips + prove** — shared `renderBreakdownYearBar()`: GEO-008/Q-VOL-005 (`host_tournaments_by_year`), GEO-010 (`nationality_active_by_year`), Q-WC-006/007 (`wc_active_players` → `wc_nationality_active_by_year`); **`prove` green** local (~23 min). |
+| 2026-07-02 | **Nations player grains — docs + prove** — Activity **48 panels / 49 Q-IDs**; +3 nationality player grains (no DDL). |
 | 2026-07-02 | **Nations player grains B–D shipped** — `all_time×nationality×active_players`, `year×nationality×player_debuts`; 3 new Nations panels; 8-panel page order; GEO-010 tooltip (no list scroll). |
 | 2026-07-02 | **Amiga Activity Nations — distinct nationalities tooltip** — new stored fact `year × player_nationality × active_players`; `year_facts` returns `nationality_active_by_year` breakdown; bar hover lists flag + country + active player count (HTML tooltip). Re-prove `ko2amiga_db` to populate facts. |
 | 2026-07-02 | **Amiga tournament video game links GL-5…6 shipped** — `video_game_links.csv` sidecar merge (`stream_map` mode), manifest `game_start_sec[]`, sync/verify/build wired; policy + README + implementation plan trimmed. Sidecar empty until stream curation. |

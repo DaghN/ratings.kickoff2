@@ -217,7 +217,7 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_wc_hof_present` | Derived | Present projection of latest WC HoF snapshot (`id = 1`). Same policy | **Active** |
 | `amiga_community_stats` | Derived | Tournament finalize / `replay` — present headline community scalars (`id = 1`); v2 extension cols (`036`: tournaments finalized, host countries, WC games, pairs, debuts). Policy [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) | **Active** |
 | `amiga_community_stats_snapshots` | Derived | Tournament finalize / `replay` — headline scalars per finalized `tournament_id` (includes v2 extension cols) | **Active** |
-| `amiga_community_stat_facts` | Derived | Tournament finalize / `replay` — period × slice × metric facts per `tournament_id` (v1 + v2 registry grains; **Jul 2026** nationality player grains incl. **`wc_active_players`** for Q-WC-006 tooltip — no DDL) | **Active** |
+| `amiga_community_stat_facts` | Derived | Tournament finalize / `replay` — period × slice × metric facts per `tournament_id` (v1 + v2 registry grains; **Jul 2026** nationality player grains incl. **`wc_active_players`** for Q-WC-006/007 tooltips — no DDL) | **Active** |
 | `amiga_world_cup_stats` | Derived | Tournament finalize / `replay` — one wide row per World Cup `tournament_id`. Policy [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md). DDL `037` | **Active** |
 | `reference_*` (optional) | Reference | Parity tooling only | — |
 
