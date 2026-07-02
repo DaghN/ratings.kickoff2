@@ -137,6 +137,8 @@ html {
 	background-color: var(--k2-bg-page);
 	color-scheme: dark;
 	scrollbar-gutter: stable;
+	overflow-x: hidden;
+	max-width: 100%;
 }
 
 /* Hotwired Turbo progress (removed Jun 2026) — hide if a stale cached bundle still intercepts nav. */
@@ -152,6 +154,9 @@ body.k2-site {
 	line-height: 1.5;
 	color: var(--k2-text-primary);
 	background-color: var(--k2-bg-page);
+	overflow-x: hidden;
+	max-width: 100%;
+	min-width: 0;
 }
 
 body.k2-site ::selection {
@@ -672,6 +677,8 @@ body.k2-site .player-h2h-opponent-search .player-h2h-search-option:focus-visible
 .k2-page-nav {
 	max-width: 1200px;
 	margin: 0 auto;
+	min-width: 0;
+	overflow-x: hidden;
 }
 
 body.k2-site.k2-player-wing .k2-page-nav {
@@ -686,8 +693,14 @@ body.k2-site.k2-player-wing .k2-page-nav__up {
 body.k2-site .k2-games-hub {
 	max-width: 1200px;
 	margin: 0 auto;
-	overflow-x: clip;
+	overflow-x: hidden;
 	min-width: 0;
+}
+
+body.k2-site .k2-games-hub .k2-table-mirror-group {
+	display: block;
+	width: 100%;
+	max-width: 100%;
 }
 
 body.k2-site .k2-league-period {
@@ -831,10 +844,15 @@ body.k2-site .k2-games-highlights .k2-games-highlights-table .k2-games-highlight
 body.k2-site .k2-games-list {
 	max-width: 1200px;
 	margin: 0 auto;
+	min-width: 0;
+	overflow-x: hidden;
 }
 
 body.k2-site .k2-games-day {
 	margin-bottom: 20px;
+	min-width: 0;
+	max-width: 100%;
+	overflow-x: hidden;
 }
 
 body.k2-site .k2-games-day__heading.k2-panel-heading {
@@ -2317,6 +2335,10 @@ body.k2-site .k2-game-page__video-iframe {
 }
 
 body.k2-site .k2-table-wrap {
+	/* Containing block for absolute descendants (.visually-hidden th spans) —
+	   otherwise their static position at the table's far right widens the document
+	   and mobile browsers zoom the whole site out to fit. */
+	position: relative;
 	width: fit-content;
 	max-width: 100%;
 	margin-bottom: 16px;
@@ -2350,6 +2372,7 @@ body.k2-site .k2-table-mirror-group {
 	min-width: 0;
 	margin-bottom: 16px;
 	vertical-align: top;
+	overflow-x: clip;
 }
 
 body.k2-site .k2-table-mirror-group .k2-table-wrap {
@@ -2370,6 +2393,7 @@ body.k2-site .k2-table-scroll-mirror {
 	overflow-y: hidden;
 	width: auto;
 	max-width: 100%;
+	min-width: 0;
 	min-height: calc(var(--k2-scrollbar-size) + 2px);
 	border: 1px solid var(--k2-border-subtle);
 	border-bottom: none;
