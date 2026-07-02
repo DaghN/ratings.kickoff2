@@ -6,10 +6,83 @@
  */
 
 .k2-player-hero__stat-value--rank,
-.k2-player-hero__stat-value--accent,
-.k2-player-hero__stat-value--milestones {
+.k2-player-hero__stat-value--accent {
 	color: var(--k2-link-star);
 	text-shadow: 0 0 28px var(--k2-accent-glow);
+}
+
+/* Milestone tier counts — per-tier color + glow (hero + online glance popover) */
+.k2-player-hero__stat-value--milestones {
+	color: inherit;
+	text-shadow: none;
+}
+
+body.k2-site .k2-player-hero.k2-player-hero--feast:not(.k2-amiga-player-glance__hero) .k2-player-hero__stat--milestones {
+	margin-left: 20px;
+	padding-right: 30px;
+}
+
+.k2-player-hero__ms-tiers {
+	display: inline-flex;
+	align-items: baseline;
+	justify-content: center;
+	gap: 0.65em;
+}
+
+.k2-player-hero__ms-tier {
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
+	font-variant-numeric: tabular-nums;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+/* Beat body.k2-site a { font-weight: 500 } — match hero stat value weight (600) */
+body.k2-site a.k2-player-hero__ms-tier,
+body.k2-site a.k2-player-hero__ms-tier:visited,
+body.k2-site a.k2-player-hero__ms-tier:hover,
+body.k2-site a.k2-player-hero__ms-tier:focus-visible,
+body.k2-site a.k2-player-hero__ms-tier.k2-table-helped--pinned {
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
+	text-decoration: none;
+}
+
+body.k2-site a.k2-player-hero__ms-tier--pitch,
+body.k2-site a.k2-player-hero__ms-tier--pitch:visited {
+	--k2-ms-hero-ink: var(--k2-pure-pitch);
+}
+
+body.k2-site a.k2-player-hero__ms-tier--chrome,
+body.k2-site a.k2-player-hero__ms-tier--chrome:visited {
+	--k2-ms-hero-ink: var(--k2-pure-chrome);
+}
+
+body.k2-site a.k2-player-hero__ms-tier--amber,
+body.k2-site a.k2-player-hero__ms-tier--amber:visited {
+	--k2-ms-hero-ink: var(--k2-pure-amber);
+}
+
+body.k2-site a.k2-player-hero__ms-tier--holo,
+body.k2-site a.k2-player-hero__ms-tier--holo:visited {
+	--k2-ms-hero-ink: var(--k2-ms-holo);
+}
+
+/* Tier ink stays pure; no text shadow */
+body.k2-site a.k2-player-hero__ms-tier--pitch,
+body.k2-site a.k2-player-hero__ms-tier--pitch:visited,
+body.k2-site a.k2-player-hero__ms-tier--chrome,
+body.k2-site a.k2-player-hero__ms-tier--chrome:visited,
+body.k2-site a.k2-player-hero__ms-tier--amber,
+body.k2-site a.k2-player-hero__ms-tier--amber:visited,
+body.k2-site a.k2-player-hero__ms-tier--holo,
+body.k2-site a.k2-player-hero__ms-tier--holo:visited {
+	color: var(--k2-ms-hero-ink);
+	text-shadow: none;
 }
 
 @keyframes k2-player-hero-border-glow-in {

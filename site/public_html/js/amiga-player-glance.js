@@ -8,7 +8,7 @@
 	var TIP_ID = 'k2-amiga-player-glance-tooltip';
 	var API_AMIGA = '/api/amiga_player_glance.php';
 	var API_ONLINE = '/api/player_glance.php';
-	var SHOW_DELAY_MS = 100;
+	var SHOW_DELAY_MS = 150;
 	var HIDE_DELAY_MS = 100;
 	var glanceCfg = global.K2PlayerGlance || global.K2AmigaPlayerGlance;
 	var tier = (glanceCfg && glanceCfg.tier === 'B') ? 'B' : 'A';
@@ -17,6 +17,7 @@
 	var pending = new Map();
 	var showTimer = null;
 	var hideTimer = null;
+	var hoverSession = null;
 	var activeAnchor = null;
 	var activePlayerId = null;
 	var activeRealm = null;
@@ -79,13 +80,33 @@
 			+ '</div>';
 	}
 
+	function heroMilestonesStatHtml(tiers) {
+		if (!tiers || !tiers.length) {
+			return '';
+		}
+		var links = tiers.map(function (tier) {
+			var token = escapeHtml(tier.token || 'pitch');
+			return '<a href="' + escapeHtml(tier.href || '#') + '"'
+				+ ' class="k2-player-hero__ms-tier k2-lb-ms-tier--' + token + ' k2-player-hero__ms-tier--' + token + ' k2-table-helped"'
+				+ ' data-k2-coarse-tap="1"'
+				+ ' data-k2-tooltip-hide-title="1"'
+				+ ' data-k2-help="' + escapeHtml(tier.help || '') + '"'
+				+ ' data-k2-tooltip-tier="' + token + '"'
+				+ ' data-k2-tooltip-action="Click to open the milestone garden"'
+				+ ' data-k2-tooltip-action-coarse="Tap again to open the milestone garden"'
+				+ '>' + escapeHtml(String(tier.count)) + '</a>';
+		}).join('');
+		return '<div class="k2-player-hero__stat k2-player-hero__stat--milestones">'
+			+ '<span class="k2-player-hero__stat-label">Milestones</span>'
+			+ '<span class="k2-player-hero__stat-value k2-player-hero__stat-value--milestones">'
+			+ '<span class="k2-player-hero__ms-tiers">' + links + '</span>'
+			+ '</span></div>';
+	}
+
 	function heroStatHtml(label, value, accent, extraStatClass) {
 		var valueClass = 'k2-player-hero__stat-value' + (accent ? ' k2-player-hero__stat-value--accent' : '');
 		if (label === 'Rank') {
 			valueClass = 'k2-player-hero__stat-value k2-player-hero__stat-value--rank';
-		}
-		if (label === 'Milestones') {
-			valueClass = 'k2-player-hero__stat-value k2-player-hero__stat-value--milestones';
 		}
 		var statClass = 'k2-player-hero__stat' + (extraStatClass ? ' ' + extraStatClass : '');
 		return '<div class="' + statClass + '">'
@@ -134,12 +155,24 @@
 		return '<p class="k2-amiga-player-glance__note">Not on the ladder at this cutoff.</p>';
 	}
 
+	function glanceFrameOpen(printTier) {
+		return '<div class="k2-amiga-player-glance__frame">'
+			+ '<div class="k2-amiga-player-glance__canvas" aria-hidden="true"></div>'
+			+ '<div class="k2-amiga-player-glance__lift" aria-hidden="true"></div>'
+			+ '<div class="k2-amiga-player-glance__print k2-amiga-player-glance__print--' + printTier + '">';
+	}
+
+	function glanceFrameClose() {
+		return '</div></div>';
+	}
+
 	function renderTierA(data) {
 		var initial = (data.name || '?').charAt(0).toUpperCase();
 		var rank = data.pre_debut || !data.display ? '—' : (data.rank ? '#' + data.rank : '—');
 		var rating = data.pre_debut || !data.display ? '—' : fmtInt(data.rating);
 		return '<div class="k2-amiga-player-glance k2-amiga-player-glance--a">'
-			+ '<article class="k2-amiga-player-glance__card" aria-hidden="true">'
+			+ glanceFrameOpen('a')
+			+ '<div class="k2-amiga-player-glance__card" aria-hidden="true">'
 			+ '<div class="k2-amiga-player-glance__media"><div class="k2-amiga-player-glance__avatar">' + escapeHtml(initial) + '</div></div>'
 			+ '<div class="k2-amiga-player-glance__body">'
 			+ '<p class="k2-amiga-player-glance__name">' + nameLineHtml(data) + '</p>'
@@ -148,8 +181,8 @@
 			+ statBlockHtml('Rating', rating, '')
 			+ '</div>'
 			+ '</div>'
-			+ '</article>'
-			+ preDebutNoteHtml(data)
+			+ '</div>'
+			+ glanceFrameClose()
 			+ '</div>';
 	}
 
@@ -160,12 +193,11 @@
 		var games = fmtInt(data.games);
 		var stats = heroStatHtml('Rank', rank, false)
 			+ heroStatHtml('Rating', rating, true)
-			+ heroStatHtml('Games', games, true);
-		if (data.milestones !== null && data.milestones !== undefined) {
-			stats += heroStatHtml('Milestones', fmtInt(data.milestones), true, 'k2-player-hero__stat--milestones');
-		}
+			+ heroStatHtml('Games', games, true)
+			+ heroMilestonesStatHtml(data.milestone_tiers);
 
 		return '<div class="k2-amiga-player-glance k2-amiga-player-glance--b k2-amiga-player-glance--online">'
+			+ glanceFrameOpen('b')
 			+ '<article class="k2-player-hero k2-player-hero--feast k2-amiga-player-glance__hero" aria-hidden="true">'
 			+ '<div class="k2-player-hero__inner">'
 			+ '<div class="k2-player-hero__media"><div class="k2-player-hero__avatar">' + escapeHtml(initial) + '</div></div>'
@@ -177,6 +209,7 @@
 			+ '</div>'
 			+ '</div>'
 			+ '</article>'
+			+ glanceFrameClose()
 			+ '</div>';
 	}
 
@@ -190,6 +223,7 @@
 		var medalBlock = data.pre_debut ? '' : medalsHtml(data.wc_medals);
 
 		return '<div class="k2-amiga-player-glance k2-amiga-player-glance--b">'
+			+ glanceFrameOpen('b')
 			+ '<article class="k2-player-hero k2-player-hero--feast k2-amiga-player-glance__hero" aria-hidden="true">'
 			+ '<div class="k2-player-hero__inner">'
 			+ '<div class="k2-player-hero__media"><div class="k2-player-hero__avatar">' + escapeHtml(initial) + '</div></div>'
@@ -207,6 +241,7 @@
 			+ '</div>'
 			+ '</article>'
 			+ preDebutNoteHtml(data)
+			+ glanceFrameClose()
 			+ '</div>';
 	}
 
@@ -321,11 +356,14 @@
 		activeRealm = null;
 	}
 
-	function showLoading(anchor, playerId, realm) {
+	function showGlance(anchor, playerId, realm, data) {
 		var tip = glanceTooltip();
 		var bodyEl = tip.querySelector('.k2-table-tooltip__body');
 		if (bodyEl) {
-			bodyEl.innerHTML = '<div class="k2-amiga-player-glance--loading">Loading…</div>';
+			bodyEl.innerHTML = renderGlance(data, realm);
+			if (typeof global.k2TableInitHelpTooltips === 'function') {
+				global.k2TableInitHelpTooltips(bodyEl);
+			}
 		}
 		tip.setAttribute('aria-hidden', 'false');
 		activeAnchor = anchor;
@@ -334,17 +372,12 @@
 		positionTooltip(anchor, tip);
 	}
 
-	function showGlance(anchor, playerId, realm, data) {
-		var tip = glanceTooltip();
-		var bodyEl = tip.querySelector('.k2-table-tooltip__body');
-		if (bodyEl) {
-			bodyEl.innerHTML = renderGlance(data, realm);
+	function tryReveal(session) {
+		if (hoverSession !== session || session.failed || !session.delayReady || !session.data) {
+			return;
 		}
-		tip.setAttribute('aria-hidden', 'false');
-		activeAnchor = anchor;
-		activePlayerId = playerId;
-		activeRealm = realm;
-		positionTooltip(anchor, tip);
+		showGlance(session.anchor, session.playerId, session.realm, session.data);
+		hoverSession = null;
 	}
 
 	function clearShowTimer() {
@@ -372,20 +405,42 @@
 	function scheduleShow(anchor, playerId, realm) {
 		clearShowTimer();
 		clearHideTimer();
+		hideTooltip();
+
+		var session = {
+			anchor: anchor,
+			playerId: playerId,
+			realm: realm,
+			delayReady: false,
+			data: null,
+			failed: false
+		};
+		hoverSession = session;
+
 		showTimer = setTimeout(function () {
 			showTimer = null;
-			showLoading(anchor, playerId, realm);
-			fetchGlance(playerId, realm)
-				.then(function (data) {
-					if (activeAnchor !== anchor || activePlayerId !== playerId || activeRealm !== realm) {
-						return;
-					}
-					showGlance(anchor, playerId, realm, data);
-				})
-				.catch(function () {
-					hideTooltip();
-				});
+			if (hoverSession !== session) {
+				return;
+			}
+			session.delayReady = true;
+			tryReveal(session);
 		}, SHOW_DELAY_MS);
+
+		fetchGlance(playerId, realm)
+			.then(function (data) {
+				if (hoverSession !== session) {
+					return;
+				}
+				session.data = data;
+				tryReveal(session);
+			})
+			.catch(function () {
+				if (hoverSession !== session) {
+					return;
+				}
+				session.failed = true;
+				hoverSession = null;
+			});
 	}
 
 	function profileMetaFromHref(href) {
@@ -467,6 +522,7 @@
 	function onPointerOut(event) {
 		if (!activeAnchor) {
 			clearShowTimer();
+			hoverSession = null;
 			return;
 		}
 		var related = event.relatedTarget;
@@ -478,6 +534,7 @@
 			return;
 		}
 		clearShowTimer();
+		hoverSession = null;
 		scheduleHide();
 	}
 

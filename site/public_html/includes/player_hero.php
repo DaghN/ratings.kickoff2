@@ -6,6 +6,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.php';
 
 if (empty($Name)) {
 	return;
@@ -21,8 +22,10 @@ $heroMsPlayerId = isset($id) ? (int) $id : (isset($playerId) ? (int) $playerId :
 $heroProfileHref = $heroMsPlayerId > 0 ? k2_player_profile_href($heroMsPlayerId) : '';
 $heroLbRatingHref = k2_lb_table_href('lb-rating');
 $heroLbGamesPeakHref = k2_lb_table_href('lb-activity-peaks', ['k2_sort' => '3', 'k2_dir' => 'desc']);
-$heroLbMilestonesHref = k2_lb_table_href('lb-milestones');
 $heroRankLinked = $heroDisplay && isset($rank);
+$heroMsTierHtml = ($heroMs !== null && $heroMsPlayerId > 0)
+	? k2_milestone_render_hero_tier_counts($heroMs, $heroMsPlayerId)
+	: '';
 $heroRatingLinked = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
 ?>
 <div id="<?php echo k2_h(K2_PLAYER_PAGE_FRAGMENT); ?>" class="k2-player-page-anchor" tabindex="-1"></div>
@@ -68,14 +71,10 @@ $heroRatingLinked = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
 					<span class="k2-player-hero__stat-label">Games</span>
 					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroLbGamesPeakHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $heroGames; ?></a></span>
 				</div>
-				<?php if ($heroMs !== null && $heroMsPlayerId > 0) {
-					$msTotal = (int) $heroMs['total'];
-					?>
+				<?php if ($heroMsTierHtml !== '') { ?>
 				<div class="k2-player-hero__stat k2-player-hero__stat--milestones">
 					<span class="k2-player-hero__stat-label">Milestones</span>
-					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--milestones">
-						<a class="k2-player-hero__stat-link k2-player-hero__milestones" href="<?php echo htmlspecialchars($heroLbMilestonesHref, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo $msTotal; ?> milestones unlocked"><?php echo $msTotal; ?></a>
-					</span>
+					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--milestones"><?php echo $heroMsTierHtml; ?></span>
 				</div>
 				<?php } ?>
 			</div>

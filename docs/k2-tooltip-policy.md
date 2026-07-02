@@ -52,7 +52,7 @@ Tooltips **inside** an embedded player (YouTube controls, progress bar, etc.) ar
 | WC Videos spotlight caption Elo links | `amiga_tournament_videos_lib.php` → `amiga_tournament_videos_wc_game_caption_html()` | `data-k2-help` on `.k2-tournament-videos__rating-link`; re-bind via `k2TableInitHelpTooltips()` after in-session caption swap |
 | Embedded video iframe | `game.php`, `amiga_tournament_videos_*.inc.php`, `join_page_section.php`, `amiga-tournament-videos.js` | iframe `title` kept; player-internal tooltips out of scope (see § Cross-origin embeds) |
 | Player calendar day hover | `js/player-feast/player-calendar.js` | Programmatic `.k2-table-tooltip` |
-| Player name hover glance (online + Amiga) | `js/amiga-player-glance.js`, `includes/amiga_player_glance_config.php`, `api/player_glance.php`, `api/amiga_player_glance.php` | Read-only hero-style popover on player profile links; **online** tier **B**: Rank · Rating · Games · Milestones; **Amiga** tier **B**: full stat strip + WC medals; triggers: `data-k2-player-glance` / `data-k2-amiga-player-glance` or profile `href`; toggle `K2_PLAYER_GLANCE_TIER` or `?k2_glance=A\|B` |
+| Player name hover glance (online + Amiga) | `js/amiga-player-glance.js`, `includes/amiga_player_glance_config.php`, `api/player_glance.php`, `api/amiga_player_glance.php` | Read-only hero popover; opaque canvas instant, print + shadow fade **850ms**; fetch on hover; **150ms** show gate; tier **B** default; `?k2_glance=A\|B` |
 | H2H scoreline heatmap cell | `js/player-h2h-scoreline-heatmap.js` | Programmatic `.k2-table-tooltip` |
 
 If unsure: **grep** `data-k2-help` in `site/public_html/` and open the nearest neighbour.

@@ -27,7 +27,7 @@
 
 ## Scroll order (as shipped)
 
-1. Site header + **realm hub bar** (`player_wing_hub_nav.inc.php` / `amiga_player_wing_hub_nav.inc.php`; no hub tab active; tint picker on hub bar only) + **hero** (zero-height `#player` anchor immediately above hero — **inbound** player name links append `#player` so hero lands at viewport top; **wing pills** Profile · Games · … omit hash and use carry-scroll; avatar + name → Profile; rank + rating → Rating LB `#k2-lb-table`; games → Activity peaks; milestones count → Milestones LB; **all four stat values** use link-star + accent glow via `player-hero-rank.css`; **panel + avatar** use accent border + H2H-style glow in `theme.css` — country/tournament heroes stay quiet surface) + **player nav** (`--k2-nav-gap` below hub and player nav; hero uses **`calc(--k2-nav-gap + 12px)`** below — `theme.css`)
+1. Site header + **realm hub bar** (`player_wing_hub_nav.inc.php` / `amiga_player_wing_hub_nav.inc.php`; no hub tab active; tint picker on hub bar only) + **hero** (zero-height `#player` anchor immediately above hero — **inbound** player name links append `#player` so hero lands at viewport top; **wing pills** Profile · Games · … omit hash and use carry-scroll; avatar + name → Profile; rank + rating → Rating LB `#k2-lb-table`; games → Activity peaks; **milestones** → four tier-colored counts (all tiers incl. zero, space-separated, garden tier anchors; pure tier ink in `player-hero-rank.css`); Rank/Rating/Games use link-star + accent glow via `player-hero-rank.css`; **panel + avatar** use accent border + H2H-style glow in `theme.css` — country/tournament heroes stay quiet surface) + **player nav** (`--k2-nav-gap` below hub and player nav; hero uses **`calc(--k2-nav-gap + 12px)`** below — `theme.css`)
 4. **At a glance** — three columns × four rows: **Presence** (first/last rated game, days & games this year), **Career** (opponents, games, wins, goals — no DDs, no ranks), **Achievements** (milestones + gold/silver/bronze). Value cells (right column) use **link-star** ink; **Achievements → Milestones** row keeps tier-colored counts (pitch/chrome/amber/holo). Narrow viewports: columns stay side-by-side; panel scrolls horizontally if needed (no vertical stack).
 5. **Story so far** — heading *Let's take a look at **{name}**'s story so far...* (name in link-star); open-background prose ticker: current win streak (≥3), active play streak day/week (50/50 per page load), opponents/victims, standout calendar year (games + wins), career distinct days, then longest play-streak run (when no active streak). Omitted when no lines qualify.
 6. **Played days → weeks narrative** — no section headings on production; one warm prose arc: per-year days line ends `…` (“In 2026, **Dagh** enjoyed **110** days of online Kick Off 2…”), days heatmap + year picker, then weeks line continues (“… and since **12 Mar 2019**, **Dagh** has played in no less than **210** different weeks…”) into the weeks heatmap. `#played-days` / `#played-weeks` anchors + sr-only titles kept for back links and a11y. **Played days heatmap:** full page column (`--k2-max-width` 1200px); day cells and inter-cell gaps scale with month column width (`cqi`); gap between month mini-calendars ≈ **1.3×** one cell width (scales with 12 / 6 / 4 column breakpoints); 12 → 6 → 4 month columns at 900px / 600px breakpoints.
@@ -117,7 +117,7 @@ Profile does **not** duplicate those tables.
 
 | Zone | Job | Blocks (human question) |
 |------|-----|-------------------------|
-| **A — Identity** | Who · ladder position · major actor? | **Hero** — rank, rating, games; milestone **count** when `NumberGames ≥ 1` |
+| **A — Identity** | Who · ladder position · major actor? | **Hero** — rank, rating, games; milestone **tier counts** (all four tiers incl. zero) when `NumberGames ≥ 1` |
 | **B — Celebrate** | Still around? Who *is* he? What’s worth remembering? | **Presence** (current relevance) · **Career** (personality in KO2 terms) · **Bursts of activity** · **Moments** · *planned snippets:* participation line, milestone beat, league beat |
 | **C — Understand** | Patterns over time · rivals · analyst depth | **Heatmaps** (habit / texture) · **Charts** (rating arc, activity, matchups) |
 
@@ -139,7 +139,7 @@ Profile does **not** duplicate those tables.
 |------|--------|
 | Charts last | **Confirmed** — matches original “rivalry at the bottom” intent |
 | Heatmaps before Personal bests / Moments in DOM | **Accepted drift** — emphasizes activity texture early; editorial fork vs “Chronicle-first” mock A |
-| Milestones on profile | **Partial** — hero count only (links to meta LB); garden on Milestones tab |
+| Milestones on profile | **Partial** — hero tier counts (garden tier links); full garden on Milestones tab |
 | League on profile | **Gap** — stored awards exist; no profile snippet yet |
 | Participation sentence (A04) | **Consider** — may compete with hero fold |
 | Story so far (B06/B07/B08/C12/P02/P05) | **Shipped** Jun 2026 — after At a glance |

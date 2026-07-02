@@ -106,6 +106,99 @@ function k2_milestone_garden_tier_href(int $playerId, string $tierBand): string
 }
 
 /**
+ * Per-tier counts for display (aspirational → legendary).
+ *
+ * @param array{aspirational?: int, dedicated?: int, accomplished?: int, legendary?: int} $counts
+ * @return array<int, array{band: string, count: int, token: string}>
+ */
+function k2_milestone_player_tier_rows(array $counts): array
+{
+    $rows = [];
+    foreach (K2_MILESTONE_TIER_ORDER as $band) {
+        $countKey = match ($band) {
+            'veteran' => 'dedicated',
+            'key' => 'accomplished',
+            default => $band,
+        };
+        $rows[] = [
+            'band' => $band,
+            'count' => (int) ($counts[$countKey] ?? 0),
+            'token' => K2_MILESTONE_TIER_CHART_TOKEN[$band] ?? 'pitch',
+        ];
+    }
+
+    return $rows;
+}
+
+function k2_milestone_tier_count_tooltip(int $count, string $band): string
+{
+    $label = strtolower(k2_milestone_tier_label($band));
+    $word = $count === 1 ? 'milestone' : 'milestones';
+
+    return $count . ' ' . $label . ' ' . $word;
+}
+
+/**
+ * Hero / glance payload: tier rows with href + help (all four tiers by default).
+ *
+ * @param array{aspirational?: int, dedicated?: int, accomplished?: int, legendary?: int}|null $counts
+ * @return array<int, array{band: string, count: int, token: string, href: string, help: string}>
+ */
+function k2_milestone_hero_tier_payload(?array $counts, int $playerId, bool $omitZeros = false): array
+{
+    if (!is_array($counts)) {
+        return [];
+    }
+
+    $rows = [];
+    foreach (k2_milestone_player_tier_rows($counts) as $tier) {
+        $count = (int) $tier['count'];
+        if ($omitZeros && $count < 1) {
+            continue;
+        }
+        $band = (string) $tier['band'];
+        $rows[] = [
+            'band' => $band,
+            'count' => $count,
+            'token' => (string) $tier['token'],
+            'href' => k2_milestone_garden_tier_href($playerId, $band),
+            'help' => k2_milestone_tier_count_tooltip($count, $band),
+        ];
+    }
+
+    return $rows;
+}
+
+/**
+ * Hero stat value: space-separated tier counts (no dot separators).
+ *
+ * @param array{aspirational?: int, dedicated?: int, accomplished?: int, legendary?: int}|null $counts
+ */
+function k2_milestone_render_hero_tier_counts(?array $counts, int $playerId): string
+{
+    $tiers = k2_milestone_hero_tier_payload($counts, $playerId);
+    if ($tiers === []) {
+        return '';
+    }
+
+    $parts = [];
+    foreach ($tiers as $tier) {
+        $token = k2_h($tier['token']);
+        $parts[] = '<a href="' . k2_h($tier['href']) . '"'
+            . ' class="k2-player-hero__ms-tier k2-lb-ms-tier--' . $token . ' k2-player-hero__ms-tier--' . $token . ' k2-table-helped"'
+            . ' data-k2-coarse-tap="1"'
+            . ' data-k2-tooltip-hide-title="1"'
+            . ' data-k2-help="' . k2_h($tier['help']) . '"'
+            . ' data-k2-tooltip-tier="' . $token . '"'
+            . ' data-k2-tooltip-action="Click to open the milestone garden"'
+            . ' data-k2-tooltip-action-coarse="Tap again to open the milestone garden"'
+            . '>' . (int) $tier['count'] . '</a>';
+    }
+
+    return '<span class="k2-player-hero__ms-tiers">' . implode('', $parts) . '</span>';
+}
+
+/**
  * Sort garden cards: most common milestones first within tier (see garden_order.php).
  *
  * @param array<int, array<string, mixed>> $cards

@@ -19,6 +19,10 @@ $view = $k2PlayerMilestonesView;
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="/stylesheets/player-milestones.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/player-milestones.css'); ?>" rel="stylesheet" type="text/css" />
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
+k2_table_js_enqueue();
+?>
 <script type="text/javascript" src="/js/player-search.js" defer="defer"></script>
 
 </head>

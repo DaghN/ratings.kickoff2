@@ -65,7 +65,7 @@ function online_player_glance_payload(mysqli $con, int $playerId): array
     }
 
     $ms = k2_milestone_player_counts($con, $playerId);
-    $milestones = $ms !== null ? (int) ($ms['total'] ?? 0) : null;
+    $milestoneTiers = $ms !== null ? k2_milestone_hero_tier_payload($ms, $playerId) : null;
 
     return [
         'realm' => 'online',
@@ -76,6 +76,6 @@ function online_player_glance_payload(mysqli $con, int $playerId): array
         'rank' => $display ? $rank : null,
         'rating' => $rating,
         'games' => $games,
-        'milestones' => $milestones,
+        'milestone_tiers' => $milestoneTiers,
     ];
 }

@@ -4638,19 +4638,6 @@ body.k2-site a.k2-player-hero__stat-link:focus {
 	width: 100%;
 }
 
-body.k2-site a.k2-player-hero__milestones,
-body.k2-site a.k2-player-hero__milestones:visited,
-body.k2-site a.k2-player-hero__milestones:hover,
-body.k2-site a.k2-player-hero__milestones:active,
-body.k2-site a.k2-player-hero__milestones:focus {
-	display: block;
-	font: inherit;
-	font-weight: 600;
-	color: inherit;
-	text-decoration: none;
-	cursor: pointer;
-}
-
 /* muted base stats (e.g. Country) brighten on hover; accented stats keep link-star */
 body.k2-site .k2-player-hero__stat-value:not([class*="--"]) a.k2-player-hero__stat-link:hover,
 body.k2-site .k2-player-hero__stat-value:not([class*="--"]) a.k2-player-hero__stat-link:focus {

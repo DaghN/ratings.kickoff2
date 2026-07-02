@@ -6,7 +6,7 @@
  * - Token: --k2-amiga-glance-lift-shadow (tiers A + B)
  * - Zero x/y offset — even falloff on all sides (not a downward drop shadow)
  * - Layered blurs + 1px dark ring; accent border glow stays separate (instant)
- * - Lift halo fades in over 0.85s (box-shadow keyframes on the card — not a ::before layer)
+ * - __canvas 0.25s · __print (opacity + accent glow) 0.5s · __lift (neutral halo) 0.85s
  * - Tune strength in token only; do not reintroduce vertical offset without product pass
  */
 
@@ -41,9 +41,62 @@ body.k2-site .k2-amiga-player-glance__note {
 	text-align: center;
 }
 
+/* Canvas (instant opaque slab) + print (fade-in border, content, shadow) */
+body.k2-site .k2-amiga-player-glance__frame {
+	position: relative;
+	display: inline-block;
+	max-width: 100%;
+	border-radius: var(--k2-radius-lg);
+}
+
+body.k2-site .k2-amiga-player-glance__canvas {
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	background: var(--k2-bg-surface);
+	z-index: 0;
+	pointer-events: none;
+	opacity: 0;
+	animation: k2-amiga-glance-canvas-in 0.25s ease-out forwards;
+}
+
+@keyframes k2-amiga-glance-canvas-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes k2-amiga-glance-print-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+body.k2-site .k2-amiga-player-glance__print {
+	position: relative;
+	z-index: 2;
+	border-radius: inherit;
+	opacity: 0;
+}
+
+body.k2-site .k2-amiga-player-glance__lift {
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	z-index: 1;
+	pointer-events: none;
+	animation: k2-amiga-glance-lift-shadow-in 0.85s ease-out forwards;
+}
+
 /* Neutral lift — omnidirectional; see file header for intent */
-body.k2-site .k2-amiga-player-glance--a .k2-amiga-player-glance__card,
-body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero {
+body.k2-site .k2-amiga-player-glance__frame,
+body.k2-site .k2-amiga-player-glance__lift {
 	--k2-amiga-glance-lift-shadow:
 		0 0 140px rgba(0, 0, 0, 0.92),
 		0 0 96px rgba(0, 0, 0, 0.88),
@@ -53,7 +106,7 @@ body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero {
 		0 0 0 1px rgba(0, 0, 0, 0.68);
 }
 
-@keyframes k2-amiga-glance-card-shadow-in {
+@keyframes k2-amiga-glance-lift-shadow-in {
 	0% {
 		box-shadow:
 			0 0 140px rgba(0, 0, 0, 0),
@@ -61,11 +114,7 @@ body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero {
 			0 0 56px rgba(0, 0, 0, 0),
 			0 0 24px rgba(0, 0, 0, 0),
 			0 0 6px rgba(0, 0, 0, 0),
-			0 0 0 1px rgba(0, 0, 0, 0),
-			0 0 8px color-mix(in srgb, var(--k2-amiga-glance-side) 16%, transparent),
-			0 0 18px color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent),
-			0 0 28px color-mix(in srgb, var(--k2-amiga-glance-side) 5%, transparent),
-			inset 0 1px 0 color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent);
+			0 0 0 1px rgba(0, 0, 0, 0);
 	}
 	100% {
 		box-shadow:
@@ -74,7 +123,20 @@ body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero {
 			0 0 56px rgba(0, 0, 0, 0.78),
 			0 0 24px rgba(0, 0, 0, 0.70),
 			0 0 6px rgba(0, 0, 0, 0.60),
-			0 0 0 1px rgba(0, 0, 0, 0.68),
+			0 0 0 1px rgba(0, 0, 0, 0.68);
+	}
+}
+
+@keyframes k2-amiga-glance-accent-shadow-in-a {
+	0% {
+		box-shadow:
+			0 0 8px color-mix(in srgb, var(--k2-amiga-glance-side) 0%, transparent),
+			0 0 18px color-mix(in srgb, var(--k2-amiga-glance-side) 0%, transparent),
+			0 0 28px color-mix(in srgb, var(--k2-amiga-glance-side) 0%, transparent),
+			inset 0 1px 0 color-mix(in srgb, var(--k2-amiga-glance-side) 0%, transparent);
+	}
+	100% {
+		box-shadow:
 			0 0 8px color-mix(in srgb, var(--k2-amiga-glance-side) 16%, transparent),
 			0 0 18px color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent),
 			0 0 28px color-mix(in srgb, var(--k2-amiga-glance-side) 5%, transparent),
@@ -82,28 +144,16 @@ body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero {
 	}
 }
 
-@keyframes k2-amiga-glance-hero-shadow-in {
+@keyframes k2-amiga-glance-accent-shadow-in-b {
 	0% {
 		box-shadow:
-			0 0 140px rgba(0, 0, 0, 0),
-			0 0 96px rgba(0, 0, 0, 0),
-			0 0 56px rgba(0, 0, 0, 0),
-			0 0 24px rgba(0, 0, 0, 0),
-			0 0 6px rgba(0, 0, 0, 0),
-			0 0 0 1px rgba(0, 0, 0, 0),
-			0 0 8px color-mix(in srgb, var(--k2-player-hero-glow-side) 16%, transparent),
-			0 0 18px color-mix(in srgb, var(--k2-player-hero-glow-side) 10%, transparent),
-			0 0 28px color-mix(in srgb, var(--k2-player-hero-glow-side) 5%, transparent),
-			inset 0 1px 0 color-mix(in srgb, var(--k2-player-hero-glow-side) 10%, transparent);
+			0 0 8px color-mix(in srgb, var(--k2-player-hero-glow-side) 0%, transparent),
+			0 0 18px color-mix(in srgb, var(--k2-player-hero-glow-side) 0%, transparent),
+			0 0 28px color-mix(in srgb, var(--k2-player-hero-glow-side) 0%, transparent),
+			inset 0 1px 0 color-mix(in srgb, var(--k2-player-hero-glow-side) 0%, transparent);
 	}
 	100% {
 		box-shadow:
-			0 0 140px rgba(0, 0, 0, 0.92),
-			0 0 96px rgba(0, 0, 0, 0.88),
-			0 0 56px rgba(0, 0, 0, 0.78),
-			0 0 24px rgba(0, 0, 0, 0.70),
-			0 0 6px rgba(0, 0, 0, 0.60),
-			0 0 0 1px rgba(0, 0, 0, 0.68),
 			0 0 8px color-mix(in srgb, var(--k2-player-hero-glow-side) 16%, transparent),
 			0 0 18px color-mix(in srgb, var(--k2-player-hero-glow-side) 10%, transparent),
 			0 0 28px color-mix(in srgb, var(--k2-player-hero-glow-side) 5%, transparent),
@@ -113,20 +163,24 @@ body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero {
 
 /* ===== Tier A — compact H2H-card scale ===== */
 
-body.k2-site .k2-amiga-player-glance--a .k2-amiga-player-glance__card {
+body.k2-site .k2-amiga-player-glance__print--a {
 	--k2-amiga-glance-side: var(--k2-accent);
+	border: 2px solid var(--k2-amiga-glance-side);
+	box-sizing: border-box;
+	min-width: 240px;
+	max-width: min(320px, calc(100vw - 24px));
+	animation:
+		k2-amiga-glance-print-in 0.5s ease-out forwards,
+		k2-amiga-glance-accent-shadow-in-a 0.5s ease-out forwards;
+}
+
+body.k2-site .k2-amiga-player-glance--a .k2-amiga-player-glance__card {
 	display: grid;
 	grid-template-columns: auto 1fr;
 	align-items: center;
 	column-gap: 14px;
 	padding: 12px 14px;
-	border: 2px solid var(--k2-amiga-glance-side);
-	border-radius: var(--k2-radius-lg);
-	background: var(--k2-bg-surface);
 	box-sizing: border-box;
-	min-width: 240px;
-	max-width: min(320px, calc(100vw - 24px));
-	animation: k2-amiga-glance-card-shadow-in 0.85s ease-out forwards;
 }
 
 body.k2-site .k2-amiga-player-glance--a .k2-amiga-player-glance__avatar {
@@ -202,15 +256,28 @@ body.k2-site .k2-amiga-player-glance--a .k2-amiga-player-glance__stat-value--ran
 
 /* ===== Tier B — scaled profile hero (read-only) ===== */
 
-body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero {
-	margin: 0;
+body.k2-site .k2-amiga-player-glance__print--b {
+	--k2-player-hero-glow-side: var(--k2-accent);
+	border: 2px solid var(--k2-player-hero-glow-side);
 	width: max-content;
 	max-width: min(820px, calc(100vw - 24px));
 	overflow: visible;
+	animation:
+		k2-amiga-glance-print-in 0.5s ease-out forwards,
+		k2-amiga-glance-accent-shadow-in-b 0.5s ease-out forwards;
+}
+
+body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero {
+	margin: 0;
+	width: max-content;
+	max-width: 100%;
+	overflow: visible;
+	border: none;
+	background: none;
+	box-shadow: none;
 	--k2-amiga-glance-avatar: 56px;
 	--k2-amiga-glance-name: 18px;
 	--k2-amiga-glance-value: 14px;
-	animation: k2-amiga-glance-hero-shadow-in 0.85s ease-out forwards;
 }
 
 body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero .k2-player-hero__inner {
@@ -262,6 +329,14 @@ body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero .k2-player
 	color: var(--k2-link-star);
 }
 
+body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero .k2-player-hero__ms-tiers {
+	gap: 0.5em;
+}
+
+body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero .k2-player-hero__ms-tier {
+	font-size: var(--k2-amiga-glance-value, inherit);
+}
+
 body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero .k2-player-hero__medals {
 	flex: 0 0 auto;
 	flex-shrink: 0;
@@ -291,30 +366,32 @@ body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero .k2-countr
 	font-size: var(--k2-amiga-glance-value);
 }
 
-body.k2-site .k2-amiga-player-glance--loading {
-	padding: 12px 16px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-lg);
-	background: var(--k2-bg-surface);
-	color: var(--k2-text-muted);
-	font-size: 12px;
-}
-
 @media (prefers-reduced-motion: reduce) {
-	body.k2-site .k2-amiga-player-glance--a .k2-amiga-player-glance__card {
+	body.k2-site .k2-amiga-player-glance__canvas {
 		animation: none;
+		opacity: 1;
+	}
+
+	body.k2-site .k2-amiga-player-glance__lift {
+		animation: none;
+		box-shadow: var(--k2-amiga-glance-lift-shadow);
+	}
+
+	body.k2-site .k2-amiga-player-glance__print {
+		animation: none;
+		opacity: 1;
+	}
+
+	body.k2-site .k2-amiga-player-glance__print--a {
 		box-shadow:
-			var(--k2-amiga-glance-lift-shadow),
 			0 0 8px color-mix(in srgb, var(--k2-amiga-glance-side) 16%, transparent),
 			0 0 18px color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent),
 			0 0 28px color-mix(in srgb, var(--k2-amiga-glance-side) 5%, transparent),
 			inset 0 1px 0 color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent);
 	}
 
-	body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero {
-		animation: none;
+	body.k2-site .k2-amiga-player-glance__print--b {
 		box-shadow:
-			var(--k2-amiga-glance-lift-shadow),
 			0 0 8px color-mix(in srgb, var(--k2-player-hero-glow-side) 16%, transparent),
 			0 0 18px color-mix(in srgb, var(--k2-player-hero-glow-side) 10%, transparent),
 			0 0 28px color-mix(in srgb, var(--k2-player-hero-glow-side) 5%, transparent),

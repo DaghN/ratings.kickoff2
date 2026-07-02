@@ -1,6 +1,6 @@
 /**
  * Milestone garden, meta leaderboard accents.
- * Hero milestone strip: theme.css (.k2-player-hero__milestones*).
+ * Hero milestone tier counts: player-hero-rank.css (.k2-player-hero__ms-tier*).
  */
 
 body.k2-site .k2-chrome-tabs.k2-player-milestones {

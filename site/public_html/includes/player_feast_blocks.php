@@ -265,29 +265,12 @@ function player_feast_career_stat_rows(array $pm): array
  */
 function player_feast_glance_milestone_tiers(array $counts): array
 {
-    $rows = [];
-    foreach (K2_MILESTONE_TIER_ORDER as $band) {
-        $countKey = match ($band) {
-            'veteran' => 'dedicated',
-            'key' => 'accomplished',
-            default => $band,
-        };
-        $rows[] = [
-            'band' => $band,
-            'count' => (int) ($counts[$countKey] ?? 0),
-            'token' => K2_MILESTONE_TIER_CHART_TOKEN[$band] ?? 'pitch',
-        ];
-    }
-
-    return $rows;
+    return k2_milestone_player_tier_rows($counts);
 }
 
 function player_feast_glance_milestone_tier_tooltip(int $count, string $band): string
 {
-    $label = strtolower(K2_MILESTONE_TIER_LABELS[$band] ?? $band);
-    $word = $count === 1 ? 'milestone' : 'milestones';
-
-    return $count . ' ' . $label . ' ' . $word;
+    return k2_milestone_tier_count_tooltip($count, $band);
 }
 
 /** @param array<string, mixed> $pm */
