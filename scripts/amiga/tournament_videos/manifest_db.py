@@ -71,7 +71,8 @@ class DbSnapshot:
                 snap.tournaments_by_name[name] = tid
 
             cur.execute(
-                "SELECT id, tournament_id, player_a_id, player_b_id, source_scores_id "
+                "SELECT id, tournament_id, player_a_id, player_b_id, source_scores_id, "
+                "goals_a, goals_b, phase "
                 "FROM amiga_games"
             )
             for row in cur.fetchall():
@@ -82,6 +83,9 @@ class DbSnapshot:
                     "player_a_id": int(row["player_a_id"]),
                     "player_b_id": int(row["player_b_id"]),
                     "source_scores_id": int(row["source_scores_id"]) if row["source_scores_id"] else None,
+                    "goals_a": int(row["goals_a"]),
+                    "goals_b": int(row["goals_b"]),
+                    "phase": str(row["phase"] or ""),
                 }
         return snap
 
@@ -155,6 +159,9 @@ def sync_csv_row(row: dict[str, str], snap: DbSnapshot) -> list[str]:
     if stale:
         row["game_id_guess"] = ""
         changes.append(f"{yt}: cleared stale game_id(s) {stale}")
+        return changes
+
+    if len(gids) > 1:
         return changes
 
     first = snap.games_by_id[gids[0]]
@@ -269,6 +276,28 @@ def validate_catalog(
             add(f"{yt}: manifest tournament_id {tid} != CSV guessed_tournament_id {csv_tid}")
 
         if (v.get("kind") or "") != "match":
+            gids = v.get("game_ids") or []
+            if not gids:
+                continue
+            for gid in gids:
+                gid = int(gid)
+                if gid not in snap.games_by_id:
+                    add(f"{yt}: game_id {gid} not in amiga_games")
+                    continue
+                game = snap.games_by_id[gid]
+                if int(game["tournament_id"]) != tid:
+                    add(
+                        f"{yt}: game {gid} tournament_id {game['tournament_id']} "
+                        f"!= manifest {tid}"
+                    )
+            starts = v.get("game_start_sec")
+            if starts is not None and len(starts) != len(gids):
+                add(f"{yt}: game_start_sec length {len(starts)} != game_ids {len(gids)}")
+            from scripts.amiga.tournament_videos.game_links import audit_row_links
+
+            for issue in audit_row_links(csv_row, snap, manifest_game_ids=[int(x) for x in gids]):
+                if issue.severity == "error":
+                    add(f"{yt}: {issue.code}: {issue.message}")
             continue
 
         man_pa = v.get("player_a_id")
@@ -333,6 +362,16 @@ def validate_catalog(
             if len(tids) > 1:
                 add(f"{yt}: game_ids span multiple tournament_id values: {sorted(tids)}")
 
+        starts = v.get("game_start_sec")
+        if starts is not None and len(starts) != len(gids):
+            add(f"{yt}: game_start_sec length {len(starts)} != game_ids {len(gids)}")
+
+        from scripts.amiga.tournament_videos.game_links import audit_row_links
+
+        for issue in audit_row_links(csv_row, snap, manifest_game_ids=[int(x) for x in gids]):
+            if issue.severity == "error":
+                add(f"{yt}: {issue.code}: {issue.message}")
+
     if total_errors > max_errors:
         errors.append(f"... and {total_errors - max_errors} more (showing first {max_errors})")
     return errors, total_errors
@@ -349,6 +388,14 @@ def sync_review_csv_from_db(
 
     Returns (all_changes, resolve_escalations).
     """
+    from scripts.amiga.tournament_videos.apply_review import apply_row_game_id_locks
+    from scripts.amiga.tournament_videos.game_links import (
+        heuristic_resolve_allowed,
+        is_game_link_locked,
+        remap_row_game_ids,
+        sync_row_sidecar_game_ids,
+        validate_sidecar_schema,
+    )
     from scripts.amiga.tournament_videos.resolve_games import (
         load_wc_by_year,
         resolve_row,
@@ -356,38 +403,78 @@ def sync_review_csv_from_db(
 
     all_changes: list[str] = []
     escalations: list[str] = []
+    game_cache: dict[int, list] = {}
+
+    for msg in validate_sidecar_schema(rows):
+        escalations.append(f"sidecar schema: {msg}")
 
     for row in rows:
         all_changes.extend(sync_csv_row(row, snap))
 
-    if not resolve_matches:
-        return all_changes, escalations
-
     conn = connect_db()
     cur = conn.cursor()
     wc_by_year = load_wc_by_year(cur)
-    cache: dict[int, list] = {}
 
     for row in rows:
         if (row.get("kind") or "").strip() != "match":
             continue
         yt = row.get("youtube_id", "")
-        ids, note = resolve_row(row, cur, wc_by_year, cache)
-        if ids:
-            new_gids = ",".join(str(i) for i in ids)
-            old_gids = (row.get("game_id_guess") or "").strip()
-            if old_gids != new_gids:
+        old_gids = parse_game_ids(row.get("game_id_guess"))
+
+        if is_game_link_locked(row):
+            new_ids, notes = remap_row_game_ids(row, snap, game_cache)
+            if not new_ids:
+                escalations.append(f"{yt}: remap failed — {'; '.join(notes)}")
+                continue
+            if len(new_ids) < len(old_gids):
+                escalations.append(
+                    f"{yt}: refused shrink {old_gids} -> {new_ids} ({'; '.join(notes)})"
+                )
+                continue
+            new_gids = ",".join(str(i) for i in new_ids)
+            if (row.get("game_id_guess") or "").strip() != new_gids:
                 row["game_id_guess"] = new_gids
-                all_changes.append(f"{yt}: game_id_guess -> {new_gids}")
-            if note:
-                prev = (row.get("notes") or "").strip()
-                if note not in prev:
-                    row["notes"] = "; ".join(x for x in (prev, note) if x)
+                all_changes.append(f"{yt}: game_id_guess remapped -> {new_gids}")
             all_changes.extend(sync_csv_row(row, snap))
-        elif (row.get("game_id_guess") or "").strip() == "":
-            escalations.append(f"{yt}: unresolved match (no game_id)")
+            continue
+
+        if not resolve_matches:
+            continue
+
+        if heuristic_resolve_allowed(row):
+            ids, note = resolve_row(row, cur, wc_by_year, game_cache)
+            if ids:
+                new_gids = ",".join(str(i) for i in ids)
+                if (row.get("game_id_guess") or "").strip() != new_gids:
+                    row["game_id_guess"] = new_gids
+                    all_changes.append(f"{yt}: game_id_guess (heuristic) -> {new_gids}")
+                if note:
+                    prev = (row.get("notes") or "").strip()
+                    if note not in prev:
+                        row["notes"] = "; ".join(x for x in (prev, note) if x)
+                all_changes.extend(sync_csv_row(row, snap))
+            elif (row.get("game_id_guess") or "").strip() == "":
+                escalations.append(f"{yt}: unresolved match (no game_id)")
+        elif old_gids:
+            new_ids, notes = remap_row_game_ids(row, snap, game_cache)
+            if new_ids:
+                new_gids = ",".join(str(i) for i in new_ids)
+                if (row.get("game_id_guess") or "").strip() != new_gids:
+                    row["game_id_guess"] = new_gids
+                    all_changes.append(f"{yt}: game_id_guess remapped -> {new_gids}")
+                all_changes.extend(sync_csv_row(row, snap))
+            elif notes:
+                escalations.append(f"{yt}: remap failed — {'; '.join(notes)}")
+
+    for row in rows:
+        sidecar_changes, sidecar_esc = sync_row_sidecar_game_ids(row, snap, game_cache)
+        all_changes.extend(sidecar_changes)
+        escalations.extend(sidecar_esc)
+        if sidecar_changes:
+            all_changes.extend(sync_csv_row(row, snap))
 
     conn.close()
+    apply_row_game_id_locks(rows)
     return all_changes, escalations
 
 

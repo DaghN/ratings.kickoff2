@@ -3,7 +3,7 @@
  * Amiga Activity tab summary block (PHP + markup).
  *
  * Optional before include: $k2AmigaActivitySummaryHideLede = true
- * (Activity hub Growth wing — the chapter lede already carries the numbers).
+ * (Activity hub shell — the chapter lede already carries the headline numbers).
  */
 declare(strict_types=1);
 

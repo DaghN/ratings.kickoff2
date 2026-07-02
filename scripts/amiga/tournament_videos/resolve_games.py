@@ -292,6 +292,15 @@ def pick_game_ids(
     if len(games) == 1:
         return [games[0].game_id]
     games = sorted(games, key=lambda g: g.game_id)
+    dur = duration_sec or 0
+    if (
+        dual_leg_ok
+        and leg is None
+        and len(games) == 2
+        and dur >= DUAL_LEG_MIN_SEC
+        and stage in KNOCKOUT_STAGES
+    ):
+        return [g.game_id for g in games]
     if player_a_id and player_b_id:
         by_home = [
             g
@@ -300,14 +309,6 @@ def pick_game_ids(
         ]
         if len(by_home) == 1:
             return [by_home[0].game_id]
-    dur = duration_sec or 0
-    if (
-        dual_leg_ok
-        and len(games) == 2
-        and dur >= DUAL_LEG_MIN_SEC
-        and stage in KNOCKOUT_STAGES
-    ):
-        return [g.game_id for g in games]
     if leg in (1, 2) and len(games) >= leg:
         return [games[leg - 1].game_id]
     if len(games) == 2 and dur < DUAL_LEG_MIN_SEC and leg is None:

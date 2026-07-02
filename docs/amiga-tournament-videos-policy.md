@@ -4,7 +4,7 @@
 
 **Parent:** [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) · [`url-routes.md`](url-routes.md) · [`design-direction.md`](design-direction.md) · [`join-play-setup.md`](join-play-setup.md)
 
-**Related:** [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) (WC Games/Atmosphere URL, Back, share links) · [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) · [`self-hosted-assets.md`](self-hosted-assets.md) (YouTube embed precedent) · [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md)
+**Related:** [`amiga-tournament-videos-game-links-policy.md`](amiga-tournament-videos-game-links-policy.md) (match facts, sync/remap, verify — **Jul 2026**) · [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) (WC Games/Atmosphere URL, Back, share links) · [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) · [`self-hosted-assets.md`](self-hosted-assets.md) (YouTube embed precedent) · [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md)
 
 **Authority:** Dagh’s exploration chats (Jun 2026). **Implementation plan:** [`amiga-tournament-videos-implementation-plan.md`](amiga-tournament-videos-implementation-plan.md) — slices TV-0–TV-6.
 
@@ -296,13 +296,15 @@ Re-open either queue only on **new harvest**, **manual adds**, or a **specific m
 | **2 — Read lib + one WC** | PHP lib + Videos tab on **WC XXIII Milan 2025** | Tab renders grouped sections; lazy embed |
 | **3 — Discovery** | Chronology flag + **Has videos** filter | Filter returns only tournaments with clips |
 | **4 — Rollout** | All mapped WCs + major non-WC events from manifest | No regressions on tournaments without video |
-| **5+ — Player / index / game links** | Profile Videos wing, global index, stream splits | Separate plans |
+| **5+ — Player / index / game links** | Profile Videos wing, global index, stream splits | Profile wing **shipped**; **GL-0…GL-6** game-link pipeline **shipped** — stream UI index when sidecar curated |
 
 **Implementation plan doc:** [`amiga-tournament-videos-implementation-plan.md`](amiga-tournament-videos-implementation-plan.md) — **written Jun 2026**; execute TV-1 onward.
 
 ---
 
 ## 12. DB anchors vs editorial keys (Jul 2026)
+
+**Game-link mechanics (Jul 2026):** [`amiga-tournament-videos-game-links-policy.md`](amiga-tournament-videos-game-links-policy.md) — stable match facts vs DB caches, sync/remap rules, verify oracle, multi-game links (dual-leg + **`video_game_links.csv`** streams). **GL-0…GL-6 shipped**; this § stays the short summary.
 
 Full L3 witness reimport (`import-witness`, `python -m scripts.amiga prove`) **truncates and rebuilds** `amiga_players`, `amiga_games`, and `tournaments`. Auto-increment ids are **not stable** across holy loops — player merges and catalog changes shift ids for everyone after the affected sort position.
 
@@ -311,22 +313,22 @@ Full L3 witness reimport (`import-witness`, `python -m scripts.amiga prove`) **t
 | Layer | Keys |
 |-------|------|
 | Editorial | `youtube_id`, video title, `kind`, relations, harvest metadata |
-| Human mapping | `tournament_guess_label` (canonical `tournaments.name`), `player_a_guess` / `player_b_guess`, `score`, `stage`, `leg` |
+| Human mapping | `tournament_guess_label`, `player_*_guess`, `score`, `stage`, `leg`, **`game_link_mode`**, optional **`video_game_links.csv`** sidecar — **authoritative for video→game links** ([game-links policy](amiga-tournament-videos-game-links-policy.md)) |
 
 ### DB cache (must refresh after every full reimport)
 
 | Field | Source of truth after sync |
 |-------|----------------------------|
 | `guessed_tournament_id` / manifest `tournament_id` | `tournaments.name` lookup; label corrected from id when id is authoritative |
-| `player_*_id_guess` / manifest `player_*_id` | Player display name lookup; then first linked `amiga_games` row |
-| `game_id_guess` / manifest `game_ids` | Re-resolved from tournament + players + score via `resolve_games` |
+| `player_*_id_guess` / manifest `player_*_id` | Player display name lookup |
+| `game_id_guess` / manifest `game_ids` | **Remapped** from match facts (+ optional `source_scores_id` cache) — **not** heuristic re-resolve on verified rows ([game-links policy §8.3](amiga-tournament-videos-game-links-policy.md)) |
 
 **Player profile Videos tab** indexes on manifest `player_a_id` / `player_b_id` — stale ids hide the tab from the correct player and may attach clips to the wrong profile even when tournament Videos tabs still work (they use `game_ids`).
 
 ### Process (locked)
 
-1. **`python -m scripts.amiga.tournament_videos.sync_db_ids`** — refresh CSV caches from live `ko2amiga_db`, re-resolve match `game_id`s, rebuild `tournament_videos.json`. Flags: `--dry-run`, `--no-resolve`, `--no-rebuild`.
-2. **`python -m scripts.amiga.verify_tournament_videos`** — read-only oracle (also **`prove`** step `verify-tournament-videos`).
+1. **`python -m scripts.amiga.tournament_videos.sync_db_ids`** — refresh CSV caches from live `ko2amiga_db`, **remap** match `game_id`s from editorial facts, rebuild `tournament_videos.json`. Flags: `--dry-run`, `--no-resolve`, `--no-rebuild`.
+2. **`python -m scripts.amiga.verify_tournament_videos`** — read-only oracle (also **`prove`** step `verify-tournament-videos`); **target:** score + multi-id + fact-vs-cache checks ([game-links policy §8.4](amiga-tournament-videos-game-links-policy.md)).
 3. **`python -m scripts.amiga prove`** — after L5 replay, runs **sync_db_ids** automatically, then verify suite includes tournament-video oracle.
 
 Harvest / manual ROW_PATCHES edit **stable keys** only; never hand-edit numeric ids except via sync output.

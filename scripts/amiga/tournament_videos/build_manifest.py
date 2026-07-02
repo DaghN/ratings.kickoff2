@@ -8,6 +8,7 @@ import json
 from datetime import date
 
 from scripts.amiga.tournament_videos.constants import CSV_COLUMNS, MANIFEST_JSON, REVIEW_CSV
+from scripts.amiga.tournament_videos.game_links import manifest_game_start_sec
 
 REVIEW_CSV_PUBLIC = MANIFEST_JSON.parent / "tournament_videos" / "review.csv"
 
@@ -89,9 +90,15 @@ def csv_row_to_manifest(row: dict[str, str], *, verified_only: bool) -> dict | N
     wc_slot = (row.get("wc_video_slot") or "").strip()
     if wc_slot:
         entry["wc_video_slot"] = wc_slot
+    link_mode = (row.get("game_link_mode") or "").strip()
+    if link_mode:
+        entry["game_link_mode"] = link_mode
     game_ids = _game_ids(row.get("game_id_guess", ""))
     if game_ids:
         entry["game_ids"] = game_ids
+        starts = manifest_game_start_sec(row["youtube_id"], game_ids)
+        if starts is not None:
+            entry["game_start_sec"] = starts
     return entry
 
 

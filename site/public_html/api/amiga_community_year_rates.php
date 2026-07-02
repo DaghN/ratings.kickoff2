@@ -3,8 +3,8 @@
  * JSON derived year rates for the Amiga Activity charts (L3 lens).
  *
  * GET: rate (whitelist below), as (time travel cutoff).
- * Texture rates include `reference` from headline at cutoff (slice 3+).
- * Zero-denominator years return null values (skipped by Chart.js).
+ * Texture rates include `reference` from headline at cutoff.
+ * WC rates (slice 4): wc_share, wc_goals_per_game (+ realm overlay).
  *
  * @see docs/amiga-activity-charts-implementation-plan.md §3
  */
@@ -18,14 +18,28 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-/** rate => [numerator metric, denominator metric, reference mode]. */
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_community_stats_lib.php';
+
+/** rate => kind for derivation. */
 const K2_ACT_YEAR_RATES = [
-    'games_per_tournament' => ['games', 'tournaments', null],
-    'goals_per_game' => ['goals', 'games', 'headline'],
-    'draw_rate' => ['draws', 'games', 'headline'],
-    'dd_rate' => ['double_digits', 'games', 'headline'],
-    'cs_rate' => ['clean_sheets', 'games', 'headline'],
-    'high_scoring_rate' => ['high_scoring_games', 'games', 'headline'],
+    'games_per_tournament' => 'realm_ratio',
+    'goals_per_game' => 'realm_ratio_headline',
+    'draw_rate' => 'realm_ratio_headline',
+    'dd_rate' => 'realm_ratio_headline',
+    'cs_rate' => 'realm_ratio_headline',
+    'high_scoring_rate' => 'realm_ratio_headline',
+    'wc_share' => 'wc_share',
+    'wc_goals_per_game' => 'wc_goals_per_game',
+];
+
+/** @var array<string, array{0: string, 1: string}> */
+const K2_ACT_REALM_RATE_METRICS = [
+    'games_per_tournament' => ['games', 'tournaments'],
+    'goals_per_game' => ['goals', 'games'],
+    'draw_rate' => ['draws', 'games'],
+    'dd_rate' => ['double_digits', 'games'],
+    'cs_rate' => ['clean_sheets', 'games'],
+    'high_scoring_rate' => ['high_scoring_games', 'games'],
 ];
 
 $rate = isset($_GET['rate']) ? strtolower(trim((string) $_GET['rate'])) : '';
@@ -34,8 +48,6 @@ if (!isset(K2_ACT_YEAR_RATES[$rate])) {
     echo json_encode(['error' => 'invalid_rate']);
     exit;
 }
-
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_community_stats_lib.php';
 
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
@@ -48,6 +60,32 @@ if ($con->connect_errno) {
 $con->set_charset('utf8mb4');
 $con->query("SET time_zone = '+00:00'");
 
+/**
+ * @return list<float|null>
+ */
+function k2_act_year_rate_values(mysqli $con, int $cutoffTid, string $numSlice, string $numMetric, string $denSlice, string $denMetric): array
+{
+    $span = amiga_community_year_span_at_cutoff($con, $cutoffTid);
+    if ($span === null) {
+        return [];
+    }
+
+    $numFacts = amiga_community_year_facts_at_cutoff($con, $cutoffTid, $numSlice, $numMetric);
+    $denFacts = amiga_community_year_facts_at_cutoff($con, $cutoffTid, $denSlice, $denMetric);
+    $numKey = $numSlice === 'world_cup' ? AMIGA_COMMUNITY_WORLD_CUP_SLICE_KEY : AMIGA_COMMUNITY_REALM_SLICE_KEY;
+    $denKey = $denSlice === 'world_cup' ? AMIGA_COMMUNITY_WORLD_CUP_SLICE_KEY : AMIGA_COMMUNITY_REALM_SLICE_KEY;
+    $numByYear = $numFacts[$numKey] ?? [];
+    $denByYear = $denFacts[$denKey] ?? [];
+
+    $values = [];
+    for ($year = $span[0]; $year <= $span[1]; $year++) {
+        $den = $denByYear[$year] ?? 0.0;
+        $values[] = $den > 0 ? round(($numByYear[$year] ?? 0.0) / $den, 4) : null;
+    }
+
+    return $values;
+}
+
 try {
     $ctx = amiga_snapshot_context_from_request($con);
     $cutoffTid = amiga_community_cutoff_tournament_id_for_read($con, $ctx);
@@ -56,26 +94,43 @@ try {
         exit;
     }
 
-    [$numMetric, $denMetric, $referenceMode] = K2_ACT_YEAR_RATES[$rate];
     $span = amiga_community_year_span_at_cutoff($con, $cutoffTid);
-    $numFacts = amiga_community_year_facts_at_cutoff($con, $cutoffTid, 'realm', $numMetric);
-    $denFacts = amiga_community_year_facts_at_cutoff($con, $cutoffTid, 'realm', $denMetric);
-    $numByYear = $numFacts[AMIGA_COMMUNITY_REALM_SLICE_KEY] ?? [];
-    $denByYear = $denFacts[AMIGA_COMMUNITY_REALM_SLICE_KEY] ?? [];
-
     $years = [];
-    $values = [];
     if ($span !== null) {
         for ($year = $span[0]; $year <= $span[1]; $year++) {
             $years[] = $year;
-            $den = $denByYear[$year] ?? 0.0;
-            $values[] = $den > 0 ? round(($numByYear[$year] ?? 0.0) / $den, 4) : null;
         }
     }
 
+    $kind = K2_ACT_YEAR_RATES[$rate];
+    $values = [];
     $reference = null;
-    if ($referenceMode === 'headline') {
-        $reference = amiga_community_year_rate_reference_at_cutoff($con, $cutoffTid, $rate);
+    $overlay = null;
+
+    if ($kind === 'realm_ratio' || $kind === 'realm_ratio_headline') {
+        [$numMetric, $denMetric] = K2_ACT_REALM_RATE_METRICS[$rate];
+        $numFacts = amiga_community_year_facts_at_cutoff($con, $cutoffTid, 'realm', $numMetric);
+        $denFacts = amiga_community_year_facts_at_cutoff($con, $cutoffTid, 'realm', $denMetric);
+        $numByYear = $numFacts[AMIGA_COMMUNITY_REALM_SLICE_KEY] ?? [];
+        $denByYear = $denFacts[AMIGA_COMMUNITY_REALM_SLICE_KEY] ?? [];
+        if ($span !== null) {
+            for ($year = $span[0]; $year <= $span[1]; $year++) {
+                $den = $denByYear[$year] ?? 0.0;
+                $values[] = $den > 0 ? round(($numByYear[$year] ?? 0.0) / $den, 4) : null;
+            }
+        }
+        if ($kind === 'realm_ratio_headline') {
+            $reference = amiga_community_year_rate_reference_at_cutoff($con, $cutoffTid, $rate);
+        }
+    } elseif ($kind === 'wc_share') {
+        $values = k2_act_year_rate_values($con, $cutoffTid, 'world_cup', 'games', 'realm', 'games');
+    } elseif ($kind === 'wc_goals_per_game') {
+        $values = k2_act_year_rate_values($con, $cutoffTid, 'world_cup', 'goals', 'world_cup', 'games');
+        $overlayValues = k2_act_year_rate_values($con, $cutoffTid, 'realm', 'goals', 'realm', 'games');
+        $overlay = [
+            'label' => 'Realm goals per game',
+            'values' => $overlayValues,
+        ];
     }
 
     $cutoffInfo = null;
@@ -95,7 +150,7 @@ try {
         'years' => $years,
         'values' => $values,
         'reference' => $reference,
-        'overlay' => null,
+        'overlay' => $overlay,
         'cutoff' => $cutoffInfo,
     ]);
 } catch (RuntimeException $e) {

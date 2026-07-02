@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-07-01",
+  "updated_at": "2026-07-02",
   "videos": [
     {
       "youtube_id": "OE_wVb2JheU",
@@ -10,8 +10,8 @@
       "stage": "final",
       "leg": null,
       "score": null,
-      "player_a_id": 30,
-      "player_b_id": 440,
+      "player_a_id": 440,
+      "player_b_id": 30,
       "duration_sec": 1743,
       "sort": 10,
       "source": "wc_finals_playlist",
@@ -20,10 +20,12 @@
       "relation_group": null,
       "relation": null,
       "featured_final": true,
-      "verified": false,
+      "verified": true,
       "notes": "Also in: ko2cv_channel; dual-leg video (duration>=20min)",
       "external_url": null,
+      "game_link_mode": "multi",
       "game_ids": [
+        25458,
         25459
       ]
     },
@@ -576,11 +578,13 @@
       "relation_group": null,
       "relation": null,
       "featured_final": true,
-      "verified": false,
+      "verified": true,
       "notes": "Also in: ko2cv_channel; dual-leg video (duration>=20min)",
       "external_url": null,
+      "game_link_mode": "multi",
       "game_ids": [
-        26306
+        26306,
+        26307
       ]
     },
     {
@@ -865,11 +869,13 @@
       "relation_group": null,
       "relation": null,
       "featured_final": false,
-      "verified": false,
+      "verified": true,
       "notes": "Also in: ko2cv_channel; dual-leg video (duration>=20min)",
       "external_url": null,
+      "game_link_mode": "multi",
       "game_ids": [
-        26878
+        26878,
+        26879
       ]
     },
     {
@@ -1129,11 +1135,13 @@
       "relation_group": null,
       "relation": null,
       "featured_final": false,
-      "verified": false,
+      "verified": true,
       "notes": "Also in: ko2cv_channel; dual-leg video (duration>=20min)",
       "external_url": null,
+      "game_link_mode": "multi",
       "game_ids": [
-        27417
+        27417,
+        27418
       ]
     },
     {
@@ -1230,11 +1238,13 @@
       "relation_group": null,
       "relation": null,
       "featured_final": false,
-      "verified": false,
+      "verified": true,
       "notes": "dual-leg video (duration>=20min)",
       "external_url": null,
+      "game_link_mode": "multi",
       "game_ids": [
-        27412
+        27412,
+        27413
       ]
     },
     {
@@ -1255,11 +1265,13 @@
       "relation_group": null,
       "relation": null,
       "featured_final": false,
-      "verified": false,
+      "verified": true,
       "notes": "dual-leg video (duration>=20min)",
       "external_url": null,
+      "game_link_mode": "multi",
       "game_ids": [
-        27414
+        27414,
+        27415
       ]
     },
     {
@@ -1270,8 +1282,8 @@
       "stage": "quarter",
       "leg": null,
       "score": null,
-      "player_a_id": 390,
-      "player_b_id": 149,
+      "player_a_id": 149,
+      "player_b_id": 390,
       "duration_sec": 1348,
       "sort": 30,
       "source": "ko2cv_channel",
@@ -1280,10 +1292,12 @@
       "relation_group": null,
       "relation": null,
       "featured_final": false,
-      "verified": false,
+      "verified": true,
       "notes": "dual-leg video (duration>=20min)",
       "external_url": null,
+      "game_link_mode": "multi",
       "game_ids": [
+        27410,
         27411
       ]
     },
@@ -1305,11 +1319,13 @@
       "relation_group": null,
       "relation": null,
       "featured_final": false,
-      "verified": false,
+      "verified": true,
       "notes": "dual-leg video (duration>=20min)",
       "external_url": null,
+      "game_link_mode": "multi",
       "game_ids": [
-        27404
+        27404,
+        27405
       ]
     },
     {
@@ -3601,7 +3617,7 @@
       "kind": "match",
       "stage": "final",
       "leg": null,
-      "score": "5 - 9",
+      "score": "9 - 5",
       "player_a_id": 341,
       "player_b_id": 124,
       "duration_sec": null,
@@ -3949,7 +3965,7 @@
       "kind": "match",
       "stage": null,
       "leg": null,
-      "score": "3 - 4",
+      "score": "4 - 3",
       "player_a_id": 73,
       "player_b_id": 201,
       "duration_sec": null,
@@ -4654,7 +4670,7 @@
       "kind": "match",
       "stage": "silver",
       "leg": null,
-      "score": "2 - 4",
+      "score": "4 - 2",
       "player_a_id": 29,
       "player_b_id": 155,
       "duration_sec": 653,
@@ -4679,7 +4695,7 @@
       "kind": "match",
       "stage": "bronze",
       "leg": null,
-      "score": "1 - 4",
+      "score": "4 - 1",
       "player_a_id": 31,
       "player_b_id": 156,
       "duration_sec": 657,
@@ -5314,7 +5330,7 @@
       "kind": "match",
       "stage": null,
       "leg": null,
-      "score": "3 - 6",
+      "score": "6 - 3",
       "player_a_id": 149,
       "player_b_id": 350,
       "duration_sec": 679,
@@ -6890,8 +6906,8 @@
       "stage": "final",
       "leg": 1,
       "score": null,
-      "player_a_id": 440,
-      "player_b_id": 149,
+      "player_a_id": 149,
+      "player_b_id": 440,
       "duration_sec": 729,
       "sort": 11,
       "source": "wc_finals_playlist",
@@ -6904,7 +6920,7 @@
       "notes": "Also in: ko2cv_channel",
       "external_url": null,
       "game_ids": [
-        23901
+        23900
       ]
     },
     {
@@ -6915,8 +6931,8 @@
       "stage": "final",
       "leg": 2,
       "score": null,
-      "player_a_id": 149,
-      "player_b_id": 440,
+      "player_a_id": 440,
+      "player_b_id": 149,
       "duration_sec": 647,
       "sort": 12,
       "source": "wc_finals_playlist",
@@ -6929,7 +6945,7 @@
       "notes": "Also in: ko2cv_channel",
       "external_url": null,
       "game_ids": [
-        23900
+        23901
       ]
     },
     {

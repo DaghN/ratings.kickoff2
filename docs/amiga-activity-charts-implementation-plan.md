@@ -1,6 +1,6 @@
 # Amiga Activity charts — implementation plan
 
-**Status:** **In progress** (Jul 2026) — **slices 0–3 shipped** (platform + Growth + People + Texture wings live); slices 4–10 next. Read-only chart track: **no finalize writers, no DDL** (unless a slice-8 probe promotes a histogram to S6 — separate sign-off + Part B).
+**Status:** **In progress** (Jul 2026) — **slices 0–9 shipped** (45 panels live; **slice 10** polish + doc finish next). Read-only chart track: **no finalize writers, no DDL**.
 **Locked IA / product:** [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) — wings, panel order, selectors, TT rules, bucket defaults.
 **Questions:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 46 ship IDs → 45 panels.
 **Pattern source:** online [`activity-charts.md`](activity-charts.md) (module, frames, mobile rules).
@@ -29,12 +29,12 @@
 | **1** | Growth wing | 7 | **Done** Jul 2026 |
 | **2** | People wing | 5 | **Done** Jul 2026 |
 | **3** | Texture wing (rates API + reference lines) | 5 | **Done** Jul 2026 |
-| **4** | World Cups wing (ghost bars + overlay) | 6 | — |
-| **5** | Geography selector platform (duel + race controls, slice_series API) | 0 | — |
-| **6** | Geography — Hosts | 8 | — |
-| **7** | Geography — Nations | 5 | — |
-| **8** | **STOP gate:** Shape C8 probes + bucket lock (IA-4) | 0 | — |
-| **9** | Shape wing | 9 | — |
+| **4** | World Cups wing (ghost bars + overlay) | 6 | **Done** Jul 2026 |
+| **5** | Geography selector platform (duel + race controls, slice_series API) | 0 | **Done** |
+| **6** | Geography — Hosts | 8 | **Done** |
+| **7** | Geography — Nations | 5 | **Done** |
+| **8** | **STOP gate:** Shape C8 probes + bucket lock (IA-4) | 0 | **Done** Jul 2026 |
+| **9** | Shape wing | 9 | **Done** Jul 2026 |
 | **10** | Polish: mobile pass, perf order, cross-links, docs finish | — | — |
 
 Running total after slice 9: **45 panels / 46 question IDs.**
@@ -149,15 +149,15 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 ### `api/amiga_community_year_rates.php`
 
-- Params: `rate` (goals_per_game | draw_rate | dd_rate | cs_rate | high_scoring_rate | games_per_tournament | wc_share | wc_goals_per_game), `as`. *(Texture rates + reference shipped slice 3; WC rates slice 4.)*
+- Params: `rate` (goals_per_game | draw_rate | dd_rate | cs_rate | high_scoring_rate | games_per_tournament | wc_share | wc_goals_per_game), `as`. *(Texture + WC rates shipped slices 3–4.)*
 - Response: `{ "years": [...], "values": [...], "reference": N|null, "overlay": { "label": "...", "values": [...] }|null, "cutoff": {...}|null }` — `cutoff` mirrors `year_facts` (`label`, `event_date`, `partial_year`).
 - Derivations (all from year facts at cutoff): rates = numerator ÷ realm `games` (goals_per_game = goals ÷ games; games_per_tournament = games ÷ tournaments; wc_share = wc games ÷ realm games; wc_goals_per_game = wc goals ÷ wc games, overlay = realm goals_per_game). `reference` = all-time average from headline row at cutoff (texture rates only). Zero-denominator years → `null` values, skipped by Chart.js.
 
 ### `api/amiga_community_histogram.php` (slice 9; shapes locked at slice 8)
 
 - Params: `kind` (career_games | tournaments_played | distinct_opponents | active_years | countries_played | world_cups_played | rating | goal_sum | tournament_games), `as`.
-- Response: `{ "buckets": [{ "label": "10-24", "count": N }], "population": N, "population_label": "players" }` — buckets computed server-side.
-- Oracle sources (validated at slice 8): player kinds → `amiga_player_event_snapshots` at cutoff / `amiga_player_current` present; `goal_sum` → game rows at cutoff; `tournament_games` → per-tournament game counts at cutoff; `active_years` → S5 probe decides.
+- Response: `{ "buckets": [{ "label": "10-24", "count": N }], "population": N, "population_label": "players"|"games"|"tournaments", "cutoff": {...}|null }` — buckets computed server-side via `amiga_community_histogram_compute()` in `includes/amiga_community_histogram_lib.php`.
+- Oracle sources (slice 8 locked — all read-time, no S6): `player_snapshot` → snapshot/current at cutoff; `player_snapshot+slice` → WC slice on snapshots; `game_scan` → rated game rows at cutoff (`active_years`, `goal_sum`); `tournament_scan` → per-tournament game counts at cutoff.
 
 ---
 
@@ -190,7 +190,7 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 *Shipped notes:* panels markup in `includes/amiga_activity_growth_panels.inc.php`; module gained generic mounts `mountYearFacts` / `mountYearRate` / `mountCumulative` (tones: games = pitch, tournaments = chrome, goals = amber, rate = teal) reusable by every later wing. Panel cards style via one generic rule (`body.k2-amiga-activity-charts .k2-chart-panel` — no 45-class CSS list); shell body also carries `k2-activity-charts` so the online frame/section CSS applies verbatim. TT: partial cutoff year gets a tooltip footer (*"Partial year — through Nov 27, 2005"* via `cutoff.event_date` now in `year_facts`/`year_rates` responses); curves end at the cutoff event; point click → `/amiga/tournament/event-stats.php?id=` carrying `as=`. **Site-wide latent bug fixed:** the `k2-page-boot.js` shim invoked every `k2OnPageReady` callback **twice** per load (Turbo-removal regression) — on the online Activity page the second boot's canvas-reuse errors put *"Could not load …"* status lines above every chart; shim now fires callbacks exactly once (verified online Activity 11/11 clean + LB table boot).
 
-**STOP:** Dagh visual sign-off on Growth (desktop + phone scroll) before replicating the pattern to other wings.
+**STOP:** Dagh visual sign-off on Growth (desktop + phone scroll) before replicating the pattern to other wings. **Signed off Jul 2026.**
 
 ### Slice 2 — People (5 panels) — **Done** (Jul 2026)
 
@@ -204,13 +204,15 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 *Shipped notes:* `year_rates` extended with `goals_per_game`, `draw_rate`, `dd_rate`, `cs_rate`, `high_scoring_rate`; `reference` from headline at cutoff (`GoalsPerGameAverage`, `DrawsRatio`, `DoubleDigitsRatio`, `CleanSheetsRatio`; high-scoring derived from summed year facts) via `amiga_community_year_rate_reference_at_cutoff()`. Module gained `renderYearRateBar()` — dashed muted all-time line + tooltip footer (*All-time avg: …*); rate formatting (`percent` for draws, `per100` for DD/CS/high-scoring). Panels in `includes/amiga_activity_texture_panels.inc.php` (tones: pitch · chrome · magenta · holo · amber).
 
-### Slice 4 — World Cups (6 panels)
+### Slice 4 — World Cups (6 panels) — **Done** (Jul 2026)
 
 - Extend `year_rates` with `wc_share` + `wc_goals_per_game` (+ overlay values).
 - Ghost-bar layered rendering (realm behind WC, muted tone) in module — reused nowhere else yet, keep generic (`datasets[].ghost` flag).
 - Intro copy cross-links World Cups hub; WC hub Tournament stats wing gains a link back (one line).
 
-### Slice 5 — Geography selector platform (no panels)
+*Shipped notes:* `year_facts` extended with `slice=world_cup` (games · goals · active_players · distinct_nationalities); `year_rates` adds `wc_share` (WC games ÷ realm games) + `wc_goals_per_game` (overlay = realm goals/game per year). Module: `renderGhostYearBar()` + `mountWcGamesGhostYear()` (`datasets[].ghost` muted realm bars behind WC); `renderYearRateBar()` overlay line for WC goals/game vs realm. Panels in `includes/amiga_activity_world_cups_panels.inc.php`. Cross-links: Activity intro → World Cups hub + Tournament stats; `amiga_world_cup_stats_wing_body.inc.php` one-line link back to Activity World Cups wing. Helper `amiga_community_year_series_filled_at_cutoff()` shared by year_facts.
+
+### Slice 5 — Geography selector platform (no panels) — **Done** (Jul 2026)
 
 - Module controls: **duel** (two flag dropdowns, grouped bars) + **race** (legend chips, add-country, cap 7).
 - URL state: `?hosts=` / `?nats=` CSV; `history.replaceState` on change; PHP prefills selects from GET; invalid keys → defaults (England, Germany).
@@ -218,14 +220,24 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 - Option lists + race defaults from `available_keys` (cutoff-aware).
 - Flags inline per entity-links policy; country names link to country roster.
 
+*Shipped notes:* `includes/amiga_activity_geography_selector.inc.php` on hosts + nations pages — control row + harness duel year bar + race cumulative lines (games metric). APIs: `amiga_community_slice_series.php`; `year_facts` dimensional slices with `keys` + `available_keys`. Lib: `amiga_community_slice_series()`, `amiga_community_geo_page_selection()`, `amiga_community_year_series_filled_for_keys_at_cutoff()`. Module: geography platform (`initGeographyPlatform`, `getGeoState`, `renderGroupedYearBar`, `renderRaceLines`); chip click toggles line visibility; shift+click removes a country from the race list. CSS under `body.k2-amiga-activity-charts .k2-amiga-act-geo-*`. HTTP smoke: APIs + pages 200 at present and `as=year:2005`.
+
 **STOP:** duel + race behave on a dev harness page (or directly on slice-6 first panel) at present + TT cutoff; URL round-trip (paste URL → same selection) proven.
 
-### Slice 6 — Geography Hosts (8 panels) · Slice 7 — Geography Nations (5 panels)
+### Slice 6 — Geography Hosts (8 panels) — **Done** (Jul 2026)
 
 - Registry §2 order; one duel state drives all Pattern-A charts on the page.
 - GEO-009 stepped line tooltip: names the tournament that unlocked each new host country.
 
-### Slice 8 — Shape probes (IA-4 STOP gate — no UI)
+*Shipped notes:* `includes/amiga_activity_geography_hosts_panels.inc.php` — 6 geo-linked panels (games/tournaments/goals × duel year bar + race cumulative) wired through slice-5 selector state; 2 realm panels (distinct host countries year bar + cumulative stepped line with unlock tooltip via `mountHostCountriesCumulative()`). Harness charts removed from hosts selector (nations page keeps harness until slice 7). Module: generic `mountGeoDuelYear()` / `mountGeoRace()` + `registerGeoPanel()` + `refreshGeoAllPanels()` on selection change. Fixed stray `});` that had broken the module IIFE after slice 5.
+
+### Slice 7 — Geography Nations (5 panels) — **Done** (Jul 2026)
+
+- Registry §2 order; one duel state drives all Pattern-A charts on the page.
+
+*Shipped notes:* `includes/amiga_activity_geography_nations_panels.inc.php` — appearances + goals duel/race panels (`player_nationality` slice via shared selector state) + realm `distinct_nationalities` year bar; harness preview charts removed from selector include. Reuses slice-6 `registerGeoPanel()` / `mountGeoDuelYear()` / `mountGeoRace()` unchanged.
+
+### Slice 8 — Shape probes (IA-4 STOP gate — no UI) — **Done** (Jul 2026)
 
 - Probe each `histogram` kind read-time at **four cutoffs**: first event, ~2007 peak, ~2015 mid, present. Record ms + row counts **in this section**.
 - Guidance: < ~150 ms at present = ship read-time (S4/S5); worse → cache-in-API or propose **S6 store** (Dagh sign-off + DDL slice + Part B; storage policy §6 rule).
@@ -233,9 +245,49 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 **STOP:** table of probe timings + chosen oracle per kind + final bucket edges recorded here before slice 9 starts.
 
-### Slice 9 — Shape (9 panels)
+*Shipped notes:* `includes/amiga_community_histogram_lib.php` — nine kinds, bucket defs (`amiga_community_histogram_bucket_defs()`), raw-value oracles, `amiga_community_histogram_compute()` + `amiga_community_histogram_probe()`; CLI `scripts/oneoff/amiga_community_histogram_probe.php` (4 cutoffs × 9 kinds). Probed on local **`ko2amiga_db`** Jul 2026.
 
-- `histogram` API per slice-8 outcomes; % of population in tooltips.
+#### Probe timings (ms, population, max raw value)
+
+| kind | first event | year 2007 | year 2015 | present |
+|------|------------:|----------:|----------:|--------:|
+| career_games | 39 · 31 · max 15 | 100 · 304 · 794 | 161 · 435 · 1290 | **4 · 469 · 1520** |
+| tournaments_played | 38 · 31 · 1 | 87 · 304 · 61 | 149 · 435 · 101 | **3 · 469 · 115** |
+| distinct_opponents | 40 · 31 · 12 | 91 · 304 · 114 | 142 · 435 · 164 | **4 · 469 · 182** |
+| active_years | 41 · 31 · 1 | 173 · 304 · 7 | **257 · 435 · 15** | **147 · 469 · 23** |
+| countries_played | 45 · 31 · 2 | 108 · 304 · 6 | 139 · 435 · 9 | **3 · 469 · 10** |
+| world_cups_played | 52 · 31 · 1 | 102 · 304 · 7 | 143 · 435 · 15 | **5 · 469 · 23** |
+| rating | 45 · 31 · 1808 | 128 · 304 · 2346 | 130 · 435 · 2545 | **4 · 469 · 2601** |
+| goal_sum | 76 · 143 · 17 | 120 · 11848 · 21 | 95 · 23054 · 26 | **93 · 27418 · 26** |
+| tournament_games | 2 · 1 · 143 | 16 · 270 · 687 | 14 · 562 · 687 | **16 · 605 · 687** |
+
+Cells: **ms · population · max_value**. First-event label: World Cup I (Dartford) · Nov 3, 2001.
+
+#### Oracle per kind (locked)
+
+| kind | oracle | population |
+|------|--------|------------|
+| career_games, tournaments_played, distinct_opponents, countries_played, rating | `player_snapshot` | players |
+| world_cups_played | `player_snapshot+slice` | players |
+| active_years, goal_sum | `game_scan` | players / games |
+| tournament_games | `tournament_scan` | tournaments |
+
+#### Bucket edges (locked — policy §5.6 defaults, no deviations)
+
+Encoded in `amiga_community_histogram_bucket_defs()`: range buckets for career games / tournaments / distinct opponents / tournament games; exact 1…25 (`active_years`), 1…12 (`countries_played`), 0…24 (`world_cups_played`); rating 50-pt steps 650–2450 + tail; goal_sum exact 0…14 + 15+ tail. Max observed at present fits all schemes (see probe max_value column).
+
+#### Slice 9 decision (STOP gate cleared)
+
+- **Ship read-time for all nine kinds** — no S6 DDL, no cache-in-API layer in v1.
+- **`active_years`** exceeds ~150 ms at historical cutoffs (173 ms @ 2007, 257 ms @ 2015) but **147 ms @ present**; acceptable with sequential panel loader — queue this panel **after** snapshot-backed histograms (slice 10 perf pass).
+- **`goal_sum`** ~93 ms @ present (game scan over ~27k games) — ship read-time; borderline only if TT lands on heavy mid-era cutoffs (~120 ms @ 2007).
+- Mid-cutoff slowness on snapshot kinds (e.g. career_games 161 ms @ 2015) is TT-only; present path is fast (3–5 ms).
+
+### Slice 9 — Shape (9 panels) — **Done** (Jul 2026)
+
+- `api/amiga_community_histogram.php` + panel mounts per slice-8 oracles/buckets; % of population in tooltips.
+
+*Shipped notes:* `includes/amiga_activity_shape_panels.inc.php` — 9 histogram panels on `/amiga/activity/shape.php`; `mountHistogram()` + `renderHistogramBar()` in `js/amiga-activity-charts.js`; sequential loader queues snapshot kinds first, `goal_sum` then `active_years` last (slice-8 probe guidance). Tooltips: bucket + count + % of population (`data-k2-help` N/A — bar tooltips via `chart-theme.js`).
 
 ### Slice 10 — Polish + finish
 

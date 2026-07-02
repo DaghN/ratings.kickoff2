@@ -121,6 +121,7 @@ def match_game(
     ga_video, gb_video = parsed
     phase = _phase_hint(stage)
     exact: list[GameRow] = []
+    reversed_score: list[GameRow] = []
     swapped: list[GameRow] = []
     for g in games:
         if {g.player_a_id, g.player_b_id} != {player_a_id, player_b_id}:
@@ -128,10 +129,12 @@ def match_game(
         if g.player_a_id == player_a_id and g.player_b_id == player_b_id:
             if (g.goals_a, g.goals_b) == (ga_video, gb_video):
                 exact.append(g)
+            elif (g.goals_a, g.goals_b) == (gb_video, ga_video):
+                reversed_score.append(g)
         elif g.player_a_id == player_b_id and g.player_b_id == player_a_id:
             if g.goals_a == gb_video and g.goals_b == ga_video:
                 swapped.append(g)
-    candidates = exact if exact else swapped
+    candidates = exact or reversed_score or swapped
     if phase:
         phase_hits = [c for c in candidates if _phase_matches(c.phase, phase)]
         if len(phase_hits) == 1:

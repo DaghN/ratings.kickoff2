@@ -8,6 +8,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = REPO_ROOT / "data" / "amiga" / "tournament_videos"
 RAW_DIR = DATA_DIR / "raw"
 REVIEW_CSV = DATA_DIR / "review.csv"
+VIDEO_GAME_LINKS_CSV = DATA_DIR / "video_game_links.csv"
 DROPPED_CSV = DATA_DIR / "dropped.csv"
 MANIFEST_JSON = REPO_ROOT / "site" / "public_html" / "data" / "amiga" / "tournament_videos.json"
 
@@ -82,6 +83,7 @@ CSV_COLUMNS = [
     "notes",
     "external_url",
     "wc_video_slot",
+    "game_link_mode",
 ]
 
 DROPPED_CSV_COLUMNS = [

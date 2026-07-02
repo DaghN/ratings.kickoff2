@@ -2,9 +2,8 @@
 /**
  * JSON calendar-year facts for the Amiga Activity charts (year bars).
  *
- * GET: slice (realm only in slice 0), metric (whitelist below), as (time travel cutoff).
- * Years are zero-filled across the realm games span at the cutoff so every
- * year chart on the hub shares the same x-axis.
+ * GET: slice (realm | host_country | player_nationality | world_cup), metric,
+ * optional keys (CSV slice keys, max 7, validated), as (time travel cutoff).
  *
  * @see docs/amiga-activity-charts-implementation-plan.md §3
  */
@@ -17,6 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     echo json_encode(['error' => 'method_not_allowed']);
     exit;
 }
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_community_stats_lib.php';
 
 const K2_ACT_REALM_YEAR_METRICS = [
     'games',
@@ -33,21 +34,46 @@ const K2_ACT_REALM_YEAR_METRICS = [
     'distinct_nationalities',
 ];
 
+const K2_ACT_WORLD_CUP_YEAR_METRICS = [
+    'games',
+    'goals',
+    'active_players',
+    'distinct_nationalities',
+];
+
+const K2_ACT_HOST_COUNTRY_YEAR_METRICS = [
+    'games',
+    'goals',
+    'tournaments',
+];
+
+const K2_ACT_PLAYER_NATIONALITY_YEAR_METRICS = [
+    'games',
+    'goals',
+];
+
 $slice = isset($_GET['slice']) ? strtolower(trim((string) $_GET['slice'])) : 'realm';
 $metric = isset($_GET['metric']) ? strtolower(trim((string) $_GET['metric'])) : '';
+$keysCsv = isset($_GET['keys']) ? trim((string) $_GET['keys']) : '';
 
-if ($slice !== 'realm') {
+$sliceConfig = match ($slice) {
+    'realm' => ['key' => AMIGA_COMMUNITY_REALM_SLICE_KEY, 'metrics' => K2_ACT_REALM_YEAR_METRICS, 'dimensional' => false],
+    'world_cup' => ['key' => AMIGA_COMMUNITY_WORLD_CUP_SLICE_KEY, 'metrics' => K2_ACT_WORLD_CUP_YEAR_METRICS, 'dimensional' => false],
+    'host_country' => ['key' => null, 'metrics' => K2_ACT_HOST_COUNTRY_YEAR_METRICS, 'dimensional' => true],
+    'player_nationality' => ['key' => null, 'metrics' => K2_ACT_PLAYER_NATIONALITY_YEAR_METRICS, 'dimensional' => true],
+    default => null,
+};
+
+if ($sliceConfig === null) {
     http_response_code(400);
-    echo json_encode(['error' => 'slice_not_supported_yet']);
+    echo json_encode(['error' => 'slice_not_supported']);
     exit;
 }
-if (!in_array($metric, K2_ACT_REALM_YEAR_METRICS, true)) {
+if (!in_array($metric, $sliceConfig['metrics'], true)) {
     http_response_code(400);
     echo json_encode(['error' => 'invalid_metric']);
     exit;
 }
-
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_community_stats_lib.php';
 
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
@@ -64,21 +90,18 @@ try {
     $ctx = amiga_snapshot_context_from_request($con);
     $cutoffTid = amiga_community_cutoff_tournament_id_for_read($con, $ctx);
     if ($cutoffTid === null) {
-        echo json_encode(['slice' => $slice, 'metric' => $metric, 'years' => [], 'series' => [], 'cutoff' => null]);
-        exit;
-    }
-
-    $span = amiga_community_year_span_at_cutoff($con, $cutoffTid);
-    $facts = amiga_community_year_facts_at_cutoff($con, $cutoffTid, 'realm', $metric);
-    $byYear = $facts[AMIGA_COMMUNITY_REALM_SLICE_KEY] ?? [];
-
-    $years = [];
-    $values = [];
-    if ($span !== null) {
-        for ($year = $span[0]; $year <= $span[1]; $year++) {
-            $years[] = $year;
-            $values[] = (int) round($byYear[$year] ?? 0.0);
+        $empty = [
+            'slice' => $slice,
+            'metric' => $metric,
+            'years' => [],
+            'series' => [],
+            'cutoff' => null,
+        ];
+        if ($sliceConfig['dimensional']) {
+            $empty['available_keys'] = [];
         }
+        echo json_encode($empty);
+        exit;
     }
 
     $cutoffInfo = null;
@@ -93,11 +116,51 @@ try {
         }
     }
 
+    if ($sliceConfig['dimensional']) {
+        $availableRanked = amiga_community_slice_keys_at_cutoff($con, $cutoffTid, $slice, 'games');
+        $availableKeys = array_keys($availableRanked);
+
+        if ($keysCsv !== '') {
+            $resolvedKeys = amiga_community_geo_validate_keys(
+                amiga_community_geo_parse_keys_csv($keysCsv, 7),
+                $availableRanked,
+                7
+            );
+        } else {
+            $resolvedKeys = [];
+        }
+        if ($resolvedKeys === []) {
+            $selection = amiga_community_geo_page_selection($keysCsv !== '' ? $keysCsv : null, $availableRanked);
+            $resolvedKeys = $selection['race_keys'];
+        }
+
+        $filled = amiga_community_year_series_filled_for_keys_at_cutoff(
+            $con,
+            $cutoffTid,
+            $slice,
+            $metric,
+            $resolvedKeys,
+            true
+        );
+
+        echo json_encode([
+            'slice' => $slice,
+            'metric' => $metric,
+            'years' => $filled['years'],
+            'series' => $filled['series'],
+            'available_keys' => $availableKeys,
+            'cutoff' => $cutoffInfo,
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $filled = amiga_community_year_series_filled_at_cutoff($con, $cutoffTid, $slice, $metric, true);
+
     echo json_encode([
         'slice' => $slice,
         'metric' => $metric,
-        'years' => $years,
-        'series' => [['key' => AMIGA_COMMUNITY_REALM_SLICE_KEY, 'values' => $values]],
+        'years' => $filled['years'],
+        'series' => [['key' => $sliceConfig['key'], 'values' => $filled['values']]],
         'cutoff' => $cutoffInfo,
     ]);
 } catch (RuntimeException $e) {

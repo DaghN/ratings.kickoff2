@@ -22,7 +22,8 @@ Design gift vs online Activity: **every cumulative-curve point is a real tournam
 |----------|------|
 | Hub tab label | **Activity** (short tab labels; the Amiga hub bar is already realm-scoped) |
 | Chapter title | **Activity** |
-| KOA identity | Lives in the **chapter lede**, e.g. *"Twenty-five years of the KOA scene: 469 players from 21 nations, 27,418 rated games in 605 tournaments."* — numbers are live reads at the current cutoff |
+| KOA identity | Lives in the **chapter lede**, e.g. *"25 years of the KOA: Since 2001, 469 players from 21 nations have played 27,418 rated games in 605 tournaments."* — year span = calendar year minus 2001; headline numbers are live reads at the current cutoff |
+| Summary panel | Four stat cards (Goals · Draws · Double digits · Clean sheets) plus *Players average …* line — shared across all wings, above wing tabs; chapter lede carries the headline numbers instead of the panel lede |
 
 ---
 

@@ -48,8 +48,11 @@ python -m scripts.amiga.tournament_videos.sync_db_ids
 
 Numeric ids in `review.csv` / `tournament_videos.json` are **DB caches**, not stable keys. After `import-witness` or `python -m scripts.amiga prove`:
 
+**Policy (Jul 2026):** [`docs/amiga-tournament-videos-game-links-policy.md`](../../../docs/amiga-tournament-videos-game-links-policy.md) — match facts authoritative; sync **remaps** ids; verify **fails loud** on mismatch. **GL-0…GL-6 shipped** (`game_links.py`, sidecar `video_game_links.csv`, `stream_map` mode).
+
 ```powershell
 python -m scripts.amiga.tournament_videos.sync_db_ids
+python -m scripts.amiga.tournament_videos.audit_game_links
 python -m scripts.amiga.verify_tournament_videos
 ```
 
@@ -71,6 +74,23 @@ python -m scripts.amiga.verify_tournament_videos
 ```
 
 Default includes all mapped rows; `--verified-only` if you want strict CSV gate. Manifest `verified` mirrors CSV (`Y` → true).
+
+## Stream game map (GL-5 sidecar)
+
+Long **`kind=stream`** broadcasts with many linked games use a sidecar file (not one row per game in `review.csv`):
+
+| Path | Role |
+|------|------|
+| `data/amiga/tournament_videos/video_game_links.csv` | One row per linked game (`link_ordinal`, players, score, stage, optional `start_sec`) |
+| `review.csv` → `game_link_mode=stream_map` | Tells sync/verify to load links from sidecar |
+
+Workflow:
+
+1. Set stream row `game_link_mode=stream_map` (and `verified=Y` when curated).
+2. Append sidecar rows (see [`amiga-tournament-videos-game-links-policy.md`](../../../docs/amiga-tournament-videos-game-links-policy.md) §10.2).
+3. `python -m scripts.amiga.tournament_videos.sync_db_ids` — writes `game_id_guess` from facts; rebuilds manifest with optional `game_start_sec[]`.
+
+Sidecar empty today — machinery only; match rows and dual-leg uploads unchanged.
 
 ## Manual additions
 

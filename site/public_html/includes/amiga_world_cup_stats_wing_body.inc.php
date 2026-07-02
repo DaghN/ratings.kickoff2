@@ -22,4 +22,11 @@ $rows = amiga_world_cup_stats_rows($con, $ctx);
 $nameMap = amiga_tournament_player_names($con, amiga_world_cup_stats_collect_player_ids($rows));
 mysqli_close($con);
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_routes.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_url.php';
+$k2ActWcActivityHref = amiga_url_with_context(k2_amiga_route('amiga-activity-world-cups'));
+?>
+<p class="k2-activity-section__intro">Community-wide year charts (WC share, cumulative WC games, …): <a href="<?php echo k2_h($k2ActWcActivityHref); ?>">Activity — World Cups</a>.</p>
+<?php
+
 amiga_world_cup_stats_render_view($k2AmigaWorldCupsStatsView, $rows, $nameMap);

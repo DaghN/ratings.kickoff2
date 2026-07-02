@@ -457,3 +457,306 @@ function amiga_community_year_rate_reference_at_cutoff(mysqli $con, int $cutoffT
 
     return round((float) $headline[$headlineCol], 4);
 }
+
+/**
+ * Zero-filled calendar-year series for one slice/metric at cutoff.
+ *
+ * @return array{years: list<int>, values: list<int|float>}
+ */
+function amiga_community_year_series_filled_at_cutoff(
+    mysqli $con,
+    int $cutoffTournamentId,
+    string $sliceType,
+    string $metricKey,
+    bool $roundInt = true,
+): array {
+    $span = amiga_community_year_span_at_cutoff($con, $cutoffTournamentId);
+    if ($span === null) {
+        return ['years' => [], 'values' => []];
+    }
+
+    $facts = amiga_community_year_facts_at_cutoff($con, $cutoffTournamentId, $sliceType, $metricKey);
+    $sliceKey = match ($sliceType) {
+        'realm' => AMIGA_COMMUNITY_REALM_SLICE_KEY,
+        'world_cup' => AMIGA_COMMUNITY_WORLD_CUP_SLICE_KEY,
+        default => throw new RuntimeException('unsupported slice: ' . $sliceType),
+    };
+    $byYear = $facts[$sliceKey] ?? [];
+
+    $years = [];
+    $values = [];
+    for ($year = $span[0]; $year <= $span[1]; $year++) {
+        $years[] = $year;
+        $v = (float) ($byYear[$year] ?? 0.0);
+        $values[] = $roundInt ? (int) round($v) : round($v, 4);
+    }
+
+    return ['years' => $years, 'values' => $values];
+}
+
+/**
+ * Parse a CSV of slice keys (country names) for geography selectors.
+ *
+ * @return list<string>
+ */
+function amiga_community_geo_parse_keys_csv(string $csv, int $max = 7): array
+{
+    $out = [];
+    foreach (explode(',', $csv) as $part) {
+        $key = trim($part);
+        if ($key === '' || in_array($key, $out, true)) {
+            continue;
+        }
+        $out[] = $key;
+        if (count($out) >= $max) {
+            break;
+        }
+    }
+
+    return $out;
+}
+
+/**
+ * Default duel pair: England vs Germany when present, else top two by volume.
+ *
+ * @param list<string> $validKeys ranked desc
+ * @return array{0: string, 1: string|null}
+ */
+function amiga_community_geo_default_duel(array $validKeys): array
+{
+    if ($validKeys === []) {
+        return ['', null];
+    }
+
+    $a = in_array('England', $validKeys, true) ? 'England' : $validKeys[0];
+    $b = in_array('Germany', $validKeys, true) ? 'Germany' : ($validKeys[1] ?? null);
+    if ($b === $a) {
+        $b = $validKeys[1] ?? null;
+    }
+    if ($b === $a) {
+        $b = null;
+    }
+
+    return [$a, $b];
+}
+
+/**
+ * Default race line keys: top N by all-time volume at cutoff (duel pair first).
+ *
+ * @param list<string> $validKeys ranked desc
+ * @return list<string>
+ */
+function amiga_community_geo_default_race_keys(array $validKeys, int $count = 5): array
+{
+    if ($validKeys === []) {
+        return [];
+    }
+
+    [$duelA, $duelB] = amiga_community_geo_default_duel($validKeys);
+    $out = [];
+    if ($duelA !== '') {
+        $out[] = $duelA;
+    }
+    if ($duelB !== null && $duelB !== '' && !in_array($duelB, $out, true)) {
+        $out[] = $duelB;
+    }
+    foreach ($validKeys as $key) {
+        if (count($out) >= min($count, 7)) {
+            break;
+        }
+        if (!in_array($key, $out, true)) {
+            $out[] = $key;
+        }
+    }
+
+    return array_slice($out, 0, min($count, 7));
+}
+
+/**
+ * Resolve geography page selection from a URL CSV (?hosts= / ?nats=).
+ *
+ * @param array<string, float> $availableRanked slice_key => all-time games at cutoff
+ * @return array{race_keys: list<string>, duel_a: string, duel_b: string|null, csv: string}
+ */
+function amiga_community_geo_page_selection(?string $csv, array $availableRanked): array
+{
+    $validKeys = array_keys($availableRanked);
+    $defaultRace = amiga_community_geo_default_race_keys($validKeys, 5);
+    [$defaultA, $defaultB] = amiga_community_geo_default_duel($validKeys);
+
+    if ($csv === null || trim($csv) === '') {
+        return [
+            'race_keys' => $defaultRace,
+            'duel_a' => $defaultA,
+            'duel_b' => $defaultB,
+            'csv' => implode(',', $defaultRace),
+        ];
+    }
+
+    $race = [];
+    foreach (amiga_community_geo_parse_keys_csv($csv, 7) as $key) {
+        if (isset($availableRanked[$key]) && !in_array($key, $race, true)) {
+            $race[] = $key;
+        }
+    }
+
+    if ($race === []) {
+        return [
+            'race_keys' => $defaultRace,
+            'duel_a' => $defaultA,
+            'duel_b' => $defaultB,
+            'csv' => implode(',', $defaultRace),
+        ];
+    }
+
+    return [
+        'race_keys' => $race,
+        'duel_a' => $race[0],
+        'duel_b' => $race[1] ?? null,
+        'csv' => implode(',', $race),
+    ];
+}
+
+/**
+ * Validate slice keys against cutoff availability (picker + API guard).
+ *
+ * @param list<string> $keys
+ * @param array<string, float> $availableRanked
+ * @return list<string>
+ */
+function amiga_community_geo_validate_keys(array $keys, array $availableRanked, int $max = 7): array
+{
+    $out = [];
+    foreach ($keys as $key) {
+        $key = trim((string) $key);
+        if ($key === '' || !isset($availableRanked[$key]) || in_array($key, $out, true)) {
+            continue;
+        }
+        $out[] = $key;
+        if (count($out) >= $max) {
+            break;
+        }
+    }
+
+    return $out;
+}
+
+/**
+ * Zero-filled year series for multiple slice keys (geography duel bars).
+ *
+ * @param list<string> $sliceKeys
+ * @return array{years: list<int>, series: list<array{key: string, values: list<int|float>}>}
+ */
+function amiga_community_year_series_filled_for_keys_at_cutoff(
+    mysqli $con,
+    int $cutoffTournamentId,
+    string $sliceType,
+    string $metricKey,
+    array $sliceKeys,
+    bool $roundInt = true,
+): array {
+    $span = amiga_community_year_span_at_cutoff($con, $cutoffTournamentId);
+    if ($span === null || $sliceKeys === []) {
+        return ['years' => [], 'series' => []];
+    }
+
+    $facts = amiga_community_year_facts_at_cutoff($con, $cutoffTournamentId, $sliceType, $metricKey, $sliceKeys);
+    $years = [];
+    for ($year = $span[0]; $year <= $span[1]; $year++) {
+        $years[] = $year;
+    }
+
+    $series = [];
+    foreach ($sliceKeys as $sliceKey) {
+        $byYear = $facts[$sliceKey] ?? [];
+        $values = [];
+        foreach ($years as $year) {
+            $v = (float) ($byYear[$year] ?? 0.0);
+            $values[] = $roundInt ? (int) round($v) : round($v, 4);
+        }
+        $series[] = ['key' => $sliceKey, 'values' => $values];
+    }
+
+    return ['years' => $years, 'series' => $series];
+}
+
+/**
+ * Per-country cumulative all_time facts across snapshots (geography race lines).
+ *
+ * @param list<string> $sliceKeys
+ * @return list<array{key: string, points: list<array{t: int, date: string, name: string, value: int|float}>}>
+ */
+function amiga_community_slice_series(
+    mysqli $con,
+    string $sliceType,
+    string $metricKey,
+    array $sliceKeys,
+    ?float $cutoffChrono = null,
+): array {
+    if ($sliceKeys === []) {
+        return [];
+    }
+
+    $basis = amiga_community_fact_count_basis($sliceType);
+    $placeholders = implode(', ', array_fill(0, count($sliceKeys), '?'));
+    $sql = "SELECT s.tournament_id, s.event_date, s.tournament_name, f.slice_key, f.value
+            FROM amiga_community_stats_snapshots s
+            INNER JOIN amiga_community_stat_facts f
+              ON f.tournament_id = s.tournament_id
+             AND f.period_type = 'all_time'
+             AND f.slice_type = ?
+             AND f.metric_key = ?
+             AND f.count_basis = ?
+             AND f.slice_key IN ({$placeholders})";
+    if ($cutoffChrono !== null) {
+        $sql .= ' WHERE s.event_chrono <= ?';
+    }
+    $sql .= ' ORDER BY s.event_chrono ASC, f.slice_key ASC';
+
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare community slice series: ' . $con->error);
+    }
+
+    $types = 'sss' . str_repeat('s', count($sliceKeys));
+    if ($cutoffChrono !== null) {
+        $types .= 'd';
+    }
+    $params = array_merge([$sliceType, $metricKey, $basis], array_values($sliceKeys));
+    if ($cutoffChrono !== null) {
+        $params[] = $cutoffChrono;
+    }
+    $stmt->bind_param($types, ...$params);
+    if (!$stmt->execute()) {
+        $err = $stmt->error;
+        $stmt->close();
+        throw new RuntimeException('execute community slice series: ' . $err);
+    }
+
+    $res = $stmt->get_result();
+    $indexed = [];
+    foreach ($sliceKeys as $sliceKey) {
+        $indexed[$sliceKey] = ['key' => $sliceKey, 'points' => []];
+    }
+    while ($row = $res->fetch_assoc()) {
+        $key = (string) ($row['slice_key'] ?? '');
+        if ($key === '' || !isset($indexed[$key])) {
+            continue;
+        }
+        $indexed[$key]['points'][] = [
+            't' => (int) ($row['tournament_id'] ?? 0),
+            'date' => (string) ($row['event_date'] ?? ''),
+            'name' => (string) ($row['tournament_name'] ?? ''),
+            'value' => (int) round((float) ($row['value'] ?? 0)),
+        ];
+    }
+    $res->free();
+    $stmt->close();
+
+    $out = [];
+    foreach ($sliceKeys as $sliceKey) {
+        $out[] = $indexed[$sliceKey];
+    }
+
+    return $out;
+}

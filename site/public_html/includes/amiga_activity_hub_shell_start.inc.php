@@ -50,32 +50,14 @@ if ($k2ActHeadline !== null) {
     $k2ActCountries = amiga_lb_rated_country_count($con, $k2ActCtx);
     $k2ActTournaments = amiga_tournament_index_count($con, $k2ActCtx);
 
-    if ($k2ActCutoffEntry !== null) {
-        $k2ActEdgeDate = (string) ($k2ActCutoffEntry['event_date'] ?? '');
-    } else {
-        $k2ActLatestTid = amiga_community_latest_snapshot_tournament_id($con);
-        $k2ActEdgeDate = $k2ActLatestTid !== null
-            ? (string) (amiga_community_snapshot_event_date($con, $k2ActLatestTid) ?? '')
-            : '';
-    }
-    $k2ActFirstYear = 0;
-    $k2ActRes = $con->query('SELECT MIN(event_date) AS d FROM amiga_community_stats_snapshots');
-    if ($k2ActRes !== false) {
-        $k2ActRow = $k2ActRes->fetch_assoc();
-        $k2ActRes->free();
-        $k2ActFirstYear = (int) substr((string) ($k2ActRow['d'] ?? ''), 0, 4);
-    }
-    $k2ActEdgeYear = (int) substr($k2ActEdgeDate, 0, 4);
-    $k2ActYearSpan = ($k2ActFirstYear > 0 && $k2ActEdgeYear >= $k2ActFirstYear)
-        ? $k2ActEdgeYear - $k2ActFirstYear + 1
-        : 0;
-
-    $k2ActLedeOpen = $k2ActYearSpan > 0
-        ? ($k2ActYearSpan === 1 ? 'One year' : $k2ActYearSpan . ' years') . ' of the KOA scene: '
-        : 'The KOA scene: ';
+    $k2ActKoaStartYear = 2001;
+    $k2ActYearSpan = (int) date('Y') - $k2ActKoaStartYear;
+    $k2ActLedeOpen = $k2ActYearSpan === 1
+        ? 'One year of the KOA: Since ' . $k2ActKoaStartYear . ', '
+        : $k2ActYearSpan . ' years of the KOA: Since ' . $k2ActKoaStartYear . ', ';
     $k2HubChapterLede = htmlspecialchars($k2ActLedeOpen, ENT_QUOTES, 'UTF-8')
         . '<span class="blue">' . number_format($k2ActPlayers) . '</span> players from '
-        . '<span class="blue">' . number_format($k2ActCountries) . '</span> ' . ($k2ActCountries === 1 ? 'nation' : 'nations') . ', '
+        . '<span class="blue">' . number_format($k2ActCountries) . '</span> ' . ($k2ActCountries === 1 ? 'nation' : 'nations') . ' have played '
         . '<span class="blue">' . number_format($k2ActGames) . '</span> rated games in '
         . '<span class="blue">' . number_format($k2ActTournaments) . '</span> ' . ($k2ActTournaments === 1 ? 'tournament' : 'tournaments') . '.';
 }
@@ -84,6 +66,8 @@ unset($con);
 
 $k2HubChapterTitle = 'Activity';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
+$k2AmigaActivitySummaryHideLede = true;
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_activity_summary.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_activity_hub_nav.php';
 if ($k2AmigaActivityWingView === 'geography') {
     include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_activity_geography_nav.php';

@@ -228,6 +228,64 @@
         };
     }
 
+    function ghostBarStroke() {
+        var muted = T.textMuted();
+        return {
+            backgroundColor: T.fill(muted, 0.12),
+            borderColor: T.fill(muted, 0.35),
+            borderWidth: T.barBorderWidth()
+        };
+    }
+
+    function renderGhostYearBar(canvas, labels, frontValues, ghostValues, spec, cutoff) {
+        createChart(canvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    Object.assign({
+                        ghost: true,
+                        label: spec.ghostLabel,
+                        data: ghostValues,
+                        order: 2,
+                        barPercentage: 1.0,
+                        categoryPercentage: 0.82
+                    }, ghostBarStroke()),
+                    Object.assign({
+                        label: spec.label,
+                        data: frontValues,
+                        order: 1,
+                        barPercentage: 0.58,
+                        categoryPercentage: 0.82
+                    }, T.barStroke(tone(spec.tone)))
+                ]
+            },
+            options: chartOptions({
+                plugins: {
+                    legend: { labels: { color: T.textMuted() } },
+                    tooltip: T.mergeTooltip({
+                        callbacks: {
+                            label: function (item) {
+                                if (item.parsed.y == null) {
+                                    return 'No data';
+                                }
+                                if (item.dataset.ghost) {
+                                    return formatCount(item.parsed.y) + ' ' + spec.ghostNoun;
+                                }
+                                return formatCount(item.parsed.y) + ' ' + spec.noun;
+                            },
+                            footer: partialYearFooter(cutoff, labels)
+                        }
+                    })
+                },
+                scales: {
+                    x: scaleXCategory(),
+                    y: scaleYCountFormatted()
+                }
+            }, 'bar')
+        }, 'bar');
+    }
+
     function renderYearBar(canvas, labels, values, spec, cutoff) {
         createChart(canvas, {
             type: 'bar',
@@ -264,13 +322,28 @@
         }, 'bar');
     }
 
-    function renderYearRateBar(canvas, labels, values, spec, cutoff, reference) {
+    function renderYearRateBar(canvas, labels, values, spec, cutoff, reference, overlay) {
         var datasets = [Object.assign({
             type: 'bar',
             label: spec.label,
             data: values,
-            order: 2
+            order: 3
         }, T.barStroke(tone(spec.tone)))];
+        if (overlay && overlay.values && overlay.values.length) {
+            datasets.push({
+                type: 'line',
+                label: overlay.label || 'Overlay',
+                data: overlay.values,
+                borderColor: T.textMuted(),
+                backgroundColor: 'transparent',
+                borderWidth: 1.5,
+                borderDash: [6, 4],
+                pointRadius: 0,
+                pointHitRadius: 6,
+                fill: false,
+                order: 1
+            });
+        }
         if (reference != null && !isNaN(reference)) {
             datasets.push({
                 type: 'line',
@@ -285,9 +358,10 @@
                 pointRadius: 0,
                 pointHitRadius: 0,
                 fill: false,
-                order: 1
+                order: 2
             });
         }
+        var hasOverlay = overlay && overlay.values && overlay.values.length;
         createChart(canvas, {
             type: 'bar',
             data: {
@@ -298,13 +372,16 @@
                 plugins: {
                     legend: { labels: { color: T.textMuted() } },
                     tooltip: T.mergeTooltip({
-                        filter: function (item) {
-                            return item.datasetIndex === 0;
+                        filter: hasOverlay ? undefined : function (item) {
+                            return item.dataset.type === 'bar';
                         },
                         callbacks: {
                             label: function (item) {
                                 if (item.parsed.y == null) {
                                     return 'No data';
+                                }
+                                if (item.dataset.type === 'line') {
+                                    return item.dataset.label + ': ' + formatRateValue(item.parsed.y, spec);
                                 }
                                 return formatRateValue(item.parsed.y, spec);
                             },
@@ -327,7 +404,7 @@
         if (!canvas) {
             return Promise.resolve();
         }
-        return fetchJson('/api/amiga_community_year_facts.php', 'metric=' + encodeURIComponent(spec.metric))
+        return fetchJson('/api/amiga_community_year_facts.php', (spec.slice ? 'slice=' + encodeURIComponent(spec.slice) + '&' : '') + 'metric=' + encodeURIComponent(spec.metric))
             .then(function (data) {
                 var years = data.years || [];
                 var series = (data.series && data.series[0] && data.series[0].values) || [];
@@ -370,7 +447,7 @@
                 if (status) {
                     status.textContent = '';
                 }
-                renderYearRateBar(canvas, years.map(String), values, spec, data.cutoff, data.reference);
+                renderYearRateBar(canvas, years.map(String), values, spec, data.cutoff, data.reference, data.overlay);
             })
             .catch(function (err) {
                 noteError(spec.metric || spec.rate || 'panel', err);
@@ -378,6 +455,144 @@
                     status.textContent = 'Could not load this chart.';
                 }
             });
+    }
+
+    function histogramPopulationUnit(count, label) {
+        var n = Number(count);
+        if (label === 'games') {
+            return n === 1 ? 'game' : 'games';
+        }
+        if (label === 'tournaments') {
+            return n === 1 ? 'tournament' : 'tournaments';
+        }
+        return n === 1 ? 'player' : 'players';
+    }
+
+    function renderHistogramBar(canvas, buckets, spec, population, populationLabel) {
+        var labels = [];
+        var counts = [];
+        var i;
+        for (i = 0; i < buckets.length; i++) {
+            labels.push(String(buckets[i].label));
+            counts.push(buckets[i].count);
+        }
+        var popTotal = Number(population) || 0;
+        createChart(canvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [Object.assign({
+                    label: spec.label,
+                    data: counts
+                }, T.barStroke(tone(spec.tone)))]
+            },
+            options: chartOptions({
+                plugins: {
+                    legend: { display: false },
+                    tooltip: T.mergeTooltip({
+                        filter: function (item) {
+                            return item.parsed.y > 0;
+                        },
+                        callbacks: {
+                            title: function (items) {
+                                if (!items.length) {
+                                    return '';
+                                }
+                                return items[0].label;
+                            },
+                            label: function (item) {
+                                var count = item.parsed.y;
+                                return formatCount(count) + ' ' + histogramPopulationUnit(count, populationLabel);
+                            },
+                            afterLabel: function (item) {
+                                if (!popTotal) {
+                                    return '';
+                                }
+                                var pct = (item.parsed.y / popTotal) * 100;
+                                return pct.toFixed(1) + '% of ' + popTotal.toLocaleString() + ' ' + histogramPopulationUnit(popTotal, populationLabel);
+                            }
+                        }
+                    })
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: T.tickColor(),
+                            maxRotation: spec.dense ? 90 : 45,
+                            minRotation: 0,
+                            autoSkip: !spec.dense,
+                            maxTicksLimit: spec.dense ? 40 : 18
+                        },
+                        grid: { display: false }
+                    },
+                    y: scaleYCountFormatted()
+                }
+            }, 'bar')
+        }, 'bar');
+    }
+
+    /** Shape wing histogram from the histogram API. */
+    function mountHistogram(root, spec) {
+        var status = panelStatus(root);
+        var canvas = requireCanvas(root, status);
+        if (!canvas) {
+            return Promise.resolve();
+        }
+        return fetchJson('/api/amiga_community_histogram.php', 'kind=' + encodeURIComponent(spec.kind))
+            .then(function (data) {
+                var buckets = data.buckets || [];
+                var population = data.population || 0;
+                if (!buckets.length || !population) {
+                    if (status) {
+                        status.textContent = 'No data to chart.';
+                    }
+                    return;
+                }
+                if (status) {
+                    status.textContent = '';
+                }
+                renderHistogramBar(canvas, buckets, spec, population, data.population_label || 'players');
+            })
+            .catch(function (err) {
+                noteError(spec.kind || 'histogram', err);
+                if (status) {
+                    status.textContent = 'Could not load this chart.';
+                }
+            });
+    }
+
+    /** WC games per year with realm games as muted ghost bars behind (Q-WC-001). */
+    function mountWcGamesGhostYear(root, spec) {
+        var status = panelStatus(root);
+        var canvas = requireCanvas(root, status);
+        if (!canvas) {
+            return Promise.resolve();
+        }
+        return Promise.all([
+            fetchJson('/api/amiga_community_year_facts.php', 'slice=world_cup&metric=games'),
+            fetchJson('/api/amiga_community_year_facts.php', 'slice=realm&metric=games')
+        ]).then(function (results) {
+            var wcData = results[0];
+            var realmData = results[1];
+            var years = wcData.years || [];
+            var wcValues = (wcData.series && wcData.series[0] && wcData.series[0].values) || [];
+            var ghostValues = (realmData.series && realmData.series[0] && realmData.series[0].values) || [];
+            if (!years.length || !wcValues.length || !ghostValues.length) {
+                if (status) {
+                    status.textContent = 'No data to chart.';
+                }
+                return;
+            }
+            if (status) {
+                status.textContent = '';
+            }
+            renderGhostYearBar(canvas, years.map(String), wcValues, ghostValues, spec, wcData.cutoff || realmData.cutoff);
+        }).catch(function (err) {
+            noteError('wc-games-ghost', err);
+            if (status) {
+                status.textContent = 'Could not load this chart.';
+            }
+        });
     }
 
     /** L2 cumulative event-timeline lines: every point is a real tournament. */
@@ -505,6 +720,142 @@
             });
     }
 
+    /** GEO-009 — cumulative distinct host countries; tooltip flags unlock events. */
+    function mountHostCountriesCumulative(root, spec) {
+        var status = panelStatus(root);
+        var canvas = requireCanvas(root, status);
+        if (!canvas) {
+            return Promise.resolve();
+        }
+        return fetchJson('/api/amiga_community_snapshot_series.php', 'metric=' + encodeURIComponent(spec.metric))
+            .then(function (data) {
+                var points = data.points || [];
+                var chartData = [];
+                var meta = [];
+                var prevValue = null;
+                var i;
+                for (i = 0; i < points.length; i++) {
+                    var x = parseEventDate(points[i].date);
+                    if (x === null || points[i].value == null) {
+                        continue;
+                    }
+                    chartData.push({ x: x, y: points[i].value });
+                    meta.push({
+                        t: points[i].t,
+                        date: points[i].date,
+                        name: points[i].name,
+                        value: points[i].value,
+                        prevValue: prevValue
+                    });
+                    prevValue = points[i].value;
+                }
+                if (!chartData.length) {
+                    if (status) {
+                        status.textContent = 'No data to chart.';
+                    }
+                    return;
+                }
+                if (status) {
+                    status.textContent = '';
+                }
+                var coarse = T.isCoarsePointer();
+                createChart(canvas, {
+                    type: 'line',
+                    data: {
+                        datasets: [Object.assign({
+                            label: spec.label,
+                            data: chartData,
+                            fill: true,
+                            stepped: true,
+                            pointRadius: 0,
+                            pointHitRadius: 8
+                        }, T.lineStroke(tone(spec.tone)))]
+                    },
+                    options: chartOptions({
+                        interaction: { mode: 'nearest', intersect: false, axis: 'x' },
+                        onClick: coarse ? undefined : function (event, elements) {
+                            if (!elements.length) {
+                                return;
+                            }
+                            var point = meta[elements[0].index];
+                            if (!point || !point.t) {
+                                return;
+                            }
+                            var url = '/amiga/tournament/event-stats.php?id=' + point.t;
+                            var TT = global.K2AmigaTimeTravelUrl;
+                            if (TT && TT.navigationQuerySuffix) {
+                                url += TT.navigationQuerySuffix();
+                            }
+                            global.location.href = url;
+                        },
+                        onHover: coarse ? undefined : function (event, elements) {
+                            var target = event && event.native ? event.native.target : canvas;
+                            if (target) {
+                                target.style.cursor = elements.length ? 'pointer' : 'default';
+                            }
+                        },
+                        plugins: {
+                            legend: { labels: { color: T.textMuted() } },
+                            tooltip: T.mergeTooltip({
+                                callbacks: {
+                                    title: function (items) {
+                                        if (!items.length) {
+                                            return '';
+                                        }
+                                        var point = meta[items[0].dataIndex];
+                                        return point ? point.name : '';
+                                    },
+                                    label: function (item) {
+                                        var point = meta[item.dataIndex];
+                                        var lines = [];
+                                        if (point) {
+                                            lines.push(formatEventDate(parseEventDate(point.date)));
+                                        }
+                                        lines.push('Total: ' + formatCount(item.parsed.y) + ' host countries');
+                                        if (point && point.prevValue != null && point.value > point.prevValue) {
+                                            lines.push('New host country unlocked at this tournament');
+                                        }
+                                        return lines;
+                                    }
+                                }
+                            })
+                        },
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    displayFormats: {
+                                        year: 'yyyy',
+                                        month: 'MMM yyyy',
+                                        day: 'd MMM yyyy'
+                                    }
+                                },
+                                ticks: {
+                                    color: T.tickColor(),
+                                    maxRotation: 45,
+                                    autoSkip: true,
+                                    maxTicksLimit: 14
+                                },
+                                grid: { color: T.grid() }
+                            },
+                            y: scaleYCountFormatted()
+                        }
+                    }, 'line')
+                }, 'line');
+                if (!coarse) {
+                    canvas.addEventListener('mouseleave', function () {
+                        canvas.style.cursor = 'default';
+                    });
+                }
+            })
+            .catch(function (err) {
+                noteError(spec.metric || 'host-countries-cumulative', err);
+                if (status) {
+                    status.textContent = 'Could not load this chart.';
+                }
+            });
+    }
+
     /* --- Panel registry + sequential drain (activity-charts-v2 pattern) --- */
 
     var PANELS = [];
@@ -515,6 +866,29 @@
     /** spec: { id, selector, run(root) -> Promise } */
     function registerPanel(spec) {
         PANELS.push(spec);
+    }
+
+    /** Geography duel/race panels — re-fetch when country selection changes. */
+    var geoPanelRefreshers = [];
+
+    function registerGeoPanel(spec) {
+        registerPanel({
+            id: spec.id,
+            selector: spec.selector,
+            run: function (root) {
+                var mountFn = function () {
+                    if (spec.pattern === 'duel') {
+                        return mountGeoDuelYear(root, spec);
+                    }
+                    return mountGeoRace(root, spec);
+                };
+                if (!root.getAttribute('data-k2-geo-panel-bound')) {
+                    root.setAttribute('data-k2-geo-panel-bound', '1');
+                    geoPanelRefreshers.push({ pattern: spec.pattern, run: mountFn });
+                }
+                return mountFn();
+            }
+        });
     }
 
     function runPanel(spec) {
@@ -736,6 +1110,69 @@
         }
     });
 
+    /* --- World Cups wing (slice 4) --- */
+
+    registerPanel({
+        id: 'wc-games-year',
+        selector: '.amiga-act-wc-games-year-chart',
+        run: function (root) {
+            return mountWcGamesGhostYear(root, {
+                tone: 'holo',
+                label: 'WC games',
+                noun: 'WC games',
+                ghostLabel: 'All rated games',
+                ghostNoun: 'rated games'
+            });
+        }
+    });
+    registerPanel({
+        id: 'wc-share-year',
+        selector: '.amiga-act-wc-share-year-chart',
+        run: function (root) {
+            return mountYearRate(root, {
+                rate: 'wc_share',
+                tone: 'chrome',
+                label: 'WC share',
+                noun: 'WC share',
+                format: 'percent'
+            });
+        }
+    });
+    registerPanel({
+        id: 'wc-games-cumulative',
+        selector: '.amiga-act-wc-games-cumulative-chart',
+        run: function (root) {
+            return mountCumulative(root, { metric: 'WcGamesPlayed', tone: 'holo', label: 'Cumulative WC games', noun: 'WC games' });
+        }
+    });
+    registerPanel({
+        id: 'wc-goals-per-game-year',
+        selector: '.amiga-act-wc-goals-per-game-year-chart',
+        run: function (root) {
+            return mountYearRate(root, {
+                rate: 'wc_goals_per_game',
+                tone: 'amber',
+                label: 'WC goals per game',
+                noun: 'goals per game',
+                decimals: 2
+            });
+        }
+    });
+    registerPanel({
+        id: 'wc-nations-year',
+        selector: '.amiga-act-wc-nations-year-chart',
+        run: function (root) {
+            return mountYearFacts(root, { slice: 'world_cup', metric: 'distinct_nationalities', tone: 'teal', label: 'Nations', noun: 'nationalities' });
+        }
+    });
+    registerPanel({
+        id: 'wc-players-year',
+        selector: '.amiga-act-wc-players-year-chart',
+        run: function (root) {
+            return mountYearFacts(root, { slice: 'world_cup', metric: 'active_players', tone: 'pitch', label: 'WC players', noun: 'players' });
+        }
+    });
+
     function isAmigaActivityChartsPage() {
         return document.body && document.body.classList.contains('k2-amiga-activity-charts');
     }
@@ -743,12 +1180,856 @@
     /* k2OnPageReady can invoke the callback twice on one load (shim quirk) — guard. */
     var booted = false;
 
+    /* --- Geography selector platform (slice 5+) --- */
+
+    var GEO_RACE_TONES = ['pitch', 'chrome', 'holo', 'amber', 'teal', 'magenta'];
+    var GEO_FLAG_CODES = {
+        'Germany': 'de',
+        'England': 'gb-eng',
+        'Italy': 'it',
+        'Norway': 'no',
+        'Greece': 'gr',
+        'Netherlands': 'nl',
+        'Sweden': 'se',
+        'Denmark': 'dk',
+        'Spain': 'es',
+        'Austria': 'at',
+        'Ireland': 'ie',
+        'France': 'fr',
+        'Poland': 'pl',
+        'Switzerland': 'ch',
+        'Turkey': 'tr',
+        'Scotland': 'gb-sct',
+        'Belgium': 'be',
+        'Wales': 'gb-wls',
+        'Portugal': 'pt',
+        'N. Ireland': 'gb-nir',
+        'Hong Kong': 'hk',
+        'UAE': 'ae'
+    };
+    var geoStates = new WeakMap();
+    var geoListeners = [];
+
+    function destroyChartOnCanvas(canvas) {
+        if (!canvas || typeof Chart === 'undefined' || typeof Chart.getChart !== 'function') {
+            return;
+        }
+        var inst = Chart.getChart(canvas);
+        if (inst) {
+            inst.destroy();
+        }
+    }
+
+    function parseGeoJsonAttr(el, name, fallback) {
+        try {
+            var raw = el.getAttribute(name);
+            if (!raw) {
+                return fallback;
+            }
+            return JSON.parse(raw);
+        } catch (e) {
+            return fallback;
+        }
+    }
+
+    function geoFlagSrc(code) {
+        return code ? '/img/flags/amiga/' + encodeURIComponent(code) + '.svg' : '';
+    }
+
+    function geoFlagCode(country) {
+        return GEO_FLAG_CODES[country] || '';
+    }
+
+    function geoFlagImgHtml(country) {
+        var code = geoFlagCode(country);
+        if (!code) {
+            return '';
+        }
+        return '<img src="' + geoFlagSrc(code) + '" width="20" height="15" alt="" aria-hidden="true" class="k2-amiga-country-flag-img" decoding="async" loading="lazy">';
+    }
+
+    function geoRosterHref(country) {
+        return '/amiga/country/roster.php?country=' + encodeURIComponent(country);
+    }
+
+    function getGeoDuelKeys(state) {
+        var keys = [];
+        if (state.duelA) {
+            keys.push(state.duelA);
+        }
+        if (state.duelB && state.duelB !== state.duelA) {
+            keys.push(state.duelB);
+        }
+        return keys;
+    }
+
+    function getGeoVisibleRaceKeys(state) {
+        return state.raceKeys.filter(function (key) {
+            return !state.hidden[key];
+        });
+    }
+
+    function geoKeysCsv(keys) {
+        return keys.join(',');
+    }
+
+    function syncGeoUrl(state) {
+        var csv = geoKeysCsv(state.raceKeys);
+        var url = new URL(global.location.href);
+        url.searchParams.set(state.param, csv);
+        var next = url.pathname + url.search + url.hash;
+        global.history.replaceState(null, '', next);
+        state.root.setAttribute('data-k2-geo-csv', csv);
+    }
+
+    function notifyGeoListeners(state) {
+        var i;
+        for (i = 0; i < geoListeners.length; i++) {
+            try {
+                geoListeners[i](state);
+            } catch (e) {
+                noteError('geo-listener', e);
+            }
+        }
+    }
+
+    function renderGroupedYearBar(canvas, labels, seriesList, spec, cutoff) {
+        destroyChartOnCanvas(canvas);
+        var datasets = [];
+        var duelTones = ['pitch', 'chrome'];
+        var i;
+        for (i = 0; i < seriesList.length; i++) {
+            var s = seriesList[i];
+            datasets.push(Object.assign({
+                label: s.key,
+                data: s.values,
+                barPercentage: 0.82,
+                categoryPercentage: 0.72
+            }, T.barStroke(tone(s.tone || duelTones[i % duelTones.length]))));
+        }
+        createChart(canvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: chartOptions({
+                plugins: {
+                    legend: { labels: { color: T.textMuted() } },
+                    tooltip: T.mergeTooltip({
+                        callbacks: {
+                            label: function (item) {
+                                if (item.parsed.y == null) {
+                                    return 'No data';
+                                }
+                                return item.dataset.label + ': ' + formatCount(item.parsed.y) + ' ' + spec.noun;
+                            },
+                            footer: partialYearFooter(cutoff, labels)
+                        }
+                    })
+                },
+                scales: {
+                    x: scaleXCategory(),
+                    y: scaleYCountFormatted()
+                }
+            }, 'bar')
+        }, 'bar');
+    }
+
+    function renderRaceLines(canvas, seriesData, spec, cutoff) {
+        destroyChartOnCanvas(canvas);
+        var datasets = [];
+        var metaByDataset = [];
+        var coarse = T.isCoarsePointer();
+        var i;
+        for (i = 0; i < seriesData.length; i++) {
+            var s = seriesData[i];
+            var chartData = [];
+            var meta = [];
+            var j;
+            for (j = 0; j < (s.points || []).length; j++) {
+                var pt = s.points[j];
+                var x = parseEventDate(pt.date);
+                if (x === null || pt.value == null) {
+                    continue;
+                }
+                chartData.push({ x: x, y: pt.value });
+                meta.push(pt);
+            }
+            if (!chartData.length) {
+                continue;
+            }
+            metaByDataset.push(meta);
+            datasets.push(Object.assign({
+                label: s.key,
+                data: chartData,
+                fill: false,
+                stepped: true,
+                pointRadius: 0,
+                pointHitRadius: 8,
+                hidden: !!spec.hidden[s.key]
+            }, T.lineStroke(tone(GEO_RACE_TONES[i % GEO_RACE_TONES.length]))));
+        }
+        if (!datasets.length) {
+            return false;
+        }
+        createChart(canvas, {
+            type: 'line',
+            data: { datasets: datasets },
+            options: chartOptions({
+                interaction: { mode: 'nearest', intersect: false, axis: 'x' },
+                onClick: coarse ? undefined : function (event, elements) {
+                    if (!elements.length) {
+                        return;
+                    }
+                    var dsIndex = elements[0].datasetIndex;
+                    var ptIndex = elements[0].index;
+                    var point = metaByDataset[dsIndex] && metaByDataset[dsIndex][ptIndex];
+                    if (!point || !point.t) {
+                        return;
+                    }
+                    var url = '/amiga/tournament/event-stats.php?id=' + point.t;
+                    var TT = global.K2AmigaTimeTravelUrl;
+                    if (TT && TT.navigationQuerySuffix) {
+                        url += TT.navigationQuerySuffix();
+                    }
+                    global.location.href = url;
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: T.textMuted() },
+                        onClick: function (e, legendItem, legend) {
+                            var ci = legend.chart;
+                            var idx = legendItem.datasetIndex;
+                            if (idx == null) {
+                                return;
+                            }
+                            ci.setDatasetVisibility(idx, !ci.isDatasetVisible(idx));
+                            ci.update();
+                        }
+                    },
+                    tooltip: T.mergeTooltip({
+                        callbacks: {
+                            title: function (items) {
+                                if (!items.length) {
+                                    return '';
+                                }
+                                var dsIdx = items[0].datasetIndex;
+                                var ptIdx = items[0].dataIndex;
+                                var point = metaByDataset[dsIdx] && metaByDataset[dsIdx][ptIdx];
+                                return point && point.name ? point.name : '';
+                            },
+                            label: function (item) {
+                                if (item.parsed.y == null) {
+                                    return 'No data';
+                                }
+                                return formatCount(item.parsed.y) + ' ' + spec.noun;
+                            }
+                        }
+                    })
+                },
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: { unit: 'year', displayFormats: { year: 'yyyy' } },
+                        ticks: { color: T.tickColor(), maxRotation: 0 },
+                        grid: { color: T.grid() }
+                    },
+                    y: scaleYCountFormatted()
+                }
+            }, 'line')
+        }, 'line');
+        return true;
+    }
+
+    function updateGeoDuelFlags(state) {
+        var flagA = state.root.querySelector('[data-k2-geo-flag-for="duel-a"]');
+        var flagB = state.root.querySelector('[data-k2-geo-flag-for="duel-b"]');
+        if (flagA) {
+            flagA.innerHTML = geoFlagImgHtml(state.duelA);
+        }
+        if (flagB) {
+            flagB.innerHTML = state.duelB ? geoFlagImgHtml(state.duelB) : '';
+        }
+    }
+
+    function dedupeRaceKeys(keys, duelA, duelB) {
+        var out = [];
+        var push = function (key) {
+            if (!key || out.indexOf(key) !== -1 || out.length >= 7) {
+                return;
+            }
+            out.push(key);
+        };
+        push(duelA);
+        push(duelB);
+        var i;
+        for (i = 0; i < keys.length; i++) {
+            push(keys[i]);
+        }
+        return out;
+    }
+
+    function renderGeoChips(state) {
+        var wrap = state.root.querySelector('.k2-amiga-act-geo-race-chips');
+        if (!wrap) {
+            return;
+        }
+        var html = '';
+        var i;
+        for (i = 0; i < state.raceKeys.length; i++) {
+            var key = state.raceKeys[i];
+            var off = state.hidden[key] ? ' is-off' : '';
+            html += '<button type="button" class="k2-amiga-act-geo-chip' + off + '" data-country="' + key.replace(/"/g, '&quot;') + '">'
+                + geoFlagImgHtml(key)
+                + '<a class="k2-amiga-act-geo-chip-name k2-link-star" href="' + geoRosterHref(key) + '">' + key + '</a>'
+                + '</button>';
+        }
+        wrap.innerHTML = html;
+    }
+
+    function syncDuelSelects(state) {
+        var selA = state.root.querySelector('.k2-amiga-act-geo-duel-a');
+        var selB = state.root.querySelector('.k2-amiga-act-geo-duel-b');
+        if (selA && selA.value !== state.duelA) {
+            selA.value = state.duelA;
+        }
+        if (selB) {
+            selB.value = state.duelB || '';
+        }
+        updateGeoDuelFlags(state);
+    }
+
+    function rebuildGeoSelectOptions(state) {
+        var selA = state.root.querySelector('.k2-amiga-act-geo-duel-a');
+        var selB = state.root.querySelector('.k2-amiga-act-geo-duel-b');
+        var addSel = state.root.querySelector('.k2-amiga-act-geo-race-add');
+        var buildOpts = function (selected, allowEmpty) {
+            var html = allowEmpty ? '<option value="">—</option>' : '';
+            var i;
+            for (i = 0; i < state.availableKeys.length; i++) {
+                var key = state.availableKeys[i];
+                html += '<option value="' + key.replace(/"/g, '&quot;') + '"' + (key === selected ? ' selected="selected"' : '') + '>' + key + '</option>';
+            }
+            return html;
+        };
+        if (selA) {
+            selA.innerHTML = buildOpts(state.duelA, false);
+        }
+        if (selB) {
+            selB.innerHTML = buildOpts(state.duelB || '', true);
+        }
+        if (addSel) {
+            var addHtml = '<option value="">+ add country</option>';
+            var j;
+            for (j = 0; j < state.availableKeys.length; j++) {
+                var k = state.availableKeys[j];
+                if (state.raceKeys.indexOf(k) === -1) {
+                    addHtml += '<option value="' + k.replace(/"/g, '&quot;') + '">' + k + '</option>';
+                }
+            }
+            addSel.innerHTML = addHtml;
+            addSel.value = '';
+        }
+    }
+
+    function mountGeoDuelYear(root, spec) {
+        var state = getGeoState();
+        var status = panelStatus(root);
+        var canvas = requireCanvas(root, status);
+        if (!canvas) {
+            return Promise.resolve();
+        }
+        if (!state) {
+            if (status) {
+                status.textContent = 'Country controls not ready.';
+            }
+            return Promise.resolve();
+        }
+        var duelKeys = getGeoDuelKeys(state);
+        if (!duelKeys.length) {
+            if (status) {
+                status.textContent = 'Pick a country to compare.';
+            }
+            destroyChartOnCanvas(canvas);
+            return Promise.resolve();
+        }
+        var slice = spec.slice || state.slice;
+        var q = 'slice=' + encodeURIComponent(slice) + '&metric=' + encodeURIComponent(spec.metric)
+            + '&keys=' + encodeURIComponent(geoKeysCsv(duelKeys));
+        return fetchJson('/api/amiga_community_year_facts.php', q).then(function (data) {
+            if (data.available_keys && data.available_keys.length) {
+                state.availableKeys = data.available_keys;
+                rebuildGeoSelectOptions(state);
+            }
+            var years = data.years || [];
+            var series = data.series || [];
+            if (!years.length || !series.length) {
+                if (status) {
+                    status.textContent = 'No data to chart.';
+                }
+                destroyChartOnCanvas(canvas);
+                return;
+            }
+            if (status) {
+                status.textContent = '';
+            }
+            renderGroupedYearBar(canvas, years.map(String), series, {
+                noun: spec.noun,
+                tone: spec.tone || 'pitch'
+            }, data.cutoff);
+        }).catch(function (err) {
+            noteError(spec.id || spec.metric || 'geo-duel', err);
+            if (status) {
+                status.textContent = 'Could not load this chart.';
+            }
+        });
+    }
+
+    function mountGeoRace(root, spec) {
+        var state = getGeoState();
+        var status = panelStatus(root);
+        var canvas = requireCanvas(root, status);
+        if (!canvas) {
+            return Promise.resolve();
+        }
+        if (!state) {
+            if (status) {
+                status.textContent = 'Country controls not ready.';
+            }
+            return Promise.resolve();
+        }
+        var visible = getGeoVisibleRaceKeys(state);
+        if (!visible.length) {
+            if (status) {
+                status.textContent = 'Turn on at least one race line.';
+            }
+            destroyChartOnCanvas(canvas);
+            return Promise.resolve();
+        }
+        var slice = spec.slice || state.slice;
+        var q = 'slice=' + encodeURIComponent(slice) + '&metric=' + encodeURIComponent(spec.metric)
+            + '&keys=' + encodeURIComponent(geoKeysCsv(state.raceKeys));
+        return fetchJson('/api/amiga_community_slice_series.php', q).then(function (data) {
+            if (data.available_keys && data.available_keys.length) {
+                state.availableKeys = data.available_keys;
+                rebuildGeoSelectOptions(state);
+            }
+            var series = (data.series || []).filter(function (s) {
+                return visible.indexOf(s.key) !== -1;
+            });
+            if (!series.length) {
+                if (status) {
+                    status.textContent = 'No data to chart.';
+                }
+                destroyChartOnCanvas(canvas);
+                return;
+            }
+            if (status) {
+                status.textContent = '';
+            }
+            renderRaceLines(canvas, series, {
+                noun: spec.noun,
+                hidden: state.hidden
+            }, data.cutoff);
+        }).catch(function (err) {
+            noteError(spec.id || spec.metric || 'geo-race', err);
+            if (status) {
+                status.textContent = 'Could not load this chart.';
+            }
+        });
+    }
+
+    function mountGeoHarnessDuel(state) {
+        var root = state.root.querySelector('.amiga-act-geo-harness-duel-chart');
+        if (!root) {
+            return Promise.resolve();
+        }
+        return mountGeoDuelYear(root, {
+            id: 'geo-harness-duel',
+            metric: 'games',
+            noun: state.harnessNoun,
+            tone: 'pitch'
+        });
+    }
+
+    function mountGeoHarnessRace(state) {
+        var root = state.root.querySelector('.amiga-act-geo-harness-race-chart');
+        if (!root) {
+            return Promise.resolve();
+        }
+        return mountGeoRace(root, {
+            id: 'geo-harness-race',
+            metric: 'games',
+            noun: state.harnessNoun
+        });
+    }
+
+    function refreshGeoRacePanels(state) {
+        var chain = Promise.resolve();
+        chain = chain.then(function () {
+            return mountGeoHarnessRace(state);
+        });
+        var i;
+        for (i = 0; i < geoPanelRefreshers.length; i++) {
+            if (geoPanelRefreshers[i].pattern === 'race') {
+                (function (fn) {
+                    chain = chain.then(fn);
+                })(geoPanelRefreshers[i].run);
+            }
+        }
+        return chain;
+    }
+
+    function refreshGeoAllPanels(state) {
+        var chain = Promise.resolve();
+        chain = chain.then(function () {
+            return mountGeoHarnessDuel(state);
+        });
+        chain = chain.then(function () {
+            return mountGeoHarnessRace(state);
+        });
+        var i;
+        for (i = 0; i < geoPanelRefreshers.length; i++) {
+            (function (fn) {
+                chain = chain.then(fn);
+            })(geoPanelRefreshers[i].run);
+        }
+        return chain;
+    }
+
+    function applyGeoStateChange(state, updateUrl) {
+        state.raceKeys = dedupeRaceKeys(state.raceKeys, state.duelA, state.duelB);
+        if (updateUrl !== false) {
+            syncGeoUrl(state);
+        }
+        renderGeoChips(state);
+        syncDuelSelects(state);
+        rebuildGeoSelectOptions(state);
+        notifyGeoListeners(state);
+        return refreshGeoAllPanels(state);
+    }
+
+    function initGeographyRoot(root) {
+        var slice = root.getAttribute('data-k2-geo-slice') || 'host_country';
+        var param = root.getAttribute('data-k2-geo-param') || 'hosts';
+        var state = {
+            root: root,
+            slice: slice,
+            param: param,
+            duelA: root.getAttribute('data-k2-geo-duel-a') || '',
+            duelB: root.getAttribute('data-k2-geo-duel-b') || '',
+            raceKeys: parseGeoJsonAttr(root, 'data-k2-geo-race', []),
+            availableKeys: parseGeoJsonAttr(root, 'data-k2-geo-available', []),
+            hidden: {},
+            harnessNoun: slice === 'player_nationality' ? 'appearances' : 'hosted games'
+        };
+        if (!state.raceKeys.length) {
+            state.raceKeys = dedupeRaceKeys([], state.duelA, state.duelB);
+        }
+        geoStates.set(root, state);
+
+        var selA = root.querySelector('.k2-amiga-act-geo-duel-a');
+        var selB = root.querySelector('.k2-amiga-act-geo-duel-b');
+        var addSel = root.querySelector('.k2-amiga-act-geo-race-add');
+        var chips = root.querySelector('.k2-amiga-act-geo-race-chips');
+
+        if (selA) {
+            selA.addEventListener('change', function () {
+                state.duelA = selA.value;
+                state.raceKeys = dedupeRaceKeys(state.raceKeys, state.duelA, state.duelB);
+                applyGeoStateChange(state);
+            });
+        }
+        if (selB) {
+            selB.addEventListener('change', function () {
+                state.duelB = selB.value;
+                state.raceKeys = dedupeRaceKeys(state.raceKeys, state.duelA, state.duelB);
+                applyGeoStateChange(state);
+            });
+        }
+        if (addSel) {
+            addSel.addEventListener('change', function () {
+                var key = addSel.value;
+                if (!key || state.raceKeys.indexOf(key) !== -1) {
+                    addSel.value = '';
+                    return;
+                }
+                if (state.raceKeys.length >= 7) {
+                    addSel.value = '';
+                    return;
+                }
+                state.raceKeys.push(key);
+                delete state.hidden[key];
+                addSel.value = '';
+                applyGeoStateChange(state);
+            });
+        }
+        if (chips) {
+            chips.addEventListener('click', function (event) {
+                var target = event.target;
+                if (target && target.closest && target.closest('a')) {
+                    return;
+                }
+                var btn = target && target.closest ? target.closest('.k2-amiga-act-geo-chip') : null;
+                if (!btn) {
+                    return;
+                }
+                event.preventDefault();
+                var country = btn.getAttribute('data-country');
+                if (!country) {
+                    return;
+                }
+                if (event.shiftKey && state.raceKeys.length > 1) {
+                    state.raceKeys = state.raceKeys.filter(function (k) {
+                        return k !== country;
+                    });
+                    delete state.hidden[country];
+                    if (state.duelA === country) {
+                        state.duelA = state.raceKeys[0] || '';
+                    }
+                    if (state.duelB === country) {
+                        state.duelB = state.raceKeys[1] || '';
+                    }
+                    applyGeoStateChange(state);
+                    return;
+                }
+                state.hidden[country] = !state.hidden[country];
+                renderGeoChips(state);
+                refreshGeoRacePanels(state);
+            });
+        }
+
+        renderGeoChips(state);
+        syncDuelSelects(state);
+        rebuildGeoSelectOptions(state);
+
+        return refreshGeoAllPanels(state);
+    }
+
+    function initGeographyPlatform() {
+        var roots = document.querySelectorAll('.k2-amiga-act-geo-root');
+        if (!roots.length) {
+            return Promise.resolve();
+        }
+        var chain = Promise.resolve();
+        var i;
+        for (i = 0; i < roots.length; i++) {
+            (function (root) {
+                chain = chain.then(function () {
+                    return initGeographyRoot(root);
+                });
+            })(roots[i]);
+        }
+        return chain;
+    }
+
+    function getGeoState(root) {
+        if (!root) {
+            root = document.querySelector('.k2-amiga-act-geo-root');
+        }
+        return root ? geoStates.get(root) || null : null;
+    }
+
+    function subscribeGeoChange(fn) {
+        if (typeof fn === 'function') {
+            geoListeners.push(fn);
+        }
+    }
+
+    /* --- Geography Hosts wing (slice 6) --- */
+
+    registerGeoPanel({
+        id: 'host-games-year',
+        selector: '.amiga-act-host-games-year-chart',
+        pattern: 'duel',
+        metric: 'games',
+        noun: 'hosted games',
+        tone: 'pitch'
+    });
+    registerGeoPanel({
+        id: 'host-games-race',
+        selector: '.amiga-act-host-games-race-chart',
+        pattern: 'race',
+        metric: 'games',
+        noun: 'hosted games'
+    });
+    registerGeoPanel({
+        id: 'host-tournaments-year',
+        selector: '.amiga-act-host-tournaments-year-chart',
+        pattern: 'duel',
+        metric: 'tournaments',
+        noun: 'tournaments hosted',
+        tone: 'chrome'
+    });
+    registerGeoPanel({
+        id: 'host-tournaments-race',
+        selector: '.amiga-act-host-tournaments-race-chart',
+        pattern: 'race',
+        metric: 'tournaments',
+        noun: 'tournaments hosted'
+    });
+    registerGeoPanel({
+        id: 'host-goals-year',
+        selector: '.amiga-act-host-goals-year-chart',
+        pattern: 'duel',
+        metric: 'goals',
+        noun: 'goals',
+        tone: 'amber'
+    });
+    registerGeoPanel({
+        id: 'host-goals-race',
+        selector: '.amiga-act-host-goals-race-chart',
+        pattern: 'race',
+        metric: 'goals',
+        noun: 'goals'
+    });
+    registerPanel({
+        id: 'host-countries-year',
+        selector: '.amiga-act-host-countries-year-chart',
+        run: function (root) {
+            return mountYearFacts(root, {
+                slice: 'realm',
+                metric: 'distinct_host_countries',
+                tone: 'teal',
+                label: 'Host countries',
+                noun: 'host countries'
+            });
+        }
+    });
+    registerPanel({
+        id: 'host-countries-cumulative',
+        selector: '.amiga-act-host-countries-cumulative-chart',
+        run: function (root) {
+            return mountHostCountriesCumulative(root, {
+                metric: 'DistinctHostCountries',
+                tone: 'teal',
+                label: 'Distinct host countries',
+                noun: 'host countries'
+            });
+        }
+    });
+
+    /* --- Geography Nations wing (slice 7) --- */
+
+    registerGeoPanel({
+        id: 'nat-appearances-year',
+        selector: '.amiga-act-nat-appearances-year-chart',
+        pattern: 'duel',
+        metric: 'games',
+        noun: 'appearances',
+        tone: 'pitch'
+    });
+    registerGeoPanel({
+        id: 'nat-appearances-race',
+        selector: '.amiga-act-nat-appearances-race-chart',
+        pattern: 'race',
+        metric: 'games',
+        noun: 'appearances'
+    });
+    registerGeoPanel({
+        id: 'nat-goals-year',
+        selector: '.amiga-act-nat-goals-year-chart',
+        pattern: 'duel',
+        metric: 'goals',
+        noun: 'goals',
+        tone: 'amber'
+    });
+    registerGeoPanel({
+        id: 'nat-goals-race',
+        selector: '.amiga-act-nat-goals-race-chart',
+        pattern: 'race',
+        metric: 'goals',
+        noun: 'goals'
+    });
+    registerPanel({
+        id: 'nat-nationalities-year',
+        selector: '.amiga-act-nationalities-year-chart',
+        run: function (root) {
+            return mountYearFacts(root, {
+                slice: 'realm',
+                metric: 'distinct_nationalities',
+                tone: 'teal',
+                label: 'Nationalities',
+                noun: 'nationalities'
+            });
+        }
+    });
+
+    /* --- Shape wing (slice 9) — loader order: snapshot kinds first, game scans last --- */
+
+    registerPanel({
+        id: 'career-games-histogram',
+        selector: '.amiga-act-career-games-histogram',
+        run: function (root) {
+            return mountHistogram(root, { kind: 'career_games', tone: 'pitch', label: 'Career games' });
+        }
+    });
+    registerPanel({
+        id: 'tournaments-played-histogram',
+        selector: '.amiga-act-tournaments-played-histogram',
+        run: function (root) {
+            return mountHistogram(root, { kind: 'tournaments_played', tone: 'chrome', label: 'Tournaments played' });
+        }
+    });
+    registerPanel({
+        id: 'distinct-opponents-histogram',
+        selector: '.amiga-act-distinct-opponents-histogram',
+        run: function (root) {
+            return mountHistogram(root, { kind: 'distinct_opponents', tone: 'holo', label: 'Distinct opponents' });
+        }
+    });
+    registerPanel({
+        id: 'countries-played-histogram',
+        selector: '.amiga-act-countries-played-histogram',
+        run: function (root) {
+            return mountHistogram(root, { kind: 'countries_played', tone: 'amber', label: 'Countries played in' });
+        }
+    });
+    registerPanel({
+        id: 'wcs-played-histogram',
+        selector: '.amiga-act-wcs-played-histogram',
+        run: function (root) {
+            return mountHistogram(root, { kind: 'world_cups_played', tone: 'magenta', label: 'World Cups played' });
+        }
+    });
+    registerPanel({
+        id: 'rating-distribution-histogram',
+        selector: '.amiga-act-rating-distribution-histogram',
+        run: function (root) {
+            return mountHistogram(root, { kind: 'rating', tone: 'teal', label: 'Rating', dense: true });
+        }
+    });
+    registerPanel({
+        id: 'tournament-size-histogram',
+        selector: '.amiga-act-tournament-size-histogram',
+        run: function (root) {
+            return mountHistogram(root, { kind: 'tournament_games', tone: 'chrome', label: 'Rated games per tournament' });
+        }
+    });
+    registerPanel({
+        id: 'goal-sum-histogram',
+        selector: '.amiga-act-goal-sum-histogram',
+        run: function (root) {
+            return mountHistogram(root, { kind: 'goal_sum', tone: 'amber', label: 'Total goals per game' });
+        }
+    });
+    registerPanel({
+        id: 'active-years-histogram',
+        selector: '.amiga-act-active-years-histogram',
+        run: function (root) {
+            return mountHistogram(root, { kind: 'active_years', tone: 'pitch', label: 'Active calendar years', dense: true });
+        }
+    });
+
     function boot() {
         if (booted || !isAmigaActivityChartsPage()) {
             return;
         }
         booted = true;
-        drain(0);
+        initGeographyPlatform().then(function () {
+            drain(0);
+        });
     }
 
     (window.k2OnPageReady || function (fn) {
@@ -769,6 +2050,16 @@
         createChart: createChart,
         requireCanvas: requireCanvas,
         scaleYCount: scaleYCount,
-        boot: boot
+        boot: boot,
+        getGeoState: getGeoState,
+        subscribeGeoChange: subscribeGeoChange,
+        renderGroupedYearBar: renderGroupedYearBar,
+        renderRaceLines: renderRaceLines,
+        geoKeysCsv: geoKeysCsv,
+        getGeoDuelKeys: getGeoDuelKeys,
+        mountGeoDuelYear: mountGeoDuelYear,
+        mountGeoRace: mountGeoRace,
+        registerGeoPanel: registerGeoPanel,
+        mountHistogram: mountHistogram
     };
 })(typeof window !== 'undefined' ? window : this);

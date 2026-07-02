@@ -154,6 +154,9 @@ ROW_PATCHES: dict[str, dict[str, str]] = {
         "guessed_tournament_id": str(WIESBADEN_TID),
         "tournament_guess_label": WIESBADEN_LABEL,
         "year": "2008",
+        "score": "9 - 5",
+        "game_id_guess": "13742",
+        "verified": "Y",
     },
     "aOTQ7MbdVCU": {"leg": "1"},
     "6him2UvmgV4": {"leg": "2"},
@@ -836,6 +839,68 @@ ROW_PATCHES: dict[str, dict[str, str]] = {
         "verified": "Y",
         "notes": "11s highlight clip (not a full match); players for catalog only",
     },
+    # Combined dual-leg uploads (one YouTube id, two games) — game-links policy GL-4.
+    "-OD-f0t92VQ": {
+        "game_id_guess": "27417,27418",
+        "game_link_mode": "multi",
+        "verified": "Y",
+    },
+    "-_AYyUd44MQ": {
+        "game_id_guess": "27412,27413",
+        "game_link_mode": "multi",
+        "verified": "Y",
+    },
+    "B550eWtdZW0": {
+        "game_id_guess": "26306,26307",
+        "game_link_mode": "multi",
+        "verified": "Y",
+    },
+    "FAaJ95De6po": {
+        "game_id_guess": "27410,27411",
+        "game_link_mode": "multi",
+        "verified": "Y",
+    },
+    "OE_wVb2JheU": {
+        "game_id_guess": "25458,25459",
+        "game_link_mode": "multi",
+        "verified": "Y",
+    },
+    "WI-Z16dV4aw": {
+        "game_id_guess": "27404,27405",
+        "game_link_mode": "multi",
+        "verified": "Y",
+    },
+    "gZbUmzg0wIM": {
+        "game_id_guess": "27414,27415",
+        "game_link_mode": "multi",
+        "verified": "Y",
+    },
+    "vhkErNXiD6E": {
+        "game_id_guess": "26878,26879",
+        "game_link_mode": "multi",
+        "verified": "Y",
+    },
+    # Verified rows — title scores were reversed vs DB home-player order (GL-4).
+    "-4RE2hs1LDE": {
+        "score": "4 - 2",
+        "game_id_guess": "17265",
+        "verified": "Y",
+    },
+    "gVWIaJt3xaI": {
+        "score": "4 - 1",
+        "game_id_guess": "17268",
+        "verified": "Y",
+    },
+    "n-UGRK8G-3M": {
+        "score": "6 - 3",
+        "game_id_guess": "18870",
+        "verified": "Y",
+    },
+    "AATTDvx5klA": {
+        "score": "4 - 3",
+        "game_id_guess": "15832",
+        "verified": "Y",
+    },
     # Dual-leg WC semis: resolver copied leg-A game_id onto leg-B rows.
     "qYJoeg727ns": {
         "leg": "2",
@@ -1400,6 +1465,8 @@ def _load_rows() -> list[dict[str, str]]:
         for row in reader:
             if "game_id_guess" not in row:
                 row["game_id_guess"] = ""
+            if "game_link_mode" not in row:
+                row["game_link_mode"] = ""
             rows.append(row)
     return rows
 
@@ -1471,12 +1538,16 @@ def apply_row_corrections(rows: list[dict[str, str]]) -> None:
 
 
 def apply_row_game_id_locks(rows: list[dict[str, str]]) -> None:
-    """Re-apply explicit game_id_guess from ROW_PATCHES after bulk_game_match."""
+    """Re-apply explicit game_id_guess / game_link_mode from ROW_PATCHES after bulk_game_match."""
     for row in rows:
         yt = row.get("youtube_id", "")
         patch = ROW_PATCHES.get(yt)
-        if patch and (patch.get("game_id_guess") or "").strip():
+        if not patch:
+            continue
+        if (patch.get("game_id_guess") or "").strip():
             row["game_id_guess"] = patch["game_id_guess"]
+        if (patch.get("game_link_mode") or "").strip():
+            row["game_link_mode"] = patch["game_link_mode"]
 
 
 def apply_uk_championships(rows: list[dict[str, str]]) -> None:
