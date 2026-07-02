@@ -74,11 +74,14 @@ if ($busiestDayRes !== false) {
 
 mysqli_close($con);
 unset($con);
+
+$k2ActivitySummaryTexture = 'We average <span class="blue">' . number_format((float) $GamesPlayedAverage, 1) . '</span> rated games and <span class="blue">' . number_format((float) $DifferentOpponentsAverage, 1) . '</span> different opponents.';
 ?>
 <section class="server-activity-summary" aria-label="Activity summary">
     <p class="server-activity-summary__lede">
         <span class="blue"><?php echo number_format((int) $ActivityPlayers); ?></span> players played
         <span class="blue"><?php echo number_format((int) $GamesPlayed); ?></span> rated games since <?php echo $ActivitySinceLabel; ?>.
+        <?php echo $k2ActivitySummaryTexture; ?>
     </p>
     <div class="server-activity-summary__stats" aria-label="Activity highlights">
         <div class="server-activity-summary__stat">
@@ -109,7 +112,4 @@ unset($con);
         </div>
         <?php } ?>
     </div>
-    <p class="server-activity-summary__texture">
-        Players average <span class="blue"><?php echo number_format((float) $GamesPlayedAverage, 1); ?></span> rated games and <span class="blue"><?php echo number_format((float) $DifferentOpponentsAverage, 1); ?></span> different opponents.
-    </p>
 </section>

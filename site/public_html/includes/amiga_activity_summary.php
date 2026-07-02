@@ -70,7 +70,7 @@ $busiestYear = $readCutoffTournamentId !== null
 $BusiestYearGames = $busiestYear !== null ? (int) $busiestYear['games'] : null;
 $BusiestYear = $busiestYear !== null ? (int) $busiestYear['year'] : null;
 
-$k2AmigaActivitySummaryTexture = 'Players average <span class="blue">' . number_format((float) $GamesPlayedAverage, 1) . '</span> rated games and <span class="blue">' . number_format((float) $DifferentOpponentsAverage, 1) . '</span> different opponents.';
+$k2AmigaActivitySummaryTexture = 'We average <span class="blue">' . number_format((float) $GamesPlayedAverage, 1) . '</span> rated games and <span class="blue">' . number_format((float) $DifferentOpponentsAverage, 1) . '</span> different opponents.';
 
 mysqli_close($con);
 unset($con);

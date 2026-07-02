@@ -135,7 +135,7 @@
 |------|------|
 | 2026-07-02 | **Amiga WC stats wings** — removed Activity cross-link intro from all Tournament stats sub-wings (`amiga_world_cup_stats_wing_body.inc.php`). |
 | 2026-07-02 | **Amiga Activity Texture — high-scoring hint** — `k2-chart-block__hint` under High-scoring rate panel (ten+ goals both sides, per 100 games); matches online Activity chart hint pattern. |
-| 2026-07-02 | **Amiga Activity summary layout** — hub lede + “Players average…” merged into one paragraph (two sentences, no break); all six wings. |
+| 2026-07-02 | **Activity summary copy** — second sentence “We average…” (online + Amiga activity lede). |
 | 2026-07-02 | **Amiga player hero Events anchor** — Events stat + profile tournament history links land on `#k2-player-tournaments-table` (all-events filter). |
 | 2026-07-02 | **Amiga player tournaments table anchor** — `#k2-player-tournaments-table` above history table + scroll pad; hero World Cups + honours WC history links land there (`k2_carry_scroll_restore`). |
 | 2026-07-02 | **Amiga player hero layout** — World Cups with core stats (Rank–Games); WC medals alone after 20px gap (country-hero parity). |
