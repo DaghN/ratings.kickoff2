@@ -1,6 +1,6 @@
 # Amiga Activity charts — implementation plan
 
-**Status:** **Ready** (Jul 2026) — slices 0–10 not started. Read-only chart track: **no finalize writers, no DDL** (unless a slice-8 probe promotes a histogram to S6 — separate sign-off + Part B).
+**Status:** **In progress** (Jul 2026) — **slices 0–1 shipped** (platform + Growth wing live); slices 2–10 next. Read-only chart track: **no finalize writers, no DDL** (unless a slice-8 probe promotes a histogram to S6 — separate sign-off + Part B).
 **Locked IA / product:** [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) — wings, panel order, selectors, TT rules, bucket defaults.
 **Questions:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 46 ship IDs → 45 panels.
 **Pattern source:** online [`activity-charts.md`](activity-charts.md) (module, frames, mobile rules).
@@ -25,8 +25,8 @@
 
 | Slice | Deliverable | Panels shipped | Status |
 |-------|-------------|----------------|--------|
-| **0** | Platform: folder + routes + shell/nav + 302 + JS module skeleton + read helpers + first 2 APIs | 0 (placeholder pages) | — |
-| **1** | Growth wing | 7 | — |
+| **0** | Platform: folder + routes + shell/nav + 302 + JS module skeleton + read helpers + first 2 APIs | 0 (placeholder pages) | **Done** Jul 2026 |
+| **1** | Growth wing | 7 | **Done** Jul 2026 |
 | **2** | People wing | 5 | — |
 | **3** | Texture wing (rates API + reference lines) | 5 | — |
 | **4** | World Cups wing (ghost bars + overlay) | 6 | — |
@@ -133,7 +133,7 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 ### `api/amiga_community_year_facts.php`
 
 - Params: `slice` (realm | host_country | player_nationality | world_cup), `metric` (registry metric key), optional `keys` (CSV slice keys, max 7, validated), `as`.
-- Response: `{ "years": [2001, …], "series": [{ "key": "England", "values": [...] }], "available_keys": ["England", …], "cutoff": { "label": "...", "partial_year": 2003 } }`.
+- Response: `{ "years": [2001, …], "series": [{ "key": "England", "values": [...] }], "available_keys": ["England", …], "cutoff": { "label": "...", "event_date": "Y-m-d", "partial_year": 2003 } }`.
 - Realm slice returns one series with `key: "*"`. `available_keys` only for dimensional slices (drives pickers).
 - Read: facts rows `WHERE tournament_id = {cutoff} AND period_type = 'year' AND slice_type = {slice} AND metric_key = {metric}`.
 
@@ -149,8 +149,8 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 ### `api/amiga_community_year_rates.php`
 
-- Params: `rate` (goals_per_game | draw_rate | dd_rate | cs_rate | high_scoring_rate | games_per_tournament | wc_share | wc_goals_per_game), `as`.
-- Response: `{ "years": [...], "values": [...], "reference": N|null, "overlay": { "label": "...", "values": [...] }|null }`.
+- Params: `rate` (goals_per_game | draw_rate | dd_rate | cs_rate | high_scoring_rate | games_per_tournament | wc_share | wc_goals_per_game), `as`. *(Shipped slice 1 with `games_per_tournament` only.)*
+- Response: `{ "years": [...], "values": [...], "reference": N|null, "overlay": { "label": "...", "values": [...] }|null, "cutoff": {...}|null }` — `cutoff` mirrors `year_facts` (`label`, `event_date`, `partial_year`).
 - Derivations (all from year facts at cutoff): rates = numerator ÷ realm `games` (goals_per_game = goals ÷ games; games_per_tournament = games ÷ tournaments; wc_share = wc games ÷ realm games; wc_goals_per_game = wc goals ÷ wc games, overlay = realm goals_per_game). `reference` = all-time average from headline row at cutoff (texture rates only). Zero-denominator years → `null` values, skipped by Chart.js.
 
 ### `api/amiga_community_histogram.php` (slice 9; shapes locked at slice 8)
@@ -163,9 +163,11 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 ## 4. Slice details
 
-### Slice 0 — Platform
+### Slice 0 — Platform — **Done** (Jul 2026)
 
 **Goal:** the sub-hub exists; charts can be added wing by wing.
+
+*Shipped notes:* read helpers landed as `amiga_community_year_facts_at_cutoff()` + `amiga_community_year_span_at_cutoff()` + `amiga_community_slice_keys_at_cutoff()` + `amiga_community_snapshot_series()`. **Latent bug fixed:** `amiga_community_latest_snapshot_tournament_id()` used `MAX(tournament_id)`, but tournament ids are **not chronological** (fractional-chrono catalog imports, e.g. ids 604/605 = 2002 events) — present-mode reads now pick the chrono-latest snapshot (`ORDER BY event_chrono DESC`). Year-facts API zero-fills across the realm games span at cutoff so every year chart shares one x-axis; chapter lede = live KOA sentence at cutoff (summary lede hidden on Growth via `$k2AmigaActivitySummaryHideLede`).
 
 - Folder `site/public_html/amiga/activity/` + **seven thin leaf files** (placeholder body: section head + "Charts arriving soon" note so nav is never broken).
 - Shell pair `includes/amiga_activity_hub_shell_start.inc.php` / `_end.inc.php` (copy `amiga_world_cups_hub_shell_*`): chapter header + KOA lede (live reads at cutoff), wing nav include, `body.k2-amiga-activity-charts`.
@@ -179,12 +181,14 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 **STOP:** all seven pages render with hub bar + chapter + wing nav, present and `as=year:2005`; both APIs return valid JSON at present + cutoff; no console errors.
 
-### Slice 1 — Growth (7 panels)
+### Slice 1 — Growth (7 panels) — **Done** (Jul 2026)
 
 - Panels per registry §2; pairs layout (bar above line per metric).
 - L2 tooltips: tournament name title; **click-through** to tournament page via `k2-amiga-time-travel-url.js` (desktop pointers only).
 - `year_rates` endpoint ships here with `games_per_tournament` only.
 - Placeholder note removed from growth.php.
+
+*Shipped notes:* panels markup in `includes/amiga_activity_growth_panels.inc.php`; module gained generic mounts `mountYearFacts` / `mountYearRate` / `mountCumulative` (tones: games = pitch, tournaments = chrome, goals = amber, rate = teal) reusable by every later wing. Panel cards style via one generic rule (`body.k2-amiga-activity-charts .k2-chart-panel` — no 45-class CSS list); shell body also carries `k2-activity-charts` so the online frame/section CSS applies verbatim. TT: partial cutoff year gets a tooltip footer (*"Partial year — through Nov 27, 2005"* via `cutoff.event_date` now in `year_facts`/`year_rates` responses); curves end at the cutoff event; point click → `/amiga/tournament/event-stats.php?id=` carrying `as=`. **Site-wide latent bug fixed:** the `k2-page-boot.js` shim invoked every `k2OnPageReady` callback **twice** per load (Turbo-removal regression) — on the online Activity page the second boot's canvas-reuse errors put *"Could not load …"* status lines above every chart; shim now fires callbacks exactly once (verified online Activity 11/11 clean + LB table boot).
 
 **STOP:** Dagh visual sign-off on Growth (desktop + phone scroll) before replicating the pattern to other wings.
 

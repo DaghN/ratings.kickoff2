@@ -1001,6 +1001,26 @@ body.k2-site.k2-activity-charts .k2-chart-panel__status {
 	margin: 0 0 8px 0;
 }
 
+/* Amiga Activity hub — generic panel card (45 charts; no per-panel class list). */
+body.k2-site.k2-amiga-activity-charts .k2-chart-panel {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: min(var(--k2-chart-max-width), 100%);
+	min-width: 0;
+	margin-bottom: 16px;
+	padding: 14px;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: var(--k2-bg-surface);
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-chart-panel canvas {
+	display: block;
+	max-width: 100%;
+	touch-action: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
 /* Desktop: none so Chart.js touchstart can show tooltips. */
 body.k2-site .server-games-day-chart canvas,
 body.k2-site .server-games-month-chart canvas,

@@ -45,7 +45,7 @@ function amiga_hub_all_tabs(): array
         'tournaments' => ['href' => '/amiga/tournaments.php', 'label' => 'Tournaments'],
         'countries' => ['href' => '/amiga/countries.php', 'label' => 'Countries'],
         'games' => ['href' => '/amiga/games/recent.php', 'label' => 'Games'],
-        'activity' => ['href' => '/amiga/activity.php', 'label' => 'Activity'],
+        'activity' => ['href' => '/amiga/activity/growth.php', 'label' => 'Activity'],
         'hall-of-fame' => ['href' => '/amiga/hall-of-fame.php', 'label' => 'Hall of Fame'],
         'live-tournaments' => ['href' => '/amiga/live-tournaments.php', 'label' => 'Live'],
     ];

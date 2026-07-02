@@ -39,12 +39,16 @@ $gameCount = amiga_lb_games_count($con, $ctx);
 
 $showRatingDelta = $ctx->isActive();
 $showWcStartDelta = !$showRatingDelta;
+$lastWcForDeltaHelp = null;
 if ($showRatingDelta) {
     $deltaByPlayer = amiga_lb_rating_delta_map($con, $ctx);
 } elseif ($showWcStartDelta) {
     $deltaByPlayer = amiga_lb_wc_start_rating_delta_map($con);
     if ($deltaByPlayer === []) {
         $showWcStartDelta = false;
+    } else {
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_rating_history_lib.php';
+        $lastWcForDeltaHelp = amiga_rating_history_last_world_cup_tournament($con);
     }
 } else {
     $deltaByPlayer = [];
@@ -62,7 +66,7 @@ if ($showRatingDelta && $ctx->wing() === 'event') {
 }
 $deltaColumnHelpAttrs = $showRatingDelta
     ? k2_lb_amiga_rating_delta_column_help_attrs()
-    : k2_lb_amiga_wc_start_rating_delta_column_help_attrs();
+    : k2_lb_amiga_wc_start_rating_delta_column_help_attrs($lastWcForDeltaHelp);
 
 mysqli_close($con);
 

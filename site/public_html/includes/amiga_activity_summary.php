@@ -1,8 +1,13 @@
 <?php
 /**
  * Amiga Activity tab summary block (PHP + markup).
+ *
+ * Optional before include: $k2AmigaActivitySummaryHideLede = true
+ * (Activity hub Growth wing — the chapter lede already carries the numbers).
  */
 declare(strict_types=1);
+
+$k2AmigaActivitySummaryHideLede = $k2AmigaActivitySummaryHideLede ?? false;
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_community_stats_lib.php';
@@ -56,12 +61,14 @@ mysqli_close($con);
 unset($con);
 ?>
 <section class="server-activity-summary" aria-label="Activity summary">
+<?php if (!$k2AmigaActivitySummaryHideLede) { ?>
     <p class="server-activity-summary__lede">
         <span class="blue"><?php echo number_format($NumberOfPlayers); ?></span> players from
         <span class="blue"><?php echo number_format($countryCount); ?></span> <?php echo $countryLabel; ?> have played
         <span class="blue"><?php echo number_format($GamesPlayed); ?></span> rated games in
         <span class="blue"><?php echo number_format($tournamentCount); ?></span> <?php echo $tournamentLabel; ?> since <?php echo $ActivitySinceLabel; ?>.
     </p>
+<?php } ?>
     <div class="server-activity-summary__stats" aria-label="Activity highlights">
         <div class="server-activity-summary__stat">
             <span class="server-activity-summary__label">Goals</span>

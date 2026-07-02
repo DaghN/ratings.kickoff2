@@ -237,6 +237,7 @@
 	 * Secondary key when primary compare ties.
 	 * Default: always ascending (e.g. games highlights — lower game ID first on equal scores).
 	 * data-k2-sort-tie-order="match": follow primary sort direction (milestone unlock # on same achieved_at).
+	 * data-k2-sort-tie-cols on <th>: comma-separated column indices compared in order when primary ties (e.g. gold → silver → bronze).
 	 */
 	function getSortTieValue(row, columnIndex) {
 		var cell = row.cells[columnIndex];

@@ -28,12 +28,14 @@
 		if (typeof fn !== "function") {
 			return;
 		}
-		window.k2PageReady(fn);
-		if (document.readyState === "loading") {
-			document.addEventListener("DOMContentLoaded", fn);
+		// Exactly once per load. The old implementation piggybacked on
+		// k2PageReady + its own DOMContentLoaded/immediate call, which invoked
+		// fn twice on every load (masked by idempotent consumers).
+		if (pageReadyFired) {
+			fn();
 			return;
 		}
-		fn();
+		document.addEventListener("k2:page-ready", fn, { once: true });
 	};
 
 	function dispatchPageReady() {

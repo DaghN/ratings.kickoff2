@@ -952,13 +952,39 @@ function k2_lb_amiga_rating_delta_column_help_attrs(): string
 
 function k2_lb_help_amiga_wc_start_rating_delta(): string
 {
-    return 'Change in Elo rating since the start of the most recent World Cup.';
+    return 'Change in Elo rating since the start of the most recent tournament.';
 }
 
-/** data-k2-tooltip-label + data-k2-help for present-day World Cup Δ column (header text: Δ). */
-function k2_lb_amiga_wc_start_rating_delta_column_help_attrs(): string
+/**
+ * @param array{id: int, name: string, event_date: string, chrono: float} $lastWc
+ */
+function k2_lb_help_amiga_wc_start_rating_delta_html(array $lastWc): string
 {
-    return ' data-k2-tooltip-label="Rating change"'
+    require_once __DIR__ . '/amiga_rating_history_lib.php';
+
+    $nameHtml = '<span class="k2-link-star">'
+        . htmlspecialchars(trim($lastWc['name']), ENT_QUOTES, 'UTF-8') . '</span>';
+    $dateHtml = '<span class="k2-link-star">'
+        . htmlspecialchars(amiga_rating_history_format_event_date_label($lastWc), ENT_QUOTES, 'UTF-8') . '</span>';
+
+    return 'Change in Elo rating since the start of the most recent '
+        . $nameHtml . ' which took place on ' . $dateHtml . '.';
+}
+
+/**
+ * @param ?array{id: int, name: string, event_date: string, chrono: float} $lastWc
+ */
+function k2_lb_amiga_wc_start_rating_delta_column_help_attrs(?array $lastWc = null): string
+{
+    $attrs = ' data-k2-tooltip-label="Rating change"';
+
+    if ($lastWc !== null) {
+        return $attrs
+            . ' data-k2-help-html="1"'
+            . ' data-k2-help="' . htmlspecialchars(k2_lb_help_amiga_wc_start_rating_delta_html($lastWc), ENT_QUOTES, 'UTF-8') . '"';
+    }
+
+    return $attrs
         . ' data-k2-help="' . htmlspecialchars(k2_lb_help_amiga_wc_start_rating_delta(), ENT_QUOTES, 'UTF-8') . '"';
 }
 

@@ -169,6 +169,17 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-games-recent` | `/amiga/games/recent.php` |
 | `amiga-games-highlights` | `/amiga/games/highlights.php` |
 | `amiga-games-all` | `/amiga/games/all.php` |
+| `amiga-activity` | `/amiga/activity/growth.php` (Activity hub default — Growth; `/amiga/activity.php` 302) |
+| `amiga-activity-growth` | `/amiga/activity/growth.php` |
+| `amiga-activity-people` | `/amiga/activity/people.php` |
+| `amiga-activity-geography` | `/amiga/activity/geography/hosts.php` (Geography default — Host nations) |
+| `amiga-activity-geography-hosts` | `/amiga/activity/geography/hosts.php` |
+| `amiga-activity-geography-nations` | `/amiga/activity/geography/nations.php` |
+| `amiga-activity-world-cups` | `/amiga/activity/world-cups.php` |
+| `amiga-activity-texture` | `/amiga/activity/texture.php` |
+| `amiga-activity-shape` | `/amiga/activity/shape.php` |
+
+**Activity hub (Jul 2026):** foldered sub-hub, six wings (Growth · People · Geography · World Cups · Texture · Shape); Geography has a nested Host nations · Nationalities segment. `/amiga/activity.php` → **302** Growth (query preserved). Chart selector state (`hosts=`, `nats=`) is a filter param, not navigation — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md).
 
 **Player stats:** hub `world-cups/players/*` only — [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) WCH9. Legacy `/amiga/leaderboards/world-cups/*` → **302** hub paths.
 
@@ -202,7 +213,7 @@ Query `?id=` required on all tabs. Optional `?player=` on games; `?scope=` / `?s
 
 ### Amiga hub tabs (present order)
 
-News · Leaderboards · **World Cups** (`/amiga/world-cups/chronology.php`) · Tournaments · **Countries** (`/amiga/countries.php`) · Games · Activity · Hall of Fame · Live — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · Tournaments · **Countries** · Games · Activity · Hall of Fame (editorial present-only: News · Live).
+News · Leaderboards · **World Cups** (`/amiga/world-cups/chronology.php`) · Tournaments · **Countries** (`/amiga/countries.php`) · Games · **Activity** (`/amiga/activity/growth.php`) · Hall of Fame · Live — [`amiga_hub_nav_lib.php`](../site/public_html/includes/amiga_hub_nav_lib.php). Time travel bar: Leaderboards · World Cups · Tournaments · **Countries** · Games · Activity · Hall of Fame (editorial present-only: News · Live).
 
 A single country is an **entity page** ([`navigation-model.md`](navigation-model.md) NM3): it lives in the singular `country/` namespace with a **Roster · Rivals** segment (NM6), not inside the plural `countries/` hub folder.
 
