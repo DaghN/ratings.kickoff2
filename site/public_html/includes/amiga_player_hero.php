@@ -153,6 +153,10 @@ foreach ([1 => (int) ($k2AmigaPlayerHeroWcGold ?? 0), 2 => (int) ($k2AmigaPlayer
 		</div>
 	</div>
 </article>
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_hero_glow_session.php';
+k2_player_hero_glow_session_mark();
+?>
 <?php if ($heroPreDebut) { ?>
 <p class="k2-amiga-time-travel__unwired k2-amiga-player-pre-debut-note">Not on the ladder at this cutoff.</p>
 <?php } ?>

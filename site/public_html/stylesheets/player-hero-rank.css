@@ -1,5 +1,8 @@
 /**
- * Hero rank + rating accent glow — loaded with player_hero.php on all feast tabs.
+ * Hero rank + rating accent glow — loaded globally via k2_head.php.
+ * Profile feast heroes: border + avatar glow fade in over 1.5s (not glance popover).
+ * Repeat navigations between profile hero pages skip fade (html.k2-player-hero-glow-ready).
+ * Leaving for a non-hero page clears warm; next hero visit fades in again.
  */
 
 .k2-player-hero__stat-value--rank,
@@ -7,4 +10,61 @@
 .k2-player-hero__stat-value--milestones {
 	color: var(--k2-link-star);
 	text-shadow: 0 0 28px var(--k2-accent-glow);
+}
+
+@keyframes k2-player-hero-border-glow-in {
+	0% {
+		box-shadow:
+			0 0 12px color-mix(in srgb, var(--k2-player-hero-glow-side) 0%, transparent),
+			0 0 28px color-mix(in srgb, var(--k2-player-hero-glow-side) 0%, transparent),
+			0 0 52px color-mix(in srgb, var(--k2-player-hero-glow-side) 0%, transparent),
+			0 0 20px color-mix(in srgb, var(--k2-player-hero-glow-side) 0%, transparent),
+			inset 0 1px 0 color-mix(in srgb, var(--k2-player-hero-glow-side) 0%, transparent);
+	}
+	100% {
+		box-shadow:
+			0 0 12px color-mix(in srgb, var(--k2-player-hero-glow-side) 28%, transparent),
+			0 0 28px color-mix(in srgb, var(--k2-player-hero-glow-side) 18%, transparent),
+			0 0 52px color-mix(in srgb, var(--k2-player-hero-glow-side) 8%, transparent),
+			0 0 20px color-mix(in srgb, var(--k2-player-hero-glow-side) 38%, transparent),
+			inset 0 1px 0 color-mix(in srgb, var(--k2-player-hero-glow-side) 12%, transparent);
+	}
+}
+
+@keyframes k2-player-hero-avatar-glow-in {
+	0% {
+		box-shadow:
+			0 0 10px color-mix(in srgb, var(--k2-accent) 0%, transparent),
+			0 0 22px color-mix(in srgb, var(--k2-accent) 0%, transparent),
+			0 0 0 transparent;
+	}
+	100% {
+		box-shadow:
+			0 0 10px color-mix(in srgb, var(--k2-accent) 34%, transparent),
+			0 0 22px color-mix(in srgb, var(--k2-accent) 15%, transparent),
+			0 0 calc(var(--k2-accent-glow-blur) * var(--k2-glow-strength)) var(--k2-accent-glow);
+	}
+}
+
+body.k2-site .k2-player-hero.k2-player-hero--feast:not(.k2-amiga-player-glance__hero) {
+	animation: k2-player-hero-border-glow-in 1.5s ease-out forwards;
+}
+
+body.k2-site .k2-player-hero.k2-player-hero--feast:not(.k2-amiga-player-glance__hero) .k2-player-hero__avatar {
+	animation: k2-player-hero-avatar-glow-in 1.5s ease-out forwards;
+}
+
+html.k2-player-hero-glow-ready body.k2-site .k2-player-hero.k2-player-hero--feast:not(.k2-amiga-player-glance__hero),
+html.k2-player-hero-glow-ready body.k2-site .k2-player-hero.k2-player-hero--feast:not(.k2-amiga-player-glance__hero) .k2-player-hero__avatar {
+	animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	body.k2-site .k2-player-hero.k2-player-hero--feast:not(.k2-amiga-player-glance__hero) {
+		animation: none;
+	}
+
+	body.k2-site .k2-player-hero.k2-player-hero--feast:not(.k2-amiga-player-glance__hero) .k2-player-hero__avatar {
+		animation: none;
+	}
 }

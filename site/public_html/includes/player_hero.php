@@ -82,3 +82,7 @@ $heroRatingLinked = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
 		</div>
 	</div>
 </article>
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_hero_glow_session.php';
+k2_player_hero_glow_session_mark();
+?>

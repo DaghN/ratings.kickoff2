@@ -12,6 +12,10 @@ $k2DocRoot = $_SERVER['DOCUMENT_ROOT'];
 <link href="/stylesheets/k2-fonts.css?v=<?php echo (int) @filemtime($k2DocRoot . '/stylesheets/k2-fonts.css'); ?>" rel="stylesheet" type="text/css" />
 <link href="/stylesheets/theme.css?v=<?php echo (int) @filemtime($k2DocRoot . '/stylesheets/theme.css'); ?>" rel="stylesheet" type="text/css" />
 <link href="/stylesheets/player-hero-rank.css?v=<?php echo (int) @filemtime($k2DocRoot . '/stylesheets/player-hero-rank.css'); ?>" rel="stylesheet" type="text/css" />
+<?php
+require_once $k2DocRoot . '/includes/k2_player_hero_glow_session.php';
+k2_player_hero_glow_session_head();
+?>
 <?php include $k2DocRoot . '/includes/theme_boot_head.php'; ?>
 <?php include $k2DocRoot . '/includes/k2_carry_scroll_restore.php'; ?>
 <?php include $k2DocRoot . '/includes/favicon_head.php'; ?>
