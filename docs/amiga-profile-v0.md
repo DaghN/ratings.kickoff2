@@ -26,7 +26,7 @@
 
 ## What v0 shows
 
-- **Hero** — same feast shell as online (`amiga_player_hero.php`): avatar + name → Profile tab; **rank** from stored `elo_rank` (present: `amiga_player_current`; time travel: `amiga_player_elo_rank_at_event`); rating → Rating LB; games → player games tab; rank · rating · games stat values use link-star + glow; **country** (fourth stat column — label + flag when mapped; **flag links to country roster**); unmapped country strings show as stat text; pre-debut at cutoff → — + note (T17)
+- **Hero** — same feast shell as online (`amiga_player_hero.php`): avatar + name → Profile tab; **rank** from stored `elo_rank` (present: `amiga_player_current`; time travel: `amiga_player_elo_rank_at_event`); rating → Rating LB; **events** (`tournaments_played`) → Tournaments tab **`#k2-player-tournaments-table`**; games → player games tab; **world cups** (WC slice `tournaments_played`, with core stats) → Tournaments World Cups filter + same table anchor; sparse WC medal counts alone after 20px gap; rank · rating · events · games · world cups stat values use link-star + glow; pre-debut at cutoff → — + note (T17)
 - **Player nav** — Profile · Opponents · Tournaments · Games · **Videos** (when manifest has clips for player — [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §9.5 · §12)
 - **Career strip** — `amiga_players` + `amiga_player_current` (W/D/L, goals, peak, opp avg)
 - **Honours strip** — `amiga_player_current` honours columns: career WC medal counts (`wc_gold`/`wc_silver`/`wc_bronze`), tournaments won (`event_gold`), event podiums (`event_podiums`), optional last event date; links to tournament honours LB and WC-filtered history when applicable; hidden when no WC medals, wins, or podiums
@@ -42,7 +42,7 @@
 
 | Source | Used for | v0 cost |
 |--------|----------|---------|
-| **`amiga_players` + `amiga_player_current`** | Hero (incl. `elo_rank`), career strip | 1 query present; TT hero adds 1 indexed read on `amiga_player_elo_rank_at_event` |
+| **`amiga_players` + `amiga_player_current`** | Hero (incl. `elo_rank`, `tournaments_played`) | 1 query present; TT hero adds 1 indexed read on `amiga_player_elo_rank_at_event` |
 | **`amiga_player_elo_rank_at_event`** | Rank-over-time chart (all finalizes after debut); TT hero rank | 1 query per chart load (~≤600 points max) |
 | **`amiga_player_event_snapshots`** | Per-event `elo_rank` on participated rows only (insufficient alone for rank chart) | — |
 | **`amiga_player_event_snapshots` + `tournaments`** | Profile rating chart JSON | 1 query per chart load (~≤1k events max per player) |

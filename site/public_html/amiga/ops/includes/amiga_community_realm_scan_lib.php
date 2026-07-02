@@ -68,6 +68,10 @@ function amiga_community_build_realm_scan(mysqli $con, int $tournamentId): array
     $activePlayers = [];
     /** @var array<string, array<int, true>> $activePlayersByNationality year\0country => player ids */
     $activePlayersByNationality = [];
+    /** @var array<string, array<int, true>> $activePlayersWcByNationality year\0country => player ids (WC games only) */
+    $activePlayersWcByNationality = [];
+    /** @var array<string, array<int, true>> $activePlayersByNationalityAllTime */
+    $activePlayersByNationalityAllTime = [];
     /** @var array<string, array<string, true>> $nationalitiesByYear */
     $nationalitiesByYear = [];
     /** @var array<string, array<string, true>> $nationalitiesWcByYear */
@@ -80,6 +84,8 @@ function amiga_community_build_realm_scan(mysqli $con, int $tournamentId): array
     $pairsCumulative = [];
     /** @var array<int, string> $debutYearByPlayer */
     $debutYearByPlayer = [];
+    /** @var array<int, string> $debutCountryByPlayer */
+    $debutCountryByPlayer = [];
     $wcGamesPlayed = 0;
 
     $factKey = static function (
@@ -165,9 +171,12 @@ function amiga_community_build_realm_scan(mysqli $con, int $tournamentId): array
             $pairsByYear[$year][$pairKey] = true;
             $pairsCumulative[$pairKey] = true;
 
-            foreach ([$playerA, $playerB] as $pid) {
+            foreach ([[$playerA, $countryA], [$playerB, $countryB]] as [$pid, $country]) {
                 if (!isset($debutYearByPlayer[$pid])) {
                     $debutYearByPlayer[$pid] = $year;
+                    if ($country !== null) {
+                        $debutCountryByPlayer[$pid] = $country;
+                    }
                 }
             }
 
@@ -175,13 +184,21 @@ function amiga_community_build_realm_scan(mysqli $con, int $tournamentId): array
             $activePlayers['year' . "\0" . $year . "\0" . 'realm'][$playerB] = true;
             if ($countryA !== null) {
                 $activePlayersByNationality[$year . "\0" . $countryA][$playerA] = true;
+                $activePlayersByNationalityAllTime[$countryA][$playerA] = true;
             }
             if ($countryB !== null) {
                 $activePlayersByNationality[$year . "\0" . $countryB][$playerB] = true;
+                $activePlayersByNationalityAllTime[$countryB][$playerB] = true;
             }
             if ($isWc) {
                 $activePlayers['year' . "\0" . $year . "\0" . 'world_cup'][$playerA] = true;
                 $activePlayers['year' . "\0" . $year . "\0" . 'world_cup'][$playerB] = true;
+                if ($countryA !== null) {
+                    $activePlayersWcByNationality[$year . "\0" . $countryA][$playerA] = true;
+                }
+                if ($countryB !== null) {
+                    $activePlayersWcByNationality[$year . "\0" . $countryB][$playerB] = true;
+                }
             }
         }
 
@@ -281,6 +298,41 @@ function amiga_community_build_realm_scan(mysqli $con, int $tournamentId): array
         [$year, $country] = explode("\0", $natKey, 2);
         $values[$factKey('year', (string) $year, 'player_nationality', (string) $country, 'active_players', 'participant')] =
             (float) count($players);
+    }
+
+    foreach ($activePlayersWcByNationality as $natKey => $players) {
+        if ($players === []) {
+            continue;
+        }
+        [$year, $country] = explode("\0", $natKey, 2);
+        $values[$factKey('year', (string) $year, 'player_nationality', (string) $country, 'wc_active_players', 'participant')] =
+            (float) count($players);
+    }
+
+    foreach ($activePlayersByNationalityAllTime as $country => $players) {
+        if ($players === []) {
+            continue;
+        }
+        $values[$factKey('all_time', AMIGA_COMMUNITY_ALL_TIME_PERIOD_KEY, 'player_nationality', (string) $country, 'active_players', 'participant')] =
+            (float) count($players);
+    }
+
+    $debutCountsByNationality = [];
+    foreach ($debutYearByPlayer as $pid => $debutYear) {
+        $country = $debutCountryByPlayer[$pid] ?? null;
+        if ($country === null) {
+            continue;
+        }
+        $natKey = $debutYear . "\0" . $country;
+        $debutCountsByNationality[$natKey] = ($debutCountsByNationality[$natKey] ?? 0) + 1;
+    }
+    foreach ($debutCountsByNationality as $natKey => $count) {
+        if ($count <= 0) {
+            continue;
+        }
+        [$year, $country] = explode("\0", $natKey, 2);
+        $values[$factKey('year', (string) $year, 'player_nationality', (string) $country, 'player_debuts', 'participant')] =
+            (float) $count;
     }
 
     foreach ($nationalitiesByYear as $year => $countries) {

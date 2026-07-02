@@ -20,6 +20,7 @@ MetricKey = Literal[
     "player_debuts",
     "distinct_host_countries",
     "distinct_nationalities",
+    "wc_active_players",
 ]
 CountBasis = Literal["game", "participant"]
 
@@ -42,6 +43,7 @@ METRIC_KEYS: tuple[str, ...] = (
     "player_debuts",
     "distinct_host_countries",
     "distinct_nationalities",
+    "wc_active_players",
 )
 COUNT_BASES: tuple[str, ...] = ("game", "participant")
 
@@ -63,8 +65,11 @@ V1_FACT_SPECS: tuple[CommunityFactSpec, ...] = (
     CommunityFactSpec("year", "player_nationality", "games", "participant"),
     CommunityFactSpec("year", "player_nationality", "goals", "participant"),
     CommunityFactSpec("year", "player_nationality", "active_players", "participant"),
+    CommunityFactSpec("year", "player_nationality", "player_debuts", "participant"),
+    CommunityFactSpec("year", "player_nationality", "wc_active_players", "participant"),
     CommunityFactSpec("all_time", "host_country", "games", "game"),
     CommunityFactSpec("all_time", "player_nationality", "games", "participant"),
+    CommunityFactSpec("all_time", "player_nationality", "active_players", "participant"),
 )
 
 # Additional v2 grains (catalog step 3 ship set).
@@ -103,5 +108,6 @@ PER_GAME_FACT_SPECS: frozenset[CommunityFactSpec] = frozenset(
         "tournaments",
         "player_debuts",
         "distinct_pairs",
+        "wc_active_players",
     }
 )

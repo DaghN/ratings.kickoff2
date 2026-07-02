@@ -178,6 +178,7 @@ function amiga_player_pre_debut_row(array $playerRow): array
         'rating' => null,
         'peak_rating' => null,
         'games' => null,
+        'events' => null,
         'wins' => 0,
         'draws' => 0,
         'losses' => 0,
@@ -210,6 +211,7 @@ function amiga_player_row_from_snapshot(array $playerRow, array $snap, int $rank
         'peak_rating' => !k2_db_is_null($snap['PeakRating'] ?? null) && (float) ($snap['PeakRating'] ?? 0) > 0
             ? (int) round((float) $snap['PeakRating']) : null,
         'games' => $games,
+        'events' => (int) ($snap['tournaments_played'] ?? 0),
         'wins' => (int) ($snap['NumberWins'] ?? 0),
         'draws' => (int) ($snap['NumberDraws'] ?? 0),
         'losses' => (int) ($snap['NumberLosses'] ?? 0),

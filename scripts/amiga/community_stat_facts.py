@@ -42,6 +42,9 @@ class _FactAccum:
         self._values: dict[tuple[str, str, str, str, str, str], float] = defaultdict(float)
         self._active_players: dict[tuple[str, str, str], set[int]] = defaultdict(set)
         self._active_players_by_nationality: dict[tuple[str, str], set[int]] = defaultdict(set)
+        self._active_players_wc_by_nationality: dict[tuple[str, str], set[int]] = defaultdict(set)
+        self._active_players_by_nationality_all_time: dict[str, set[int]] = defaultdict(set)
+        self._debut_country_by_player: dict[int, str] = {}
         self._nationalities_by_year: dict[str, set[str]] = defaultdict(set)
         self._nationalities_wc_by_year: dict[str, set[str]] = defaultdict(set)
         self._host_countries_by_year: dict[str, set[str]] = defaultdict(set)
@@ -132,19 +135,27 @@ class _FactAccum:
             self._pairs_by_year[year].add(pair)
             self._pairs_cumulative.add(pair)
 
-            for player_id in (player_a_id, player_b_id):
+            for player_id, country in ((player_a_id, country_a), (player_b_id, country_b)):
                 if player_id not in self._debut_year_by_player:
                     self._debut_year_by_player[player_id] = year
+                    if country is not None:
+                        self._debut_country_by_player[player_id] = country
 
             self._active_players[("year", year, "realm")].add(player_a_id)
             self._active_players[("year", year, "realm")].add(player_b_id)
             if country_a is not None:
                 self._active_players_by_nationality[(year, country_a)].add(player_a_id)
+                self._active_players_by_nationality_all_time[country_a].add(player_a_id)
             if country_b is not None:
                 self._active_players_by_nationality[(year, country_b)].add(player_b_id)
+                self._active_players_by_nationality_all_time[country_b].add(player_b_id)
             if is_wc:
                 self._active_players[("year", year, "world_cup")].add(player_a_id)
                 self._active_players[("year", year, "world_cup")].add(player_b_id)
+                if country_a is not None:
+                    self._active_players_wc_by_nationality[(year, country_a)].add(player_a_id)
+                if country_b is not None:
+                    self._active_players_wc_by_nationality[(year, country_b)].add(player_b_id)
 
         if is_wc:
             self._wc_games_played += 1
@@ -206,6 +217,36 @@ class _FactAccum:
                 self._values[
                     ("year", year, "player_nationality", country, "active_players", "participant")
                 ] = float(len(players))
+
+        for (year, country), players in self._active_players_wc_by_nationality.items():
+            if players:
+                self._values[
+                    ("year", year, "player_nationality", country, "wc_active_players", "participant")
+                ] = float(len(players))
+
+        for country, players in self._active_players_by_nationality_all_time.items():
+            if players:
+                self._values[
+                    (
+                        "all_time",
+                        ALL_TIME_PERIOD_KEY,
+                        "player_nationality",
+                        country,
+                        "active_players",
+                        "participant",
+                    )
+                ] = float(len(players))
+
+        debut_nat_counts: dict[tuple[str, str], int] = defaultdict(int)
+        for player_id, debut_year in self._debut_year_by_player.items():
+            country = self._debut_country_by_player.get(player_id)
+            if country is not None:
+                debut_nat_counts[(debut_year, country)] += 1
+        for (year, country), count in debut_nat_counts.items():
+            if count:
+                self._values[
+                    ("year", year, "player_nationality", country, "player_debuts", "participant")
+                ] = float(count)
 
         for year, countries in self._nationalities_by_year.items():
             if countries:

@@ -215,7 +215,7 @@ Pair charts render below moments when the subject has played opponents. **Top op
 
 Initial opponent comes from URL / default top opponent (`data-chart-opponent-id` on `.k2-player-opponents-h2h`). No duplicate “compare someone else” search — page pickers cover that.
 
-Scripts: Chart.js + `player-head-to-head-chart.js`, `player-head-to-head-goals-chart.js`, `player-h2h-total-goals-histogram.js`, `player-h2h-scoreline-heatmap.js`, `player-compare-rating-chart.js`, `player-goals-scored-histogram.js` (H2H view in `player_opponents_page.php`). Profile loads `player-top-opponents-chart.js` and `player-goals-scored-histogram.js` separately.
+Scripts: Chart.js + `player-opponents-h2h-chart-context.js` + `player-head-to-head-chart.js`, `player-head-to-head-goals-chart.js`, `player-h2h-total-goals-histogram.js`, `player-h2h-scoreline-heatmap.js`, `player-compare-rating-chart.js`, `player-goals-scored-histogram.js` (H2H view in `player_opponents_page.php`). Profile loads `player-top-opponents-chart.js` and `player-goals-scored-histogram.js` separately.
 
 Profile keeps **Career rating** + **Games per month** only.  
 7. Optional games link  

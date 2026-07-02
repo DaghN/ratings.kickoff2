@@ -54,10 +54,9 @@ function amiga_activity_growth_section_intro(int $cutoffYear): string
 		$rhythm .= ' — ' . $eraList . ' —';
 	}
 
-	return 'Which years were big, and how did the totals pile up? '
+	return 'Which years were big, and how do the totals pile up? '
 		. $rhythm
-		. ' and each curve beneath walks tournament by tournament to the total. '
-		. 'Every point on a curve is a tournament: click one to open it.';
+		. ' and each curve beneath walks tournament by tournament to the total.';
 }
 
 $k2ActGrowthCtx = amiga_snapshot_context_peek();
@@ -72,7 +71,7 @@ $k2ActGrowthIntro = amiga_activity_growth_section_intro($k2ActGrowthCutoffYear);
 ?>
 <section class="k2-activity-section" aria-labelledby="k2-act-growth-title">
 	<header class="k2-activity-section__head">
-		<h2 class="k2-panel-heading" id="k2-act-growth-title">How much Kick Off 2 have we been playing?</h2>
+		<h2 class="k2-panel-heading" id="k2-act-growth-title">How much Kick Off 2 do we play?</h2>
 		<p class="k2-activity-section__intro"><?php echo k2_h($k2ActGrowthIntro); ?></p>
 	</header>
 

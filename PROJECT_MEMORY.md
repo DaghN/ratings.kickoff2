@@ -133,6 +133,19 @@
 
 | When | Note |
 |------|------|
+| 2026-07-02 | **Amiga WC stats wings** — removed Activity cross-link intro from all Tournament stats sub-wings (`amiga_world_cup_stats_wing_body.inc.php`). |
+| 2026-07-02 | **Amiga Activity Texture — high-scoring hint** — `k2-chart-block__hint` under High-scoring rate panel (ten+ goals both sides, per 100 games); matches online Activity chart hint pattern. |
+| 2026-07-02 | **Amiga Activity summary layout** — hub lede + “Players average…” merged into one paragraph (two sentences, no break); all six wings. |
+| 2026-07-02 | **Amiga player hero Events anchor** — Events stat + profile tournament history links land on `#k2-player-tournaments-table` (all-events filter). |
+| 2026-07-02 | **Amiga player tournaments table anchor** — `#k2-player-tournaments-table` above history table + scroll pad; hero World Cups + honours WC history links land there (`k2_carry_scroll_restore`). |
+| 2026-07-02 | **Amiga player hero layout** — World Cups with core stats (Rank–Games); WC medals alone after 20px gap (country-hero parity). |
+| 2026-07-02 | **Amiga player hero World Cups stat** — WC slice `tournaments_played` before medal counts; links to Tournaments wing World Cups filter; TT cutoff from slice-at-event row. |
+| 2026-07-02 | **Amiga player hero Events stat** — stored `tournaments_played` between Rating and Games; links to Tournaments wing; TT cutoff from snapshot row. |
+| 2026-07-02 | **WC Q-WC-006 tooltip (stored)** — `year×player_nationality×wc_active_players` in community facts; tooltip reads stored rows (sparse). **Run prove** once to backfill. |
+| 2026-07-02 | **Growth Q-VOL-005 tooltip** — Tournaments/year bar hover: total + host-country event breakdown (same `host_tournaments_by_year` as GEO-008). |
+| 2026-07-02 | **Hosts GEO-008 tooltip** — distinct host countries/year bar hover lists flag + country + events hosted; read-time from stored `year×host_country×tournaments` (no DDL/prove). |
+| 2026-07-02 | **Nations player grains — docs + prove** — Activity now **48 panels / 49 Q-IDs**; community fact registry +3 grains (no DDL); `prove` green local; policy/plan/catalog/feature-log synced. |
+| 2026-07-02 | **Nations player grains B–D shipped** — `all_time×nationality×active_players`, `year×nationality×player_debuts`; 3 new Nations panels; 8-panel page order; GEO-010 tooltip (no list scroll). |
 | 2026-07-02 | **Amiga Activity Nations — distinct nationalities tooltip** — new stored fact `year × player_nationality × active_players`; `year_facts` returns `nationality_active_by_year` breakdown; bar hover lists flag + country + active player count (HTML tooltip). Re-prove `ko2amiga_db` to populate facts. |
 | 2026-07-02 | **Amiga tournament video game links GL-5…6 shipped** — `video_game_links.csv` sidecar merge (`stream_map` mode), manifest `game_start_sec[]`, sync/verify/build wired; policy + README + implementation plan trimmed. Sidecar empty until stream curation. |
 | 2026-07-02 | **Amiga tournament video game links GL-1…4 shipped** — `game_links.py` + `audit_game_links.py`; sync remap/locks; 8 dual-leg manifest rows; `verify_tournament_videos` **0 errors**. |
@@ -145,6 +158,7 @@
 | 2026-07-02 | **Amiga Activity slice 8 shipped (Shape probes STOP gate)** — no UI; `includes/amiga_community_histogram_lib.php` + `scripts/oneoff/amiga_community_histogram_probe.php`; 9 kinds × 4 cutoffs probed on `ko2amiga_db`; policy §5.6 bucket edges locked; all kinds ship read-time in slice 9 (no S6); `active_years` game_scan ~147 ms present, slower at mid cutoffs — defer panel in loader queue. |
 | 2026-07-02 | **Amiga Activity slice 7 shipped (Geography Nations wing)** — 5 panels on `/amiga/activity/geography/nations.php`: appearances + goals duel/race (`player_nationality`) + realm distinct-nationalities year bar; slice-5 harness removed; reuses slice-6 geo panel mounts. |
 | 2026-07-02 | **Amiga Activity slice 6 shipped (Geography Hosts wing)** — 8 panels on `/amiga/activity/geography/hosts.php`: games/tournaments/goals duel bars + race lines driven by slice-5 selector; realm distinct-host-countries year bar + cumulative stepped line (GEO-009 unlock tooltip); generic `mountGeoDuelYear`/`mountGeoRace`/`registerGeoPanel`; Growth slice-1 visual sign-off recorded. |
+| 2026-07-02 | **Online Opponents H2H charts fix** — `player_opponents_page.php` now loads `player-opponents-h2h-chart-context.js` (Amiga parity); restores wins, cumulative goals, combined goals, and scoreline heatmap bootstrap from `data-chart-opponent-id` (regression since Jun 2026 Amiga H2H refactor). |
 | 2026-07-02 | **Amiga Activity slice 5 shipped (Geography selector platform)** — duel + race controls on `/amiga/activity/geography/{hosts,nations}.php` with harness charts; `?hosts=` / `?nats=` URL state + `replaceState`; new `api/amiga_community_slice_series.php`; `year_facts` extended for `host_country` + `player_nationality` + `available_keys`; lib helpers `amiga_community_slice_series()` + geo selection; module exports `getGeoState` / `renderGroupedYearBar` / `renderRaceLines` for slices 6–7. |
 | 2026-07-02 | **Amiga Activity slice 4 shipped (World Cups wing)** — 6 panels on `/amiga/activity/world-cups.php`: WC games ghost bars (realm behind), WC share %, cumulative `WcGamesPlayed` curve, WC goals/game with realm overlay line, nations + players year bars; `year_facts` `slice=world_cup`; `year_rates` `wc_share` + `wc_goals_per_game`; cross-links WC hub ↔ Activity WC wing. |
 | 2026-07-02 | **Amiga Activity slice 3 shipped (Texture wing)** — 5 rate bars on `/amiga/activity/texture.php` with dashed all-time reference lines; `year_rates` extended (goals/draw/DD/CS/high-scoring + `reference` from headline at cutoff); `renderYearRateBar()` + tooltip footer; helper `amiga_community_year_rate_reference_at_cutoff()`. |
@@ -280,7 +294,8 @@
 | 2026-06-29 | **Amiga country roster — Elo links** — Elo column links to rating LB row anchor (`#k2-lb-player-{id}`) via `k2_amiga_lb_rating_cell_link()`; preserves `as=` time travel; `k2-link-star` (entity drill-down parity with player/tournament cells). |
 | 2026-06-29 | **Amiga country Rivals H2H poster — card symmetry** — nation-pair poster passes `subject`/`opponent` into `k2_h2h_poster_country_card_html()` so hero hugs `vs` from the left (blue) and rival from the right (red). |
 | 2026-07-01 | **Activity Participation LB** — Games column anchor + default sort (col 3) + `.blue` values; SQL `ORDER BY NumberGames DESC`. |
-| 2026-07-02 | **Amiga Activity Growth wing** — section title *How much Kick Off 2 have we been playing?*; cumulative games/tournaments/goals tooltips use HTML external tooltip (host flag + tournament name, event delta + total); snapshot series API adds `host`. |
+| 2026-07-02 | **Amiga Activity Growth wing** — section title *How much Kick Off 2 do we play?*; cumulative games/tournaments/goals tooltips use HTML external tooltip (host flag + tournament name, event delta + total); snapshot series API adds `host`. |
+| 2026-07-02 | **Amiga Activity Growth intro** — dropped click-to-open tournament hint from section intro copy. |
 | 2026-07-02 | **Amiga Activity Geography — race country links** — roster hrefs append `#k2-country-roster` (hero anchor), matching `k2_amiga_country_roster_href()`. |
 | 2026-07-02 | **Amiga Activity Geography Nations intro** — race-line hint: *Click on a flag to toggle a country on or off.* |
 | 2026-07-02 | **Amiga Activity Geography — compare listbox layout** — reverted `duel-pair` / `contain: layout` (z-index regression); geo controls use games-filter + TT pattern (panel width = trigger, `inline-flex` compare row, controls `z-index: 20`). |
@@ -293,8 +308,8 @@
 | 2026-07-02 | **Amiga Activity Geography — listbox panel flags** — Compare / Race `k2_archive_listbox` dropdown options show inline country flags (`flag_html` / `flagHtml`); JS rebuild path matches PHP first paint. |
 | 2026-07-02 | **Amiga Activity Geography — K2 listboxes** — Compare / Race line native `<select>` replaced with `k2_archive_listbox` + `k2-archive-listbox.js` on hosts + nations wings. |
 | 2026-07-02 | **Amiga Activity Geography copy** — Hosts *Who's hosting tournaments?*; Nations *Where do we come from?*; intros trimmed to compare/race line only (People-wing parity). |
-| 2026-07-02 | **Amiga Activity People — cumulative tooltips** — Growth-style HTML tooltips on *Cumulative player* + *Cumulative distinct pairs* (host flag + tournament name); player curve adds *N new player(s)* delta row (count-sensitive). |
-| 2026-07-02 | **Amiga Activity People — cumulative panel** — panel title *Cumulative player*; removed Q-ID sub-intro under chart. |
+| 2026-07-02 | **Amiga Activity People — cumulative tooltips** — Growth-style HTML tooltips on *Cumulative players* + *Cumulative distinct pairs* (host flag + tournament name); player curve adds *N new player(s)* delta row (count-sensitive). |
+| 2026-07-02 | **Amiga Activity People — cumulative panel** — panel title *Cumulative players*; removed Q-ID sub-intro under chart. |
 | 2026-07-02 | **Amiga Activity People wing copy** — section title *Who's playing?*; intro: active + debuts as a pair, curves show roster growth tournament by tournament. |
 | 2026-07-02 | **Amiga Activity summary — Busiest year card** — fifth stat card: peak realm games in one calendar year at cutoff; note *games · YYYY*; read via `amiga_community_busiest_year_at_cutoff()`. |
 | 2026-07-02 | **Amiga Activity Growth intro — TT-aware eras** — *mid-2000s boom* / *lean mid-2010s* / *modern revival* only after cutoff year ≥ 2008 / 2018 / 2022; early `as=` omits era names. |

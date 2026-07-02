@@ -2,7 +2,7 @@
 /**
  * JSON per-country cumulative series for Amiga Activity geography race lines.
  *
- * GET: slice (host_country | player_nationality), metric (games | goals | tournaments),
+ * GET: slice (host_country | player_nationality), metric (games | goals | tournaments | active_players),
  * optional keys (CSV, max 9; default top 5 by all-time games at cutoff), as.
  *
  * @see docs/amiga-activity-charts-implementation-plan.md §3
@@ -21,7 +21,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_community_stats_lib.ph
 
 const K2_ACT_SLICE_SERIES_SLICES = [
     'host_country' => ['games', 'goals', 'tournaments'],
-    'player_nationality' => ['games', 'goals'],
+    'player_nationality' => ['games', 'goals', 'active_players'],
 ];
 
 $slice = isset($_GET['slice']) ? strtolower(trim((string) $_GET['slice'])) : '';

@@ -1,8 +1,8 @@
 # Amiga Activity charts — implementation plan
 
-**Status:** **Shipped** (Jul 2026) — **45 panels / 46 ship IDs** live on `/amiga/activity/` (six wings); track **complete** (slices 0–10). Read-only chart track: **no finalize writers, no DDL**.
+**Status:** **Shipped** (Jul 2026) — **48 panels / 49 ship IDs** on `/amiga/activity/` (six wings). Base track complete (slices 0–10). **Jul 2026 extension:** Nations player grains — [`amiga-activity-geography-nations-players-implementation-plan.md`](amiga-activity-geography-nations-players-implementation-plan.md) (registry + scan + 3 panels; **no DDL**).
 **Locked IA / product:** [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) — wings, panel order, selectors, TT rules, bucket defaults.
-**Questions:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 46 ship IDs → 45 panels.
+**Questions:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 49 ship IDs → 48 panels.
 **Pattern source:** online [`activity-charts.md`](activity-charts.md) (module, frames, mobile rules).
 
 ---
@@ -11,7 +11,7 @@
 
 | Invariant | Rule |
 |-----------|------|
-| **Read-only** | Chart APIs + UI only. `python -m scripts.amiga prove` surface untouched; no registry/writer edits. |
+| **Read-only (base track)** | Slices 0–10: chart APIs + UI only; no registry/writer edits in that track. **Exception:** Nations player grains Jul 2026 — see [`amiga-activity-geography-nations-players-implementation-plan.md`](amiga-activity-geography-nations-players-implementation-plan.md). |
 | **TT on every API** | Fetches pass **`as=` only**; endpoint resolves cutoff via `amiga_snapshot_context_from_request()` and reads at cutoff `tournament_id`. Never with-player params on fetches. |
 | **Link carry** | Sub-nav + cross-links via `k2_amiga_route()` / `amiga_url_with_context()` (carries `as=` + `as_with`); JS-built hrefs via `k2-amiga-time-travel-url.js`. |
 | **Chart chrome** | One module `js/amiga-activity-charts.js`; `.k2-chart-panel` + `.k2-chart-frame`; `chart-theme.js` tooltips/tokens; boot `k2OnPageReady`; sequential loader; no per-chart boot files; no canvas `%` sizing; no `Chart.defaults` mutation. |
@@ -32,12 +32,12 @@
 | **4** | World Cups wing (ghost bars + overlay) | 6 | **Done** Jul 2026 |
 | **5** | Geography selector platform (duel + race controls, slice_series API) | 0 | **Done** |
 | **6** | Geography — Hosts | 8 | **Done** |
-| **7** | Geography — Nations | 5 | **Done** |
+| **7** | Geography — Nations | 8 | **Done** Jul 2026 (+ player grains — [`amiga-activity-geography-nations-players-implementation-plan.md`](amiga-activity-geography-nations-players-implementation-plan.md)) |
 | **8** | **STOP gate:** Shape C8 probes + bucket lock (IA-4) | 0 | **Done** Jul 2026 |
 | **9** | Shape wing | 9 | **Done** Jul 2026 |
 | **10** | Polish: mobile pass, perf order, cross-links, docs finish | — | **Done** Jul 2026 |
 
-Running total after slice 9: **45 panels / 46 question IDs.**
+Running total after slice 9: **45 panels / 46 question IDs.** After Nations player-grain extension (Jul 2026): **48 panels / 49 question IDs.**
 
 ---
 
@@ -82,13 +82,18 @@ Load order = table order per page. Panel class doubles as registry id.
 
 ### Geography Nations — `amiga/activity/geography/nations.php` (duel state `?nats=A,B`)
 
+Policy order: *who → volume → breadth* — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md) §6.
+
 | # | Panel class | API call | Chart | ID(s) |
 |---|-------------|----------|-------|-------|
-| 1 | `.amiga-act-nat-appearances-year-chart` | `year_facts?slice=player_nationality&metric=games&keys=` | grouped bar | Q-GEO-005 |
-| 2 | `.amiga-act-nat-appearances-race-chart` | `slice_series?slice=player_nationality&metric=games&keys=` | multi-line | Q-GEO-007 |
-| 3 | `.amiga-act-nat-goals-year-chart` | `year_facts?slice=player_nationality&metric=goals&keys=` | grouped bar | Q-GEO-006 |
-| 4 | `.amiga-act-nat-goals-race-chart` | `slice_series?slice=player_nationality&metric=goals&keys=` | multi-line | Q-GEO-015 |
-| 5 | `.amiga-act-nationalities-year-chart` | `year_facts?slice=realm&metric=distinct_nationalities` | bar | Q-GEO-010 |
+| 1 | `.amiga-act-nat-active-players-year-chart` | `year_facts?slice=player_nationality&metric=active_players&keys=` | grouped bar | Q-GEO-016 |
+| 2 | `.amiga-act-nat-roster-race-chart` | `slice_series?slice=player_nationality&metric=active_players&keys=` | multi-line | Q-GEO-017 |
+| 3 | `.amiga-act-nat-debuts-year-chart` | `year_facts?slice=player_nationality&metric=player_debuts&keys=` | grouped bar | Q-GEO-018 |
+| 4 | `.amiga-act-nat-appearances-year-chart` | `year_facts?slice=player_nationality&metric=games&keys=` | grouped bar | Q-GEO-005 |
+| 5 | `.amiga-act-nat-appearances-race-chart` | `slice_series?slice=player_nationality&metric=games&keys=` | multi-line | Q-GEO-007 |
+| 6 | `.amiga-act-nat-goals-year-chart` | `year_facts?slice=player_nationality&metric=goals&keys=` | grouped bar | Q-GEO-006 |
+| 7 | `.amiga-act-nat-goals-race-chart` | `slice_series?slice=player_nationality&metric=goals&keys=` | multi-line | Q-GEO-015 |
+| 8 | `.amiga-act-nationalities-year-chart` | `year_facts?slice=realm&metric=distinct_nationalities` (+ `nationality_active_by_year`) | bar + HTML tooltip | Q-GEO-010 |
 
 ### World Cups — `amiga/activity/world-cups.php`
 
@@ -235,7 +240,7 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 - Registry §2 order; one duel state drives all Pattern-A charts on the page.
 
-*Shipped notes:* `includes/amiga_activity_geography_nations_panels.inc.php` — appearances + goals duel/race panels (`player_nationality` slice via shared selector state) + realm `distinct_nationalities` year bar; harness preview charts removed from selector include. Reuses slice-6 `registerGeoPanel()` / `mountGeoDuelYear()` / `mountGeoRace()` unchanged. **Jul 2026+:** distinct-nationalities year bar hover tooltip — per-country active players (`year × player_nationality × active_players` stored fact; `year_facts` field `nationality_active_by_year`; `mountNationalitiesYear()` HTML tooltip).
+*Shipped notes:* **8 panels** in `includes/amiga_activity_geography_nations_panels.inc.php` — player grains first (active/year duel, cumulative roster race, debuts/year duel), then appearances + goals duel/race, then realm `distinct_nationalities` bar with HTML tooltip (`mountNationalitiesYear()`; breakdown from `nationality_active_by_year`; full-height list, no scroll). Shared selector + `registerGeoPanel()` unchanged. **Stored facts (Jul 2026):** `year × player_nationality × active_players`, `year × player_nationality × player_debuts`, `all_time × player_nationality × active_players` — Python + PHP realm scan + `community_stat_registry.py`; backfill via `prove`. Full spec: [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md).
 
 ### Slice 8 — Shape probes (IA-4 STOP gate — no UI) — **Done** (Jul 2026)
 
@@ -293,10 +298,10 @@ Encoded in `amiga_community_histogram_bucket_defs()`: range buckets for career g
 
 - Mobile pass: `touch-action: pan-y pinch-zoom` on panels; tooltips off coarse; heaviest panels (race multi-lines) last in loader queue.
 - Cross-link audit (Countries hub, WC hub, tournament click-through carry).
-- Registry parity check: 45 panels ↔ 46 ship IDs, per-panel checklist from [`activity-charts.md`](activity-charts.md) §6.
+- Registry parity check: **48 panels ↔ 49 ship IDs** (incl. Q-GEO-016…018), per-panel checklist from [`activity-charts.md`](activity-charts.md) §6.
 - Docs: this plan statuses; policy status line; [`url-routes.md`](url-routes.md); catalog plan step 6 → done; MEMORY; feature-log row (Part A). Part B only if S6 shipped.
 
-*Shipped notes:* **Mobile** — `theme.css` coarse-pointer rule extended to `k2-amiga-activity-charts` panels/canvases (matches online Activity). Tooltips already off on coarse via `chart-theme.js` `activityChartOptions`. **Loader** — `buildPanelQueue()` mounts only panels present on the page; `loadTier: 'deferred'` queues geography **race** multi-lines + Shape `goal_sum` / `active_years` after lighter panels on that page. **Cross-links** — Geography intro → Countries hub (`amiga_url_with_context`); WC wing → World Cups hub (slice 4); geo chip roster hrefs carry `as=` via `K2AmigaTimeTravelUrl`; cumulative click-through already carried `as=` (slice 1). **Registry parity** — 45 panels = 46 ship IDs with **Q-VOL-004 + Q-SHP-010** merged in one cumulative-players panel (policy §4); all registry selectors wired in `amiga-activity-charts.js`.
+*Shipped notes:* **Mobile** — `theme.css` coarse-pointer rule extended to `k2-amiga-activity-charts` panels/canvases (matches online Activity). Tooltips already off on coarse via `chart-theme.js` `activityChartOptions`. **Loader** — `buildPanelQueue()` mounts only panels present on the page; `loadTier: 'deferred'` queues geography **race** multi-lines + Shape `goal_sum` / `active_years` after lighter panels on that page. **Cross-links** — Geography intro → Countries hub (`amiga_url_with_context`); WC wing → World Cups hub (slice 4); geo chip roster hrefs carry `as=` via `K2AmigaTimeTravelUrl`; cumulative click-through already carried `as=` (slice 1). **Registry parity** — **48 panels = 49 ship IDs** with **Q-VOL-004 + Q-SHP-010** merged in one cumulative-players panel (policy §4); Jul 2026 Nations extension adds Q-GEO-016…018 on `nations.php` (8 panels); GEO-010 rich tooltip uses stored `nationality_active_by_year` (full list height, no inner scroll); all registry selectors wired in `amiga-activity-charts.js`.
 
 ---
 

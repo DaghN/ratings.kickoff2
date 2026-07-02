@@ -135,7 +135,7 @@ function amiga_profile_render_honours(array $totals, int $playerId): void
             echo ' · <a class="k2-link-star" href="' . k2_h(k2_amiga_route('amiga-world-cups-players-honours')) . '">World Cup player stats</a>';
         }
         if ($hasWcMedals && $playerId > 0) {
-            echo ' · <a class="k2-link-star" href="' . k2_h(amiga_player_tournaments_filter_url($playerId, 'world-cup')) . '">World Cup history</a>';
+            echo ' · <a class="k2-link-star" href="' . k2_h(amiga_player_tournaments_filter_url($playerId, 'world-cup') . amiga_player_tournaments_table_anchor_fragment()) . '">World Cup history</a>';
         }
     ?>
 	</p>
@@ -356,7 +356,7 @@ function amiga_profile_render_perf_rating_highlight(array $highlight, int $playe
 	<p style="margin:0.75rem 0 0">
 		<a class="k2-link-star" href="<?php echo k2_h(k2_amiga_route('amiga-lb-performance-rating-best')); ?>">Best event performance leaderboard</a>
 		<?php if ($playerId > 0) { ?>
-		 · <a class="k2-link-star" href="<?php echo k2_h(k2_amiga_route('amiga-player-tournaments', ['id' => $playerId])); ?>">Full tournament history</a>
+		 · <a class="k2-link-star" href="<?php echo k2_h(amiga_player_tournaments_table_url($playerId)); ?>">Full tournament history</a>
 		<?php } ?>
 	</p>
 </section>
@@ -389,11 +389,11 @@ function amiga_profile_render_recent_tournaments(array $tournaments, int $player
 	</ul>
 	<?php if ($playerId > 0 && $totalCount > count($tournaments)) { ?>
 	<p style="margin:0.75rem 0 0">
-		<a class="k2-link-star" href="<?php echo k2_h(k2_amiga_route('amiga-player-tournaments', ['id' => $playerId])); ?>">All <?php echo (int) $totalCount; ?> tournaments</a>
+		<a class="k2-link-star" href="<?php echo k2_h(amiga_player_tournaments_table_url($playerId)); ?>">All <?php echo (int) $totalCount; ?> tournaments</a>
 	</p>
 	<?php } elseif ($playerId > 0 && $totalCount > 0) { ?>
 	<p style="margin:0.75rem 0 0">
-		<a class="k2-link-star" href="<?php echo k2_h(k2_amiga_route('amiga-player-tournaments', ['id' => $playerId])); ?>">Full tournament history</a>
+		<a class="k2-link-star" href="<?php echo k2_h(amiga_player_tournaments_table_url($playerId)); ?>">Full tournament history</a>
 	</p>
 	<?php } ?>
 </section>

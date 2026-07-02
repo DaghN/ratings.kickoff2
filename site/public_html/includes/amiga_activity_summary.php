@@ -70,19 +70,24 @@ $busiestYear = $readCutoffTournamentId !== null
 $BusiestYearGames = $busiestYear !== null ? (int) $busiestYear['games'] : null;
 $BusiestYear = $busiestYear !== null ? (int) $busiestYear['year'] : null;
 
+$k2AmigaActivitySummaryTexture = 'Players average <span class="blue">' . number_format((float) $GamesPlayedAverage, 1) . '</span> rated games and <span class="blue">' . number_format((float) $DifferentOpponentsAverage, 1) . '</span> different opponents.';
+
 mysqli_close($con);
 unset($con);
 ?>
 <section class="server-activity-summary" aria-label="Activity summary">
 <?php if ($k2AmigaActivitySummaryPanelLede !== null && $k2AmigaActivitySummaryPanelLede !== '') { ?>
-    <p class="server-activity-summary__lede"><?php echo $k2AmigaActivitySummaryPanelLede; ?></p>
+    <p class="server-activity-summary__lede"><?php echo $k2AmigaActivitySummaryPanelLede; ?> <?php echo $k2AmigaActivitySummaryTexture; ?></p>
 <?php } elseif (!$k2AmigaActivitySummaryHideLede) { ?>
     <p class="server-activity-summary__lede">
         <span class="blue"><?php echo number_format($NumberOfPlayers); ?></span> players from
         <span class="blue"><?php echo number_format($countryCount); ?></span> <?php echo $countryLabel; ?> have played
         <span class="blue"><?php echo number_format($GamesPlayed); ?></span> rated games in
         <span class="blue"><?php echo number_format($tournamentCount); ?></span> <?php echo $tournamentLabel; ?> since <?php echo $ActivitySinceLabel; ?>.
+        <?php echo $k2AmigaActivitySummaryTexture; ?>
     </p>
+<?php } else { ?>
+    <p class="server-activity-summary__lede"><?php echo $k2AmigaActivitySummaryTexture; ?></p>
 <?php } ?>
     <div class="server-activity-summary__stats" aria-label="Activity highlights">
         <div class="server-activity-summary__stat">
@@ -113,7 +118,4 @@ unset($con);
         </div>
         <?php } ?>
     </div>
-    <p class="server-activity-summary__texture">
-        Players average <span class="blue"><?php echo number_format((float) $GamesPlayedAverage, 1); ?></span> rated games and <span class="blue"><?php echo number_format((float) $DifferentOpponentsAverage, 1); ?></span> different opponents.
-    </p>
 </section>

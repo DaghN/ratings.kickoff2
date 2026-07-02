@@ -54,13 +54,13 @@ function amiga_slice_at_cutoff_join_sql(): array
 }
 
 /**
- * World Cup podium medal counts for one player (present or snapshot at cutoff).
+ * World Cup slice stats for one player (present or snapshot at cutoff).
  *
- * @return array{wc_gold: int, wc_silver: int, wc_bronze: int}
+ * @return array{wc_played: int, wc_gold: int, wc_silver: int, wc_bronze: int}
  */
 function amiga_player_wc_medal_counts(mysqli $con, int $playerId, ?AmigaSnapshotContext $ctx = null): array
 {
-    $zero = ['wc_gold' => 0, 'wc_silver' => 0, 'wc_bronze' => 0];
+    $zero = ['wc_played' => 0, 'wc_gold' => 0, 'wc_silver' => 0, 'wc_bronze' => 0];
     if ($playerId < 1) {
         return $zero;
     }
@@ -70,7 +70,8 @@ function amiga_player_wc_medal_counts(mysqli $con, int $playerId, ?AmigaSnapshot
 
     if (!$ctx->isActive()) {
         $sliceKey = amiga_slice_key_world_cup();
-        $sql = 'SELECT COALESCE(gold, 0) AS wc_gold, COALESCE(silver, 0) AS wc_silver, COALESCE(bronze, 0) AS wc_bronze
+        $sql = 'SELECT COALESCE(tournaments_played, 0) AS wc_played,
+                       COALESCE(gold, 0) AS wc_gold, COALESCE(silver, 0) AS wc_silver, COALESCE(bronze, 0) AS wc_bronze
                 FROM amiga_player_slice_totals
                 WHERE player_id = ? AND slice_key = ?
                 LIMIT 1';
@@ -96,6 +97,7 @@ function amiga_player_wc_medal_counts(mysqli $con, int $playerId, ?AmigaSnapshot
         }
 
         return [
+            'wc_played' => (int) ($row['wc_played'] ?? 0),
             'wc_gold' => (int) ($row['wc_gold'] ?? 0),
             'wc_silver' => (int) ($row['wc_silver'] ?? 0),
             'wc_bronze' => (int) ($row['wc_bronze'] ?? 0),
@@ -108,9 +110,10 @@ function amiga_player_wc_medal_counts(mysqli $con, int $playerId, ?AmigaSnapshot
     }
 
     $sliceKey = amiga_slice_key_world_cup();
-    $sql = 'SELECT COALESCE(x.gold, 0) AS wc_gold, COALESCE(x.silver, 0) AS wc_silver, COALESCE(x.bronze, 0) AS wc_bronze
+    $sql = 'SELECT COALESCE(x.tournaments_played, 0) AS wc_played,
+                   COALESCE(x.gold, 0) AS wc_gold, COALESCE(x.silver, 0) AS wc_silver, COALESCE(x.bronze, 0) AS wc_bronze
             FROM (
-                SELECT s.gold, s.silver, s.bronze,
+                SELECT s.tournaments_played, s.gold, s.silver, s.bronze,
                        ROW_NUMBER() OVER (
                            ORDER BY s.event_date DESC, s.event_chrono DESC, s.as_of_tournament_id DESC
                        ) AS rn
@@ -147,6 +150,7 @@ function amiga_player_wc_medal_counts(mysqli $con, int $playerId, ?AmigaSnapshot
     }
 
     return [
+        'wc_played' => (int) ($row['wc_played'] ?? 0),
         'wc_gold' => (int) ($row['wc_gold'] ?? 0),
         'wc_silver' => (int) ($row['wc_silver'] ?? 0),
         'wc_bronze' => (int) ($row['wc_bronze'] ?? 0),

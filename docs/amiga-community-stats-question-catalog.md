@@ -1,6 +1,6 @@
 # Amiga community stats — question catalog
 
-**Status:** **Steps 3–5 complete** (Jul 2026) — **46 ship** curated; registry v2 + writers green (`036`/`037`, `prove`); chart IA **locked** — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md). Step **6** = build track [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) (45 panels / 46 IDs).  
+**Status:** **Steps 3–6 complete** (Jul 2026) — **49 ship** curated; registry v2 + writers green (`036`/`037`, `prove`); chart IA **locked** — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md). **Jul 2026 extension:** Q-GEO-016…018 (Nations player grains) — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md). Activity UI **48 panels / 49 IDs**.  
 **Method:** [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md)  
 **Policy (shape):** [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md)
 
@@ -10,7 +10,7 @@
 - **Storage** S0–S7; **Impl** = cluster C0–C9 (writers done for C2–C7 grains; charts not started).
 - **Lens:** L1 year · L2 snapshot cumulative · L3 year-local rate · L4 distribution at cutoff.
 
-**Curation totals:** **46 ship** · **2 later** · **28 cut** (25 step 3 + 3 step 2) · **76** rows incl. 3 additions from curation comments
+**Curation totals:** **49 ship** · **2 later** · **28 cut** (25 step 3 + 3 step 2) · **79** rows (76 Jun 2026 + Q-GEO-016…018 Jul 2026)
 
 ---
 
@@ -18,7 +18,7 @@
 
 | Priority | Count |
 |----------|-------|
-| **ship** | **46** |
+| **ship** | **49** |
 | **later** | 2 |
 | **cut** | 28 |
 
@@ -27,7 +27,7 @@
 | Wing | Ship |
 |------|------|
 | Volume | 8 |
-| Geography | 13 (10 + 3 cumulative companions) |
+| Geography | 16 (10 + 3 cumulative companions + 3 player-headcount) |
 | World Cups | 6 (5 + goals/game per year) |
 | Texture | 5 (4 year-local rates + high-scoring rate) |
 | Shape | 13 |
@@ -63,9 +63,9 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 
 ---
 
-## Shipped set — quick list (46)
+## Shipped set — quick list (49)
 
-`Q-VOL-001`–`008` · `Q-GEO-001`–`010`, `013`–`015` · `Q-WC-001`–`003`, `006`–`007`, `011` · `Q-TEX-006`–`009`, `013` · `Q-SHP-001`–`010`, `014`–`016` · `Q-ECO-004`
+`Q-VOL-001`–`008` · `Q-GEO-001`–`010`, `013`–`018` · `Q-WC-001`–`003`, `006`–`007`, `011` · `Q-TEX-006`–`009`, `013` · `Q-SHP-001`–`010`, `014`–`016` · `Q-ECO-004`
 
 ---
 
@@ -78,6 +78,7 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 | **C2 — Realm year numerators** | Q-VOL-005 · Q-SHP-001,009 · hidden: `draws`, `dd`, `cs`, `high_scoring` | One writer extension |
 | **C3 — Host country** | Q-GEO-003,004,008,010 · Q-GEO-013,014 | Year + `all_time` goals/tournaments |
 | **C4 — Nationality cumulative goals** | Q-GEO-015 | `all_time` + `player_nationality` + `goals` |
+| **C4b — Nationality player headcount** | Q-GEO-016 · 017 · 018 · GEO-010 tooltip | `player_nationality` + `active_players` (year + all_time), `player_debuts` (year) — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md) |
 | **C5 — World Cup slice** | Q-WC-001,003,006,007 · numerators for Q-WC-011 | `world_cup` year facts + Q-WC-002 S1 |
 | **C7 — Headline S1** | Q-VOL-006 · Q-GEO-009 · Q-SHP-002,010 | Snapshot cols |
 | **C8 — L4 probes → APIs** | Q-SHP-003–008,014–016 | Read oracles + TT |
@@ -127,6 +128,9 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 | Q-GEO-013 | Cumulative goals in host country X? | L2 | multi-line | S2 | new-writer | yes | **ship** | *Added step 3 — companion to Q-GEO-003* |
 | Q-GEO-014 | Cumulative tournaments in host country X? | L2 | multi-line | S2 | new-writer | yes | **ship** | *Added step 3 — companion to Q-GEO-004* |
 | Q-GEO-015 | Cumulative goals by nationality X? | L2 | multi-line | S2 | new-writer | yes | **ship** | *Added step 3 — companion to Q-GEO-006* |
+| Q-GEO-016 | Nationality X active players per year? | L1 | bar | S2 | new-writer | yes | **ship** | [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md) |
+| Q-GEO-017 | Cumulative distinct players by nationality X? | L2 | multi-line | S2 | new-writer | yes | **ship** | Nation roster race line |
+| Q-GEO-018 | Nationality X player debuts per year? | L1 | bar | S2 | new-writer | yes | **ship** | First rated game in year Y |
 
 ---
 
@@ -223,7 +227,9 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 
 **Year facts — host_country:** `goals`, `tournaments`, `distinct_host_countries` (realm), `distinct_nationalities_active` (realm)
 
-**Year facts — all_time at snapshot:** `host_country` + `goals` / `tournaments`; `player_nationality` + `goals`
+**Year facts — player_nationality:** `games`, `goals`, `active_players` (year), `player_debuts` (year)
+
+**Year facts — all_time at snapshot:** `host_country` + `goals` / `tournaments`; `player_nationality` + `games` / `goals` / **`active_players`**
 
 **Year facts — world_cup:** `games`, `goals`, `active_players`, `distinct_nationalities` (metric name TBD)
 
@@ -237,9 +243,9 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 
 | Step | Status |
 |------|--------|
-| **3** Curation | **Done** — 46 ship |
-| **4** Registry v2 + writers + `prove` | **Done** Jun 2026 |
+| **3** Curation | **Done** — **49 ship** (46 Jun 2026 + Q-GEO-016…018 Jul 2026) |
+| **4** Registry v2 + writers + `prove` | **Done** Jun 2026 (+ Jul 2026 nationality player grains, no DDL) |
 | **5** Chart IA + track plan | **Done** Jul 2026 — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) |
-| **6** Chart APIs + Activity UI (C0–C9) | **Next** — [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) slices 0–10 |
+| **6** Chart APIs + Activity UI (C0–C9) | **Done** Jul 2026 — [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) + Nations player extension |
 
-*Step 3 applied Jun 2026 — Dagh curation; 3 rows added (GEO-013–015, WC-011, TEX-013). Step 4 writers shipped Jun 2026-23.*
+*Step 3 applied Jun 2026 — Dagh curation; 3 rows added (GEO-013–015, WC-011, TEX-013). Step 4 writers shipped Jun 2026-23. Jul 2026 — Q-GEO-016…018 + 3 Nations panels; `prove` green local.*

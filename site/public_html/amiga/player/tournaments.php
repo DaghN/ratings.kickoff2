@@ -141,6 +141,7 @@ $k2PlayerTournamentsFilterAction = $tournamentsFilterAction;
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournaments_filters_nav.php';
 ?>
 
+<section class="k2-player-tournaments-table-view">
 <div class="k2-player-games-status" data-k2-carry-scroll>
 	<?php echo k2_h($listSummary); ?>
 <?php if (amiga_player_tournaments_filters_active($eventFilter, $countryFilter, $yearFilter, $perfectFilter)) { ?>
@@ -148,11 +149,16 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournaments_filters_
 <?php } ?>
 </div>
 
+<div id="<?php echo k2_h(K2_PLAYER_TOURNAMENTS_TABLE_ANCHOR); ?>" class="k2-player-tournaments-table-anchor" tabindex="-1"></div>
+
 <?php
 if ($tournaments !== []) {
     amiga_profile_render_tournament_history_table($tournaments);
 }
 ?>
+
+<div class="k2-player-tournaments-table-scroll-pad" aria-hidden="true"></div>
+</section>
 
 </div><!-- .k2-page-nav -->
 

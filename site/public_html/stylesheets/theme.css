@@ -914,7 +914,7 @@ body.k2-site .server-activity-summary__value {
 }
 
 body.k2-site .server-activity-summary__texture {
-	margin: 11px 0 0;
+	margin: 0 0 12px;
 }
 
 @media (max-width: 720px) {
@@ -1276,8 +1276,6 @@ body.k2-site.k2-amiga-activity-charts .k2-amiga-act-nationalities-tooltip__summa
 body.k2-site.k2-amiga-activity-charts .k2-amiga-act-nationalities-tooltip__list {
 	display: grid;
 	gap: 4px;
-	max-height: min(280px, 40vh);
-	overflow-y: auto;
 }
 
 body.k2-site.k2-amiga-activity-charts .k2-amiga-act-nationalities-tooltip__row {
@@ -2519,6 +2517,23 @@ body.k2-site .k2-player-games-day-anchor {
 body.k2-site .k2-player-games-filters-anchor {
 	height: 0;
 	scroll-margin-top: 12px;
+}
+
+body.k2-site .k2-player-tournaments-table-anchor {
+	height: 0;
+	scroll-margin-top: 12px;
+}
+
+body.k2-site .k2-player-tournaments-table-view {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+body.k2-site .k2-player-tournaments-table-scroll-pad {
+	flex: 1 1 auto;
+	min-height: 0;
+	pointer-events: none;
 }
 
 body.k2-site .k2-player-games-filter-view {

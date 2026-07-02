@@ -51,6 +51,7 @@ const K2_ACT_PLAYER_NATIONALITY_YEAR_METRICS = [
     'games',
     'goals',
     'active_players',
+    'player_debuts',
 ];
 
 $slice = isset($_GET['slice']) ? strtolower(trim((string) $_GET['slice'])) : 'realm';
@@ -166,6 +167,12 @@ try {
     ];
     if ($slice === 'realm' && $metric === 'distinct_nationalities') {
         $payload['nationality_active_by_year'] = amiga_community_nationality_active_by_year_at_cutoff($con, $cutoffTid);
+    }
+    if ($slice === 'realm' && in_array($metric, ['distinct_host_countries', 'tournaments'], true)) {
+        $payload['host_tournaments_by_year'] = amiga_community_host_tournaments_by_year_at_cutoff($con, $cutoffTid);
+    }
+    if ($slice === 'world_cup' && in_array($metric, ['distinct_nationalities', 'active_players'], true)) {
+        $payload['wc_nationality_active_by_year'] = amiga_community_wc_nationality_active_by_year_at_cutoff($con, $cutoffTid);
     }
     echo json_encode($payload);
 } catch (RuntimeException $e) {

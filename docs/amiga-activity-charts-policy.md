@@ -1,8 +1,8 @@
 # Amiga Activity charts — IA & product policy
 
-**Status:** **Shipped** (Jul 2026) — chart track **complete** (45 panels / 46 ship IDs on `/amiga/activity/`). Closes catalog-plan §9.1 **IA-1 · IA-2 · IA-3 · IA-5** and step **6**. **IA-4** (histogram probes) cleared in implementation plan slice 8.
+**Status:** **Shipped** (Jul 2026) — **48 panels / 49 ship IDs** on `/amiga/activity/` (six wings). Base track complete (slices 0–10); **Jul 2026 extension:** Nations player grains (+3 panels, community fact registry) — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md).
 **Implementation track:** [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md)
-**Questions (product source):** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 46 ship IDs
+**Questions (product source):** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 49 ship IDs
 **Method / storage:** [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) (storage shape — do not reopen)
 **UI pattern:** online [`activity-charts.md`](activity-charts.md) · **Time travel:** [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · **URLs:** [`url-routes.md`](url-routes.md) + [`k2-page-structure-checklist.md`](k2-page-structure-checklist.md)
 
@@ -37,12 +37,12 @@ Design gift vs online Activity: **every cumulative-curve point is a real tournam
 | **Growth** *(default)* | `/amiga/activity/growth.php` | 7 | VOL-001 · 002 · 005 · 006 · 007 · 008 · ECO-004 |
 | **People** | `/amiga/activity/people.php` | 5 | VOL-003 · VOL-004+SHP-010 (merged) · SHP-009 · 001 · 002 |
 | **Geography — Hosts** | `/amiga/activity/geography/hosts.php` | 8 | GEO-001 · 002 · 004 · 014 · 003 · 013 · 008 · 009 |
-| **Geography — Nations** | `/amiga/activity/geography/nations.php` | 5 | GEO-005 · 007 · 006 · 015 · 010 |
+| **Geography — Nations** | `/amiga/activity/geography/nations.php` | 8 | GEO-016 · 017 · 018 · 005 · 007 · 006 · 015 · 010 |
 | **World Cups** | `/amiga/activity/world-cups.php` | 6 | WC-001 · 003 · 002 · 011 · 006 · 007 |
 | **Texture** | `/amiga/activity/texture.php` | 5 | TEX-007 · 006 · 008 · 009 · 013 |
 | **Shape** | `/amiga/activity/shape.php` | 9 | SHP-007 · 008 · 014 · 015 · 003 · 004 · 016 · 005 · 006 |
 
-**46 question IDs → 45 panels** (one merge, §4). Every leaf lands at 5–9 charts — inside the 6–10 sub-wing heuristic; the sequential loader only ever handles its own wing.
+**49 question IDs → 48 panels** (one merge, §4). Every leaf lands at 5–9 charts — inside the 6–10 sub-wing heuristic; the sequential loader only ever handles its own wing.
 
 ### 3.1 Navigation chrome
 
@@ -79,7 +79,7 @@ Design gift vs online Activity: **every cumulative-curve point is a real tournam
 |----------|------|
 | **VOL-004 ≡ SHP-010 merge** | `NumberOfPlayers` = `PlayersDebuted` at every snapshot (a debut is what makes a player; verified 469/469, 468/468, …). **One panel** — *Cumulative player* — satisfies both IDs. |
 | **Q-TEX-012 stays cut** | No online-style combined 4-line texture chart, even though it would be cheap. Each texture rate is its own bar chart. |
-| **Scope** | This policy consumes exactly the **46 ship IDs** — no resurrections from the cut log, no new questions without a catalog row first. |
+| **Scope** | This policy consumes exactly the **49 ship IDs** — no resurrections from the cut log, no new questions without a catalog row first. |
 ---
 
 ## 5. Wing specs
@@ -96,7 +96,7 @@ Each volume metric is a **pair**: year bars, then the cumulative event-timeline 
 |---|-------|-------|--------|
 | 1 | Games per year | Q-VOL-001 | Hero bar, pitch tone. The 2007 peak (2,888) vs the 2020 trough (56) is the story of the scene — intro copy points at it. |
 | 2 | Cumulative games | Q-VOL-002 | 605-point line vs `event_date`. Tooltip: tournament name + date + running total. Click-through (§7.3). |
-| 3 | Tournaments per year | Q-VOL-005 | Bar, chrome tone. |
+| 3 | Tournaments per year | Q-VOL-005 | Bar, chrome tone (+ host-country event tooltip breakdown) |
 | 4 | Cumulative tournaments | Q-VOL-006 | Line; near-perfect staircase — slope changes show scene tempo. |
 | 5 | Goals per year | Q-VOL-007 | Bar. |
 | 6 | Cumulative goals | Q-VOL-008 | Line. |
@@ -126,18 +126,23 @@ The wow wing; resolves **IA-3** (§6). With only 12 host countries and 21 nation
 | 4 | Cumulative tournaments hosted | Q-GEO-014 | B |
 | 5 | Goals hosted per year | Q-GEO-003 | A |
 | 6 | Cumulative goals hosted | Q-GEO-013 | B |
-| 7 | Distinct host countries per year | Q-GEO-008 | Plain bar (realm) |
+| 7 | Distinct host countries per year | Q-GEO-008 | Plain bar (+ host-country event tooltip breakdown) |
 | 8 | Cumulative distinct host countries | Q-GEO-009 | Stepped line 1→12 — "the map filling in"; tooltip names the tournament that unlocked each new country |
 
 **`geography/nations.php` — "Where do we come from?"**
 
+**Player-by-nationality extension (Jul 2026):** [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md) — active players / debuts / cumulative roster grains, tooltip rules, **8-panel** page order (shipped). Implementation: [`amiga-activity-geography-nations-players-implementation-plan.md`](amiga-activity-geography-nations-players-implementation-plan.md).
+
 | # | Panel | ID(s) | Pattern |
 |---|-------|-------|---------|
-| 1 | Appearances per year by nationality | Q-GEO-005 | A — duel bars |
-| 2 | Cumulative appearances | Q-GEO-007 | B — race lines |
-| 3 | Goals per year by nationality | Q-GEO-006 | A |
-| 4 | Cumulative goals by nationality | Q-GEO-015 | B |
-| 5 | Distinct nationalities per year | Q-GEO-010 | Plain bar |
+| 1 | Active players per year by nationality | Q-GEO-016 | A — duel bars |
+| 2 | Cumulative nation roster | Q-GEO-017 | B — race lines |
+| 3 | New players per year by nationality | Q-GEO-018 | A — duel bars |
+| 4 | Appearances per year by nationality | Q-GEO-005 | A — duel bars |
+| 5 | Cumulative appearances | Q-GEO-007 | B — race lines |
+| 6 | Goals per year by nationality | Q-GEO-006 | A |
+| 7 | Cumulative goals by nationality | Q-GEO-015 | B |
+| 8 | Distinct nationalities per year | Q-GEO-010 | Plain bar (+ active-player tooltip breakdown) |
 
 Country names in control rows link to `/amiga/country/roster.php?country=` — geography charts are an on-ramp to the Countries universe.
 
@@ -151,8 +156,8 @@ Community WC lens — deliberately distinct from the World Cups hub per-event ta
 | 2 | WC share of each year's games | Q-WC-003 | % bar (derive at read: WC games ÷ realm games). |
 | 3 | Cumulative WC games | Q-WC-002 | Line to ~8,449 (`WcGamesPlayed` snapshots). Click-through. |
 | 4 | WC goals per game per year | Q-WC-011 | Bar with **realm goals-per-game overlaid as a line** (TEX-007 data) — "is the WC tighter than regular play?" |
-| 5 | Nations at the World Cup per year | Q-WC-006 | Bar. |
-| 6 | WC players per year | Q-WC-007 | Bar. |
+| 5 | Nations at the World Cup per year | Q-WC-006 | Bar (+ WC players per nation tooltip breakdown) |
+| 6 | WC players per year | Q-WC-007 | Bar (+ same WC players-per-nation tooltip as Q-WC-006) |
 
 ### 5.5 Texture — "How did the games feel, year by year?" (5 panels)
 
@@ -240,7 +245,7 @@ Two control patterns, both Geography-only in v1:
 
 ## 8. Time travel semantics
 
-All 46 questions are TT-tagged **yes**. Rules (per [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §3.4):
+All 49 questions are TT-tagged **yes**. Rules (per [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §3.4):
 
 | Concern | Rule |
 |---------|------|
@@ -256,17 +261,19 @@ All 46 questions are TT-tagged **yes**. Rules (per [`amiga-time-travel-policy.md
 
 ## 9. Chart APIs (read-only families)
 
-Five JSON endpoints under `site/public_html/api/` cover all 45 panels; shared read helpers live in `amiga_community_stats_lib.php` (general `amiga_community_facts_query()` + snapshot series helper). Exact params: implementation plan §3.
+Five JSON endpoints under `site/public_html/api/` cover all **48** panels; shared read helpers live in `amiga_community_stats_lib.php` (general `amiga_community_facts_query()` + snapshot series helper). Exact params: implementation plan §2.
 
 | Endpoint | Serves | Source |
 |----------|--------|--------|
-| `amiga_community_year_facts.php` | All L1 year bars (realm, host_country, player_nationality, world_cup; optional `keys=` CSV) | `amiga_community_stat_facts` year rows at cutoff |
+| `amiga_community_year_facts.php` | All L1 year bars (realm, host_country, player_nationality, world_cup; optional `keys=` CSV). **`distinct_nationalities`** (realm) → `nationality_active_by_year` from facts (GEO-010). **`distinct_nationalities`** and **`active_players`** (world_cup) → `wc_nationality_active_by_year` from stored `wc_active_players` facts (Q-WC-006 / Q-WC-007). **`distinct_host_countries`** and **`tournaments`** (realm) → `host_tournaments_by_year` from facts (GEO-008 / Q-VOL-005). | `amiga_community_stat_facts` year rows at cutoff |
 | `amiga_community_snapshot_series.php` | Realm cumulative lines (whitelisted headline columns) | `amiga_community_stats_snapshots` |
-| `amiga_community_slice_series.php` | Per-country cumulative race lines | `all_time` facts across snapshots |
+| `amiga_community_slice_series.php` | Per-country cumulative race lines (`games`, `goals`, **`active_players`** for nation roster) | `all_time` facts across snapshots |
 | `amiga_community_year_rates.php` | L3 derived rates + reference values | Year facts numerators + headline averages |
 | `amiga_community_histogram.php` | Shape wing | Player/game state at cutoff (oracle per probe outcome) |
 
-**No finalize writers, no DDL** in this track. If a Shape probe forces an S6 histogram store, that is a separate DDL slice with Dagh sign-off + Part B registers (storage policy applies).
+**Chart track (slices 0–10):** read-only APIs + UI — no finalize writers, no DDL.
+
+**Nations player grains (Jul 2026):** separate extension — three new **`player_nationality`** fact metrics in `amiga_community_stat_facts` (`year × active_players`, `year × player_debuts`, `all_time × active_players`); writers in Python scan + PHP finalize; **`python -m scripts.amiga prove`** backfill. Policy: [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md). No new tables.
 
 ---
 
@@ -306,7 +313,7 @@ Five JSON endpoints under `site/public_html/api/` cover all 45 panels; shared re
 | Doc | Relationship |
 |-----|--------------|
 | [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) | Sliced build track + panel registry (parity contract) |
-| [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) | The 46 ship questions (product source) |
+| [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) | The 49 ship questions (product source) |
 | [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) | Method, lenses, §9.1 IA register (closed by this doc) |
 | [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) | Storage shape (headline + facts + snapshots) |
 | [`activity-charts.md`](activity-charts.md) | Online chart architecture — pattern source |

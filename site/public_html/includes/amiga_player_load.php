@@ -50,7 +50,7 @@ function amiga_player_load_present(mysqli $con, int $id): array
 {
     $stmt = $con->prepare(
         'SELECT p.id AS ID, p.name AS Name, p.country AS Country, p.display AS Display, '
-        . 's.Rating, s.elo_rank, s.PeakRating, s.NumberGames, s.NumberWins, s.NumberDraws, s.NumberLosses, '
+        . 's.Rating, s.elo_rank, s.PeakRating, s.NumberGames, s.tournaments_played, s.NumberWins, s.NumberDraws, s.NumberLosses, '
         . 's.WinRatio, s.GoalsFor, s.GoalsAgainst, s.GoalRatio, s.peak_rating_tournament_id, s.AverageOpponentRating '
         . amiga_player_base_from_sql($con) . ' WHERE p.id = ? LIMIT 1'
     );
@@ -84,6 +84,7 @@ function amiga_player_load_present(mysqli $con, int $id): array
         'peak_rating' => !k2_db_is_null($row['PeakRating']) && (float) $row['PeakRating'] > 0
             ? (int) round((float) $row['PeakRating']) : null,
         'games' => $games,
+        'events' => (int) ($row['tournaments_played'] ?? 0),
         'wins' => (int) ($row['NumberWins'] ?? 0),
         'draws' => (int) ($row['NumberDraws'] ?? 0),
         'losses' => (int) ($row['NumberLosses'] ?? 0),
@@ -134,7 +135,7 @@ function amiga_player_load_at_cutoff(mysqli $con, int $id, AmigaSnapshotContext 
  */
 function amiga_player_publish_hero_context(array $pm, ?mysqli $con = null): void
 {
-    global $id, $Name, $Rating, $NumberGames, $rank, $Country, $Display, $playerId, $k2AmigaPlayerPreDebut;
+    global $id, $Name, $Rating, $NumberEvents, $NumberGames, $NumberWorldCups, $rank, $Country, $Display, $playerId, $k2AmigaPlayerPreDebut;
     global $k2AmigaPlayerHeroWcGold, $k2AmigaPlayerHeroWcSilver, $k2AmigaPlayerHeroWcBronze;
 
     $id = (int) $pm['id'];
@@ -146,10 +147,13 @@ function amiga_player_publish_hero_context(array $pm, ?mysqli $con = null): void
 
     if ($k2AmigaPlayerPreDebut) {
         $Rating = null;
+        $NumberEvents = null;
         $NumberGames = null;
+        $NumberWorldCups = null;
         $rank = null;
     } else {
         $Rating = $pm['rating'] ?? null;
+        $NumberEvents = $pm['events'] ?? null;
         $NumberGames = $pm['games'] ?? null;
         $rank = amiga_player_normalize_elo_rank($pm['rank'] ?? null);
     }
@@ -157,9 +161,11 @@ function amiga_player_publish_hero_context(array $pm, ?mysqli $con = null): void
     $k2AmigaPlayerHeroWcGold = 0;
     $k2AmigaPlayerHeroWcSilver = 0;
     $k2AmigaPlayerHeroWcBronze = 0;
+    $NumberWorldCups = $k2AmigaPlayerPreDebut ? null : 0;
     if ($con !== null && !$k2AmigaPlayerPreDebut) {
         require_once __DIR__ . '/amiga_player_slice_lib.php';
         $wcMedals = amiga_player_wc_medal_counts($con, $id);
+        $NumberWorldCups = (int) ($wcMedals['wc_played'] ?? 0);
         $k2AmigaPlayerHeroWcGold = (int) ($wcMedals['wc_gold'] ?? 0);
         $k2AmigaPlayerHeroWcSilver = (int) ($wcMedals['wc_silver'] ?? 0);
         $k2AmigaPlayerHeroWcBronze = (int) ($wcMedals['wc_bronze'] ?? 0);

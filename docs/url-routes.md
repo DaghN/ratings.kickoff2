@@ -179,7 +179,7 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-activity-texture` | `/amiga/activity/texture.php` |
 | `amiga-activity-shape` | `/amiga/activity/shape.php` |
 
-**Activity hub (Jul 2026):** foldered sub-hub, six wings (Growth · People · Geography · World Cups · Texture · Shape); Geography has a nested Host nations · Nationalities segment. `/amiga/activity.php` → **302** Growth (query preserved). Chart selector state (`hosts=`, `nats=`) is a filter param, not navigation — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md). **Track complete** — 45 panels / 46 ship IDs; see [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md).
+**Activity hub (Jul 2026):** foldered sub-hub, six wings (Growth · People · Geography · World Cups · Texture · Shape); Geography has a nested Host nations · Nationalities segment. `/amiga/activity.php` → **302** Growth (query preserved). Chart selector state (`hosts=`, `nats=`) is a filter param, not navigation — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md). **Track complete** — **48 panels / 49 ship IDs** (incl. Nations player grains Q-GEO-016…018); see [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md).
 
 **Player stats:** hub `world-cups/players/*` only — [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) WCH9. Legacy `/amiga/leaderboards/world-cups/*` → **302** hub paths.
 

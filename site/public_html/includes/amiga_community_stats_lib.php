@@ -541,6 +541,89 @@ function amiga_community_nationality_active_by_year_at_cutoff(mysqli $con, int $
 }
 
 /**
+ * Per-host-country tournament counts by calendar year at cutoff (GEO-008 tooltip breakdown).
+ *
+ * @return array<string, list<array{key: string, count: int}>>
+ */
+function amiga_community_host_tournaments_by_year_at_cutoff(mysqli $con, int $cutoffTournamentId): array
+{
+    $facts = amiga_community_year_facts_at_cutoff(
+        $con,
+        $cutoffTournamentId,
+        'host_country',
+        'tournaments'
+    );
+    $out = [];
+    foreach ($facts as $country => $byYear) {
+        foreach ($byYear as $year => $count) {
+            $n = (int) round((float) $count);
+            if ($n <= 0) {
+                continue;
+            }
+            $yearKey = (string) $year;
+            $out[$yearKey][] = ['key' => (string) $country, 'count' => $n];
+        }
+    }
+    foreach ($out as $yearKey => &$rows) {
+        usort(
+            $rows,
+            static function (array $a, array $b): int {
+                if ($a['count'] !== $b['count']) {
+                    return $b['count'] <=> $a['count'];
+                }
+
+                return strcmp($a['key'], $b['key']);
+            }
+        );
+    }
+    unset($rows);
+
+    return $out;
+}
+
+/**
+ * Per-nationality World Cup player counts by calendar year at cutoff (Q-WC-006 tooltip breakdown).
+ * Stored grain: `year × player_nationality × wc_active_players` (sparse — few WC years × ~12 nations).
+ *
+ * @return array<string, list<array{key: string, count: int}>>
+ */
+function amiga_community_wc_nationality_active_by_year_at_cutoff(mysqli $con, int $cutoffTournamentId): array
+{
+    $facts = amiga_community_year_facts_at_cutoff(
+        $con,
+        $cutoffTournamentId,
+        'player_nationality',
+        'wc_active_players'
+    );
+    $out = [];
+    foreach ($facts as $country => $byYear) {
+        foreach ($byYear as $year => $count) {
+            $n = (int) round((float) $count);
+            if ($n <= 0) {
+                continue;
+            }
+            $yearKey = (string) $year;
+            $out[$yearKey][] = ['key' => (string) $country, 'count' => $n];
+        }
+    }
+    foreach ($out as $yearKey => &$rows) {
+        usort(
+            $rows,
+            static function (array $a, array $b): int {
+                if ($a['count'] !== $b['count']) {
+                    return $b['count'] <=> $a['count'];
+                }
+
+                return strcmp($a['key'], $b['key']);
+            }
+        );
+    }
+    unset($rows);
+
+    return $out;
+}
+
+/**
  * Calendar year with the most realm rated games at a community-stat cutoff.
  *
  * @return array{year: int, games: int}|null

@@ -322,14 +322,14 @@
         }, 'bar');
     }
 
-    function renderNationalitiesYearBar(canvas, labels, values, spec, cutoff, nationalityByYear) {
+    function renderBreakdownYearBar(canvas, labels, values, spec, cutoff, breakdownByYear, countLabelFn) {
         var coarse = T.isCoarsePointer && T.isCoarsePointer();
-        var hasBreakdown = nationalityByYear && Object.keys(nationalityByYear).length > 0;
+        var hasBreakdown = breakdownByYear && Object.keys(breakdownByYear).length > 0;
         var useRichTooltip = hasBreakdown && !coarse;
         var tooltipConfig = useRichTooltip
             ? T.mergeTooltip({
                 enabled: false,
-                external: bindNationalitiesExternalTooltip(labels, nationalityByYear, spec, cutoff)
+                external: bindGeoBreakdownExternalTooltip(labels, breakdownByYear, spec, cutoff, countLabelFn)
             })
             : T.mergeTooltip({
                 callbacks: {
@@ -489,13 +489,14 @@
                 if (status) {
                     status.textContent = '';
                 }
-                renderNationalitiesYearBar(
+                renderBreakdownYearBar(
                     canvas,
                     years.map(String),
                     series,
                     spec,
                     data.cutoff,
-                    data.nationality_active_by_year || null
+                    data.nationality_active_by_year || null,
+                    nationalitiesActivePlayerLabel
                 );
             })
             .catch(function (err) {
@@ -504,6 +505,103 @@
                     status.textContent = 'Could not load this chart.';
                 }
             });
+    }
+
+    function mountWcYearWithNationalityBreakdown(root, spec, metric) {
+        var status = panelStatus(root);
+        var canvas = requireCanvas(root, status);
+        if (!canvas) {
+            return Promise.resolve();
+        }
+        return fetchJson(
+            '/api/amiga_community_year_facts.php',
+            'slice=world_cup&metric=' + encodeURIComponent(metric)
+        )
+            .then(function (data) {
+                var years = data.years || [];
+                var series = (data.series && data.series[0] && data.series[0].values) || [];
+                if (!years.length || !series.length) {
+                    if (status) {
+                        status.textContent = 'No data to chart.';
+                    }
+                    return;
+                }
+                if (status) {
+                    status.textContent = '';
+                }
+                renderBreakdownYearBar(
+                    canvas,
+                    years.map(String),
+                    series,
+                    spec,
+                    data.cutoff,
+                    data.wc_nationality_active_by_year || null,
+                    wcNationalityPlayerLabel
+                );
+            })
+            .catch(function (err) {
+                noteError(spec.metric || metric, err);
+                if (status) {
+                    status.textContent = 'Could not load this chart.';
+                }
+            });
+    }
+
+    function mountWcNationsYear(root, spec) {
+        return mountWcYearWithNationalityBreakdown(root, spec, 'distinct_nationalities');
+    }
+
+    function mountWcPlayersYear(root, spec) {
+        return mountWcYearWithNationalityBreakdown(root, spec, 'active_players');
+    }
+
+    /** L1 year bars — realm metric with per-host-country event breakdown tooltip. */
+    function mountRealmYearWithHostBreakdown(root, spec, metric) {
+        var status = panelStatus(root);
+        var canvas = requireCanvas(root, status);
+        if (!canvas) {
+            return Promise.resolve();
+        }
+        return fetchJson(
+            '/api/amiga_community_year_facts.php',
+            'slice=realm&metric=' + encodeURIComponent(metric)
+        )
+            .then(function (data) {
+                var years = data.years || [];
+                var series = (data.series && data.series[0] && data.series[0].values) || [];
+                if (!years.length || !series.length) {
+                    if (status) {
+                        status.textContent = 'No data to chart.';
+                    }
+                    return;
+                }
+                if (status) {
+                    status.textContent = '';
+                }
+                renderBreakdownYearBar(
+                    canvas,
+                    years.map(String),
+                    series,
+                    spec,
+                    data.cutoff,
+                    data.host_tournaments_by_year || null,
+                    hostEventsHostedLabel
+                );
+            })
+            .catch(function (err) {
+                noteError(spec.metric || metric, err);
+                if (status) {
+                    status.textContent = 'Could not load this chart.';
+                }
+            });
+    }
+
+    function mountHostCountriesYear(root, spec) {
+        return mountRealmYearWithHostBreakdown(root, spec, 'distinct_host_countries');
+    }
+
+    function mountTournamentsYear(root, spec) {
+        return mountRealmYearWithHostBreakdown(root, spec, 'tournaments');
     }
 
     /** L3 derived rate bars from the year_rates API. */
@@ -676,7 +774,7 @@
 
     /** L2 cumulative event-timeline lines: every point is a real tournament. */
     var CUMULATIVE_HTML_TOOLTIP_ID = 'k2-amiga-act-cumulative-tooltip';
-    var NATIONALITIES_HTML_TOOLTIP_ID = 'k2-amiga-act-nationalities-tooltip';
+    var GEO_BREAKDOWN_HTML_TOOLTIP_ID = 'k2-amiga-act-geo-breakdown-tooltip';
     var TOURNAMENT_PAGE_FRAGMENT = 'tournament';
 
     function tournamentChartClickUrl(tournamentId) {
@@ -781,13 +879,13 @@
         };
     }
 
-    function getOrCreateNationalitiesHtmlTooltip() {
-        var el = document.getElementById(NATIONALITIES_HTML_TOOLTIP_ID);
+    function getOrCreateGeoBreakdownHtmlTooltip() {
+        var el = document.getElementById(GEO_BREAKDOWN_HTML_TOOLTIP_ID);
         if (el) {
             return el;
         }
         el = document.createElement('div');
-        el.id = NATIONALITIES_HTML_TOOLTIP_ID;
+        el.id = GEO_BREAKDOWN_HTML_TOOLTIP_ID;
         el.className = 'k2-chart-html-tooltip k2-amiga-act-nationalities-tooltip';
         el.setAttribute('role', 'tooltip');
         el.hidden = true;
@@ -805,12 +903,20 @@
         return formatCount(count) + ' active player' + (Number(count) === 1 ? '' : 's');
     }
 
-    function buildNationalitiesTooltipHtml(yearLabel, rows, total, spec) {
+    function wcNationalityPlayerLabel(count) {
+        return formatCount(count) + ' player' + (Number(count) === 1 ? '' : 's');
+    }
+
+    function hostEventsHostedLabel(count) {
+        return formatCount(count) + ' event' + (Number(count) === 1 ? '' : 's') + ' hosted';
+    }
+
+    function buildGeoBreakdownTooltipHtml(yearLabel, rows, total, spec, countLabelFn) {
         var titleHtml = '<div class="k2-amiga-act-nationalities-tooltip__title">'
             + escapeHtml(yearLabel)
             + '</div>';
         var summaryHtml = '<div class="k2-amiga-act-nationalities-tooltip__summary">'
-            + formatCount(total) + ' ' + escapeHtml(spec.noun || 'nationalities')
+            + formatCount(total) + ' ' + escapeHtml(spec.noun || '')
             + '</div>';
         var listHtml = rows.map(function (row) {
             return '<div class="k2-amiga-act-nationalities-tooltip__row">'
@@ -818,15 +924,15 @@
                 + geoFlagImgHtml(row.key)
                 + '</span>'
                 + '<span class="k2-amiga-act-nationalities-tooltip__name">' + escapeHtml(row.key || '') + '</span>'
-                + '<span class="k2-amiga-act-nationalities-tooltip__count">' + nationalitiesActivePlayerLabel(row.count) + '</span>'
+                + '<span class="k2-amiga-act-nationalities-tooltip__count">' + countLabelFn(row.count) + '</span>'
                 + '</div>';
         }).join('');
         return titleHtml + summaryHtml + '<div class="k2-amiga-act-nationalities-tooltip__list">' + listHtml + '</div>';
     }
 
-    function bindNationalitiesExternalTooltip(labels, nationalityByYear, spec, cutoff) {
+    function bindGeoBreakdownExternalTooltip(labels, breakdownByYear, spec, cutoff, countLabelFn) {
         return function (context) {
-            var tooltipEl = getOrCreateNationalitiesHtmlTooltip();
+            var tooltipEl = getOrCreateGeoBreakdownHtmlTooltip();
             var tooltip = context.tooltip;
             if (!tooltip || tooltip.opacity === 0) {
                 tooltipEl.hidden = true;
@@ -839,7 +945,7 @@
             }
             var idx = items[0].dataIndex;
             var yearLabel = labels[idx] || '';
-            var rows = (nationalityByYear && nationalityByYear[yearLabel]) || [];
+            var rows = (breakdownByYear && breakdownByYear[yearLabel]) || [];
             if (!rows.length) {
                 tooltipEl.hidden = true;
                 return;
@@ -848,7 +954,7 @@
             if (cutoff && cutoff.partial_year && String(cutoff.partial_year) === String(yearLabel)) {
                 yearLabel += ' (partial)';
             }
-            tooltipEl.innerHTML = buildNationalitiesTooltipHtml(yearLabel, rows, total, spec);
+            tooltipEl.innerHTML = buildGeoBreakdownTooltipHtml(yearLabel, rows, total, spec, countLabelFn);
             tooltipEl.hidden = false;
             var canvas = context.chart.canvas;
             var rect = canvas.getBoundingClientRect();
@@ -1273,7 +1379,12 @@
         id: 'tournaments-year',
         selector: '.amiga-act-tournaments-year-chart',
         run: function (root) {
-            return mountYearFacts(root, { metric: 'tournaments', tone: 'chrome', label: 'Tournaments', noun: 'tournaments' });
+            return mountTournamentsYear(root, {
+                metric: 'tournaments',
+                tone: 'chrome',
+                label: 'Tournaments',
+                noun: 'tournaments'
+            });
         }
     });
     registerPanel({
@@ -1347,7 +1458,7 @@
             return mountCumulative(root, {
                 metric: 'NumberOfPlayers',
                 tone: 'holo',
-                label: 'Cumulative player',
+                label: 'Cumulative players',
                 noun: 'players',
                 richTooltip: true,
                 eventNoun: { one: 'new player', other: 'new players' }
@@ -1495,14 +1606,26 @@
         id: 'wc-nations-year',
         selector: '.amiga-act-wc-nations-year-chart',
         run: function (root) {
-            return mountYearFacts(root, { slice: 'world_cup', metric: 'distinct_nationalities', tone: 'teal', label: 'Nations', noun: 'nationalities' });
+            return mountWcNationsYear(root, {
+                slice: 'world_cup',
+                metric: 'distinct_nationalities',
+                tone: 'teal',
+                label: 'Nations',
+                noun: 'nationalities'
+            });
         }
     });
     registerPanel({
         id: 'wc-players-year',
         selector: '.amiga-act-wc-players-year-chart',
         run: function (root) {
-            return mountYearFacts(root, { slice: 'world_cup', metric: 'active_players', tone: 'pitch', label: 'WC players', noun: 'players' });
+            return mountWcPlayersYear(root, {
+                slice: 'world_cup',
+                metric: 'active_players',
+                tone: 'pitch',
+                label: 'WC players',
+                noun: 'players'
+            });
         }
     });
 
@@ -2260,7 +2383,7 @@
         id: 'host-countries-year',
         selector: '.amiga-act-host-countries-year-chart',
         run: function (root) {
-            return mountYearFacts(root, {
+            return mountHostCountriesYear(root, {
                 slice: 'realm',
                 metric: 'distinct_host_countries',
                 tone: 'teal',
@@ -2284,6 +2407,29 @@
 
     /* --- Geography Nations wing (slice 7) --- */
 
+    registerGeoPanel({
+        id: 'nat-active-players-year',
+        selector: '.amiga-act-nat-active-players-year-chart',
+        pattern: 'duel',
+        metric: 'active_players',
+        noun: 'active players',
+        tone: 'teal'
+    });
+    registerGeoPanel({
+        id: 'nat-roster-race',
+        selector: '.amiga-act-nat-roster-race-chart',
+        pattern: 'race',
+        metric: 'active_players',
+        noun: 'active players'
+    });
+    registerGeoPanel({
+        id: 'nat-debuts-year',
+        selector: '.amiga-act-nat-debuts-year-chart',
+        pattern: 'duel',
+        metric: 'player_debuts',
+        noun: 'new players',
+        tone: 'holo'
+    });
     registerGeoPanel({
         id: 'nat-appearances-year',
         selector: '.amiga-act-nat-appearances-year-chart',

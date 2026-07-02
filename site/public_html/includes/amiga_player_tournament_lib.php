@@ -12,6 +12,21 @@ require_once __DIR__ . '/amiga_player_current_lib.php';
 require_once __DIR__ . '/amiga_snapshot_context.php';
 require_once __DIR__ . '/amiga_lb_lib.php';
 
+/** Hash target: just above player tournament history table (hero World Cups deep link). */
+const K2_PLAYER_TOURNAMENTS_TABLE_ANCHOR = 'k2-player-tournaments-table';
+
+function amiga_player_tournaments_table_anchor_fragment(): string
+{
+    return '#' . K2_PLAYER_TOURNAMENTS_TABLE_ANCHOR;
+}
+
+/** Player tournament history (all events) with table hash landing. */
+function amiga_player_tournaments_table_url(int $playerId): string
+{
+    return k2_amiga_route('amiga-player-tournaments', ['id' => $playerId])
+        . amiga_player_tournaments_table_anchor_fragment();
+}
+
 /**
  * Tournament participation rows for a player (canonical derived source).
  *

@@ -1,13 +1,13 @@
 <?php
 /**
  * Amiga player hero — same feast shell as online; links stay in Amiga realm.
- * Expects $Name, $Rating, $NumberGames, $rank, $id (optional $Country for inline flag beside name).
+ * Expects $Name, $Rating, $NumberEvents, $NumberGames, $NumberWorldCups, $rank, $id (optional $Country for inline flag beside name).
  */
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_amiga_country_flag.php';
 require_once __DIR__ . '/k2_amiga_routes.php';
 require_once __DIR__ . '/k2_ratedresults_games_filters.php';
-require_once __DIR__ . '/amiga_player_load.php';
+require_once __DIR__ . '/amiga_player_tournament_lib.php';
 require_once __DIR__ . '/amiga_lb_lib.php';
 require_once __DIR__ . '/amiga_wc_podium_th.php';
 
@@ -21,9 +21,15 @@ $heroDisplay = !$heroPreDebut && isset($Display) && (int) $Display === 1;
 $heroRating = $heroPreDebut
     ? '—'
     : ($heroDisplay && isset($Rating) && !k2_db_is_null($Rating) ? k2_fmt_int($Rating, '—') : '—');
+$heroEvents = $heroPreDebut
+    ? '—'
+    : (isset($NumberEvents) && !k2_db_is_null($NumberEvents) ? (int) $NumberEvents : 0);
 $heroGames = $heroPreDebut
     ? '—'
     : (isset($NumberGames) && !k2_db_is_null($NumberGames) ? (int) $NumberGames : 0);
+$heroWorldCups = $heroPreDebut
+    ? '—'
+    : (isset($NumberWorldCups) && !k2_db_is_null($NumberWorldCups) ? (int) $NumberWorldCups : 0);
 $heroRankNum = (!$heroPreDebut && isset($rank) && !k2_db_is_null($rank) && (int) $rank > 0)
     ? (int) $rank
     : null;
@@ -31,15 +37,23 @@ $heroRank = $heroRankNum !== null ? '#' . $heroRankNum : '—';
 $nameEsc = htmlspecialchars((string) $Name, ENT_QUOTES, 'UTF-8');
 $heroPlayerId = isset($id) ? (int) $id : (isset($playerId) ? (int) $playerId : 0);
 $heroProfileHref = $heroPlayerId > 0 ? k2_amiga_player_profile_href($heroPlayerId) : '';
+$heroEventsHref = $heroPlayerId > 0
+    ? amiga_player_tournaments_table_url($heroPlayerId)
+    : '';
 $heroGamesHref = $heroPlayerId > 0
     ? k2_amiga_route('amiga-player-games', ['id' => $heroPlayerId]) . k2_player_games_filters_anchor_fragment()
+    : '';
+$heroWorldCupsHref = $heroPlayerId > 0
+    ? amiga_player_tournaments_filter_url($heroPlayerId, 'world-cup') . amiga_player_tournaments_table_anchor_fragment()
     : '';
 $heroLbRatingHref = $heroPlayerId > 0
     ? amiga_lb_rating_player_href($heroPlayerId)
     : amiga_lb_table_href('/amiga/leaderboards/rating.php');
 $heroRankLinked = !$heroPreDebut && $heroDisplay && $heroRankNum !== null;
 $heroRatingLinked = !$heroPreDebut && $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
+$heroEventsLinked = !$heroPreDebut && $heroEventsHref !== '';
 $heroGamesLinked = !$heroPreDebut && $heroGamesHref !== '';
+$heroWorldCupsLinked = !$heroPreDebut && $heroWorldCupsHref !== '';
 $heroCountry = isset($Country) ? trim((string) $Country) : '';
 $heroNameInner = $nameEsc;
 if ($heroProfileHref !== '') {
@@ -89,12 +103,32 @@ foreach ([1 => (int) ($k2AmigaPlayerHeroWcGold ?? 0), 2 => (int) ($k2AmigaPlayer
 					?></span>
 				</div>
 				<div class="k2-player-hero__stat">
+					<span class="k2-player-hero__stat-label">Events</span>
+					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><?php
+						if ($heroEventsLinked) {
+							?><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroEventsHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $heroEvents; ?></a><?php
+						} else {
+							echo $heroEvents;
+						}
+					?></span>
+				</div>
+				<div class="k2-player-hero__stat">
 					<span class="k2-player-hero__stat-label">Games</span>
 					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><?php
 						if ($heroGamesLinked) {
 							?><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroGamesHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $heroGames; ?></a><?php
 						} else {
 							echo $heroGames;
+						}
+					?></span>
+				</div>
+				<div class="k2-player-hero__stat">
+					<span class="k2-player-hero__stat-label">World Cups</span>
+					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><?php
+						if ($heroWorldCupsLinked) {
+							?><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroWorldCupsHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $heroWorldCups; ?></a><?php
+						} else {
+							echo $heroWorldCups;
 						}
 					?></span>
 				</div>

@@ -47,6 +47,7 @@
 
 	<div class="amiga-act-high-scoring-rate-year-chart k2-chart-panel" data-k2-chart-panel="high-scoring-rate-year">
 		<h3 class="k2-panel-heading">High-scoring rate</h3>
+		<p class="k2-chart-block__hint">Games with ten or more goals scored (both sides), per 100 rated games.</p>
 		<p class="k2-chart-panel__status">Loading high-scoring rate…</p>
 		<div class="k2-chart-frame">
 			<canvas aria-label="High-scoring games (ten or more goals) per 100 rated games per calendar year"></canvas>
