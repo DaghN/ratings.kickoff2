@@ -260,6 +260,58 @@
 		return NaN;
 	}
 
+	/** Comma-separated 0-based column indices on <th> — secondary keys when primary ties (e.g. gold → silver → bronze). */
+	function getSortTieColumnIndices(header) {
+		var raw = header.getAttribute('data-k2-sort-tie-cols');
+		var parts;
+		var indices = [];
+		var i;
+		var idx;
+
+		if (!raw) {
+			return indices;
+		}
+
+		parts = String(raw).split(',');
+		for (i = 0; i < parts.length; i++) {
+			idx = parseInt(parts[i], 10);
+			if (!isNaN(idx) && idx >= 0) {
+				indices.push(idx);
+			}
+		}
+
+		return indices;
+	}
+
+	function compareTieColumns(table, header, rowA, rowB, direction) {
+		var headers = table.tHead ? table.tHead.getElementsByTagName('th') : [];
+		var tieCols = getSortTieColumnIndices(header);
+		var matchPrimary = table.getAttribute('data-k2-sort-tie-order') === 'match';
+		var i;
+		var colIndex;
+		var sortType;
+		var valA;
+		var valB;
+		var result;
+
+		for (i = 0; i < tieCols.length; i++) {
+			colIndex = tieCols[i];
+			sortType = headers[colIndex] ? (headers[colIndex].getAttribute('data-k2-sort') || 'text') : 'number';
+			valA = getSortValue(rowA, colIndex, sortType);
+			valB = getSortValue(rowB, colIndex, sortType);
+			result = compareValues({ value: valA }, { value: valB }, sortType);
+			if (result !== 0) {
+				if (matchPrimary) {
+					return direction === 'desc' ? -result : result;
+				}
+
+				return result;
+			}
+		}
+
+		return 0;
+	}
+
 	function compareValues(a, b, sortType) {
 		if (a.value === b.value) {
 			return 0;
@@ -678,6 +730,11 @@
 
 			if (result !== 0) {
 				return direction === 'desc' ? -result : result;
+			}
+
+			tieResult = compareTieColumns(table, header, a.row, b.row, direction);
+			if (tieResult !== 0) {
+				return tieResult;
 			}
 
 			tieA = getSortTieValue(a.row, columnIndex);

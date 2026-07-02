@@ -73,7 +73,7 @@
 
 - **Amiga WC HoF (Jun 2026):** **Complete (WCH-1…8, SCH-046)** — 28 WC record rows; sparse `amiga_wc_hof_{snapshots,present}` + HoF UI block + time travel; Python + PHP finalize parity; `prove` green. [`amiga-wc-hof-policy.md`](docs/amiga-wc-hof-policy.md) · [`amiga-wc-hof-implementation-plan.md`](docs/amiga-wc-hof-implementation-plan.md).
 
-- **Amiga community stats (Jun 2026):** **V2 writers shipped** — registry v2, `036`/`037`, `prove` green. **UI:** Activity community wings + WC year charts TBD; per-WC table on World Cups hub wing 2 **shipped**.
+- **Amiga community stats (Jun 2026):** **V2 writers shipped** — registry v2, `036`/`037`, `prove` green. **Chart IA locked Jul 2026** — Activity sub-hub, six wings (Growth · People · Geography Hosts/Nations · World Cups · Texture · Shape), 45 panels / 46 ship IDs, country duel + race selectors, TT everywhere — [`amiga-activity-charts-policy.md`](docs/amiga-activity-charts-policy.md). **Build next:** [`amiga-activity-charts-implementation-plan.md`](docs/amiga-activity-charts-implementation-plan.md) slices 0–10 (read-only chart track). Per-WC table on World Cups hub wing 2 **shipped**.
 
 - **Amiga World Cups hub (Jun 2026):** **Wings 1–4 shipped** — **events catalog** (sortable table, podium flag+name cols) + tournament stats (five sub-wings) + **player stats** + **country stats**. [`amiga-world-cups-hub-policy.md`](docs/amiga-world-cups-hub-policy.md).
 
@@ -133,6 +133,8 @@
 
 | When | Note |
 |------|------|
+| 2026-07-02 | **Amiga Activity chart track planned** — IA locked (six wings, 45 panels, duel/race country selectors, click-through curves, TT semantics) in `amiga-activity-charts-policy.md`; sliced build plan (0–10, C8 probe STOP gate) in `amiga-activity-charts-implementation-plan.md`; catalog plan §9.1 closed, step 6 next. |
+| 2026-07-02 | **Amiga community stats doc sync** — catalog steps 4 done (v2 writers); step 5 = chart IA (§9.1) before full 46-panel impl plan. |
 | 2026-07-02 | **Amiga TT ribbon with-player panel** — dropdown panel only: `min-width: 100%` + name-based max (decoupled from trigger); trigger/ribbon spacing unchanged. |
 | 2026-07-01 | **Amiga Opponents country H2H default** — when `country=` omitted, default picker skips hero's own nation (most-played foreign country; fallback top bucket if all domestic). |
 | 2026-07-01 | **Amiga player Tournaments filter segments** — `.k2-amiga-tournament-index-segment-filters` flex gap moved to `theme.css` so All/World Cups ↔ Perfect run rows get `--k2-nav-gap` without loading `amiga-tournament.css`. |

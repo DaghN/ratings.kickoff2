@@ -1,6 +1,6 @@
 # Amiga community stats — question catalog plan (v2 product)
 
-**Status:** **Active** (Jun 2026) — step **3** done (**46 ship**); registry v2 (step 4) next.  
+**Status:** **Steps 0–5 done** (Jul 2026) — **46 ship**, registry v2 writers green; chart IA **locked** in [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) (closes §9.1 IA-1/2/3/5; IA-4 = probe gate). Step **6** = follow [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) slices 0–10.  
 **Policy (shape):** [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) — **do not reopen** C1–C13 without Dagh.  
 **V1 implementation (done):** [`amiga-community-stats-implementation-plan.md`](amiga-community-stats-implementation-plan.md) — slices 1–10 + Phase 2 verify hygiene.  
 **Living product artifact:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — step **3** done (**46 ship**).
@@ -210,15 +210,28 @@ From policy §9 and [`amiga-realm-vision.md`](amiga-realm-vision.md):
 | **1** | Create [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md); brainstorm wide (50–80 questions) | **Done** — 76 rows |
 | **2** | Cluster by wing + lens; dedupe; mark S0–S7 | **Done** — 73 active, 3 cut, 9 clusters |
 | **3** | Dagh curates: priority (ship / later / cut) | **Done** — **46 ship**, 2 later, 28 cut |
-| **4** | Derive **registry v2** from kept S1/S2/S6 rows only | Next |
-| **5** | Implementation plan slices: writers, verify, `prove` | Agent track |
-| **6** | Chart APIs + Activity UI (per wing) | After registry green |
+| **4** | Derive **registry v2** + finalize writers + `prove` | **Done** Jun 2026 — `community_stat_registry.py` v2 grains, DDL `036`/`037`, `verify-community-stats` green |
+| **5** | Close **open chart IA** (§9.1) + chart track plan | **Done** Jul 2026 — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) + [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) |
+| **6** | Chart APIs + Activity UI (clusters C0–C9) | **Next** — impl plan slices 0–10 (45 panels / 46 IDs) |
 
 **STOP gates:**
 
-- No new finalize writers until step **3** sign-off.  
+- No new finalize writers until step **3** sign-off. *(Step 4 complete — gate lifted for v2 grains.)*  
 - No DDL without a catalog row referencing it.  
-- `prove` must stay green after each implementation slice.
+- `prove` must stay green after each implementation slice.  
+- No full **46-row** chart implementation plan until step **5** IA decisions (§9.1) are closed or explicitly deferred per row.
+
+### 9.1 Chart-track IA decisions — **closed Jul 2026**
+
+Resolved in [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) (§11 decision register there is authoritative):
+
+| # | Decision | Resolution |
+|---|----------|------------|
+| **IA-1** | One page vs split URLs | **Split** — foldered sub-hub `/amiga/activity/`, six wings / seven leaf pages |
+| **IA-2** | Section grouping + order | **Growth · People · Geography (Hosts/Nations) · World Cups · Texture · Shape** |
+| **IA-3** | Multi-line geography UX | **Duel bars + race multi-lines**; defaults by all-time volume at cutoff; `?hosts=`/`?nats=` URL state |
+| **IA-4** | C8 histogram probes | **Probe gate** = implementation plan slice 8 (STOP before Shape UI) |
+| **IA-5** | Histogram bucket policy | **Defaults locked** in policy §5.6/§10; edges adjustable at probe slice |
 
 ---
 

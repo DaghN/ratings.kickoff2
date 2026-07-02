@@ -1,13 +1,13 @@
 # Amiga community stats — question catalog
 
-**Status:** **Step 3 complete** (Jun 2026) — Dagh curation applied; **46 ship** · 2 later · 25 cut (+ 3 step-2 cut). Ready for step **4** (registry v2).  
+**Status:** **Steps 3–5 complete** (Jul 2026) — **46 ship** curated; registry v2 + writers green (`036`/`037`, `prove`); chart IA **locked** — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md). Step **6** = build track [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) (45 panels / 46 IDs).  
 **Method:** [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md)  
 **Policy (shape):** [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md)
 
 **How to read this doc**
 
 - **Priority:** `ship` · `later` · `cut` (step 3 done).
-- **Storage** S0–S7; **Impl** = step 4 path.
+- **Storage** S0–S7; **Impl** = cluster C0–C9 (writers done for C2–C7 grains; charts not started).
 - **Lens:** L1 year · L2 snapshot cumulative · L3 year-local rate · L4 distribution at cutoff.
 
 **Curation totals:** **46 ship** · **2 later** · **28 cut** (25 step 3 + 3 step 2) · **76** rows incl. 3 additions from curation comments
@@ -238,7 +238,8 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 | Step | Status |
 |------|--------|
 | **3** Curation | **Done** — 46 ship |
-| **4** Registry v2 + implementation plan slices | Next |
-| **5–6** Writers, charts, Activity wings | After registry |
+| **4** Registry v2 + writers + `prove` | **Done** Jun 2026 |
+| **5** Chart IA + track plan | **Done** Jul 2026 — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) |
+| **6** Chart APIs + Activity UI (C0–C9) | **Next** — [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) slices 0–10 |
 
-*Step 3 applied Jun 2026 — Dagh curation; 3 rows added (GEO-013–015, WC-011, TEX-013).*
+*Step 3 applied Jun 2026 — Dagh curation; 3 rows added (GEO-013–015, WC-011, TEX-013). Step 4 writers shipped Jun 2026-23.*

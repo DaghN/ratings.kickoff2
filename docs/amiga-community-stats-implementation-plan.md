@@ -361,11 +361,11 @@ Optional in slice 5 or 9.
 
 ## Phase 3 — Question catalog & v2 registry (product)
 
-**Status:** **Active** (Jun 2026) — method locked; catalog brainstorm **done** (76 rows).  
+**Status:** Steps **3–5 done** (Jul 2026) — **46 ship**; registry v2 + writers green (`036`/`037`, `prove`); chart IA **locked** ([`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md)). Step **6** = chart build track [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md).  
 **Plan:** [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md)  
-**Living artifact:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — step **3** done (**46 ship**); step **4** registry v2 next
+**Living artifact:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md)
 
-Question-first pass: curate charts-by-question → derive minimal stored truth → then writers, verify, chart APIs. **No new finalize grains** until catalog step 3 (Dagh priority sign-off).
+Question-first pass: curate charts-by-question → derive minimal stored truth → writers → chart APIs. Finalize grains for v2 ship set **shipped**; **no new DDL** until a catalog row + step **5** IA sign-off.
 
 ---
 
@@ -373,9 +373,10 @@ Question-first pass: curate charts-by-question → derive minimal stored truth �
 
 | Topic | When |
 |-------|------|
-| Question catalog + registry v2 | **Phase 3** — [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) |
-| Activity chart APIs (`api/amiga_community_*.php`) | After registry v2 sign-off |
-| `slice_type = world_cup` facts | Catalog / registry v2 |
+| Question catalog + registry v2 writers | **Done** — Phase 3 steps 3–4 |
+| Chart IA + track plan | **Done** Jul 2026 — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) |
+| Activity chart APIs (`api/amiga_community_*.php`) | **Next** — [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) slices 0–10 |
+| `slice_type = world_cup` facts | **Done** — registry v2 |
 | Drop aggregate cols from `amiga_realm_snapshots` | Done (`035`) — row kept for history |
 | Historical community charts in TT hub | [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) follow-on |
 
