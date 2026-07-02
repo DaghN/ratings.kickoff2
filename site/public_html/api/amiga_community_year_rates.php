@@ -3,8 +3,8 @@
  * JSON derived year rates for the Amiga Activity charts (L3 lens).
  *
  * GET: rate (whitelist below), as (time travel cutoff).
- * Slice 1 ships games_per_tournament only; texture + WC rates land in
- * slices 3-4. Zero-denominator years return null values (skipped by Chart.js).
+ * Texture rates include `reference` from headline at cutoff (slice 3+).
+ * Zero-denominator years return null values (skipped by Chart.js).
  *
  * @see docs/amiga-activity-charts-implementation-plan.md §3
  */
@@ -18,9 +18,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-/** rate => [numerator metric, denominator metric] (realm year facts). */
+/** rate => [numerator metric, denominator metric, reference mode]. */
 const K2_ACT_YEAR_RATES = [
-    'games_per_tournament' => ['games', 'tournaments'],
+    'games_per_tournament' => ['games', 'tournaments', null],
+    'goals_per_game' => ['goals', 'games', 'headline'],
+    'draw_rate' => ['draws', 'games', 'headline'],
+    'dd_rate' => ['double_digits', 'games', 'headline'],
+    'cs_rate' => ['clean_sheets', 'games', 'headline'],
+    'high_scoring_rate' => ['high_scoring_games', 'games', 'headline'],
 ];
 
 $rate = isset($_GET['rate']) ? strtolower(trim((string) $_GET['rate'])) : '';
@@ -51,7 +56,7 @@ try {
         exit;
     }
 
-    [$numMetric, $denMetric] = K2_ACT_YEAR_RATES[$rate];
+    [$numMetric, $denMetric, $referenceMode] = K2_ACT_YEAR_RATES[$rate];
     $span = amiga_community_year_span_at_cutoff($con, $cutoffTid);
     $numFacts = amiga_community_year_facts_at_cutoff($con, $cutoffTid, 'realm', $numMetric);
     $denFacts = amiga_community_year_facts_at_cutoff($con, $cutoffTid, 'realm', $denMetric);
@@ -66,6 +71,11 @@ try {
             $den = $denByYear[$year] ?? 0.0;
             $values[] = $den > 0 ? round(($numByYear[$year] ?? 0.0) / $den, 4) : null;
         }
+    }
+
+    $reference = null;
+    if ($referenceMode === 'headline') {
+        $reference = amiga_community_year_rate_reference_at_cutoff($con, $cutoffTid, $rate);
     }
 
     $cutoffInfo = null;
@@ -84,7 +94,7 @@ try {
         'rate' => $rate,
         'years' => $years,
         'values' => $values,
-        'reference' => null,
+        'reference' => $reference,
         'overlay' => null,
         'cutoff' => $cutoffInfo,
     ]);

@@ -458,13 +458,7 @@ function amiga_tournament_videos_wc_game_index(mysqli $con, int $tournamentId, a
 
     usort(
         $entries,
-        static function (array $a, array $b): int {
-            if ($a['sort_bucket'] !== $b['sort_bucket']) {
-                return $b['sort_bucket'] <=> $a['sort_bucket'];
-            }
-
-            return $b['game_id'] <=> $a['game_id'];
-        },
+        static fn (array $a, array $b): int => $b['game_id'] <=> $a['game_id'],
     );
 
     return $entries;

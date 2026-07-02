@@ -177,6 +177,57 @@
         };
     }
 
+    function formatRateValue(value, spec) {
+        if (value == null || isNaN(value)) {
+            return 'No data';
+        }
+        if (spec.format === 'percent') {
+            return (value * 100).toFixed(1) + '% of games';
+        }
+        if (spec.format === 'per100') {
+            return (value * 100).toFixed(1) + ' per 100 games';
+        }
+        var decimals = spec.decimals != null ? spec.decimals : 2;
+        return value.toFixed(decimals) + ' ' + spec.noun;
+    }
+
+    function rateAxisTick(value, spec) {
+        if (spec.format === 'percent' || spec.format === 'per100') {
+            return (value * 100).toFixed(1);
+        }
+        if (spec.decimals != null) {
+            return value.toFixed(spec.decimals);
+        }
+        return value;
+    }
+
+    function rateTooltipFooter(cutoff, labels, reference, spec) {
+        return function (items) {
+            var lines = [];
+            var partial = partialYearFooter(cutoff, labels)(items);
+            if (partial) {
+                lines.push(partial);
+            }
+            if (reference != null && !isNaN(reference)) {
+                lines.push('All-time avg: ' + formatRateValue(reference, spec));
+            }
+            return lines.join('\n');
+        };
+    }
+
+    function scaleYRate(spec) {
+        return {
+            beginAtZero: true,
+            ticks: {
+                color: T.tickColor(),
+                callback: function (value) {
+                    return rateAxisTick(value, spec);
+                }
+            },
+            grid: { color: T.grid() }
+        };
+    }
+
     function renderYearBar(canvas, labels, values, spec, cutoff) {
         createChart(canvas, {
             type: 'bar',
@@ -207,11 +258,63 @@
                 },
                 scales: {
                     x: scaleXCategory(),
-                    y: spec.decimals != null ? {
-                        beginAtZero: true,
-                        ticks: { color: T.tickColor() },
-                        grid: { color: T.grid() }
-                    } : scaleYCountFormatted()
+                    y: spec.decimals != null ? scaleYRate(spec) : scaleYCountFormatted()
+                }
+            }, 'bar')
+        }, 'bar');
+    }
+
+    function renderYearRateBar(canvas, labels, values, spec, cutoff, reference) {
+        var datasets = [Object.assign({
+            type: 'bar',
+            label: spec.label,
+            data: values,
+            order: 2
+        }, T.barStroke(tone(spec.tone)))];
+        if (reference != null && !isNaN(reference)) {
+            datasets.push({
+                type: 'line',
+                label: 'All-time average',
+                data: labels.map(function () {
+                    return reference;
+                }),
+                borderColor: T.textMuted(),
+                backgroundColor: 'transparent',
+                borderWidth: 1.5,
+                borderDash: [6, 4],
+                pointRadius: 0,
+                pointHitRadius: 0,
+                fill: false,
+                order: 1
+            });
+        }
+        createChart(canvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: chartOptions({
+                plugins: {
+                    legend: { labels: { color: T.textMuted() } },
+                    tooltip: T.mergeTooltip({
+                        filter: function (item) {
+                            return item.datasetIndex === 0;
+                        },
+                        callbacks: {
+                            label: function (item) {
+                                if (item.parsed.y == null) {
+                                    return 'No data';
+                                }
+                                return formatRateValue(item.parsed.y, spec);
+                            },
+                            footer: rateTooltipFooter(cutoff, labels, reference, spec)
+                        }
+                    })
+                },
+                scales: {
+                    x: scaleXCategory(),
+                    y: spec.decimals != null || spec.format ? scaleYRate(spec) : scaleYCountFormatted()
                 }
             }, 'bar')
         }, 'bar');
@@ -267,7 +370,7 @@
                 if (status) {
                     status.textContent = '';
                 }
-                renderYearBar(canvas, years.map(String), values, spec, data.cutoff);
+                renderYearRateBar(canvas, years.map(String), values, spec, data.cutoff, data.reference);
             })
             .catch(function (err) {
                 noteError(spec.metric || spec.rate || 'panel', err);
@@ -562,6 +665,74 @@
         selector: '.amiga-act-pairs-cumulative-chart',
         run: function (root) {
             return mountCumulative(root, { metric: 'DistinctOpponentPairs', tone: 'teal', label: 'Cumulative distinct pairs', noun: 'pairings' });
+        }
+    });
+
+    /* --- Texture wing (slice 3) --- */
+
+    registerPanel({
+        id: 'goals-per-game-year',
+        selector: '.amiga-act-goals-per-game-year-chart',
+        run: function (root) {
+            return mountYearRate(root, {
+                rate: 'goals_per_game',
+                tone: 'pitch',
+                label: 'Goals per game',
+                noun: 'goals per game',
+                decimals: 2
+            });
+        }
+    });
+    registerPanel({
+        id: 'draw-rate-year',
+        selector: '.amiga-act-draw-rate-year-chart',
+        run: function (root) {
+            return mountYearRate(root, {
+                rate: 'draw_rate',
+                tone: 'chrome',
+                label: 'Draw rate',
+                noun: 'draw rate',
+                format: 'percent'
+            });
+        }
+    });
+    registerPanel({
+        id: 'dd-rate-year',
+        selector: '.amiga-act-dd-rate-year-chart',
+        run: function (root) {
+            return mountYearRate(root, {
+                rate: 'dd_rate',
+                tone: 'magenta',
+                label: 'Double-digit rate',
+                noun: 'double-digit rate',
+                format: 'per100'
+            });
+        }
+    });
+    registerPanel({
+        id: 'cs-rate-year',
+        selector: '.amiga-act-cs-rate-year-chart',
+        run: function (root) {
+            return mountYearRate(root, {
+                rate: 'cs_rate',
+                tone: 'holo',
+                label: 'Clean-sheet rate',
+                noun: 'clean-sheet rate',
+                format: 'per100'
+            });
+        }
+    });
+    registerPanel({
+        id: 'high-scoring-rate-year',
+        selector: '.amiga-act-high-scoring-rate-year-chart',
+        run: function (root) {
+            return mountYearRate(root, {
+                rate: 'high_scoring_rate',
+                tone: 'amber',
+                label: 'High-scoring rate',
+                noun: 'high-scoring rate',
+                format: 'per100'
+            });
         }
     });
 

@@ -419,3 +419,41 @@ function amiga_community_snapshot_series(mysqli $con, string $column, ?float $cu
 
     return $out;
 }
+
+/**
+ * All-time reference value for a derived year rate at cutoff (texture bars).
+ * High-scoring rate has no headline column — derived from summed year facts.
+ */
+function amiga_community_year_rate_reference_at_cutoff(mysqli $con, int $cutoffTournamentId, string $rate): ?float
+{
+    if ($rate === 'high_scoring_rate') {
+        $gamesFacts = amiga_community_year_facts_at_cutoff($con, $cutoffTournamentId, 'realm', 'games');
+        $hsFacts = amiga_community_year_facts_at_cutoff($con, $cutoffTournamentId, 'realm', 'high_scoring_games');
+        $gamesByYear = $gamesFacts[AMIGA_COMMUNITY_REALM_SLICE_KEY] ?? [];
+        $hsByYear = $hsFacts[AMIGA_COMMUNITY_REALM_SLICE_KEY] ?? [];
+        $totalGames = array_sum($gamesByYear);
+        if ($totalGames <= 0) {
+            return null;
+        }
+
+        return round(array_sum($hsByYear) / $totalGames, 4);
+    }
+
+    $headlineCol = match ($rate) {
+        'goals_per_game' => 'GoalsPerGameAverage',
+        'draw_rate' => 'DrawsRatio',
+        'dd_rate' => 'DoubleDigitsRatio',
+        'cs_rate' => 'CleanSheetsRatio',
+        default => null,
+    };
+    if ($headlineCol === null) {
+        return null;
+    }
+
+    $headline = amiga_community_headline_load($con, $cutoffTournamentId);
+    if ($headline === null || !isset($headline[$headlineCol])) {
+        return null;
+    }
+
+    return round((float) $headline[$headlineCol], 4);
+}

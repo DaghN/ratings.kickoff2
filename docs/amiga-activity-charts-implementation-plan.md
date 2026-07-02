@@ -1,6 +1,6 @@
 # Amiga Activity charts — implementation plan
 
-**Status:** **In progress** (Jul 2026) — **slices 0–2 shipped** (platform + Growth + People wings live); slices 3–10 next. Read-only chart track: **no finalize writers, no DDL** (unless a slice-8 probe promotes a histogram to S6 — separate sign-off + Part B).
+**Status:** **In progress** (Jul 2026) — **slices 0–3 shipped** (platform + Growth + People + Texture wings live); slices 4–10 next. Read-only chart track: **no finalize writers, no DDL** (unless a slice-8 probe promotes a histogram to S6 — separate sign-off + Part B).
 **Locked IA / product:** [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) — wings, panel order, selectors, TT rules, bucket defaults.
 **Questions:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 46 ship IDs → 45 panels.
 **Pattern source:** online [`activity-charts.md`](activity-charts.md) (module, frames, mobile rules).
@@ -28,7 +28,7 @@
 | **0** | Platform: folder + routes + shell/nav + 302 + JS module skeleton + read helpers + first 2 APIs | 0 (placeholder pages) | **Done** Jul 2026 |
 | **1** | Growth wing | 7 | **Done** Jul 2026 |
 | **2** | People wing | 5 | **Done** Jul 2026 |
-| **3** | Texture wing (rates API + reference lines) | 5 | — |
+| **3** | Texture wing (rates API + reference lines) | 5 | **Done** Jul 2026 |
 | **4** | World Cups wing (ghost bars + overlay) | 6 | — |
 | **5** | Geography selector platform (duel + race controls, slice_series API) | 0 | — |
 | **6** | Geography — Hosts | 8 | — |
@@ -149,7 +149,7 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 ### `api/amiga_community_year_rates.php`
 
-- Params: `rate` (goals_per_game | draw_rate | dd_rate | cs_rate | high_scoring_rate | games_per_tournament | wc_share | wc_goals_per_game), `as`. *(Shipped slice 1 with `games_per_tournament` only.)*
+- Params: `rate` (goals_per_game | draw_rate | dd_rate | cs_rate | high_scoring_rate | games_per_tournament | wc_share | wc_goals_per_game), `as`. *(Texture rates + reference shipped slice 3; WC rates slice 4.)*
 - Response: `{ "years": [...], "values": [...], "reference": N|null, "overlay": { "label": "...", "values": [...] }|null, "cutoff": {...}|null }` — `cutoff` mirrors `year_facts` (`label`, `event_date`, `partial_year`).
 - Derivations (all from year facts at cutoff): rates = numerator ÷ realm `games` (goals_per_game = goals ÷ games; games_per_tournament = games ÷ tournaments; wc_share = wc games ÷ realm games; wc_goals_per_game = wc goals ÷ wc games, overlay = realm goals_per_game). `reference` = all-time average from headline row at cutoff (texture rates only). Zero-denominator years → `null` values, skipped by Chart.js.
 
@@ -198,9 +198,11 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 *Shipped notes:* panels in `includes/amiga_activity_people_panels.inc.php` — active players + debuts year bars (chrome + holo, shared x-axis span), cumulative players line (holo, merge note in panel intro), distinct pairs year bar + cumulative line (teal). Reuses slice-1 mounts only; no new APIs. TT verified (`as=year:2005` → 5 year bars, 148 curve points, chapter lede at cutoff).
 
-### Slice 3 — Texture (5 panels)
+### Slice 3 — Texture (5 panels) — **Done** (Jul 2026)
 
 - Extend `year_rates` with the four texture rates + `high_scoring_rate`; `reference` values from headline at cutoff; reference line rendering in module (dashed, muted, labelled in tooltip footer).
+
+*Shipped notes:* `year_rates` extended with `goals_per_game`, `draw_rate`, `dd_rate`, `cs_rate`, `high_scoring_rate`; `reference` from headline at cutoff (`GoalsPerGameAverage`, `DrawsRatio`, `DoubleDigitsRatio`, `CleanSheetsRatio`; high-scoring derived from summed year facts) via `amiga_community_year_rate_reference_at_cutoff()`. Module gained `renderYearRateBar()` — dashed muted all-time line + tooltip footer (*All-time avg: …*); rate formatting (`percent` for draws, `per100` for DD/CS/high-scoring). Panels in `includes/amiga_activity_texture_panels.inc.php` (tones: pitch · chrome · magenta · holo · amber).
 
 ### Slice 4 — World Cups (6 panels)
 
