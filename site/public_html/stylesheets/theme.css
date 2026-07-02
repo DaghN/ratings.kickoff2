@@ -5313,6 +5313,8 @@ body.k2-site a.k2-status-heritage-inset--link:focus-visible .k2-heritage-box__ar
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: flex-start;
+	column-gap: 60px;
+	row-gap: 10px;
 }
 
 .k2-status-period-competitions__controls:has(.k2-status-period-competitions__period-nav) .k2-status-period-competitions__period-tabs {
@@ -5615,17 +5617,15 @@ body.k2-site .k2-status-period-competitions .k2-status-period-competitions__meta
 	gap: 6px;
 	width: 100%;
 	max-width: 100%;
-	padding: 4px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-md);
-	background: var(--k2-bg-surface);
+	padding: 0;
+	border: none;
+	background: transparent;
 	box-sizing: border-box;
 }
 
 .k2-status-period-competitions__controls:has(.k2-status-period-competitions__period-nav) .k2-status-period-competitions__period-nav {
 	flex: 0 1 auto;
 	width: fit-content;
-	margin-left: 10px;
 }
 
 .k2-status-period-competitions__controls.is-period-nav-stacked .k2-status-period-competitions__period-nav {

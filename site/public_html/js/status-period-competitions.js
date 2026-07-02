@@ -1692,7 +1692,10 @@
             controls.classList.remove('is-period-nav-stacked');
             return;
         }
-        var stacked = nav.offsetTop > tabs.offsetTop + 1;
+        var tabsRect = tabs.getBoundingClientRect();
+        var navRect = nav.getBoundingClientRect();
+        /* Same row + align-items:center can differ offsetTop when heights differ — use line break, not offsetTop. */
+        var stacked = navRect.top >= tabsRect.bottom - 1;
         controls.classList.toggle('is-period-nav-stacked', stacked);
     }
 

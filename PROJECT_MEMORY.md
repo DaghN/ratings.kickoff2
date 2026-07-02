@@ -133,6 +133,7 @@
 
 | When | Note |
 |------|------|
+| 2026-07-02 | **Status Leagues period nav** — wrapper transparent (no segment chrome); **60px** `column-gap` between period tabs and step nav; stacked-row JS uses line-break detection (`theme.css`, `status-period-competitions.js`). |
 | 2026-07-02 | **Status west recency lists** — New players / Recent logins / Recent games: subgrid date column (widest row per panel) + 8px gap; names align without widening panels (`theme.css`). |
 | 2026-07-02 | **Online player hero — milestone tier counts** — hero + name-hover glance (tier B): four tier-colored counts (all tiers incl. zero, space-separated); garden tier links + tooltips; pure tier ink, weight 600; spacing tuned in `player-hero-rank.css`. Scope: `player_hero.php` + online glance API/JS. |
 | 2026-07-02 | **Player name hover glance UX** — canvas/print split: opaque slab instant; border, content, lift shadow fade 850ms on print; fetch on hover; 150ms show gate; no loading chip. |
