@@ -110,6 +110,8 @@ Player WC stats answer *who dominated?* Country stats answer *which nations domi
 
 ### 5.2 Honours sub-wing
 
+**Prefix:** **Rank · Country · WCs · WC players · WC entries**; then medal columns.
+
 | Slice column | UI label | Definition |
 |--------------|----------|------------|
 | `tournaments_with_nation` | WCs | Distinct WC tournaments with ≥1 national participant |
@@ -123,7 +125,7 @@ Player WC stats answer *who dominated?* Country stats answer *which nations domi
 
 | Slice column | UI label | Definition |
 |--------------|----------|------------|
-| `tournaments_with_nation` | WCs | Same as Honours |
+| `wc_participations` | WC entries | Σ per-WC headcount of nationals (prefix; same as Honours **WC entries**) |
 | `games` | Games | Sum of nationals’ WC `games` |
 | `wins` | W | Sum of nationals’ `wins` |
 | `draws` | D | Sum of nationals’ `draws` |
@@ -137,7 +139,7 @@ Player WC stats answer *who dominated?* Country stats answer *which nations domi
 
 ### 5.3a Participation sub-wing
 
-**Path:** `…/participation.php` — default sort **Entries** desc. Prefix **Rank · Country · WC players · WCs · Games**; then §5.1 participation / geography / realm-share columns (`wc_participations` → **Entries**).
+**Path:** `…/participation.php` — default sort **WC entries** desc. Prefix **Rank · Country · WC players · WC entries · Games**; then §5.1 participation / geography / realm-share columns (no duplicate **Entries** — lives in prefix).
 
 #### 5.3.1 Performance rating (nation)
 

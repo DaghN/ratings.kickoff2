@@ -50,35 +50,6 @@ function amiga_tournament_step_row_by_id(
     return $byId;
 }
 
-/**
- * @return array<int, string>
- */
-function amiga_tournament_step_player_country_by_id(mysqli $con): array
-{
-    static $cache = null;
-    if (is_array($cache)) {
-        return $cache;
-    }
-
-    /** @var array<int, string> $byId */
-    $byId = [];
-    $res = $con->query(
-        'SELECT id, country FROM amiga_players WHERE country IS NOT NULL AND TRIM(country) <> \'\''
-    );
-    if ($res) {
-        while ($row = $res->fetch_assoc()) {
-            $id = (int) ($row['id'] ?? 0);
-            if ($id > 0) {
-                $byId[$id] = trim((string) ($row['country'] ?? ''));
-            }
-        }
-        $res->free();
-    }
-    $cache = $byId;
-
-    return $byId;
-}
-
 /** @param array{value: string, label: string, meta?: string, flag_html?: string} $choice */
 function amiga_tournament_step_listbox_choice_with_country_flag(array $choice, string $country): array
 {
@@ -124,7 +95,7 @@ function amiga_tournament_step_country_choices(
  * Players with rated tournament participation; facet count = stepping-catalog tournaments
  * matching other active filters (e.g. host country).
  *
- * @return list<array{value: string, label: string, meta: string, flag_html?: string}>
+ * @return list<array{value: string, label: string, meta: string}>
  */
 function amiga_tournament_step_player_choices(
     mysqli $con,
@@ -140,18 +111,17 @@ function amiga_tournament_step_player_choices(
     }
 
     $choices = [['value' => '', 'label' => 'All players']];
-    $countryById = amiga_tournament_step_player_country_by_id($con);
     foreach (amiga_participation_eligible_players($con) as $player) {
         $playerId = (int) $player['id'];
         $count = $counts[$playerId] ?? 0;
         if ($count < 1 && $playerId !== $selectedId) {
             continue;
         }
-        $choices[] = amiga_tournament_step_listbox_choice_with_country_flag([
+        $choices[] = [
             'value' => (string) $playerId,
             'label' => (string) $player['name'],
             'meta' => (string) $count,
-        ], $countryById[$playerId] ?? '');
+        ];
     }
 
     return $choices;
