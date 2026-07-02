@@ -126,8 +126,8 @@ function k2_player_game_sort_col_index(string $sortKey): int
         'against' => 7,
         'diff' => 8,
         'sum' => 9,
-        'player_rating' => 10,
-        'opponent_rating' => 11,
+        'rating_a' => 10,
+        'rating_b' => 11,
         'es' => 12,
         'result' => 13,
         'adjustment' => 14,
@@ -166,8 +166,6 @@ function k2_player_game_row_html(array $row, int $playerId, int $sortedColIndex 
     $goalDiff = abs((int) $game['GoalsA'] - (int) $game['GoalsB']);
 
     if ($processed) {
-        $playerRating = $isPlayerA ? $game['RatingA'] : $game['RatingB'];
-        $opponentRating = $isPlayerA ? $game['RatingB'] : $game['RatingA'];
         $expectedScore = $isPlayerA ? $game['ExpectedScoreA'] : $game['ExpectedScoreB'];
         $adjustment = $isPlayerA ? $game['AdjustmentA'] : $game['AdjustmentB'];
         $isDraw = abs($game['ActualScore'] - 0.5) < 0.001;
@@ -181,8 +179,6 @@ function k2_player_game_row_html(array $row, int $playerId, int $sortedColIndex 
         $outcome = k2_player_game_outcome_from_goals($goalsFor, $goalsAgainst);
         $isWin = $outcome['is_win'];
         $isDraw = $outcome['is_draw'];
-        $playerRating = 0.0;
-        $opponentRating = 0.0;
         $expectedScore = 0.0;
         $adjustment = 0.0;
         $sumCell = (string) $sumGoals;
@@ -191,8 +187,8 @@ function k2_player_game_row_html(array $row, int $playerId, int $sortedColIndex 
 
     $resultCell = k2_player_game_result_html($isWin, $isDraw);
     $dash = k2_fmt_dash();
-    $playerRatingCell = $processed ? (string) (int) round($playerRating) : $dash;
-    $opponentRatingCell = $processed ? (string) (int) round($opponentRating) : $dash;
+    $ratingACell = $processed ? (string) (int) round((float) $game['RatingA']) : $dash;
+    $ratingBCell = $processed ? (string) (int) round((float) $game['RatingB']) : $dash;
     $esCell = $processed ? number_format(100 * $expectedScore, 1) . '%' : $dash;
     $adjustmentCell = $processed ? k2_player_game_signed_number_html($adjustment) : $dash;
 
@@ -216,8 +212,8 @@ function k2_player_game_row_html(array $row, int $playerId, int $sortedColIndex 
         . k2_player_game_td((string) $goalsAgainst, 7, $sortedColIndex)
         . k2_player_game_td($diffCell, 8, $sortedColIndex)
         . k2_player_game_td($sumCell, 9, $sortedColIndex)
-        . k2_player_game_td($playerRatingCell, 10, $sortedColIndex)
-        . k2_player_game_td($opponentRatingCell, 11, $sortedColIndex)
+        . k2_player_game_td($ratingACell, 10, $sortedColIndex)
+        . k2_player_game_td($ratingBCell, 11, $sortedColIndex)
         . k2_player_game_td($esCell, 12, $sortedColIndex)
         . k2_player_game_td($resultCell, 13, $sortedColIndex, 'k2-table-cell--left')
         . k2_player_game_td($adjustmentCell, 14, $sortedColIndex)

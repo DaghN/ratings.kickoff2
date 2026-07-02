@@ -134,6 +134,9 @@
 | When | Note |
 |------|------|
 | 2026-07-02 | **Amiga Activity Geography — Compare B empty default** — second Compare listbox adds top `...country` placeholder (default empty); duel year bars start single-series (England only); default race lines = top **4** countries (`AMIGA_COMMUNITY_GEO_RACE_KEYS_DEFAULT`); reverts same-day “Compare B required” rule. |
+| 2026-07-03 | **Player games table tooltips (online + Amiga)** — no help on Team A/B; GF · GA · GD · ES · Result · Adjustment use hero name instead of “this player”. |
+| 2026-07-03 | **Amiga player games table** — parity with online player games: **Result** before **Adjustment**; hero/opponent rating cols → **Rating A** / **Rating B** (`amiga/player/games.php`, `amiga_player_game_row.php`). |
+| 2026-07-03 | **Online player games table** — hero/opponent rating cols → **Rating A** / **Rating B** (Team A/B pre-game Elo; tooltips match Amiga games recent); sort keys `rating_a`/`rating_b`. |
 | 2026-07-03 | **Online player games table** — **Result** column moved to just before **Adjustment**; sort-col index map + row renderer updated (`player/games.php`, `k2_player_game_row.php`). |
 | 2026-07-02 | **Online player games table** — dropped redundant **Opponent** name column (Team A/B already show both players); updated `k2_player_game_sort_col_index()` + row renderer column indexes (`player/games.php`, `k2_player_game_row.php`). |
 | 2026-07-02 | **Amiga tournament stepper — WC only pill** — `id_wc=world-cup` toggle on entity chevrons (Shuffle-style pill before with-player); faceted listbox counts + auto-snap; propagates on wing/chevron links — [`with-player-stepper-policy.md`](docs/with-player-stepper-policy.md) §5.7. |

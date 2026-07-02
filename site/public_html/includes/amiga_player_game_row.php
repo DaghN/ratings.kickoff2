@@ -18,14 +18,14 @@ function amiga_player_game_sort_col_index(string $sortKey): int
         'phase' => 3,
         'team_a' => 4,
         'team_b' => 7,
-        'result' => 8,
-        'goals_for' => 9,
-        'against' => 10,
-        'diff' => 11,
-        'sum' => 12,
-        'player_rating' => 13,
-        'opponent_rating' => 14,
-        'es' => 15,
+        'goals_for' => 8,
+        'against' => 9,
+        'diff' => 10,
+        'sum' => 11,
+        'rating_a' => 12,
+        'rating_b' => 13,
+        'es' => 14,
+        'result' => 15,
         'adjustment' => 16,
     ];
 
@@ -70,8 +70,6 @@ function amiga_player_game_row_html(
     $countryB = trim((string) ($row['country_b'] ?? ''));
 
     if ($processed) {
-        $playerRating = $isPlayerA ? $game['RatingA'] : $game['RatingB'];
-        $opponentRating = $isPlayerA ? $game['RatingB'] : $game['RatingA'];
         $expectedScore = $isPlayerA ? $game['ExpectedScoreA'] : $game['ExpectedScoreB'];
         $adjustment = $isPlayerA ? $game['AdjustmentA'] : $game['AdjustmentB'];
         $isDraw = abs($game['ActualScore'] - 0.5) < 0.001;
@@ -85,8 +83,6 @@ function amiga_player_game_row_html(
         $outcome = k2_player_game_outcome_from_goals($goalsFor, $goalsAgainst);
         $isWin = $outcome['is_win'];
         $isDraw = $outcome['is_draw'];
-        $playerRating = 0.0;
-        $opponentRating = 0.0;
         $expectedScore = 0.0;
         $adjustment = 0.0;
         $sumCell = (string) $sumGoals;
@@ -95,8 +91,8 @@ function amiga_player_game_row_html(
 
     $resultCell = k2_player_game_result_html($isWin, $isDraw);
     $dash = k2_fmt_dash();
-    $playerRatingCell = $processed ? (string) (int) round($playerRating) : $dash;
-    $opponentRatingCell = $processed ? (string) (int) round($opponentRating) : $dash;
+    $ratingACell = $processed ? (string) (int) round((float) $game['RatingA']) : $dash;
+    $ratingBCell = $processed ? (string) (int) round((float) $game['RatingB']) : $dash;
     $esCell = $processed ? number_format(100 * $expectedScore, 1) . '%' : $dash;
     $adjustmentCell = $processed ? k2_player_game_signed_number_html($adjustment) : $dash;
     if ($tournamentName !== '' && $tournamentId > 0) {
@@ -126,14 +122,14 @@ function amiga_player_game_row_html(
         . k2_player_game_td($goalsACell, 5, $sortedColIndex, '', $anchorCol)
         . k2_player_game_td($goalsBCell, 6, $sortedColIndex, 'k2-table-cell--left', $anchorCol)
         . k2_player_game_td(amiga_rated_game_player_side_cell((int) $game['idB'], (string) $game['NameB'], $countryB, 'b'), 7, $sortedColIndex, 'k2-table-cell--left k2-amiga-tgame-team k2-amiga-tgame-team--b', $anchorCol)
-        . k2_player_game_td($resultCell, 8, $sortedColIndex, 'k2-table-cell--left k2-table-cell--pad-left-xl', $anchorCol)
-        . k2_player_game_td((string) $goalsFor, 9, $sortedColIndex, '', $anchorCol)
-        . k2_player_game_td((string) $goalsAgainst, 10, $sortedColIndex, '', $anchorCol)
-        . k2_player_game_td($diffCell, 11, $sortedColIndex, '', $anchorCol)
-        . k2_player_game_td($sumCell, 12, $sortedColIndex, '', $anchorCol)
-        . k2_player_game_td($playerRatingCell, 13, $sortedColIndex, '', $anchorCol)
-        . k2_player_game_td($opponentRatingCell, 14, $sortedColIndex, '', $anchorCol)
-        . k2_player_game_td($esCell, 15, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td((string) $goalsFor, 8, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td((string) $goalsAgainst, 9, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td($diffCell, 10, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td($sumCell, 11, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td($ratingACell, 12, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td($ratingBCell, 13, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td($esCell, 14, $sortedColIndex, '', $anchorCol)
+        . k2_player_game_td($resultCell, 15, $sortedColIndex, 'k2-table-cell--left', $anchorCol)
         . k2_player_game_td($adjustmentCell, 16, $sortedColIndex, '', $anchorCol)
         . '</tr>';
 }
