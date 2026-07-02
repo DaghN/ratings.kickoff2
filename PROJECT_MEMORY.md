@@ -73,7 +73,7 @@
 
 - **Amiga WC HoF (Jun 2026):** **Complete (WCH-1…8, SCH-046)** — 28 WC record rows; sparse `amiga_wc_hof_{snapshots,present}` + HoF UI block + time travel; Python + PHP finalize parity; `prove` green. [`amiga-wc-hof-policy.md`](docs/amiga-wc-hof-policy.md) · [`amiga-wc-hof-implementation-plan.md`](docs/amiga-wc-hof-implementation-plan.md).
 
-- **Amiga community stats (Jun 2026):** **V2 writers shipped** — registry v2, `036`/`037`, `prove` green. **Chart IA locked Jul 2026** — Activity sub-hub, six wings, 45 panels / 46 ship IDs live — [`amiga-activity-charts-policy.md`](docs/amiga-activity-charts-policy.md). **Build:** [`amiga-activity-charts-implementation-plan.md`](docs/amiga-activity-charts-implementation-plan.md) — **slices 0–9 shipped** (Shape wing complete); **slice 10** polish + doc finish next. Per-WC table on World Cups hub wing 2 **shipped**.
+- **Amiga community stats (Jun 2026):** **V2 writers shipped** — registry v2, `036`/`037`, `prove` green. **Activity charts shipped Jul 2026** — 45 panels / 46 ship IDs on `/amiga/activity/` six wings — [`amiga-activity-charts-policy.md`](docs/amiga-activity-charts-policy.md) · [`amiga-activity-charts-implementation-plan.md`](docs/amiga-activity-charts-implementation-plan.md) track **complete** (slices 0–10). Per-WC table on World Cups hub wing 2 **shipped**.
 
 - **Amiga World Cups hub (Jun 2026):** **Wings 1–4 shipped** — **events catalog** (sortable table, podium flag+name cols) + tournament stats (five sub-wings) + **player stats** + **country stats**. [`amiga-world-cups-hub-policy.md`](docs/amiga-world-cups-hub-policy.md).
 
@@ -139,6 +139,7 @@
 | 2026-07-02 | **Amiga tournament Videos Games wing — game id desc** — `amiga_tournament_videos_wc_game_index()` sorts by `game_id` DESC only (no stage bucket). |
 | 2026-07-02 | **Amiga tournament Games tab — game id desc** — `amiga_tournament_games_rows()` + table default sort by `id` DESC only (no date). |
 | 2026-07-02 | **Amiga Rating LB present-day Δ tooltip** — WC-start Δ header help names the latest WC tournament + date in `k2-link-star` spans (no redundant “World Cup” before the name). |
+| 2026-07-02 | **Amiga Activity chart track complete (slice 10 polish)** — mobile `touch-action` on Amiga panels; page-scoped loader queue + deferred race/histogram panels; geo roster links + Countries hub cross-link carry `as=`; registry parity 45↔46 (VOL-004+SHP-010 merge); policy + catalog step 6 + url-routes closed. |
 | 2026-07-02 | **Amiga Activity slice 9 shipped (Shape wing)** — 9 histogram panels live on `/amiga/activity/shape.php`; new `api/amiga_community_histogram.php` + `mountHistogram()` (bucket count + % tooltips); loader queues `active_years` last; **45/45 panels** on track. |
 | 2026-07-02 | **Amiga Activity slice 8 shipped (Shape probes STOP gate)** — no UI; `includes/amiga_community_histogram_lib.php` + `scripts/oneoff/amiga_community_histogram_probe.php`; 9 kinds × 4 cutoffs probed on `ko2amiga_db`; policy §5.6 bucket edges locked; all kinds ship read-time in slice 9 (no S6); `active_years` game_scan ~147 ms present, slower at mid cutoffs — defer panel in loader queue. |
 | 2026-07-02 | **Amiga Activity slice 7 shipped (Geography Nations wing)** — 5 panels on `/amiga/activity/geography/nations.php`: appearances + goals duel/race (`player_nationality`) + realm distinct-nationalities year bar; slice-5 harness removed; reuses slice-6 geo panel mounts. |
@@ -278,7 +279,10 @@
 | 2026-06-29 | **Amiga country roster — Elo links** — Elo column links to rating LB row anchor (`#k2-lb-player-{id}`) via `k2_amiga_lb_rating_cell_link()`; preserves `as=` time travel; `k2-link-star` (entity drill-down parity with player/tournament cells). |
 | 2026-06-29 | **Amiga country Rivals H2H poster — card symmetry** — nation-pair poster passes `subject`/`opponent` into `k2_h2h_poster_country_card_html()` so hero hugs `vs` from the left (blue) and rival from the right (red). |
 | 2026-07-01 | **Activity Participation LB** — Games column anchor + default sort (col 3) + `.blue` values; SQL `ORDER BY NumberGames DESC`. |
-| 2026-07-02 | **Amiga Activity hub intro** — chapter lede rewritten (*N years of the KOA: Since 2001, … have played …*; N = calendar year − 2001); player-averages line moved from Growth summary cards into shared chapter header above wing tabs. |
+| 2026-07-02 | **Amiga Activity Growth wing** — section title *How much have we been playing?*; cumulative games/tournaments/goals tooltips use HTML external tooltip (host flag + tournament name, event delta + total); snapshot series API adds `host`. |
+| 2026-07-02 | **Amiga Activity hub chapter lede** — question-led invite under *N years of the KOA*; headline numbers stay in summary panel above stat cards. |
+| 2026-07-02 | **Amiga Activity hub lede** — tournament count copy: *…605 official Amiga tournaments.* |
+| 2026-07-02 | **Amiga Activity hub intro** — chapter title = *N years of the KOA* (N = calendar year − 2001); lede opens *Since 2001, …*; full summary panel above wing tabs on all Activity wings. |
 | 2026-07-01 | **Amiga Activity summary — player averages** — removed Games per player card; prose below cards matches online (`Players average … rated games and … different opponents.`). |
 | 2026-07-01 | **Perf-rating LB W/L color** — Best · Top 100 · Perfect tables: W/L cells use `.blue` / `.red` via `amiga_profile_tournament_wdl_cell()`. |
 | 2026-07-01 | **Rating LB W/L color** — Wins/Losses cells on online + Amiga `/leaderboards/rating.php` use `.blue` / `.red` (via `k2_fmt_wdl_count()`); zero stays plain. |

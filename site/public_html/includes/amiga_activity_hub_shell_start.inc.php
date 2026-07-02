@@ -43,30 +43,29 @@ $k2ActCutoffEntry = $k2ActCtx->isActive() ? $k2ActCtx->cutoff() : null;
 $k2ActCutoffTid = $k2ActCutoffEntry !== null ? (int) $k2ActCutoffEntry['tournament_id'] : null;
 
 $k2ActHeadline = amiga_community_headline_load($con, $k2ActCutoffTid);
-$k2HubChapterLede = 'Community statistics are not available yet.';
+$k2ActKoaStartYear = 2001;
+$k2ActYearSpan = (int) date('Y') - $k2ActKoaStartYear;
+$k2HubChapterTitle = $k2ActYearSpan === 1 ? 'One year of the KOA' : $k2ActYearSpan . ' years of the KOA';
+$k2HubChapterLede = 'How much Kick Off 2 on real Amigas do we play? How many of us are active each year, and who debuts? '
+    . 'Do World Cups still carry the torch, and are we still finding the net? '
+    . 'The charts in the wings below answer these questions and more.';
+$k2AmigaActivitySummaryPanelLede = 'Community statistics are not available yet.';
 if ($k2ActHeadline !== null) {
     $k2ActPlayers = (int) ($k2ActHeadline['NumberOfPlayers'] ?? 0);
     $k2ActGames = (int) ($k2ActHeadline['GamesPlayed'] ?? 0);
     $k2ActCountries = amiga_lb_rated_country_count($con, $k2ActCtx);
     $k2ActTournaments = amiga_tournament_index_count($con, $k2ActCtx);
 
-    $k2ActKoaStartYear = 2001;
-    $k2ActYearSpan = (int) date('Y') - $k2ActKoaStartYear;
-    $k2ActLedeOpen = $k2ActYearSpan === 1
-        ? 'One year of the KOA: Since ' . $k2ActKoaStartYear . ', '
-        : $k2ActYearSpan . ' years of the KOA: Since ' . $k2ActKoaStartYear . ', ';
-    $k2HubChapterLede = htmlspecialchars($k2ActLedeOpen, ENT_QUOTES, 'UTF-8')
+    $k2AmigaActivitySummaryPanelLede = 'Since ' . $k2ActKoaStartYear . ', '
         . '<span class="blue">' . number_format($k2ActPlayers) . '</span> players from '
         . '<span class="blue">' . number_format($k2ActCountries) . '</span> ' . ($k2ActCountries === 1 ? 'nation' : 'nations') . ' have played '
         . '<span class="blue">' . number_format($k2ActGames) . '</span> rated games in '
-        . '<span class="blue">' . number_format($k2ActTournaments) . '</span> ' . ($k2ActTournaments === 1 ? 'tournament' : 'tournaments') . '.';
+        . '<span class="blue">' . number_format($k2ActTournaments) . '</span> ' . ($k2ActTournaments === 1 ? 'official Amiga tournament' : 'official Amiga tournaments') . '.';
 }
 mysqli_close($con);
 unset($con);
 
-$k2HubChapterTitle = 'Activity';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
-$k2AmigaActivitySummaryHideLede = true;
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_activity_summary.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_activity_hub_nav.php';
 if ($k2AmigaActivityWingView === 'geography') {

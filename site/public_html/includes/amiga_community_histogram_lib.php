@@ -150,9 +150,9 @@ function amiga_community_histogram_bucket_defs(string $kind): array
         'goal_sum' => [
             'type' => 'exact_tail',
             'min' => 0,
-            'max' => 14,
-            'tail_label' => '15+',
-            'tail_min' => 15,
+            'max' => 19,
+            'tail_label' => '20+',
+            'tail_min' => 20,
         ],
         'tournament_games' => [
             'type' => 'ranges',

@@ -9,6 +9,8 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/k2_amiga_country_flag.php';
+require_once __DIR__ . '/k2_amiga_routes.php';
+require_once __DIR__ . '/amiga_snapshot_url.php';
 
 $k2GeoView = $k2AmigaActivityGeographyView ?? 'hosts';
 $k2GeoSlice = $k2GeoView === 'nations' ? 'player_nationality' : 'host_country';
@@ -37,6 +39,7 @@ $k2GeoRaceKeys = $k2GeoSelection['race_keys'];
 $k2GeoDuelA = $k2GeoSelection['duel_a'];
 $k2GeoDuelB = $k2GeoSelection['duel_b'];
 $k2GeoCsvResolved = $k2GeoSelection['csv'];
+$k2ActCountriesHubHref = amiga_url_with_context(k2_amiga_route('amiga-countries'));
 
 function k2_amiga_act_geo_select_options(array $keys, string $selected, bool $allowEmpty = false): string
 {
@@ -57,8 +60,8 @@ function k2_amiga_act_geo_select_options(array $keys, string $selected, bool $al
 	<header class="k2-activity-section__head">
 		<h2 class="k2-panel-heading" id="k2-act-geography-selector-title"><?php echo $k2GeoView === 'nations' ? 'Which nations played?' : 'Who hosted the scene?'; ?></h2>
 		<p class="k2-activity-section__intro"><?php echo $k2GeoView === 'nations'
-    ? 'Compare nationalities side by side, or race cumulative appearance totals. Country names link to the roster — the same selection drives every chart on this page. Click a point on any cumulative curve to open that tournament.'
-    : 'Compare host countries side by side, or race cumulative totals. Country names link to the roster — the same selection drives every chart on this page. Click a point on any cumulative curve to open that tournament.'; ?></p>
+    ? 'Compare nationalities side by side, or race cumulative appearance totals. Chip names open country rosters on the <a href="' . k2_h($k2ActCountriesHubHref) . '">Countries hub</a> — the same selection drives every chart on this page. Click a point on any cumulative curve to open that tournament.'
+    : 'Compare host countries side by side, or race cumulative totals. Chip names open country rosters on the <a href="' . k2_h($k2ActCountriesHubHref) . '">Countries hub</a> — the same selection drives every chart on this page. Click a point on any cumulative curve to open that tournament.'; ?></p>
 	</header>
 
 	<div class="k2-amiga-act-geo-root"

@@ -596,6 +596,104 @@
     }
 
     /** L2 cumulative event-timeline lines: every point is a real tournament. */
+    var CUMULATIVE_HTML_TOOLTIP_ID = 'k2-amiga-act-cumulative-tooltip';
+    var TOURNAMENT_PAGE_FRAGMENT = 'tournament';
+
+    function tournamentChartClickUrl(tournamentId) {
+        var url = '/amiga/tournament/event-stats.php?id=' + encodeURIComponent(tournamentId);
+        var TT = global.K2AmigaTimeTravelUrl;
+        if (TT && TT.navigationQuerySuffix) {
+            url += TT.navigationQuerySuffix();
+        }
+        url += '#' + TOURNAMENT_PAGE_FRAGMENT;
+        return url;
+    }
+
+    function escapeHtml(str) {
+        return String(str == null ? '' : str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function getOrCreateCumulativeHtmlTooltip() {
+        var el = document.getElementById(CUMULATIVE_HTML_TOOLTIP_ID);
+        if (el) {
+            return el;
+        }
+        el = document.createElement('div');
+        el.id = CUMULATIVE_HTML_TOOLTIP_ID;
+        el.className = 'k2-chart-html-tooltip k2-amiga-act-cumulative-tooltip';
+        el.setAttribute('role', 'tooltip');
+        el.hidden = true;
+        document.body.appendChild(el);
+        if (T.registerChartHtmlTooltipScrollDismiss) {
+            T.registerChartHtmlTooltipScrollDismiss(function () {
+                el.hidden = true;
+                el.style.opacity = '0';
+            });
+        }
+        return el;
+    }
+
+    function cumulativeTooltipFlagHtml(host) {
+        if (!host) {
+            return '';
+        }
+        return '<span class="k2-amiga-act-cumulative-tooltip__flag" aria-hidden="true">'
+            + geoFlagImgHtml(host)
+            + '</span>';
+    }
+
+    function buildCumulativeTooltipHtml(point, total, spec) {
+        var titleHtml = '<div class="k2-amiga-act-cumulative-tooltip__title">'
+            + cumulativeTooltipFlagHtml(point.host)
+            + '<span class="k2-amiga-act-cumulative-tooltip__name">' + escapeHtml(point.name || '') + '</span>'
+            + '</div>';
+        var bodyLines = [];
+        var eventDate = formatEventDate(parseEventDate(point.date));
+        if (eventDate) {
+            bodyLines.push(escapeHtml(eventDate));
+        }
+        if (spec.eventNoun && point.eventDelta != null) {
+            bodyLines.push(formatCount(point.eventDelta) + ' ' + spec.eventNoun);
+        }
+        bodyLines.push('Total: ' + formatCount(total) + ' ' + spec.noun);
+        var bodyHtml = bodyLines.map(function (line) {
+            return '<div class="k2-amiga-act-cumulative-tooltip__line">' + line + '</div>';
+        }).join('');
+        return titleHtml + '<div class="k2-amiga-act-cumulative-tooltip__body">' + bodyHtml + '</div>';
+    }
+
+    function bindCumulativeExternalTooltip(meta, spec) {
+        return function (context) {
+            var tooltipEl = getOrCreateCumulativeHtmlTooltip();
+            var tooltip = context.tooltip;
+            if (!tooltip || tooltip.opacity === 0) {
+                tooltipEl.hidden = true;
+                return;
+            }
+            var items = tooltip.dataPoints || [];
+            if (!items.length) {
+                tooltipEl.hidden = true;
+                return;
+            }
+            var point = meta[items[0].dataIndex];
+            if (!point) {
+                tooltipEl.hidden = true;
+                return;
+            }
+            tooltipEl.innerHTML = buildCumulativeTooltipHtml(point, items[0].parsed.y, spec);
+            tooltipEl.hidden = false;
+            var canvas = context.chart.canvas;
+            var rect = canvas.getBoundingClientRect();
+            tooltipEl.style.left = (rect.left + tooltip.caretX) + 'px';
+            tooltipEl.style.top = (rect.top + tooltip.caretY) + 'px';
+            tooltipEl.style.opacity = '1';
+        };
+    }
+
     function mountCumulative(root, spec) {
         var status = panelStatus(root);
         var canvas = requireCanvas(root, status);
@@ -607,14 +705,24 @@
                 var points = data.points || [];
                 var chartData = [];
                 var meta = [];
+                var prevValue = null;
                 var i;
                 for (i = 0; i < points.length; i++) {
                     var x = parseEventDate(points[i].date);
                     if (x === null || points[i].value == null) {
                         continue;
                     }
-                    chartData.push({ x: x, y: points[i].value });
-                    meta.push(points[i]);
+                    var value = points[i].value;
+                    chartData.push({ x: x, y: value });
+                    meta.push({
+                        t: points[i].t,
+                        date: points[i].date,
+                        name: points[i].name,
+                        host: points[i].host || '',
+                        value: value,
+                        eventDelta: prevValue != null ? value - prevValue : value
+                    });
+                    prevValue = value;
                 }
                 if (!chartData.length) {
                     if (status) {
@@ -626,6 +734,35 @@
                     status.textContent = '';
                 }
                 var coarse = T.isCoarsePointer();
+                var useRichTooltip = !!spec.richTooltip && !coarse;
+                var tooltipConfig = useRichTooltip
+                    ? T.mergeTooltip({
+                        enabled: false,
+                        external: bindCumulativeExternalTooltip(meta, spec)
+                    })
+                    : T.mergeTooltip({
+                        callbacks: {
+                            title: function (items) {
+                                if (!items.length) {
+                                    return '';
+                                }
+                                var point = meta[items[0].dataIndex];
+                                return point ? point.name : '';
+                            },
+                            label: function (item) {
+                                var point = meta[item.dataIndex];
+                                var lines = [];
+                                if (point) {
+                                    lines.push(formatEventDate(parseEventDate(point.date)));
+                                }
+                                if (spec.eventNoun && point && point.eventDelta != null) {
+                                    lines.push(formatCount(point.eventDelta) + ' ' + spec.eventNoun);
+                                }
+                                lines.push('Total: ' + formatCount(item.parsed.y) + ' ' + spec.noun);
+                                return lines;
+                            }
+                        }
+                    });
                 var chartInstance = createChart(canvas, {
                     type: 'line',
                     data: {
@@ -648,12 +785,7 @@
                             if (!point || !point.t) {
                                 return;
                             }
-                            var url = '/amiga/tournament/event-stats.php?id=' + point.t;
-                            var TT = global.K2AmigaTimeTravelUrl;
-                            if (TT && TT.navigationQuerySuffix) {
-                                url += TT.navigationQuerySuffix();
-                            }
-                            global.location.href = url;
+                            global.location.href = tournamentChartClickUrl(point.t);
                         },
                         onHover: coarse ? undefined : function (event, elements) {
                             var target = event && event.native ? event.native.target : canvas;
@@ -663,26 +795,7 @@
                         },
                         plugins: {
                             legend: { labels: { color: T.textMuted() } },
-                            tooltip: T.mergeTooltip({
-                                callbacks: {
-                                    title: function (items) {
-                                        if (!items.length) {
-                                            return '';
-                                        }
-                                        var point = meta[items[0].dataIndex];
-                                        return point ? point.name : '';
-                                    },
-                                    label: function (item) {
-                                        var point = meta[item.dataIndex];
-                                        var lines = [];
-                                        if (point) {
-                                            lines.push(formatEventDate(parseEventDate(point.date)));
-                                        }
-                                        lines.push('Total: ' + formatCount(item.parsed.y) + ' ' + spec.noun);
-                                        return lines;
-                                    }
-                                }
-                            })
+                            tooltip: tooltipConfig
                         },
                         scales: {
                             x: {
@@ -709,6 +822,11 @@
                 if (!coarse && chartInstance) {
                     canvas.addEventListener('mouseleave', function () {
                         canvas.style.cursor = 'default';
+                        var tip = document.getElementById(CUMULATIVE_HTML_TOOLTIP_ID);
+                        if (tip) {
+                            tip.hidden = true;
+                            tip.style.opacity = '0';
+                        }
                     });
                 }
             })
@@ -781,12 +899,7 @@
                             if (!point || !point.t) {
                                 return;
                             }
-                            var url = '/amiga/tournament/event-stats.php?id=' + point.t;
-                            var TT = global.K2AmigaTimeTravelUrl;
-                            if (TT && TT.navigationQuerySuffix) {
-                                url += TT.navigationQuerySuffix();
-                            }
-                            global.location.href = url;
+                            global.location.href = tournamentChartClickUrl(point.t);
                         },
                         onHover: coarse ? undefined : function (event, elements) {
                             var target = event && event.native ? event.native.target : canvas;
@@ -859,13 +972,31 @@
     /* --- Panel registry + sequential drain (activity-charts-v2 pattern) --- */
 
     var PANELS = [];
+    var activePanelQueue = [];
     var panelsLoadComplete = false;
     var resizeListenerBound = false;
     var BAR_ENTRANCE_BUFFER_MS = 600;
 
-    /** spec: { id, selector, run(root) -> Promise } */
+    /** spec: { id, selector, loadTier?, run(root) -> Promise } — loadTier `deferred` = after other panels on this page. */
     function registerPanel(spec) {
         PANELS.push(spec);
+    }
+
+    function buildPanelQueue() {
+        var queue = [];
+        var deferred = [];
+        var i;
+        for (i = 0; i < PANELS.length; i++) {
+            if (!document.querySelector(PANELS[i].selector)) {
+                continue;
+            }
+            if (PANELS[i].loadTier === 'deferred') {
+                deferred.push(PANELS[i]);
+            } else {
+                queue.push(PANELS[i]);
+            }
+        }
+        return queue.concat(deferred);
     }
 
     /** Geography duel/race panels — re-fetch when country selection changes. */
@@ -875,6 +1006,7 @@
         registerPanel({
             id: spec.id,
             selector: spec.selector,
+            loadTier: spec.pattern === 'race' ? 'deferred' : undefined,
             run: function (root) {
                 var mountFn = function () {
                     if (spec.pattern === 'duel') {
@@ -909,9 +1041,10 @@
             clearTimeout(resizeAllTimer);
         }
         resizeAllTimer = setTimeout(function () {
+            var queue = activePanelQueue.length ? activePanelQueue : buildPanelQueue();
             var i;
-            for (i = 0; i < PANELS.length; i++) {
-                var root = document.querySelector(PANELS[i].selector);
+            for (i = 0; i < queue.length; i++) {
+                var root = document.querySelector(queue[i].selector);
                 if (root) {
                     resizeChart(chartCanvas(root));
                 }
@@ -935,11 +1068,14 @@
     }
 
     function drain(index) {
-        if (index >= PANELS.length) {
+        if (index === 0) {
+            activePanelQueue = buildPanelQueue();
+        }
+        if (index >= activePanelQueue.length) {
             finishPanelLoad();
             return;
         }
-        runPanel(PANELS[index]).finally(function () {
+        runPanel(activePanelQueue[index]).finally(function () {
             setTimeout(function () {
                 drain(index + 1);
             }, GAP_MS);
@@ -959,7 +1095,14 @@
         id: 'games-cumulative',
         selector: '.amiga-act-games-cumulative-chart',
         run: function (root) {
-            return mountCumulative(root, { metric: 'GamesPlayed', tone: 'pitch', label: 'Cumulative games', noun: 'games' });
+            return mountCumulative(root, {
+                metric: 'GamesPlayed',
+                tone: 'pitch',
+                label: 'Cumulative games',
+                noun: 'games',
+                richTooltip: true,
+                eventNoun: 'games'
+            });
         }
     });
     registerPanel({
@@ -973,7 +1116,13 @@
         id: 'tournaments-cumulative',
         selector: '.amiga-act-tournaments-cumulative-chart',
         run: function (root) {
-            return mountCumulative(root, { metric: 'TournamentsFinalized', tone: 'chrome', label: 'Cumulative tournaments', noun: 'tournaments' });
+            return mountCumulative(root, {
+                metric: 'TournamentsFinalized',
+                tone: 'chrome',
+                label: 'Cumulative tournaments',
+                noun: 'tournaments',
+                richTooltip: true
+            });
         }
     });
     registerPanel({
@@ -987,7 +1136,14 @@
         id: 'goals-cumulative',
         selector: '.amiga-act-goals-cumulative-chart',
         run: function (root) {
-            return mountCumulative(root, { metric: 'GoalsScored', tone: 'amber', label: 'Cumulative goals', noun: 'goals' });
+            return mountCumulative(root, {
+                metric: 'GoalsScored',
+                tone: 'amber',
+                label: 'Cumulative goals',
+                noun: 'goals',
+                richTooltip: true,
+                eventNoun: 'goals'
+            });
         }
     });
     registerPanel({
@@ -1240,16 +1396,22 @@
         return GEO_FLAG_CODES[country] || '';
     }
 
-    function geoFlagImgHtml(country) {
+    function geoFlagImgHtml(country, extraClass) {
         var code = geoFlagCode(country);
         if (!code) {
             return '';
         }
-        return '<img src="' + geoFlagSrc(code) + '" width="20" height="15" alt="" aria-hidden="true" class="k2-amiga-country-flag-img" decoding="async" loading="lazy">';
+        var cls = 'k2-amiga-country-flag-img' + (extraClass ? ' ' + extraClass : '');
+        return '<img src="' + geoFlagSrc(code) + '" width="20" height="15" alt="" aria-hidden="true" class="' + cls + '" decoding="async" loading="lazy">';
     }
 
     function geoRosterHref(country) {
-        return '/amiga/country/roster.php?country=' + encodeURIComponent(country);
+        var url = '/amiga/country/roster.php?country=' + encodeURIComponent(country);
+        var TT = global.K2AmigaTimeTravelUrl;
+        if (TT && TT.navigationQuerySuffix) {
+            url += TT.navigationQuerySuffix();
+        }
+        return url;
     }
 
     function getGeoDuelKeys(state) {
@@ -1388,12 +1550,7 @@
                     if (!point || !point.t) {
                         return;
                     }
-                    var url = '/amiga/tournament/event-stats.php?id=' + point.t;
-                    var TT = global.K2AmigaTimeTravelUrl;
-                    if (TT && TT.navigationQuerySuffix) {
-                        url += TT.navigationQuerySuffix();
-                    }
-                    global.location.href = url;
+                    global.location.href = tournamentChartClickUrl(point.t);
                 },
                 plugins: {
                     legend: {
@@ -2010,6 +2167,7 @@
     registerPanel({
         id: 'goal-sum-histogram',
         selector: '.amiga-act-goal-sum-histogram',
+        loadTier: 'deferred',
         run: function (root) {
             return mountHistogram(root, { kind: 'goal_sum', tone: 'amber', label: 'Total goals per game' });
         }
@@ -2017,6 +2175,7 @@
     registerPanel({
         id: 'active-years-histogram',
         selector: '.amiga-act-active-years-histogram',
+        loadTier: 'deferred',
         run: function (root) {
             return mountHistogram(root, { kind: 'active_years', tone: 'pitch', label: 'Active calendar years', dense: true });
         }

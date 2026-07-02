@@ -707,6 +707,8 @@ body.k2-site .k2-chrome-tabs.k2-player-wing-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-countries-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs,
+body.k2-site .k2-chrome-tabs.k2-amiga-activity-hub-tabs,
+body.k2-site .k2-chrome-tabs.k2-amiga-activity-geography-tabs,
 body.k2-site .k2-chrome-tabs.k2-tournament-videos-wings {
 	margin-top: 0;
 	margin-bottom: var(--k2-nav-gap);
@@ -726,6 +728,8 @@ body.k2-site .k2-chrome-tabs.k2-player-wing-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-players-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-countries-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-stats-tabs .k2-chrome-tabs__bar,
+body.k2-site .k2-chrome-tabs.k2-amiga-activity-hub-tabs .k2-chrome-tabs__bar,
+body.k2-site .k2-chrome-tabs.k2-amiga-activity-geography-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-tournament-videos-wings .k2-chrome-tabs__bar {
 	width: fit-content;
 	max-width: 100%;
@@ -1012,6 +1016,10 @@ body.k2-site.k2-activity-charts .k2-chart-panel__status {
 }
 
 /* Amiga Activity hub — generic panel card (45 charts; no per-panel class list). */
+body.k2-site.k2-amiga-activity-charts main.k2-amiga-activity-hub > .k2-activity-section:first-child .k2-activity-section__head {
+	margin-top: 0;
+}
+
 body.k2-site.k2-amiga-activity-charts .k2-chart-panel {
 	box-sizing: border-box;
 	width: 100%;
@@ -1127,6 +1135,59 @@ body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-chip-name:hover {
 	text-decoration: underline;
 }
 
+body.k2-site .k2-chart-html-tooltip {
+	position: fixed;
+	z-index: 1000;
+	max-width: min(420px, calc(100vw - 24px));
+	padding: 8px 10px;
+	border: 1px solid var(--k2-tooltip-border);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-tooltip-surface);
+	box-shadow: var(--k2-shadow-surface);
+	color: var(--k2-tooltip-body);
+	font-size: 12px;
+	line-height: 1.35;
+	pointer-events: none;
+	transform: translate(-50%, calc(-100% - 8px));
+}
+
+body.k2-site .k2-chart-html-tooltip[hidden] {
+	display: none;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-cumulative-tooltip__title {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 4px;
+	color: var(--k2-tooltip-title);
+	font-weight: 600;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-cumulative-tooltip__name {
+	min-width: 0;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-cumulative-tooltip__body {
+	display: grid;
+	gap: 2px;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-cumulative-tooltip__flag {
+	display: inline-flex;
+	flex-shrink: 0;
+	width: 20px;
+	height: 15px;
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-cumulative-tooltip__flag .k2-amiga-country-flag-img {
+	width: 100%;
+	height: 100%;
+	border-radius: 0;
+}
+
 body.k2-site.k2-amiga-activity-charts .k2-chart-frame--short {
 	--k2-chart-frame-height: 280px;
 }
@@ -1207,7 +1268,10 @@ body.k2-site .player-compare-rank-chart canvas,
 	body.k2-site.k2-activity-charts .k2-chart-panel,
 	body.k2-site.k2-activity-charts .k2-chart-frame,
 	body.k2-site.k2-activity-charts .k2-chart-frame canvas,
-	body.k2-site.k2-activity-charts .activity-heatmap-wrap {
+	body.k2-site.k2-activity-charts .activity-heatmap-wrap,
+	body.k2-site.k2-amiga-activity-charts .k2-chart-panel,
+	body.k2-site.k2-amiga-activity-charts .k2-chart-frame,
+	body.k2-site.k2-amiga-activity-charts .k2-chart-frame canvas {
 		touch-action: pan-y pinch-zoom;
 	}
 }

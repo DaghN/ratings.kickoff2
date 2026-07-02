@@ -76,7 +76,7 @@
 	</div>
 
 	<div class="amiga-act-tournament-size-histogram k2-chart-panel" data-k2-chart-panel="tournament-size-histogram">
-		<h3 class="k2-panel-heading">Tournaments by rated-game count</h3>
+		<h3 class="k2-panel-heading">Tournaments by game count</h3>
 		<p class="k2-chart-panel__status">Loading tournament sizes…</p>
 		<div class="k2-chart-frame">
 			<canvas aria-label="Tournaments by rated games played"></canvas>

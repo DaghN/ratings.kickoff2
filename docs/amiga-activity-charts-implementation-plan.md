@@ -1,6 +1,6 @@
 # Amiga Activity charts — implementation plan
 
-**Status:** **In progress** (Jul 2026) — **slices 0–9 shipped** (45 panels live; **slice 10** polish + doc finish next). Read-only chart track: **no finalize writers, no DDL**.
+**Status:** **Shipped** (Jul 2026) — **45 panels / 46 ship IDs** live on `/amiga/activity/` (six wings); track **complete** (slices 0–10). Read-only chart track: **no finalize writers, no DDL**.
 **Locked IA / product:** [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) — wings, panel order, selectors, TT rules, bucket defaults.
 **Questions:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 46 ship IDs → 45 panels.
 **Pattern source:** online [`activity-charts.md`](activity-charts.md) (module, frames, mobile rules).
@@ -35,7 +35,7 @@
 | **7** | Geography — Nations | 5 | **Done** |
 | **8** | **STOP gate:** Shape C8 probes + bucket lock (IA-4) | 0 | **Done** Jul 2026 |
 | **9** | Shape wing | 9 | **Done** Jul 2026 |
-| **10** | Polish: mobile pass, perf order, cross-links, docs finish | — | — |
+| **10** | Polish: mobile pass, perf order, cross-links, docs finish | — | **Done** Jul 2026 |
 
 Running total after slice 9: **45 panels / 46 question IDs.**
 
@@ -274,7 +274,7 @@ Cells: **ms · population · max_value**. First-event label: World Cup I (Dartfo
 
 #### Bucket edges (locked — policy §5.6 defaults, no deviations)
 
-Encoded in `amiga_community_histogram_bucket_defs()`: range buckets for career games / tournaments / distinct opponents / tournament games; exact 1…25 (`active_years`), 1…12 (`countries_played`), 0…24 (`world_cups_played`); rating 50-pt steps 650–2450 + tail; goal_sum exact 0…14 + 15+ tail. Max observed at present fits all schemes (see probe max_value column).
+Encoded in `amiga_community_histogram_bucket_defs()`: range buckets for career games / tournaments / distinct opponents / tournament games; exact 1…25 (`active_years`), 1…12 (`countries_played`), 0…24 (`world_cups_played`); rating 50-pt steps 650–2450 + tail; goal_sum exact 0…19 + 20+ tail. Max observed at present fits all schemes (see probe max_value column).
 
 #### Slice 9 decision (STOP gate cleared)
 
@@ -289,12 +289,14 @@ Encoded in `amiga_community_histogram_bucket_defs()`: range buckets for career g
 
 *Shipped notes:* `includes/amiga_activity_shape_panels.inc.php` — 9 histogram panels on `/amiga/activity/shape.php`; `mountHistogram()` + `renderHistogramBar()` in `js/amiga-activity-charts.js`; sequential loader queues snapshot kinds first, `goal_sum` then `active_years` last (slice-8 probe guidance). Tooltips: bucket + count + % of population (`data-k2-help` N/A — bar tooltips via `chart-theme.js`).
 
-### Slice 10 — Polish + finish
+### Slice 10 — Polish + finish — **Done** (Jul 2026)
 
 - Mobile pass: `touch-action: pan-y pinch-zoom` on panels; tooltips off coarse; heaviest panels (race multi-lines) last in loader queue.
 - Cross-link audit (Countries hub, WC hub, tournament click-through carry).
 - Registry parity check: 45 panels ↔ 46 ship IDs, per-panel checklist from [`activity-charts.md`](activity-charts.md) §6.
 - Docs: this plan statuses; policy status line; [`url-routes.md`](url-routes.md); catalog plan step 6 → done; MEMORY; feature-log row (Part A). Part B only if S6 shipped.
+
+*Shipped notes:* **Mobile** — `theme.css` coarse-pointer rule extended to `k2-amiga-activity-charts` panels/canvases (matches online Activity). Tooltips already off on coarse via `chart-theme.js` `activityChartOptions`. **Loader** — `buildPanelQueue()` mounts only panels present on the page; `loadTier: 'deferred'` queues geography **race** multi-lines + Shape `goal_sum` / `active_years` after lighter panels on that page. **Cross-links** — Geography intro → Countries hub (`amiga_url_with_context`); WC wing → World Cups hub (slice 4); geo chip roster hrefs carry `as=` via `K2AmigaTimeTravelUrl`; cumulative click-through already carried `as=` (slice 1). **Registry parity** — 45 panels = 46 ship IDs with **Q-VOL-004 + Q-SHP-010** merged in one cumulative-players panel (policy §4); all registry selectors wired in `amiga-activity-charts.js`.
 
 ---
 

@@ -1,6 +1,6 @@
 # Amiga community stats — question catalog plan (v2 product)
 
-**Status:** **Steps 0–5 done** (Jul 2026) — **46 ship**, registry v2 writers green; chart IA **locked** in [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) (closes §9.1 IA-1/2/3/5; IA-4 = probe gate). Step **6** = follow [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) slices 0–10.  
+**Status:** **Steps 0–6 done** (Jul 2026) — **46 ship**, registry v2 writers green; chart track **shipped** — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) + [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) slices 0–10 (45 panels / 46 IDs).  
 **Policy (shape):** [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) — **do not reopen** C1–C13 without Dagh.  
 **V1 implementation (done):** [`amiga-community-stats-implementation-plan.md`](amiga-community-stats-implementation-plan.md) — slices 1–10 + Phase 2 verify hygiene.  
 **Living product artifact:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — step **3** done (**46 ship**).
@@ -212,7 +212,7 @@ From policy §9 and [`amiga-realm-vision.md`](amiga-realm-vision.md):
 | **3** | Dagh curates: priority (ship / later / cut) | **Done** — **46 ship**, 2 later, 28 cut |
 | **4** | Derive **registry v2** + finalize writers + `prove` | **Done** Jun 2026 — `community_stat_registry.py` v2 grains, DDL `036`/`037`, `verify-community-stats` green |
 | **5** | Close **open chart IA** (§9.1) + chart track plan | **Done** Jul 2026 — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) + [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) |
-| **6** | Chart APIs + Activity UI (clusters C0–C9) | **Next** — impl plan slices 0–10 (45 panels / 46 IDs) |
+| **6** | Chart APIs + Activity UI (clusters C0–C9) | **Done** Jul 2026 — impl plan slices 0–10 (45 panels / 46 IDs) |
 
 **STOP gates:**
 

@@ -377,7 +377,7 @@ function amiga_community_slice_keys_at_cutoff(
  * truncated at a cutoff chrono (time travel). Column MUST be validated
  * against amiga_community_headline_column_names() by the caller.
  *
- * @return list<array{t: int, date: string, name: string, value: float|null}>
+ * @return list<array{t: int, date: string, name: string, host: string, value: float|null}>
  */
 function amiga_community_snapshot_series(mysqli $con, string $column, ?float $cutoffChrono = null): array
 {
@@ -385,8 +385,9 @@ function amiga_community_snapshot_series(mysqli $con, string $column, ?float $cu
         throw new RuntimeException('unknown headline column: ' . $column);
     }
 
-    $sql = "SELECT tournament_id, event_date, tournament_name, `{$column}` AS v
-            FROM amiga_community_stats_snapshots";
+    $sql = "SELECT s.tournament_id, s.event_date, s.tournament_name, t.country AS host_country, `{$column}` AS v
+            FROM amiga_community_stats_snapshots s
+            LEFT JOIN tournaments t ON t.id = s.tournament_id";
     if ($cutoffChrono !== null) {
         $sql .= ' WHERE event_chrono <= ?';
     }
@@ -411,6 +412,7 @@ function amiga_community_snapshot_series(mysqli $con, string $column, ?float $cu
             't' => (int) ($row['tournament_id'] ?? 0),
             'date' => (string) ($row['event_date'] ?? ''),
             'name' => (string) ($row['tournament_name'] ?? ''),
+            'host' => (string) ($row['host_country'] ?? ''),
             'value' => $row['v'] === null ? null : (float) $row['v'],
         ];
     }

@@ -2,12 +2,14 @@
 /**
  * Amiga Activity tab summary block (PHP + markup).
  *
- * Optional before include: $k2AmigaActivitySummaryHideLede = true
- * (Activity hub shell — the chapter lede already carries the headline numbers).
+ * Optional before include:
+ *   $k2AmigaActivitySummaryPanelLede — raw HTML lede above stat cards (Activity hub shell).
+ *   $k2AmigaActivitySummaryHideLede = true — skip the default “since first event” lede.
  */
 declare(strict_types=1);
 
 $k2AmigaActivitySummaryHideLede = $k2AmigaActivitySummaryHideLede ?? false;
+$k2AmigaActivitySummaryPanelLede = $k2AmigaActivitySummaryPanelLede ?? null;
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_community_stats_lib.php';
@@ -32,7 +34,11 @@ $row = amiga_community_headline_load($con, $cutoffTournamentId);
 if ($row === null) {
     mysqli_close($con);
     echo '<section class="server-activity-summary" aria-label="Activity summary">';
-    echo '<p class="server-activity-summary__lede">Community statistics are not available yet.</p>';
+    if ($k2AmigaActivitySummaryPanelLede !== null && $k2AmigaActivitySummaryPanelLede !== '') {
+        echo '<p class="server-activity-summary__lede">' . $k2AmigaActivitySummaryPanelLede . '</p>';
+    } else {
+        echo '<p class="server-activity-summary__lede">Community statistics are not available yet.</p>';
+    }
     echo '</section>';
 
     return;
@@ -61,7 +67,9 @@ mysqli_close($con);
 unset($con);
 ?>
 <section class="server-activity-summary" aria-label="Activity summary">
-<?php if (!$k2AmigaActivitySummaryHideLede) { ?>
+<?php if ($k2AmigaActivitySummaryPanelLede !== null && $k2AmigaActivitySummaryPanelLede !== '') { ?>
+    <p class="server-activity-summary__lede"><?php echo $k2AmigaActivitySummaryPanelLede; ?></p>
+<?php } elseif (!$k2AmigaActivitySummaryHideLede) { ?>
     <p class="server-activity-summary__lede">
         <span class="blue"><?php echo number_format($NumberOfPlayers); ?></span> players from
         <span class="blue"><?php echo number_format($countryCount); ?></span> <?php echo $countryLabel; ?> have played

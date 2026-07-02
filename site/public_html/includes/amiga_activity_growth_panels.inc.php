@@ -7,8 +7,8 @@
 ?>
 <section class="k2-activity-section" aria-labelledby="k2-act-growth-title">
 	<header class="k2-activity-section__head">
-		<h2 class="k2-panel-heading" id="k2-act-growth-title">How much did the scene play?</h2>
-		<p class="k2-activity-section__intro">Which years were big, and how did the totals pile up? Year bars show the rhythm — the mid-2000s boom, the lean mid-2010s, the modern revival — and each curve beneath walks tournament by tournament to the total. Every point on a curve is a real tournament: click one to open it.</p>
+		<h2 class="k2-panel-heading" id="k2-act-growth-title">How much Kick Off 2 have we been playing?</h2>
+		<p class="k2-activity-section__intro">Which years were big, and how did the totals pile up? Year bars show the rhythm — the mid-2000s boom, the lean mid-2010s, the modern revival — and each curve beneath walks tournament by tournament to the total. Every point on a curve is a tournament: click one to open it.</p>
 	</header>
 
 	<div class="amiga-act-games-year-chart k2-chart-panel" data-k2-chart-panel="games-year">

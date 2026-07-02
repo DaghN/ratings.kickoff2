@@ -64,7 +64,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Activity Double Digit Merchant charts | — | — | — | — | — | — | **Removed Jun 2026** |
 | Activity recent daily chart | L0 | — | — | — | — | — | Read-time |
 | Activity charts v2 (single module) | — | — | — | — | — | — | **Shipped** — [`activity-charts.md`](../activity-charts.md) |
-| Amiga Activity charts sub-hub (6 wings, 45 panels) | L0 | — | — | — | — | — | **Shipped Jul 2026** — `/amiga/activity/`; read-time APIs; TT via `as=` — [`amiga-activity-charts-policy.md`](../amiga-activity-charts-policy.md) |
+| Amiga Activity charts sub-hub (6 wings, 45 panels) | L0 | — | — | — | — | — | **Shipped Jul 2026** — `/amiga/activity/` track complete (slices 0–10); read-time APIs; TT via `as=` — [`amiga-activity-charts-policy.md`](../amiga-activity-charts-policy.md) |
 | Persistent tint preference | — | — | — | — | — | — | Client-only |
 | Six-hour tint schedule | — | — | — | — | — | — | `k2-tint-schedule.js` |
 | Header realm switcher | — | — | — | — | — | — | **Re-shipped Jun 2026** — `realm_switcher.php` beside wordmark; Online ↔ `/status.php`, Amiga 500 ↔ `/amiga/rating.php` |

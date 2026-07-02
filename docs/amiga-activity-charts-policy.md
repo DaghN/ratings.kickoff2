@@ -1,6 +1,6 @@
 # Amiga Activity charts — IA & product policy
 
-**Status:** **Locked** (Jul 2026) — chart-track IA for the community-stats **46 ship** questions. Closes catalog-plan §9.1 **IA-1 · IA-2 · IA-3 · IA-5**; **IA-4** (histogram probes) is a numbered gate inside the implementation plan.
+**Status:** **Shipped** (Jul 2026) — chart track **complete** (45 panels / 46 ship IDs on `/amiga/activity/`). Closes catalog-plan §9.1 **IA-1 · IA-2 · IA-3 · IA-5** and step **6**. **IA-4** (histogram probes) cleared in implementation plan slice 8.
 **Implementation track:** [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md)
 **Questions (product source):** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 46 ship IDs
 **Method / storage:** [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) (storage shape — do not reopen)
@@ -21,9 +21,10 @@ Design gift vs online Activity: **every cumulative-curve point is a real tournam
 | Decision | Rule |
 |----------|------|
 | Hub tab label | **Activity** (short tab labels; the Amiga hub bar is already realm-scoped) |
-| Chapter title | **Activity** |
-| KOA identity | Lives in the **chapter lede**, e.g. *"25 years of the KOA: Since 2001, 469 players from 21 nations have played 27,418 rated games in 605 tournaments."* — year span = calendar year minus 2001; headline numbers are live reads at the current cutoff |
-| Summary panel | Four stat cards (Goals · Draws · Double digits · Clean sheets) plus *Players average …* line — shared across all wings, above wing tabs; chapter lede carries the headline numbers instead of the panel lede |
+| Chapter title | **N years of the KOA** (N = calendar year minus 2001) |
+| Chapter lede | Question-led invite (Growth · People · World Cups · Texture); *The charts in the wings below…* |
+| KOA identity | **Summary panel lede** (*Since 2001, … official Amiga tournaments.*) above stat cards; chapter title = *N years of the KOA* |
+| Summary panel | Four stat cards (Goals · Draws · Double digits · Clean sheets) plus *Players average …* line — shared across all wings, above wing tabs |
 
 ---
 
@@ -176,8 +177,8 @@ Histograms at cutoff (C8). Order runs people → games → events, most personal
 | 5 | Players by countries played in | Q-SHP-003 | Exact N (1…12) |
 | 6 | Players by World Cups played | Q-SHP-004 | Exact N |
 | 7 | Rating distribution | Q-SHP-016 | 50-pt buckets (smaller field than online; 50 gives shape) |
-| 8 | Games by total goals | Q-SHP-005 | Exact 0…14, then 15+ |
-| 9 | Tournaments by rated-game count | Q-SHP-006 | 1–9 · 10–24 · 25–49 · 50–99 · 100+ |
+| 8 | Games by total goals | Q-SHP-005 | Exact 0…19, then 20+ |
+| 9 | Tournaments by game count | Q-SHP-006 | 1–9 · 10–24 · 25–49 · 50–99 · 100+ |
 ---
 
 ## 6. Country selectors (IA-3 resolved)

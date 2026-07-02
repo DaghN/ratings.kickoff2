@@ -67,6 +67,7 @@ try {
             't' => $row['t'],
             'date' => $row['date'],
             'name' => $row['name'],
+            'host' => $row['host'],
             'value' => $row['value'] === null ? null : (int) round($row['value']),
         ];
     }
