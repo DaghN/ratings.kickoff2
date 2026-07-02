@@ -6422,15 +6422,63 @@ body.k2-site .k2-status-day-picker .k2-status-day-picker__fp-anchor {
 	list-style: none;
 }
 
+/* Status west panels: date column = widest row in list; names/matches share one start edge. */
+.k2-status-recency-list:not(.k2-status-day-games-list) {
+	display: grid;
+	grid-template-columns: max-content minmax(0, 1fr);
+	column-gap: 8px;
+	width: 100%;
+}
+
 .k2-status-live-list li,
 .k2-status-recency-list:not(.k2-status-day-games-list) li {
+	padding: 3px 0;
+	border-bottom: 1px solid var(--k2-border-subtle);
+	font-size: 12px;
+}
+
+.k2-status-live-list li {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: baseline;
 	gap: 4px 8px;
-	padding: 3px 0;
-	border-bottom: 1px solid var(--k2-border-subtle);
-	font-size: 12px;
+}
+
+.k2-status-recency-list:not(.k2-status-day-games-list) li {
+	display: grid;
+	grid-column: 1 / -1;
+	grid-template-columns: subgrid;
+	align-items: baseline;
+}
+
+@supports not (grid-template-columns: subgrid) {
+	.k2-status-recency-list:not(.k2-status-day-games-list) li {
+		display: contents;
+		padding: 0;
+		border-bottom: none;
+	}
+
+	.k2-status-recency-list:not(.k2-status-day-games-list) > li > .k2-status-recency-list__when,
+	.k2-status-recency-list:not(.k2-status-day-games-list) > li > .k2-status-match,
+	.k2-status-recency-list:not(.k2-status-day-games-list) > li > .k2-link-star {
+		padding: 3px 0;
+		border-bottom: 1px solid var(--k2-border-subtle);
+	}
+
+	.k2-status-recency-list:not(.k2-status-day-games-list) > li:last-child > .k2-status-recency-list__when,
+	.k2-status-recency-list:not(.k2-status-day-games-list) > li:last-child > .k2-status-match,
+	.k2-status-recency-list:not(.k2-status-day-games-list) > li:last-child > .k2-link-star {
+		border-bottom: none;
+	}
+
+	.k2-status-room__panel-logins .k2-status-recency-list:not(.k2-status-day-games-list) > li > .k2-status-recency-list__when,
+	.k2-status-room__panel-games .k2-status-recency-list:not(.k2-status-day-games-list) > li > .k2-status-recency-list__when {
+		width: 9.5ch;
+	}
+
+	.k2-status-room__panel-new .k2-status-recency-list:not(.k2-status-day-games-list) > li > .k2-status-recency-list__when {
+		width: 12ch;
+	}
 }
 
 .k2-status-live-list li:last-child,
@@ -6438,13 +6486,31 @@ body.k2-site .k2-status-day-picker .k2-status-day-picker__fp-anchor {
 	border-bottom: none;
 }
 
-.k2-status-live-list__time,
-.k2-status-recency-list__when {
+.k2-status-live-list__time {
 	flex: 0 0 auto;
 	min-width: 4.5em;
 	font-size: 11px;
 	color: var(--k2-text-muted);
 	font-variant-numeric: tabular-nums;
+}
+
+.k2-status-recency-list__when {
+	font-size: 11px;
+	color: var(--k2-text-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.k2-status-recency-list:not(.k2-status-day-games-list) .k2-status-recency-list__when {
+	grid-column: 1;
+	flex: none;
+	min-width: 0;
+	justify-self: start;
+}
+
+.k2-status-recency-list:not(.k2-status-day-games-list) .k2-status-match,
+.k2-status-recency-list:not(.k2-status-day-games-list) li > .k2-link-star {
+	grid-column: 2;
+	min-width: 0;
 }
 
 .k2-status-score {
