@@ -279,7 +279,19 @@
 | 2026-06-29 | **Amiga country roster — Elo links** — Elo column links to rating LB row anchor (`#k2-lb-player-{id}`) via `k2_amiga_lb_rating_cell_link()`; preserves `as=` time travel; `k2-link-star` (entity drill-down parity with player/tournament cells). |
 | 2026-06-29 | **Amiga country Rivals H2H poster — card symmetry** — nation-pair poster passes `subject`/`opponent` into `k2_h2h_poster_country_card_html()` so hero hugs `vs` from the left (blue) and rival from the right (red). |
 | 2026-07-01 | **Activity Participation LB** — Games column anchor + default sort (col 3) + `.blue` values; SQL `ORDER BY NumberGames DESC`. |
-| 2026-07-02 | **Amiga Activity Growth wing** — section title *How much have we been playing?*; cumulative games/tournaments/goals tooltips use HTML external tooltip (host flag + tournament name, event delta + total); snapshot series API adds `host`. |
+| 2026-07-02 | **Amiga Activity Growth wing** — section title *How much Kick Off 2 have we been playing?*; cumulative games/tournaments/goals tooltips use HTML external tooltip (host flag + tournament name, event delta + total); snapshot series API adds `host`. |
+| 2026-07-02 | **Amiga Activity Geography — race list not pills** — Race line countries render as flat flag + link rows (no pill chrome); click toggles line, shift+click removes. |
+| 2026-07-02 | **Amiga Activity Geography — filter row labels** — Compare / Race lines use shared `k2-realm-games-filters__row-label` row headers (games-filter convention), not bespoke muted spans. |
+| 2026-07-02 | **Amiga Activity Geography — Compare B required** — removed "—" empty option from second Compare listbox; B always resolves to a country (default Germany / second by volume). |
+| 2026-07-02 | **Amiga Activity Geography — compare vs race decoupled** — changing Compare A/B no longer prepends those countries to Race line chips; compare and race lists stay independent on the client. |
+| 2026-07-02 | **Amiga Activity Geography — listbox panel flags** — Compare / Race `k2_archive_listbox` dropdown options show inline country flags (`flag_html` / `flagHtml`); JS rebuild path matches PHP first paint. |
+| 2026-07-02 | **Amiga Activity Geography — K2 listboxes** — Compare / Race line native `<select>` replaced with `k2_archive_listbox` + `k2-archive-listbox.js` on hosts + nations wings. |
+| 2026-07-02 | **Amiga Activity Geography copy** — Hosts *Who's hosting tournaments?*; Nations *Where do we come from?*; intros trimmed to compare/race line only (People-wing parity). |
+| 2026-07-02 | **Amiga Activity People — cumulative tooltips** — Growth-style HTML tooltips on *Cumulative player* + *Cumulative distinct pairs* (host flag + tournament name); player curve adds *N new player(s)* delta row (count-sensitive). |
+| 2026-07-02 | **Amiga Activity People — cumulative panel** — panel title *Cumulative player*; removed Q-ID sub-intro under chart. |
+| 2026-07-02 | **Amiga Activity People wing copy** — section title *Who's playing?*; intro: active + debuts as a pair, curves show roster growth tournament by tournament. |
+| 2026-07-02 | **Amiga Activity summary — Busiest year card** — fifth stat card: peak realm games in one calendar year at cutoff; note *games · YYYY*; read via `amiga_community_busiest_year_at_cutoff()`. |
+| 2026-07-02 | **Amiga Activity Growth intro — TT-aware eras** — *mid-2000s boom* / *lean mid-2010s* / *modern revival* only after cutoff year ≥ 2008 / 2018 / 2022; early `as=` omits era names. |
 | 2026-07-02 | **Amiga Activity hub chapter lede** — question-led invite under *N years of the KOA*; headline numbers stay in summary panel above stat cards. |
 | 2026-07-02 | **Amiga Activity hub lede** — tournament count copy: *…605 official Amiga tournaments.* |
 | 2026-07-02 | **Amiga Activity hub intro** — chapter title = *N years of the KOA* (N = calendar year − 2001); lede opens *Since 2001, …*; full summary panel above wing tabs on all Activity wings. |

@@ -228,10 +228,15 @@ function k2_archive_listbox_render(
     $value = (string) $choice['value'];
     $label = (string) $choice['label'];
     $meta = array_key_exists('meta', $choice) ? (string) $choice['meta'] : '';
+    $flagHtml = isset($choice['flag_html']) ? (string) $choice['flag_html'] : '';
+    $withFlag = $flagHtml !== '' && $value !== '';
     $sel = $value === $selectedValue;
     $optClass = 'k2-archive-listbox__option';
     if ($hasMetaOptions || $hasAccentOptions || $fixedTriggerLabel !== '') {
         $optClass .= ' k2-archive-listbox__option--split';
+    }
+    if ($withFlag) {
+        $optClass .= ' k2-archive-listbox__option--with-flag';
     }
     if ($sel) {
         $optClass .= ' is-selected';
@@ -249,6 +254,9 @@ function k2_archive_listbox_render(
     ?>
         <li class="<?php echo k2_archive_listbox_h($optClass); ?>" role="option" data-value="<?php echo k2_archive_listbox_h($value); ?>" aria-selected="<?php echo $sel ? 'true' : 'false'; ?>"<?php echo $triggerLabelAttr . $metaAttr . $accentAttr; ?>>
 <?php if ($hasMetaOptions || $hasAccentOptions || $fixedTriggerLabel !== '') { ?>
+<?php if ($withFlag) { ?>
+            <span class="k2-archive-listbox__option-flag" aria-hidden="true"><?php echo $flagHtml; ?></span>
+<?php } ?>
             <span class="<?php echo k2_archive_listbox_h($labelClass); ?>"><?php echo k2_archive_listbox_h($label); ?></span>
 <?php if ($meta !== '') {
     $metaClass = 'k2-archive-listbox__option-meta';
@@ -259,7 +267,12 @@ function k2_archive_listbox_render(
             <span class="<?php echo k2_archive_listbox_h($metaClass); ?>"><?php echo k2_archive_listbox_h($meta); ?></span>
 <?php } ?>
 <?php } else { ?>
+<?php if ($withFlag) { ?>
+            <span class="k2-archive-listbox__option-flag" aria-hidden="true"><?php echo $flagHtml; ?></span>
+            <span class="k2-archive-listbox__option-label"><?php echo k2_archive_listbox_h($label); ?></span>
+<?php } else { ?>
             <?php echo k2_archive_listbox_h($label); ?>
+<?php } ?>
 <?php } ?>
         </li>
 <?php } ?>

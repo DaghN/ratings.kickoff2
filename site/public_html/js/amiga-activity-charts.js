@@ -646,6 +646,13 @@
             + '</span>';
     }
 
+    function cumulativeEventNoun(count, noun) {
+        if (typeof noun === 'object' && noun !== null) {
+            return Number(count) === 1 ? (noun.one || noun.other || '') : (noun.other || noun.one || '');
+        }
+        return noun;
+    }
+
     function buildCumulativeTooltipHtml(point, total, spec) {
         var titleHtml = '<div class="k2-amiga-act-cumulative-tooltip__title">'
             + cumulativeTooltipFlagHtml(point.host)
@@ -657,7 +664,7 @@
             bodyLines.push(escapeHtml(eventDate));
         }
         if (spec.eventNoun && point.eventDelta != null) {
-            bodyLines.push(formatCount(point.eventDelta) + ' ' + spec.eventNoun);
+            bodyLines.push(formatCount(point.eventDelta) + ' ' + cumulativeEventNoun(point.eventDelta, spec.eventNoun));
         }
         bodyLines.push('Total: ' + formatCount(total) + ' ' + spec.noun);
         var bodyHtml = bodyLines.map(function (line) {
@@ -756,7 +763,7 @@
                                     lines.push(formatEventDate(parseEventDate(point.date)));
                                 }
                                 if (spec.eventNoun && point && point.eventDelta != null) {
-                                    lines.push(formatCount(point.eventDelta) + ' ' + spec.eventNoun);
+                                    lines.push(formatCount(point.eventDelta) + ' ' + cumulativeEventNoun(point.eventDelta, spec.eventNoun));
                                 }
                                 lines.push('Total: ' + formatCount(item.parsed.y) + ' ' + spec.noun);
                                 return lines;
@@ -1180,7 +1187,14 @@
         id: 'players-cumulative',
         selector: '.amiga-act-players-cumulative-chart',
         run: function (root) {
-            return mountCumulative(root, { metric: 'NumberOfPlayers', tone: 'holo', label: 'Cumulative players', noun: 'players' });
+            return mountCumulative(root, {
+                metric: 'NumberOfPlayers',
+                tone: 'holo',
+                label: 'Cumulative player',
+                noun: 'players',
+                richTooltip: true,
+                eventNoun: { one: 'new player', other: 'new players' }
+            });
         }
     });
     registerPanel({
@@ -1194,7 +1208,13 @@
         id: 'pairs-cumulative',
         selector: '.amiga-act-pairs-cumulative-chart',
         run: function (root) {
-            return mountCumulative(root, { metric: 'DistinctOpponentPairs', tone: 'teal', label: 'Cumulative distinct pairs', noun: 'pairings' });
+            return mountCumulative(root, {
+                metric: 'DistinctOpponentPairs',
+                tone: 'teal',
+                label: 'Cumulative distinct pairs',
+                noun: 'pairings',
+                richTooltip: true
+            });
         }
     });
 
@@ -1414,6 +1434,28 @@
         return url;
     }
 
+    function geoDefaultDuelB(state) {
+        var keys = state.availableKeys || [];
+        if (!keys.length) {
+            return '';
+        }
+        var a = state.duelA || keys[0];
+        var b = keys.indexOf('Germany') !== -1 ? 'Germany' : (keys[1] || keys[0]);
+        if (b === a && keys.length > 1) {
+            b = keys[1];
+        }
+        if (b === a) {
+            b = keys[0];
+        }
+        return b;
+    }
+
+    function ensureGeoDuelB(state) {
+        if (!state.duelB && state.availableKeys.length) {
+            state.duelB = geoDefaultDuelB(state);
+        }
+    }
+
     function getGeoDuelKeys(state) {
         var keys = [];
         if (state.duelA) {
@@ -1606,29 +1648,25 @@
             flagA.innerHTML = geoFlagImgHtml(state.duelA);
         }
         if (flagB) {
-            flagB.innerHTML = state.duelB ? geoFlagImgHtml(state.duelB) : '';
+            flagB.innerHTML = geoFlagImgHtml(state.duelB);
         }
     }
 
-    function dedupeRaceKeys(keys, duelA, duelB) {
+    function normalizeRaceKeys(keys) {
         var out = [];
-        var push = function (key) {
-            if (!key || out.indexOf(key) !== -1 || out.length >= 7) {
-                return;
-            }
-            out.push(key);
-        };
-        push(duelA);
-        push(duelB);
         var i;
         for (i = 0; i < keys.length; i++) {
-            push(keys[i]);
+            var key = keys[i];
+            if (!key || out.indexOf(key) !== -1 || out.length >= 7) {
+                continue;
+            }
+            out.push(key);
         }
         return out;
     }
 
-    function renderGeoChips(state) {
-        var wrap = state.root.querySelector('.k2-amiga-act-geo-race-chips');
+    function renderGeoRaceList(state) {
+        var wrap = state.root.querySelector('.k2-amiga-act-geo-race-list');
         if (!wrap) {
             return;
         }
@@ -1637,57 +1675,74 @@
         for (i = 0; i < state.raceKeys.length; i++) {
             var key = state.raceKeys[i];
             var off = state.hidden[key] ? ' is-off' : '';
-            html += '<button type="button" class="k2-amiga-act-geo-chip' + off + '" data-country="' + key.replace(/"/g, '&quot;') + '">'
+            html += '<button type="button" class="k2-amiga-act-geo-race-item' + off + '" data-country="' + key.replace(/"/g, '&quot;') + '">'
                 + geoFlagImgHtml(key)
-                + '<a class="k2-amiga-act-geo-chip-name k2-link-star" href="' + geoRosterHref(key) + '">' + key + '</a>'
+                + '<a class="k2-amiga-act-geo-race-item-name k2-link-star" href="' + geoRosterHref(key) + '">' + key + '</a>'
                 + '</button>';
         }
         wrap.innerHTML = html;
     }
 
-    function syncDuelSelects(state) {
-        var selA = state.root.querySelector('.k2-amiga-act-geo-duel-a');
-        var selB = state.root.querySelector('.k2-amiga-act-geo-duel-b');
-        if (selA && selA.value !== state.duelA) {
-            selA.value = state.duelA;
+    function geoListboxBox(root, inputId) {
+        var input = root.querySelector('#' + inputId);
+        return input ? input.closest('[data-k2-archive-listbox]') : null;
+    }
+
+    function geoListboxValue(root, inputId) {
+        var input = root.querySelector('#' + inputId);
+        return input ? String(input.value) : '';
+    }
+
+    function geoCountryChoices(keys, withEmpty) {
+        var choices = [];
+        if (withEmpty) {
+            choices.push({ value: '', label: '—' });
         }
-        if (selB) {
-            selB.value = state.duelB || '';
+        var i;
+        for (i = 0; i < keys.length; i++) {
+            choices.push({
+                value: keys[i],
+                label: keys[i],
+                flagHtml: geoFlagImgHtml(keys[i])
+            });
+        }
+        return choices;
+    }
+
+    function syncDuelSelects(state) {
+        var LB = global.K2ArchiveListbox;
+        if (LB) {
+            LB.setValue(geoListboxBox(state.root, 'k2-amiga-act-geo-duel-a'), state.duelA, null, true);
+            LB.setValue(geoListboxBox(state.root, 'k2-amiga-act-geo-duel-b'), state.duelB || '', null, true);
         }
         updateGeoDuelFlags(state);
     }
 
     function rebuildGeoSelectOptions(state) {
-        var selA = state.root.querySelector('.k2-amiga-act-geo-duel-a');
-        var selB = state.root.querySelector('.k2-amiga-act-geo-duel-b');
-        var addSel = state.root.querySelector('.k2-amiga-act-geo-race-add');
-        var buildOpts = function (selected, allowEmpty) {
-            var html = allowEmpty ? '<option value="">—</option>' : '';
-            var i;
-            for (i = 0; i < state.availableKeys.length; i++) {
-                var key = state.availableKeys[i];
-                html += '<option value="' + key.replace(/"/g, '&quot;') + '"' + (key === selected ? ' selected="selected"' : '') + '>' + key + '</option>';
+        var LB = global.K2ArchiveListbox;
+        if (!LB) {
+            return;
+        }
+        ensureGeoDuelB(state);
+        LB.rebuild(
+            geoListboxBox(state.root, 'k2-amiga-act-geo-duel-a'),
+            geoCountryChoices(state.availableKeys, false),
+            state.duelA
+        );
+        LB.rebuild(
+            geoListboxBox(state.root, 'k2-amiga-act-geo-duel-b'),
+            geoCountryChoices(state.availableKeys, false),
+            state.duelB || ''
+        );
+        var addChoices = [];
+        var j;
+        for (j = 0; j < state.availableKeys.length; j++) {
+            var k = state.availableKeys[j];
+            if (state.raceKeys.indexOf(k) === -1) {
+                addChoices.push({ value: k, label: k, flagHtml: geoFlagImgHtml(k) });
             }
-            return html;
-        };
-        if (selA) {
-            selA.innerHTML = buildOpts(state.duelA, false);
         }
-        if (selB) {
-            selB.innerHTML = buildOpts(state.duelB || '', true);
-        }
-        if (addSel) {
-            var addHtml = '<option value="">+ add country</option>';
-            var j;
-            for (j = 0; j < state.availableKeys.length; j++) {
-                var k = state.availableKeys[j];
-                if (state.raceKeys.indexOf(k) === -1) {
-                    addHtml += '<option value="' + k.replace(/"/g, '&quot;') + '">' + k + '</option>';
-                }
-            }
-            addSel.innerHTML = addHtml;
-            addSel.value = '';
-        }
+        LB.rebuild(geoListboxBox(state.root, 'k2-amiga-act-geo-race-add'), addChoices, '');
     }
 
     function mountGeoDuelYear(root, spec) {
@@ -1856,11 +1911,11 @@
     }
 
     function applyGeoStateChange(state, updateUrl) {
-        state.raceKeys = dedupeRaceKeys(state.raceKeys, state.duelA, state.duelB);
+        state.raceKeys = normalizeRaceKeys(state.raceKeys);
         if (updateUrl !== false) {
             syncGeoUrl(state);
         }
-        renderGeoChips(state);
+        renderGeoRaceList(state);
         syncDuelSelects(state);
         rebuildGeoSelectOptions(state);
         notifyGeoListeners(state);
@@ -1881,54 +1936,56 @@
             hidden: {},
             harnessNoun: slice === 'player_nationality' ? 'appearances' : 'hosted games'
         };
-        if (!state.raceKeys.length) {
-            state.raceKeys = dedupeRaceKeys([], state.duelA, state.duelB);
+        ensureGeoDuelB(state);
+        if (!state.raceKeys.length && state.availableKeys.length) {
+            state.raceKeys = normalizeRaceKeys(state.availableKeys.slice(0, 5));
         }
         geoStates.set(root, state);
 
-        var selA = root.querySelector('.k2-amiga-act-geo-duel-a');
-        var selB = root.querySelector('.k2-amiga-act-geo-duel-b');
-        var addSel = root.querySelector('.k2-amiga-act-geo-race-add');
-        var chips = root.querySelector('.k2-amiga-act-geo-race-chips');
+        var inputA = root.querySelector('#k2-amiga-act-geo-duel-a');
+        var inputB = root.querySelector('#k2-amiga-act-geo-duel-b');
+        var addInput = root.querySelector('#k2-amiga-act-geo-race-add');
+        var raceList = root.querySelector('.k2-amiga-act-geo-race-list');
 
-        if (selA) {
-            selA.addEventListener('change', function () {
-                state.duelA = selA.value;
-                state.raceKeys = dedupeRaceKeys(state.raceKeys, state.duelA, state.duelB);
+        if (inputA) {
+            inputA.addEventListener('change', function () {
+                state.duelA = geoListboxValue(state.root, 'k2-amiga-act-geo-duel-a');
                 applyGeoStateChange(state);
             });
         }
-        if (selB) {
-            selB.addEventListener('change', function () {
-                state.duelB = selB.value;
-                state.raceKeys = dedupeRaceKeys(state.raceKeys, state.duelA, state.duelB);
+        if (inputB) {
+            inputB.addEventListener('change', function () {
+                state.duelB = geoListboxValue(state.root, 'k2-amiga-act-geo-duel-b');
                 applyGeoStateChange(state);
             });
         }
-        if (addSel) {
-            addSel.addEventListener('change', function () {
-                var key = addSel.value;
+        if (addInput) {
+            addInput.addEventListener('change', function () {
+                var key = geoListboxValue(state.root, 'k2-amiga-act-geo-race-add');
                 if (!key || state.raceKeys.indexOf(key) !== -1) {
-                    addSel.value = '';
+                    if (global.K2ArchiveListbox) {
+                        global.K2ArchiveListbox.setValue(geoListboxBox(state.root, 'k2-amiga-act-geo-race-add'), '', null, true);
+                    }
                     return;
                 }
                 if (state.raceKeys.length >= 7) {
-                    addSel.value = '';
+                    if (global.K2ArchiveListbox) {
+                        global.K2ArchiveListbox.setValue(geoListboxBox(state.root, 'k2-amiga-act-geo-race-add'), '', null, true);
+                    }
                     return;
                 }
                 state.raceKeys.push(key);
                 delete state.hidden[key];
-                addSel.value = '';
                 applyGeoStateChange(state);
             });
         }
-        if (chips) {
-            chips.addEventListener('click', function (event) {
+        if (raceList) {
+            raceList.addEventListener('click', function (event) {
                 var target = event.target;
                 if (target && target.closest && target.closest('a')) {
                     return;
                 }
-                var btn = target && target.closest ? target.closest('.k2-amiga-act-geo-chip') : null;
+                var btn = target && target.closest ? target.closest('.k2-amiga-act-geo-race-item') : null;
                 if (!btn) {
                     return;
                 }
@@ -1952,12 +2009,12 @@
                     return;
                 }
                 state.hidden[country] = !state.hidden[country];
-                renderGeoChips(state);
+                renderGeoRaceList(state);
                 refreshGeoRacePanels(state);
             });
         }
 
-        renderGeoChips(state);
+        renderGeoRaceList(state);
         syncDuelSelects(state);
         rebuildGeoSelectOptions(state);
 

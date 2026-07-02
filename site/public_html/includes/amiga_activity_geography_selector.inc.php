@@ -9,8 +9,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/k2_amiga_country_flag.php';
-require_once __DIR__ . '/k2_amiga_routes.php';
-require_once __DIR__ . '/amiga_snapshot_url.php';
+require_once __DIR__ . '/k2_archive_listbox.php';
 
 $k2GeoView = $k2AmigaActivityGeographyView ?? 'hosts';
 $k2GeoSlice = $k2GeoView === 'nations' ? 'player_nationality' : 'host_country';
@@ -39,29 +38,52 @@ $k2GeoRaceKeys = $k2GeoSelection['race_keys'];
 $k2GeoDuelA = $k2GeoSelection['duel_a'];
 $k2GeoDuelB = $k2GeoSelection['duel_b'];
 $k2GeoCsvResolved = $k2GeoSelection['csv'];
-$k2ActCountriesHubHref = amiga_url_with_context(k2_amiga_route('amiga-countries'));
 
-function k2_amiga_act_geo_select_options(array $keys, string $selected, bool $allowEmpty = false): string
+/**
+ * @return list<array{value: string, label: string, flag_html?: string}>
+ */
+function k2_amiga_act_geo_country_choices(array $keys, bool $withEmpty = false): array
 {
-    $html = '';
-    if ($allowEmpty) {
-        $sel = $selected === '' ? ' selected="selected"' : '';
-        $html .= '<option value=""' . $sel . '>—</option>';
+    $choices = [];
+    if ($withEmpty) {
+        $choices[] = ['value' => '', 'label' => '—'];
     }
     foreach ($keys as $key) {
-        $sel = $key === $selected ? ' selected="selected"' : '';
-        $html .= '<option value="' . k2_h($key) . '"' . $sel . '>' . k2_h($key) . '</option>';
+        $key = (string) $key;
+        $choices[] = [
+            'value' => $key,
+            'label' => $key,
+            'flag_html' => k2_amiga_country_flag_img($key, ['decorative' => true]),
+        ];
     }
 
-    return $html;
+    return $choices;
 }
+
+$k2GeoDuelAChoices = k2_amiga_act_geo_country_choices($k2GeoAvailableKeys);
+$k2GeoDuelBChoices = k2_amiga_act_geo_country_choices($k2GeoAvailableKeys);
+if ($k2GeoDuelB === null || $k2GeoDuelB === '') {
+    [, $k2GeoDefaultB] = amiga_community_geo_default_duel($k2GeoAvailableKeys);
+    $k2GeoDuelB = $k2GeoDefaultB ?? '';
+}
+$k2GeoRaceAddChoices = [];
+foreach ($k2GeoAvailableKeys as $k2GeoAddKey) {
+    if (!in_array($k2GeoAddKey, $k2GeoRaceKeys, true)) {
+        $k2GeoRaceAddChoices[] = [
+            'value' => (string) $k2GeoAddKey,
+            'label' => (string) $k2GeoAddKey,
+            'flag_html' => k2_amiga_country_flag_img($k2GeoAddKey, ['decorative' => true]),
+        ];
+    }
+}
+$k2GeoListboxTriggerClass = 'k2-amiga-act-geo-listbox';
 ?>
 <section class="k2-activity-section k2-amiga-act-geo-section" aria-labelledby="k2-act-geography-selector-title">
 	<header class="k2-activity-section__head">
-		<h2 class="k2-panel-heading" id="k2-act-geography-selector-title"><?php echo $k2GeoView === 'nations' ? 'Which nations played?' : 'Who hosted the scene?'; ?></h2>
+		<h2 class="k2-panel-heading" id="k2-act-geography-selector-title"><?php echo $k2GeoView === 'nations' ? 'Where do we come from?' : 'Who\'s hosting tournaments?'; ?></h2>
 		<p class="k2-activity-section__intro"><?php echo $k2GeoView === 'nations'
-    ? 'Compare nationalities side by side, or race cumulative appearance totals. Chip names open country rosters on the <a href="' . k2_h($k2ActCountriesHubHref) . '">Countries hub</a> — the same selection drives every chart on this page. Click a point on any cumulative curve to open that tournament.'
-    : 'Compare host countries side by side, or race cumulative totals. Chip names open country rosters on the <a href="' . k2_h($k2ActCountriesHubHref) . '">Countries hub</a> — the same selection drives every chart on this page. Click a point on any cumulative curve to open that tournament.'; ?></p>
+    ? 'Compare nationalities side by side, or race cumulative totals.'
+    : 'Compare host countries side by side, or race cumulative totals.'; ?></p>
 	</header>
 
 	<div class="k2-amiga-act-geo-root"
@@ -73,36 +95,28 @@ function k2_amiga_act_geo_select_options(array $keys, string $selected, bool $al
 		data-k2-geo-available="<?php echo k2_h(json_encode($k2GeoAvailableKeys, JSON_UNESCAPED_UNICODE)); ?>"
 		data-k2-geo-race="<?php echo k2_h(json_encode($k2GeoRaceKeys, JSON_UNESCAPED_UNICODE)); ?>">
 		<div class="k2-amiga-act-geo-controls" role="group" aria-label="Country comparison controls">
-			<div class="k2-amiga-act-geo-duel">
-				<span class="k2-amiga-act-geo-controls__label">Compare</span>
-				<label class="k2-amiga-act-geo-duel-field">
-					<span class="k2-amiga-act-geo-duel-flag" data-k2-geo-flag-for="duel-a" aria-hidden="true"><?php echo k2_amiga_country_flag_img($k2GeoDuelA, ['decorative' => true]); ?></span>
-					<select class="k2-amiga-act-geo-duel-a" aria-label="<?php echo k2_h($k2GeoDuelLabel); ?>">
-						<?php echo k2_amiga_act_geo_select_options($k2GeoAvailableKeys, $k2GeoDuelA); ?>
-					</select>
-				</label>
-				<span class="k2-amiga-act-geo-vs">vs</span>
-				<label class="k2-amiga-act-geo-duel-field">
-					<span class="k2-amiga-act-geo-duel-flag" data-k2-geo-flag-for="duel-b" aria-hidden="true"><?php echo $k2GeoDuelB !== null && $k2GeoDuelB !== '' ? k2_amiga_country_flag_img($k2GeoDuelB, ['decorative' => true]) : ''; ?></span>
-					<select class="k2-amiga-act-geo-duel-b" aria-label="<?php echo k2_h($k2GeoDuelLabelB); ?>">
-						<?php echo k2_amiga_act_geo_select_options($k2GeoAvailableKeys, (string) ($k2GeoDuelB ?? ''), true); ?>
-					</select>
-				</label>
+			<div class="k2-realm-games-filters__row k2-amiga-act-geo-controls__row">
+				<span class="k2-realm-games-filters__row-label" id="k2-amiga-act-geo-compare-label">Compare</span>
+				<div class="k2-amiga-act-geo-duel" aria-labelledby="k2-amiga-act-geo-compare-label">
+					<label class="k2-amiga-act-geo-duel-field">
+						<span class="k2-amiga-act-geo-duel-flag" data-k2-geo-flag-for="duel-a" aria-hidden="true"><?php echo k2_amiga_country_flag_img($k2GeoDuelA, ['decorative' => true]); ?></span>
+						<?php k2_archive_listbox_render('geo_duel_a', 'k2-amiga-act-geo-duel-a', $k2GeoDuelA, $k2GeoDuelAChoices, $k2GeoDuelLabel, $k2GeoListboxTriggerClass); ?>
+					</label>
+					<span class="k2-amiga-act-geo-vs">vs</span>
+					<label class="k2-amiga-act-geo-duel-field">
+						<span class="k2-amiga-act-geo-duel-flag" data-k2-geo-flag-for="duel-b" aria-hidden="true"><?php echo k2_amiga_country_flag_img((string) $k2GeoDuelB, ['decorative' => true]); ?></span>
+						<?php k2_archive_listbox_render('geo_duel_b', 'k2-amiga-act-geo-duel-b', (string) $k2GeoDuelB, $k2GeoDuelBChoices, $k2GeoDuelLabelB, $k2GeoListboxTriggerClass); ?>
+					</label>
+				</div>
 			</div>
-			<div class="k2-amiga-act-geo-race">
-				<span class="k2-amiga-act-geo-controls__label">Race lines</span>
-				<div class="k2-amiga-act-geo-race-chips" aria-label="Countries in the race chart"></div>
-				<label class="k2-amiga-act-geo-race-add-wrap">
-					<span class="visually-hidden">Add country to race</span>
-					<select class="k2-amiga-act-geo-race-add">
-						<option value="">+ add country</option>
-						<?php
-                        foreach ($k2GeoAvailableKeys as $k2GeoKey) {
-                            echo '<option value="' . k2_h($k2GeoKey) . '">' . k2_h($k2GeoKey) . '</option>';
-                        }
-?>
-					</select>
-				</label>
+			<div class="k2-realm-games-filters__row k2-amiga-act-geo-controls__row">
+				<span class="k2-realm-games-filters__row-label" id="k2-amiga-act-geo-race-label">Race lines</span>
+				<div class="k2-amiga-act-geo-race" aria-labelledby="k2-amiga-act-geo-race-label">
+					<div class="k2-amiga-act-geo-race-list" aria-label="Countries in the race chart"></div>
+					<label class="k2-amiga-act-geo-race-add-wrap">
+						<?php k2_archive_listbox_render('geo_race_add', 'k2-amiga-act-geo-race-add', '', $k2GeoRaceAddChoices, 'Add country to race', $k2GeoListboxTriggerClass, '+ add country', false, ''); ?>
+					</label>
+				</div>
 			</div>
 		</div>
 	</div>

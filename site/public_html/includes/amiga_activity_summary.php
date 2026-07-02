@@ -63,6 +63,13 @@ $tournamentCount = amiga_tournament_index_count($con, $ctx);
 $countryLabel = $countryCount === 1 ? 'country' : 'countries';
 $tournamentLabel = $tournamentCount === 1 ? 'tournament' : 'tournaments';
 
+$readCutoffTournamentId = amiga_community_cutoff_tournament_id_for_read($con, $ctx);
+$busiestYear = $readCutoffTournamentId !== null
+    ? amiga_community_busiest_year_at_cutoff($con, $readCutoffTournamentId)
+    : null;
+$BusiestYearGames = $busiestYear !== null ? (int) $busiestYear['games'] : null;
+$BusiestYear = $busiestYear !== null ? (int) $busiestYear['year'] : null;
+
 mysqli_close($con);
 unset($con);
 ?>
@@ -98,6 +105,13 @@ unset($con);
             <span class="server-activity-summary__value"><?php echo number_format($CleanSheets); ?></span>
             <span class="server-activity-summary__note"><?php echo number_format(100 * (float) $CleanSheetsRatio, 1); ?> per 100 games</span>
         </div>
+        <?php if ($BusiestYearGames !== null && $BusiestYear !== null) { ?>
+        <div class="server-activity-summary__stat">
+            <span class="server-activity-summary__label">Busiest year</span>
+            <span class="server-activity-summary__value"><?php echo number_format($BusiestYearGames); ?></span>
+            <span class="server-activity-summary__note">games · <?php echo (int) $BusiestYear; ?></span>
+        </div>
+        <?php } ?>
     </div>
     <p class="server-activity-summary__texture">
         Players average <span class="blue"><?php echo number_format((float) $GamesPlayedAverage, 1); ?></span> rated games and <span class="blue"><?php echo number_format((float) $DifferentOpponentsAverage, 1); ?></span> different opponents.

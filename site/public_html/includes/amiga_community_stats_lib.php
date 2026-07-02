@@ -497,6 +497,39 @@ function amiga_community_year_series_filled_at_cutoff(
 }
 
 /**
+ * Calendar year with the most realm rated games at a community-stat cutoff.
+ *
+ * @return array{year: int, games: int}|null
+ */
+function amiga_community_busiest_year_at_cutoff(mysqli $con, int $cutoffTournamentId): ?array
+{
+    if ($cutoffTournamentId <= 0) {
+        return null;
+    }
+
+    $series = amiga_community_year_series_filled_at_cutoff($con, $cutoffTournamentId, 'realm', 'games');
+    if ($series['years'] === []) {
+        return null;
+    }
+
+    $bestYear = null;
+    $bestGames = 0;
+    foreach ($series['years'] as $i => $year) {
+        $games = (int) $series['values'][$i];
+        if ($games > $bestGames || ($games === $bestGames && $games > 0 && $year > ($bestYear ?? 0))) {
+            $bestGames = $games;
+            $bestYear = (int) $year;
+        }
+    }
+
+    if ($bestYear === null || $bestGames <= 0) {
+        return null;
+    }
+
+    return ['year' => $bestYear, 'games' => $bestGames];
+}
+
+/**
  * Parse a CSV of slice keys (country names) for geography selectors.
  *
  * @return list<string>

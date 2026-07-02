@@ -1040,24 +1040,30 @@ body.k2-site.k2-amiga-activity-charts .k2-chart-panel canvas {
 }
 
 /* Geography wing — duel + race selector row (slice 5+). */
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-section {
+	margin-bottom: 12px;
+}
+
 body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-controls {
 	display: flex;
-	flex-wrap: wrap;
-	align-items: flex-start;
-	gap: 12px 20px;
-	margin-bottom: 16px;
+	flex-direction: column;
+	gap: 20px;
+	margin-bottom: 0;
 	padding: 12px 14px;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
 	background: var(--k2-bg-surface-raised, var(--k2-bg-surface));
 }
 
-body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-controls__label {
-	display: block;
-	width: 100%;
-	margin: 0 0 4px 0;
-	font-size: 0.85rem;
-	color: var(--k2-text-muted);
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-controls .k2-amiga-act-geo-controls__row {
+	flex-wrap: wrap;
+	align-items: center;
+	margin-bottom: 0;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-controls .k2-realm-games-filters__row-label {
+	flex: 0 0 5.5rem;
+	padding-bottom: 0;
 }
 
 body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-duel,
@@ -1066,7 +1072,8 @@ body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race {
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 8px 10px;
-	min-width: min(100%, 280px);
+	flex: 1 1 auto;
+	min-width: 0;
 }
 
 body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-duel-field {
@@ -1085,54 +1092,97 @@ body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-vs {
 	font-size: 0.9rem;
 }
 
-body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-duel select,
-body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race-add {
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-duel-field .k2-archive-listbox,
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race-add-wrap .k2-archive-listbox {
+	flex: 0 1 auto;
 	min-width: 9rem;
-	max-width: 100%;
-	padding: 4px 8px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-sm);
-	background: var(--k2-bg-surface);
-	color: var(--k2-text-primary);
+	max-width: min(14rem, 42vw);
+	width: 100%;
 }
 
-body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race-chips {
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-duel-field .k2-archive-listbox__trigger.k2-amiga-act-geo-listbox,
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race-add-wrap .k2-archive-listbox__trigger.k2-amiga-act-geo-listbox {
+	width: 100%;
+	max-width: 100%;
+	min-height: calc(1.25em + 8px);
+	padding: 4px 20px 4px 8px;
+	font-size: 11px;
+	line-height: 1.25;
+	gap: 4px;
+	background-position: right 6px center;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-duel-field .k2-archive-listbox--meta-options .k2-archive-listbox__panel,
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race-add-wrap .k2-archive-listbox--meta-options .k2-archive-listbox__panel {
+	width: 100%;
+	min-width: 0;
+	max-width: min(14rem, 42vw);
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-archive-listbox__option--with-flag {
 	display: flex;
-	flex-wrap: wrap;
+	flex-direction: row;
+	align-items: center;
 	gap: 6px;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-archive-listbox--meta-options .k2-archive-listbox__option--with-flag.k2-archive-listbox__option--split {
+	justify-content: flex-start;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-archive-listbox__option-flag {
+	flex: 0 0 auto;
+	line-height: 0;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-archive-listbox__option-flag .k2-amiga-country-flag-img {
+	display: block;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-archive-listbox__option--with-flag .k2-archive-listbox__option-label {
+	flex: 1 1 auto;
 	min-width: 0;
 }
 
-body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-chip {
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race-list {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px 14px;
+	min-width: 0;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race-item {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
-	padding: 3px 8px 3px 4px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: 999px;
-	background: var(--k2-bg-surface);
-	color: var(--k2-text-primary);
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	color: inherit;
 	font: inherit;
-	font-size: 0.85rem;
+	font-size: inherit;
+	line-height: inherit;
 	cursor: pointer;
 }
 
-body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-chip.is-off {
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race-item.is-off {
 	opacity: 0.45;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race-item.is-off .k2-amiga-act-geo-race-item-name {
 	text-decoration: line-through;
 }
 
-body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-chip .k2-amiga-country-flag-img {
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race-item .k2-amiga-country-flag-img {
 	flex-shrink: 0;
+	display: block;
 }
 
-body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-chip-name {
-	color: inherit;
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-race-item-name {
 	text-decoration: none;
-}
-
-body.k2-site.k2-amiga-activity-charts .k2-amiga-act-geo-chip-name:hover {
-	text-decoration: underline;
 }
 
 body.k2-site .k2-chart-html-tooltip {

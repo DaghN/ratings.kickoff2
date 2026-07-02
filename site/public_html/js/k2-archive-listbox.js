@@ -333,7 +333,21 @@
             li.setAttribute('role', 'option');
             li.setAttribute('data-value', value);
             li.className = 'k2-archive-listbox__option';
-            li.textContent = c.label != null ? String(c.label) : value;
+            var flagHtml = c.flagHtml != null ? String(c.flagHtml) : '';
+            if (flagHtml !== '' && value !== '') {
+                li.className += ' k2-archive-listbox__option--with-flag';
+                var flagSpan = document.createElement('span');
+                flagSpan.className = 'k2-archive-listbox__option-flag';
+                flagSpan.setAttribute('aria-hidden', 'true');
+                flagSpan.innerHTML = flagHtml;
+                var labelSpan = document.createElement('span');
+                labelSpan.className = 'k2-archive-listbox__option-label';
+                labelSpan.textContent = c.label != null ? String(c.label) : value;
+                li.appendChild(flagSpan);
+                li.appendChild(labelSpan);
+            } else {
+                li.textContent = c.label != null ? String(c.label) : value;
+            }
             if (c.disabled) {
                 li.classList.add('is-disabled');
                 li.setAttribute('aria-disabled', 'true');

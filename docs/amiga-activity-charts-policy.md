@@ -23,8 +23,8 @@ Design gift vs online Activity: **every cumulative-curve point is a real tournam
 | Hub tab label | **Activity** (short tab labels; the Amiga hub bar is already realm-scoped) |
 | Chapter title | **N years of the KOA** (N = calendar year minus 2001) |
 | Chapter lede | Question-led invite (Growth · People · World Cups · Texture); *The charts in the wings below…* |
-| KOA identity | **Summary panel lede** (*Since 2001, … official Amiga tournaments.*) above stat cards; chapter title = *N years of the KOA* |
-| Summary panel | Four stat cards (Goals · Draws · Double digits · Clean sheets) plus *Players average …* line — shared across all wings, above wing tabs |
+| KOA identity | **Summary panel lede** (*Since 2001, … official KOA Amiga tournaments.*) above stat cards; chapter title = *N years of the KOA* |
+| Summary panel | Five stat cards (Goals · Draws · Double digits · Clean sheets · **Busiest year**) plus *Players average …* line — shared across all wings, above wing tabs. Busiest year = peak realm games in one calendar year at cutoff (`games · YYYY` note). |
 
 ---
 
@@ -77,7 +77,7 @@ Design gift vs online Activity: **every cumulative-curve point is a real tournam
 
 | Decision | Rule |
 |----------|------|
-| **VOL-004 ≡ SHP-010 merge** | `NumberOfPlayers` = `PlayersDebuted` at every snapshot (a debut is what makes a player; verified 469/469, 468/468, …). **One panel** — *Cumulative players* — satisfies both IDs; intro copy notes each step is a debut. |
+| **VOL-004 ≡ SHP-010 merge** | `NumberOfPlayers` = `PlayersDebuted` at every snapshot (a debut is what makes a player; verified 469/469, 468/468, …). **One panel** — *Cumulative player* — satisfies both IDs. |
 | **Q-TEX-012 stays cut** | No online-style combined 4-line texture chart, even though it would be cheap. Each texture rate is its own bar chart. |
 | **Scope** | This policy consumes exactly the **46 ship IDs** — no resurrections from the cut log, no new questions without a catalog row first. |
 ---
@@ -90,6 +90,8 @@ Every wing opens with a one-line question header + short intro copy (`k2-activit
 
 Each volume metric is a **pair**: year bars, then the cumulative event-timeline line directly below. The bar answers "which years were big?"; the line answers "how did we get to 27,418?". Pairs beat toggles: rhythm and accumulation in one scroll, and panels stay 1:1 with question IDs.
 
+**Section intro (time travel):** Era call-outs in the Growth lede (*mid-2000s boom*, *lean mid-2010s*, *modern revival*) appear only once the cutoff calendar year has lived through that beat — thresholds **2008 / 2018 / 2022** (`amiga_activity_growth_panels.inc.php`). Present mode uses the current calendar year (all three). Early cutoffs get the rhythm sentence without era names.
+
 | # | Panel | ID(s) | Design |
 |---|-------|-------|--------|
 | 1 | Games per year | Q-VOL-001 | Hero bar, pitch tone. The 2007 peak (2,888) vs the 2020 trough (56) is the story of the scene — intro copy points at it. |
@@ -100,13 +102,13 @@ Each volume metric is a **pair**: year bars, then the cumulative event-timeline 
 | 6 | Cumulative goals | Q-VOL-008 | Line. |
 | 7 | Avg games per tournament per year | Q-ECO-004 | Closing bar (derive at read: VOL-001 ÷ VOL-005). "Did events get bigger or smaller?" |
 
-### 5.2 People — "Who kept the scene alive?" (5 panels)
+### 5.2 People — "Who's playing?" (5 panels)
 
 | # | Panel | ID(s) | Design |
 |---|-------|-------|--------|
 | 1 | Active players per year | Q-VOL-003 | Hero bar. |
 | 2 | New players per year | Q-SHP-009 | Bar directly beneath #1, same x-axis span — reads as "of the actives, how many were fresh blood?" |
-| 3 | Cumulative players | Q-VOL-004 + Q-SHP-010 | One line (merge, §4). Tooltip on steep steps: e.g. "+12 debuts at World Cup V". Click-through. |
+| 3 | Cumulative player | Q-VOL-004 + Q-SHP-010 | One line (merge, §4). Tooltip on steep steps: e.g. "+12 debuts at World Cup V". Click-through. |
 | 4 | Distinct opponent pairs per year | Q-SHP-001 | Bar — "how socially mixed was each year?" |
 | 5 | Cumulative distinct pairs | Q-SHP-002 | Line to ~6,978 — the community handshake graph filling in. Click-through. |
 
@@ -114,7 +116,7 @@ Each volume metric is a **pair**: year bars, then the cumulative event-timeline 
 
 The wow wing; resolves **IA-3** (§6). With only 12 host countries and 21 nationalities, full dropdowns with inline flags beat search pickers.
 
-**`geography/hosts.php` — "Who hosted the scene?"**
+**`geography/hosts.php` — "Who's hosting tournaments?"**
 
 | # | Panel | ID(s) | Pattern |
 |---|-------|-------|---------|
@@ -127,7 +129,7 @@ The wow wing; resolves **IA-3** (§6). With only 12 host countries and 21 nation
 | 7 | Distinct host countries per year | Q-GEO-008 | Plain bar (realm) |
 | 8 | Cumulative distinct host countries | Q-GEO-009 | Stepped line 1→12 — "the map filling in"; tooltip names the tournament that unlocked each new country |
 
-**`geography/nations.php` — "Which nations played?"**
+**`geography/nations.php` — "Where do we come from?"**
 
 | # | Panel | ID(s) | Pattern |
 |---|-------|-------|---------|
@@ -187,8 +189,7 @@ Two control patterns, both Geography-only in v1:
 
 ### Pattern A — Country duel (single-country year bars)
 
-- Compact control row above the chart: **[flag ▾ Country A] vs [flag ▾ Country B]** — B optional ("—" = single-country view).
-- Two-series **grouped bars** in two accent colours.
+- Compact control row above the chart: **[flag ▾ Country A] vs [flag ▾ Country B]** — two-series grouped bars in two accent colours.
 - Defaults: **England vs Germany** (top two by all-time volume) for both hosts and nations pages.
 - Change → client-side refetch → chart update in place → `history.replaceState` so `?hosts=England,Italy` / `?nats=England,Greece` is bookmarkable and shareable. **No full page reload.**
 - PHP prefills the selects from GET on first render; invalid names fall back to defaults.
@@ -196,13 +197,13 @@ Two control patterns, both Geography-only in v1:
 ### Pattern B — Cumulative race (multi-line)
 
 - Default series: **top 5 countries by all-time volume at the current cutoff**, one line each.
-- Legend chips toggle lines; **"+ add country"** dropdown appends a series (cap ~7).
+- Race country list toggles lines (click hide/show; shift+click remove); **"+ add country"** dropdown appends a series (cap ~7).
 - Same URL state mechanics as Pattern A (CSV param drives the full series list when present).
 
 ### Shared rules
 
 - Dropdown option lists come from the API response (`available_keys`) — i.e. **countries that exist at the current cutoff** (time travel keeps pickers honest).
-- Inline flags per [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) conventions; country names link to the country entity page.
+- Inline flags per [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) conventions — duel field beside trigger, flat race country list (flag + link), and **each country row in the listbox dropdown panel**; country names link to the country entity page.
 - One duel state per page (`?hosts=` on hosts.php, `?nats=` on nations.php) drives **all Pattern A charts on that page** — consistent comparisons, fewer controls.
 
 ---

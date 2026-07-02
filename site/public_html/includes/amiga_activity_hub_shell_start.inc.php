@@ -22,6 +22,9 @@ $k2AmigaActivityPageTitle = $k2AmigaActivityPageTitle ?? 'Activity';
 <script src="/js/chart.umd.min.js"></script>
 <script src="/js/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script src="/js/chart-theme.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/chart-theme.js'); ?>"></script>
+<?php if ($k2AmigaActivityWingView === 'geography') { ?>
+<script type="text/javascript" src="/js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
+<?php } ?>
 <script type="text/javascript" src="/js/amiga-activity-charts.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/amiga-activity-charts.js'); ?>" defer="defer"></script>
 </head>
 <body class="k2-site k2-activity-charts k2-amiga-activity-charts">
@@ -60,7 +63,7 @@ if ($k2ActHeadline !== null) {
         . '<span class="blue">' . number_format($k2ActPlayers) . '</span> players from '
         . '<span class="blue">' . number_format($k2ActCountries) . '</span> ' . ($k2ActCountries === 1 ? 'nation' : 'nations') . ' have played '
         . '<span class="blue">' . number_format($k2ActGames) . '</span> rated games in '
-        . '<span class="blue">' . number_format($k2ActTournaments) . '</span> ' . ($k2ActTournaments === 1 ? 'official Amiga tournament' : 'official Amiga tournaments') . '.';
+        . '<span class="blue">' . number_format($k2ActTournaments) . '</span> ' . ($k2ActTournaments === 1 ? 'official KOA Amiga tournament' : 'official KOA Amiga tournaments') . '.';
 }
 mysqli_close($con);
 unset($con);
