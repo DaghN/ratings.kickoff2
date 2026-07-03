@@ -49,11 +49,13 @@ SHELL_OWNED_HEAD = {
     "games/recent.php": "games_hub_shell_start.inc.php",
     "games/highlights.php": "games_hub_shell_start.inc.php",
     "games/all.php": "games_hub_shell_start.inc.php",
+    "amiga/games/highlights.php": "amiga_games_hub_shell_start.inc.php",
 }
 
 # rel path -> reason (still sortable but intentionally not Tier A/B)
 DOCUMENTED_EXCEPTIONS: dict[str, str] = {
     "includes/games_highlights_helpers.php": "Compact highlights boards — no full ranked stack",
+    "includes/amiga_games_highlights_helpers.php": "Compact highlights boards — no full ranked stack",
     "includes/status_room_section.php": "Status active board — cloak on status.php parent",
     "includes/player_milestones_helpers.php": "Milestone digest tables — parent page owns head",
     "includes/k2_league_table_render.php": "Status league — compact calm-stats; not hub LB",

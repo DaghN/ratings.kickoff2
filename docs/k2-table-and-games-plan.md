@@ -283,7 +283,9 @@ Run: `python scripts/audit_k2_table_compliance.py` (exit 1 while Tier C remains)
 | **exception** | Documented special case (highlights compact, status league, milestones digest) |
 | **C** | Migrate or document |
 
-**Open Tier C (Jun 2026):** none — `python scripts/audit_k2_table_compliance.py` PASS.
+**Open Tier C:** none — `python scripts/audit_k2_table_compliance.py` PASS (Jul 2026; Amiga highlights helper whitelisted with online).
+
+**Documented exceptions (compact / parent-owned):** `games_highlights_helpers.php`, `amiga_games_highlights_helpers.php`, status league, milestones digest, status active board.
 
 **Tier B (acceptable):** player Opponents ledger includes (`player_opponents_tables.php`, `amiga_player_opponents_tables.php` — cloak on parent; SSR th optional), `k2_league_period_page.php`, games hub Recent day buckets.
 
@@ -315,6 +317,7 @@ When a slice clears backlog: re-run audit, update this section, checklist §1 if
 | 2026-06-24 | Agent checklist + `scripts/audit_k2_table_compliance.py` + `.cursor/rules/k2-table-php.mdc`; games hub shell `$k2RankedCloak`. |
 | 2026-06-24 | Hub LB wings Tier B→A (`k2_lb_th` / `k2_lb_td` SSR); Amiga `tournament.php` standings + games tables migrated; audit PASS (0 Tier C). |
 | 2026-07-02 | Amiga Games highlights → compact `k2-games-highlights-table` (`amiga_games_highlights_helpers.php` + `amiga_rated_game_highlights_row_html()`); mobile overflow containment on games hub + scroll mirror (`theme.css`). |
+| 2026-07-03 | K2 table audit — `amiga_games_highlights_helpers.php` documented exception (compact board, online parity); `amiga/games/highlights.php` shell-owned head; audit PASS (0 Tier C). |
 
 ---
 

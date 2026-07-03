@@ -2,6 +2,8 @@
 
 **Archived Jun 2026.** Older PROJECT_MEMORY.md Recent log rows (May–Jun 2026). For current focus see [../PROJECT_MEMORY.md](../PROJECT_MEMORY.md).
 
+**Later prune (Jul 2026):** dated + month-only rows before 2026-07-01 → [`session-log-2026-jun-prune.md`](session-log-2026-jun-prune.md).
+
 ---
 
 *(Newest first within this archive.)*
