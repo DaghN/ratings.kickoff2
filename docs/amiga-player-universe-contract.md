@@ -110,7 +110,7 @@ Each surface maps to **one primary derived source** (joins to `amiga_players` / 
 | **Moments / trophy games** | profile | `amiga_player_current` `*GameID` + batched game fetch | `PeakRatingGameID` from replay | A (shipped) |
 | **Rating chart** | `api/player_rating_history.php?realm=amiga` | `amiga_player_event_snapshots` → `tournaments` | — | A (shipped) |
 | **Recent tournaments** | profile (5 rows) | `amiga_player_event_snapshots` | finish suffix + Winner + Perf | B (shipped) |
-| **Full tournament history** | `/amiga/player/tournaments.php` | `amiga_player_event_snapshots` | sortable k2-table stack; filters All / WC / Cups / country | B (shipped) |
+| **Full tournament history** | `/amiga/player/tournaments.php` | `amiga_player_event_snapshots` | sortable k2-table stack; segment filters World Cups · Perfect run · Wins · Podiums + country/year listboxes | B (shipped) |
 | **Tournament standings / games** | `/amiga/tournament.php` | `amiga_tournament_standings` / `amiga_games` | k2-table render helpers in `amiga_tournament_lib.php` | B (shipped) |
 | **Tournament event stats** | `/amiga/tournament.php?view=event-stats` | `amiga_player_event_snapshots` | roster for one event; k2-table SSR | B (shipped) |
 | **Games list** | `/amiga/player/games.php` | `amiga_games` + `amiga_game_ratings` | paginated; OK at scale | A (shipped) |

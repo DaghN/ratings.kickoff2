@@ -3277,6 +3277,14 @@ body.k2-site .k2-amiga-tournament-index-segment-filters .k2-chrome-tabs.k2-amiga
 	margin-bottom: 0;
 }
 
+/* Player tournament history — four segment toggles on one row. */
+body.k2-site .k2-amiga-player-tournaments-segment-filters {
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: calc(var(--k2-nav-gap) * 2);
+}
+
 body.k2-site .k2-player-games-filters .k2-chrome-tabs.k2-amiga-player-games-scope-tabs,
 body.k2-site .k2-player-games-filters .k2-chrome-tabs.k2-amiga-tournament-index-tabs,
 body.k2-site .k2-player-games-filters .k2-chrome-tabs.k2-amiga-player-tournaments-tabs {

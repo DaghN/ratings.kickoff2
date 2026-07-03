@@ -47,6 +47,16 @@ if ($perfectFilter !== 'with-participant') {
     $perfectFilter = '';
 }
 
+$winnerFilter = isset($_GET['winner']) ? (string) $_GET['winner'] : '';
+if ($winnerFilter !== 'with-win') {
+    $winnerFilter = '';
+}
+
+$podiumFilter = isset($_GET['podium']) ? (string) $_GET['podium'] : '';
+if ($podiumFilter !== 'with-podium') {
+    $podiumFilter = '';
+}
+
 $allTournamentRows = amiga_player_tournament_participation_all($con, $playerId);
 $catalogCountries = array_keys(amiga_tournament_index_country_counts($allTournamentRows));
 $catalogYears = array_keys(amiga_tournament_index_year_counts($allTournamentRows));
@@ -72,14 +82,18 @@ $countryFacetRows = amiga_player_tournament_participation_filter_events(
     $eventFilter,
     '',
     $yearFilter,
-    $perfectFilter
+    $perfectFilter,
+    $winnerFilter,
+    $podiumFilter
 );
 $yearFacetRows = amiga_player_tournament_participation_filter_events(
     $allTournamentRows,
     $eventFilter,
     $countryFilter,
     0,
-    $perfectFilter
+    $perfectFilter,
+    $winnerFilter,
+    $podiumFilter
 );
 $countryCounts = amiga_tournament_index_inject_selected_country(
     amiga_tournament_index_country_counts($countryFacetRows),
@@ -99,7 +113,9 @@ $tournaments = amiga_player_tournament_participation_filter_events(
     $eventFilter,
     $countryFilter,
     $yearFilter,
-    $perfectFilter
+    $perfectFilter,
+    $winnerFilter,
+    $podiumFilter
 );
 $tournamentCount = count($tournaments);
 $listSummary = amiga_player_tournaments_list_summary(
@@ -109,6 +125,8 @@ $listSummary = amiga_player_tournaments_list_summary(
     $allTournamentRows !== [],
     $yearFilter,
     $perfectFilter,
+    $winnerFilter,
+    $podiumFilter,
 );
 $tournamentsFilterAction = k2_amiga_route('amiga-player-tournaments');
 amiga_player_publish_hero_context($pm, $con);
@@ -131,6 +149,8 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_nav.php';
 $k2PlayerTournamentsPlayerId = $playerId;
 $k2PlayerTournamentsEventFilter = $eventFilter;
 $k2PlayerTournamentsPerfectFilter = $perfectFilter;
+$k2PlayerTournamentsWinnerFilter = $winnerFilter;
+$k2PlayerTournamentsPodiumFilter = $podiumFilter;
 $k2PlayerTournamentsCountryFilter = $countryFilter;
 $k2PlayerTournamentsYearFilter = $yearFilter;
 $k2PlayerTournamentsCountryChoices = $countryChoices;
@@ -144,7 +164,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournaments_filters_
 <section class="k2-player-tournaments-table-view">
 <div class="k2-player-games-status" data-k2-carry-scroll>
 	<?php echo k2_h($listSummary); ?>
-<?php if (amiga_player_tournaments_filters_active($eventFilter, $countryFilter, $yearFilter, $perfectFilter)) { ?>
+<?php if (amiga_player_tournaments_filters_active($eventFilter, $countryFilter, $yearFilter, $perfectFilter, $winnerFilter, $podiumFilter)) { ?>
 	<a class="k2-player-games-reset" href="<?php echo k2_h(amiga_player_tournaments_reset_url($playerId)); ?>">Reset filters</a>
 <?php } ?>
 </div>

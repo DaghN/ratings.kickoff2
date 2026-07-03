@@ -173,16 +173,25 @@ function amiga_player_tournament_participation_filter_events(
     string $filter,
     string $country = '',
     int $year = 0,
-    string $perfectFilter = ''
+    string $perfectFilter = '',
+    string $winnerFilter = '',
+    string $podiumFilter = ''
 ): array {
     $country = trim($country);
-    if ($filter === 'all' && $country === '' && $year < 1 && $perfectFilter === '') {
+    if (
+        $filter === 'all'
+        && $country === ''
+        && $year < 1
+        && $perfectFilter === ''
+        && $winnerFilter === ''
+        && $podiumFilter === ''
+    ) {
         return $rows;
     }
 
     return array_values(array_filter(
         $rows,
-        static function (array $row) use ($filter, $country, $year, $perfectFilter): bool {
+        static function (array $row) use ($filter, $country, $year, $perfectFilter, $winnerFilter, $podiumFilter): bool {
             if ($filter === 'world-cup' && !amiga_tournament_is_world_cup($row)) {
                 return false;
             }
@@ -194,6 +203,19 @@ function amiga_player_tournament_participation_filter_events(
             }
             if ($perfectFilter === 'with-participant' && (int) ($row['is_perfect_event'] ?? 0) !== 1) {
                 return false;
+            }
+            if ($winnerFilter === 'with-win' && (int) ($row['is_winner'] ?? 0) !== 1) {
+                return false;
+            }
+            if ($podiumFilter === 'with-podium') {
+                $position = $row['position'] ?? $row['event_finish_position'] ?? null;
+                if ($position === null || $position === '') {
+                    return false;
+                }
+                $finish = (int) $position;
+                if ($finish < 1 || $finish > 3) {
+                    return false;
+                }
             }
 
             return true;
@@ -211,6 +233,8 @@ function amiga_player_tournaments_list_summary(
     bool $hasAnyParticipation,
     int $yearFilter = 0,
     string $perfectFilter = '',
+    string $winnerFilter = '',
+    string $podiumFilter = '',
 ): string {
     if ($count === 0) {
         if (!$hasAnyParticipation) {
@@ -231,6 +255,12 @@ function amiga_player_tournaments_list_summary(
     $postNoun = [];
     if ($perfectFilter === 'with-participant') {
         $postNoun[] = 'with a perfect run';
+    }
+    if ($winnerFilter === 'with-win') {
+        $preNoun[] = 'winning';
+    }
+    if ($podiumFilter === 'with-podium') {
+        $preNoun[] = 'podium';
     }
 
     $suffix = '';
@@ -264,11 +294,15 @@ function amiga_player_tournaments_filters_active(
     string $countryFilter,
     int $yearFilter,
     string $perfectFilter = '',
+    string $winnerFilter = '',
+    string $podiumFilter = '',
 ): bool {
     return $eventFilter !== 'all'
         || $countryFilter !== ''
         || $yearFilter > 0
-        || $perfectFilter !== '';
+        || $perfectFilter !== ''
+        || $winnerFilter !== ''
+        || $podiumFilter !== '';
 }
 
 function amiga_player_tournaments_reset_url(int $playerId): string
@@ -284,7 +318,9 @@ function amiga_player_tournaments_filter_url(
     string $filter = 'all',
     string $country = '',
     int $year = 0,
-    string $perfectFilter = ''
+    string $perfectFilter = '',
+    string $winnerFilter = '',
+    string $podiumFilter = ''
 ): string {
     $params = ['id' => $playerId];
     if ($filter !== 'all') {
@@ -299,6 +335,12 @@ function amiga_player_tournaments_filter_url(
     }
     if ($perfectFilter === 'with-participant') {
         $params['perfect'] = 'with-participant';
+    }
+    if ($winnerFilter === 'with-win') {
+        $params['winner'] = 'with-win';
+    }
+    if ($podiumFilter === 'with-podium') {
+        $params['podium'] = 'with-podium';
     }
 
     return k2_amiga_route('amiga-player-tournaments', array_merge($params, k2_table_sort_query_params()));

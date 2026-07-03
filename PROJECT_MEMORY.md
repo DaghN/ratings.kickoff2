@@ -136,6 +136,7 @@
 
 | When | Note |
 |------|------|
+| 2026-07-03 | **Amiga player tournaments filters** — four horizontal segment toggles (World Cups · Perfect run · Wins · Podiums) on one row; `winner=with-win` / `podium=with-podium` URL params; listbox row unchanged. |
 | 2026-07-03 | **Mobile / smartphone policy** — locked intent: read-first + pinch-second; dense tables stay tables (not card-reflow debt). Agent doc [`k2-mobile-smartphone-policy.md`](docs/k2-mobile-smartphone-policy.md); cross-refs in `design-direction`, `PROJECT_BRIEF`, `k2-tooltip-policy`, `AGENTS.md`. Known gaps: chart tap-to-tooltip, hover+click tap/double-tap, nav touch targets. |
 | 2026-07-03 | **Browser Back scroll restore** — `k2_carry_scroll_restore.php`: `pagehide` saves scrollY per URL; `back_forward` reload restores it (overrides `#player` hash landing); inbound hash scroll strips hash via `replaceState` so history tracks free scroll. |
 | 2026-07-03 | **TT Event ribbon — table inline flag** — stepper uses `k2_amiga_inline_flag_and_link()` (`k2-amiga-wc-podium-player`, 20×15); not prose `inline-flag-text`. |
