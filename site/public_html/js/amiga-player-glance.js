@@ -8,7 +8,7 @@
 	var TIP_ID = 'k2-amiga-player-glance-tooltip';
 	var API_AMIGA = '/api/amiga_player_glance.php';
 	var API_ONLINE = '/api/player_glance.php';
-	var SHOW_DELAY_MS = 150;
+	var SHOW_DELAY_MS = 500;
 	var HIDE_DELAY_MS = 100;
 	var glanceCfg = global.K2PlayerGlance || global.K2AmigaPlayerGlance;
 	var tier = (glanceCfg && glanceCfg.tier === 'B') ? 'B' : 'A';

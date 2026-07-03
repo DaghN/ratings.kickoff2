@@ -162,6 +162,7 @@
 | 2026-07-03 | **Online player games table** — hero/opponent rating cols → **Rating A** / **Rating B** (Team A/B pre-game Elo; tooltips match Amiga games recent); sort keys `rating_a`/`rating_b`. |
 | 2026-07-03 | **Online player games table** — **Result** column moved to just before **Adjustment**; sort-col index map + row renderer updated (`player/games.php`, `k2_player_game_row.php`). |
 | 2026-07-02 | **Online player games table** — dropped redundant **Opponent** name column (Team A/B already show both players); updated `k2_player_game_sort_col_index()` + row renderer column indexes (`player/games.php`, `k2_player_game_row.php`). |
+| 2026-07-03 | **Player name hover glance — show gate 500ms** — `SHOW_DELAY_MS` in `amiga-player-glance.js` (online + Amiga). |
 | 2026-07-03 | **Amiga tournament stepper — host-country option flags** — host-country listbox dropdown rows only (`flag_html`); with-player stays text-only. |
 | 2026-07-02 | **Amiga tournament stepper — WC only pill** — `id_wc=world-cup` toggle on entity chevrons (Shuffle-style pill before with-player); faceted listbox counts + auto-snap; propagates on wing/chevron links — [`with-player-stepper-policy.md`](docs/with-player-stepper-policy.md) §5.7. |
 | 2026-07-02 | **Status Leagues period nav** — wrapper transparent (no segment chrome); **60px** `column-gap` between period tabs and step nav; stacked-row JS uses line-break detection (`theme.css`, `status-period-competitions.js`). |
