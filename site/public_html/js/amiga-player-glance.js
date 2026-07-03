@@ -1,7 +1,7 @@
 /**
  * Player name hover glance (online + Amiga) — tiers A (compact) and B (hero stat strip);
- * Amiga Elo links use rating mode (rank + rating only) via data-k2-amiga-player-glance-rating
- * and __print--rating (shrink-to-fit shell).
+ * Elo links use rating mode (rank + rating only) via data-k2-amiga-player-glance-rating (Amiga)
+ * or data-k2-player-glance-rating (online) and __print--rating (shrink-to-fit shell).
  * Tier toggle: includes/amiga_player_glance_config.php → K2_PLAYER_GLANCE_TIER
  */
 (function (global) {
@@ -267,7 +267,7 @@
 	}
 
 	function renderGlance(data, realm, mode) {
-		if (mode === 'rating' && realm === 'amiga') {
+		if (mode === 'rating') {
 			return renderRatingGlance(data);
 		}
 		if (tier === 'B') {
@@ -471,7 +471,8 @@
 	}
 
 	function glanceModeFromAnchor(anchor) {
-		if (anchor.getAttribute('data-k2-amiga-player-glance-rating')) {
+		if (anchor.getAttribute('data-k2-amiga-player-glance-rating')
+			|| anchor.getAttribute('data-k2-player-glance-rating')) {
 			return 'rating';
 		}
 		return 'full';
@@ -483,6 +484,9 @@
 		}
 		if (anchor.getAttribute('data-k2-amiga-player-glance-rating')) {
 			return 'amiga';
+		}
+		if (anchor.getAttribute('data-k2-player-glance-rating')) {
+			return 'online';
 		}
 		if (anchor.getAttribute('data-k2-amiga-player-glance')) {
 			return 'amiga';
@@ -497,7 +501,7 @@
 		if (!anchor || anchor.nodeType !== 1) {
 			return 0;
 		}
-		var attrs = ['data-k2-amiga-player-glance', 'data-k2-player-glance', 'data-k2-amiga-player-glance-rating'];
+		var attrs = ['data-k2-amiga-player-glance', 'data-k2-player-glance', 'data-k2-amiga-player-glance-rating', 'data-k2-player-glance-rating'];
 		for (var i = 0; i < attrs.length; i++) {
 			var attr = anchor.getAttribute(attrs[i]);
 			if (attr) {

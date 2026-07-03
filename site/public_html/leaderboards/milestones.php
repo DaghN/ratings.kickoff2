@@ -25,6 +25,7 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
 $leaderRows = k2_milestone_meta_leaderboard_rows($con);
 mysqli_close($con);
 
@@ -59,7 +60,7 @@ foreach ($leaderRows as $row) {
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_player_link($row['player_id'], $row['player_name']); ?></td>
-        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['rating']); ?></td>
+        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_lb_rating_cell_link((int) $row['player_id'], $row['rating'], (string) $row['player_name']); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($row['games']); ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><span class="k2-lb-ms-tier--pitch"><?php echo (int) $row['aspirational']; ?></span></td>
         <td<?php echo k2_lb_td(5, $lbSort); ?>><span class="k2-lb-ms-tier--chrome"><?php echo (int) $row['dedicated']; ?></span></td>

@@ -12,6 +12,7 @@ $con->query("SET time_zone = '+00:00'");
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_result_streaks_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
 
 $result = k2_lb_result_streaks_query($con);
 $queryError = $result === false;
@@ -87,7 +88,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav.php';
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_player_link($playerId, (string) $row['Name']); ?></td>
-        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
+        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_lb_rating_cell_link($playerId, $row['Rating'], (string) $row['Name']); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
         <?php k2_lb_activity_echo_tooltip_td($winMeta, (int) ($row['LongestWinningStreak'] ?? 0), '', k2_lb_activity_streak_achieved_tie_value($row[$aliasWin . '_end_at'] ?? null), 'blue'); ?>
         <?php k2_lb_activity_echo_tooltip_td($undefMeta, (int) ($row['LongestNonLossStreak'] ?? 0), '', k2_lb_activity_streak_achieved_tie_value($row[$aliasUndef . '_end_at'] ?? null)); ?>

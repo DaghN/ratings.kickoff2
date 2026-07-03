@@ -79,6 +79,7 @@ These stay on their existing patterns:
 |---------|---------|
 | Numeric drill-down | Opponents **Games** count → filtered games list (`k2-link-star` on the number — drill-down, not an entity row label) |
 | **Career Elo drill-down (Amiga)** | Hub LB + WC player stats + countries roster **Elo** column → `k2_amiga_lb_rating_cell_link()` → rating LB `#k2-lb-player-{id}` (`k2-link-star`; rating glance on hover: rank + rating only via `data-k2-amiga-player-glance-rating`) |
+| **Career Elo drill-down (online)** | Hub LB wings + League honours + Status active-players table **Elo** column → `k2_lb_rating_cell_link()` → rating LB `#k2-lb-player-{id}` (`k2-link-star`; rating glance via `data-k2-player-glance-rating`) |
 | Calm secondary body links | `k2-table-cell-link` — inherit cell ink (Activity peaks → games) |
 | Filter listbox labels | Text-only country/year pickers — no flags ([`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) CH9) |
 | Hero / prose links | Player hero name, country hero title, hub chapter links — outside table compositors |
@@ -118,7 +119,7 @@ These stay on their existing patterns:
 | Host flag + tournament inline | `includes/amiga_lb_performance_rating_table.php` Event column |
 | Dual link pattern (flag + name) | `k2_amiga_inline_flag_and_link()` — same wrapper as above |
 | Country name link | `k2_amiga_country_roster_link()` — `k2-link-star` to roster |
-| Career Elo → rating LB row | `k2_amiga_lb_rating_cell_link()` in `amiga_lb_lib.php` |
+| Career Elo → rating LB row | `k2_amiga_lb_rating_cell_link()` in `amiga_lb_lib.php` (Amiga); `k2_lb_rating_cell_link()` in `lb_player_filters.php` (online) |
 | Flag img link only | `k2_amiga_country_flag_link()` |
 
 If unsure: **grep** `k2_amiga_lb_player_cell` / `k2_amiga_lb_tournament_cell` / `k2_amiga_lb_country_cell` in `site/public_html/includes/`.
@@ -149,4 +150,4 @@ Global `body.k2-site .k2-table tbody td a` also styles links link-star — **do 
 
 ---
 
-*Last updated: Jul 2026 — Amiga hub LB + WC player stats Elo columns wired to `k2_amiga_lb_rating_cell_link()`.*
+*Last updated: Jul 2026 — Online + Amiga hub LB Elo columns wired to rating LB row anchors; profile hero rank/rating → `#k2-lb-player-{id}`.*

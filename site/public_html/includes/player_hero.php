@@ -20,7 +20,9 @@ $nameEsc = htmlspecialchars((string) $Name, ENT_QUOTES, 'UTF-8');
 $heroMs = isset($heroMilestoneCounts) && is_array($heroMilestoneCounts) ? $heroMilestoneCounts : null;
 $heroMsPlayerId = isset($id) ? (int) $id : (isset($playerId) ? (int) $playerId : 0);
 $heroProfileHref = $heroMsPlayerId > 0 ? k2_player_profile_href($heroMsPlayerId) : '';
-$heroLbRatingHref = k2_lb_table_href('lb-rating');
+$heroLbRatingHref = $heroMsPlayerId > 0
+	? k2_lb_rating_player_href($heroMsPlayerId)
+	: k2_lb_table_href('lb-rating');
 $heroLbGamesPeakHref = k2_lb_table_href('lb-activity-peaks', ['k2_sort' => '3', 'k2_dir' => 'desc']);
 $heroRankLinked = $heroDisplay && isset($rank);
 $heroMsTierHtml = ($heroMs !== null && $heroMsPlayerId > 0)

@@ -27,6 +27,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_peak_rating_lib.php';
 
 $result = k2_lb_peak_rating_query($con);
@@ -77,7 +78,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_player_link($playerId, (string) $row['Name']); ?></td>
-        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
+        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_lb_rating_cell_link($playerId, $row['Rating'], (string) $row['Name']); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
         <td<?php echo k2_lb_td(4, $lbSort, $peakCtxClass); ?><?php echo $peakCtxAttrs; ?>><span class="blue"><?php echo k2_fmt_peak_rating($row['PeakRating']); ?></span></td>
         <td<?php echo k2_lb_td(5, $lbSort, trim('k2-table-cell--right ' . $peakCtxClass)); ?><?php echo $peakCtxAttrs; ?> data-k2-sort-value="<?php echo k2_h(k2_lb_peak_rating_date_sort_value($peakDate)); ?>"><?php echo k2_h(k2_lb_peak_rating_format_event_date($peakDate)); ?></td>

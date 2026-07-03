@@ -136,6 +136,7 @@
 
 | When | Note |
 |------|------|
+| 2026-07-03 | **Online LB + Status Elo links** — 11 hub LB wings + League honours + Status active table: `k2_lb_rating_cell_link()` → rating LB `#k2-lb-player-{id}`; rating glance (`data-k2-player-glance-rating`); `rating.php` row anchors + `lb-rating-page.js`; profile hero rank/rating → row anchor. |
 | 2026-07-03 | **Amiga Elo rating glance** — rank + rating only (no name/flag; avoids profile expectation); `__print--rating` shrink-to-fit. |
 | 2026-07-03 | **Amiga rating LB — same-page Elo row scroll** — row anchors moved to Player col (autorank was wiping rank col); `js/amiga-lb-rating-page.js` on `rating.php` only. |
 | 2026-07-03 | **Amiga LB + WC player stats Elo links** — career Elo columns use `k2_amiga_lb_rating_cell_link()` (rating LB `#k2-lb-player-{id}`; country roster parity); 7 LB wings + perf-rating table + 5 WC player sub-wings. |

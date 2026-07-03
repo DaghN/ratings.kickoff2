@@ -25,6 +25,7 @@ $con->query("SET time_zone = '+00:00'");
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_activity_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_play_streaks.php';
 
@@ -75,7 +76,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 	<tr>
 		<td<?php echo k2_lb_td(0, $lbSort); ?>></td>
 		<td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_player_link((int) $row['id'], (string) $row['Name']); ?></td>
-		<td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
+		<td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_lb_rating_cell_link((int) $row['id'], $row['Rating'], (string) $row['Name']); ?></td>
 		<td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
 		<?php k2_lb_activity_echo_tooltip_td($dayMeta, $streakDays, '', k2_lb_activity_streak_achieved_tie_value($row['streak_days_achieved_at'] ?? null)); ?>
 		<?php k2_lb_activity_echo_tooltip_td($weekMeta, $streakWeeks, '', k2_lb_activity_streak_achieved_tie_value($row['streak_weeks_achieved_at'] ?? null)); ?>

@@ -64,13 +64,15 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 	<?php
     $rank = "1";
     while ($row = mysqli_fetch_row($result))
-    { 
+    {
+        $playerId = (int) $row[0];
+        $playerName = (string) $row[1];
 	?>
     
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank ?></td>
-        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_player_link($row[0], $row[1]); ?></td>
-        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row[2]); ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_lb_player_row_anchor_markup($playerId); ?><?php echo k2_player_link($playerId, $playerName); ?></td>
+        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_lb_rating_cell_link($playerId, $row[2], $playerName); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($row[3]); ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo k2_fmt_wdl_count($row[4], $row[3], 'win'); ?></td>
         <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo k2_fmt_count($row[5], $row[3]); ?></td>
@@ -93,6 +95,8 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 
 
 </div><!-- .k2-page-nav -->
+
+<script type="text/javascript" src="/js/lb-rating-page.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/lb-rating-page.js'); ?>" defer="defer"></script>
 
 </body>
 </html>

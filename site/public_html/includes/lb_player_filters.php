@@ -186,3 +186,42 @@ function k2_lb_table_href(string $routeKey, array $query = []): string
 
     return $path . k2_lb_table_anchor_hash();
 }
+
+/**
+ * Online rating LB URL that scrolls to a player's row (profile hero rank / rating links).
+ *
+ * @param array<string, scalar> $query
+ */
+function k2_lb_rating_player_href(int $playerId, array $query = []): string
+{
+    $path = k2_route('lb-rating');
+    if ($query !== []) {
+        $path .= '?' . http_build_query($query);
+    }
+    if ($playerId < 1) {
+        return $path . k2_lb_table_anchor_hash();
+    }
+
+    return $path . k2_lb_player_row_anchor_hash($playerId);
+}
+
+/**
+ * Hub LB / status table Elo cell → rating LB row anchor (same URL contract as profile hero rating link).
+ */
+function k2_lb_rating_cell_link(int $playerId, mixed $rating, string $playerName = ''): string
+{
+    $display = k2_fmt_int($rating, '—');
+    if ($playerId < 1 || $display === '—') {
+        return k2_h($display);
+    }
+
+    $href = k2_lb_rating_player_href($playerId);
+    $name = trim($playerName);
+    $ariaLabel = $name !== ''
+        ? 'View ' . $name . ' on rating leaderboard'
+        : 'View on rating leaderboard';
+
+    return '<a class="k2-link-star" href="' . k2_h($href) . '" aria-label="' . k2_h($ariaLabel) . '"'
+        . ' data-k2-player-glance-rating="' . $playerId . '">'
+        . k2_h($display) . '</a>';
+}

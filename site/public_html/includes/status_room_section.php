@@ -11,6 +11,7 @@ declare(strict_types=1);
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_table_render.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
 
 $room = $k2StatusRoom ?? null;
 $loadError = $k2StatusRoomError ?? null;
@@ -117,7 +118,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 						<tr>
 							<td class="k2-status-table__num"><?php echo $rank; ?></td>
 							<td class="k2-status-table__player"><?php echo k2_status_player_link($row['id'], $row['name']); ?></td>
-							<td class="k2-status-table__num"><?php echo (int) $row['rating']; ?></td>
+							<td class="k2-status-table__num"><?php echo k2_lb_rating_cell_link((int) $row['id'], $row['rating'], (string) $row['name']); ?></td>
 							<td class="k2-status-table__num"><?php echo (int) $row['games']; ?></td>
 						</tr>
 <?php

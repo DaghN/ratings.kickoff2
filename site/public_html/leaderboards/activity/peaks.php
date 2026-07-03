@@ -25,6 +25,7 @@ $con->query("SET time_zone = '+00:00'");
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_activity_lib.php';
 
 $result = k2_lb_activity_query_peaks($con);
@@ -74,7 +75,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 	<tr>
 		<td<?php echo k2_lb_td(0, $lbSort); ?>></td>
 		<td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_player_link((int) $row['id'], (string) $row['Name']); ?></td>
-		<td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
+		<td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_lb_rating_cell_link((int) $row['id'], $row['Rating'], (string) $row['Name']); ?></td>
 		<td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
 		<?php k2_lb_activity_echo_tooltip_td($peakDayMeta, $peakDayGames); ?>
 		<?php k2_lb_activity_echo_tooltip_td($peakWeekMeta, $peakWeekGames); ?>
