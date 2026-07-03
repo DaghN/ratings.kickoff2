@@ -138,6 +138,7 @@ try {
 
     $kind = K2_ACT_YEAR_RATES[$rate];
     $values = [];
+    $denominatorByYear = null;
     $reference = null;
     $overlay = null;
 
@@ -148,8 +149,10 @@ try {
         $numByYear = $numFacts[AMIGA_COMMUNITY_REALM_SLICE_KEY] ?? [];
         $denByYear = $denFacts[AMIGA_COMMUNITY_REALM_SLICE_KEY] ?? [];
         if ($span !== null) {
+            $denominatorByYear = [];
             for ($year = $span[0]; $year <= $span[1]; $year++) {
                 $den = $denByYear[$year] ?? 0.0;
+                $denominatorByYear[] = $den > 0 ? (int) round($den) : null;
                 $values[] = $den > 0 ? round(($numByYear[$year] ?? 0.0) / $den, 4) : null;
             }
         }
@@ -157,7 +160,16 @@ try {
             $reference = amiga_community_year_rate_reference_at_cutoff($con, $cutoffTid, $rate);
         }
     } elseif ($kind === 'wc_share') {
+        $realmGamesFacts = amiga_community_year_facts_at_cutoff($con, $cutoffTid, 'realm', 'games');
+        $realmGamesByYear = $realmGamesFacts[AMIGA_COMMUNITY_REALM_SLICE_KEY] ?? [];
         $values = k2_act_year_rate_values($con, $cutoffTid, 'world_cup', 'games', 'realm', 'games');
+        if ($span !== null) {
+            $denominatorByYear = [];
+            for ($year = $span[0]; $year <= $span[1]; $year++) {
+                $den = $realmGamesByYear[$year] ?? 0.0;
+                $denominatorByYear[] = $den > 0 ? (int) round($den) : null;
+            }
+        }
     } elseif ($kind === 'wc_goals_per_game') {
         $values = k2_act_year_rate_values($con, $cutoffTid, 'world_cup', 'goals', 'world_cup', 'games');
         $overlayValues = k2_act_year_rate_values($con, $cutoffTid, 'realm', 'goals', 'realm', 'games');
@@ -185,6 +197,7 @@ try {
         'rate' => $rate,
         'years' => $years,
         'values' => $values,
+        'denominator_by_year' => $denominatorByYear,
         'reference' => $reference,
         'overlay' => $overlay,
         'cutoff' => $cutoffInfo,

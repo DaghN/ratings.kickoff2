@@ -1,7 +1,8 @@
 /**
  * Player name hover glance (online + Amiga) — tiers A (compact) and B (hero stat strip);
- * Elo links use rating mode (rank + rating only) via data-k2-amiga-player-glance-rating (Amiga)
- * or data-k2-player-glance-rating (online) and __print--rating (shrink-to-fit shell).
+ * Elo links use rating mode via data-k2-amiga-player-glance-rating (Amiga)
+ * or data-k2-player-glance-rating (online): name (+ flag on Amiga), rank + rating,
+ * footer "Click to view rating leaderboard".
  * Tier toggle: includes/amiga_player_glance_config.php → K2_PLAYER_GLANCE_TIER
  */
 (function (global) {
@@ -248,6 +249,13 @@
 			+ '</div>';
 	}
 
+	function ratingActionNoteHtml(data) {
+		if (data.pre_debut) {
+			return '';
+		}
+		return '<p class="k2-amiga-player-glance__note k2-amiga-player-glance__note--rating-action">Click to view rating leaderboard</p>';
+	}
+
 	function renderRatingGlance(data) {
 		var rank = data.pre_debut || !data.display ? '—' : (data.rank ? '#' + data.rank : '—');
 		var rating = data.pre_debut || !data.display ? '—' : fmtInt(data.rating);
@@ -255,10 +263,12 @@
 			+ glanceFrameOpen('rating')
 			+ '<div class="k2-amiga-player-glance__card k2-amiga-player-glance__card--rating" aria-hidden="true">'
 			+ '<div class="k2-amiga-player-glance__body">'
+			+ '<p class="k2-amiga-player-glance__name">' + nameLineHtml(data) + '</p>'
 			+ '<div class="k2-amiga-player-glance__stats">'
 			+ statBlockHtml('Rank', rank, 'k2-amiga-player-glance__stat-value--rank')
 			+ statBlockHtml('Rating', rating, '')
 			+ '</div>'
+			+ ratingActionNoteHtml(data)
 			+ '</div>'
 			+ '</div>'
 			+ preDebutNoteHtml(data)

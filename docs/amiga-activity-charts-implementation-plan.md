@@ -157,7 +157,7 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 ### `api/amiga_community_year_rates.php`
 
 - Params: `rate` (goals_per_game | draw_rate | dd_rate | cs_rate | low_scoring_rate | high_scoring_rate | games_per_tournament | wc_share | wc_goals_per_game | wc_games_per_player), `as`. *(Texture + WC rates shipped slices 3–4; low_scoring_rate Jul 2026.)*
-- Response: `{ "years": [...], "values": [...], "reference": N|null, "overlay": { "label": "...", "values": [...] }|null, "cutoff": {...}|null }` — `cutoff` mirrors `year_facts` (`label`, `event_date`, `partial_year`).
+- Response: `{ "years": [...], "values": [...], "denominator_by_year": [...]|null, "reference": N|null, "overlay": { "label": "...", "values": [...] }|null, "cutoff": {...}|null }` — `cutoff` mirrors `year_facts` (`label`, `event_date`, `partial_year`). **`denominator_by_year`** = games count per year (realm denominator for texture rates; realm games for `wc_share`); percent-format bar tooltips show *X% of N games*.
 - Derivations (all from year facts at cutoff): rates = numerator ÷ realm `games` (goals_per_game = goals ÷ games; games_per_tournament = games ÷ tournaments; wc_share = wc games ÷ realm games; wc_goals_per_game = wc goals ÷ wc games, overlay = realm goals_per_game; **wc_games_per_player = 2 × wc games ÷ wc active_players**). `reference` = all-time average from headline row at cutoff (texture rates only). Zero-denominator years → `null` values, skipped by Chart.js.
 
 ### `api/amiga_community_histogram.php` (slice 9; shapes locked at slice 8)

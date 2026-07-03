@@ -78,8 +78,8 @@ These stay on their existing patterns:
 | Pattern | Example |
 |---------|---------|
 | Numeric drill-down | Opponents **Games** count → filtered games list (`k2-link-star` on the number — drill-down, not an entity row label) |
-| **Career Elo drill-down (Amiga)** | Hub LB + WC player stats + countries roster **Elo** column → `k2_amiga_lb_rating_cell_link()` → rating LB `#k2-lb-player-{id}` (`k2-link-star`; rating glance on hover: rank + rating only via `data-k2-amiga-player-glance-rating`) |
-| **Career Elo drill-down (online)** | Hub LB wings + League honours + Status active-players table **Elo** column → `k2_lb_rating_cell_link()` → rating LB `#k2-lb-player-{id}` (`k2-link-star`; rating glance via `data-k2-player-glance-rating`) |
+| **Career Elo drill-down (Amiga)** | Hub LB + WC player stats + countries roster **Elo** column → `k2_amiga_lb_rating_cell_link()` → rating LB `#k2-lb-player-{id}` (`k2-link-star`; rating glance: name + flag, rank + rating, footer “Click to view rating leaderboard”) |
+| **Career Elo drill-down (online)** | Hub LB wings + League honours + Status active-players table **Elo** column → `k2_lb_rating_cell_link()` → rating LB `#k2-lb-player-{id}` (`k2-link-star`; rating glance via `data-k2-player-glance-rating`, same footer) |
 | Calm secondary body links | `k2-table-cell-link` — inherit cell ink (Activity peaks → games) |
 | Filter listbox labels | Text-only country/year pickers — no flags ([`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) CH9) |
 | Hero / prose links | Player hero name, country hero title, hub chapter links — outside table compositors |

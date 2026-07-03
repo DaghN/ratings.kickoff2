@@ -136,8 +136,8 @@
 
 | When | Note |
 |------|------|
-| 2026-07-03 | **Online LB + Status Elo links** — 11 hub LB wings + League honours + Status active table: `k2_lb_rating_cell_link()` → rating LB `#k2-lb-player-{id}`; rating glance (`data-k2-player-glance-rating`); `rating.php` row anchors + `lb-rating-page.js`; profile hero rank/rating → row anchor. |
-| 2026-07-03 | **Amiga Elo rating glance** — rank + rating only (no name/flag; avoids profile expectation); `__print--rating` shrink-to-fit. |
+| 2026-07-03 | **Elo rating glance copy** — name (+ Amiga flag), rank + rating, footer “Click to view rating leaderboard”; hidden at Amiga pre-debut cutoff. |
+| 2026-07-03 | **Online LB + Status Elo links** — 11 hub LB wings + League honours + Status active table: `k2_lb_rating_cell_link()` → rating LB `#k2-lb-player-{id}`; `rating.php` row anchors + `lb-rating-page.js`; profile hero rank/rating → row anchor. |
 | 2026-07-03 | **Amiga rating LB — same-page Elo row scroll** — row anchors moved to Player col (autorank was wiping rank col); `js/amiga-lb-rating-page.js` on `rating.php` only. |
 | 2026-07-03 | **Amiga LB + WC player stats Elo links** — career Elo columns use `k2_amiga_lb_rating_cell_link()` (rating LB `#k2-lb-player-{id}`; country roster parity); 7 LB wings + perf-rating table + 5 WC player sub-wings. |
 | 2026-07-03 | **Status heritage box** — removed hover tooltip (`data-k2-help` on boxart link); border/glow hover unchanged. |
@@ -192,6 +192,7 @@
 | 2026-07-02 | **Nations player grains — docs + prove** — Activity **48 panels / 49 Q-IDs**; +3 nationality player grains (no DDL). |
 | 2026-07-02 | **Nations player grains B–D shipped** — `all_time×nationality×active_players`, `year×nationality×player_debuts`; 3 new Nations panels; 8-panel page order; GEO-010 tooltip (no list scroll). |
 | 2026-07-02 | **Amiga Activity Nations — distinct nationalities tooltip** — new stored fact `year × player_nationality × active_players`; `year_facts` returns `nationality_active_by_year` breakdown; bar hover lists flag + country + active player count (HTML tooltip). Re-prove `ko2amiga_db` to populate facts. |
+| 2026-07-03 | **Amiga Activity draw-rate tooltip** — year bar hover shows *7.8% of 1,234 games* (denominator from `year_rates.denominator_by_year`, TT-aware). |
 | 2026-07-02 | **Amiga tournament video game links GL-5…6 shipped** — `video_game_links.csv` sidecar merge (`stream_map` mode), manifest `game_start_sec[]`, sync/verify/build wired; policy + README + implementation plan trimmed. Sidecar empty until stream curation. |
 | 2026-07-03 | **Amiga Activity World Cups wing lede** — section title *How big is the big stage?*; year-by-year participants · nations · games · goals copy. |
 | 2026-07-03 | **Amiga Activity WC cumulative chart fix** — `amiga_community_snapshot_series()` filters `WcGamesPlayed` to World Cup catalog names only (~23 points, not 605 realm events). |

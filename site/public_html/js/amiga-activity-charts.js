@@ -177,11 +177,15 @@
         };
     }
 
-    function formatRateValue(value, spec) {
+    function formatRateValue(value, spec, population) {
         if (value == null || isNaN(value)) {
             return 'No data';
         }
         if (spec.format === 'percent') {
+            var pop = Number(population);
+            if (pop > 0) {
+                return (value * 100).toFixed(1) + '% of ' + formatCount(pop) + ' games';
+            }
             return (value * 100).toFixed(1) + '% of games';
         }
         if (spec.format === 'per100') {
@@ -449,7 +453,7 @@
         }, 'bar');
     }
 
-    function renderYearRateBar(canvas, labels, values, spec, cutoff, reference, overlay, wcEventsByYear) {
+    function renderYearRateBar(canvas, labels, values, spec, cutoff, reference, overlay, wcEventsByYear, denominatorByYear) {
         var datasets = [Object.assign({
             type: 'bar',
             label: spec.label,
@@ -499,7 +503,8 @@
                     mode: 'rate',
                     chartSpec: spec,
                     cutoff: cutoff,
-                    overlay: overlay
+                    overlay: overlay,
+                    denominatorByYear: denominatorByYear
                 })
             })
             : T.mergeTooltip({
@@ -514,7 +519,8 @@
                         if (item.dataset.type === 'line') {
                             return item.dataset.label + ': ' + formatRateValue(item.parsed.y, spec);
                         }
-                        return formatRateValue(item.parsed.y, spec);
+                        var pop = denominatorByYear && denominatorByYear[item.dataIndex];
+                        return formatRateValue(item.parsed.y, spec, pop);
                     },
                     footer: rateTooltipFooter(cutoff, labels, reference, spec)
                 }
@@ -738,7 +744,8 @@
                     data.cutoff,
                     data.reference,
                     data.overlay,
-                    data.wc_events_by_year || null
+                    data.wc_events_by_year || null,
+                    data.denominator_by_year || null
                 );
             })
             .catch(function (err) {
@@ -1155,7 +1162,11 @@
                     }
                 }
                 if (barValue != null) {
-                    metricLines.push(formatWcYearMetricLine(barValue, chartSpec) + partial);
+                    var pop = opts.denominatorByYear && opts.denominatorByYear[idx];
+                    metricLines.push(
+                        (chartSpec.format ? formatRateValue(barValue, chartSpec, pop) : formatWcYearMetricLine(barValue, chartSpec))
+                            + partial
+                    );
                 }
                 if (opts.overlay && opts.overlay.values && opts.overlay.values[idx] != null && !isNaN(opts.overlay.values[idx])) {
                     metricLines.push(

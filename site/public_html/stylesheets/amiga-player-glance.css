@@ -276,6 +276,26 @@ body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__body {
 	min-width: 0;
 }
 
+body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__name {
+	margin: 0 0 8px;
+	font-family: var(--k2-font-display);
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.2;
+	color: var(--k2-link-star);
+}
+
+body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__name .k2-amiga-wc-podium-player {
+	gap: 6px;
+}
+
+body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__note--rating-action {
+	margin: 10px 0 0;
+	font-size: 10px;
+	line-height: 1.35;
+	text-align: left;
+}
+
 body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__stats {
 	display: flex;
 	flex-wrap: wrap;
