@@ -219,10 +219,13 @@ Required per point:
 
 | Scale | Format |
 |-------|--------|
-| **Linear** | `Peak: #N on MMM d, yyyy, after {tournament name}.` |
-| **Percentile** | `Peak: P% on MMM d, yyyy, after {tournament name}.` |
+| **Linear** | `Peak: #N on MMM d, yyyy, after {host flag + tournament link}.` |
+| **Percentile** | `Peak: P% on MMM d, yyyy, after {host flag + tournament link}.` |
 
-- **Best** = stored **`peak_elo_rank`** + **`peak_elo_rank_tournament_id`** → event date + tournament name (SCH-041; API field `peak.tournamentName`). Percentile at peak = ladder size at that event.
+- **Best** = stored **`peak_elo_rank`** + **`peak_elo_rank_tournament_id`** → event date + tournament name (SCH-041; API `peak.tournamentId`, `peak.tournamentName`, `peak.hostCountry`, `peak.flagCode`). Percentile at peak = ladder size at that event.
+- **Tournament anchor:** `k2-amiga-inline-flag-text` in JS; tournament name uses `pm3-chart-peak-link` (peak accent ink — **not** `k2-link-star`) → `event-stats.php?id={tournamentId}#tournament`; TT `as=` via `K2AmigaTimeTravelUrl`. Table cells keep `k2_amiga_lb_tournament_cell` / `k2-link-star`.
+- **Absent tournament:** when `peak.playedInEvent` is false, append `peak.absentClause` after the tournament link — same copy as peak-rating LB Peak rank tooltip (`amiga_player_peak_rank_absent_clause()`).
+- **Rating snapshot link:** always append second sentence — `Click here to see the time travel snapshot of the rating list at this time.` — with **here** as `pm3-chart-peak-link` → `peak.ratingSnapshotHref` (`amiga_lb_peak_rating_peak_rank_href()`).
 - **Ties:** first attainment enforced at finalize (not recomputed client-side).
 - Updates when scale toggles; independent of Y-window band (Top 20 etc.).
 - Styled with `pm3d-chart__summary` + `pm3-chart-peak-value` (amber peak ink).

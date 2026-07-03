@@ -396,7 +396,7 @@ function amiga_player_rating_peak_summary(
         if ($cutoff === null) {
             return null;
         }
-        $sql = 'SELECT x.PeakRating, x.peak_rating_tournament_id, t.event_date, t.name AS tournament_name '
+        $sql = 'SELECT x.PeakRating, x.peak_rating_tournament_id, t.event_date, t.name AS tournament_name, t.country AS host_country '
             . 'FROM ('
             . '  SELECT s.PeakRating, s.peak_rating_tournament_id, '
             . '    ROW_NUMBER() OVER ('
@@ -419,7 +419,7 @@ function amiga_player_rating_peak_summary(
         $stmt->bind_param('isdi', $playerId, $eventDateParam, $chrono, $tournamentId);
     } else {
         $careerTable = amiga_player_career_table($con);
-        $sql = 'SELECT c.PeakRating, c.peak_rating_tournament_id, t.event_date, t.name AS tournament_name '
+        $sql = 'SELECT c.PeakRating, c.peak_rating_tournament_id, t.event_date, t.name AS tournament_name, t.country AS host_country '
             . 'FROM `' . $careerTable . '` c '
             . 'LEFT JOIN tournaments t ON t.id = c.peak_rating_tournament_id '
             . 'WHERE c.player_id = ? AND c.NumberGames > 0 LIMIT 1';
@@ -456,10 +456,18 @@ function amiga_player_rating_peak_summary(
         return null;
     }
 
+    require_once __DIR__ . '/k2_amiga_country_flag.php';
+    $tournamentName = trim((string) ($row['tournament_name'] ?? ''));
+    $hostCountry = trim((string) ($row['host_country'] ?? ''));
+    $flagMeta = k2_amiga_country_flag_meta($hostCountry);
+
     return [
         'rating' => (int) round($peakRating),
         'eventDate' => $eventDate,
-        'tournamentName' => trim((string) ($row['tournament_name'] ?? '')),
+        'tournamentId' => $peakTournamentId,
+        'tournamentName' => $tournamentName,
+        'hostCountry' => $hostCountry,
+        'flagCode' => $flagMeta !== null ? $flagMeta['code'] : '',
     ];
 }
 

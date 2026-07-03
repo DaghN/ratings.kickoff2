@@ -136,6 +136,10 @@
 
 | When | Note |
 |------|------|
+| 2026-07-03 | **Amiga rank chart peak — rating snapshot link** — always appends “Click here to see the time travel snapshot…” (`pm3-chart-peak-link` on *here* → `ratingSnapshotHref` / LB parity). |
+| 2026-07-03 | **Amiga rank chart peak — absent tournament clause** — when peak rank tournament has no participation snapshot, summary appends same copy as peak-rating LB (`amiga_player_peak_rank_absent_clause()`); API `peak.playedInEvent` + `peak.absentClause`. |
+| 2026-07-03 | **Amiga chart peak copy — inline flag text** — `k2-amiga-inline-flag-text` (16×12 baseline flag + link) replaces `k2-amiga-wc-podium-player` in peak summaries. |
+| 2026-07-03 | **Amiga profile chart peak copy — tournament links** — rating + rank peak summaries: host flag + `k2-link-star` tournament link (`event-stats.php#tournament`); API `peak` adds `tournamentId`, `hostCountry`, `flagCode`. |
 | 2026-07-03 | **Elo rating glance copy** — name (+ Amiga flag), rank + rating, footer “Click to view rating leaderboard”; hidden at Amiga pre-debut cutoff. |
 | 2026-07-03 | **Online LB + Status Elo links** — 11 hub LB wings + League honours + Status active table: `k2_lb_rating_cell_link()` → rating LB `#k2-lb-player-{id}`; `rating.php` row anchors + `lb-rating-page.js`; profile hero rank/rating → row anchor. |
 | 2026-07-03 | **Amiga rating LB — same-page Elo row scroll** — row anchors moved to Player col (autorank was wiping rank col); `js/amiga-lb-rating-page.js` on `rating.php` only. |

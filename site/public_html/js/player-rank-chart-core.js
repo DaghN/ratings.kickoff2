@@ -456,12 +456,95 @@
             .replace(/"/g, '&quot;');
     }
 
-    function peakAfterClause(tournamentName) {
-        if (!tournamentName) {
+    var TOURNAMENT_PAGE_FRAGMENT = 'tournament';
+
+    function countryRosterUrl(hostCountry) {
+        if (!hostCountry) {
             return '';
         }
+        var url = '/amiga/country/roster.php?country=' + encodeURIComponent(hostCountry);
+        var TT = global.K2AmigaTimeTravelUrl;
+        if (TT && TT.navigationQuerySuffix) {
+            url += TT.navigationQuerySuffix();
+        }
+        return url + '#k2-country-roster';
+    }
 
-        return ', after ' + escapeHtml(tournamentName);
+    function tournamentEventStatsUrl(tournamentId) {
+        var url = '/amiga/tournament/event-stats.php?id=' + encodeURIComponent(tournamentId);
+        var TT = global.K2AmigaTimeTravelUrl;
+        if (TT && TT.navigationQuerySuffix) {
+            url += TT.navigationQuerySuffix();
+        }
+        return url + '#' + TOURNAMENT_PAGE_FRAGMENT;
+    }
+
+    function peakRatingSnapshotUrl(tournamentId) {
+        var url = '/amiga/leaderboards/rating.php?as=' + encodeURIComponent('event:' + tournamentId);
+        var TT = global.K2AmigaTimeTravelUrl;
+        if (TT && TT.navigationQuerySuffix) {
+            url += TT.navigationQuerySuffix();
+        }
+        return url;
+    }
+
+    function peakRatingSnapshotSentence(href, linkClass) {
+        if (!href) {
+            return '';
+        }
+        var cls = linkClass || 'pm3-chart-peak-link';
+        var hereLink = '<a class="' + escapeHtml(cls) + '" href="' + escapeHtml(href) + '">here</a>';
+        return ' <span class="pm3d-chart__summary-note">Click ' + hereLink
+            + ' to see the time travel snapshot of the rating list at this time.</span>';
+    }
+
+    function amigaFlagLinkHtml(flagCode, hostCountry) {
+        if (!flagCode) {
+            return '';
+        }
+        var src = '/img/flags/amiga/' + encodeURIComponent(flagCode) + '.svg';
+        var img = '<img src="' + src + '" width="16" height="12"'
+            + ' class="k2-amiga-country-flag-img k2-amiga-country-flag-img--text"'
+            + ' decoding="async" loading="lazy" alt="" aria-hidden="true">';
+        var href = hostCountry ? countryRosterUrl(hostCountry) : '';
+        if (href) {
+            return '<a class="k2-country-roster-link" href="' + escapeHtml(href) + '">' + img + '</a>';
+        }
+        return img;
+    }
+
+    function peakTournamentAfterHtml(info, linkClass) {
+        var name = info && info.tournamentName ? String(info.tournamentName) : '';
+        var tournamentId = info && info.tournamentId ? info.tournamentId : null;
+        var peakLinkClass = linkClass || 'pm3-chart-peak-link';
+        if (!name && !tournamentId) {
+            return '';
+        }
+        if (!tournamentId) {
+            return ', after ' + escapeHtml(name);
+        }
+        var href = tournamentEventStatsUrl(tournamentId);
+        var nameLink = '<a class="' + escapeHtml(peakLinkClass) + '" href="' + escapeHtml(href) + '">'
+            + escapeHtml(name) + '</a>';
+        var flag = amigaFlagLinkHtml(info.flagCode, info.hostCountry);
+        if (flag) {
+            return ', after<span class="k2-amiga-inline-flag-text">' + flag + nameLink + '</span>';
+        }
+        return ', after ' + nameLink;
+    }
+
+    function peakAfterClause(tournament, options) {
+        if (!tournament) {
+            return '';
+        }
+        var opts = options || {};
+        if (typeof tournament === 'string') {
+            if (!tournament) {
+                return '';
+            }
+            return ', after ' + escapeHtml(tournament);
+        }
+        return peakTournamentAfterHtml(tournament, opts.peakLinkClass);
     }
 
     function peakPointFromHistory(points, scale) {
@@ -506,7 +589,10 @@
                 peak = {
                     point: {
                         eventDate: stored.eventDate,
-                        tournamentName: stored.tournamentName || ''
+                        tournamentName: stored.tournamentName || '',
+                        tournamentId: stored.tournamentId || null,
+                        hostCountry: stored.hostCountry || '',
+                        flagCode: stored.flagCode || ''
                     },
                     display: scale === 'percentile'
                         ? (stored.percentile != null ? stored.percentile + '%' : null)
@@ -526,15 +612,24 @@
             summary.hidden = true;
             return;
         }
-        var tournamentName = peak.point.tournamentName || '';
+        var tournamentInfo = {
+            tournamentName: peak.point.tournamentName || '',
+            tournamentId: peak.point.tournamentId || null,
+            hostCountry: peak.point.hostCountry || '',
+            flagCode: peak.point.flagCode || ''
+        };
         var valueClass = opts.peakValueClass || 'pm3-chart-peak-value';
         var rankHtml = '<span class="' + valueClass + '">' + peak.display + '</span>';
+        var absentClause = (opts.peak && opts.peak.absentClause) ? escapeHtml(opts.peak.absentClause) : '';
+        var snapshotHref = (opts.peak && opts.peak.ratingSnapshotHref)
+            || (tournamentInfo.tournamentId ? peakRatingSnapshotUrl(tournamentInfo.tournamentId) : '');
+        var snapshotSentence = peakRatingSnapshotSentence(snapshotHref, opts.peakLinkClass);
         var whenHtml = ' <span class="pm3d-chart__summary-note">on ' + formatTooltipDate(whenDate)
-            + peakAfterClause(tournamentName) + '.</span>';
+            + peakAfterClause(tournamentInfo, { peakLinkClass: opts.peakLinkClass }) + absentClause + '.</span>';
         if (opts.namePrefix) {
-            summary.innerHTML = opts.namePrefix + ' peak: ' + rankHtml + whenHtml;
+            summary.innerHTML = opts.namePrefix + ' peak: ' + rankHtml + whenHtml + snapshotSentence;
         } else {
-            summary.innerHTML = 'Peak: ' + rankHtml + whenHtml;
+            summary.innerHTML = 'Peak: ' + rankHtml + whenHtml + snapshotSentence;
         }
         summary.hidden = false;
     }

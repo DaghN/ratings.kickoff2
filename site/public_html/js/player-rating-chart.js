@@ -231,7 +231,12 @@
         });
         summary.innerHTML = 'Peak: <span class="pm3-chart-peak-value">' + stats.peak + '</span>'
             + ' <span class="pm3d-chart__summary-note">on ' + peakWhen
-            + peakAfterClause(stats.tournamentName) + '.</span>';
+            + peakAfterClause({
+                tournamentName: stats.tournamentName || '',
+                tournamentId: stats.tournamentId || null,
+                hostCountry: stats.hostCountry || '',
+                flagCode: stats.flagCode || ''
+            }) + '.</span>';
         summary.hidden = false;
     }
 
@@ -762,6 +767,9 @@
                             peak: data.peak.rating,
                             peakDate: storedPeakDate,
                             tournamentName: data.peak.tournamentName || '',
+                            tournamentId: data.peak.tournamentId || null,
+                            hostCountry: data.peak.hostCountry || '',
+                            flagCode: data.peak.flagCode || '',
                             latest: dateChartData[dateChartData.length - 1].y
                         });
                     }

@@ -565,6 +565,22 @@ body.k2-site .pm3d-section--moments .pm3-moment__score a:focus-visible {
 	font-weight: 600;
 }
 
+.player-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link,
+.player-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link,
+.player-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link:visited,
+.player-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link:visited {
+	color: color-mix(in srgb, var(--k2-pure-amber) 85%, var(--k2-text-primary));
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.player-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link:hover,
+.player-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link:hover,
+.player-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link:focus-visible,
+.player-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link:focus-visible {
+	color: color-mix(in srgb, var(--k2-pure-amber) 95%, var(--k2-text-primary));
+}
+
 .player-compare-rank-chart .pm3-chart-peak-value--subject {
 	color: color-mix(in srgb, var(--k2-pure-chrome) 85%, var(--k2-text-primary));
 	font-weight: 700;
@@ -583,6 +599,38 @@ body.k2-site .pm3d-section--moments .pm3-moment__score a:focus-visible {
 .player-compare-rating-chart .pm3-chart-peak-value--opponent {
 	color: color-mix(in srgb, var(--k2-table-negative) 85%, var(--k2-text-primary));
 	font-weight: 700;
+}
+
+.player-compare-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--subject,
+.player-compare-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--subject:visited,
+.player-compare-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--subject,
+.player-compare-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--subject:visited {
+	color: color-mix(in srgb, var(--k2-pure-chrome) 85%, var(--k2-text-primary));
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.player-compare-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--subject:hover,
+.player-compare-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--subject:focus-visible,
+.player-compare-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--subject:hover,
+.player-compare-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--subject:focus-visible {
+	color: color-mix(in srgb, var(--k2-pure-chrome) 95%, var(--k2-text-primary));
+}
+
+.player-compare-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--opponent,
+.player-compare-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--opponent:visited,
+.player-compare-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--opponent,
+.player-compare-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--opponent:visited {
+	color: color-mix(in srgb, var(--k2-table-negative) 85%, var(--k2-text-primary));
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.player-compare-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--opponent:hover,
+.player-compare-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--opponent:focus-visible,
+.player-compare-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--opponent:hover,
+.player-compare-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link--opponent:focus-visible {
+	color: color-mix(in srgb, var(--k2-table-negative) 95%, var(--k2-text-primary));
 }
 
 body.k2-site .k2-chart-html-tooltip {
@@ -694,7 +742,7 @@ body.k2-site .k2-chart-html-tooltip .pm3-chart-tooltip-rating--opponent {
 	border-color: var(--k2-segment-active-ring);
 }
 
-/* ELO rating By date / By game # — fixed chart amber (matches rating line), not UI tint */
+/* ELO rating + rank chart toggles — fixed chart amber (matches rating line), not UI tint */
 body.k2-site .k2-chart-panel > .k2-panel-heading.k2-table-helped {
 	cursor: help;
 	width: fit-content;
@@ -706,7 +754,8 @@ body.k2-site .k2-chart-panel > .k2-panel-heading.k2-table-helped:focus-visible {
 	outline: none;
 }
 
-.player-rating-chart .pm3d-rating-toggle__btn.is-active {
+.player-rating-chart .pm3d-rating-toggle__btn.is-active,
+.player-rank-chart .pm3d-rating-toggle__btn.is-active {
 	color: color-mix(in srgb, var(--k2-pure-amber) 72%, var(--k2-text-secondary));
 	background: color-mix(in srgb, var(--k2-pure-amber) 14%, var(--k2-bg-elevated));
 	border-color: color-mix(in srgb, var(--k2-pure-amber) 42%, transparent);

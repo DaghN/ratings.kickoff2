@@ -51,6 +51,8 @@ Implementation: `includes/k2_amiga_country_flag.php`.
 |------------|-------|------|
 | `k2_amiga_lb_player_cell($playerId, $name, $country)` | flag + player name | Nationality beside player (rating LB, opponents, event stats, …) |
 | `k2_amiga_lb_tournament_cell($tournamentId, $name, $hostCountry)` | host flag + tournament name | Host nation beside tournament (catalog, player history, WC chronology, WC stats, perf-rating Event col, …) |
+
+**Inline prose (not table cells):** wrapper `k2-amiga-inline-flag-text` — 16×12 px `k2-amiga-country-flag-img--text` (2px radius), baseline-aligned; `margin-left: 0.45em` before flag, `margin-right: 0.15em` after flag (both em-based). Tournament name link in chart peak copy uses **`pm3-chart-peak-link`** (peak accent ink), **not** `k2-link-star`. Do **not** reuse `k2-amiga-wc-podium-player` in sentences.
 | `k2_amiga_lb_country_cell($countryToken)` | flag + country name | Countries index, WC Countries wings — row **is** the country |
 
 Shared layout:

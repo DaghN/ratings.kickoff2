@@ -176,11 +176,13 @@
         Core.renderPeakSummary(subjectSummary, playerPoints, state.scale, {
             namePrefix: player.playerName || 'Player',
             peakValueClass: 'pm3-chart-peak-value pm3-chart-peak-value--subject',
+            peakLinkClass: 'pm3-chart-peak-link pm3-chart-peak-link--subject',
             peak: player.peak
         });
         Core.renderPeakSummary(opponentSummary, opponentPoints, state.scale, {
             namePrefix: opponent.playerName || state.opponentName || 'Opponent',
             peakValueClass: 'pm3-chart-peak-value pm3-chart-peak-value--opponent',
+            peakLinkClass: 'pm3-chart-peak-link pm3-chart-peak-link--opponent',
             peak: opponent.peak
         });
 

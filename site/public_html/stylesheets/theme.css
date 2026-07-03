@@ -4214,6 +4214,32 @@ body.k2-site a.k2-player-hero__avatar-link:focus {
 	vertical-align: top;
 }
 
+/* Inline prose — host flag before entity link in running text (chart peak copy, etc.). */
+.k2-amiga-inline-flag-text {
+	white-space: nowrap;
+	margin-left: 0.45em;
+}
+
+.k2-amiga-inline-flag-text .k2-country-roster-link {
+	display: inline;
+	vertical-align: baseline;
+	margin-right: 0.15em;
+	text-decoration: none;
+	line-height: inherit;
+}
+
+.k2-amiga-inline-flag-text .k2-amiga-country-flag-img--text {
+	display: inline-block;
+	width: 16px;
+	height: 12px;
+	vertical-align: baseline;
+	border-radius: 2px;
+}
+
+.k2-amiga-inline-flag-text .k2-link-star {
+	vertical-align: baseline;
+}
+
 /* Block img in centered cells — inline-block link so text-align: center takes effect. */
 body.k2-site .k2-table td.k2-table-cell--center > a.k2-country-roster-link {
 	display: inline-block;

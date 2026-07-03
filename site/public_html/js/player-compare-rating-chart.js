@@ -445,7 +445,7 @@
         return ', after ' + escapeHtml(tournamentName);
     }
 
-    function renderRatingPeakSummary(summary, peak, namePrefix, valueClass) {
+    function renderRatingPeakSummary(summary, peak, namePrefix, valueClass, linkClass) {
         if (!summary) {
             return;
         }
@@ -463,9 +463,15 @@
             month: 'short',
             day: 'numeric'
         });
+        var peakLinkClass = linkClass || 'pm3-chart-peak-link';
         summary.innerHTML = namePrefix + ' peak: <span class="' + valueClass + '">' + peak.rating + '</span>'
             + ' <span class="pm3d-chart__summary-note">on ' + when
-            + peakAfterClause(peak.tournamentName) + '.</span>';
+            + peakAfterClause({
+                tournamentName: peak.tournamentName || '',
+                tournamentId: peak.tournamentId || null,
+                hostCountry: peak.hostCountry || '',
+                flagCode: peak.flagCode || ''
+            }, { peakLinkClass: peakLinkClass }) + '.</span>';
         summary.hidden = false;
     }
 
@@ -882,13 +888,15 @@
                             subjectPeakSummary,
                             player.peak,
                             player.playerName || 'Player',
-                            'pm3-chart-peak-value pm3-chart-peak-value--subject'
+                            'pm3-chart-peak-value pm3-chart-peak-value--subject',
+                            'pm3-chart-peak-link pm3-chart-peak-link--subject'
                         );
                         renderRatingPeakSummary(
                             opponentPeakSummary,
                             opponent.peak,
                             opponent.playerName || opponentName || 'Opponent',
-                            'pm3-chart-peak-value pm3-chart-peak-value--opponent'
+                            'pm3-chart-peak-value pm3-chart-peak-value--opponent',
+                            'pm3-chart-peak-link pm3-chart-peak-link--opponent'
                         );
                     } else {
                         if (subjectPeakSummary) {

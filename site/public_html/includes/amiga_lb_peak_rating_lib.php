@@ -8,6 +8,46 @@ require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_player_game_row.php';
 require_once __DIR__ . '/peak_month_leaderboard_query.php';
 
+function amiga_player_peak_rank_played_in_event(mysqli $con, int $playerId, int $tournamentId): bool
+{
+    if ($playerId < 1 || $tournamentId < 1) {
+        return false;
+    }
+
+    $stmt = $con->prepare(
+        'SELECT 1 FROM amiga_player_event_snapshots '
+        . 'WHERE player_id = ? AND tournament_id = ? AND NumberGames > 0 LIMIT 1'
+    );
+    if (!$stmt) {
+        return false;
+    }
+    $stmt->bind_param('ii', $playerId, $tournamentId);
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return false;
+    }
+    $res = $stmt->get_result();
+    $found = $res && $res->fetch_row();
+    if ($res) {
+        $res->free();
+    }
+    $stmt->close();
+
+    return $found !== false && $found !== null;
+}
+
+/** Plain-text absent clause for peak-rank tournament context (LB tooltip + rank chart peak line). */
+function amiga_player_peak_rank_absent_clause(string $playerName): string
+{
+    $playerName = trim($playerName);
+    if ($playerName === '') {
+        return '';
+    }
+
+    return ' (' . $playerName . ' did not play in this tournament, but the results favored his standing in the rating list)';
+}
+
 function amiga_lb_peak_rating_peak_tooltip_enabled(array $row): bool
 {
     if (k2_fmt_peak_rating($row['PeakRating'] ?? null) === '-') {
@@ -143,7 +183,8 @@ function amiga_lb_peak_rating_peak_rank_tooltip_html(array $row): string
     $absentClause = '';
     $played = (int) ($row['peak_elo_rank_played_in_event'] ?? 0) === 1;
     if (!$played) {
-        $absentClause = ' (' . $name . ' did not play in this tournament, but the results favored his standing in the rating list)';
+        $plain = amiga_player_peak_rank_absent_clause((string) ($row['Name'] ?? ''));
+        $absentClause = $plain !== '' ? htmlspecialchars($plain, ENT_QUOTES, 'UTF-8') : '';
     }
 
     return $nameHtml . ' first obtained his peak rank ' . $rankHtml . $dateClause

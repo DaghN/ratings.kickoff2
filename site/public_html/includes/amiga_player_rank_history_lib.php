@@ -28,6 +28,7 @@ function amiga_player_rank_peak_summary(
     mysqli $con,
     int $playerId,
     ?AmigaSnapshotContext $ctx = null,
+    string $playerName = '',
 ): ?array {
     if ($playerId < 1) {
         return null;
@@ -43,7 +44,7 @@ function amiga_player_rank_peak_summary(
         if ($cutoff === null) {
             return null;
         }
-        $sql = 'SELECT x.peak_elo_rank, x.peak_elo_rank_tournament_id, t.event_date, t.name AS tournament_name '
+        $sql = 'SELECT x.peak_elo_rank, x.peak_elo_rank_tournament_id, t.event_date, t.name AS tournament_name, t.country AS host_country '
             . 'FROM ('
             . '  SELECT er.peak_elo_rank, er.peak_elo_rank_tournament_id, '
             . '    ROW_NUMBER() OVER ('
@@ -65,7 +66,7 @@ function amiga_player_rank_peak_summary(
         $stmt->bind_param('isdi', $playerId, $eventDateParam, $chrono, $tournamentId);
     } else {
         $careerTable = amiga_player_career_table($con);
-        $sql = 'SELECT c.peak_elo_rank, c.peak_elo_rank_tournament_id, t.event_date, t.name AS tournament_name '
+        $sql = 'SELECT c.peak_elo_rank, c.peak_elo_rank_tournament_id, t.event_date, t.name AS tournament_name, t.country AS host_country '
             . 'FROM `' . $careerTable . '` c '
             . 'LEFT JOIN tournaments t ON t.id = c.peak_elo_rank_tournament_id '
             . 'WHERE c.player_id = ? AND c.NumberGames > 0 LIMIT 1';
@@ -128,11 +129,24 @@ function amiga_player_rank_peak_summary(
         return null;
     }
 
+    require_once __DIR__ . '/k2_amiga_country_flag.php';
+    require_once __DIR__ . '/amiga_lb_peak_rating_lib.php';
+    $hostCountry = trim((string) ($row['host_country'] ?? ''));
+    $flagMeta = k2_amiga_country_flag_meta($hostCountry);
+    $playedInEvent = amiga_player_peak_rank_played_in_event($con, $playerId, $peakTournamentId);
+    $absentClause = $playedInEvent ? '' : amiga_player_peak_rank_absent_clause($playerName);
+
     return [
         'eloRank' => $peakRank,
         'eventDate' => $eventDate,
         'percentile' => amiga_player_rank_percentile($peakRank, $ladderSize),
+        'tournamentId' => $peakTournamentId,
         'tournamentName' => $tournamentName,
+        'hostCountry' => $hostCountry,
+        'flagCode' => $flagMeta !== null ? $flagMeta['code'] : '',
+        'playedInEvent' => $playedInEvent,
+        'absentClause' => $absentClause,
+        'ratingSnapshotHref' => amiga_lb_peak_rating_peak_rank_href($peakTournamentId),
     ];
 }
 
@@ -346,7 +360,7 @@ function amiga_player_rank_history_payload(
         'currentRank' => $currentRank,
         'points' => $points,
         'meta' => $meta,
-        'peak' => amiga_player_rank_peak_summary($con, $playerId, $ctx),
+        'peak' => amiga_player_rank_peak_summary($con, $playerId, $ctx, (string) $nameRow['Name']),
         'timelineStart' => $timelineStart,
     ];
 }
