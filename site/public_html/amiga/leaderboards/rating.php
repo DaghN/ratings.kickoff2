@@ -119,9 +119,9 @@ while ($row = mysqli_fetch_assoc($result)) {
     $winRate = amiga_wc_lb_win_rate($wins, $draws, $games);
     ?>
     <tr>
-        <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo k2_lb_player_row_anchor_markup($playerId); ?><?php echo (int) $rank; ?></td>
-        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_amiga_lb_player_cell($playerId, $playerName, (string) ($row['Country'] ?? '')); ?></td>
-        <td<?php echo k2_lb_td($colElo, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
+        <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo (int) $rank; ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_lb_player_row_anchor_markup($playerId); ?><?php echo k2_amiga_lb_player_cell($playerId, $playerName, (string) ($row['Country'] ?? '')); ?></td>
+        <td<?php echo k2_lb_td($colElo, $lbSort); ?>><?php echo k2_amiga_lb_rating_cell_link($playerId, $row['Rating'], $playerName); ?></td>
 <?php if ($showDeltaColumn) { ?>
         <td<?php echo k2_lb_td($colDelta, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h(amiga_lb_rating_delta_sort_value($delta)); ?>"><?php echo amiga_lb_rating_delta_cell($delta, $deltaLinkTournamentId); ?></td>
 <?php } ?>
@@ -145,6 +145,8 @@ while ($row = mysqli_fetch_assoc($result)) {
 <p style="padding:0 1.25rem 2rem;color:var(--k2-text-secondary)"><?php echo number_format($gameCount); ?> rated games in database.</p>
 
 </div><!-- .k2-page-nav -->
+
+<script type="text/javascript" src="/js/amiga-lb-rating-page.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/amiga-lb-rating-page.js'); ?>" defer="defer"></script>
 
 </body>
 </html>

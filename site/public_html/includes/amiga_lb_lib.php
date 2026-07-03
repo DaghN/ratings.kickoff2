@@ -63,7 +63,8 @@ function k2_amiga_lb_rating_cell_link(int $playerId, mixed $rating, string $play
         ? 'View ' . $name . ' on rating leaderboard'
         : 'View on rating leaderboard';
 
-    return '<a class="k2-link-star" href="' . k2_h($href) . '" aria-label="' . k2_h($ariaLabel) . '">'
+    return '<a class="k2-link-star" href="' . k2_h($href) . '" aria-label="' . k2_h($ariaLabel) . '"'
+        . ' data-k2-amiga-player-glance-rating="' . $playerId . '">'
         . k2_h($display) . '</a>';
 }
 

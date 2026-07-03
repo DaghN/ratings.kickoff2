@@ -15,6 +15,7 @@ require_once __DIR__ . '/amiga_profile_blocks.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/k2_amiga_country_flag.php';
+require_once __DIR__ . '/amiga_lb_lib.php';
 
 const AMIGA_LB_PERF_RATING_COL_PERF = 3;
 const AMIGA_LB_PERF_RATING_COL_DATE = 9;
@@ -75,7 +76,7 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows): vo
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_amiga_lb_player_cell($playerId, $playerName, (string) ($row['country'] ?? '')); ?></td>
-        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
+        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_amiga_lb_rating_cell_link($playerId, $row['Rating'], $playerName); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?><?php echo $isPerfect ? ' data-k2-sort-value="0"' : ''; ?>><span class="blue"><?php
             if ($isPerfect) {
                 echo performance_rating_infinity_cell_html();

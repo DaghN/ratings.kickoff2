@@ -67,7 +67,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_amiga_lb_player_cell((int) $row['ID'], $playerName, (string) ($row['Country'] ?? '')); ?></td>
-        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_fmt_int($row['Rating']); ?></td>
+        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_amiga_lb_rating_cell_link((int) $row['ID'], $row['Rating'], $playerName); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo amiga_lb_peak_rating_peak_cell_html($row); ?></td>
         <td<?php echo k2_lb_td(5, $lbSort, 'k2-table-cell--right'); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value(['event_date' => $row['peak_rating_date'] ?? null]); ?>"><?php echo amiga_profile_format_event_date($row['peak_rating_date'] ?? null); ?></td>

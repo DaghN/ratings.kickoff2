@@ -1,5 +1,7 @@
 /**
- * Player name hover glance (online + Amiga) — tiers A (compact) and B (hero stat strip).
+ * Player name hover glance (online + Amiga) — tiers A (compact) and B (hero stat strip);
+ * Amiga Elo links use rating mode (rank + rating only) via data-k2-amiga-player-glance-rating
+ * and __print--rating (shrink-to-fit shell).
  * Tier toggle: includes/amiga_player_glance_config.php → K2_PLAYER_GLANCE_TIER
  */
 (function (global) {
@@ -21,6 +23,7 @@
 	var activeAnchor = null;
 	var activePlayerId = null;
 	var activeRealm = null;
+	var activeMode = null;
 	var bound = false;
 
 	function onReady(fn) {
@@ -245,7 +248,28 @@
 			+ '</div>';
 	}
 
-	function renderGlance(data, realm) {
+	function renderRatingGlance(data) {
+		var rank = data.pre_debut || !data.display ? '—' : (data.rank ? '#' + data.rank : '—');
+		var rating = data.pre_debut || !data.display ? '—' : fmtInt(data.rating);
+		return '<div class="k2-amiga-player-glance k2-amiga-player-glance--rating">'
+			+ glanceFrameOpen('rating')
+			+ '<div class="k2-amiga-player-glance__card k2-amiga-player-glance__card--rating" aria-hidden="true">'
+			+ '<div class="k2-amiga-player-glance__body">'
+			+ '<div class="k2-amiga-player-glance__stats">'
+			+ statBlockHtml('Rank', rank, 'k2-amiga-player-glance__stat-value--rank')
+			+ statBlockHtml('Rating', rating, '')
+			+ '</div>'
+			+ '</div>'
+			+ '</div>'
+			+ preDebutNoteHtml(data)
+			+ glanceFrameClose()
+			+ '</div>';
+	}
+
+	function renderGlance(data, realm, mode) {
+		if (mode === 'rating' && realm === 'amiga') {
+			return renderRatingGlance(data);
+		}
 		if (tier === 'B') {
 			return realm === 'online' ? renderTierBOnline(data) : renderTierB(data);
 		}
@@ -354,13 +378,14 @@
 		activeAnchor = null;
 		activePlayerId = null;
 		activeRealm = null;
+		activeMode = null;
 	}
 
-	function showGlance(anchor, playerId, realm, data) {
+	function showGlance(anchor, playerId, realm, data, mode) {
 		var tip = glanceTooltip();
 		var bodyEl = tip.querySelector('.k2-table-tooltip__body');
 		if (bodyEl) {
-			bodyEl.innerHTML = renderGlance(data, realm);
+			bodyEl.innerHTML = renderGlance(data, realm, mode);
 			if (typeof global.k2TableInitHelpTooltips === 'function') {
 				global.k2TableInitHelpTooltips(bodyEl);
 			}
@@ -369,6 +394,7 @@
 		activeAnchor = anchor;
 		activePlayerId = playerId;
 		activeRealm = realm;
+		activeMode = mode;
 		positionTooltip(anchor, tip);
 	}
 
@@ -376,7 +402,7 @@
 		if (hoverSession !== session || session.failed || !session.delayReady || !session.data) {
 			return;
 		}
-		showGlance(session.anchor, session.playerId, session.realm, session.data);
+		showGlance(session.anchor, session.playerId, session.realm, session.data, session.mode);
 		hoverSession = null;
 	}
 
@@ -402,7 +428,7 @@
 		}, HIDE_DELAY_MS);
 	}
 
-	function scheduleShow(anchor, playerId, realm) {
+	function scheduleShow(anchor, playerId, realm, mode) {
 		clearShowTimer();
 		clearHideTimer();
 		hideTooltip();
@@ -411,6 +437,7 @@
 			anchor: anchor,
 			playerId: playerId,
 			realm: realm,
+			mode: mode,
 			delayReady: false,
 			data: null,
 			failed: false
@@ -443,9 +470,19 @@
 			});
 	}
 
+	function glanceModeFromAnchor(anchor) {
+		if (anchor.getAttribute('data-k2-amiga-player-glance-rating')) {
+			return 'rating';
+		}
+		return 'full';
+	}
+
 	function realmFromAnchor(anchor) {
 		if (!anchor || anchor.nodeType !== 1) {
 			return null;
+		}
+		if (anchor.getAttribute('data-k2-amiga-player-glance-rating')) {
+			return 'amiga';
 		}
 		if (anchor.getAttribute('data-k2-amiga-player-glance')) {
 			return 'amiga';
@@ -460,7 +497,7 @@
 		if (!anchor || anchor.nodeType !== 1) {
 			return 0;
 		}
-		var attrs = ['data-k2-amiga-player-glance', 'data-k2-player-glance'];
+		var attrs = ['data-k2-amiga-player-glance', 'data-k2-player-glance', 'data-k2-amiga-player-glance-rating'];
 		for (var i = 0; i < attrs.length; i++) {
 			var attr = anchor.getAttribute(attrs[i]);
 			if (attr) {
@@ -491,14 +528,15 @@
 		}
 		var playerId = playerIdFromAnchor(anchor);
 		var realm = realmFromAnchor(anchor);
+		var mode = glanceModeFromAnchor(anchor);
 		if (playerId < 1 || !realm) {
 			return;
 		}
-		if (activeAnchor === anchor && activePlayerId === playerId && activeRealm === realm) {
+		if (activeAnchor === anchor && activePlayerId === playerId && activeRealm === realm && activeMode === mode) {
 			clearHideTimer();
 			return;
 		}
-		scheduleShow(anchor, playerId, realm);
+		scheduleShow(anchor, playerId, realm, mode);
 	}
 
 	function onPointerOut(event) {

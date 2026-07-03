@@ -1,6 +1,6 @@
 /**
- * Amiga player name hover glance — tiers A (compact) and B (hero stat strip).
- * Popover shell extends .k2-table-tooltip; toggle tier in amiga_player_glance_config.php.
+ * Amiga player name hover glance — tiers A (compact) and B (hero stat strip);
+ * rating mode (Elo link hover) uses __print--rating (shrink-to-fit, no tier A min-width).
  *
  * Lift shadow (Jul 2026): neutral halo around the card on busy table backgrounds.
  * - Token: --k2-amiga-glance-lift-shadow (tiers A + B)
@@ -254,6 +254,59 @@ body.k2-site .k2-amiga-player-glance--a .k2-amiga-player-glance__stat-value--ran
 	color: var(--k2-link-star);
 }
 
+/* ===== Rating Elo hover — rank + rating only (__print--rating) ===== */
+
+body.k2-site .k2-amiga-player-glance__print--rating {
+	--k2-amiga-glance-side: var(--k2-accent);
+	border: 2px solid var(--k2-amiga-glance-side);
+	box-sizing: border-box;
+	width: max-content;
+	max-width: min(320px, calc(100vw - 24px));
+	animation:
+		k2-amiga-glance-print-in 0.5s ease-out forwards,
+		k2-amiga-glance-accent-shadow-in-a 0.5s ease-out forwards;
+}
+
+body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__card--rating {
+	padding: 12px 14px;
+	box-sizing: border-box;
+}
+
+body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__body {
+	min-width: 0;
+}
+
+body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__stats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px 16px;
+}
+
+body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__stat {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	min-width: 0;
+}
+
+body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__stat-label {
+	font-size: 8px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--k2-text-muted);
+	line-height: 1.25;
+}
+
+body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__stat-value {
+	font-family: var(--k2-font-display);
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.2;
+	font-variant-numeric: tabular-nums;
+	color: var(--k2-link-star);
+}
+
 /* ===== Tier B — scaled profile hero (read-only) ===== */
 
 body.k2-site .k2-amiga-player-glance__print--b {
@@ -383,6 +436,14 @@ body.k2-site .k2-amiga-player-glance--b .k2-amiga-player-glance__hero .k2-countr
 	}
 
 	body.k2-site .k2-amiga-player-glance__print--a {
+		box-shadow:
+			0 0 8px color-mix(in srgb, var(--k2-amiga-glance-side) 16%, transparent),
+			0 0 18px color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent),
+			0 0 28px color-mix(in srgb, var(--k2-amiga-glance-side) 5%, transparent),
+			inset 0 1px 0 color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent);
+	}
+
+	body.k2-site .k2-amiga-player-glance__print--rating {
 		box-shadow:
 			0 0 8px color-mix(in srgb, var(--k2-amiga-glance-side) 16%, transparent),
 			0 0 18px color-mix(in srgb, var(--k2-amiga-glance-side) 10%, transparent),
