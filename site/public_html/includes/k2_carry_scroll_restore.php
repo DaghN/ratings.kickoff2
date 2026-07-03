@@ -11,6 +11,10 @@
  * Normal navigations (no pending restore) are never cloaked and behave exactly as default.
  *
  * URL hash landing: do not add page-local hash scroll scripts — extend this file instead.
+ *
+ * Browser Back: pagehide stores scrollY per pathname+search; back_forward reload restores
+ * that Y instead of re-running hash landing (#player etc.). After inbound hash scroll,
+ * replaceState strips the hash so the history entry tracks free scroll.
  */
 ?>
 <style>
@@ -19,6 +23,7 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 <script>
 (function () {
 	var KEY = 'k2:carryScrollY';
+	var BACK_SCROLL_PREFIX = 'k2:backScroll:';
 	var PENDING_HASH_KEY = 'k2:pendingHashScroll';
 	var MAX_CLOAK_MS = 700;
 	var APPLY_EPS = 3;
@@ -97,11 +102,81 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 		}
 	}
 
-	var hashId = hashTargetId();
-	if (!hashId && SERVER_TARGET) {
+	function pageScrollKey() {
+		return window.location.pathname + window.location.search;
+	}
+
+	function saveBackScroll() {
+		var y = window.pageYOffset;
+		if (y == null) {
+			y = window.scrollY;
+		}
+		try {
+			sessionStorage.setItem(BACK_SCROLL_PREFIX + pageScrollKey(), String(y || 0));
+		} catch (eSave) {
+			/* ignore */
+		}
+	}
+
+	function readBackScroll() {
+		var raw;
+		try {
+			raw = sessionStorage.getItem(BACK_SCROLL_PREFIX + pageScrollKey());
+		} catch (eRead) {
+			return null;
+		}
+		if (raw === null) {
+			return null;
+		}
+		var y = parseInt(raw, 10);
+		if (isNaN(y) || y < 0) {
+			return null;
+		}
+		return { y: y, anchor: null };
+	}
+
+	function clearBackScroll() {
+		try {
+			sessionStorage.removeItem(BACK_SCROLL_PREFIX + pageScrollKey());
+		} catch (eClr) {
+			/* ignore */
+		}
+	}
+
+	function isBackForwardNav() {
+		try {
+			var nav = performance.getEntriesByType('navigation');
+			if (nav && nav.length && nav[0].type === 'back_forward') {
+				return true;
+			}
+		} catch (eNav) {
+			/* ignore */
+		}
+		return false;
+	}
+
+	function stripHashFromHistory() {
+		if (!window.history || !window.history.replaceState || !window.location.hash) {
+			return;
+		}
+		try {
+			var url = new URL(window.location.href);
+			url.hash = '';
+			window.history.replaceState(null, '', url.pathname + url.search);
+		} catch (eStrip) {
+			/* ignore */
+		}
+	}
+
+	window.addEventListener('pagehide', saveBackScroll);
+
+	var backPayload = isBackForwardNav() ? readBackScroll() : null;
+
+	var hashId = backPayload ? '' : hashTargetId();
+	if (!hashId && SERVER_TARGET && !backPayload) {
 		hashId = SERVER_TARGET;
 	}
-	var payload = hashId ? null : readPayload();
+	var payload = hashId ? null : (backPayload || readPayload());
 	var hasPending = !!hashId || !!payload;
 
 	/* ---------- cloak ---------- */
@@ -139,6 +214,9 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 		cloak();
 		if (payload) {
 			clearKey();
+			if (backPayload) {
+				clearBackScroll();
+			}
 		}
 	}
 
@@ -315,7 +393,9 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 	}
 
 	function finishHash() {
-		scrollToHashTarget();
+		if (scrollToHashTarget()) {
+			stripHashFromHistory();
+		}
 		clearPendingHash();
 		reveal();
 		scheduleReassert(function () { scrollToHashTarget(); });

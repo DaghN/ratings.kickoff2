@@ -150,8 +150,9 @@ All hash landing is centralized in **`includes/k2_carry_scroll_restore.php`** (i
 |-----------|---------|
 | `hashTargetId()` | Reads `location.hash` or pending hash stored from a click |
 | Click capture on `a[href*="#"]` | Stores `k2:pendingHashScroll` before navigation; clears any carry-scroll payload |
-| Pre-paint cloak + rAF scroll | Cloaks body, scrolls to the target (honouring `scroll-margin-top`) once it exists / page is tall enough, then reveals; hard 700 ms + `load` safety nets |
-| Carry-scroll restore | **Skipped** when a hash target is active — hash wins |
+| Pre-paint cloak + rAF scroll | Cloaks body, scrolls to the target (honouring `scroll-margin-top`) once it exists / page is tall enough, then reveals; hard 700 ms + `load` safety nets; **strips `#hash` from the history entry after landing** so Back restores free scroll |
+| **Browser Back** | `pagehide` stores scrollY per pathname+search; `back_forward` reload restores that Y (pre-paint cloak) instead of re-running hash landing |
+| Carry-scroll restore | **Skipped** when a hash target is active — hash wins (except **browser Back**: saved `pagehide` scrollY wins over hash on `back_forward` reload) |
 
 **`amiga_url_with_context()`** (and callers that append `#fragment` after it) must **preserve the hash** through query rewriting — do not strip `#…` when adding `as=`.
 

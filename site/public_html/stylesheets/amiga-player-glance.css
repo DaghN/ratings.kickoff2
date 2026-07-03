@@ -268,7 +268,9 @@ body.k2-site .k2-amiga-player-glance__print--rating {
 }
 
 body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__card--rating {
-	padding: 12px 14px;
+	--k2-amiga-glance-name: 18px;
+	--k2-amiga-glance-value: 14px;
+	padding: 14px 16px;
 	box-sizing: border-box;
 }
 
@@ -277,16 +279,21 @@ body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__body {
 }
 
 body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__name {
-	margin: 0 0 8px;
+	margin: 0 0 6px;
 	font-family: var(--k2-font-display);
-	font-size: 15px;
+	font-size: var(--k2-amiga-glance-name);
 	font-weight: 600;
 	line-height: 1.2;
 	color: var(--k2-link-star);
 }
 
 body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__name .k2-amiga-wc-podium-player {
-	gap: 6px;
+	gap: 8px;
+}
+
+body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__name .k2-amiga-country-flag-img {
+	width: 20px;
+	height: 15px;
 }
 
 body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__note--rating-action {
@@ -298,19 +305,22 @@ body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__note--rati
 
 body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__stats {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 10px 16px;
+	flex-wrap: nowrap;
+	align-items: flex-start;
+	gap: 8px 20px;
+	transform: translateY(2px);
 }
 
 body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__stat {
 	display: flex;
 	flex-direction: column;
+	flex: 0 0 auto;
 	gap: 0;
 	min-width: 0;
 }
 
 body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__stat-label {
-	font-size: 8px;
+	font-size: 9px;
 	font-weight: 600;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
@@ -320,7 +330,7 @@ body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__stat-label
 
 body.k2-site .k2-amiga-player-glance--rating .k2-amiga-player-glance__stat-value {
 	font-family: var(--k2-font-display);
-	font-size: 14px;
+	font-size: var(--k2-amiga-glance-value);
 	font-weight: 600;
 	line-height: 1.2;
 	font-variant-numeric: tabular-nums;

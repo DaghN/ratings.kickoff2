@@ -137,11 +137,13 @@
 | When | Note |
 |------|------|
 | 2026-07-03 | **Mobile / smartphone policy** — locked intent: read-first + pinch-second; dense tables stay tables (not card-reflow debt). Agent doc [`k2-mobile-smartphone-policy.md`](docs/k2-mobile-smartphone-policy.md); cross-refs in `design-direction`, `PROJECT_BRIEF`, `k2-tooltip-policy`, `AGENTS.md`. Known gaps: chart tap-to-tooltip, hover+click tap/double-tap, nav touch targets. |
+| 2026-07-03 | **Browser Back scroll restore** — `k2_carry_scroll_restore.php`: `pagehide` saves scrollY per URL; `back_forward` reload restores it (overrides `#player` hash landing); inbound hash scroll strips hash via `replaceState` so history tracks free scroll. |
 | 2026-07-03 | **TT Event ribbon — table inline flag** — stepper uses `k2_amiga_inline_flag_and_link()` (`k2-amiga-wc-podium-player`, 20×15); not prose `inline-flag-text`. |
 | 2026-07-03 | **Amiga rank chart peak — rating snapshot link** — always appends “Click here to see the time travel snapshot…” (`pm3-chart-peak-link` on *here* → `ratingSnapshotHref` / LB parity). |
 | 2026-07-03 | **Amiga rank chart peak — absent tournament clause** — when peak rank tournament has no participation snapshot, summary appends same copy as peak-rating LB (`amiga_player_peak_rank_absent_clause()`); API `peak.playedInEvent` + `peak.absentClause`. |
 | 2026-07-03 | **Amiga chart peak copy — inline flag text** — `k2-amiga-inline-flag-text` (16×12 baseline flag + link) replaces `k2-amiga-wc-podium-player` in peak summaries. |
 | 2026-07-03 | **Amiga profile chart peak copy — tournament links** — rating + rank peak summaries: host flag + `k2-link-star` tournament link (`event-stats.php#tournament`); API `peak` adds `tournamentId`, `hostCountry`, `flagCode`. |
+| 2026-07-03 | **Elo rating glance typography** — `--rating` hover matches tier B player glance (18px name, 9px labels, 14px values, 14×16 padding, 8×20 stat gap). |
 | 2026-07-03 | **Elo rating glance copy** — name (+ Amiga flag), rank + rating, footer “Click to view rating leaderboard”; hidden at Amiga pre-debut cutoff. |
 | 2026-07-03 | **Online LB + Status Elo links** — 11 hub LB wings + League honours + Status active table: `k2_lb_rating_cell_link()` → rating LB `#k2-lb-player-{id}`; `rating.php` row anchors + `lb-rating-page.js`; profile hero rank/rating → row anchor. |
 | 2026-07-03 | **Amiga rating LB — same-page Elo row scroll** — row anchors moved to Player col (autorank was wiping rank col); `js/amiga-lb-rating-page.js` on `rating.php` only. |
