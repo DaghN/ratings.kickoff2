@@ -34,7 +34,7 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 | 1 (narrow) | Ticker (players/games counts, blue numbers) | New players |
 | 2 (narrow) | Online | Recent logins |
 | 3 (widest) | Live games | Recent games |
-| 4 (moderate) | Heritage box (dark inset well, clipped warm tint halo/rays behind box art + caption); **whole inset is a link to `boxart.php`** (box art story) — hover lift/ring only, no visible link text | Leaderboard (active Elo top 20) |
+| 4 (moderate) | Heritage box (dark inset well, clipped warm tint halo/rays behind box art + caption); **whole inset is a link to `boxart.php`** (box art story) — hover: image lift + moment-card border/glow (2px accent + `--k2-accent-glow`); no visible link text | Leaderboard (active Elo top 20) |
 
 Below west: **Leagues** (shipped) spans cols 1–3 — paired **Activity** + **Points**, day/week/month/year tabs. **Daily tab only:** compact **Games this day** list below the league tables (recent-games style + `game.php` link column); updates with day picker / step nav via `api/status_period_day_games.php`. Spec: [`docs/status-period-competitions.md`](status-period-competitions.md).
 

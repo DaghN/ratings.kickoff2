@@ -136,6 +136,8 @@
 
 | When | Note |
 |------|------|
+| 2026-07-03 | **Status heritage box** — removed hover tooltip (`data-k2-help` on boxart link); border/glow hover unchanged. |
+| 2026-07-03 | **Status heritage box hover** — border hover matches profile moment cards (2px accent + `--k2-accent-glow` outward); image lift/scale unchanged; interior lamp inset kept (`theme.css`). |
 | 2026-07-03 | **Player glance — nav pill false trigger** — `amiga-player-glance.js` no longer treats any profile URL as a glance anchor; requires `data-k2-player-glance` / `data-k2-amiga-player-glance` (wing Profile pill excluded). Hand-rolled player links migrated to `k2_player_link()`; Status leagues JS picks get explicit attribute. |
 | 2026-07-03 | **Player hero atomic paint (refresh narrow flash)** — feast hero (`width: fit-content`) painted mid-parse at partial width (~283px vs 751px) with the glow border on reload → narrow border flash. Fix: inline parser-sync scripts around the hero `<article>` toggle `html.k2-player-hero-parsing` (`k2_player_hero_atomic_paint_open/close()` in `k2_player_hero_glow_session.php`, both hero includes); `player-hero-rank.css` hides the feast hero while set, DOMContentLoaded fallback un-hides. Hero now paints fully laid out or not at all — verified via rAF paint log (hidden during 283px frames, visible only at 751px). |
 | 2026-07-03 | **Carry-scroll y=0 pill-nav hero flash** — `carryReady()` waits for the destination page's matching `nav[data-k2-carry-scroll]` (payload anchor label) before uncloak — hero above the nav is fully parsed; content below (huge games tables) still streams (no blanking). Uncloak = `carryReady() \|\| domReady`. Fixes tab-switch-at-top narrow flash / blink; refresh path covered by atomic hero paint row above. |
