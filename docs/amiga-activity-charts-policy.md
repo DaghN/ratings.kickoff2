@@ -1,8 +1,8 @@
 # Amiga Activity charts — IA & product policy
 
-**Status:** **Shipped** (Jul 2026) — **48 panels / 49 ship IDs** on `/amiga/activity/` (six wings). Base track complete (slices 0–10); **Jul 2026 extension:** Nations player grains (+3 panels, community fact registry) — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md).
+**Status:** **Shipped** (Jul 2026) — **49 panels / 50 ship IDs** on `/amiga/activity/` (six wings). Base track complete (slices 0–10); **Jul 2026 extension:** Nations player grains (+3 panels, community fact registry) — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md).
 **Implementation track:** [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md)
-**Questions (product source):** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 49 ship IDs
+**Questions (product source):** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 50 ship IDs
 **Method / storage:** [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) (storage shape — do not reopen)
 **UI pattern:** online [`activity-charts.md`](activity-charts.md) · **Time travel:** [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · **URLs:** [`url-routes.md`](url-routes.md) + [`k2-page-structure-checklist.md`](k2-page-structure-checklist.md)
 
@@ -38,7 +38,7 @@ Design gift vs online Activity: **every cumulative-curve point is a real tournam
 | **People** | `/amiga/activity/people.php` | 5 | VOL-003 · VOL-004+SHP-010 (merged) · SHP-009 · 001 · 002 |
 | **Geography — Hosts** | `/amiga/activity/geography/hosts.php` | 8 | GEO-001 · 002 · 004 · 014 · 003 · 013 · 008 · 009 |
 | **Geography — Nations** | `/amiga/activity/geography/nations.php` | 8 | GEO-016 · 017 · 018 · 005 · 007 · 006 · 015 · 010 |
-| **World Cups** | `/amiga/activity/world-cups.php` | 6 | WC-001 · 003 · 002 · 011 · 006 · 007 |
+| **World Cups** | `/amiga/activity/world-cups.php` | 7 | WC-001 · 003 · 012 · 002 · 011 · 006 · 007 |
 | **Texture** | `/amiga/activity/texture.php` | 6 | TEX-007 · 006 · 008 · 009 · 014 · 013 |
 | **Shape** | `/amiga/activity/shape.php` | 9 | SHP-007 · 008 · 014 · 015 · 003 · 004 · 016 · 005 · 006 |
 
@@ -146,18 +146,19 @@ The wow wing; resolves **IA-3** (§6). With only 12 host countries and 21 nation
 
 Country names in control rows link to `/amiga/country/roster.php?country=` — geography charts are an on-ramp to the Countries universe.
 
-### 5.4 World Cups — "How big was the big stage?" (6 panels)
+### 5.4 World Cups — "How big was the big stage?" (7 panels)
 
 Community WC lens — deliberately distinct from the World Cups hub per-event tables; intro copy cross-links both ways.
 
 | # | Panel | ID(s) | Design |
 |---|-------|-------|--------|
-| 1 | WC games per year | Q-WC-001 | Hero bar with **total realm games as muted ghost bars behind** — instant context, both series already ship. |
-| 2 | WC share of each year's games | Q-WC-003 | % bar (derive at read: WC games ÷ realm games). |
-| 3 | Cumulative WC games | Q-WC-002 | Line to ~8,449 (`WcGamesPlayed` snapshots). Click-through. |
-| 4 | WC goals per game per year | Q-WC-011 | Bar with **realm goals-per-game overlaid as a line** (TEX-007 data) — "is the WC tighter than regular play?" |
-| 5 | Nations at the World Cup per year | Q-WC-006 | Bar (+ WC players per nation tooltip breakdown) |
-| 6 | WC players per year | Q-WC-007 | Bar (+ same WC players-per-nation tooltip as Q-WC-006) |
+| 1 | Participants per year | Q-WC-007 | Bar. **HTML tooltip:** WC context intro first (host flag + tournament name + date from `wc_events_by_year`), then total participants + **per-nationality participant list** (`wc_nationality_active_by_year`). No standalone calendar-year row (date carries the year). |
+| 2 | Nations at the World Cup per year | Q-WC-006 | Same intro block as #1, then total nationalities + **same per-nationality participant list** (shows how many players each country sent). |
+| 3 | WC games per year | Q-WC-001 | WC bars by default; **all rated games** ghost layer hidden until legend toggle (crossed-out label). Hint under heading. **HTML tooltip:** WC intro first, then bar metric (`N WC games` or `N rated games` on ghost layer). |
+| 4 | WC share of each year's games | Q-WC-003 | % bar (derive at read: WC games ÷ realm games). WC intro first, then `% of games` (no year row). |
+| 5 | Average games per participant | Q-WC-012 | Bar (derive at read: **2 ×** WC games ÷ WC active players — two-player games). WC intro first, then rate. |
+| 6 | WC goals per game per year | Q-WC-011 | Bar with **realm goals-per-game overlaid as a line** (TEX-007 data) — "is the WC tighter than regular play?" WC intro first, then WC rate + realm overlay line on hover. |
+| 7 | Cumulative WC games | Q-WC-002 | Line to ~8,449 (`WcGamesPlayed` snapshots, **World Cup events only** — one point per WC, not every realm finalize). Click-through. **HTML tooltip:** same WC intro block as year bars (flag · name · date), demarcation line, then event games + running total. |
 
 ### 5.5 Texture — "How did the games feel, year by year?" (6 panels)
 
@@ -227,7 +228,7 @@ Two control patterns, both Geography-only in v1:
 
 - L2 event-timeline lines: title = **tournament name**, body = date + value. This is the rabbit-hole detail — every point has a name.
 - Year bars: year + value; partial years under TT labelled (§8).
-- **Year-bar breakdown (Jul 2026):** selected realm/WC count bars use Chart.js **external HTML tooltips** (`renderBreakdownYearBar()` in `amiga-activity-charts.js`): summary line = bar total (`N host countries` / `N tournaments` / `N nationalities` / `N players`), then flag + country + per-row count. Data from `year_facts` payload fields at the same cutoff — **`host_tournaments_by_year`** (GEO-008, Q-VOL-005), **`nationality_active_by_year`** (GEO-010), **`wc_nationality_active_by_year`** from stored **`wc_active_players`** facts (Q-WC-006, Q-WC-007; sparse ~few WC years). Full list height, no inner scroll.
+- **Year-bar breakdown (Jul 2026):** Geography / Growth realm bars use Chart.js **external HTML tooltips** (`renderBreakdownYearBar()`): year title + summary + flag + label + per-row count. **World Cups wing year bars** (`renderWcBreakdownYearBar()` / `renderGhostYearBar()` / WC rate bars via `bindWcWingBarExternalTooltip()`): **WC context intro always first** — host flag + tournament name + date from `wc_events_by_year` (`amiga_world_cup_stats` at cutoff); **no duplicate calendar-year row**. Participants + nations panels keep the **nationality participant list** below the intro; metric/rate panels show the chart value only. Ghost “all rated games” layer: intro + rated-games count. Cumulative curve unchanged (flag + name + date, then games + running total).
 - Histograms: bucket + count + % of population.
 - Phone: Chart.js tooltips off on coarse pointers; `touch-action: pan-y pinch-zoom` (online mobile rules).
 

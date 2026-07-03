@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_community_stat_registry.php';
 require_once __DIR__ . '/amiga_snapshot_context.php';
+require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/k2_safety.php';
 
 /** Max countries in Geography race-line selection (?hosts= / ?nats= CSV). */
@@ -383,6 +384,8 @@ function amiga_community_slice_keys_at_cutoff(
  * truncated at a cutoff chrono (time travel). Column MUST be validated
  * against amiga_community_headline_column_names() by the caller.
  *
+ * `WcGamesPlayed` returns World Cup catalog events only (one point per WC).
+ *
  * @return list<array{t: int, date: string, name: string, host: string, value: float|null}>
  */
 function amiga_community_snapshot_series(mysqli $con, string $column, ?float $cutoffChrono = null): array
@@ -414,10 +417,14 @@ function amiga_community_snapshot_series(mysqli $con, string $column, ?float $cu
     $res = $stmt->get_result();
     $out = [];
     while ($row = $res->fetch_assoc()) {
+        $name = (string) ($row['tournament_name'] ?? '');
+        if ($column === 'WcGamesPlayed' && !amiga_tournament_is_world_cup_by_name($name)) {
+            continue;
+        }
         $out[] = [
             't' => (int) ($row['tournament_id'] ?? 0),
             'date' => (string) ($row['event_date'] ?? ''),
-            'name' => (string) ($row['tournament_name'] ?? ''),
+            'name' => $name,
             'host' => (string) ($row['host_country'] ?? ''),
             'value' => $row['v'] === null ? null : (float) $row['v'],
         ];
@@ -627,6 +634,57 @@ function amiga_community_wc_nationality_active_by_year_at_cutoff(mysqli $con, in
         );
     }
     unset($rows);
+
+    return $out;
+}
+
+/**
+ * World Cup events by calendar year at cutoff (Activity World Cups wing tooltips).
+ * One row per WC in that year — `host` for flag, `name` + `date` for label body.
+ *
+ * @return array<string, list<array{t: int, host: string, name: string, date: string}>>
+ */
+function amiga_community_wc_events_by_year_at_cutoff(mysqli $con, int $cutoffTournamentId): array
+{
+    if ($cutoffTournamentId <= 0) {
+        return [];
+    }
+
+    $stmt = $con->prepare(
+        'SELECT w.tournament_id, w.tournament_name, w.host_country, w.event_date, w.calendar_year
+         FROM amiga_world_cup_stats w
+         WHERE w.event_chrono <= (
+             SELECT event_chrono FROM amiga_community_stats_snapshots WHERE tournament_id = ? LIMIT 1
+         )
+           AND w.rated_games > 0
+         ORDER BY w.event_date ASC, w.event_chrono ASC, w.tournament_id ASC'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare wc events by year: ' . $con->error);
+    }
+    $stmt->bind_param('i', $cutoffTournamentId);
+    if (!$stmt->execute()) {
+        $err = $stmt->error;
+        $stmt->close();
+        throw new RuntimeException('execute wc events by year: ' . $err);
+    }
+    $res = $stmt->get_result();
+    $out = [];
+    while ($row = $res->fetch_assoc()) {
+        $year = (int) ($row['calendar_year'] ?? 0);
+        if ($year <= 0) {
+            continue;
+        }
+        $yearKey = (string) $year;
+        $out[$yearKey][] = [
+            't' => (int) ($row['tournament_id'] ?? 0),
+            'host' => (string) ($row['host_country'] ?? ''),
+            'name' => (string) ($row['tournament_name'] ?? ''),
+            'date' => (string) ($row['event_date'] ?? ''),
+        ];
+    }
+    $res->free();
+    $stmt->close();
 
     return $out;
 }

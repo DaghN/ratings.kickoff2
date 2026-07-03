@@ -4,7 +4,7 @@
  *
  * GET: rate (whitelist below), as (time travel cutoff).
  * Texture rates include `reference` from headline at cutoff.
- * WC rates (slice 4): wc_share, wc_goals_per_game (+ realm overlay).
+ * WC rates (slice 4): wc_share, wc_goals_per_game (+ realm overlay), wc_games_per_player.
  *
  * @see docs/amiga-activity-charts-implementation-plan.md §3
  */
@@ -31,6 +31,7 @@ const K2_ACT_YEAR_RATES = [
     'low_scoring_rate' => 'realm_ratio_headline',
     'wc_share' => 'wc_share',
     'wc_goals_per_game' => 'wc_goals_per_game',
+    'wc_games_per_player' => 'wc_games_per_player',
 ];
 
 /** @var array<string, array{0: string, 1: string}> */
@@ -88,6 +89,37 @@ function k2_act_year_rate_values(mysqli $con, int $cutoffTid, string $numSlice, 
     return $values;
 }
 
+/**
+ * Mean WC games per distinct active player in a calendar year.
+ *
+ * Each rated game counts once in `games` but adds one game to each of two players,
+ * so participations = 2 × games (matches per-WC `avg_games_per_player` on the hub table).
+ *
+ * @return list<float|null>
+ */
+function k2_act_wc_games_per_player_year_values(mysqli $con, int $cutoffTid): array
+{
+    $span = amiga_community_year_span_at_cutoff($con, $cutoffTid);
+    if ($span === null) {
+        return [];
+    }
+
+    $gamesFacts = amiga_community_year_facts_at_cutoff($con, $cutoffTid, 'world_cup', 'games');
+    $playersFacts = amiga_community_year_facts_at_cutoff($con, $cutoffTid, 'world_cup', 'active_players');
+    $gamesByYear = $gamesFacts[AMIGA_COMMUNITY_WORLD_CUP_SLICE_KEY] ?? [];
+    $playersByYear = $playersFacts[AMIGA_COMMUNITY_WORLD_CUP_SLICE_KEY] ?? [];
+
+    $values = [];
+    for ($year = $span[0]; $year <= $span[1]; $year++) {
+        $players = $playersByYear[$year] ?? 0.0;
+        $values[] = $players > 0
+            ? round(2.0 * ($gamesByYear[$year] ?? 0.0) / $players, 4)
+            : null;
+    }
+
+    return $values;
+}
+
 try {
     $ctx = amiga_snapshot_context_from_request($con);
     $cutoffTid = amiga_community_cutoff_tournament_id_for_read($con, $ctx);
@@ -133,6 +165,8 @@ try {
             'label' => 'Realm goals per game',
             'values' => $overlayValues,
         ];
+    } elseif ($kind === 'wc_games_per_player') {
+        $values = k2_act_wc_games_per_player_year_values($con, $cutoffTid);
     }
 
     $cutoffInfo = null;
@@ -147,14 +181,18 @@ try {
         }
     }
 
-    echo json_encode([
+    $payload = [
         'rate' => $rate,
         'years' => $years,
         'values' => $values,
         'reference' => $reference,
         'overlay' => $overlay,
         'cutoff' => $cutoffInfo,
-    ]);
+    ];
+    if (str_starts_with($rate, 'wc_')) {
+        $payload['wc_events_by_year'] = amiga_community_wc_events_by_year_at_cutoff($con, $cutoffTid);
+    }
+    echo json_encode($payload);
 } catch (RuntimeException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'query_failed']);

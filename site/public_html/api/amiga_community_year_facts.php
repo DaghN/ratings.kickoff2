@@ -175,6 +175,9 @@ try {
     if ($slice === 'world_cup' && in_array($metric, ['distinct_nationalities', 'active_players'], true)) {
         $payload['wc_nationality_active_by_year'] = amiga_community_wc_nationality_active_by_year_at_cutoff($con, $cutoffTid);
     }
+    if ($slice === 'world_cup') {
+        $payload['wc_events_by_year'] = amiga_community_wc_events_by_year_at_cutoff($con, $cutoffTid);
+    }
     echo json_encode($payload);
 } catch (RuntimeException $e) {
     http_response_code(500);

@@ -237,7 +237,36 @@
         };
     }
 
-    function renderGhostYearBar(canvas, labels, frontValues, ghostValues, spec, cutoff) {
+    function renderGhostYearBar(canvas, labels, frontValues, ghostValues, spec, cutoff, wcEventsByYear) {
+        var frontBarPctCompare = 0.58;
+        var frontBarPctSolo = 0.82;
+        var coarse = T.isCoarsePointer && T.isCoarsePointer();
+        var hasRich = wcEventsByYear && Object.keys(wcEventsByYear).length > 0;
+        var useRichTooltip = hasRich && !coarse;
+        var tooltipConfig = useRichTooltip
+            ? T.mergeTooltip({
+                enabled: false,
+                external: bindWcWingBarExternalTooltip(labels, wcEventsByYear, {
+                    mode: 'metric',
+                    chartSpec: spec,
+                    cutoff: cutoff,
+                    ghostNoun: spec.ghostNoun
+                })
+            })
+            : T.mergeTooltip({
+                callbacks: {
+                    label: function (item) {
+                        if (item.parsed.y == null) {
+                            return 'No data';
+                        }
+                        if (item.dataset.ghost) {
+                            return formatCount(item.parsed.y) + ' ' + spec.ghostNoun;
+                        }
+                        return formatCount(item.parsed.y) + ' ' + spec.noun;
+                    },
+                    footer: partialYearFooter(cutoff, labels)
+                }
+            });
         createChart(canvas, {
             type: 'bar',
             data: {
@@ -247,6 +276,7 @@
                         ghost: true,
                         label: spec.ghostLabel,
                         data: ghostValues,
+                        hidden: true,
                         order: 2,
                         barPercentage: 1.0,
                         categoryPercentage: 0.82
@@ -255,28 +285,31 @@
                         label: spec.label,
                         data: frontValues,
                         order: 1,
-                        barPercentage: 0.58,
+                        barPercentage: frontBarPctSolo,
                         categoryPercentage: 0.82
                     }, T.barStroke(tone(spec.tone)))
                 ]
             },
             options: chartOptions({
                 plugins: {
-                    legend: { labels: { color: T.textMuted() } },
-                    tooltip: T.mergeTooltip({
-                        callbacks: {
-                            label: function (item) {
-                                if (item.parsed.y == null) {
-                                    return 'No data';
-                                }
-                                if (item.dataset.ghost) {
-                                    return formatCount(item.parsed.y) + ' ' + spec.ghostNoun;
-                                }
-                                return formatCount(item.parsed.y) + ' ' + spec.noun;
-                            },
-                            footer: partialYearFooter(cutoff, labels)
+                    legend: {
+                        labels: { color: T.textMuted() },
+                        onClick: function (e, legendItem, legend) {
+                            var ci = legend.chart;
+                            var idx = legendItem.datasetIndex;
+                            if (idx == null) {
+                                return;
+                            }
+                            ci.setDatasetVisibility(idx, !ci.isDatasetVisible(idx));
+                            if (ci.data.datasets[1]) {
+                                ci.data.datasets[1].barPercentage = ci.isDatasetVisible(0)
+                                    ? frontBarPctCompare
+                                    : frontBarPctSolo;
+                            }
+                            ci.update();
                         }
-                    })
+                    },
+                    tooltip: tooltipConfig
                 },
                 scales: {
                     x: scaleXCategory(),
@@ -317,6 +350,56 @@
                 scales: {
                     x: scaleXCategory(),
                     y: spec.decimals != null ? scaleYRate(spec) : scaleYCountFormatted()
+                }
+            }, 'bar')
+        }, 'bar');
+    }
+
+    /** L1 WC wing year bars — nationality breakdown + WC event context intro. */
+    function renderWcBreakdownYearBar(canvas, labels, values, spec, cutoff, breakdownByYear, wcEventsByYear, countLabelFn) {
+        var coarse = T.isCoarsePointer && T.isCoarsePointer();
+        var hasRich = (breakdownByYear && Object.keys(breakdownByYear).length > 0)
+            || (wcEventsByYear && Object.keys(wcEventsByYear).length > 0);
+        var useRichTooltip = hasRich && !coarse;
+        var tooltipConfig = useRichTooltip
+            ? T.mergeTooltip({
+                enabled: false,
+                external: bindWcWingBarExternalTooltip(labels, wcEventsByYear, {
+                    mode: 'breakdown',
+                    chartSpec: spec,
+                    cutoff: cutoff,
+                    breakdownByYear: breakdownByYear,
+                    countLabelFn: countLabelFn
+                })
+            })
+            : T.mergeTooltip({
+                callbacks: {
+                    label: function (item) {
+                        if (item.parsed.y == null) {
+                            return 'No data';
+                        }
+                        return formatCount(item.parsed.y) + ' ' + spec.noun;
+                    },
+                    footer: partialYearFooter(cutoff, labels)
+                }
+            });
+        createChart(canvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [Object.assign({
+                    label: spec.label,
+                    data: values
+                }, T.barStroke(tone(spec.tone)))]
+            },
+            options: chartOptions({
+                plugins: {
+                    legend: { labels: { color: T.textMuted() } },
+                    tooltip: tooltipConfig
+                },
+                scales: {
+                    x: scaleXCategory(),
+                    y: scaleYCountFormatted()
                 }
             }, 'bar')
         }, 'bar');
@@ -364,7 +447,7 @@
         }, 'bar');
     }
 
-    function renderYearRateBar(canvas, labels, values, spec, cutoff, reference, overlay) {
+    function renderYearRateBar(canvas, labels, values, spec, cutoff, reference, overlay, wcEventsByYear) {
         var datasets = [Object.assign({
             type: 'bar',
             label: spec.label,
@@ -404,6 +487,36 @@
             });
         }
         var hasOverlay = overlay && overlay.values && overlay.values.length;
+        var coarse = T.isCoarsePointer && T.isCoarsePointer();
+        var hasRich = wcEventsByYear && Object.keys(wcEventsByYear).length > 0;
+        var useRichTooltip = hasRich && !coarse;
+        var tooltipConfig = useRichTooltip
+            ? T.mergeTooltip({
+                enabled: false,
+                external: bindWcWingBarExternalTooltip(labels, wcEventsByYear, {
+                    mode: 'rate',
+                    chartSpec: spec,
+                    cutoff: cutoff,
+                    overlay: overlay
+                })
+            })
+            : T.mergeTooltip({
+                filter: hasOverlay ? undefined : function (item) {
+                    return item.dataset.type === 'bar';
+                },
+                callbacks: {
+                    label: function (item) {
+                        if (item.parsed.y == null) {
+                            return 'No data';
+                        }
+                        if (item.dataset.type === 'line') {
+                            return item.dataset.label + ': ' + formatRateValue(item.parsed.y, spec);
+                        }
+                        return formatRateValue(item.parsed.y, spec);
+                    },
+                    footer: rateTooltipFooter(cutoff, labels, reference, spec)
+                }
+            });
         createChart(canvas, {
             type: 'bar',
             data: {
@@ -411,25 +524,12 @@
                 datasets: datasets
             },
             options: chartOptions({
+                interaction: useRichTooltip && hasOverlay
+                    ? { mode: 'index', intersect: false, axis: 'x' }
+                    : undefined,
                 plugins: {
                     legend: { labels: { color: T.textMuted() } },
-                    tooltip: T.mergeTooltip({
-                        filter: hasOverlay ? undefined : function (item) {
-                            return item.dataset.type === 'bar';
-                        },
-                        callbacks: {
-                            label: function (item) {
-                                if (item.parsed.y == null) {
-                                    return 'No data';
-                                }
-                                if (item.dataset.type === 'line') {
-                                    return item.dataset.label + ': ' + formatRateValue(item.parsed.y, spec);
-                                }
-                                return formatRateValue(item.parsed.y, spec);
-                            },
-                            footer: rateTooltipFooter(cutoff, labels, reference, spec)
-                        }
-                    })
+                    tooltip: tooltipConfig
                 },
                 scales: {
                     x: scaleXCategory(),
@@ -507,7 +607,7 @@
             });
     }
 
-    function mountWcYearWithNationalityBreakdown(root, spec, metric) {
+    function mountWcBreakdownYear(root, spec, metric, countLabelFn) {
         var status = panelStatus(root);
         var canvas = requireCanvas(root, status);
         if (!canvas) {
@@ -529,14 +629,15 @@
                 if (status) {
                     status.textContent = '';
                 }
-                renderBreakdownYearBar(
+                renderWcBreakdownYearBar(
                     canvas,
                     years.map(String),
                     series,
                     spec,
                     data.cutoff,
                     data.wc_nationality_active_by_year || null,
-                    wcNationalityPlayerLabel
+                    data.wc_events_by_year || null,
+                    countLabelFn
                 );
             })
             .catch(function (err) {
@@ -548,11 +649,11 @@
     }
 
     function mountWcNationsYear(root, spec) {
-        return mountWcYearWithNationalityBreakdown(root, spec, 'distinct_nationalities');
+        return mountWcBreakdownYear(root, spec, 'distinct_nationalities', wcNationalityPlayerLabel);
     }
 
     function mountWcPlayersYear(root, spec) {
-        return mountWcYearWithNationalityBreakdown(root, spec, 'active_players');
+        return mountWcBreakdownYear(root, spec, 'active_players', wcNationalityPlayerLabel);
     }
 
     /** L1 year bars — realm metric with per-host-country event breakdown tooltip. */
@@ -624,7 +725,16 @@
                 if (status) {
                     status.textContent = '';
                 }
-                renderYearRateBar(canvas, years.map(String), values, spec, data.cutoff, data.reference, data.overlay);
+                renderYearRateBar(
+                    canvas,
+                    years.map(String),
+                    values,
+                    spec,
+                    data.cutoff,
+                    data.reference,
+                    data.overlay,
+                    data.wc_events_by_year || null
+                );
             })
             .catch(function (err) {
                 noteError(spec.metric || spec.rate || 'panel', err);
@@ -763,7 +873,15 @@
             if (status) {
                 status.textContent = '';
             }
-            renderGhostYearBar(canvas, years.map(String), wcValues, ghostValues, spec, wcData.cutoff || realmData.cutoff);
+            renderGhostYearBar(
+                canvas,
+                years.map(String),
+                wcValues,
+                ghostValues,
+                spec,
+                wcData.cutoff || realmData.cutoff,
+                wcData.wc_events_by_year || null
+            );
         }).catch(function (err) {
             noteError('wc-games-ghost', err);
             if (status) {
@@ -824,6 +942,196 @@
             + '</span>';
     }
 
+    function buildWcEventBlockHtml(event) {
+        var host = event.host || event.key || '';
+        var titleHtml = '<div class="k2-amiga-act-cumulative-tooltip__title">'
+            + cumulativeTooltipFlagHtml(host)
+            + '<span class="k2-amiga-act-cumulative-tooltip__name">' + escapeHtml(event.name || '') + '</span>'
+            + '</div>';
+        var eventDate = formatEventDate(parseEventDate(event.date));
+        var bodyHtml = eventDate
+            ? '<div class="k2-amiga-act-cumulative-tooltip__body"><div class="k2-amiga-act-cumulative-tooltip__line">'
+                + escapeHtml(eventDate)
+                + '</div></div>'
+            : '';
+        return '<div class="k2-amiga-act-wc-events-tooltip__event">' + titleHtml + bodyHtml + '</div>';
+    }
+
+    function buildWcEventsTooltipHtml(events) {
+        if (!events || !events.length) {
+            return '';
+        }
+        return '<div class="k2-amiga-act-wc-events-tooltip">'
+            + events.map(buildWcEventBlockHtml).join('')
+            + '</div>';
+    }
+
+    function formatWcYearMetricLine(value, spec) {
+        if (spec && (spec.format || spec.decimals != null)) {
+            return formatRateValue(value, spec);
+        }
+        if (value == null || isNaN(value)) {
+            return 'No data';
+        }
+        return formatCount(value) + ' ' + (spec && spec.noun ? spec.noun : '');
+    }
+
+    function wcPartialSuffix(cutoff, yearLabel) {
+        if (cutoff && cutoff.partial_year && String(cutoff.partial_year) === String(yearLabel)) {
+            return ' (partial)';
+        }
+        return '';
+    }
+
+    function buildWcWingTooltipHtml(events, bodyHtml) {
+        var html = '';
+        if (events && events.length) {
+            html += buildWcEventsTooltipHtml(events);
+        }
+        if (bodyHtml) {
+            html += '<div class="k2-amiga-act-wc-wing-tooltip__body">' + bodyHtml + '</div>';
+        }
+        return html;
+    }
+
+    function buildBreakdownBodyHtml(rows, total, spec, countLabelFn, partialSuffix) {
+        var summaryHtml = '<div class="k2-amiga-act-nationalities-tooltip__summary">'
+            + formatCount(total) + ' ' + escapeHtml(spec.noun || '') + escapeHtml(partialSuffix || '')
+            + '</div>';
+        var listHtml = rows.map(function (row) {
+            return '<div class="k2-amiga-act-nationalities-tooltip__row">'
+                + '<span class="k2-amiga-act-nationalities-tooltip__flag" aria-hidden="true">'
+                + geoFlagImgHtml(row.key)
+                + '</span>'
+                + '<span class="k2-amiga-act-nationalities-tooltip__name">' + escapeHtml(row.key || '') + '</span>'
+                + '<span class="k2-amiga-act-nationalities-tooltip__count">' + countLabelFn(row.count) + '</span>'
+                + '</div>';
+        }).join('');
+        return summaryHtml + '<div class="k2-amiga-act-nationalities-tooltip__list">' + listHtml + '</div>';
+    }
+
+    function buildMetricBodyHtml(lines) {
+        return lines.filter(function (line) {
+            return line != null && line !== '';
+        }).map(function (line) {
+            return '<div class="k2-amiga-act-wc-year-tooltip__metric">' + escapeHtml(line) + '</div>';
+        }).join('');
+    }
+
+    function isWcYearBarDataset(dataset) {
+        if (!dataset || dataset.ghost) {
+            return false;
+        }
+        return !dataset.type || dataset.type === 'bar';
+    }
+
+    function pickWcYearBarTooltipItem(items) {
+        var i;
+        for (i = 0; i < items.length; i++) {
+            if (isWcYearBarDataset(items[i].dataset)) {
+                return items[i];
+            }
+        }
+        for (i = 0; i < items.length; i++) {
+            if (!items[i].dataset || !items[i].dataset.ghost) {
+                return items[i];
+            }
+        }
+        return items[0];
+    }
+
+    function bindWcWingBarExternalTooltip(labels, wcEventsByYear, opts) {
+        opts = opts || {};
+        return function (context) {
+            var tooltipEl = getOrCreateCumulativeHtmlTooltip();
+            var tooltip = context.tooltip;
+            if (!tooltip || tooltip.opacity === 0) {
+                tooltipEl.hidden = true;
+                return;
+            }
+            var items = tooltip.dataPoints || [];
+            if (!items.length) {
+                tooltipEl.hidden = true;
+                return;
+            }
+            var item = pickWcYearBarTooltipItem(items);
+            var idx = item.dataIndex;
+            var yearLabel = labels[idx] || '';
+            var partial = wcPartialSuffix(opts.cutoff, yearLabel);
+            var events = (wcEventsByYear && wcEventsByYear[yearLabel]) || [];
+            var bodyHtml = '';
+            var chartSpec = opts.chartSpec || {};
+
+            if (item.dataset && item.dataset.ghost) {
+                if (item.parsed.y == null) {
+                    tooltipEl.hidden = true;
+                    return;
+                }
+                bodyHtml = buildMetricBodyHtml([
+                    formatCount(item.parsed.y) + ' ' + (opts.ghostNoun || 'rated games') + partial
+                ]);
+                tooltipEl.innerHTML = buildWcWingTooltipHtml(events, bodyHtml);
+                tooltipEl.hidden = false;
+                positionChartHtmlTooltip(tooltipEl, context);
+                return;
+            }
+
+            if (opts.mode === 'breakdown') {
+                var rows = (opts.breakdownByYear && opts.breakdownByYear[yearLabel]) || [];
+                if (!rows.length) {
+                    tooltipEl.hidden = true;
+                    return;
+                }
+                bodyHtml = buildBreakdownBodyHtml(rows, item.parsed.y, chartSpec, opts.countLabelFn, partial);
+            } else if (opts.mode === 'rate') {
+                var metricLines = [];
+                var barValue = null;
+                var ds;
+                var d;
+                if (isWcYearBarDataset(item.dataset) && item.parsed.y != null && !isNaN(item.parsed.y)) {
+                    barValue = item.parsed.y;
+                } else {
+                    for (d = 0; d < context.chart.data.datasets.length; d++) {
+                        ds = context.chart.data.datasets[d];
+                        if (isWcYearBarDataset(ds) && ds.data[idx] != null && !isNaN(ds.data[idx])) {
+                            barValue = ds.data[idx];
+                            break;
+                        }
+                    }
+                }
+                if (barValue != null) {
+                    metricLines.push(formatWcYearMetricLine(barValue, chartSpec) + partial);
+                }
+                if (opts.overlay && opts.overlay.values && opts.overlay.values[idx] != null && !isNaN(opts.overlay.values[idx])) {
+                    metricLines.push(
+                        (opts.overlay.label || 'Overlay') + ': '
+                        + formatRateValue(opts.overlay.values[idx], chartSpec)
+                    );
+                }
+                if (!metricLines.length) {
+                    tooltipEl.hidden = true;
+                    return;
+                }
+                bodyHtml = buildMetricBodyHtml(metricLines);
+            } else {
+                var barItem = isWcYearBarDataset(item.dataset) ? item : null;
+                var metricLine = null;
+                if (barItem && barItem.parsed.y != null && !isNaN(barItem.parsed.y)) {
+                    metricLine = formatWcYearMetricLine(barItem.parsed.y, chartSpec) + partial;
+                }
+                if (!metricLine && !events.length) {
+                    tooltipEl.hidden = true;
+                    return;
+                }
+                bodyHtml = buildMetricBodyHtml(metricLine ? [metricLine] : []);
+            }
+
+            tooltipEl.innerHTML = buildWcWingTooltipHtml(events, bodyHtml);
+            tooltipEl.hidden = false;
+            positionChartHtmlTooltip(tooltipEl, context);
+        };
+    }
+
     function cumulativeEventNoun(count, noun) {
         if (typeof noun === 'object' && noun !== null) {
             return Number(count) === 1 ? (noun.one || noun.other || '') : (noun.other || noun.one || '');
@@ -832,23 +1140,17 @@
     }
 
     function buildCumulativeTooltipHtml(point, total, spec) {
-        var titleHtml = '<div class="k2-amiga-act-cumulative-tooltip__title">'
-            + cumulativeTooltipFlagHtml(point.host)
-            + '<span class="k2-amiga-act-cumulative-tooltip__name">' + escapeHtml(point.name || '') + '</span>'
-            + '</div>';
-        var bodyLines = [];
-        var eventDate = formatEventDate(parseEventDate(point.date));
-        if (eventDate) {
-            bodyLines.push(escapeHtml(eventDate));
-        }
+        var events = [{
+            host: point.host || '',
+            name: point.name || '',
+            date: point.date
+        }];
+        var metricLines = [];
         if (spec.eventNoun && point.eventDelta != null) {
-            bodyLines.push(formatCount(point.eventDelta) + ' ' + cumulativeEventNoun(point.eventDelta, spec.eventNoun));
+            metricLines.push(formatCount(point.eventDelta) + ' ' + cumulativeEventNoun(point.eventDelta, spec.eventNoun));
         }
-        bodyLines.push('Total: ' + formatCount(total) + ' ' + spec.noun);
-        var bodyHtml = bodyLines.map(function (line) {
-            return '<div class="k2-amiga-act-cumulative-tooltip__line">' + line + '</div>';
-        }).join('');
-        return titleHtml + '<div class="k2-amiga-act-cumulative-tooltip__body">' + bodyHtml + '</div>';
+        metricLines.push('Total: ' + formatCount(total) + ' ' + spec.noun);
+        return buildWcWingTooltipHtml(events, buildMetricBodyHtml(metricLines));
     }
 
     function bindCumulativeExternalTooltip(meta, spec) {
@@ -904,11 +1206,20 @@
     }
 
     function wcNationalityPlayerLabel(count) {
-        return formatCount(count) + ' player' + (Number(count) === 1 ? '' : 's');
+        return formatCount(count) + ' participant' + (Number(count) === 1 ? '' : 's');
     }
 
     function hostEventsHostedLabel(count) {
         return formatCount(count) + ' event' + (Number(count) === 1 ? '' : 's') + ' hosted';
+    }
+
+    function positionChartHtmlTooltip(tooltipEl, context) {
+        var tooltip = context.tooltip;
+        var canvas = context.chart.canvas;
+        var rect = canvas.getBoundingClientRect();
+        tooltipEl.style.left = (rect.left + tooltip.caretX) + 'px';
+        tooltipEl.style.top = (rect.top + tooltip.caretY) + 'px';
+        tooltipEl.style.opacity = '1';
     }
 
     function buildGeoBreakdownTooltipHtml(yearLabel, rows, total, spec, countLabelFn) {
@@ -923,7 +1234,7 @@
                 + '<span class="k2-amiga-act-nationalities-tooltip__flag" aria-hidden="true">'
                 + geoFlagImgHtml(row.key)
                 + '</span>'
-                + '<span class="k2-amiga-act-nationalities-tooltip__name">' + escapeHtml(row.key || '') + '</span>'
+                + '<span class="k2-amiga-act-nationalities-tooltip__name">' + escapeHtml(row.name || row.key || '') + '</span>'
                 + '<span class="k2-amiga-act-nationalities-tooltip__count">' + countLabelFn(row.count) + '</span>'
                 + '</div>';
         }).join('');
@@ -956,11 +1267,7 @@
             }
             tooltipEl.innerHTML = buildGeoBreakdownTooltipHtml(yearLabel, rows, total, spec, countLabelFn);
             tooltipEl.hidden = false;
-            var canvas = context.chart.canvas;
-            var rect = canvas.getBoundingClientRect();
-            tooltipEl.style.left = (rect.left + tooltip.caretX) + 'px';
-            tooltipEl.style.top = (rect.top + tooltip.caretY) + 'px';
-            tooltipEl.style.opacity = '1';
+            positionChartHtmlTooltip(tooltipEl, context);
         };
     }
 
@@ -1570,6 +1877,32 @@
     /* --- World Cups wing (slice 4) --- */
 
     registerPanel({
+        id: 'wc-players-year',
+        selector: '.amiga-act-wc-players-year-chart',
+        run: function (root) {
+            return mountWcPlayersYear(root, {
+                slice: 'world_cup',
+                metric: 'active_players',
+                tone: 'pitch',
+                label: 'Participants',
+                noun: 'participants'
+            });
+        }
+    });
+    registerPanel({
+        id: 'wc-nations-year',
+        selector: '.amiga-act-wc-nations-year-chart',
+        run: function (root) {
+            return mountWcNationsYear(root, {
+                slice: 'world_cup',
+                metric: 'distinct_nationalities',
+                tone: 'teal',
+                label: 'Nations',
+                noun: 'nationalities'
+            });
+        }
+    });
+    registerPanel({
         id: 'wc-games-year',
         selector: '.amiga-act-wc-games-year-chart',
         run: function (root) {
@@ -1596,10 +1929,16 @@
         }
     });
     registerPanel({
-        id: 'wc-games-cumulative',
-        selector: '.amiga-act-wc-games-cumulative-chart',
+        id: 'wc-games-per-player-year',
+        selector: '.amiga-act-wc-games-per-player-year-chart',
         run: function (root) {
-            return mountCumulative(root, { metric: 'WcGamesPlayed', tone: 'holo', label: 'Cumulative WC games', noun: 'WC games' });
+            return mountYearRate(root, {
+                rate: 'wc_games_per_player',
+                tone: 'magenta',
+                label: 'Avg games per participant',
+                noun: 'games per participant',
+                decimals: 2
+            });
         }
     });
     registerPanel({
@@ -1616,28 +1955,16 @@
         }
     });
     registerPanel({
-        id: 'wc-nations-year',
-        selector: '.amiga-act-wc-nations-year-chart',
+        id: 'wc-games-cumulative',
+        selector: '.amiga-act-wc-games-cumulative-chart',
         run: function (root) {
-            return mountWcNationsYear(root, {
-                slice: 'world_cup',
-                metric: 'distinct_nationalities',
-                tone: 'teal',
-                label: 'Nations',
-                noun: 'nationalities'
-            });
-        }
-    });
-    registerPanel({
-        id: 'wc-players-year',
-        selector: '.amiga-act-wc-players-year-chart',
-        run: function (root) {
-            return mountWcPlayersYear(root, {
-                slice: 'world_cup',
-                metric: 'active_players',
-                tone: 'pitch',
-                label: 'WC players',
-                noun: 'players'
+            return mountCumulative(root, {
+                metric: 'WcGamesPlayed',
+                tone: 'holo',
+                label: 'Cumulative WC games',
+                noun: 'WC games',
+                richTooltip: true,
+                eventNoun: 'games'
             });
         }
     });

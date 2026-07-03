@@ -1,8 +1,8 @@
 # Amiga Activity charts — implementation plan
 
-**Status:** **Shipped** (Jul 2026) — **48 panels / 49 ship IDs** on `/amiga/activity/` (six wings). Base track complete (slices 0–10). **Jul 2026 extension:** Nations player grains — [`amiga-activity-geography-nations-players-implementation-plan.md`](amiga-activity-geography-nations-players-implementation-plan.md) (registry + scan + 3 panels; **no DDL**).
+**Status:** **Shipped** (Jul 2026) — **49 panels / 50 ship IDs** on `/amiga/activity/` (six wings). Base track complete (slices 0–10). **Jul 2026 extension:** Nations player grains — [`amiga-activity-geography-nations-players-implementation-plan.md`](amiga-activity-geography-nations-players-implementation-plan.md) (registry + scan + 3 panels; **no DDL**).
 **Locked IA / product:** [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) — wings, panel order, selectors, TT rules, bucket defaults.
-**Questions:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 49 ship IDs → 48 panels.
+**Questions:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 50 ship IDs → 49 panels.
 **Pattern source:** online [`activity-charts.md`](activity-charts.md) (module, frames, mobile rules).
 
 ---
@@ -99,12 +99,13 @@ Policy order: *who → volume → breadth* — [`amiga-activity-geography-nation
 
 | # | Panel class | API call | Chart | ID(s) |
 |---|-------------|----------|-------|-------|
-| 1 | `.amiga-act-wc-games-year-chart` | `year_facts?slice=world_cup&metric=games` + realm games (ghost) | layered bar | Q-WC-001 |
-| 2 | `.amiga-act-wc-share-year-chart` | `year_rates?rate=wc_share` | % bar | Q-WC-003 |
-| 3 | `.amiga-act-wc-games-cumulative-chart` | `snapshot_series?metric=WcGamesPlayed` | line | Q-WC-002 |
-| 4 | `.amiga-act-wc-goals-per-game-year-chart` | `year_rates?rate=wc_goals_per_game` (+realm rate overlay) | bar + line overlay | Q-WC-011 |
-| 5 | `.amiga-act-wc-nations-year-chart` | `year_facts?slice=world_cup&metric=distinct_nationalities` (+ `wc_nationality_active_by_year`) | bar + HTML tooltip | Q-WC-006 |
-| 6 | `.amiga-act-wc-players-year-chart` | `year_facts?slice=world_cup&metric=active_players` (+ `wc_nationality_active_by_year`) | bar + HTML tooltip | Q-WC-007 |
+| 1 | `.amiga-act-wc-players-year-chart` | `year_facts?slice=world_cup&metric=active_players` (+ `wc_nationality_active_by_year`) | bar + HTML tooltip | Q-WC-007 |
+| 2 | `.amiga-act-wc-nations-year-chart` | `year_facts?slice=world_cup&metric=distinct_nationalities` (+ `wc_nationality_active_by_year`) | bar + HTML tooltip | Q-WC-006 |
+| 3 | `.amiga-act-wc-games-year-chart` | `year_facts?slice=world_cup&metric=games` + realm games (ghost) | layered bar | Q-WC-001 |
+| 4 | `.amiga-act-wc-share-year-chart` | `year_rates?rate=wc_share` | % bar | Q-WC-003 |
+| 5 | `.amiga-act-wc-games-per-player-year-chart` | `year_rates?rate=wc_games_per_player` | bar | Q-WC-012 |
+| 6 | `.amiga-act-wc-goals-per-game-year-chart` | `year_rates?rate=wc_goals_per_game` (+realm rate overlay) | bar + line overlay | Q-WC-011 |
+| 7 | `.amiga-act-wc-games-cumulative-chart` | `snapshot_series?metric=WcGamesPlayed` | line | Q-WC-002 |
 
 ### Texture — `amiga/activity/texture.php` (all with all-time reference line)
 
@@ -155,9 +156,9 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 ### `api/amiga_community_year_rates.php`
 
-- Params: `rate` (goals_per_game | draw_rate | dd_rate | cs_rate | low_scoring_rate | high_scoring_rate | games_per_tournament | wc_share | wc_goals_per_game), `as`. *(Texture + WC rates shipped slices 3–4; low_scoring_rate Jul 2026.)*
+- Params: `rate` (goals_per_game | draw_rate | dd_rate | cs_rate | low_scoring_rate | high_scoring_rate | games_per_tournament | wc_share | wc_goals_per_game | wc_games_per_player), `as`. *(Texture + WC rates shipped slices 3–4; low_scoring_rate Jul 2026.)*
 - Response: `{ "years": [...], "values": [...], "reference": N|null, "overlay": { "label": "...", "values": [...] }|null, "cutoff": {...}|null }` — `cutoff` mirrors `year_facts` (`label`, `event_date`, `partial_year`).
-- Derivations (all from year facts at cutoff): rates = numerator ÷ realm `games` (goals_per_game = goals ÷ games; games_per_tournament = games ÷ tournaments; wc_share = wc games ÷ realm games; wc_goals_per_game = wc goals ÷ wc games, overlay = realm goals_per_game). `reference` = all-time average from headline row at cutoff (texture rates only). Zero-denominator years → `null` values, skipped by Chart.js.
+- Derivations (all from year facts at cutoff): rates = numerator ÷ realm `games` (goals_per_game = goals ÷ games; games_per_tournament = games ÷ tournaments; wc_share = wc games ÷ realm games; wc_goals_per_game = wc goals ÷ wc games, overlay = realm goals_per_game; **wc_games_per_player = 2 × wc games ÷ wc active_players**). `reference` = all-time average from headline row at cutoff (texture rates only). Zero-denominator years → `null` values, skipped by Chart.js.
 
 ### `api/amiga_community_histogram.php` (slice 9; shapes locked at slice 8)
 
@@ -210,7 +211,7 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 *Shipped notes:* `year_rates` extended with `goals_per_game`, `draw_rate`, `dd_rate`, `cs_rate`, `high_scoring_rate`; `reference` from headline at cutoff (`GoalsPerGameAverage`, `DrawsRatio`, `DoubleDigitsRatio`, `CleanSheetsRatio`; high-scoring derived from summed year facts) via `amiga_community_year_rate_reference_at_cutoff()`. Module gained `renderYearRateBar()` — dashed muted all-time line + tooltip footer (*All-time avg: …*); rate formatting (`percent` for draws, `per100` for DD/CS/high-scoring). Panels in `includes/amiga_activity_texture_panels.inc.php` (tones: pitch · chrome · magenta · holo · amber).
 
-### Slice 4 — World Cups (6 panels) — **Done** (Jul 2026)
+### Slice 4 — World Cups (7 panels) — **Done** (Jul 2026)
 
 - Extend `year_rates` with `wc_share` + `wc_goals_per_game` (+ overlay values).
 - Ghost-bar layered rendering (realm behind WC, muted tone) in module — reused nowhere else yet, keep generic (`datasets[].ghost` flag).

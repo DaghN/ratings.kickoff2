@@ -45,7 +45,7 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 | **CH8** | **Roster default sort** | **Float `Rating` descending** (strongest first); display still `ROUND(Rating)`; tiebreak `player_id` ASC. |
 | **CH9** | **Flag + entity links** | **Every mapped Amiga country flag** links to that country’s roster with `#k2-country-roster` — via `k2_amiga_country_flag_link()` (`k2-country-roster-link` on the **img** only). **Entity name links** (player, tournament, country text) use **`k2-link-star`** via shared helpers — see [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md). **Tables:** inline `[flag][name]` compositors (`k2_amiga_lb_player_cell`, `k2_amiga_lb_tournament_cell`, `k2_amiga_lb_country_cell`); **no dedicated flag-only Country columns** (migration list in entity-links policy §4). **No text fallback** for unmapped flag tokens. **Not** filter listbox labels. Video spotlight caption: `flag_link(..., tgame class + decorative)`. |
 | **CH10** | **Roster flag column** | **One flag per roster row** — same country flag repeated on every player row; **each flag links** to that roster (`#k2-country-roster`). |
-| **CH11** | **Medal columns UI** | Reuse Status/Leagues podium medal glyphs: `k2_status_league_podium_medal(1|2|3)` in `<th>` (`k2-lb-honours-medal-th`), **integer counts** in `<td>`. Same pattern as [`amiga_wc_players_table.php`](../site/public_html/includes/amiga_wc_players_table.php). **Gold sort tiebreak:** when sorting the index gold column, equal gold counts → silver, then bronze (same direction); gold `<th>` carries `data-k2-sort-tie-cols="7,8"` (`k2-table.js`). |
+| **CH11** | **Medal columns UI** | Reuse Status/Leagues podium medal glyphs: `k2_status_league_podium_medal(1|2|3)` in `<th>` (`k2-lb-honours-medal-th`), **integer counts** in `<td>`. Same pattern as [`amiga_wc_players_table.php`](../site/public_html/includes/amiga_wc_players_table.php). **Gold sort tiebreak:** when sorting the index gold column, equal gold counts → silver, then bronze (same direction); gold `<th>` carries `data-k2-sort-tie-cols="8,9"` (`k2-table.js`). |
 | **CH12** | **WC entries label** | UI label **WC entries** on both surfaces; tooltips **must** clarify the two grains (§5.2). |
 | **CH13** | **Games / player** | Index column **Games / player** = `games ÷ players`; display **one decimal** (e.g. `58.3`). |
 | **CH14** | **Rank on roster** | **Global** `elo_rank` at cutoff — not rank-within-country. |
@@ -79,10 +79,11 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 | 4 | **Players** | `COUNT(DISTINCT player_id)` with `NumberGames > 0` |
 | 5 | **Games** | `SUM(NumberGames)` — **career** games across all nationals |
 | 6 | **Games / player** | `games ÷ players` — one decimal |
-| 7 | **WC entries** | `SUM(wc_played)` across nationals — national **headcount** across all WCs (five Danes in one WC = 5). Same value as **`wc_participations`** on WC country honours slice. |
-| 8 | **Gold** | `SUM(wc_gold)` |
-| 9 | **Silver** | `SUM(wc_silver)` |
-| 10 | **Bronze** | `SUM(wc_bronze)` |
+| 7 | **WC players** | `COUNT` of rated nationals with `wc_played ≥ 1` (distinct players who entered ≥1 World Cup) |
+| 8 | **WC entries** | `SUM(wc_played)` across nationals — national **headcount** across all WCs (five Danes in one WC = 5). Same value as **`wc_participations`** on WC country honours slice. |
+| 9 | **Gold** | `SUM(wc_gold)` |
+| 10 | **Silver** | `SUM(wc_silver)` |
+| 11 | **Bronze** | `SUM(wc_bronze)` |
 
 **Default sort:** Players descending (**CH7**); equal player counts → games descending, then country token ascending.
 
@@ -95,7 +96,7 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 
 **Scroll anchor:** Zero-height `#k2-country-roster` immediately above the country hero — off-page roster links append this hash so the hero lands in viewport.
 
-**Country hero:** Player-feast grid — flag left (72×54, vertically centred), name + stat row right; plain labels for Players · Games · WC entries; **gradient podium metal labels** for Gold · Silver · Bronze (no 1st/2nd/3rd rank line). Chronology table keeps full rank + metal stack.
+**Country hero:** Player-feast grid — flag left (72×54, vertically centred), name + stat row right; plain labels for Players · Games · WC players · WC entries; **gradient podium metal labels** for Gold · Silver · Bronze (no 1st/2nd/3rd rank line). Chronology table keeps full rank + metal stack.
 
 | # | Column | Definition |
 |---|--------|------------|
@@ -119,12 +120,14 @@ This is **career-wide** nationality browse (all tournaments), not WC-only nation
 
 | Surface | Column | Source field | Meaning | Example |
 |---------|--------|--------------|---------|---------|
+| **Index (country)** | WC players | count where `wc_played ≥ 1` | Distinct rated nationals who entered ≥1 World Cup | 8 Danish players with WC history |
 | **Index (country)** | WC entries | `SUM(wc_played)` | Total **national appearances** across all World Cups — each player × each WC they entered counts once | 5 Danish players in WC 2003 → +5 for Denmark |
 | **Roster (player)** | WC entries | `wc_played` | **World Cups this player entered** | One player, three WCs → 3 |
 
 **Tooltip copy (proposed):**
 
-- **Index:** *Total national entries across all World Cups — each player who entered a World Cup counts once per event.*
+- **Index WC players:** *Rated players from this country who have entered at least one World Cup.*
+- **Index WC entries:** *Total national entries across all World Cups — each player who entered a World Cup counts once per event.*
 - **Roster:** *World Cup events this player entered.*
 
 Align help keys with existing WC helpers in `lb_column_help.php` where possible (`k2_lb_help_amiga_wc_played` family); add country-index-specific help for the sum grain.
@@ -277,7 +280,8 @@ See [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) — same cutoff
 
 | Check | Method |
 |-------|--------|
-| Index aggregates | Spot-check Denmark: player count, sum games, sum `wc_played`, sum medals vs manual SQL |
+| Index aggregates | Spot-check Denmark: player count, sum games, wc_players, sum `wc_played`, sum medals vs manual SQL |
+| WC players parity | Index `WC players` = count of roster rows with `wc_played ≥ 1`; at present should match WC Country stats **Players** for same token |
 | WC entries parity | Index `WC entries` = sum of roster column for same country at present |
 | Time travel | Same country at early `as=` — roster shrinks; index row counts drop |
 | Flag links | Profile + LB + index + host columns + podium + roster → roster with `as=` preserved |

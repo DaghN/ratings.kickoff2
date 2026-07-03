@@ -1030,6 +1030,11 @@ function k2_lb_help_amiga_countries_wc_entries_index(): string
     return k2_lb_help_amiga_wc_country_participations();
 }
 
+function k2_lb_help_amiga_countries_wc_players_index(): string
+{
+    return 'Rated players from this country who have entered at least one World Cup.';
+}
+
 function k2_lb_help_amiga_countries_games_per_player(): string
 {
     return 'Career rated games divided by the number of distinct players from this country.';

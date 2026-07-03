@@ -271,6 +271,7 @@ function amiga_countries_index_rows(array $playerRows): array
                 'country_token' => $token,
                 'players' => 0,
                 'games' => 0,
+                'wc_players' => 0,
                 'wc_entries' => 0,
                 'wc_gold' => 0,
                 'wc_silver' => 0,
@@ -279,6 +280,9 @@ function amiga_countries_index_rows(array $playerRows): array
         }
         $byToken[$token]['players']++;
         $byToken[$token]['games'] += (int) $row['number_games'];
+        if ((int) $row['wc_played'] >= 1) {
+            $byToken[$token]['wc_players']++;
+        }
         $byToken[$token]['wc_entries'] += (int) $row['wc_played'];
         $byToken[$token]['wc_gold'] += (int) $row['wc_gold'];
         $byToken[$token]['wc_silver'] += (int) $row['wc_silver'];

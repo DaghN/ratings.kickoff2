@@ -133,6 +133,8 @@
 
 | When | Note |
 |------|------|
+| 2026-07-03 | **Amiga Activity WC games/year chart** — realm ghost layer hidden by default; legend toggles comparison; hint under heading. |
+| 2026-07-03 | **Amiga Countries index — WC players column** — read-time count of rated nationals with `wc_played ≥ 1` before WC entries; roster hero stat + tooltip; policy updated. |
 | 2026-07-02 | **Amiga Activity Geography — Compare B empty default** — second Compare listbox adds top `...country` placeholder (default empty); duel year bars start single-series (England only); default race lines = top **4** countries (`AMIGA_COMMUNITY_GEO_RACE_KEYS_DEFAULT`); reverts same-day “Compare B required” rule. |
 | 2026-07-03 | **Player games table tooltips (online + Amiga)** — no help on Team A/B; GF · GA · GD · ES · Result · Adjustment use hero name instead of “this player”. |
 | 2026-07-03 | **Amiga player games table** — parity with online player games: **Result** before **Adjustment**; hero/opponent rating cols → **Rating A** / **Rating B** (`amiga/player/games.php`, `amiga_player_game_row.php`). |
@@ -165,6 +167,8 @@
 | 2026-07-02 | **Nations player grains B–D shipped** — `all_time×nationality×active_players`, `year×nationality×player_debuts`; 3 new Nations panels; 8-panel page order; GEO-010 tooltip (no list scroll). |
 | 2026-07-02 | **Amiga Activity Nations — distinct nationalities tooltip** — new stored fact `year × player_nationality × active_players`; `year_facts` returns `nationality_active_by_year` breakdown; bar hover lists flag + country + active player count (HTML tooltip). Re-prove `ko2amiga_db` to populate facts. |
 | 2026-07-02 | **Amiga tournament video game links GL-5…6 shipped** — `video_game_links.csv` sidecar merge (`stream_map` mode), manifest `game_start_sec[]`, sync/verify/build wired; policy + README + implementation plan trimmed. Sidecar empty until stream curation. |
+| 2026-07-03 | **Amiga Activity World Cups wing tooltips v3** — all 7 panels: WC context intro first (flag · tournament · date, no redundant year row); participants + nations charts restore per-nationality participant lists below intro; metric/rate/ghost bars keep chart values only after intro. |
+| 2026-07-03 | **Amiga Activity WC cumulative chart fix** — `amiga_community_snapshot_series()` filters `WcGamesPlayed` to World Cup catalog names only (~23 points, not 605 realm events). |
 | 2026-07-02 | **Amiga tournament video game links GL-1…4 shipped** — `game_links.py` + `audit_game_links.py`; sync remap/locks; 8 dual-leg manifest rows; `verify_tournament_videos` **0 errors**. |
 | 2026-07-02 | **Amiga tournament video game links policy (GL-0)** — [`amiga-tournament-videos-game-links-policy.md`](docs/amiga-tournament-videos-game-links-policy.md): match facts authoritative, `amiga_games.id` cache only, sync remap + verify oracle plan (GL-1…6); dual-leg/stream N-game links. |
 | 2026-07-02 | **Amiga tournament Videos Games wing — game id desc** — `amiga_tournament_videos_wc_game_index()` sorts by `game_id` DESC only (no stage bucket). |

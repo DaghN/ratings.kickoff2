@@ -2,7 +2,7 @@
 /**
  * Country roster hero — player-feast grid: flag left, name + stats right.
  *
- * Expects $k2CountryHeroToken, $k2CountryHeroSummary (array with players, games, wc_entries, wc_gold, wc_silver, wc_bronze).
+ * Expects $k2CountryHeroToken, $k2CountryHeroSummary (array with players, games, wc_players, wc_entries, wc_gold, wc_silver, wc_bronze).
  */
 declare(strict_types=1);
 
@@ -19,6 +19,7 @@ $countryToken = (string) $k2CountryHeroToken;
 $summary = is_array($k2CountryHeroSummary ?? null) ? $k2CountryHeroSummary : [];
 $players = (int) ($summary['players'] ?? 0);
 $games = (int) ($summary['games'] ?? 0);
+$wcPlayers = (int) ($summary['wc_players'] ?? 0);
 $wcEntries = (int) ($summary['wc_entries'] ?? 0);
 $wcGold = (int) ($summary['wc_gold'] ?? 0);
 $wcSilver = (int) ($summary['wc_silver'] ?? 0);
@@ -54,6 +55,10 @@ $flagImg = k2_amiga_country_flag_img($countryToken, [
                 <div class="k2-player-hero__stat">
                     <span class="k2-player-hero__stat-label">Games</span>
                     <span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><?php echo k2_h(number_format($games)); ?></span>
+                </div>
+                <div class="k2-player-hero__stat">
+                    <span class="k2-player-hero__stat-label">WC players</span>
+                    <span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><?php echo k2_h(number_format($wcPlayers)); ?></span>
                 </div>
                 <div class="k2-player-hero__stat">
                     <span class="k2-player-hero__stat-label">WC entries</span>

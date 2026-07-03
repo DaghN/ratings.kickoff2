@@ -64,9 +64,9 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 
 ---
 
-## Shipped set — quick list (49)
+## Shipped set — quick list (50)
 
-`Q-VOL-001`–`008` · `Q-GEO-001`–`010`, `013`–`018` · `Q-WC-001`–`003`, `006`–`007`, `011` · `Q-TEX-006`–`009`, `013` · `Q-SHP-001`–`010`, `014`–`016` · `Q-ECO-004`
+`Q-VOL-001`–`008` · `Q-GEO-001`–`010`, `013`–`018` · `Q-WC-001`–`003`, `006`–`007`, `011`, `012` · `Q-TEX-006`–`009`, `013` · `Q-SHP-001`–`010`, `014`–`016` · `Q-ECO-004`
 
 ---
 
@@ -84,7 +84,7 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 | **C5 — World Cup slice** | Q-WC-001,003,006,007 · numerators for Q-WC-011 | `world_cup` year facts + Q-WC-002 S1 |
 | **C7 — Headline S1** | Q-VOL-006 · Q-GEO-009 · Q-SHP-002,010 | Snapshot cols |
 | **C8 — L4 probes → APIs** | Q-SHP-003–008,014–016 | Read oracles + TT |
-| **C9 — Derive charts** | Q-TEX-006–009,013–014 · Q-WC-003,011 · Q-ECO-004 | API math only |
+| **C9 — Derive charts** | Q-TEX-006–009,013–014 · Q-WC-003,011,012 · Q-ECO-004 | API math only |
 
 **Dropped clusters for v2:** C6 event class (all cut).
 
@@ -150,6 +150,7 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 | Q-WC-009 | WC draw rate in year Y? | L3 | bar | S2 | new-writer | yes | cut | Per-WC table backlog |
 | Q-WC-010 | Cumulative WC goals per game after each event? | L2 | line | S0d | derive | yes | cut | |
 | Q-WC-011 | WC goals per game in year Y only? | L3 | bar | S0d | derive | yes | **ship** | *Added step 3*; Q-WC-005 goals ÷ Q-WC-001 games |
+| Q-WC-012 | WC games per active player in year Y? | L3 | bar | S0d | derive | yes | **ship** | **2 ×** Q-WC-001 games ÷ Q-WC-007 active_players (two-player games) |
 
 ---
 

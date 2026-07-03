@@ -1280,6 +1280,37 @@ body.k2-site.k2-amiga-activity-charts .k2-amiga-act-cumulative-tooltip__flag .k2
 	border-radius: 0;
 }
 
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-wc-wing-tooltip__body {
+	margin-top: 10px;
+	padding-top: 10px;
+	border-top: 1px solid var(--k2-tooltip-border, rgba(255, 255, 255, 0.12));
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-wc-wing-tooltip__body .k2-amiga-act-nationalities-tooltip__summary {
+	margin-bottom: 6px;
+	color: var(--k2-tooltip-body);
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-wc-wing-tooltip__body .k2-amiga-act-nationalities-tooltip__list {
+	display: grid;
+	gap: 4px;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-wc-year-tooltip__metric {
+	margin-bottom: 8px;
+	color: var(--k2-tooltip-body);
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-wc-events-tooltip {
+	display: grid;
+	gap: 10px;
+}
+
+body.k2-site.k2-amiga-activity-charts .k2-amiga-act-wc-events-tooltip__event + .k2-amiga-act-wc-events-tooltip__event {
+	padding-top: 10px;
+	border-top: 1px solid var(--k2-tooltip-border, rgba(255, 255, 255, 0.12));
+}
+
 body.k2-site.k2-amiga-activity-charts .k2-amiga-act-nationalities-tooltip__title {
 	margin-bottom: 4px;
 	color: var(--k2-tooltip-title);
