@@ -225,16 +225,6 @@ body.k2-site .k2-hub-chapter__lede {
 	max-width: 44rem;
 }
 
-body.k2-site .k2-hub-chapter__texture {
-	margin: 0;
-	font-family: var(--k2-font-body);
-	font-size: 14px;
-	font-weight: 400;
-	line-height: 1.45;
-	color: var(--k2-text-muted);
-	max-width: 44rem;
-}
-
 body.k2-site .k2-hub-chapter__lede + .k2-hub-chapter__list {
 	margin-top: 0.65em;
 }
@@ -264,10 +254,6 @@ body.k2-site .k2-hub-chapter__list li {
 body.k2-site .k2-hub-chapter__list li::marker {
 	color: color-mix(in srgb, var(--k2-text-muted) 62%, var(--k2-accent) 38%);
 	font-size: 0.7em;
-}
-
-body.k2-site .k2-hub-chapter__nav {
-	margin-bottom: var(--k2-nav-gap);
 }
 
 /* â”€â”€ Site header â”€â”€ */
@@ -337,12 +323,6 @@ body.k2-site a.k2-wordmark__link:focus-visible .k2-wordmark__main {
 		var(--k2-accent-bloom-filter)
 		drop-shadow(0 0 68px color-mix(in srgb, var(--k2-accent-glow) 46%, transparent))
 		drop-shadow(0 0 82px color-mix(in srgb, var(--k2-accent) 28%, transparent));
-}
-
-.k2-wordmark__sub {
-	font-size: 0.72em;
-	font-weight: 500;
-	color: var(--k2-text-muted);
 }
 
 .k2-site-header__links {
@@ -442,26 +422,6 @@ body.k2-site a.k2-realm-switch__btn.k2-table-helped {
 	min-width: 0;
 }
 
-.k2-site-header__utility-link {
-	flex: 0 0 auto;
-	padding: 6px 12px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-md);
-	color: var(--k2-text-primary);
-	font-size: 13px;
-	font-weight: 600;
-	text-decoration: none;
-	white-space: nowrap;
-	background: var(--k2-bg-surface);
-}
-
-body.k2-site a.k2-site-header__utility-link:hover,
-body.k2-site a.k2-site-header__utility-link:focus-visible {
-	border-color: var(--k2-accent);
-	color: var(--k2-accent);
-	text-decoration: none;
-}
-
 .k2-site-header__search {
 	margin-left: auto;
 }
@@ -470,16 +430,6 @@ body.k2-site a.k2-site-header__utility-link:focus-visible {
 	.k2-site-header__search {
 		margin-left: 0;
 	}
-}
-
-.k2-portal-link {
-	color: var(--k2-text-muted);
-	font-weight: 500;
-}
-
-.k2-portal-link:hover {
-	color: var(--k2-accent);
-	text-decoration: none;
 }
 
 /* â”€â”€ Player search â”€â”€ */
@@ -685,11 +635,6 @@ body.k2-site.k2-player-wing .k2-page-nav {
 	padding-bottom: 48px;
 }
 
-body.k2-site.k2-player-wing .k2-page-nav__up {
-	margin: 0 0 6px;
-	padding: 2px 1.25rem 0;
-}
-
 body.k2-site .k2-games-hub {
 	max-width: 1200px;
 	margin: 0 auto;
@@ -710,7 +655,6 @@ body.k2-site .k2-league-period {
 
 body.k2-site .k2-games-hub-tabs,
 body.k2-site .k2-lb-activity-tabs,
-body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-lb-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs,
 body.k2-site .k2-chrome-tabs.k2-amiga-tournament-index-tabs,
@@ -731,7 +675,6 @@ body.k2-site .k2-chrome-tabs.k2-tournament-videos-wings {
 
 body.k2-site .k2-lb-activity-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-games-hub-tabs .k2-chrome-tabs__bar,
-body.k2-site .k2-chrome-tabs.k2-lb-wc-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-lb-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-world-cups-hub-tabs .k2-chrome-tabs__bar,
 body.k2-site .k2-chrome-tabs.k2-amiga-tournament-index-tabs .k2-chrome-tabs__bar,
@@ -882,8 +825,7 @@ body.k2-site .server-activity-summary {
 	box-shadow: var(--k2-shadow-surface);
 }
 
-body.k2-site .server-activity-summary__lede,
-body.k2-site .server-activity-summary__texture {
+body.k2-site .server-activity-summary__lede {
 	color: var(--k2-text-muted);
 	font-size: 14px;
 	line-height: 1.45;
@@ -929,10 +871,6 @@ body.k2-site .server-activity-summary__value {
 	font-size: 20px;
 	font-weight: 500;
 	line-height: 1.15;
-}
-
-body.k2-site .server-activity-summary__texture {
-	margin: 0 0 12px;
 }
 
 @media (max-width: 720px) {
@@ -1359,10 +1297,6 @@ body.k2-site.k2-amiga-activity-charts .k2-amiga-act-nationalities-tooltip__count
 	white-space: nowrap;
 }
 
-body.k2-site.k2-amiga-activity-charts .k2-chart-frame--short {
-	--k2-chart-frame-height: 280px;
-}
-
 /* Desktop: none so Chart.js touchstart can show tooltips. */
 body.k2-site .server-games-day-chart canvas,
 body.k2-site .server-games-month-chart canvas,
@@ -1766,12 +1700,8 @@ body.k2-site .k2-table.ranked-pages-table tbody td {
 }
 
 body.k2-site .k2-table.ranked-pages-table .k2-table-cell--pad-left-xs,
-body.k2-site .k2-table.ranked-pages-table .k2-table-cell--pad-left-sm,
 body.k2-site .k2-table.ranked-pages-table .k2-table-cell--pad-left-md,
-body.k2-site .k2-table.ranked-pages-table .k2-table-cell--pad-left-lg,
-body.k2-site .k2-table.ranked-pages-table .k2-table-cell--pad-left-xl,
-body.k2-site .k2-table.ranked-pages-table .k2-table-cell--pad-left-xxl,
-body.k2-site .k2-table.ranked-pages-table .k2-table-cell--pad-left-xxxl {
+body.k2-site .k2-table.ranked-pages-table .k2-table-cell--pad-left-lg {
 	padding-left: 8px;
 }
 
@@ -1782,12 +1712,6 @@ html.ranked-js body.k2-site .k2-table.ranked-pages-table.ranked-table-pending {
 body.k2-site .k2-table thead tr:first-child:not(:last-child) th {
 	background-color: var(--k2-bg-page);
 	border-bottom: none;
-}
-
-body.k2-site .k2-table thead tr:first-child:not(:last-child) th.filtercell,
-body.k2-site .k2-table thead tr:first-child:not(:last-child) th.filtercell:hover {
-	background-color: var(--k2-bg-page);
-	box-shadow: none;
 }
 
 body.k2-site .k2-table thead th.table-sortable:hover,
@@ -1984,10 +1908,6 @@ body.k2-site .k2-table thead th.k2-table-sorted-desc {
 	box-shadow: inset 0 -2px 0 var(--k2-accent);
 }
 
-body.k2-site .k2-table thead .nohovercell:hover {
-	background-color: var(--k2-bg-surface);
-}
-
 body.k2-site .k2-table tbody td {
 	padding: 5px 8px;
 	border-bottom: 1px solid var(--k2-border-subtle);
@@ -2159,28 +2079,12 @@ body.k2-site .k2-table .k2-table-cell--pad-left-xs {
 	padding-left: 10.5px;
 }
 
-body.k2-site .k2-table .k2-table-cell--pad-left-sm {
-	padding-left: 13.5px;
-}
-
 body.k2-site .k2-table .k2-table-cell--pad-left-md {
 	padding-left: 16.5px;
 }
 
 body.k2-site .k2-table .k2-table-cell--pad-left-lg {
 	padding-left: 19.5px;
-}
-
-body.k2-site .k2-table .k2-table-cell--pad-left-xl {
-	padding-left: 22.5px;
-}
-
-body.k2-site .k2-table .k2-table-cell--pad-left-xxl {
-	padding-left: 28px;
-}
-
-body.k2-site .k2-table .k2-table-cell--pad-left-xxxl {
-	padding-left: 31px;
 }
 
 body.k2-site .k2-table .k2-table-cell--pad-right-xl {
@@ -2254,12 +2158,6 @@ body.k2-site .k2-table tbody tr:hover {
 	background: var(--k2-bg-hover);
 }
 
-body.k2-site .k2-table thead .goalcounter,
-body.k2-site .k2-table thead .goalcounter:hover {
-	background-color: var(--k2-bg-surface);
-	color: var(--k2-text-muted);
-}
-
 body.k2-site .k2-table tfoot td {
 	background-color: var(--k2-bg-surface);
 	color: var(--k2-text-muted);
@@ -2272,22 +2170,6 @@ body.k2-site .k2-table tfoot td {
 body.k2-site .k2-table tfoot td a,
 body.k2-site .k2-table tfoot td a:visited {
 	color: var(--k2-link);
-}
-
-body.k2-site .k2-table tr.tbody_header {
-	background-color: var(--k2-bg-hover);
-	color: var(--k2-text-primary);
-}
-
-body.k2-site .k2-table a.pagelink {
-	border-color: var(--k2-border-strong);
-	color: var(--k2-text-primary);
-}
-
-body.k2-site .k2-table a.currentpage {
-	background-color: var(--k2-accent-muted);
-	color: var(--k2-segment-active-text);
-	font-weight: 500;
 }
 
 body.k2-site .blue {
@@ -2305,20 +2187,6 @@ body.k2-site .holo {
 
 body.k2-site .red {
 	color: var(--k2-table-negative);
-}
-
-body.k2-site select.table-autofilter {
-	font-size: 11px;
-	font-weight: 400;
-	color: var(--k2-text-primary);
-	background-color: var(--k2-bg-elevated);
-	border: 1px solid var(--k2-border-strong);
-	border-radius: var(--k2-radius-sm);
-}
-
-body.k2-site .k2-table thead .filtercell select.table-autofilter {
-	max-width: 100%;
-	box-shadow: var(--k2-shadow-surface);
 }
 
 /* game.php — interim while browser replay ships */
@@ -4012,14 +3880,6 @@ body.k2-site .k2-player-opponents > .k2-table-wrap {
 	margin-top: 0;
 }
 
-body.k2-site .k2-player-opponents__h2h-placeholder {
-	margin-top: 0;
-	padding: 1rem 1.25rem;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-md);
-	background: var(--k2-bg-surface);
-}
-
 body.k2-site .k2-player-opponents:has(.k2-player-opponents-h2h) .k2-player-opponents__nav {
 	margin-bottom: 20px;
 }
@@ -4030,7 +3890,6 @@ body.k2-site .k2-player-opponents-h2h {
 	--k2-h2h2-chrome-ring: color-mix(in srgb, var(--k2-pure-chrome) 55%, transparent);
 	--k2-h2h2-red: var(--k2-table-negative);
 	--k2-h2h2-red-muted: rgba(240, 98, 146, 0.14);
-	--k2-h2h2-red-ring: color-mix(in srgb, var(--k2-stat-negative-base) 55%, transparent);
 	margin-top: 0;
 }
 
@@ -4361,38 +4220,6 @@ body.k2-site .k2-table td.k2-table-cell--center > a.k2-country-roster-link {
 	line-height: 0;
 }
 
-.k2-player-hero__stat--country .k2-player-hero__stat-value--country {
-	padding: 0;
-	font-weight: 500;
-	color: var(--k2-text-secondary);
-	align-items: flex-end;
-}
-
-.k2-player-hero__stat--country {
-	margin-left: 14px;
-}
-
-.k2-player-hero__country-link {
-	display: block;
-	line-height: 0;
-	/* 18px flag in 24px value row — lift to match numeral ink, not line-box bottom */
-	margin-bottom: 4px;
-}
-
-.k2-player-hero__country-flag {
-	display: block;
-	width: 24px;
-	height: 18px;
-	border-radius: 2px;
-	overflow: hidden;
-	line-height: 0;
-}
-
-.k2-player-hero__country-flag .k2-amiga-country-flag-img {
-	width: 24px;
-	height: 18px;
-}
-
 .k2-country-hero--feast {
 	position: relative;
 	overflow: hidden;
@@ -4507,6 +4334,7 @@ body.k2-site .k2-country-hero--feast .k2-country-hero__name a.k2-link-star:focus
 	display: flex;
 	align-items: flex-start;
 	margin-left: 20px;
+	margin-right: 15px;
 	width: calc(var(--k2-player-hero-medal-count, 1) * 60px);
 }
 
@@ -4731,42 +4559,12 @@ body.k2-site .k2-player-hero__stat-value:not([class*="--"]) a.k2-player-hero__st
 	line-height: 1.35;
 }
 
-.k2-heritage-box__note {
-	margin: 4px 0 0;
-	font-size: 10px;
-	color: var(--k2-text-muted);
-	line-height: 1.35;
-}
-
-.k2-status-tagline {
-	margin: 0 0 14px;
-	font-size: 13px;
-	color: var(--k2-text-muted);
-}
-
 .k2-card {
 	margin-bottom: 16px;
 	padding: 16px 18px;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
 	background: var(--k2-bg-surface);
-}
-
-.k2-card__title.k2-panel-heading {
-	margin-bottom: 8px;
-}
-
-.k2-card__hint,
-.k2-hub-panel__hint {
-	margin: 0;
-	font-size: 13px;
-	color: var(--k2-text-muted);
-	line-height: 1.45;
-}
-
-.k2-hub-panel__hint {
-	margin-top: 12px;
-	font-size: 12px;
 }
 
 /* â”€â”€ Play & setup (join.php) â”€â”€ */
@@ -4779,7 +4577,6 @@ body.k2-site .k2-player-hero__stat-value:not([class*="--"]) a.k2-player-hero__st
 
 .k2-join-page__hero,
 .k2-join-page__card,
-.k2-join-page__details,
 .k2-join-page__video-wrap {
 	box-sizing: border-box;
 	width: 100%;
@@ -4801,63 +4598,6 @@ body.k2-site .k2-player-hero__stat-value:not([class*="--"]) a.k2-player-hero__st
 	color: var(--k2-text-primary);
 }
 
-.k2-join-page__lede {
-	margin: 0 0 18px;
-	font-size: 14px;
-	line-height: 1.55;
-	color: var(--k2-text-secondary);
-}
-
-.k2-join-page__actions,
-.k2-join-page__footer {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 10px 12px;
-}
-
-.k2-join-page__footer {
-	margin-top: 8px;
-	padding-top: 8px;
-}
-
-.k2-join-page__cta {
-	display: inline-flex;
-	align-items: center;
-	padding: 8px 14px;
-	border: 1px solid var(--k2-border-subtle);
-	border-radius: var(--k2-radius-md);
-	font-size: 13px;
-	font-weight: 600;
-	text-decoration: none;
-	color: var(--k2-text-primary);
-	background: var(--k2-bg-surface);
-}
-
-.k2-join-page__cta--primary {
-	border-color: var(--k2-accent);
-	color: var(--k2-accent);
-}
-
-body.k2-site a.k2-join-page__cta:hover,
-body.k2-site a.k2-join-page__cta:focus-visible {
-	border-color: var(--k2-accent);
-	color: var(--k2-accent);
-	text-decoration: none;
-}
-
-.k2-join-page__grid {
-	display: grid;
-	gap: 16px;
-	margin-bottom: 16px;
-}
-
-@media (min-width: 640px) {
-	.k2-join-page__grid {
-		grid-template-columns: 1fr 1fr;
-	}
-}
-
 .k2-join-page__card {
 	margin-bottom: 16px;
 }
@@ -4871,11 +4611,6 @@ body.k2-site a.k2-join-page__cta:focus-visible {
 
 .k2-join-page__prose:last-child {
 	margin-bottom: 0;
-}
-
-.k2-join-page__prose--muted {
-	color: var(--k2-text-muted);
-	font-size: 13px;
 }
 
 .k2-join-page__steps {
@@ -4906,79 +4641,9 @@ body.k2-site a.k2-join-page__cta:focus-visible {
 	margin-bottom: 8px;
 }
 
-.k2-join-page__link-note {
-	color: var(--k2-text-muted);
-}
-
-.k2-join-page__details {
-	margin-bottom: 16px;
-}
-
-.k2-join-page__summary {
-	cursor: pointer;
-	list-style: none;
-}
-
-.k2-join-page__summary::-webkit-details-marker {
-	display: none;
-}
-
-.k2-join-page__summary::before {
-	content: "â–¸ ";
-	color: var(--k2-accent);
-}
-
-.k2-join-page__details[open] .k2-join-page__summary::before {
-	content: "â–¾ ";
-}
-
-.k2-join-page__details-body {
-	margin-top: 12px;
-	padding-top: 4px;
-	border-top: 1px solid var(--k2-border-subtle);
-}
-
-.k2-join-page__faq {
-	margin: 0;
-}
-
-.k2-join-page__faq-item {
-	margin-bottom: 14px;
-}
-
-.k2-join-page__faq-item:last-child {
-	margin-bottom: 0;
-}
-
-.k2-join-page__faq dt {
-	margin: 0 0 4px;
-	font-size: 14px;
-	font-weight: 600;
-	color: var(--k2-text-primary);
-}
-
-.k2-join-page__faq dd {
-	margin: 0;
-	font-size: 13px;
-	line-height: 1.5;
-	color: var(--k2-text-muted);
-}
-
 .k2-join-page__signoff {
 	margin-top: 16px;
 	font-weight: 600;
-}
-
-.k2-join-page__eval-banner {
-	max-width: 720px;
-	margin: 0 auto 12px;
-	padding: 8px 12px;
-	font-size: 13px;
-	line-height: 1.45;
-	color: var(--k2-text-muted);
-	border: 1px dashed var(--k2-border-subtle);
-	border-radius: var(--k2-radius-md);
-	background: var(--k2-bg-surface);
 }
 
 .k2-join-page__steps .k2-join-page__link-list {
@@ -5317,31 +4982,6 @@ body.k2-site a.k2-status-heritage-inset--link:focus-visible .k2-heritage-box__ar
 
 .k2-status-panel__head {
 	margin-bottom: 6px;
-}
-
-.k2-status-panel__head--league {
-	margin-bottom: 6px;
-}
-
-.k2-status-league-head__title-row {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 8px 12px;
-	margin-bottom: 4px;
-}
-
-.k2-status-league-head__title-row .k2-panel-heading {
-	margin: 0;
-}
-
-.k2-status-panel__subtitle {
-	margin: 0 0 6px;
-	font-size: 11px;
-	font-weight: 600;
-	color: var(--k2-text-secondary);
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
 }
 
 /* Status â€” paired period competitions (Activity + Points) */
@@ -6745,7 +6385,6 @@ body.k2-site .k2-hub-bar + :where(.server-records-hof, .server-activity-summary,
 }
 
 .k2-hub-tabs__tune,
-.k2-player-nav__tune,
 .k2-nav-tune {
 	display: flex;
 	flex-wrap: wrap;

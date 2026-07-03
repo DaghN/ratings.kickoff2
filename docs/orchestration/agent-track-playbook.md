@@ -4,7 +4,7 @@
 
 **Shorthand:** *explore → doc → plan → prompt → slices*
 
-**Handoff storage (Jun 2026):** Active review starters live in [`agent-handoffs/`](agent-handoffs/) (2 files today). Completed slice handoffs + retired starters + browser/entrant prompts live in [`../archive/orchestration/`](../archive/orchestration/README.md).
+**Handoff storage (Jun 2026):** Active review starters live in [`agent-handoffs/`](agent-handoffs/) (disposition + import split + **theme.css dead-token cleanup**). Completed slice handoffs + retired starters + browser/entrant prompts live in [`../archive/orchestration/`](../archive/orchestration/README.md).
 
 ---
 

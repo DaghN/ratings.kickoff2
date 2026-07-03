@@ -136,6 +136,9 @@
 
 | When | Note |
 |------|------|
+| 2026-07-03 | **Amiga player hero WC medals** — +15px right margin on `.k2-player-hero__medals` (bronze column breathing room vs hero border). |
+| 2026-07-03 | **Theme.css dead-token pass (v1 complete)** — ~45 proven-dead selectors removed (elolist table compat, old join-page tokens, retired header chrome, hero Country stat, WC LB tabs, pad-left sm/xl/xxl/xxxl, `--k2-h2h2-red-ring`); 7,052 → 6,691 lines; dynamic-class + protected families kept; audit `scripts/audit_theme_css_dead_tokens.py`; log in [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md) § Jul 2026; smoke OK. |
+| 2026-07-03 | **Theme.css dead-token cleanup starter** — handoff prompt for grep-only `theme.css` hygiene pass ([`theme-css-dead-tokens-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/theme-css-dead-tokens-STARTER-PROMPT.md)). |
 | 2026-07-03 | **PROJECT_MEMORY prune** — Recent log trimmed to Jul 2026 rows (162 kept); **531** older rows → [`docs/archive/session-log-2026-jun-prune.md`](docs/archive/session-log-2026-jun-prune.md). |
 | 2026-07-03 | **K2 table audit — Amiga highlights exception** — `amiga_games_highlights_helpers.php` whitelisted (compact board, online parity); `amiga/games/highlights.php` shell-owned head; audit PASS (0 Tier C). |
 | 2026-07-03 | **Profile goals-per-game hint** — “How many games {name} scored…” uses link-star player name instead of “he”. |
