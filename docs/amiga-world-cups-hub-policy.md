@@ -37,7 +37,7 @@ Realm-wide **calendar-year** WC trends (community facts + charts) stay on **Acti
 | **WCH4** | **Four wings** | **Chronology · Player stats · Country stats · Tournament stats** — player + country stats = **five sub-wings** each ([`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md), [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md)); **both shipped** |
 | **WCH5** | **Default wing** | `/amiga/world-cups/chronology.php` — **Chronology** (flat wing, no sub-nav); `/amiga/world-cups/` 302 to chronology. Legacy `chronology/index.php` 302. Tournament stats Participation default = `stats/participation.php` (`stats/index.php` + `stats.php` 302). |
 | **WCH6** | **Event stats home** | Sortable **`amiga_world_cup_stats`** table lives on **wing 2** — **not** under Activity. |
-| **WCH7** | **Activity WC charts** | Shipped community **year** WC charts (**Q-WC-001**–**003**, **006**–**007**, **011**, **012**) stay on **Activity** (realm pulse). Wing 2 may **link** to them (“Realm trends in Activity →”). |
+| **WCH7** | **Activity WC charts** | Shipped community **year** WC charts (**7 panels** on Activity → World Cups wing: participants · nations · games · share · avg games/participant · goals/game · cumulative — **Q-WC-001**–**003**, **006**–**007**, **011**, **012**, **002**). Hub wing 2 may **link** to them (“Realm trends in Activity →”). |
 | **WCH8** | **Player stats — one implementation** | Honours · Results · Goals · DDs & CSs · Opponents tables live in **`includes/amiga_wc_players_wing_body.inc.php`** + **`amiga_wc_players_table.php`**. **No forked SQL or duplicate table markup.** |
 | **WCH9** | **Hub-only player stats UI** | **World Cups hub → Player stats** is the sole navigation home for WC career tables (Jun 2026). Legacy `/amiga/leaderboards/world-cups/*` **302** to matching hub paths; deprecated route keys `amiga-lb-world-cups-*` alias hub URLs. |
 | **WCH10** | **Retired dual entry** | Jun 2026 removed Leaderboards → World Cups wing (was Milestones-style dual home Jun–Jun 2026). One product, one chrome — same as Countries hub (no LB mirror). |
@@ -140,7 +140,7 @@ Column layout per sub-wing: [`amiga-world-cup-stats-table-plan.md`](amiga-world-
 
 | Surface | Relationship |
 |---------|----------------|
-| **Activity** | **Keeps** all community stat wings + **year-level** WC charts (Q-WC-001–003, 006–007, 011, 012). **Does not** host per-WC stats table. |
+| **Activity** | **Keeps** all community stat wings + **year-level** WC charts (**7 panels** — Q-WC-007 · 006 · 001 · 003 · 012 · 011 · 002). **Does not** host per-WC stats table. |
 | **Leaderboards** | **Rating** and general wings unchanged. WC player stats **removed** from LB Jun 2026 — canonical home = this hub wing 3. |
 | **Tournaments** | Full catalog (all events). WC hub wing 1 is **WC-filtered** index; same **`tournament.php`** destination as Tournaments hub. |
 | **`tournament.php`** | **Canonical** per-tournament address for all events including WCs. WC hub links land on **`view=event-stats`** by default; enrich that tab (and siblings) with `amiga_world_cup_stats` — **no duplicate event URLs** (WCH15). |

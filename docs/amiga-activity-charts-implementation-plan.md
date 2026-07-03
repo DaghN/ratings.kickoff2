@@ -29,7 +29,7 @@
 | **1** | Growth wing | 7 | **Done** Jul 2026 |
 | **2** | People wing | 5 | **Done** Jul 2026 |
 | **3** | Texture wing (rates API + reference lines) | 5 | **Done** Jul 2026 |
-| **4** | World Cups wing (ghost bars + overlay) | 6 | **Done** Jul 2026 |
+| **4** | World Cups wing (ghost bars + overlay + avg games/participant) | 7 | **Done** Jul 2026 |
 | **5** | Geography selector platform (duel + race controls, slice_series API) | 0 | **Done** |
 | **6** | Geography — Hosts | 8 | **Done** |
 | **7** | Geography — Nations | 8 | **Done** Jul 2026 (+ player grains — [`amiga-activity-geography-nations-players-implementation-plan.md`](amiga-activity-geography-nations-players-implementation-plan.md)) |
@@ -37,7 +37,7 @@
 | **9** | Shape wing | 9 | **Done** Jul 2026 |
 | **10** | Polish: mobile pass, perf order, cross-links, docs finish | — | **Done** Jul 2026 |
 
-Running total after slice 9: **45 panels / 46 question IDs.** After Nations player-grain extension (Jul 2026): **48 panels / 49 question IDs.**
+Running total after slice 9: **45 panels / 46 question IDs.** After Nations player-grain extension (Jul 2026): **48 panels / 49 question IDs.** After WC wing extension (Jul 2026): **49 panels / 50 question IDs** (+Q-WC-012 avg games per participant; panel reorder — participants · nations first).
 
 ---
 
@@ -213,11 +213,12 @@ All endpoints: JSON, `realm` implied Amiga (own files, no online realm param), r
 
 ### Slice 4 — World Cups (7 panels) — **Done** (Jul 2026)
 
-- Extend `year_rates` with `wc_share` + `wc_goals_per_game` (+ overlay values).
-- Ghost-bar layered rendering (realm behind WC, muted tone) in module — reused nowhere else yet, keep generic (`datasets[].ghost` flag).
+- Extend `year_rates` with `wc_share`, `wc_goals_per_game`, and `wc_games_per_player` (+ overlay values where applicable).
+- Ghost-bar layered rendering (realm behind WC, muted tone; **hidden by default**, legend toggle).
+- `wc_events_by_year` on `year_facts` + `year_rates` for unified WC HTML tooltips.
 - Intro copy cross-links World Cups hub; WC hub Tournament stats wing gains a link back (one line).
 
-*Shipped notes:* `year_facts` extended with `slice=world_cup` (games · goals · active_players · distinct_nationalities); `year_rates` adds `wc_share` (WC games ÷ realm games) + `wc_goals_per_game` (overlay = realm goals/game per year). Module: `renderGhostYearBar()` + `mountWcGamesGhostYear()` (`datasets[].ghost` muted realm bars behind WC); `renderYearRateBar()` overlay line for WC goals/game vs realm. Panels in `includes/amiga_activity_world_cups_panels.inc.php`. Cross-links: Activity intro → World Cups hub + Tournament stats; `amiga_world_cup_stats_wing_body.inc.php` one-line link back to Activity World Cups wing. Helper `amiga_community_year_series_filled_at_cutoff()` shared by year_facts.
+*Shipped notes:* `year_facts` extended with `slice=world_cup` (games · goals · active_players · distinct_nationalities) + `wc_nationality_active_by_year` + `wc_events_by_year`; `year_rates` adds `wc_share`, `wc_goals_per_game` (realm overlay), **`wc_games_per_player`** (**2 ×** WC games ÷ WC active players). Module: `renderWcBreakdownYearBar()`, `renderGhostYearBar()` + `mountWcGamesGhostYear()` (`datasets[].ghost` muted realm bars, hidden until legend click); `renderYearRateBar()` overlay line for WC goals/game vs realm; **`bindWcWingBarExternalTooltip()`** — WC intro first, demarcation line, chart body (nationality lists on participants/nations). **`WcGamesPlayed` cumulative** filtered to WC catalog events only (~23 points). **Panel order (Jul 2026):** participants → nations → games → share → avg games/participant → goals/game → cumulative. Panels in `includes/amiga_activity_world_cups_panels.inc.php`. Cross-links: Activity intro → World Cups hub + Tournament stats; `amiga_world_cup_stats_wing_body.inc.php` one-line link back to Activity World Cups wing.
 
 ### Slice 5 — Geography selector platform (no panels) — **Done** (Jul 2026)
 
@@ -300,10 +301,10 @@ Encoded in `amiga_community_histogram_bucket_defs()`: range buckets for career g
 
 - Mobile pass: `touch-action: pan-y pinch-zoom` on panels; tooltips off coarse; heaviest panels (race multi-lines) last in loader queue.
 - Cross-link audit (Countries hub, WC hub, tournament click-through carry).
-- Registry parity check: **48 panels ↔ 49 ship IDs** (incl. Q-GEO-016…018), per-panel checklist from [`activity-charts.md`](activity-charts.md) §6.
+- Registry parity check: **49 panels ↔ 50 ship IDs** (incl. Q-GEO-016…018 + Q-WC-012), per-panel checklist from [`activity-charts.md`](activity-charts.md) §6.
 - Docs: this plan statuses; policy status line; [`url-routes.md`](url-routes.md); catalog plan step 6 → done; MEMORY; feature-log row (Part A). Part B only if S6 shipped.
 
-*Shipped notes:* **Mobile** — `theme.css` coarse-pointer rule extended to `k2-amiga-activity-charts` panels/canvases (matches online Activity). Tooltips already off on coarse via `chart-theme.js` `activityChartOptions`. **Loader** — `buildPanelQueue()` mounts only panels present on the page; `loadTier: 'deferred'` queues geography **race** multi-lines + Shape `goal_sum` / `active_years` after lighter panels on that page. **Cross-links** — Geography intro → Countries hub (`amiga_url_with_context`); WC wing → World Cups hub (slice 4); geo chip roster hrefs carry `as=` via `K2AmigaTimeTravelUrl`; cumulative click-through already carried `as=` (slice 1). **Registry parity** — **48 panels = 49 ship IDs** with **Q-VOL-004 + Q-SHP-010** merged in one cumulative-players panel (policy §4); Jul 2026 Nations extension adds Q-GEO-016…018 on `nations.php` (8 panels). **Jul 2026 tooltips** — `renderBreakdownYearBar()` on GEO-008, Q-VOL-005, GEO-010, Q-WC-006, Q-WC-007; stored breakdown facts + `prove` green local. All registry selectors wired in `amiga-activity-charts.js`.
+*Shipped notes:* **Mobile** — `theme.css` coarse-pointer rule extended to `k2-amiga-activity-charts` panels/canvases (matches online Activity). Tooltips already off on coarse via `chart-theme.js` `activityChartOptions`. **Loader** — `buildPanelQueue()` mounts only panels present on the page; `loadTier: 'deferred'` queues geography **race** multi-lines + Shape `goal_sum` / `active_years` after lighter panels on that page. **Cross-links** — Geography intro → Countries hub (`amiga_url_with_context`); WC wing → World Cups hub (slice 4); geo chip roster hrefs carry `as=` via `K2AmigaTimeTravelUrl`; cumulative click-through already carried `as=` (slice 1). **Registry parity** — **49 panels = 50 ship IDs** with **Q-VOL-004 + Q-SHP-010** merged in one cumulative-players panel (policy §4); Jul 2026 Nations extension adds Q-GEO-016…018 on `nations.php` (8 panels); Jul 2026 WC extension adds Q-WC-012 + reorders World Cups wing (7 panels). **Jul 2026 tooltips** — `renderBreakdownYearBar()` on GEO-008, Q-VOL-005, GEO-010; WC wing unified HTML tooltips (`wc_events_by_year`, nationality lists on Q-WC-006/007); stored breakdown facts + `prove` green local. All registry selectors wired in `amiga-activity-charts.js`.
 
 ---
 

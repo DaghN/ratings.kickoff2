@@ -38,7 +38,7 @@ Design gift vs online Activity: **every cumulative-curve point is a real tournam
 | **People** | `/amiga/activity/people.php` | 5 | VOL-003 · VOL-004+SHP-010 (merged) · SHP-009 · 001 · 002 |
 | **Geography — Hosts** | `/amiga/activity/geography/hosts.php` | 8 | GEO-001 · 002 · 004 · 014 · 003 · 013 · 008 · 009 |
 | **Geography — Nations** | `/amiga/activity/geography/nations.php` | 8 | GEO-016 · 017 · 018 · 005 · 007 · 006 · 015 · 010 |
-| **World Cups** | `/amiga/activity/world-cups.php` | 7 | WC-001 · 003 · 012 · 002 · 011 · 006 · 007 |
+| **World Cups** | `/amiga/activity/world-cups.php` | 7 | WC-007 · 006 · 001 · 003 · 012 · 011 · 002 |
 | **Texture** | `/amiga/activity/texture.php` | 6 | TEX-007 · 006 · 008 · 009 · 014 · 013 |
 | **Shape** | `/amiga/activity/shape.php` | 9 | SHP-007 · 008 · 014 · 015 · 003 · 004 · 016 · 005 · 006 |
 
@@ -160,6 +160,8 @@ Community WC lens — deliberately distinct from the World Cups hub per-event ta
 | 6 | WC goals per game per year | Q-WC-011 | Bar with **realm goals-per-game overlaid as a line** (TEX-007 data) — "is the WC tighter than regular play?" WC intro first, then WC rate + realm overlay line on hover. |
 | 7 | Cumulative WC games | Q-WC-002 | Line to ~8,449 (`WcGamesPlayed` snapshots, **World Cup events only** — one point per WC, not every realm finalize). Click-through. **HTML tooltip:** same WC intro block as year bars (flag · name · date), demarcation line, then event games + running total. |
 
+**Panel order (Jul 2026):** *who came* (participants · nations) → *how much* (games · share · depth per participant · goals/game) → *running total* (cumulative). Cumulative stays last as the closer.
+
 ### 5.5 Texture — "How did the games feel, year by year?" (6 panels)
 
 All six are year-local rate bars (L3, derived at the API from stored numerators). Quality move: **each bar chart gets a horizontal all-time-average reference line** from the headline stats at cutoff (`GoalsPerGameAverage`, `DrawsRatio`, `DoubleDigitsRatio`, `CleanSheetsRatio`; high- and low-scoring averages derived from summed year facts) — every year visibly reads as tighter or wilder than the era average, at zero storage cost.
@@ -228,7 +230,7 @@ Two control patterns, both Geography-only in v1:
 
 - L2 event-timeline lines: title = **tournament name**, body = date + value. This is the rabbit-hole detail — every point has a name.
 - Year bars: year + value; partial years under TT labelled (§8).
-- **Year-bar breakdown (Jul 2026):** Geography / Growth realm bars use Chart.js **external HTML tooltips** (`renderBreakdownYearBar()`): year title + summary + flag + label + per-row count. **World Cups wing year bars** (`renderWcBreakdownYearBar()` / `renderGhostYearBar()` / WC rate bars via `bindWcWingBarExternalTooltip()`): **WC context intro always first** — host flag + tournament name + date from `wc_events_by_year` (`amiga_world_cup_stats` at cutoff); **no duplicate calendar-year row**. Participants + nations panels keep the **nationality participant list** below the intro; metric/rate panels show the chart value only. Ghost “all rated games” layer: intro + rated-games count. Cumulative curve unchanged (flag + name + date, then games + running total).
+- **Year-bar breakdown (Jul 2026):** Geography / Growth realm bars use Chart.js **external HTML tooltips** (`renderBreakdownYearBar()`): year title + summary + flag + label + per-row count. **World Cups wing** (`renderWcBreakdownYearBar()` / `renderGhostYearBar()` / WC rate bars via `bindWcWingBarExternalTooltip()` + cumulative via `buildWcWingTooltipHtml()`): **WC context intro always first** — host flag + tournament name + date from `wc_events_by_year` (`amiga_world_cup_stats` at cutoff); **demarcation line** (`--k2-tooltip-border`) before chart body; **no duplicate calendar-year row**. Participants + nations panels keep the **nationality participant list** below the intro; metric/rate panels show the chart value only. Ghost “all rated games” layer: intro + rated-games count (layer hidden until legend toggle). Cumulative curve: same intro block, demarcation line, then event games + running total.
 - Histograms: bucket + count + % of population.
 - Phone: Chart.js tooltips off on coarse pointers; `touch-action: pan-y pinch-zoom` (online mobile rules).
 
@@ -240,7 +242,7 @@ Two control patterns, both Geography-only in v1:
 
 ### 7.4 Overlays and reference lines
 
-- **Ghost bars**: WC games per year renders realm games behind in a muted tone (both series ship).
+- **Ghost bars**: WC games per year — realm games as muted ghost layer **hidden by default**; legend toggles comparison (hint under heading).
 - **Reference lines**: texture bars carry the all-time average at cutoff as a horizontal line; WC goals-per-game bar carries the realm per-year rate as a line overlay.
 - No new question IDs are created by overlays — they reuse shipped series.
 
@@ -248,7 +250,7 @@ Two control patterns, both Geography-only in v1:
 
 ## 8. Time travel semantics
 
-All 49 questions are TT-tagged **yes**. Rules (per [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §3.4):
+All **50 ship** questions are TT-tagged **yes**. Rules (per [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §3.4):
 
 | Concern | Rule |
 |---------|------|
@@ -264,14 +266,14 @@ All 49 questions are TT-tagged **yes**. Rules (per [`amiga-time-travel-policy.md
 
 ## 9. Chart APIs (read-only families)
 
-Five JSON endpoints under `site/public_html/api/` cover all **48** panels; shared read helpers live in `amiga_community_stats_lib.php` (general `amiga_community_facts_query()` + snapshot series helper). Exact params: implementation plan §2.
+Five JSON endpoints under `site/public_html/api/` cover all **49** panels; shared read helpers live in `amiga_community_stats_lib.php` (general `amiga_community_facts_query()` + snapshot series helper). Exact params: implementation plan §2.
 
 | Endpoint | Serves | Source |
 |----------|--------|--------|
-| `amiga_community_year_facts.php` | All L1 year bars (realm, host_country, player_nationality, world_cup; optional `keys=` CSV). **`distinct_nationalities`** (realm) → `nationality_active_by_year` from facts (GEO-010). **`distinct_nationalities`** and **`active_players`** (world_cup) → `wc_nationality_active_by_year` from stored `wc_active_players` facts (Q-WC-006 / Q-WC-007). **`distinct_host_countries`** and **`tournaments`** (realm) → `host_tournaments_by_year` from facts (GEO-008 / Q-VOL-005). | `amiga_community_stat_facts` year rows at cutoff |
+| `amiga_community_year_facts.php` | All L1 year bars (realm, host_country, player_nationality, world_cup; optional `keys=` CSV). **`distinct_nationalities`** (realm) → `nationality_active_by_year` from facts (GEO-010). **`distinct_nationalities`** and **`active_players`** (world_cup) → `wc_nationality_active_by_year` from stored `wc_active_players` facts (Q-WC-006 / Q-WC-007). **`distinct_host_countries`** and **`tournaments`** (realm) → `host_tournaments_by_year` from facts (GEO-008 / Q-VOL-005). **`slice=world_cup`** also returns **`wc_events_by_year`** (host · name · date per calendar year) for WC wing HTML tooltips. | `amiga_community_stat_facts` year rows at cutoff |
 | `amiga_community_snapshot_series.php` | Realm cumulative lines (whitelisted headline columns) | `amiga_community_stats_snapshots` |
 | `amiga_community_slice_series.php` | Per-country cumulative race lines (`games`, `goals`, **`active_players`** for nation roster) | `all_time` facts across snapshots |
-| `amiga_community_year_rates.php` | L3 derived rates + reference values | Year facts numerators + headline averages |
+| `amiga_community_year_rates.php` | L3 derived rates + reference values (`wc_share`, `wc_goals_per_game`, **`wc_games_per_player`**, texture rates, …). WC rate responses include **`wc_events_by_year`** for tooltips. | Year facts numerators + headline averages |
 | `amiga_community_histogram.php` | Shape wing | Player/game state at cutoff (oracle per probe outcome) |
 
 **Chart track (slices 0–10):** read-only APIs + UI — no finalize writers, no DDL.
@@ -316,7 +318,7 @@ Five JSON endpoints under `site/public_html/api/` cover all **48** panels; share
 | Doc | Relationship |
 |-----|--------------|
 | [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) | Sliced build track + panel registry (parity contract) |
-| [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) | The 49 ship questions (product source) |
+| [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) | The 50 ship questions (product source) |
 | [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) | Method, lenses, §9.1 IA register (closed by this doc) |
 | [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) | Storage shape (headline + facts + snapshots) |
 | [`activity-charts.md`](activity-charts.md) | Online chart architecture — pattern source |

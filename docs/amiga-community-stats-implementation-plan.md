@@ -361,7 +361,7 @@ Optional in slice 5 or 9.
 
 ## Phase 3 — Question catalog & v2 registry (product)
 
-**Status:** Steps **3–6 done** (Jul 2026) — **49 ship** (46 Jun 2026 + Q-GEO-016…018 extension); registry v2 + writers green (`036`/`037`, `prove`); chart IA **locked** ([`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md)). Chart build track **shipped** — [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) + [`amiga-activity-geography-nations-players-implementation-plan.md`](amiga-activity-geography-nations-players-implementation-plan.md).  
+**Status:** Steps **3–6 done** (Jul 2026) — **50 ship** (46 Jun 2026 + Q-GEO-016…018 + Q-WC-012 extension); registry v2 + writers green (`036`/`037`, `prove`); chart IA **locked** ([`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md)). Chart build track **shipped** — [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) + [`amiga-activity-geography-nations-players-implementation-plan.md`](amiga-activity-geography-nations-players-implementation-plan.md).  
 **Plan:** [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md)  
 **Living artifact:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md)
 

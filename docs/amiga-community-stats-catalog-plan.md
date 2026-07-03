@@ -1,9 +1,9 @@
 # Amiga community stats — question catalog plan (v2 product)
 
-**Status:** **Steps 0–6 done** (Jul 2026) — **49 ship**, registry v2 writers green; chart track **shipped** — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) + [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) (48 panels / 49 IDs). **Jul 2026 extension:** Nations player grains (Q-GEO-016…018) — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md).  
+**Status:** **Steps 0–6 done** (Jul 2026) — **50 ship**, registry v2 writers green; chart track **shipped** — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) + [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) (49 panels / 50 IDs). **Jul 2026 extension:** Nations player grains (Q-GEO-016…018) — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md); **Q-WC-012** on World Cups wing.  
 **Policy (shape):** [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) — **do not reopen** C1–C13 without Dagh.  
 **V1 implementation (done):** [`amiga-community-stats-implementation-plan.md`](amiga-community-stats-implementation-plan.md) — slices 1–10 + Phase 2 verify hygiene.  
-**Living product artifact:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — step **3** done (**49 ship** incl. Jul 2026 extension).
+**Living product artifact:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — step **3** done (**50 ship** incl. Jul 2026 extensions).
 
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-realm-vision.md`](amiga-realm-vision.md) (online↔Amiga skips) · online pattern [`activity-charts.md`](activity-charts.md)
 
@@ -211,10 +211,10 @@ From policy §9 and [`amiga-realm-vision.md`](amiga-realm-vision.md):
 | **0** | This plan doc | **Done** |
 | **1** | Create [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md); brainstorm wide (50–80 questions) | **Done** — 76 rows |
 | **2** | Cluster by wing + lens; dedupe; mark S0–S7 | **Done** — 73 active, 3 cut, 9 clusters |
-| **3** | Dagh curates: priority (ship / later / cut) | **Done** — **49 ship** (46 Jun 2026 + Q-GEO-016…018 Jul 2026), 2 later, 28 cut |
+| **3** | Dagh curates: priority (ship / later / cut) | **Done** — **50 ship** (46 Jun 2026 + Q-GEO-016…018 + Q-WC-012 Jul 2026), 2 later, 28 cut |
 | **4** | Derive **registry v2** + finalize writers + `prove` | **Done** Jun 2026 — `community_stat_registry.py` v2 grains, DDL `036`/`037`, `verify-community-stats` green |
 | **5** | Close **open chart IA** (§9.1) + chart track plan | **Done** Jul 2026 — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) + [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) |
-| **6** | Chart APIs + Activity UI (clusters C0–C9) | **Done** Jul 2026 — impl plan slices 0–10 + Nations player extension (48 panels / 49 IDs) |
+| **6** | Chart APIs + Activity UI (clusters C0–C9) | **Done** Jul 2026 — impl plan slices 0–10 + Nations player extension + WC wing Q-WC-012 (49 panels / 50 IDs) |
 
 **STOP gates:**
 

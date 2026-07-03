@@ -1,6 +1,6 @@
 # Amiga community stats — question catalog
 
-**Status:** **Steps 3–6 complete** (Jul 2026) — **49 ship** curated; registry v2 + writers green (`036`/`037`, `prove`); chart IA **locked** — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md). **Jul 2026 extension:** Q-GEO-016…018 (Nations player grains) — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md). Activity UI **48 panels / 49 IDs**.  
+**Status:** **Steps 3–6 complete** (Jul 2026) — **50 ship** curated; registry v2 + writers green (`036`/`037`, `prove`); chart IA **locked** — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md). **Jul 2026 extension:** Q-GEO-016…018 (Nations player grains) — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md); **Q-WC-012** (avg WC games per participant). Activity UI **49 panels / 50 IDs**.  
 **Method:** [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md)  
 **Policy (shape):** [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md)
 
@@ -10,7 +10,7 @@
 - **Storage** S0–S7; **Impl** = cluster C0–C9 (writers done for C2–C7 grains; charts not started).
 - **Lens:** L1 year · L2 snapshot cumulative · L3 year-local rate · L4 distribution at cutoff.
 
-**Curation totals:** **49 ship** · **2 later** · **28 cut** (25 step 3 + 3 step 2) · **79** rows (76 Jun 2026 + Q-GEO-016…018 Jul 2026)
+**Curation totals:** **50 ship** · **2 later** · **28 cut** (25 step 3 + 3 step 2) · **80** rows (76 Jun 2026 + Q-GEO-016…018 + Q-WC-012 Jul 2026)
 
 ---
 
@@ -28,7 +28,7 @@
 |------|------|
 | Volume | 8 |
 | Geography | 16 (10 + 3 cumulative companions + 3 player-headcount) |
-| World Cups | 6 (5 + goals/game per year) |
+| World Cups | 7 (participants · nations · games · share · avg games/participant · goals/game · cumulative) |
 | Texture | 5 (4 year-local rates + high-scoring rate) |
 | Shape | 13 |
 | Event ecosystem | 1 |
@@ -81,7 +81,7 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 | **C4 — Nationality cumulative goals** | Q-GEO-015 | `all_time` + `player_nationality` + `goals` |
 | **C4b — Nationality player headcount** | Q-GEO-016 · 017 · 018 · GEO-010 tooltip | `player_nationality` + `active_players` (year + all_time), `player_debuts` (year) — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md) |
 | **C4c — Year-bar tooltip breakdowns** | GEO-008 · Q-VOL-005 · Q-WC-006 · Q-WC-007 | `host_country×tournaments` (year); `player_nationality×wc_active_players` (year, sparse) — read via `year_facts` payload fields |
-| **C5 — World Cup slice** | Q-WC-001,003,006,007 · numerators for Q-WC-011 | `world_cup` year facts + Q-WC-002 S1 |
+| **C5 — World Cup slice** | Q-WC-001,003,006,007,012 · numerators for Q-WC-011 | `world_cup` year facts + Q-WC-002 S1 |
 | **C7 — Headline S1** | Q-VOL-006 · Q-GEO-009 · Q-SHP-002,010 | Snapshot cols |
 | **C8 — L4 probes → APIs** | Q-SHP-003–008,014–016 | Read oracles + TT |
 | **C9 — Derive charts** | Q-TEX-006–009,013–014 · Q-WC-003,011,012 · Q-ECO-004 | API math only |
@@ -247,7 +247,7 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 
 | Step | Status |
 |------|--------|
-| **3** Curation | **Done** — **49 ship** (46 Jun 2026 + Q-GEO-016…018 Jul 2026) |
+| **3** Curation | **Done** — **50 ship** (46 Jun 2026 + Q-GEO-016…018 + Q-WC-012 Jul 2026) |
 | **4** Registry v2 + writers + `prove` | **Done** Jun 2026 (+ Jul 2026 nationality player grains, no DDL) |
 | **5** Chart IA + track plan | **Done** Jul 2026 — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) |
 | **6** Chart APIs + Activity UI (C0–C9) | **Done** Jul 2026 — [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) + Nations player extension |
