@@ -133,7 +133,7 @@
 
 | When | Note |
 |------|------|
-| 2026-07-03 | **Amiga Activity hub v1 shippable** — product sign-off; docs sweep (policy §5.0 wing intros, plan shippable checklist, catalog/PROJECT_MAP/feature-log); no open v1 chart backlog. |
+| 2026-07-03 | **Profile goals-per-game hint** — “How many games {name} scored…” uses link-star player name instead of “he”. |
 | 2026-07-03 | **Amiga Activity People wing intro** — question-led lede: actives, debuts, unique/new matchups (replaces bar-chart pairing hint). |
 | 2026-07-03 | **Amiga Activity Shape wing intro** — *What are we made of?* + histogram catalog lede (Texture-wing parity; TT long-tail hint dropped from copy). |
 | 2026-07-03 | **Amiga Activity Texture wing intro** — *What are the games like?* narrative lede with Dartford / Copenhagen tournament links; full arc once cutoff ≥ WC XIV (577); simpler *to present day* before that. |

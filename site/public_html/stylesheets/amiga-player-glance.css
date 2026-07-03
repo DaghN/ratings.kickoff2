@@ -6,7 +6,7 @@
  * - Token: --k2-amiga-glance-lift-shadow (tiers A + B)
  * - Zero x/y offset — even falloff on all sides (not a downward drop shadow)
  * - Layered blurs + 1px dark ring; accent border glow stays separate (instant)
- * - __canvas 0.25s · __print (opacity + accent glow) 0.5s · __lift (neutral halo) 0.85s
+ * - __canvas 0.25s · __print (opacity + accent glow) 0.5s · __lift (neutral halo) 0.4s
  * - Tune strength in token only; do not reintroduce vertical offset without product pass
  */
 
@@ -91,7 +91,7 @@ body.k2-site .k2-amiga-player-glance__lift {
 	border-radius: inherit;
 	z-index: 1;
 	pointer-events: none;
-	animation: k2-amiga-glance-lift-shadow-in 0.85s ease-out forwards;
+	animation: k2-amiga-glance-lift-shadow-in 0.4s ease-out forwards;
 }
 
 /* Neutral lift — omnidirectional; see file header for intent */
