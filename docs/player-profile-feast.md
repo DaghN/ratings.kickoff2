@@ -16,7 +16,7 @@
 | Data | `includes/player_feast_load.php` → `player_feast_load_pm()` |
 | Blocks | `includes/player_feast_blocks.php` |
 | Helpers | `includes/player_feast_helpers.php` |
-| Hero | `includes/player_hero.php` (rank, rating, games, milestones when unlocked); `#player` anchor in hero include; inbound hrefs: `k2_player_profile_href()` / `k2_player_link()` in `k2_safety.php` |
+| Hero | `includes/player_hero.php` (rank, rating, games, milestones when unlocked); `#player` anchor in hero include; inbound hrefs: `k2_player_profile_href()` / `k2_player_link()` in `k2_safety.php`. **Atomic paint:** inline scripts around the hero article toggle `html.k2-player-hero-parsing` (`k2_player_hero_atomic_paint_open/close()` in `k2_player_hero_glow_session.php`; hide rule in `player-hero-rank.css`) so the shrink-wrapped hero never paints mid-parse at partial width (reload narrow-flash guard; both realms) |
 | Nav pills | `includes/player_nav.php` — Profile · **Opponents** · Milestones · Games |
 | Opponents wing | `player/opponents/*.php` — inner tabs Head-to-head · W/D/L · Goals · DDs |
 | Milestones | `player/milestones/garden.php` · `player/milestones/chronology.php` — inner wings **Garden** · **Chronology**; Chronology = player-filtered Recent feed (tier filter, newest-first, no player column); tier garden on Garden (`#garden-aspirational` …); helpers `includes/player_milestones_helpers.php`, `includes/player_milestones_lib.php` |

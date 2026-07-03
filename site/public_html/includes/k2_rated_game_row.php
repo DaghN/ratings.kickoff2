@@ -33,7 +33,7 @@ function k2_rated_game_scoreline_html(int $goalsA, int $goalsB): string
 
 function k2_rated_game_player_link(int $id, string $name): string
 {
-    return '<a href="' . k2_h(k2_player_profile_href($id)) . '">' . k2_rated_game_h($name) . '</a>';
+    return k2_player_link($id, $name);
 }
 
 /** Games Highlights table — semantic column class (see .k2-games-highlights-col--* in theme.css). */

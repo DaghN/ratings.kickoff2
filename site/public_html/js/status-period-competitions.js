@@ -255,10 +255,12 @@
             html += '<li>';
             html += '<span class="k2-status-recency-list__when">' + escapeHtml(formatDayGameTime(g.at)) + '</span>';
             html += '<span class="k2-status-match">';
-            html += '<span class="k2-status-match__side"><a class="k2-link-star" href="/player/profile.php?id='
+            html += '<span class="k2-status-match__side"><a class="k2-link-star" data-k2-player-glance="'
+                + parseInt(g.id_a, 10) + '" href="/player/profile.php?id='
                 + parseInt(g.id_a, 10) + PLAYER_PROFILE_ANCHOR + '">' + escapeHtml(g.name_a || '') + '</a></span>';
             html += '<span class="k2-status-score">' + formatStatusScoreHtml(g.goals_a, g.goals_b) + '</span>';
-            html += '<span class="k2-status-match__side"><a class="k2-link-star" href="/player/profile.php?id='
+            html += '<span class="k2-status-match__side"><a class="k2-link-star" data-k2-player-glance="'
+                + parseInt(g.id_b, 10) + '" href="/player/profile.php?id='
                 + parseInt(g.id_b, 10) + PLAYER_PROFILE_ANCHOR + '">' + escapeHtml(g.name_b || '') + '</a></span>';
             html += '</span>';
             html += '<a class="k2-link-star k2-status-day-games-list__game" href="/game.php?id='
@@ -1305,7 +1307,7 @@
             var rank = e.rank;
             html += '<tr>';
             html += '<td class="k2-status-table__num">' + rank + '</td>';
-            html += '<td class="k2-status-table__player"><a class="k2-link-star" href="/player/profile.php?id=' + e.player_id + PLAYER_PROFILE_ANCHOR + '">'
+            html += '<td class="k2-status-table__player"><a class="k2-link-star" data-k2-player-glance="' + e.player_id + '" href="/player/profile.php?id=' + e.player_id + PLAYER_PROFILE_ANCHOR + '">'
                 + escapeHtml(e.player_name) + '</a></td>';
             html += '<td class="k2-status-table__num"><span class="blue k2-status-table__hero-stat">' + e.games + '</span></td>';
             if (showMedals) {
@@ -1347,7 +1349,7 @@
             var gd = row.gd;
             html += '<tr>';
             html += '<td class="k2-status-table__num">' + rank + '</td>';
-            html += '<td class="k2-status-table__player"><a class="k2-link-star" href="/player/profile.php?id=' + row.id + PLAYER_PROFILE_ANCHOR + '">'
+            html += '<td class="k2-status-table__player"><a class="k2-link-star" data-k2-player-glance="' + row.id + '" href="/player/profile.php?id=' + row.id + PLAYER_PROFILE_ANCHOR + '">'
                 + escapeHtml(row.name) + '</a></td>';
             html += '<td class="k2-status-table__num">' + row.played + '</td>';
             html += '<td class="k2-status-table__num"><span class="blue">' + row.wins + '</span></td>';

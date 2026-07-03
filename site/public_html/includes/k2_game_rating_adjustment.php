@@ -52,8 +52,7 @@ function k2_game_rating_adjustment_player_link(int $id, string $name): string
     if ($id > 0) {
         require_once __DIR__ . '/k2_safety.php';
 
-        return '<a class="k2-link-star" href="' . k2_h(k2_player_profile_href($id)) . '">'
-            . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</a>';
+        return k2_player_link($id, $name);
     }
 
     return htmlspecialchars($name, ENT_QUOTES, 'UTF-8');

@@ -19,7 +19,7 @@ function k2_league_table_sort_value_attr(bool $sortable, int|float|string $value
 if (!function_exists('k2_status_player_link')) {
     function k2_status_player_link(int $id, string $name): string
     {
-        return '<a class="k2-link-star" href="' . k2_h(k2_player_profile_href($id)) . '">' . k2_status_h($name) . '</a>';
+        return k2_player_link($id, $name);
     }
 }
 

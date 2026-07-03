@@ -201,7 +201,7 @@ function player_feast_render_moments(array $pm): void
 			</p>
 			<p class="pm3-moment__meta">
 				<span class="<?php echo pm_h((string) $maxVictim['outcome_class']); ?>"><?php echo pm_h((string) $maxVictim['outcome']); ?></span>
-				· vs <a href="<?php echo pm_h(k2_player_profile_href((int) $maxVictim['opponent_id'])); ?>"><?php echo pm_h((string) $maxVictim['opponent_name']); ?></a>
+				· vs <?php echo k2_player_link((int) $maxVictim['opponent_id'], (string) $maxVictim['opponent_name']); ?>
 				· <?php echo pm_h((string) $maxVictim['date']); ?>
 			</p>
 		</article>
@@ -216,7 +216,7 @@ function player_feast_render_moments(array $pm): void
 			</p>
 			<p class="pm3-moment__meta">
 				<span class="<?php echo pm_h($t['outcome_class']); ?>"><?php echo pm_h($t['outcome']); ?></span>
-				· vs <a href="<?php echo pm_h(k2_player_profile_href((int) $t['opponent_id'])); ?>"><?php echo pm_h($t['opponent_name']); ?></a>
+				· vs <?php echo k2_player_link((int) $t['opponent_id'], (string) $t['opponent_name']); ?>
 				· <?php echo pm_h($t['date']); ?>
 			</p>
 		</article>

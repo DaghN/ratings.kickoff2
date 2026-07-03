@@ -85,6 +85,14 @@ body.k2-site a.k2-player-hero__ms-tier--holo:visited {
 	text-shadow: none;
 }
 
+/* Atomic hero paint — html.k2-player-hero-parsing is added by an inline script just
+   before the hero article and removed by the inline script just after it (both
+   parser-synchronous). The shrink-wrapped (fit-content) hero paints fully laid out
+   or not at all: mid-parse paints otherwise flash a narrow glowing border. */
+html.k2-player-hero-parsing body.k2-site .k2-player-hero.k2-player-hero--feast:not(.k2-amiga-player-glance__hero) {
+	visibility: hidden;
+}
+
 @keyframes k2-player-hero-border-glow-in {
 	0% {
 		box-shadow:

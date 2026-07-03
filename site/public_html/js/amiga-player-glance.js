@@ -443,23 +443,6 @@
 			});
 	}
 
-	function profileMetaFromHref(href) {
-		try {
-			var url = new URL(href, global.location.origin);
-			if (/\/amiga\/player\/profile\.php$/i.test(url.pathname)) {
-				var amigaId = parseInt(url.searchParams.get('id') || '0', 10);
-				return amigaId > 0 ? { realm: 'amiga', playerId: amigaId } : null;
-			}
-			if (/\/player\/profile\.php$/i.test(url.pathname)) {
-				var onlineId = parseInt(url.searchParams.get('id') || '0', 10);
-				return onlineId > 0 ? { realm: 'online', playerId: onlineId } : null;
-			}
-		} catch (e) {
-			return null;
-		}
-		return null;
-	}
-
 	function realmFromAnchor(anchor) {
 		if (!anchor || anchor.nodeType !== 1) {
 			return null;
@@ -470,8 +453,7 @@
 		if (anchor.getAttribute('data-k2-player-glance')) {
 			return 'online';
 		}
-		var hrefMeta = profileMetaFromHref(anchor.getAttribute('href') || '');
-		return hrefMeta ? hrefMeta.realm : null;
+		return null;
 	}
 
 	function playerIdFromAnchor(anchor) {
@@ -488,14 +470,14 @@
 				}
 			}
 		}
-		var hrefMeta = profileMetaFromHref(anchor.getAttribute('href') || '');
-		return hrefMeta ? hrefMeta.playerId : 0;
+		return 0;
 	}
 
 	function isGlanceTrigger(anchor) {
 		if (!anchor || anchor.nodeType !== 1 || anchor.tagName !== 'A') {
 			return false;
 		}
+		// Opt-in only: data-k2-*-player-glance on k2_player_link / k2_amiga_player_link (not nav pills that share profile URLs).
 		if (anchor.closest('.k2-player-hero, .k2-amiga-player-glance, .k2-h2h2-card')) {
 			return false;
 		}

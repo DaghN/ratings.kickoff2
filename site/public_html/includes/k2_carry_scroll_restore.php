@@ -203,8 +203,21 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 		return clamped;
 	}
 
+	function feastHeroPresent() {
+		return !!document.querySelector('.k2-player-hero.k2-player-hero--feast:not(.k2-amiga-player-glance__hero)');
+	}
+
 	function carryReady() {
 		if (!document.body) {
+			return false;
+		}
+		/* Pill navigation stores the source nav's aria-label. Peer pages render the same
+		   nav, and it sits below the hero/page chrome — so waiting for it guarantees
+		   everything above (incl. the shrink-wrapped player hero) is fully parsed.
+		   Without this, y=0 passed while only <body> existed (maxScrollTop >= -1) and
+		   uncloaked onto a half-parsed hero (narrow border flash at top). Content below
+		   the nav (e.g. a huge games table) may still be streaming — that is fine. */
+		if (payload.anchor && payload.anchor.label && !findAnchorNav(payload.anchor)) {
 			return false;
 		}
 		return maxScrollTop() >= resolveTargetY(payload) - 1;
@@ -283,6 +296,20 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 
 	function finishCarry() {
 		applyCarry();
+		var target = resolveTargetY(payload);
+		var deferFeastHeroLayout = target <= 0 && feastHeroPresent();
+		if (deferFeastHeroLayout) {
+			var raf = (typeof requestAnimationFrame === 'function')
+				? requestAnimationFrame
+				: function (f) { setTimeout(f, 16); };
+			raf(function () {
+				raf(function () {
+					reveal();
+					scheduleReassert(reassertCarry);
+				});
+			});
+			return;
+		}
 		reveal();
 		scheduleReassert(reassertCarry);
 	}
@@ -309,9 +336,9 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 					return;
 				}
 			} else if (payload) {
-				/* Reveal the instant the page is tall enough (often before first paint),
-				   or as soon as the DOM is fully parsed (height is final — handles a
-				   deep offset carried onto a shorter destination page). */
+				/* Reveal the instant the page is ready enough (often before first paint):
+				   source nav parsed (hero above it complete) + page tall enough for the
+				   target Y. domReady fallback handles destinations missing the nav. */
 				if (carryReady() || domReady) {
 					finishCarry();
 					return;

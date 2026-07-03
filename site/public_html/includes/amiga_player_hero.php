@@ -68,6 +68,8 @@ foreach ([1 => (int) ($k2AmigaPlayerHeroWcGold ?? 0), 2 => (int) ($k2AmigaPlayer
         $heroWcMedals[$place] = $medalCount;
     }
 }
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_hero_glow_session.php';
+k2_player_hero_atomic_paint_open();
 ?>
 <div id="<?php echo k2_h(K2_PLAYER_PAGE_FRAGMENT); ?>" class="k2-player-page-anchor" tabindex="-1"></div>
 <article class="k2-player-hero k2-player-hero--feast">
@@ -154,7 +156,7 @@ foreach ([1 => (int) ($k2AmigaPlayerHeroWcGold ?? 0), 2 => (int) ($k2AmigaPlayer
 	</div>
 </article>
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_hero_glow_session.php';
+k2_player_hero_atomic_paint_close();
 k2_player_hero_glow_session_mark();
 ?>
 <?php if ($heroPreDebut) { ?>

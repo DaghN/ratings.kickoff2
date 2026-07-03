@@ -27,6 +27,8 @@ $heroMsTierHtml = ($heroMs !== null && $heroMsPlayerId > 0)
 	? k2_milestone_render_hero_tier_counts($heroMs, $heroMsPlayerId)
 	: '';
 $heroRatingLinked = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_hero_glow_session.php';
+k2_player_hero_atomic_paint_open();
 ?>
 <div id="<?php echo k2_h(K2_PLAYER_PAGE_FRAGMENT); ?>" class="k2-player-page-anchor" tabindex="-1"></div>
 <article class="k2-player-hero k2-player-hero--feast">
@@ -82,6 +84,6 @@ $heroRatingLinked = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating);
 	</div>
 </article>
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_hero_glow_session.php';
+k2_player_hero_atomic_paint_close();
 k2_player_hero_glow_session_mark();
 ?>
