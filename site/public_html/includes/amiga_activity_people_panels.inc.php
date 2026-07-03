@@ -10,7 +10,7 @@
 <section class="k2-activity-section" aria-labelledby="k2-act-people-title">
 	<header class="k2-activity-section__head">
 		<h2 class="k2-panel-heading" id="k2-act-people-title">Who's playing?</h2>
-		<p class="k2-activity-section__intro">How many players are active each year, and how many are fresh faces? Read the two bar charts as a pair — then follow the curves to see the roster grow, tournament by tournament.</p>
+		<p class="k2-activity-section__intro">How many players are active each year, and how many are fresh faces? How many unique and new matchups do we enter?</p>
 	</header>
 
 	<div class="amiga-act-active-players-year-chart k2-chart-panel" data-k2-chart-panel="active-players-year">

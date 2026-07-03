@@ -290,7 +290,7 @@
                     }, T.barStroke(tone(spec.tone)))
                 ]
             },
-            options: chartOptions({
+            options: chartOptions(Object.assign({
                 plugins: {
                     legend: {
                         labels: { color: T.textMuted() },
@@ -315,8 +315,9 @@
                     x: scaleXCategory(),
                     y: scaleYCountFormatted()
                 }
-            }, 'bar')
+            }, wcWingChartInteraction(labels, wcEventsByYear)), 'bar')
         }, 'bar');
+        resetChartCanvasCursorOnLeave(canvas);
     }
 
     function renderYearBar(canvas, labels, values, spec, cutoff) {
@@ -392,7 +393,7 @@
                     data: values
                 }, T.barStroke(tone(spec.tone)))]
             },
-            options: chartOptions({
+            options: chartOptions(Object.assign({
                 plugins: {
                     legend: { labels: { color: T.textMuted() } },
                     tooltip: tooltipConfig
@@ -401,8 +402,9 @@
                     x: scaleXCategory(),
                     y: scaleYCountFormatted()
                 }
-            }, 'bar')
+            }, wcWingChartInteraction(labels, wcEventsByYear)), 'bar')
         }, 'bar');
+        resetChartCanvasCursorOnLeave(canvas);
     }
 
     function renderBreakdownYearBar(canvas, labels, values, spec, cutoff, breakdownByYear, countLabelFn) {
@@ -523,7 +525,7 @@
                 labels: labels,
                 datasets: datasets
             },
-            options: chartOptions({
+            options: chartOptions(Object.assign({
                 interaction: useRichTooltip && hasOverlay
                     ? { mode: 'index', intersect: false, axis: 'x' }
                     : undefined,
@@ -535,8 +537,11 @@
                     x: scaleXCategory(),
                     y: spec.decimals != null || spec.format ? scaleYRate(spec) : scaleYCountFormatted()
                 }
-            }, 'bar')
+            }, wcWingChartInteraction(labels, wcEventsByYear)), 'bar')
         }, 'bar');
+        if (wcEventsByYear && Object.keys(wcEventsByYear).length) {
+            resetChartCanvasCursorOnLeave(canvas);
+        }
     }
 
     /** L1 year bars from the year_facts API (realm slice). */
@@ -905,6 +910,56 @@
         return url;
     }
 
+    function wcTournamentIdForYear(wcEventsByYear, yearLabel) {
+        var events = wcEventsByYear && wcEventsByYear[yearLabel];
+        if (!events || !events.length) {
+            return null;
+        }
+        var t = events[0].t;
+        return t ? t : null;
+    }
+
+    /** WC wing year bars — click bar → that year's World Cup event-stats at #tournament. */
+    function wcWingChartInteraction(labels, wcEventsByYear) {
+        var coarse = T.isCoarsePointer && T.isCoarsePointer();
+        if (coarse || !wcEventsByYear || !Object.keys(wcEventsByYear).length) {
+            return {};
+        }
+        return {
+            onClick: function (event, elements) {
+                if (!elements.length) {
+                    return;
+                }
+                var idx = elements[0].index;
+                var tid = wcTournamentIdForYear(wcEventsByYear, labels[idx] || '');
+                if (!tid) {
+                    return;
+                }
+                global.location.href = tournamentChartClickUrl(tid);
+            },
+            onHover: function (event, elements) {
+                var target = event && event.native ? event.native.target : null;
+                if (!target) {
+                    return;
+                }
+                var tid = null;
+                if (elements.length) {
+                    tid = wcTournamentIdForYear(wcEventsByYear, labels[elements[0].index] || '');
+                }
+                target.style.cursor = tid ? 'pointer' : 'default';
+            }
+        };
+    }
+
+    function resetChartCanvasCursorOnLeave(canvas) {
+        if (!canvas || (T.isCoarsePointer && T.isCoarsePointer())) {
+            return;
+        }
+        canvas.addEventListener('mouseleave', function () {
+            canvas.style.cursor = 'default';
+        });
+    }
+
     function escapeHtml(str) {
         return String(str == null ? '' : str)
             .replace(/&/g, '&amp;')
@@ -1128,7 +1183,15 @@
 
             tooltipEl.innerHTML = buildWcWingTooltipHtml(events, bodyHtml);
             tooltipEl.hidden = false;
-            positionChartHtmlTooltip(tooltipEl, context);
+            if (opts.mode === 'breakdown') {
+                positionChartHtmlTooltip(tooltipEl, context, {
+                    placement: 'beside',
+                    dataIndex: idx,
+                    datasetIndex: item.datasetIndex
+                });
+            } else {
+                positionChartHtmlTooltip(tooltipEl, context);
+            }
         };
     }
 
@@ -1153,6 +1216,50 @@
         return buildWcWingTooltipHtml(events, buildMetricBodyHtml(metricLines));
     }
 
+    function buildHostCountriesCumulativeTooltipHtml(point) {
+        var titleHtml = '<div class="k2-amiga-act-cumulative-tooltip__title">'
+            + cumulativeTooltipFlagHtml(point.host)
+            + '<span class="k2-amiga-act-cumulative-tooltip__name">' + escapeHtml(point.name || '') + '</span>'
+            + '</div>';
+        var bodyLines = [];
+        var eventDate = formatEventDate(parseEventDate(point.date));
+        if (eventDate) {
+            bodyLines.push(escapeHtml(eventDate));
+        }
+        bodyLines.push('Total: ' + formatCount(point.value) + ' host countries');
+        if (point.prevValue != null && point.value > point.prevValue) {
+            bodyLines.push('New host country unlocked at this tournament');
+        }
+        var bodyHtml = bodyLines.map(function (line) {
+            return '<div class="k2-amiga-act-cumulative-tooltip__line">' + line + '</div>';
+        }).join('');
+        return titleHtml + '<div class="k2-amiga-act-cumulative-tooltip__body">' + bodyHtml + '</div>';
+    }
+
+    function bindHostCountriesCumulativeExternalTooltip(meta) {
+        return function (context) {
+            var tooltipEl = getOrCreateCumulativeHtmlTooltip();
+            var tooltip = context.tooltip;
+            if (!tooltip || tooltip.opacity === 0) {
+                tooltipEl.hidden = true;
+                return;
+            }
+            var items = tooltip.dataPoints || [];
+            if (!items.length) {
+                tooltipEl.hidden = true;
+                return;
+            }
+            var point = meta[items[0].dataIndex];
+            if (!point || point.anchor) {
+                tooltipEl.hidden = true;
+                return;
+            }
+            tooltipEl.innerHTML = buildHostCountriesCumulativeTooltipHtml(point);
+            tooltipEl.hidden = false;
+            positionChartHtmlTooltip(tooltipEl, context);
+        };
+    }
+
     function bindCumulativeExternalTooltip(meta, spec) {
         return function (context) {
             var tooltipEl = getOrCreateCumulativeHtmlTooltip();
@@ -1173,11 +1280,7 @@
             }
             tooltipEl.innerHTML = buildCumulativeTooltipHtml(point, items[0].parsed.y, spec);
             tooltipEl.hidden = false;
-            var canvas = context.chart.canvas;
-            var rect = canvas.getBoundingClientRect();
-            tooltipEl.style.left = (rect.left + tooltip.caretX) + 'px';
-            tooltipEl.style.top = (rect.top + tooltip.caretY) + 'px';
-            tooltipEl.style.opacity = '1';
+            positionChartHtmlTooltip(tooltipEl, context);
         };
     }
 
@@ -1213,12 +1316,75 @@
         return formatCount(count) + ' event' + (Number(count) === 1 ? '' : 's') + ' hosted';
     }
 
-    function positionChartHtmlTooltip(tooltipEl, context) {
+    function positionChartHtmlTooltip(tooltipEl, context, opts) {
+        opts = opts || {};
+        var placement = opts.placement || 'above';
         var tooltip = context.tooltip;
         var canvas = context.chart.canvas;
         var rect = canvas.getBoundingClientRect();
-        tooltipEl.style.left = (rect.left + tooltip.caretX) + 'px';
-        tooltipEl.style.top = (rect.top + tooltip.caretY) + 'px';
+        var anchorX = rect.left + tooltip.caretX;
+        var anchorY = rect.top + tooltip.caretY;
+        var chart = context.chart;
+        var dataIndex = opts.dataIndex;
+        var datasetIndex = opts.datasetIndex;
+        var element;
+        var center;
+        var gap;
+        var margin;
+        var vw;
+        var vh;
+        var tw;
+        var th;
+        var half;
+        var left;
+        var top;
+
+        if (placement === 'beside' && dataIndex != null && datasetIndex != null && chart) {
+            element = chart.getDatasetMeta(datasetIndex).data[dataIndex];
+            if (element && typeof element.getCenterPoint === 'function') {
+                center = element.getCenterPoint();
+                anchorX = rect.left + center.x;
+                anchorY = rect.top + center.y;
+            }
+            gap = 12;
+            margin = 12;
+            vw = window.innerWidth || document.documentElement.clientWidth;
+            vh = window.innerHeight || document.documentElement.clientHeight;
+            tw = tooltipEl.offsetWidth;
+            th = tooltipEl.offsetHeight;
+            half = th / 2;
+            if (anchorX + gap + tw <= vw - margin) {
+                left = anchorX + gap;
+                tooltipEl.style.transform = 'translate(0, -50%)';
+            } else {
+                left = anchorX - gap;
+                tooltipEl.style.transform = 'translate(-100%, -50%)';
+            }
+            top = anchorY;
+            if (top - half < margin) {
+                top = margin + half;
+            } else if (top + half > vh - margin) {
+                top = vh - margin - half;
+            }
+            tooltipEl.style.left = left + 'px';
+            tooltipEl.style.top = top + 'px';
+        } else {
+            gap = 8;
+            margin = 12;
+            vw = window.innerWidth || document.documentElement.clientWidth;
+            vh = window.innerHeight || document.documentElement.clientHeight;
+            tw = tooltipEl.offsetWidth;
+            th = tooltipEl.offsetHeight;
+            left = anchorX - tw / 2;
+            left = Math.max(margin, Math.min(left, vw - tw - margin));
+            top = anchorY - th - gap;
+            if (top < margin) {
+                top = Math.min(anchorY + gap, vh - th - margin);
+            }
+            tooltipEl.style.transform = 'none';
+            tooltipEl.style.left = Math.round(left) + 'px';
+            tooltipEl.style.top = Math.round(top) + 'px';
+        }
         tooltipEl.style.opacity = '1';
     }
 
@@ -1267,7 +1433,11 @@
             }
             tooltipEl.innerHTML = buildGeoBreakdownTooltipHtml(yearLabel, rows, total, spec, countLabelFn);
             tooltipEl.hidden = false;
-            positionChartHtmlTooltip(tooltipEl, context);
+            positionChartHtmlTooltip(tooltipEl, context, {
+                placement: 'beside',
+                dataIndex: idx,
+                datasetIndex: items[0].datasetIndex
+            });
         };
     }
 
@@ -1428,21 +1598,37 @@
                 var chartData = [];
                 var meta = [];
                 var prevValue = null;
+                var lastFullX = null;
+                var lastFullValue = null;
                 var i;
                 for (i = 0; i < points.length; i++) {
                     var x = parseEventDate(points[i].date);
                     if (x === null || points[i].value == null) {
                         continue;
                     }
-                    chartData.push({ x: x, y: points[i].value });
-                    meta.push({
-                        t: points[i].t,
-                        date: points[i].date,
-                        name: points[i].name,
-                        value: points[i].value,
-                        prevValue: prevValue
-                    });
-                    prevValue = points[i].value;
+                    var value = points[i].value;
+                    var isUnlock = prevValue === null || value > prevValue;
+                    if (isUnlock) {
+                        chartData.push({ x: x, y: value });
+                        meta.push({
+                            t: points[i].t,
+                            date: points[i].date,
+                            name: points[i].name,
+                            host: points[i].host || '',
+                            value: value,
+                            prevValue: prevValue
+                        });
+                    }
+                    prevValue = value;
+                    lastFullX = x;
+                    lastFullValue = value;
+                }
+                if (chartData.length && lastFullX != null && lastFullValue != null) {
+                    var lastChart = chartData[chartData.length - 1];
+                    if (lastFullX > lastChart.x && lastFullValue === lastChart.y) {
+                        chartData.push({ x: lastFullX, y: lastFullValue });
+                        meta.push({ anchor: true });
+                    }
                 }
                 if (!chartData.length) {
                     if (status) {
@@ -1454,6 +1640,39 @@
                     status.textContent = '';
                 }
                 var coarse = T.isCoarsePointer();
+                var useRichTooltip = !coarse;
+                var tooltipConfig = useRichTooltip
+                    ? T.mergeTooltip({
+                        enabled: false,
+                        external: bindHostCountriesCumulativeExternalTooltip(meta)
+                    })
+                    : T.mergeTooltip({
+                        callbacks: {
+                            title: function (items) {
+                                if (!items.length) {
+                                    return '';
+                                }
+                                var point = meta[items[0].dataIndex];
+                                return point && !point.anchor ? point.name : '';
+                            },
+                            label: function (item) {
+                                var point = meta[item.dataIndex];
+                                if (!point || point.anchor) {
+                                    return [];
+                                }
+                                var lines = [];
+                                lines.push(formatEventDate(parseEventDate(point.date)));
+                                lines.push('Total: ' + formatCount(item.parsed.y) + ' host countries');
+                                if (point.prevValue != null && point.value > point.prevValue) {
+                                    lines.push('New host country unlocked at this tournament');
+                                }
+                                return lines;
+                            }
+                        }
+                    });
+                var pointHitRadii = meta.map(function (entry) {
+                    return entry.anchor ? 0 : 10;
+                });
                 createChart(canvas, {
                     type: 'line',
                     data: {
@@ -1463,7 +1682,7 @@
                             fill: true,
                             stepped: true,
                             pointRadius: 0,
-                            pointHitRadius: 8
+                            pointHitRadius: pointHitRadii
                         }, T.lineStroke(tone(spec.tone)))]
                     },
                     options: chartOptions({
@@ -1473,7 +1692,7 @@
                                 return;
                             }
                             var point = meta[elements[0].index];
-                            if (!point || !point.t) {
+                            if (!point || point.anchor || !point.t) {
                                 return;
                             }
                             global.location.href = tournamentChartClickUrl(point.t);
@@ -1486,29 +1705,7 @@
                         },
                         plugins: {
                             legend: { labels: { color: T.textMuted() } },
-                            tooltip: T.mergeTooltip({
-                                callbacks: {
-                                    title: function (items) {
-                                        if (!items.length) {
-                                            return '';
-                                        }
-                                        var point = meta[items[0].dataIndex];
-                                        return point ? point.name : '';
-                                    },
-                                    label: function (item) {
-                                        var point = meta[item.dataIndex];
-                                        var lines = [];
-                                        if (point) {
-                                            lines.push(formatEventDate(parseEventDate(point.date)));
-                                        }
-                                        lines.push('Total: ' + formatCount(item.parsed.y) + ' host countries');
-                                        if (point && point.prevValue != null && point.value > point.prevValue) {
-                                            lines.push('New host country unlocked at this tournament');
-                                        }
-                                        return lines;
-                                    }
-                                }
-                            })
+                            tooltip: tooltipConfig
                         },
                         scales: {
                             x: {
@@ -1535,6 +1732,11 @@
                 if (!coarse) {
                     canvas.addEventListener('mouseleave', function () {
                         canvas.style.cursor = 'default';
+                        var tip = document.getElementById(CUMULATIVE_HTML_TOOLTIP_ID);
+                        if (tip) {
+                            tip.hidden = true;
+                            tip.style.opacity = '0';
+                        }
                     });
                 }
             })

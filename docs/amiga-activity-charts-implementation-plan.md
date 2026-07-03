@@ -1,6 +1,6 @@
 # Amiga Activity charts — implementation plan
 
-**Status:** **Shipped** (Jul 2026) — **49 panels / 50 ship IDs** on `/amiga/activity/` (six wings). Base track complete (slices 0–10). **Jul 2026 extension:** Nations player grains — [`amiga-activity-geography-nations-players-implementation-plan.md`](amiga-activity-geography-nations-players-implementation-plan.md) (registry + scan + 3 panels; **no DDL**).
+**Status:** **Shipped — v1 shippable** (Jul 2026) — **49 panels / 50 ship IDs** on `/amiga/activity/` (six wings). Base track complete (slices 0–10). **Jul 2026 extension:** Nations player grains — [`amiga-activity-geography-nations-players-implementation-plan.md`](amiga-activity-geography-nations-players-implementation-plan.md) (registry + scan + 3 panels; **no DDL**). **Jul 2026 copy pass:** wing section intros finalized — see policy §5.0.
 **Locked IA / product:** [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) — wings, panel order, selectors, TT rules, bucket defaults.
 **Questions:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 50 ship IDs → 49 panels.
 **Pattern source:** online [`activity-charts.md`](activity-charts.md) (module, frames, mobile rules).
@@ -305,6 +305,24 @@ Encoded in `amiga_community_histogram_bucket_defs()`: range buckets for career g
 - Docs: this plan statuses; policy status line; [`url-routes.md`](url-routes.md); catalog plan step 6 → done; MEMORY; feature-log row (Part A). Part B only if S6 shipped.
 
 *Shipped notes:* **Mobile** — `theme.css` coarse-pointer rule extended to `k2-amiga-activity-charts` panels/canvases (matches online Activity). Tooltips already off on coarse via `chart-theme.js` `activityChartOptions`. **Loader** — `buildPanelQueue()` mounts only panels present on the page; `loadTier: 'deferred'` queues geography **race** multi-lines + Shape `goal_sum` / `active_years` after lighter panels on that page. **Cross-links** — Geography intro → Countries hub (`amiga_url_with_context`); WC wing → World Cups hub (slice 4); geo chip roster hrefs carry `as=` via `K2AmigaTimeTravelUrl`; cumulative click-through already carried `as=` (slice 1). **Registry parity** — **49 panels = 50 ship IDs** with **Q-VOL-004 + Q-SHP-010** merged in one cumulative-players panel (policy §4); Jul 2026 Nations extension adds Q-GEO-016…018 on `nations.php` (8 panels); Jul 2026 WC extension adds Q-WC-012 + reorders World Cups wing (7 panels). **Jul 2026 tooltips** — `renderBreakdownYearBar()` on GEO-008, Q-VOL-005, GEO-010; WC wing unified HTML tooltips (`wc_events_by_year`, nationality lists on Q-WC-006/007); stored breakdown facts + `prove` green local. All registry selectors wired in `amiga-activity-charts.js`.
+
+### Shippable sign-off — **Done** (Jul 2026)
+
+Product owner sign-off: Amiga Activity hub tab **v1 shippable** — no open chart-track backlog.
+
+| Check | Status |
+|-------|--------|
+| Six wings / seven leaf pages live | **Done** |
+| 49 panels ↔ 50 ship IDs (merge + extensions) | **Done** |
+| Time travel on all chart APIs (`as=` only) | **Done** |
+| Wing section intros locked (policy §5.0) | **Done** Jul 2026 |
+| Mobile + sequential loader + HTML tooltips polish | **Done** Jul 2026 |
+| Cross-links (WC hub, Countries hub, tournament click-through) | **Done** |
+| Docs: policy · plan · catalog · routes · MEMORY · feature-log | **Done** Jul 2026 |
+
+**Jul 2026 copy pass (final ledes):** Texture narrative + tournament links (WC XIV gate); Shape histogram catalog; People matchups question; World Cups *How big is the big stage?*; Growth / Geography unchanged from slice 10.
+
+**Out of scope for v1 (unchanged):** the 2 **later** catalog rows; cut questions; online Activity changes; per-WC stats table on Activity.
 
 ---
 

@@ -7,7 +7,7 @@
 **How to read this doc**
 
 - **Priority:** `ship` · `later` · `cut` (step 3 done).
-- **Storage** S0–S7; **Impl** = cluster C0–C9 (writers done for C2–C7 grains; charts not started).
+- **Storage** S0–S7; **Impl** = cluster C0–C9 (writers done for C2–C7 grains; **Activity charts shipped** — 49 panels / 50 IDs).
 - **Lens:** L1 year · L2 snapshot cumulative · L3 year-local rate · L4 distribution at cutoff.
 
 **Curation totals:** **50 ship** · **2 later** · **28 cut** (25 step 3 + 3 step 2) · **80** rows (76 Jun 2026 + Q-GEO-016…018 + Q-WC-012 Jul 2026)

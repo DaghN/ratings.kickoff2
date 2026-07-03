@@ -4,17 +4,12 @@
  *
  * @see docs/amiga-activity-charts-implementation-plan.md §2 (panel registry)
  */
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_routes.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_url.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
-
-$k2ActWcHubHref = amiga_url_with_context(k2_amiga_route('amiga-world-cups'));
-$k2ActWcStatsHref = amiga_url_with_context(k2_amiga_route('amiga-world-cups-stats'));
 ?>
 <section class="k2-activity-section" aria-labelledby="k2-act-world-cups-title">
 	<header class="k2-activity-section__head">
-		<h2 class="k2-panel-heading" id="k2-act-world-cups-title">How big was the big stage?</h2>
-		<p class="k2-activity-section__intro">World Cup games against the whole scene — share of each year, nations and players at the crown-jewel events. Per-event tables live on the <a href="<?php echo k2_h($k2ActWcHubHref); ?>">World Cups hub</a> and its <a href="<?php echo k2_h($k2ActWcStatsHref); ?>">Tournament stats</a> wing; these charts are the community-wide calendar lens. Cumulative curves click through to each tournament.</p>
+		<h2 class="k2-panel-heading" id="k2-act-world-cups-title">How big is the big stage?</h2>
+		<p class="k2-activity-section__intro">Let&apos;s take a year-by-year look at how many participants, nations, games and goals occurred at the crown-jewel event of our community.</p>
 	</header>
 
 	<div class="amiga-act-wc-players-year-chart k2-chart-panel" data-k2-chart-panel="wc-players-year">

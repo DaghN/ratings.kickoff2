@@ -73,7 +73,7 @@
 
 - **Amiga WC HoF (Jun 2026):** **Complete (WCH-1…8, SCH-046)** — 28 WC record rows; sparse `amiga_wc_hof_{snapshots,present}` + HoF UI block + time travel; Python + PHP finalize parity; `prove` green. [`amiga-wc-hof-policy.md`](docs/amiga-wc-hof-policy.md) · [`amiga-wc-hof-implementation-plan.md`](docs/amiga-wc-hof-implementation-plan.md).
 
-- **Amiga community stats (Jun 2026):** **V2 writers shipped** — registry v2, `036`/`037`, `prove` green. **Activity charts shipped Jul 2026** — **49 panels / 50 ship IDs** on `/amiga/activity/` six wings — [`amiga-activity-charts-policy.md`](docs/amiga-activity-charts-policy.md) · [`amiga-activity-charts-implementation-plan.md`](docs/amiga-activity-charts-implementation-plan.md) track **complete** (slices 0–10; World Cups wing **7 panels**). Per-WC table on World Cups hub wing 2 **shipped**.
+- **Amiga community stats (Jun 2026):** **V2 writers shipped** — registry v2, `036`/`037`, `prove` green. **Amiga Activity hub v1 shippable (Jul 2026)** — **49 panels / 50 ship IDs** on `/amiga/activity/` six wings; wing copy locked — [`amiga-activity-charts-policy.md`](docs/amiga-activity-charts-policy.md) §5.0 · plan [`amiga-activity-charts-implementation-plan.md`](docs/amiga-activity-charts-implementation-plan.md) **complete** (slices 0–10 + copy pass). Per-WC table on World Cups hub wing 2 **shipped**. No open v1 chart backlog.
 
 - **Amiga World Cups hub (Jun 2026):** **Wings 1–4 shipped** — **events catalog** (sortable table, podium flag+name cols) + tournament stats (five sub-wings) + **player stats** + **country stats**. [`amiga-world-cups-hub-policy.md`](docs/amiga-world-cups-hub-policy.md).
 
@@ -133,6 +133,14 @@
 
 | When | Note |
 |------|------|
+| 2026-07-03 | **Amiga Activity hub v1 shippable** — product sign-off; docs sweep (policy §5.0 wing intros, plan shippable checklist, catalog/PROJECT_MAP/feature-log); no open v1 chart backlog. |
+| 2026-07-03 | **Amiga Activity People wing intro** — question-led lede: actives, debuts, unique/new matchups (replaces bar-chart pairing hint). |
+| 2026-07-03 | **Amiga Activity Shape wing intro** — *What are we made of?* + histogram catalog lede (Texture-wing parity; TT long-tail hint dropped from copy). |
+| 2026-07-03 | **Amiga Activity Texture wing intro** — *What are the games like?* narrative lede with Dartford / Copenhagen tournament links; full arc once cutoff ≥ WC XIV (577); simpler *to present day* before that. |
+| 2026-07-03 | **Amiga Activity GEO-008 year bar tooltip** — beside bar (left/right), same placement as WC participants/nations breakdown bars. |
+| 2026-07-03 | **Amiga Activity chart HTML tooltips** — default above placement clamps to viewport (fixes left-edge cumulative points clipping off-screen). |
+| 2026-07-03 | **Amiga Activity GEO-009 cumulative chart** — hover/click points limited to host-country unlock events (~12, not every tournament); trailing anchor extends stepped line to latest event. |
+| 2026-07-03 | **Amiga Activity GEO-009 cumulative tooltip** — host flag inline before tournament name at every point (Growth-style HTML tooltip; reuses `cumulativeTooltipFlagHtml`). |
 | 2026-07-03 | **Amiga Activity WC games/year chart** — realm ghost layer hidden by default; legend toggles comparison; hint under heading. |
 | 2026-07-03 | **Amiga Countries index — WC players column** — read-time count of rated nationals with `wc_played ≥ 1` before WC entries; roster hero stat + tooltip; policy updated. |
 | 2026-07-02 | **Amiga Activity Geography — Compare B empty default** — second Compare listbox adds top `...country` placeholder (default empty); duel year bars start single-series (England only); default race lines = top **4** countries (`AMIGA_COMMUNITY_GEO_RACE_KEYS_DEFAULT`); reverts same-day “Compare B required” rule. |
@@ -167,7 +175,7 @@
 | 2026-07-02 | **Nations player grains B–D shipped** — `all_time×nationality×active_players`, `year×nationality×player_debuts`; 3 new Nations panels; 8-panel page order; GEO-010 tooltip (no list scroll). |
 | 2026-07-02 | **Amiga Activity Nations — distinct nationalities tooltip** — new stored fact `year × player_nationality × active_players`; `year_facts` returns `nationality_active_by_year` breakdown; bar hover lists flag + country + active player count (HTML tooltip). Re-prove `ko2amiga_db` to populate facts. |
 | 2026-07-02 | **Amiga tournament video game links GL-5…6 shipped** — `video_game_links.csv` sidecar merge (`stream_map` mode), manifest `game_start_sec[]`, sync/verify/build wired; policy + README + implementation plan trimmed. Sidecar empty until stream curation. |
-| 2026-07-03 | **Amiga Activity World Cups wing — 7 panels + reorder** — participants · nations lead; +avg games/participant (Q-WC-012); docs sweep to **49 panels / 50 ship IDs**. |
+| 2026-07-03 | **Amiga Activity World Cups wing lede** — section title *How big is the big stage?*; year-by-year participants · nations · games · goals copy. |
 | 2026-07-03 | **Amiga Activity WC cumulative chart fix** — `amiga_community_snapshot_series()` filters `WcGamesPlayed` to World Cup catalog names only (~23 points, not 605 realm events). |
 | 2026-07-02 | **Amiga tournament video game links GL-1…4 shipped** — `game_links.py` + `audit_game_links.py`; sync remap/locks; 8 dual-leg manifest rows; `verify_tournament_videos` **0 errors**. |
 | 2026-07-02 | **Amiga tournament video game links policy (GL-0)** — [`amiga-tournament-videos-game-links-policy.md`](docs/amiga-tournament-videos-game-links-policy.md): match facts authoritative, `amiga_games.id` cache only, sync remap + verify oracle plan (GL-1…6); dual-leg/stream N-game links. |

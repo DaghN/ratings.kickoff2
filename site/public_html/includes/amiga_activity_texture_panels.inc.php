@@ -6,11 +6,71 @@
  *
  * @see docs/amiga-activity-charts-implementation-plan.md §2 (panel registry)
  */
+declare(strict_types=1);
+
+require_once __DIR__ . '/amiga_snapshot_context.php';
+require_once __DIR__ . '/amiga_tournament_lib.php';
+
+/**
+ * Full Copenhagen arc once cutoff has reached World Cup XIV; simpler lede before that.
+ */
+function amiga_activity_texture_show_copenhagen_arc(): bool
+{
+	$ctx = amiga_snapshot_context_peek();
+	if (!$ctx instanceof AmigaSnapshotContext || !$ctx->isActive()) {
+		return true;
+	}
+
+	$cutoff = $ctx->cutoff();
+	if ($cutoff === null) {
+		return true;
+	}
+
+	include __DIR__ . '/../../config/ko2amiga_config.php';
+	$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
+	$milestone = amiga_rating_history_cutoff_tournament_by_id(
+		$con,
+		AMIGA_WORLD_CUP_XIV_COPENHAGEN_TOURNAMENT_ID
+	);
+	mysqli_close($con);
+	unset($con);
+
+	if ($milestone === null) {
+		return true;
+	}
+
+	return amiga_event_tuple_gte($cutoff, [
+		'event_date' => (string) $milestone['event_date'],
+		'chrono' => (float) $milestone['chrono'],
+		'tournament_id' => (int) $milestone['id'],
+	]);
+}
+
+function amiga_activity_texture_section_intro_html(): string
+{
+	$dartfordLink = amiga_tournament_link(AMIGA_FIRST_WORLD_CUP_TOURNAMENT_ID, 'Dartford 2001');
+	$tail = ' — here&apos;s how wild or tight each year got.';
+
+	if (amiga_activity_texture_show_copenhagen_arc()) {
+		$copenhagenLink = amiga_tournament_link(
+			AMIGA_WORLD_CUP_XIV_COPENHAGEN_TOURNAMENT_ID,
+			'Copenhagen 2014'
+		);
+
+		return 'From the feeble beginnings at ' . $dartfordLink
+			. ' through the bloodbath at ' . $copenhagenLink
+			. ' to the modern era of ruthless efficiency' . $tail;
+	}
+
+	return 'From the feeble beginnings at ' . $dartfordLink . ' to present day' . $tail;
+}
+
+$k2ActTextureIntro = amiga_activity_texture_section_intro_html();
 ?>
 <section class="k2-activity-section" aria-labelledby="k2-act-texture-title">
 	<header class="k2-activity-section__head">
-		<h2 class="k2-panel-heading" id="k2-act-texture-title">How did the games feel, year by year?</h2>
-		<p class="k2-activity-section__intro">Goals, draws, double digits, clean sheets, low-scoring grinds and high-scoring thrillers — each as a yearly rate. The dashed line is the all-time average at the current cutoff, so every bar reads as tighter or wilder than the era norm.</p>
+		<h2 class="k2-panel-heading" id="k2-act-texture-title">What are the games like?</h2>
+		<p class="k2-activity-section__intro"><?php echo $k2ActTextureIntro; ?></p>
 	</header>
 
 	<div class="amiga-act-goals-per-game-year-chart k2-chart-panel" data-k2-chart-panel="goals-per-game-year">

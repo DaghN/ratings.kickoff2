@@ -7,8 +7,8 @@
 ?>
 <section class="k2-activity-section" aria-labelledby="k2-act-shape-title">
 	<header class="k2-activity-section__head">
-		<h2 class="k2-panel-heading" id="k2-act-shape-title">What is the community made of?</h2>
-		<p class="k2-activity-section__intro">Histograms of careers, opponents, active years, countries, World Cups, ratings, scorelines and tournament sizes — all at the current cutoff. Time-travel to an earlier year and watch the long tail shrink.</p>
+		<h2 class="k2-panel-heading" id="k2-act-shape-title">What are we made of?</h2>
+		<p class="k2-activity-section__intro">Histograms of careers, opponents, active years, countries, World Cups, ratings, scorelines and tournament sizes.</p>
 	</header>
 
 	<div class="amiga-act-career-games-histogram k2-chart-panel" data-k2-chart-panel="career-games-histogram">

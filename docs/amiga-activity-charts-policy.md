@@ -1,6 +1,6 @@
 # Amiga Activity charts — IA & product policy
 
-**Status:** **Shipped** (Jul 2026) — **49 panels / 50 ship IDs** on `/amiga/activity/` (six wings). Base track complete (slices 0–10); **Jul 2026 extension:** Nations player grains (+3 panels, community fact registry) — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md).
+**Status:** **Shipped — v1 shippable** (Jul 2026) — **49 panels / 50 ship IDs** on `/amiga/activity/` (six wings). Base track complete (slices 0–10); **Jul 2026 extension:** Nations player grains (+3 panels, community fact registry) — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md). **Jul 2026 copy pass:** wing section intros locked (§5.0); no open v1 backlog — future charts need a new catalog **ship** row first.
 **Implementation track:** [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md)
 **Questions (product source):** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 50 ship IDs
 **Method / storage:** [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) (storage shape — do not reopen)
@@ -49,7 +49,7 @@ Design gift vs online Activity: **every cumulative-curve point is a real tournam
 - Sub-nav row (wing tabs): **Growth · People · Geography · World Cups · Texture · Shape** — copied from the World Cups hub shell pattern (`amiga_world_cups_hub_shell_start.inc.php` + wing nav include).
 - **Geography** gets a nested second row **Host nations · Nationalities** (pattern: `world-cups/stats/*` nav).
 - Chapter header + lede render on **every** wing via the shared shell (`k2_hub_chapter.inc.php` pattern).
-- The existing **summary tiles** block ([`amiga_activity_summary.php`](../site/public_html/includes/amiga_activity_summary.php)) stays on **Growth only**, above the charts.
+- The **summary tiles** block ([`amiga_activity_summary.php`](../site/public_html/includes/amiga_activity_summary.php)) — five stat cards + player averages — renders on **every** wing (above wing tabs), TT-aware at cutoff.
 
 ### 3.2 Routes & redirects
 
@@ -86,7 +86,21 @@ Design gift vs online Activity: **every cumulative-curve point is a real tournam
 
 Every wing opens with a one-line question header + short intro copy (`k2-activity-section` head pattern from online Activity). Panel order below is page order.
 
-### 5.1 Growth — "How much did the scene play?" (7 panels)
+### 5.0 Wing section intros (shipped copy)
+
+| Wing | H2 | Intro | Include / notes |
+|------|-----|-------|-----------------|
+| **Growth** | How much Kick Off 2 do we play? | *Which years were big, and how do the totals pile up?* Year bars show the rhythm — optional era beats — and each curve beneath walks tournament by tournament to the total. | `amiga_activity_growth_panels.inc.php` — era names (*mid-2000s boom* · *lean mid-2010s* · *modern revival*) only after cutoff calendar year ≥ **2008 / 2018 / 2022** |
+| **People** | Who's playing? | *How many players are active each year, and how many are fresh faces? How many unique and new matchups do we enter?* | `amiga_activity_people_panels.inc.php` |
+| **Geography — Hosts** | Who's hosting tournaments? | *Compare host countries side by side, or race cumulative totals. Click on a flag to toggle a country on or off.* | `amiga_activity_geography_selector.inc.php` |
+| **Geography — Nations** | Where do we come from? | *Compare nationalities side by side, or race cumulative totals. Click on a flag to toggle a country on or off.* | same |
+| **World Cups** | How big is the big stage? | *Let's take a year-by-year look at how many participants, nations, games and goals occurred at the crown-jewel event of our community.* | `amiga_activity_world_cups_panels.inc.php` |
+| **Texture** | What are the games like? | *From the feeble beginnings at* **Dartford 2001** *(link)* *through the bloodbath at* **Copenhagen 2014** *(link)* *to the modern era of ruthless efficiency — here's how wild or tight each year got.* **Early cutoff:** *…from Dartford 2001 to present day — here's how wild or tight each year got.* | `amiga_activity_texture_panels.inc.php` — full arc once cutoff ≥ World Cup XIV (**577**); *present day* = where you stand in the lens |
+| **Shape** | What are we made of? | *Histograms of careers, opponents, active years, countries, World Cups, ratings, scorelines and tournament sizes.* | `amiga_activity_shape_panels.inc.php` |
+
+**Hub chapter** (all wings): title *N years of the KOA* (N = calendar year − 2001); lede = question-led invite (*How much … Who … Where … World Cups … feel … made of?*); headline counts live in the summary panel above wing tabs.
+
+### 5.1 Growth — "How much Kick Off 2 do we play?" (7 panels)
 
 Each volume metric is a **pair**: year bars, then the cumulative event-timeline line directly below. The bar answers "which years were big?"; the line answers "how did we get to 27,418?". Pairs beat toggles: rhythm and accumulation in one scroll, and panels stay 1:1 with question IDs.
 
@@ -104,6 +118,8 @@ Each volume metric is a **pair**: year bars, then the cumulative event-timeline 
 
 ### 5.2 People — "Who's playing?" (5 panels)
 
+**Section intro:** *How many players are active each year, and how many are fresh faces? How many unique and new matchups do we enter?*
+
 | # | Panel | ID(s) | Design |
 |---|-------|-------|--------|
 | 1 | Active players per year | Q-VOL-003 | Hero bar. |
@@ -112,7 +128,7 @@ Each volume metric is a **pair**: year bars, then the cumulative event-timeline 
 | 4 | Distinct opponent pairs per year | Q-SHP-001 | Bar — "how socially mixed was each year?" |
 | 5 | Cumulative distinct pairs | Q-SHP-002 | Line to ~6,978 — the community handshake graph filling in. Click-through. |
 
-### 5.3 Geography — "Where in the world was Kick Off?" (8 + 5 panels, two modes)
+### 5.3 Geography — "Where in the world was Kick Off?" (8 + 8 panels, two modes)
 
 The wow wing; resolves **IA-3** (§6). With only 12 host countries and 21 nationalities, full dropdowns with inline flags beat search pickers.
 
@@ -126,8 +142,8 @@ The wow wing; resolves **IA-3** (§6). With only 12 host countries and 21 nation
 | 4 | Cumulative tournaments hosted | Q-GEO-014 | B |
 | 5 | Goals hosted per year | Q-GEO-003 | A |
 | 6 | Cumulative goals hosted | Q-GEO-013 | B |
-| 7 | Distinct host countries per year | Q-GEO-008 | Plain bar (+ host-country event tooltip breakdown) |
-| 8 | Cumulative distinct host countries | Q-GEO-009 | Stepped line 1→12 — "the map filling in"; tooltip names the tournament that unlocked each new country |
+| 7 | Distinct host countries per year | Q-GEO-008 | Plain bar (+ host-country event tooltip breakdown); tooltip beside bar (left/right by viewport) |
+| 8 | Cumulative distinct host countries | Q-GEO-009 | Stepped line 1→12 — "the map filling in"; **unlock events only** as hover/click points (host flag + tournament name, date, running total); non-interactive trailing anchor extends the flat tail to the latest tournament |
 
 **`geography/nations.php` — "Where do we come from?"**
 
@@ -146,9 +162,9 @@ The wow wing; resolves **IA-3** (§6). With only 12 host countries and 21 nation
 
 Country names in control rows link to `/amiga/country/roster.php?country=` — geography charts are an on-ramp to the Countries universe.
 
-### 5.4 World Cups — "How big was the big stage?" (7 panels)
+### 5.4 World Cups — "How big is the big stage?" (7 panels)
 
-Community WC lens — deliberately distinct from the World Cups hub per-event tables; intro copy cross-links both ways.
+Community WC lens — deliberately distinct from the World Cups hub per-event tables. Section lede: year-by-year participants, nations, games, and goals at the crown-jewel event.
 
 | # | Panel | ID(s) | Design |
 |---|-------|-------|--------|
@@ -162,9 +178,11 @@ Community WC lens — deliberately distinct from the World Cups hub per-event ta
 
 **Panel order (Jul 2026):** *who came* (participants · nations) → *how much* (games · share · depth per participant · goals/game) → *running total* (cumulative). Cumulative stays last as the closer.
 
-### 5.5 Texture — "How did the games feel, year by year?" (6 panels)
+### 5.5 Texture — "What are the games like?" (6 panels)
 
 All six are year-local rate bars (L3, derived at the API from stored numerators). Quality move: **each bar chart gets a horizontal all-time-average reference line** from the headline stats at cutoff (`GoalsPerGameAverage`, `DrawsRatio`, `DoubleDigitsRatio`, `CleanSheetsRatio`; high- and low-scoring averages derived from summed year facts) — every year visibly reads as tighter or wilder than the era average, at zero storage cost.
+
+**Section intro (time travel):** Narrative lede with tournament links — Dartford 2001 always; full arc (*…through the bloodbath at Copenhagen 2014 to the modern era…*) once cutoff ≥ World Cup XIV (tournament **577**); before that, *…to present day* (present = where you stand in the lens). Implemented in `amiga_activity_texture_panels.inc.php`.
 
 | # | Panel | ID(s) |
 |---|-------|-------|
@@ -175,9 +193,9 @@ All six are year-local rate bars (L3, derived at the API from stored numerators)
 | 5 | Low-scoring rate per year (sum ≤ 3) | Q-TEX-014 |
 | 6 | High-scoring rate per year (sum ≥ 10) | Q-TEX-013 |
 
-### 5.6 Shape — "What is the community made of?" (9 panels)
+### 5.6 Shape — "What are we made of?" (9 panels)
 
-Histograms at cutoff (C8). Order runs people → games → events, most personal first. Tooltips give count **and % of population**. Time travel is most magical here: the same histogram at `as=year:2005` vs present shows the community growing its long tail.
+Histograms at cutoff (C8). Order runs people → games → events, most personal first. Tooltips give count **and % of population**. Section intro lists the nine histogram themes; time travel still shrinks the long tail (discover by stepping back — no lede call-out).
 
 | # | Panel | ID(s) | Buckets (defaults, §10) |
 |---|-------|-------|-------------------------|
@@ -305,6 +323,7 @@ Five JSON endpoints under `site/public_html/api/` cover all **49** panels; share
 ## 12. Agent notes
 
 - Read **this policy** + the implementation plan before touching Activity chart code; do not re-derive IA in-chat.
+- **v1 is shippable** — treat `/amiga/activity/` as complete unless Dagh opens a new catalog row or v2 track.
 - Question set authority stays with the catalog — new charts need a catalog row (ship) first.
 - URL shape authority: [`url-routes.md`](url-routes.md) + [`k2-page-structure-checklist.md`](k2-page-structure-checklist.md); nav chrome: [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md).
 - Chart JS/CSS hard rules: [`activity-charts.md`](activity-charts.md) §3/§8 (frame sizing, no per-chart boot files, tooltip theme).
@@ -325,4 +344,4 @@ Five JSON endpoints under `site/public_html/api/` cover all **49** panels; share
 | [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) | Cutoff semantics for all chart reads |
 | [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md) | Per-WC event table (complementary product) |
 
-*Policy locked Jul 2026 — chart-track IA agreed in chat (Activity page preparation summary follow-up session).*
+*Policy locked Jul 2026 — chart-track IA agreed in chat (Activity page preparation summary follow-up session). v1 shippable sign-off Jul 2026 (copy pass + doc sweep).*

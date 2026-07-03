@@ -296,6 +296,29 @@ function amiga_snapshot_latest_as_param(mysqli $con): ?string
 }
 
 /**
+ * True when $left is on or after $right in ladder event order (date, chrono, id).
+ *
+ * @param array{event_date: string, chrono: float|int, tournament_id: int} $left
+ * @param array{event_date: string, chrono: float|int, tournament_id: int} $right
+ */
+function amiga_event_tuple_gte(array $left, array $right): bool
+{
+    $leftDate = (string) $left['event_date'];
+    $rightDate = (string) $right['event_date'];
+    if ($leftDate !== $rightDate) {
+        return $leftDate > $rightDate;
+    }
+
+    $leftChrono = (float) $left['chrono'];
+    $rightChrono = (float) $right['chrono'];
+    if ($leftChrono !== $rightChrono) {
+        return $leftChrono > $rightChrono;
+    }
+
+    return (int) $left['tournament_id'] >= (int) $right['tournament_id'];
+}
+
+/**
  * SQL AND fragment: event chrono tuple on or before snapshot cutoff.
  *
  * @param array{event_date: string, chrono: float|int, tournament_id: int} $cutoff

@@ -33,6 +33,9 @@ const AMIGA_TOURNAMENT_PAGE_FRAGMENT = 'tournament';
 /** First KOA World Cup (2001, Dartford) — tournaments index chapter lede link target. */
 const AMIGA_FIRST_WORLD_CUP_TOURNAMENT_ID = 26;
 
+/** World Cup XIV (2014, Copenhagen) — Activity Texture wing lede milestone. */
+const AMIGA_WORLD_CUP_XIV_COPENHAGEN_TOURNAMENT_ID = 577;
+
 const AMIGA_TOURNAMENT_VIDEOS_PATH_GAMES = '/amiga/tournament/videos/games.php';
 const AMIGA_TOURNAMENT_VIDEOS_PATH_ATMOSPHERE = '/amiga/tournament/videos/atmosphere.php';
 

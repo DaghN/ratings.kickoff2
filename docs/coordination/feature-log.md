@@ -65,7 +65,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Activity Double Digit Merchant charts | — | — | — | — | — | — | **Removed Jun 2026** |
 | Activity recent daily chart | L0 | — | — | — | — | — | Read-time |
 | Activity charts v2 (single module) | — | — | — | — | — | — | **Shipped** — [`activity-charts.md`](../activity-charts.md) |
-| Amiga Activity charts sub-hub (6 wings, 49 panels) | L0 | — | — | — | — | — | **Shipped Jul 2026** — `/amiga/activity/` base track (slices 0–10) + **Nations player grains** + **Texture low-scoring rate** (Q-TEX-014) + **WC wing** Q-WC-012 avg games/participant (7 panels, participants/nations first); TT via `as=` — [`amiga-activity-charts-policy.md`](../amiga-activity-charts-policy.md) |
+| Amiga Activity charts sub-hub (6 wings, 49 panels) | L0 | — | — | — | — | — | **Shipped — v1 shippable Jul 2026** — `/amiga/activity/` base track (slices 0–10) + Nations player grains + Texture low-scoring (Q-TEX-014) + WC Q-WC-012 (7 panels); wing copy locked (policy §5.0); TT via `as=` — [`amiga-activity-charts-policy.md`](../amiga-activity-charts-policy.md) |
 | Persistent tint preference | — | — | — | — | — | — | Client-only |
 | Six-hour tint schedule | — | — | — | — | — | — | `k2-tint-schedule.js` |
 | Header realm switcher | — | — | — | — | — | — | **Re-shipped Jun 2026** — `realm_switcher.php` beside wordmark; Online ↔ `/status.php`, Amiga 500 ↔ `/amiga/rating.php` |
