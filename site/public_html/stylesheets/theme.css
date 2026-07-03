@@ -2572,6 +2572,27 @@ body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__stepper--fixed
 	white-space: nowrap;
 }
 
+body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__stepper--fixed-label .k2-amiga-wc-podium-player {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 100%;
+	overflow: hidden;
+}
+
+body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__stepper--fixed-label .k2-amiga-wc-podium-player .k2-amiga-history__label,
+body.k2-site .k2-amiga-time-travel--event-wing .k2-amiga-history__stepper--fixed-label .k2-amiga-wc-podium-player .k2-amiga-history__label--link {
+	flex: 0 1 auto;
+	min-width: 0;
+	max-width: none;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	text-align: left;
+}
+
 body.k2-site .k2-amiga-history__label {
 	flex: 0 1 auto;
 	min-width: 10rem;

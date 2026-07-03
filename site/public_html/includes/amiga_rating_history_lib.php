@@ -28,7 +28,7 @@ function amiga_rating_history_tournaments(mysqli $con): array
         return $GLOBALS['_amiga_rating_history_tournaments'];
     }
 
-    $sql = 'SELECT DISTINCT t.id, t.name, t.event_date, t.chrono '
+    $sql = 'SELECT DISTINCT t.id, t.name, t.event_date, t.chrono, t.country '
         . 'FROM tournaments t '
         . 'INNER JOIN amiga_player_event_snapshots s ON s.tournament_id = t.id '
         . 'WHERE t.rating_finalized = 1 '
@@ -46,6 +46,7 @@ function amiga_rating_history_tournaments(mysqli $con): array
             'name' => (string) $row['name'],
             'event_date' => (string) $row['event_date'],
             'chrono' => (float) $row['chrono'],
+            'country' => trim((string) ($row['country'] ?? '')),
         ];
     }
     mysqli_free_result($res);
@@ -192,6 +193,7 @@ function amiga_rating_history_catalog_event(mysqli $con): array
             'key' => (string) $tournament['id'],
             'label' => amiga_rating_history_format_event_label($tournament),
             'tournament_name' => $tournament['name'],
+            'host_country' => $tournament['country'] ?? '',
             'event_date_label' => amiga_rating_history_format_event_date_label($tournament),
             'event_date_picker_label' => amiga_rating_history_format_event_date_picker_label($tournament),
             'cutoff_tournament_id' => $tournament['id'],

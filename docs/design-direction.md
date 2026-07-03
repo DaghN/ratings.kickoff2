@@ -277,6 +277,16 @@ Legacy cleanup:
 
 ---
 
+## Mobile and smartphones
+
+**Deliberate product choice — not technical debt.** Dense tables and charts on phone are **read-first, pinch-second**: overview at phone scale, user pinch for detail, tables stay tables (no card reflow, no forced column wrap). PC is primary; mobile is **usable when convenient** without compromising desktop table density — see [`PROJECT_BRIEF.md`](../PROJECT_BRIEF.md).
+
+Full agent contract (audit rubric, shipped patterns, known gaps, out-of-scope list): **[`k2-mobile-smartphone-policy.md`](k2-mobile-smartphone-policy.md)**.
+
+**Do not** treat generic "not mobile-friendly" audit findings as catastrophic deficiency or default backlog. **Do** leave the door open for selective slices: chart tap-to-tooltip, consistent tap/double-tap on hover+click surfaces, nav/filter touch targets — without reflowing leaderboards.
+
+---
+
 ## Open Decisions
 
 - Exact `<title>` rename timing from old KOOL wording to Kick Off 2 ratings.
@@ -287,6 +297,7 @@ Legacy cleanup:
 ## Agent Notes
 
 - Read this before CSS/theme/chrome work.
+- **Mobile audits:** read [`k2-mobile-smartphone-policy.md`](k2-mobile-smartphone-policy.md) — dense tables on phone are deliberate, not default debt.
 - Keep cosmetics slices small and reversible.
 - Add shared assets through existing includes; do not duplicate `<link>` blocks.
 - Preserve dense table functionality while changing visuals.

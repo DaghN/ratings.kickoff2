@@ -42,6 +42,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | **New page / tab / mode (URL + placement)** | **`docs/k2-page-structure-checklist.md`** (then `url-routes.md`, `navigation-model.md` NM3–NM4) |
 | Play & setup / join page | `docs/join-play-setup.md` |
 | Visual identity / theme | `docs/design-direction.md` |
+| **Mobile / smartphone** (audits, responsive, dense tables on phone) | [`k2-mobile-smartphone-policy.md`](k2-mobile-smartphone-policy.md) |
 | **Page nav spacing** (chrome stack gaps) | [`nav-spacing-policy.md`](nav-spacing-policy.md) · [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md) |
 | **K2 tooltips** (table headers, chart hovers, control help) | [`k2-tooltip-policy.md`](k2-tooltip-policy.md) |
 | **K2 table entity links** (player/tournament/country names, Amiga inline flags) | [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) |

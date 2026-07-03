@@ -34,7 +34,7 @@
 
 - Full accessibility/certification agendas (many players use mouse/visual PC-first workflows; **basic readability** still matters).
 
-- Mandatory mobile parity identical to desktop; mobile should be **usable** when convenient, without forcing compromises on dense desktop tables.
+- Mandatory mobile parity identical to desktop; mobile should be **usable** when convenient, without forcing compromises on dense desktop tables. **Agent contract:** deliberate **read-first, pinch-second** model — dense tables stay tables; not card reflow — [`docs/k2-mobile-smartphone-policy.md`](docs/k2-mobile-smartphone-policy.md).
 
 - Re-platforming **for aesthetics alone** — the default path assumes **incremental improvement on what exists**.
 

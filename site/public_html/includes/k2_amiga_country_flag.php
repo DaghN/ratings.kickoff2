@@ -106,6 +106,50 @@ function k2_amiga_country_flag_link(string $country, array $opts = []): string
     return '<a class="k2-country-roster-link" href="' . k2_h($href) . '" aria-label="Players from ' . k2_h($label) . '">' . $flag . '</a>';
 }
 
+/** 16×12 inline-prose flag img (chart peak copy, TT ribbon stepper). */
+function k2_amiga_country_flag_img_inline_text(string $country): string
+{
+    $meta = k2_amiga_country_flag_meta($country);
+    if ($meta === null) {
+        return '';
+    }
+    $src = k2_amiga_country_flag_src($meta['code']);
+
+    return '<img src="' . k2_h($src) . '" width="16" height="12"'
+        . ' class="k2-amiga-country-flag-img k2-amiga-country-flag-img--text"'
+        . ' decoding="async" loading="lazy" alt="" aria-hidden="true">';
+}
+
+/** 16×12 flag link for inline prose — roster destination. */
+function k2_amiga_country_flag_link_inline_text(string $country): string
+{
+    $country = trim($country);
+    if ($country === '') {
+        return '';
+    }
+    $flag = k2_amiga_country_flag_img_inline_text($country);
+    if ($flag === '') {
+        return '';
+    }
+    require_once __DIR__ . '/amiga_countries_lib.php';
+    $meta = k2_amiga_country_flag_meta($country);
+    $label = $meta !== null ? $meta['label'] : $country;
+    $href = k2_amiga_country_roster_href($country);
+
+    return '<a class="k2-country-roster-link" href="' . k2_h($href) . '" aria-label="Players from ' . k2_h($label) . '">' . $flag . '</a>';
+}
+
+/** Inline prose — host flag (16×12) before arbitrary link HTML (`k2-amiga-inline-flag-text`). */
+function k2_amiga_inline_flag_text_and_link(string $country, string $linkHtml): string
+{
+    $flag = k2_amiga_country_flag_link_inline_text($country);
+    if ($flag === '') {
+        return $linkHtml;
+    }
+
+    return '<span class="k2-amiga-inline-flag-text">' . $flag . $linkHtml . '</span>';
+}
+
 /** Country roster name link — entity name link (k2-link-star), not flag wrapper. */
 function k2_amiga_country_roster_link(string $countryToken): string
 {

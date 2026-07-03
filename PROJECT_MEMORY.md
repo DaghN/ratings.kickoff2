@@ -136,6 +136,8 @@
 
 | When | Note |
 |------|------|
+| 2026-07-03 | **Mobile / smartphone policy** — locked intent: read-first + pinch-second; dense tables stay tables (not card-reflow debt). Agent doc [`k2-mobile-smartphone-policy.md`](docs/k2-mobile-smartphone-policy.md); cross-refs in `design-direction`, `PROJECT_BRIEF`, `k2-tooltip-policy`, `AGENTS.md`. Known gaps: chart tap-to-tooltip, hover+click tap/double-tap, nav touch targets. |
+| 2026-07-03 | **TT Event ribbon — table inline flag** — stepper uses `k2_amiga_inline_flag_and_link()` (`k2-amiga-wc-podium-player`, 20×15); not prose `inline-flag-text`. |
 | 2026-07-03 | **Amiga rank chart peak — rating snapshot link** — always appends “Click here to see the time travel snapshot…” (`pm3-chart-peak-link` on *here* → `ratingSnapshotHref` / LB parity). |
 | 2026-07-03 | **Amiga rank chart peak — absent tournament clause** — when peak rank tournament has no participation snapshot, summary appends same copy as peak-rating LB (`amiga_player_peak_rank_absent_clause()`); API `peak.playedInEvent` + `peak.absentClause`. |
 | 2026-07-03 | **Amiga chart peak copy — inline flag text** — `k2-amiga-inline-flag-text` (16×12 baseline flag + link) replaces `k2-amiga-wc-podium-player` in peak summaries. |

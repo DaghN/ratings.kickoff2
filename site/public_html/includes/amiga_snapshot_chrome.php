@@ -183,6 +183,7 @@ function amiga_snapshot_chrome_render_stepper(
         : 0;
     if ($tournamentId > 0) {
         require_once __DIR__ . '/amiga_tournament_lib.php';
+        require_once __DIR__ . '/k2_amiga_country_flag.php';
         $tournamentPath = amiga_tournament_url($tournamentId);
         if ($currentAs !== null && $currentAs !== '') {
             $tournamentHref = amiga_url_with_as_param($tournamentPath, $currentAs);
@@ -190,7 +191,16 @@ function amiga_snapshot_chrome_render_stepper(
             $tournamentHref = amiga_url_with_context($tournamentPath);
         }
         $tournamentHref .= '#' . AMIGA_TOURNAMENT_PAGE_FRAGMENT;
-        echo '<a class="k2-amiga-history__label k2-amiga-history__label--link" href="' . k2_h($tournamentHref) . '">' . k2_h($label) . '</a>';
+        $nameLink = '<a class="k2-amiga-history__label k2-amiga-history__label--link" href="'
+            . k2_h($tournamentHref) . '">' . k2_h($label) . '</a>';
+        $hostCountry = ($wing === 'event' && $entry !== null)
+            ? trim((string) ($entry['host_country'] ?? ''))
+            : '';
+        if ($wing === 'event' && $hostCountry !== '') {
+            echo k2_amiga_inline_flag_and_link($hostCountry, $nameLink);
+        } else {
+            echo $nameLink;
+        }
     } else {
         echo '<span class="k2-amiga-history__label">' . k2_h($label) . '</span>';
     }

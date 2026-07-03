@@ -81,6 +81,22 @@ Body-cell tooltips (peaks, streaks, HoF values):
 
 ---
 
+## Touch / coarse pointer
+
+Desktop tooltips assume **hover**. On phones, many chart tooltips are **off** on coarse pointers (`chart-theme.js` + `theme.css` `touch-action: pan-y pinch-zoom` on panels) so pinch-zoom still works.
+
+**Known gaps (not table-layout debt):**
+
+| Gap | Status |
+|-----|--------|
+| **Chart tap-to-tooltip** | Deferred — technical blocker unsolved when shipped; valid future slice |
+| **Hover + click on same target** | Player glance, helped cells, some chart points: hover shows help/popover, click navigates. **Tap-to-tooltip / double-tap-to-click-through** is **not** consistent site-wide — polish when asked |
+| **Table header help on touch** | `data-k2-help` + `tabindex="0"` on some body cells; header help still hover-biased on many tables |
+
+Do **not** "fix mobile tooltips" by reflowing tables to cards. Read **[`k2-mobile-smartphone-policy.md`](k2-mobile-smartphone-policy.md)** before mobile audit or responsive refactors.
+
+---
+
 ## Before shipping — self-check
 
 - [ ] Read reference from § above (not only this policy).
@@ -110,4 +126,4 @@ Body-cell tooltips (peaks, streaks, HoF values):
 
 ---
 
-*Last updated: Jun 2026 — keep in sync when a new tooltip surface ships (add a row to § Pick a reference).*
+*Last updated: Jul 2026 — keep in sync when a new tooltip surface ships (add a row to § Pick a reference) or touch/coarse-pointer gaps change.*
