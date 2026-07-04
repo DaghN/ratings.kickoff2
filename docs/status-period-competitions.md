@@ -30,7 +30,7 @@ UI heading: **Leagues** (paired Activity + Points tables on `status.php`).
 | SSR | **Default period** (week) tables in HTML; `current_keys` for all four; other periods load via API on navigate |
 | Medals | Podium when period has **ended** (`end ≤ now`), not scope-based. **Persisted rules:** [`leagues-rules-spec.md`](leagues-rules-spec.md) |
 | Archive behaviour | Picker or step → API refresh for **both** tables |
-| Client fetch | **One table area**. Cache by `period:key`. Optional prewarm (`data-competition-prewarm="1"`, set `0` to disable) |
+| Client fetch | **One table area**. Cache by `period:key`. Prewarm (`data-competition-prewarm="1"`) — **current year** not built on PHP first paint (Jul 2026); prewarm fetches year first in queue after load. Set `data-competition-prewarm="0"` to disable. |
 | Lock-step floor | `data-first-rated-day` (MIN `ratedresults`); day/week/month clamp up to first rated day |
 | Data | Points: `player_period_league`; Activity: `player_period_games` |
 | Rows | All players with ≥1 game in period (no top-N cap) |

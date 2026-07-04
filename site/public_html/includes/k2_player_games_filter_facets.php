@@ -109,6 +109,53 @@ function k2_player_games_facet_where(
 	);
 }
 
+/**
+ * @return array{
+ *   result: string,
+ *   opponent: int,
+ *   gf: int,
+ *   ga: int,
+ *   gs: int,
+ *   gd: ?int,
+ *   utcDay: string,
+ *   periodType: string,
+ *   periodAnchor: string,
+ *   fromGameId: int,
+ *   toGameId: int
+ * }
+ */
+function k2_player_games_career_wide_filter_context(): array
+{
+	return k2_player_games_filter_context('all', 0, -1, -1, -1, null, '', '', '', 0, 0);
+}
+
+/** @param array<string, mixed> $ctx */
+function k2_player_games_filter_context_is_career_wide(array $ctx): bool
+{
+	return ($ctx['result'] ?? 'all') === 'all'
+		&& (int) ($ctx['opponent'] ?? 0) === 0
+		&& (string) ($ctx['utcDay'] ?? '') === ''
+		&& (string) ($ctx['periodType'] ?? '') === ''
+		&& (string) ($ctx['periodAnchor'] ?? '') === ''
+		&& (int) ($ctx['fromGameId'] ?? 0) === 0
+		&& (int) ($ctx['toGameId'] ?? 0) === 0
+		&& (int) ($ctx['gf'] ?? -1) === -1
+		&& (int) ($ctx['ga'] ?? -1) === -1
+		&& (int) ($ctx['gs'] ?? -1) === -1
+		&& ($ctx['gd'] ?? null) === null;
+}
+
+/** @param array<string, mixed> $ctx */
+function k2_player_games_facet_context_cache_key(int $playerId, array $ctx): string
+{
+	return (int) $playerId . '|'
+		. (string) ($ctx['result'] ?? 'all') . '|' . (int) ($ctx['opponent'] ?? 0) . '|'
+		. (string) ($ctx['utcDay'] ?? '') . '|' . (string) ($ctx['periodType'] ?? '') . '|' . (string) ($ctx['periodAnchor'] ?? '') . '|'
+		. (int) ($ctx['fromGameId'] ?? 0) . '|' . (int) ($ctx['toGameId'] ?? 0) . '|'
+		. (int) ($ctx['gf'] ?? -1) . '|' . (int) ($ctx['ga'] ?? -1) . '|' . (int) ($ctx['gs'] ?? -1) . '|'
+		. ($ctx['gd'] === null ? '' : (string) (int) $ctx['gd']);
+}
+
 /** @return list<array<string, mixed>> */
 function k2_player_games_facet_query_rows(mysqli $con, string $sql, string $types, array $params): array
 {
@@ -212,6 +259,113 @@ function k2_player_games_facet_numeric_counts(
 }
 
 /**
+ * @return array{gf: array<int, int>, ga: array<int, int>, gs: array<int, int>, gd: array<int, int>}
+ */
+function k2_player_games_facet_score_line_counts_single_pass(mysqli $con, int $playerId, array $ctx): array
+{
+	$playerIdSql = (int) $playerId;
+	$types = '';
+	$params = [];
+	$where = k2_player_games_facet_where($playerId, $ctx, 'gf', $types, $params);
+	$sql = 'SELECT '
+		. "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA ELSE r.GoalsB END AS gf, "
+		. "CASE WHEN r.idA = $playerIdSql THEN r.GoalsB ELSE r.GoalsA END AS ga, "
+		. 'r.SumOfGoals AS gs, '
+		. "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA - r.GoalsB ELSE r.GoalsB - r.GoalsA END AS gd "
+		. 'FROM ratedresults r WHERE ' . $where;
+
+	$gfSparse = [];
+	$gaSparse = [];
+	$gsSparse = [];
+	$gdSparse = [];
+	foreach (k2_player_games_facet_query_rows($con, $sql, $types, $params) as $row) {
+		$gf = (int) ($row['gf'] ?? 0);
+		$ga = (int) ($row['ga'] ?? 0);
+		$gs = (int) ($row['gs'] ?? 0);
+		$gd = (int) ($row['gd'] ?? 0);
+		$gfSparse[$gf] = ($gfSparse[$gf] ?? 0) + 1;
+		$gaSparse[$ga] = ($gaSparse[$ga] ?? 0) + 1;
+		$gsSparse[$gs] = ($gsSparse[$gs] ?? 0) + 1;
+		$gdSparse[$gd] = ($gdSparse[$gd] ?? 0) + 1;
+	}
+
+	return [
+		'gf' => k2_player_games_facet_expand_numeric_gaps($gfSparse),
+		'ga' => k2_player_games_facet_expand_numeric_gaps($gaSparse),
+		'gs' => k2_player_games_facet_expand_numeric_gaps($gsSparse),
+		'gd' => k2_player_games_facet_expand_numeric_gaps($gdSparse),
+	];
+}
+
+/**
+ * @return array{
+ *   result: array{win: int, draw: int, loss: int},
+ *   opponent: list<array{opponent_id: int, opponent_name: string, games: int}>,
+ *   gf: array<int, int>,
+ *   ga: array<int, int>,
+ *   gs: array<int, int>,
+ *   gd: array<int, int>
+ * }
+ */
+function k2_player_games_load_filter_facets_uncached(mysqli $con, int $playerId, array $ctx): array
+{
+	$playerIdSql = (int) $playerId;
+	$heroGoalsFor = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA ELSE r.GoalsB END";
+	$heroGoalsAgainst = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsB ELSE r.GoalsA END";
+	$heroGd = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA - r.GoalsB ELSE r.GoalsB - r.GoalsA END";
+
+	$gfActive = (int) ($ctx['gf'] ?? -1) >= 0;
+	$gaActive = (int) ($ctx['ga'] ?? -1) >= 0;
+	$gsActive = (int) ($ctx['gs'] ?? -1) >= 0;
+	$gdActive = ($ctx['gd'] ?? null) !== null;
+
+	if (!$gfActive && !$gaActive && !$gsActive && !$gdActive) {
+		$scoreLine = k2_player_games_facet_score_line_counts_single_pass($con, $playerId, $ctx);
+	} else {
+		$scoreLine = [
+			'gf' => k2_player_games_facet_numeric_counts($con, $playerId, $ctx, 'gf', $heroGoalsFor, 'v ASC'),
+			'ga' => k2_player_games_facet_numeric_counts($con, $playerId, $ctx, 'ga', $heroGoalsAgainst, 'v ASC'),
+			'gs' => k2_player_games_facet_numeric_counts($con, $playerId, $ctx, 'gs', 'r.SumOfGoals', 'v ASC'),
+			'gd' => k2_player_games_facet_numeric_counts($con, $playerId, $ctx, 'gd', $heroGd, 'v DESC'),
+		];
+	}
+
+	return [
+		'result' => k2_player_games_facet_result_counts($con, $playerId, $ctx),
+		'opponent' => k2_player_games_facet_opponent_rows($con, $playerId, $ctx),
+		'gf' => $scoreLine['gf'],
+		'ga' => $scoreLine['ga'],
+		'gs' => $scoreLine['gs'],
+		'gd' => $scoreLine['gd'],
+	];
+}
+
+/**
+ * Career-wide facet bundle — shared by validate + unfiltered listbox load.
+ *
+ * @return array{
+ *   result: array{win: int, draw: int, loss: int},
+ *   opponent: list<array{opponent_id: int, opponent_name: string, games: int}>,
+ *   gf: array<int, int>,
+ *   ga: array<int, int>,
+ *   gs: array<int, int>,
+ *   gd: array<int, int>
+ * }
+ */
+function k2_player_games_career_wide_facets(mysqli $con, int $playerId): array
+{
+	static $cache = [];
+
+	$ctx = k2_player_games_career_wide_filter_context();
+	$cacheKey = k2_player_games_facet_context_cache_key($playerId, $ctx) . '|career';
+	if (isset($cache[$cacheKey])) {
+		return $cache[$cacheKey];
+	}
+
+	return $cache[$cacheKey] = k2_player_games_load_filter_facets_uncached($con, $playerId, $ctx);
+}
+
+/**
  * @return array{
  *   result: array{win: int, draw: int, loss: int},
  *   opponent: list<array{opponent_id: int, opponent_name: string, games: int}>,
@@ -223,19 +377,18 @@ function k2_player_games_facet_numeric_counts(
  */
 function k2_player_games_load_filter_facets(mysqli $con, int $playerId, array $ctx): array
 {
-	$playerIdSql = (int) $playerId;
-	$heroGoalsFor = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA ELSE r.GoalsB END";
-	$heroGoalsAgainst = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsB ELSE r.GoalsA END";
-	$heroGd = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA - r.GoalsB ELSE r.GoalsB - r.GoalsA END";
+	static $cache = [];
 
-	return [
-		'result' => k2_player_games_facet_result_counts($con, $playerId, $ctx),
-		'opponent' => k2_player_games_facet_opponent_rows($con, $playerId, $ctx),
-		'gf' => k2_player_games_facet_numeric_counts($con, $playerId, $ctx, 'gf', $heroGoalsFor, 'v ASC'),
-		'ga' => k2_player_games_facet_numeric_counts($con, $playerId, $ctx, 'ga', $heroGoalsAgainst, 'v ASC'),
-		'gs' => k2_player_games_facet_numeric_counts($con, $playerId, $ctx, 'gs', 'r.SumOfGoals', 'v ASC'),
-		'gd' => k2_player_games_facet_numeric_counts($con, $playerId, $ctx, 'gd', $heroGd, 'v DESC'),
-	];
+	if (k2_player_games_filter_context_is_career_wide($ctx)) {
+		return k2_player_games_career_wide_facets($con, $playerId);
+	}
+
+	$cacheKey = k2_player_games_facet_context_cache_key($playerId, $ctx);
+	if (isset($cache[$cacheKey])) {
+		return $cache[$cacheKey];
+	}
+
+	return $cache[$cacheKey] = k2_player_games_load_filter_facets_uncached($con, $playerId, $ctx);
 }
 
 /** @param array<int, int> $counts */
@@ -359,32 +512,18 @@ function k2_player_games_validate_filters_career_wide(
 	int &$goalsSumFilter,
 	?int &$heroGoalDiffFilter
 ): void {
-	$opponentRows = k2_player_games_facet_query_rows(
-		$con,
-		k2_player_opponents_grouped_from_ratedresults_sql(),
-		'ii',
-		[$playerId, $playerId]
-	);
+	$careerFacets = k2_player_games_career_wide_facets($con, $playerId);
+
 	$validOpponentIds = [];
-	foreach ($opponentRows as $opponentRow) {
+	foreach ($careerFacets['opponent'] as $opponentRow) {
 		$validOpponentIds[(int) ($opponentRow['opponent_id'] ?? 0)] = true;
 	}
 	if ($opponentFilter > 0 && !isset($validOpponentIds[$opponentFilter])) {
 		$opponentFilter = 0;
 	}
 
-	$playerIdSql = (int) $playerId;
-	$heroGoalsFor = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA ELSE r.GoalsB END";
-	$heroGoalsAgainst = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsB ELSE r.GoalsA END";
-	$heroGd = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA - r.GoalsB ELSE r.GoalsB - r.GoalsA END";
-
-	$validGoalsScored = k2_player_games_facet_numeric_counts($con, $playerId, k2_player_games_filter_context('all', 0, -1, -1, -1, null, '', '', '', 0, 0), 'gf', $heroGoalsFor, 'v ASC');
-	$validGoalsConceded = k2_player_games_facet_numeric_counts($con, $playerId, k2_player_games_filter_context('all', 0, -1, -1, -1, null, '', '', '', 0, 0), 'ga', $heroGoalsAgainst, 'v ASC');
-	$validGoalsSum = k2_player_games_facet_numeric_counts($con, $playerId, k2_player_games_filter_context('all', 0, -1, -1, -1, null, '', '', '', 0, 0), 'gs', 'r.SumOfGoals', 'v ASC');
-	$validHeroGoalDiff = k2_player_games_facet_numeric_counts($con, $playerId, k2_player_games_filter_context('all', 0, -1, -1, -1, null, '', '', '', 0, 0), 'gd', $heroGd, 'v DESC');
-
-	$goalsScoredFilter = k2_ratedresults_games_valid_goals_filter($goalsScoredFilter, $validGoalsScored);
-	$goalsConcededFilter = k2_ratedresults_games_valid_goals_filter($goalsConcededFilter, $validGoalsConceded);
-	$goalsSumFilter = k2_ratedresults_games_valid_goals_filter($goalsSumFilter, $validGoalsSum);
-	$heroGoalDiffFilter = k2_ratedresults_games_valid_hero_gd_filter($heroGoalDiffFilter, $validHeroGoalDiff);
+	$goalsScoredFilter = k2_ratedresults_games_valid_goals_filter($goalsScoredFilter, $careerFacets['gf']);
+	$goalsConcededFilter = k2_ratedresults_games_valid_goals_filter($goalsConcededFilter, $careerFacets['ga']);
+	$goalsSumFilter = k2_ratedresults_games_valid_goals_filter($goalsSumFilter, $careerFacets['gs']);
+	$heroGoalDiffFilter = k2_ratedresults_games_valid_hero_gd_filter($heroGoalDiffFilter, $careerFacets['gd']);
 }

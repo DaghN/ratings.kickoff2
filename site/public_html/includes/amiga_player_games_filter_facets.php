@@ -329,6 +329,278 @@ function amiga_player_games_facet_until_counts(array $histogram): array
     return $counts;
 }
 
+function amiga_player_games_facet_snapshot_cache_key(?AmigaSnapshotContext $snapshotCtx): string
+{
+    if ($snapshotCtx === null || !$snapshotCtx->isActive()) {
+        return 'present';
+    }
+    $cutoff = $snapshotCtx->cutoff();
+    if ($cutoff === null) {
+        return 'at:empty';
+    }
+
+    return 'at:' . (int) ($cutoff['tournament_id'] ?? 0) . ':' . (string) ($cutoff['event_date'] ?? '') . ':' . (string) ($cutoff['chrono'] ?? '');
+}
+
+function amiga_player_games_facet_context_cache_key(int $playerId, array $ctx, ?AmigaSnapshotContext $snapshotCtx): string
+{
+    return (int) $playerId . '|' . amiga_player_games_facet_snapshot_cache_key($snapshotCtx) . '|'
+        . (string) ($ctx['result'] ?? 'all') . '|' . (int) ($ctx['opponent'] ?? 0) . '|' . (int) ($ctx['tournament'] ?? 0) . '|'
+        . (string) ($ctx['event'] ?? 'all') . '|' . (string) ($ctx['country'] ?? '') . '|' . (string) ($ctx['opp_country'] ?? '') . '|'
+        . (string) ($ctx['day'] ?? '') . '|' . (int) ($ctx['since'] ?? 0) . '|' . (int) ($ctx['until'] ?? 0) . '|' . (int) ($ctx['year'] ?? 0) . '|'
+        . (int) ($ctx['gf'] ?? -1) . '|' . (int) ($ctx['ga'] ?? -1) . '|' . (int) ($ctx['gs'] ?? -1) . '|'
+        . ($ctx['gd'] === null ? '' : (string) (int) $ctx['gd']);
+}
+
+/**
+ * @param array{
+ *   result: string,
+ *   opponent: int,
+ *   tournament: int,
+ *   event: string,
+ *   country: string,
+ *   opp_country: string,
+ *   day: string,
+ *   since: int,
+ *   until: int,
+ *   year: int,
+ *   gf: int,
+ *   ga: int,
+ *   gs: int,
+ *   gd: ?int
+ * } $filters
+ * @return array{
+ *   result: string,
+ *   opponent: int,
+ *   tournament: int,
+ *   event: string,
+ *   country: string,
+ *   opp_country: string,
+ *   day: string,
+ *   since: int,
+ *   until: int,
+ *   year: int,
+ *   gf: int,
+ *   ga: int,
+ *   gs: int,
+ *   gd: ?int
+ * }
+ */
+function amiga_player_games_career_wide_filter_context(array $filters): array
+{
+    return amiga_player_games_filter_context([
+        'result' => 'all',
+        'opponent' => 0,
+        'tournament' => 0,
+        'event' => $filters['event'] ?? 'all',
+        'country' => '',
+        'opp_country' => '',
+        'day' => '',
+        'since' => 0,
+        'until' => 0,
+        'year' => 0,
+        'gf' => -1,
+        'ga' => -1,
+        'gs' => -1,
+        'gd' => null,
+    ]);
+}
+
+/** @param array<string, mixed> $ctx */
+function amiga_player_games_filter_context_is_career_wide(array $ctx): bool
+{
+    return ($ctx['result'] ?? 'all') === 'all'
+        && (int) ($ctx['opponent'] ?? 0) === 0
+        && (int) ($ctx['tournament'] ?? 0) === 0
+        && (string) ($ctx['country'] ?? '') === ''
+        && (string) ($ctx['opp_country'] ?? '') === ''
+        && (string) ($ctx['day'] ?? '') === ''
+        && (int) ($ctx['since'] ?? 0) === 0
+        && (int) ($ctx['until'] ?? 0) === 0
+        && (int) ($ctx['year'] ?? 0) === 0
+        && (int) ($ctx['gf'] ?? -1) === -1
+        && (int) ($ctx['ga'] ?? -1) === -1
+        && (int) ($ctx['gs'] ?? -1) === -1
+        && ($ctx['gd'] ?? null) === null;
+}
+
+/**
+ * @return array{gf: array<int, int>, ga: array<int, int>, gs: array<int, int>, gd: array<int, int>}
+ */
+function amiga_player_games_facet_score_line_counts_single_pass(
+    mysqli $con,
+    int $playerId,
+    array $ctx,
+    ?AmigaSnapshotContext $snapshotCtx = null,
+): array {
+    $playerIdSql = (int) $playerId;
+    $types = '';
+    $params = [];
+    $where = amiga_player_games_facet_where($playerId, $ctx, 'gf', $types, $params, $snapshotCtx);
+    $sql = 'SELECT '
+        . "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA ELSE r.GoalsB END AS gf, "
+        . "CASE WHEN r.idA = $playerIdSql THEN r.GoalsB ELSE r.GoalsA END AS ga, "
+        . 'r.SumOfGoals AS gs, '
+        . "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA - r.GoalsB ELSE r.GoalsB - r.GoalsA END AS gd "
+        . amiga_rated_games_from_sql($playerId)
+        . ' WHERE ' . $where;
+
+    $gfSparse = [];
+    $gaSparse = [];
+    $gsSparse = [];
+    $gdSparse = [];
+    foreach (k2_games_facet_query_rows($con, $sql, $types, $params) as $row) {
+        $gf = (int) ($row['gf'] ?? 0);
+        $ga = (int) ($row['ga'] ?? 0);
+        $gs = (int) ($row['gs'] ?? 0);
+        $gd = (int) ($row['gd'] ?? 0);
+        $gfSparse[$gf] = ($gfSparse[$gf] ?? 0) + 1;
+        $gaSparse[$ga] = ($gaSparse[$ga] ?? 0) + 1;
+        $gsSparse[$gs] = ($gsSparse[$gs] ?? 0) + 1;
+        $gdSparse[$gd] = ($gdSparse[$gd] ?? 0) + 1;
+    }
+
+    return [
+        'gf' => k2_games_facet_expand_numeric_gaps($gfSparse),
+        'ga' => k2_games_facet_expand_numeric_gaps($gaSparse),
+        'gs' => k2_games_facet_expand_numeric_gaps($gsSparse),
+        'gd' => k2_games_facet_expand_numeric_gaps($gdSparse),
+    ];
+}
+
+/**
+ * @return array{
+ *   year: array<int, int>,
+ *   since: array<int, int>,
+ *   until: array<int, int>
+ * }
+ */
+function amiga_player_games_facet_year_bundle(
+    mysqli $con,
+    int $playerId,
+    array $ctx,
+    ?AmigaSnapshotContext $snapshotCtx = null,
+): array {
+    if ((int) ($ctx['year'] ?? 0) === 0 && (int) ($ctx['since'] ?? 0) === 0 && (int) ($ctx['until'] ?? 0) === 0) {
+        $histogram = amiga_player_games_facet_year_histogram($con, $playerId, $ctx, 'year', $snapshotCtx);
+
+        return [
+            'year' => amiga_player_games_facet_year_counts($histogram),
+            'since' => amiga_player_games_facet_since_counts($histogram),
+            'until' => amiga_player_games_facet_until_counts($histogram),
+        ];
+    }
+
+    return [
+        'year' => amiga_player_games_facet_year_counts(
+            amiga_player_games_facet_year_histogram($con, $playerId, $ctx, 'year', $snapshotCtx)
+        ),
+        'since' => amiga_player_games_facet_since_counts(
+            amiga_player_games_facet_year_histogram($con, $playerId, $ctx, 'since', $snapshotCtx)
+        ),
+        'until' => amiga_player_games_facet_until_counts(
+            amiga_player_games_facet_year_histogram($con, $playerId, $ctx, 'until', $snapshotCtx)
+        ),
+    ];
+}
+
+/**
+ * @return array{
+ *   result: array{win: int, draw: int, loss: int},
+ *   opponent: list<array{opponent_id: int, opponent_name: string, games: int}>,
+ *   tournament: list<array{tournament_id: int, tournament_name: string, games: int}>,
+ *   country: list<array{country: string, games: int}>,
+ *   opp_country: list<array{country: string, games: int}>,
+ *   year: array<int, int>,
+ *   since: array<int, int>,
+ *   until: array<int, int>,
+ *   gf: array<int, int>,
+ *   ga: array<int, int>,
+ *   gs: array<int, int>,
+ *   gd: array<int, int>
+ * }
+ */
+function amiga_player_games_load_filter_facets_uncached(
+    mysqli $con,
+    int $playerId,
+    array $ctx,
+    ?AmigaSnapshotContext $snapshotCtx = null,
+): array {
+    $yearBundle = amiga_player_games_facet_year_bundle($con, $playerId, $ctx, $snapshotCtx);
+
+    $gfActive = (int) ($ctx['gf'] ?? -1) >= 0;
+    $gaActive = (int) ($ctx['ga'] ?? -1) >= 0;
+    $gsActive = (int) ($ctx['gs'] ?? -1) >= 0;
+    $gdActive = ($ctx['gd'] ?? null) !== null;
+
+    if (!$gfActive && !$gaActive && !$gsActive && !$gdActive) {
+        $scoreLine = amiga_player_games_facet_score_line_counts_single_pass($con, $playerId, $ctx, $snapshotCtx);
+    } else {
+        $playerIdSql = (int) $playerId;
+        $heroGoalsFor = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA ELSE r.GoalsB END";
+        $heroGoalsAgainst = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsB ELSE r.GoalsA END";
+        $heroGd = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA - r.GoalsB ELSE r.GoalsB - r.GoalsA END";
+        $scoreLine = [
+            'gf' => amiga_player_games_facet_numeric_counts($con, $playerId, $ctx, 'gf', $heroGoalsFor, 'v ASC', $snapshotCtx),
+            'ga' => amiga_player_games_facet_numeric_counts($con, $playerId, $ctx, 'ga', $heroGoalsAgainst, 'v ASC', $snapshotCtx),
+            'gs' => amiga_player_games_facet_numeric_counts($con, $playerId, $ctx, 'gs', 'r.SumOfGoals', 'v ASC', $snapshotCtx),
+            'gd' => amiga_player_games_facet_numeric_counts($con, $playerId, $ctx, 'gd', $heroGd, 'v DESC', $snapshotCtx),
+        ];
+    }
+
+    return [
+        'result' => amiga_player_games_facet_result_counts($con, $playerId, $ctx, $snapshotCtx),
+        'opponent' => amiga_player_games_facet_opponent_rows($con, $playerId, $ctx, $snapshotCtx),
+        'tournament' => amiga_player_games_facet_tournament_rows($con, $playerId, $ctx, $snapshotCtx),
+        'country' => amiga_player_games_facet_country_rows($con, $playerId, $ctx, 'country', $snapshotCtx),
+        'opp_country' => amiga_player_games_facet_country_rows($con, $playerId, $ctx, 'opp_country', $snapshotCtx),
+        'year' => $yearBundle['year'],
+        'since' => $yearBundle['since'],
+        'until' => $yearBundle['until'],
+        'gf' => $scoreLine['gf'],
+        'ga' => $scoreLine['ga'],
+        'gs' => $scoreLine['gs'],
+        'gd' => $scoreLine['gd'],
+    ];
+}
+
+/**
+ * Career-wide facet bundle (event tab only) — shared by validate + unfiltered listbox load.
+ *
+ * @param array{event: string, ...} $filters
+ * @return array{
+ *   result: array{win: int, draw: int, loss: int},
+ *   opponent: list<array{opponent_id: int, opponent_name: string, games: int}>,
+ *   tournament: list<array{tournament_id: int, tournament_name: string, games: int}>,
+ *   country: list<array{country: string, games: int}>,
+ *   opp_country: list<array{country: string, games: int}>,
+ *   year: array<int, int>,
+ *   since: array<int, int>,
+ *   until: array<int, int>,
+ *   gf: array<int, int>,
+ *   ga: array<int, int>,
+ *   gs: array<int, int>,
+ *   gd: array<int, int>
+ * }
+ */
+function amiga_player_games_career_wide_facets(
+    mysqli $con,
+    int $playerId,
+    array $filters,
+    ?AmigaSnapshotContext $snapshotCtx = null,
+): array {
+    static $cache = [];
+
+    $snapshotCtx ??= amiga_snapshot_context_peek();
+    $ctx = amiga_player_games_career_wide_filter_context($filters);
+    $cacheKey = amiga_player_games_facet_context_cache_key($playerId, $ctx, $snapshotCtx) . '|career';
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
+    return $cache[$cacheKey] = amiga_player_games_load_filter_facets_uncached($con, $playerId, $ctx, $snapshotCtx);
+}
+
 /** @return array<int, int> */
 function amiga_player_games_facet_numeric_counts(
     mysqli $con,
@@ -376,29 +648,24 @@ function amiga_player_games_load_filter_facets(
     array $ctx,
     ?AmigaSnapshotContext $snapshotCtx = null,
 ): array {
-    $playerIdSql = (int) $playerId;
-    $heroGoalsFor = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA ELSE r.GoalsB END";
-    $heroGoalsAgainst = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsB ELSE r.GoalsA END";
-    $heroGd = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA - r.GoalsB ELSE r.GoalsB - r.GoalsA END";
+    static $cache = [];
 
-    $yearHistogram = amiga_player_games_facet_year_histogram($con, $playerId, $ctx, 'year', $snapshotCtx);
-    $sinceHistogram = amiga_player_games_facet_year_histogram($con, $playerId, $ctx, 'since', $snapshotCtx);
-    $untilHistogram = amiga_player_games_facet_year_histogram($con, $playerId, $ctx, 'until', $snapshotCtx);
+    $snapshotCtx ??= amiga_snapshot_context_peek();
+    if (amiga_player_games_filter_context_is_career_wide($ctx)) {
+        return amiga_player_games_career_wide_facets(
+            $con,
+            $playerId,
+            ['event' => (string) ($ctx['event'] ?? 'all')],
+            $snapshotCtx
+        );
+    }
 
-    return [
-        'result' => amiga_player_games_facet_result_counts($con, $playerId, $ctx, $snapshotCtx),
-        'opponent' => amiga_player_games_facet_opponent_rows($con, $playerId, $ctx, $snapshotCtx),
-        'tournament' => amiga_player_games_facet_tournament_rows($con, $playerId, $ctx, $snapshotCtx),
-        'country' => amiga_player_games_facet_country_rows($con, $playerId, $ctx, 'country', $snapshotCtx),
-        'opp_country' => amiga_player_games_facet_country_rows($con, $playerId, $ctx, 'opp_country', $snapshotCtx),
-        'year' => amiga_player_games_facet_year_counts($yearHistogram),
-        'since' => amiga_player_games_facet_since_counts($sinceHistogram),
-        'until' => amiga_player_games_facet_until_counts($untilHistogram),
-        'gf' => amiga_player_games_facet_numeric_counts($con, $playerId, $ctx, 'gf', $heroGoalsFor, 'v ASC', $snapshotCtx),
-        'ga' => amiga_player_games_facet_numeric_counts($con, $playerId, $ctx, 'ga', $heroGoalsAgainst, 'v ASC', $snapshotCtx),
-        'gs' => amiga_player_games_facet_numeric_counts($con, $playerId, $ctx, 'gs', 'r.SumOfGoals', 'v ASC', $snapshotCtx),
-        'gd' => amiga_player_games_facet_numeric_counts($con, $playerId, $ctx, 'gd', $heroGd, 'v DESC', $snapshotCtx),
-    ];
+    $cacheKey = amiga_player_games_facet_context_cache_key($playerId, $ctx, $snapshotCtx);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
+    return $cache[$cacheKey] = amiga_player_games_load_filter_facets_uncached($con, $playerId, $ctx, $snapshotCtx);
 }
 
 /**
@@ -645,35 +912,15 @@ function amiga_player_games_validate_filters_career_wide(
     ?AmigaSnapshotContext $snapshotCtx = null,
 ): void {
     $snapshotCtx ??= amiga_snapshot_context_peek();
-    $yearOptions = amiga_player_games_year_options($con, $playerId, $snapshotCtx);
+    $careerFacets = amiga_player_games_career_wide_facets($con, $playerId, $filters, $snapshotCtx);
+    $yearOptions = array_keys($careerFacets['year']);
+    sort($yearOptions, SORT_NUMERIC);
     $filters['since'] = amiga_games_valid_since_year((int) $filters['since'], $yearOptions);
     $filters['until'] = amiga_games_valid_until_year((int) $filters['until'], $yearOptions);
     $filters['year'] = amiga_games_valid_since_year((int) $filters['year'], $yearOptions);
 
-    $emptyCtx = amiga_player_games_filter_context([
-        'result' => 'all',
-        'opponent' => 0,
-        'tournament' => 0,
-        'event' => $filters['event'],
-        'country' => '',
-        'opp_country' => '',
-        'day' => '',
-        'since' => 0,
-        'until' => 0,
-        'year' => 0,
-        'gf' => -1,
-        'ga' => -1,
-        'gs' => -1,
-        'gd' => null,
-    ]);
-
-    $playerIdSql = (int) $playerId;
-    $heroGoalsFor = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA ELSE r.GoalsB END";
-    $heroGoalsAgainst = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsB ELSE r.GoalsA END";
-    $heroGd = "CASE WHEN r.idA = $playerIdSql THEN r.GoalsA - r.GoalsB ELSE r.GoalsB - r.GoalsA END";
-
     $validOpponents = [];
-    foreach (amiga_player_games_facet_opponent_rows($con, $playerId, $emptyCtx, $snapshotCtx) as $row) {
+    foreach ($careerFacets['opponent'] as $row) {
         $validOpponents[(int) $row['opponent_id']] = true;
     }
     if ((int) $filters['opponent'] > 0 && !isset($validOpponents[(int) $filters['opponent']])) {
@@ -681,7 +928,7 @@ function amiga_player_games_validate_filters_career_wide(
     }
 
     $validTournaments = [];
-    foreach (amiga_player_games_facet_tournament_rows($con, $playerId, $emptyCtx, $snapshotCtx) as $row) {
+    foreach ($careerFacets['tournament'] as $row) {
         $validTournaments[(int) $row['tournament_id']] = true;
     }
     if ((int) $filters['tournament'] > 0 && !isset($validTournaments[(int) $filters['tournament']])) {
@@ -689,24 +936,19 @@ function amiga_player_games_validate_filters_career_wide(
     }
 
     $validCountries = [];
-    foreach (amiga_player_games_facet_country_rows($con, $playerId, $emptyCtx, 'country', $snapshotCtx) as $row) {
+    foreach ($careerFacets['country'] as $row) {
         $validCountries[(string) $row['country']] = true;
     }
     $filters['country'] = amiga_games_valid_country_filter((string) $filters['country'], array_keys($validCountries));
 
     $validOppCountries = [];
-    foreach (amiga_player_games_facet_country_rows($con, $playerId, $emptyCtx, 'opp_country', $snapshotCtx) as $row) {
+    foreach ($careerFacets['opp_country'] as $row) {
         $validOppCountries[(string) $row['country']] = true;
     }
     $filters['opp_country'] = amiga_games_valid_country_filter((string) $filters['opp_country'], array_keys($validOppCountries));
 
-    $validGoalsScored = amiga_player_games_facet_numeric_counts($con, $playerId, $emptyCtx, 'gf', $heroGoalsFor, 'v ASC', $snapshotCtx);
-    $validGoalsConceded = amiga_player_games_facet_numeric_counts($con, $playerId, $emptyCtx, 'ga', $heroGoalsAgainst, 'v ASC', $snapshotCtx);
-    $validGoalsSum = amiga_player_games_facet_numeric_counts($con, $playerId, $emptyCtx, 'gs', 'r.SumOfGoals', 'v ASC', $snapshotCtx);
-    $validHeroGoalDiff = amiga_player_games_facet_numeric_counts($con, $playerId, $emptyCtx, 'gd', $heroGd, 'v DESC', $snapshotCtx);
-
-    $filters['gf'] = k2_ratedresults_games_valid_goals_filter((int) $filters['gf'], $validGoalsScored);
-    $filters['ga'] = k2_ratedresults_games_valid_goals_filter((int) $filters['ga'], $validGoalsConceded);
-    $filters['gs'] = k2_ratedresults_games_valid_goals_filter((int) $filters['gs'], $validGoalsSum);
-    $filters['gd'] = k2_ratedresults_games_valid_hero_gd_filter($filters['gd'], $validHeroGoalDiff);
+    $filters['gf'] = k2_ratedresults_games_valid_goals_filter((int) $filters['gf'], $careerFacets['gf']);
+    $filters['ga'] = k2_ratedresults_games_valid_goals_filter((int) $filters['ga'], $careerFacets['ga']);
+    $filters['gs'] = k2_ratedresults_games_valid_goals_filter((int) $filters['gs'], $careerFacets['gs']);
+    $filters['gd'] = k2_ratedresults_games_valid_hero_gd_filter($filters['gd'], $careerFacets['gd']);
 }

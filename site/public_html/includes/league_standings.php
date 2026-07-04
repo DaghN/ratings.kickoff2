@@ -76,6 +76,13 @@ function k2_league_load_first_games(
     string $periodEnd,
     ?DateTimeImmutable $maxGameDate = null
 ): array {
+    static $memo = [];
+    $maxKey = $maxGameDate instanceof DateTimeImmutable ? $maxGameDate->format('Y-m-d H:i:s') : '';
+    $cacheKey = $periodStart . "\0" . $periodEnd . "\0" . $maxKey;
+    if (isset($memo[$cacheKey])) {
+        return $memo[$cacheKey];
+    }
+
     $maxClause = '';
     $types = 'ssss';
     $params = [$periodStart, $periodEnd, $periodStart, $periodEnd];
@@ -123,6 +130,8 @@ SQL;
     }
     mysqli_free_result($res);
     mysqli_stmt_close($stmt);
+
+    $memo[$cacheKey] = $map;
 
     return $map;
 }

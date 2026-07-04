@@ -35,6 +35,77 @@ function amiga_country_rivals_perf_empty(): array
 }
 
 /**
+ * Lean rated-games subquery for nation-pair perf batch (no tournament join).
+ */
+function amiga_country_rivals_perf_games_from_sql(string $innerScopeSql): string
+{
+    $innerScopeSql = trim($innerScopeSql);
+    $playerWhere = $innerScopeSql !== '' ? "\n    WHERE {$innerScopeSql}" : '';
+
+    return <<<SQL
+FROM (
+    SELECT
+        g.player_a_id AS idA,
+        g.player_b_id AS idB,
+        g.tournament_id,
+        gr.actual_score AS ActualScore,
+        gr.rating_a AS RatingA,
+        gr.rating_b AS RatingB,
+        pa.country AS country_a,
+        pb.country AS country_b,
+        t.event_date AS tournament_event_date,
+        t.chrono AS tournament_chrono
+    FROM amiga_games g
+    INNER JOIN amiga_game_ratings gr ON gr.game_id = g.id
+    INNER JOIN amiga_players pa ON pa.id = g.player_a_id
+    INNER JOIN amiga_players pb ON pb.id = g.player_b_id
+    LEFT JOIN tournaments t ON t.id = g.tournament_id{$playerWhere}
+) r
+SQL;
+}
+
+/**
+ * @param list<string> $rivalTokens
+ */
+function amiga_country_rivals_perf_rival_tokens_sql(
+    string $heroCountry,
+    array $rivalTokens,
+    string &$types,
+    array &$params
+): string {
+    $heroCountry = amiga_country_rivals_normalize_token($heroCountry);
+    $tokenA = amiga_country_rivals_games_token_sql('r.country_a');
+    $tokenB = amiga_country_rivals_games_token_sql('r.country_b');
+
+    $normalized = [];
+    foreach ($rivalTokens as $token) {
+        $token = amiga_country_rivals_normalize_token((string) $token);
+        if ($token === '' || $token === $heroCountry) {
+            continue;
+        }
+        $normalized[$token] = true;
+    }
+    if ($normalized === []) {
+        return ' AND 1=0';
+    }
+
+    $rivals = array_keys($normalized);
+    $placeholders = implode(',', array_fill(0, count($rivals), '?'));
+    $types .= 's' . str_repeat('s', count($rivals)) . 's' . str_repeat('s', count($rivals));
+    $params[] = $heroCountry;
+    foreach ($rivals as $token) {
+        $params[] = $token;
+    }
+    $params[] = $heroCountry;
+    foreach ($rivals as $token) {
+        $params[] = $token;
+    }
+
+    return ' AND ((' . $tokenA . ' = ? AND ' . $tokenB . ' IN (' . $placeholders . '))'
+        . ' OR (' . $tokenB . ' = ? AND ' . $tokenA . ' IN (' . $placeholders . ')))';
+}
+
+/**
  * @param list<array<string, mixed>> $rows
  * @return array{
  *     games: int,
@@ -174,7 +245,8 @@ function amiga_country_rivals_perf_ratings_for_pair(
 function amiga_country_rivals_perf_ratings_batch(
     mysqli $con,
     string $heroCountry,
-    ?AmigaSnapshotContext $ctx = null
+    ?AmigaSnapshotContext $ctx = null,
+    ?array $rivalTokens = null
 ): array {
     static $cache = [];
 
@@ -185,8 +257,23 @@ function amiga_country_rivals_perf_ratings_batch(
 
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
     $cacheKey = amiga_country_rivals_rows_cache_key($heroCountry, $ctx, true) . '|batch';
+    if ($rivalTokens !== null) {
+        $normalizedRivals = [];
+        foreach ($rivalTokens as $token) {
+            $normalizedRivals[] = amiga_country_rivals_normalize_token((string) $token);
+        }
+        sort($normalizedRivals, SORT_STRING);
+        $cacheKey .= '|' . implode(',', $normalizedRivals);
+    }
     if (isset($cache[$cacheKey])) {
         return $cache[$cacheKey];
+    }
+
+    if ($rivalTokens === null) {
+        $rivalTokens = array_map(
+            static fn (array $row): string => (string) ($row['rival_token'] ?? ''),
+            amiga_country_rivals_rows($con, $heroCountry, $ctx, false)
+        );
     }
     $types = '';
     $params = [];
@@ -198,10 +285,9 @@ function amiga_country_rivals_perf_ratings_batch(
 
     $heroPlayerIds = amiga_country_rivals_player_ids($con, $heroCountry, $ctx);
     $innerScopeSql = amiga_country_rivals_games_inner_scope_sql($heroPlayerIds);
-
-    $crossBorderSql = amiga_country_rivals_cross_border_games_where_sql($heroCountry, $types, $params);
+    $crossBorderSql = amiga_country_rivals_perf_rival_tokens_sql($heroCountry, $rivalTokens, $types, $params);
     $sql = 'SELECT r.idA, r.idB, r.ActualScore, r.RatingA, r.RatingB, r.country_a, r.country_b '
-        . amiga_rated_games_from_sql(null, null, null, $innerScopeSql)
+        . amiga_country_rivals_perf_games_from_sql($innerScopeSql)
         . ' WHERE 1=1' . $cutoffSql . $crossBorderSql;
 
     $rows = amiga_games_query_all($con, $sql, $types, $params);

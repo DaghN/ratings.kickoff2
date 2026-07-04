@@ -1077,11 +1077,31 @@ function k2_status_build_period_competitions(mysqli $con, DateTimeImmutable $ser
     $choicesErr = null;
 
     foreach (['day', 'week', 'month', 'year'] as $period) {
-        $pointsError = null;
-        $points = k2_status_league($con, $period, null, 0, $serverNow, $pointsError);
-
         $bounds = k2_status_league_period_bounds($period, 0, $serverNow);
         $key = $bounds !== null ? k2_status_period_activity_key_from_bounds($period, $bounds) : null;
+        $currentKeys[$period] = $key ?? '';
+
+        // Year tiebreaker window is expensive (~300 ms × 2). Initial HTML only renders Week;
+        // status-period-competitions.js prewarms year via JSON APIs after load.
+        if ($period === 'year') {
+            $periods[$period] = [
+                'points' => null,
+                'points_error' => null,
+                'activity' => [
+                    'entries' => [],
+                    'total_games' => 0,
+                    'key' => $key ?? '',
+                    'label' => $key !== null ? k2_format_period_activity_label($period, $key) : '',
+                    'error' => null,
+                ],
+                'day_games' => [],
+                'day_games_error' => null,
+            ];
+            continue;
+        }
+
+        $pointsError = null;
+        $points = k2_status_league($con, $period, null, 0, $serverNow, $pointsError);
 
         $activityError = null;
         $entries = $key !== null
@@ -1109,8 +1129,6 @@ function k2_status_build_period_competitions(mysqli $con, DateTimeImmutable $ser
             'day_games' => $dayGames,
             'day_games_error' => $dayGamesError,
         ];
-
-        $currentKeys[$period] = $key ?? '';
     }
 
     $dayBounds = k2_period_activity_day_bounds($con, $choicesErr);

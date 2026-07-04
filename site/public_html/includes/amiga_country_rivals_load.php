@@ -468,7 +468,12 @@ function amiga_country_rivals_rows(
     }
 
     require_once __DIR__ . '/amiga_country_rivals_perf_lib.php';
-    $perfByRival = amiga_country_rivals_perf_ratings_batch($con, $heroCountry, $ctx);
+    $perfByRival = amiga_country_rivals_perf_ratings_batch(
+        $con,
+        $heroCountry,
+        $ctx,
+        array_map(static fn (array $row): string => (string) ($row['rival_token'] ?? ''), $rows)
+    );
     $rowsWithPerf = [];
     foreach ($rows as $row) {
         $rowWithPerf = $row;

@@ -57,6 +57,57 @@ function k2_games_highlights_href(string $board, bool $scrollToAnchor = true): s
 }
 
 /**
+ * Narrow ratedresults scan for LIMIT — sort/filter on lean cols, join-back for display.
+ *
+ * @return array{filter: string, order: string, order_r: string}
+ */
+function k2_games_highlights_board_limit_scan(string $board): array
+{
+	switch (k2_games_highlights_valid_board($board)) {
+		case 'biggest_draws':
+			return [
+				'filter' => ' AND ABS(`ActualScore` - 0.5) < 0.001',
+				'order' => '`SumOfGoals` DESC, `id` ASC',
+				'order_r' => 'r.`SumOfGoals` DESC, r.`id` ASC',
+			];
+		case 'top_score':
+			return [
+				'filter' => '',
+				'order' => 'GREATEST(`GoalsA`, `GoalsB`) DESC, `SumOfGoals` DESC, `id` ASC',
+				'order_r' => 'GREATEST(r.`GoalsA`, r.`GoalsB`) DESC, r.`SumOfGoals` DESC, r.`id` ASC',
+			];
+		case 'biggest_wins':
+			return [
+				'filter' => ' AND ABS(`ActualScore` - 0.5) >= 0.001',
+				'order' => '`GoalDifference` DESC, `id` ASC',
+				'order_r' => 'r.`GoalDifference` DESC, r.`id` ASC',
+			];
+		case 'most_goals':
+		default:
+			return [
+				'filter' => '',
+				'order' => '`SumOfGoals` DESC, `id` ASC',
+				'order_r' => 'r.`SumOfGoals` DESC, r.`id` ASC',
+			];
+	}
+}
+
+function k2_games_highlights_lean_limit_subquery_sql(string $board, int $limit): string
+{
+	$scan = k2_games_highlights_board_limit_scan($board);
+	$sortCols = match (k2_games_highlights_valid_board($board)) {
+		'biggest_draws', 'most_goals' => '`id`, `SumOfGoals`',
+		'top_score' => '`id`, `GoalsA`, `GoalsB`, `SumOfGoals`',
+		'biggest_wins' => '`id`, `GoalDifference`',
+		default => '`id`, `SumOfGoals`',
+	};
+
+	return '(SELECT ' . $sortCols . ' FROM `ratedresults` WHERE 1=1' . $scan['filter']
+		. ' ORDER BY ' . $scan['order']
+		. ' LIMIT ' . (int) $limit . ') top_sort';
+}
+
+/**
  * @return list<array<string, mixed>>
  */
 function k2_games_highlights_fetch(mysqli $con, string $board, int $limit = K2_GAMES_HIGHLIGHTS_LIMIT): array
@@ -64,28 +115,20 @@ function k2_games_highlights_fetch(mysqli $con, string $board, int $limit = K2_G
 	$board = k2_games_highlights_valid_board($board);
 	$limit = max(1, min(200, $limit));
 
-	$select = 'SELECT `id`, `Date`, `idA`, `NameA`, `idB`, `NameB`, `GoalsA`, `GoalsB`, '
-		. '`GoalDifference`, `SumOfGoals`, `ActualScore`, `RatingA`, `RatingB`, `RatingDifference`, '
-		. '`ExpectedScoreA`, `ExpectedScoreB`, `AdjustmentA`, `AdjustmentB` '
-		. 'FROM `ratedresults`';
-
-	switch ($board) {
-		case 'biggest_draws':
-			$sql = $select . ' WHERE ABS(`ActualScore` - 0.5) < 0.001'
-				. ' ORDER BY `SumOfGoals` DESC, `id` ASC LIMIT ' . (int) $limit;
-			break;
-		case 'top_score':
-			$sql = $select . ' ORDER BY GREATEST(`GoalsA`, `GoalsB`) DESC, `SumOfGoals` DESC, `id` ASC LIMIT ' . (int) $limit;
-			break;
-		case 'biggest_wins':
-			$sql = $select . ' WHERE ABS(`ActualScore` - 0.5) >= 0.001'
-				. ' ORDER BY `GoalDifference` DESC, `id` ASC LIMIT ' . (int) $limit;
-			break;
-		case 'most_goals':
-		default:
-			$sql = $select . ' ORDER BY `SumOfGoals` DESC, `id` ASC LIMIT ' . (int) $limit;
-			break;
+	static $cache = [];
+	$cacheKey = $board . '|' . $limit;
+	if (isset($cache[$cacheKey])) {
+		return $cache[$cacheKey];
 	}
+
+	$scan = k2_games_highlights_board_limit_scan($board);
+	$limitScan = k2_games_highlights_lean_limit_subquery_sql($board, $limit);
+	$sql = 'SELECT r.`id`, r.`Date`, r.`idA`, r.`NameA`, r.`idB`, r.`NameB`, r.`GoalsA`, r.`GoalsB`, '
+		. 'r.`GoalDifference`, r.`SumOfGoals`, r.`ActualScore`, r.`RatingA`, r.`RatingB`, r.`RatingDifference`, '
+		. 'r.`ExpectedScoreA`, r.`ExpectedScoreB`, r.`AdjustmentA`, r.`AdjustmentB` '
+		. 'FROM ' . $limitScan . ' '
+		. 'INNER JOIN `ratedresults` r ON r.`id` = top_sort.`id` '
+		. 'ORDER BY ' . $scan['order_r'];
 
 	$result = mysqli_query($con, $sql);
 	if ($result === false) {
@@ -103,7 +146,7 @@ function k2_games_highlights_fetch(mysqli $con, string $board, int $limit = K2_G
 		$rows = k2_rated_games_apply_display_names($rows, $nameMap);
 	}
 
-	return $rows;
+	return $cache[$cacheKey] = $rows;
 }
 
 function k2_games_render_highlights_board_filter(string $activeBoard): void

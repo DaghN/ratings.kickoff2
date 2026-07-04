@@ -85,11 +85,88 @@ function k2_realm_games_facet_numeric_counts(
  *     year: int,
  *     year_mode: string
  * } $state
+ */
+function k2_realm_games_facet_context_cache_key(array $state): string
+{
+	return 'p' . (int) ($state['player'] ?? 0)
+		. '|o' . (int) ($state['opponent'] ?? 0)
+		. '|y' . (int) ($state['year'] ?? 0)
+		. '|m' . (string) ($state['year_mode'] ?? 'in')
+		. '|gd' . (int) ($state['gd'] ?? -1)
+		. '|gs' . (int) ($state['gs'] ?? -1)
+		. '|ts' . (int) ($state['ts'] ?? -1);
+}
+
+/**
+ * @param array{
+ *     player: int,
+ *     opponent: int,
+ *     gd: int,
+ *     gs: int,
+ *     ts: int,
+ *     year: int,
+ *     year_mode: string
+ * } $state
+ * @return array{gd: array<int, int>, gs: array<int, int>, ts: array<int, int>}
+ */
+function k2_realm_games_facet_score_line_counts_single_pass(mysqli $con, array $state): array
+{
+	$types = '';
+	$params = [];
+	$where = k2_realm_games_facet_where($state, 'gd', $types, $params);
+	$sql = 'SELECT r.GoalDifference AS gd, r.SumOfGoals AS gs, GREATEST(r.GoalsA, r.GoalsB) AS ts, COUNT(*) AS games '
+		. 'FROM ratedresults r WHERE ' . $where . ' GROUP BY gd, gs, ts';
+
+	$gdSparse = [];
+	$gsSparse = [];
+	$tsSparse = [];
+	foreach (k2_games_facet_query_rows($con, $sql, $types, $params) as $row) {
+		$count = (int) ($row['games'] ?? 0);
+		$gd = (int) ($row['gd'] ?? 0);
+		$gs = (int) ($row['gs'] ?? 0);
+		$ts = (int) ($row['ts'] ?? 0);
+		$gdSparse[$gd] = ($gdSparse[$gd] ?? 0) + $count;
+		$gsSparse[$gs] = ($gsSparse[$gs] ?? 0) + $count;
+		$tsSparse[$ts] = ($tsSparse[$ts] ?? 0) + $count;
+	}
+
+	return [
+		'gd' => k2_games_facet_expand_numeric_gaps($gdSparse),
+		'gs' => k2_games_facet_expand_numeric_gaps($gsSparse),
+		'ts' => k2_games_facet_expand_numeric_gaps($tsSparse),
+	];
+}
+
+/**
+ * @param array{
+ *     player: int,
+ *     opponent: int,
+ *     gd: int,
+ *     gs: int,
+ *     ts: int,
+ *     year: int,
+ *     year_mode: string
+ * } $state
  * @return array{gd: array<int, int>, gs: array<int, int>, ts: array<int, int>}
  */
 function k2_realm_games_load_score_line_filter_facets(mysqli $con, array $state): array
 {
-	return [
+	static $cache = [];
+
+	$cacheKey = k2_realm_games_facet_context_cache_key($state);
+	if (isset($cache[$cacheKey])) {
+		return $cache[$cacheKey];
+	}
+
+	$gdActive = (int) ($state['gd'] ?? -1) >= 0;
+	$gsActive = (int) ($state['gs'] ?? -1) >= 0;
+	$tsActive = (int) ($state['ts'] ?? -1) >= 0;
+
+	if (!$gdActive && !$gsActive && !$tsActive) {
+		return $cache[$cacheKey] = k2_realm_games_facet_score_line_counts_single_pass($con, $state);
+	}
+
+	return $cache[$cacheKey] = [
 		'gd' => k2_realm_games_facet_numeric_counts($con, $state, 'gd', 'r.GoalDifference', 'v DESC'),
 		'gs' => k2_realm_games_facet_numeric_counts($con, $state, 'gs', 'r.SumOfGoals', 'v ASC'),
 		'ts' => k2_realm_games_facet_numeric_counts($con, $state, 'ts', 'GREATEST(r.GoalsA, r.GoalsB)', 'v ASC'),

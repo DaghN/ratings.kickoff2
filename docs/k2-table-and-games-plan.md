@@ -171,7 +171,7 @@ Shared: `includes/k2_archive_listbox.php`, `js/k2-archive-listbox.js`, `js/indiv
 - **Filter UI (four rows):**
   - **Player** — search (`player-search.js` filter mode) + **Rating** listbox (name, rating meta; sort name → rating) + **A–Z** listbox; realm `playertable` (all named accounts; no games gate).
   - **Opponent** — hidden until `player` set; search (`player_h2h_opponent_search` API) + **By games** + **A–Z** listboxes (H2H opponent set).
-  - **Score-line** — `gd`, `gs`, `ts` listboxes (realm-wide distinct values + game counts). **Faceted counts (Jun 2026):** each listbox `meta` reflects other active filters (player, opponent, year, sibling score-line filters); absolute `GoalDifference` for GD; interior zero gaps kept. `k2_realm_games_filter_facets.php`.
+  - **Score-line** — `gd`, `gs`, `ts` listboxes (realm-wide distinct values + game counts). **Faceted counts (Jun 2026):** each listbox `meta` reflects other active filters (player, opponent, year, sibling score-line filters); absolute `GoalDifference` for GD; interior zero gaps kept. **Jul 2026 O1:** request cache + single-pass `GROUP BY gd, gs, ts` when score-line filters idle (`k2_realm_games_filter_facets.php`).
   - **Year** — `year` + `year_mode` (`in` \| `since` \| `until`).
 - **URL params:** `player`, `opponent`, `gd`, `gs`, `ts`, `year`, `year_mode`, `sort`, `dir`, `offset`.
 - **JS:** `k2-realm-games-filters.js` + `k2-archive-listbox.js`; form `data-k2-carry-scroll`. Player/opponent search **×** (or delete-to-empty when filtered via search) clears that picker only; other filters stay.

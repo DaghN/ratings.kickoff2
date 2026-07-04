@@ -114,7 +114,7 @@ Local dump: same. Do not label staging or local as live prod. Production read = 
 | **v1.2 polish** | **Shipped** — 4-col grid, league month toggle, typography/column balance (`theme.css`) |
 | **League stack (legacy)** | Replaced on Status by **Leagues** block (`status_period_competitions_section.php`); old four-panel + `status-league-toggle.js` removed from `status.php` |
 | **League stored truth (SCH-008)** | **Repo + `kooldb1` proof done** (Jun 2026) — `player_period_league` via ops simul on work DB; May batch era on frozen **`kooldb`** only. **Live prod:** schema + PHP post-game at Steve cutover (not repo backlog) |
-| Performance pass | **Local + work/staging proof done** — `idx_ratedresults_date`, `idx_resulttable_live_status`, `player_period_league`; Status loader ~6.6s → ~51ms locally; legacy `player_monthly_league` dropped SCH-017 (Jun 2026) |
+| Performance pass | **Local + work/staging proof done** — `idx_ratedresults_date`, `idx_resulttable_live_status`, `player_period_league`; Status loader ~6.6s → ~51ms locally (Jun 2026). **Jul 2026:** current **year** bundle deferred to client prewarm + `k2_league_load_first_games` request memo — first paint ~0.15 s curl (`2026-07-04-017`). Legacy `player_monthly_league` dropped SCH-017 (Jun 2026) |
 | Period activity prep | **Repo + `kooldb1` proof done** — `player_period_games` / peaks via ops simul; historical May **`kooldb`** batch in [`archive/replay-register-2026-05.md`](archive/replay-register-2026-05.md) |
 | **Leagues (period competitions)** | **Shipped** — paired Activity + Points, tab nav, prewarm, Daily games list — [`docs/status-period-competitions.md`](status-period-competitions.md) |
 | v1.5+ | Polling, kickoff2 embed, joshua redirect |

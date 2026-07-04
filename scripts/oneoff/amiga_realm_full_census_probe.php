@@ -151,6 +151,48 @@ $add('/api/amiga_player_games_perf_rating.php?id=' . $busyPlayer, 'api-player');
 $add('/api/player_h2h_opponent_search.php?player_id=' . $busyPlayer . '&q=jo', 'api-player');
 
 $flagThreshold = 0.8;
+$heavyThreshold = 0.70;
+$priorPath = $outPath !== '' ? $outPath : __DIR__ . '/amiga_realm_full_census_results.md';
+
+function census_feel_tier(float $worst): string
+{
+    if ($worst <= 0.25) {
+        return 'Instant';
+    }
+    if ($worst <= 0.40) {
+        return 'Smooth';
+    }
+    if ($worst <= 0.70) {
+        return 'Noticeable';
+    }
+
+    return 'Heavy';
+}
+
+/** @return array<string, float> path => prior worst seconds */
+function census_parse_prior_worst(string $path): array
+{
+    if (!is_readable($path)) {
+        return [];
+    }
+    $text = file_get_contents($path);
+    if (!is_string($text)) {
+        return [];
+    }
+    $prior = [];
+    if (preg_match_all(
+        '/\|\s*\d+\s*\|\s*[^|]+\|\s*\*\*([\d.]+)\*\*[^|]*\|\s*[^|]+\|\s*[^|]+\|\s*[^|]+\|\s*[^|]+\|\s*[^|]+\|\s*`([^`]+)`\s*\|/',
+        $text,
+        $matches,
+        PREG_SET_ORDER
+    )) {
+        foreach ($matches as $m) {
+            $prior[$m[2]] = (float) $m[1];
+        }
+    }
+
+    return $prior;
+}
 
 function census_fetch(string $base, string $path, string $as): array
 {
@@ -220,7 +262,24 @@ foreach ($byPath as $path => $meta) {
 
 usort($ranked, static fn(array $a, array $b): int => $b['worst'] <=> $a['worst'] ?: strcmp($a['path'], $b['path']));
 
+foreach ($ranked as &$row) {
+    $row['feel'] = census_feel_tier((float) $row['worst']);
+}
+unset($row);
+
+$priorWorst = census_parse_prior_worst($priorPath);
+$priorTimestamp = '';
+if (is_readable($priorPath) && preg_match('/^# Amiga realm full census — (.+)$/m', file_get_contents($priorPath) ?: '', $tm)) {
+    $priorTimestamp = trim($tm[1]);
+}
+
 $flagCount = count(array_filter($ranked, static fn(array $r): bool => $r['flag'] || $r['status'] !== 200 || $r['error'] !== ''));
+$countOver80 = count(array_filter($ranked, static fn(array $r): bool => $r['worst'] > $flagThreshold));
+$countOver70 = count(array_filter($ranked, static fn(array $r): bool => $r['worst'] > $heavyThreshold));
+$tierCounts = ['Instant' => 0, 'Smooth' => 0, 'Noticeable' => 0, 'Heavy' => 0];
+foreach ($ranked as $row) {
+    $tierCounts[$row['feel']]++;
+}
 
 $lines = [];
 $lines[] = '# Amiga realm full census — ' . date('Y-m-d H:i:s');
@@ -229,8 +288,24 @@ $lines[] = 'Base: `' . $base . '` · Flag threshold: **' . $flagThreshold . ' s*
 $lines[] = '';
 $lines[] = 'Fixtures: busy player **' . $busyPlayer . '**, opponent **' . $topOpponent . '**, country **' . $country . '**, rival **' . $rivalCountry . '**, tournament **' . $tournamentOrdinary . '**, WC **' . $tournamentWc . '**, game **' . $gameId . '**.';
 $lines[] = '';
-$lines[] = '| Rank | Group | Worst (s) | @ cutoff | Present | Early | Mid | Late | Path |';
-$lines[] = '|------|-------|-----------|----------|---------|-------|-----|------|------|';
+$lines[] = '## Summary';
+$lines[] = '';
+$lines[] = '| Metric | Count |';
+$lines[] = '|--------|------:|';
+$lines[] = '| Total paths | ' . count($ranked) . ' |';
+$lines[] = '| > ' . $flagThreshold . ' s | ' . $countOver80 . ' |';
+$lines[] = '| > ' . $heavyThreshold . ' s | ' . $countOver70 . ' |';
+$lines[] = '| Feel: Instant (≤0.25 s) | ' . $tierCounts['Instant'] . ' |';
+$lines[] = '| Feel: Smooth (≤0.40 s) | ' . $tierCounts['Smooth'] . ' |';
+$lines[] = '| Feel: Noticeable (0.40–0.70 s) | ' . $tierCounts['Noticeable'] . ' |';
+$lines[] = '| Feel: Heavy (>0.70 s) | ' . $tierCounts['Heavy'] . ' |';
+$lines[] = '';
+$lines[] = 'Feel tiers: **Instant** ≤0.25 s · **Smooth** ≤0.40 s · **Noticeable** 0.40–0.70 s · **Heavy** >0.70 s (worst cutoff per path).';
+$lines[] = '';
+$lines[] = '## All paths (worst-first)';
+$lines[] = '';
+$lines[] = '| Rank | Group | Feel | Worst (s) | @ cutoff | Present | Early | Mid | Late | Path |';
+$lines[] = '|------|-------|------|-----------|----------|---------|-------|-----|------|------|';
 
 $rank = 0;
 foreach ($ranked as $row) {
@@ -239,9 +314,10 @@ foreach ($ranked as $row) {
     $flag = $row['flag'] ? ' ⚠' : '';
     $bad = ($row['status'] !== 200 || $row['error'] !== '') ? ' ❌' : '';
     $lines[] = sprintf(
-        '| %d | %s | **%.3f**%s%s | %s | %s | %s | %s | %s | `%s` |',
+        '| %d | %s | %s | **%.3f**%s%s | %s | %s | %s | %s | %s | `%s` |',
         $rank,
         $row['group'],
+        $row['feel'],
         $row['worst'],
         $flag,
         $bad,
@@ -252,6 +328,60 @@ foreach ($ranked as $row) {
         $fmt($row['late']),
         $row['path']
     );
+}
+
+if ($priorWorst !== []) {
+    $improved = [];
+    $regressed = [];
+    $newPaths = [];
+    foreach ($ranked as $row) {
+        $path = $row['path'];
+        if (!isset($priorWorst[$path])) {
+            $newPaths[] = $row;
+            continue;
+        }
+        $delta = round($row['worst'] - $priorWorst[$path], 3);
+        if ($delta <= -0.05) {
+            $improved[] = ['path' => $path, 'prior' => $priorWorst[$path], 'now' => $row['worst'], 'delta' => $delta];
+        } elseif ($delta >= 0.05) {
+            $regressed[] = ['path' => $path, 'prior' => $priorWorst[$path], 'now' => $row['worst'], 'delta' => $delta];
+        }
+    }
+    usort($improved, static fn(array $a, array $b): int => $a['delta'] <=> $b['delta']);
+    usort($regressed, static fn(array $a, array $b): int => $b['delta'] <=> $a['delta']);
+
+    $lines[] = '';
+    $lines[] = '## Delta vs prior census';
+    $lines[] = '';
+    $lines[] = 'Prior run: **' . ($priorTimestamp !== '' ? $priorTimestamp : basename($priorPath)) . '** · threshold ±0.05 s for improved/regressed lists.';
+    $lines[] = '';
+    $lines[] = '### Improved (≥0.05 s faster)';
+    $lines[] = '';
+    if ($improved === []) {
+        $lines[] = '_None._';
+    } else {
+        foreach ($improved as $item) {
+            $lines[] = sprintf('- **%.3f → %.3f s** (Δ %.3f) `%s`', $item['prior'], $item['now'], $item['delta'], $item['path']);
+        }
+    }
+    $lines[] = '';
+    $lines[] = '### Regressed (≥0.05 s slower)';
+    $lines[] = '';
+    if ($regressed === []) {
+        $lines[] = '_None._';
+    } else {
+        foreach ($regressed as $item) {
+            $lines[] = sprintf('- **%.3f → %.3f s** (Δ +%.3f) `%s`', $item['prior'], $item['now'], $item['delta'], $item['path']);
+        }
+    }
+    if ($newPaths !== []) {
+        $lines[] = '';
+        $lines[] = '### New paths (not in prior census)';
+        $lines[] = '';
+        foreach ($newPaths as $row) {
+            $lines[] = sprintf('- **%.3f s** `%s`', $row['worst'], $row['path']);
+        }
+    }
 }
 
 $lines[] = '';

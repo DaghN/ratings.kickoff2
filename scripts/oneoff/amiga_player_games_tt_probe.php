@@ -25,6 +25,10 @@ foreach (['present', 'year:2024', 'month:2014-07'] as $as) {
     $filterContext = amiga_player_games_filter_context($filters);
 
     $t0 = microtime(true);
+    amiga_player_games_validate_filters_career_wide($con, $playerId, $filters, $ctx);
+    echo '  validate_filters_career_wide: ' . ms($t0) . " ms\n";
+
+    $t0 = microtime(true);
     amiga_player_games_load_filter_facets($con, $playerId, $filterContext, $ctx);
     echo '  load_filter_facets: ' . ms($t0) . " ms\n";
 

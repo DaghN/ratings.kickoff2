@@ -1492,6 +1492,18 @@
                 enqueueWarmFetch(root, p, k);
             }
         }
+        // Year tiebreaker is deferred from PHP first paint — warm it before day/month.
+        if (root._warmQueue && root._warmQueue.length > 1) {
+            root._warmQueue.sort(function (a, b) {
+                if (a.period === 'year') {
+                    return -1;
+                }
+                if (b.period === 'year') {
+                    return 1;
+                }
+                return 0;
+            });
+        }
     }
 
     function fetchPeriod(root, period, key, options) {
