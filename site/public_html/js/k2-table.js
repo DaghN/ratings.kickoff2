@@ -9,6 +9,7 @@
 	var SORTED_DESC_CLASS = 'k2-table-sorted-desc';
 	var ANCHOR_CELL_CLASS = 'k2-table-anchor-cell';
 	var SORTED_COL_CLASS = 'k2-table-col-sorted';
+	var QUIET_DATE_BODY_CLASS = 'k2-table-col-quiet-date';
 	var PENDING_CLASS = 'ranked-table-pending';
 	var TOOLTIP_BOUND_ATTR = 'data-k2-tooltip-bound';
 	var TOOLTIP_ID = 'k2-table-tooltip';
@@ -371,7 +372,7 @@
 		return isNaN(index) ? -1 : index;
 	}
 
-	/** Column indices that sort but never get active-sort header/body emphasis (comma-separated). */
+	/** Column indices that sort but never get active-sort header/body emphasis (comma-separated). @deprecated Use data-k2-quiet-default-sort-cols for date. */
 	function isQuietSortCol(table, index) {
 		var raw;
 		var parts;
@@ -396,6 +397,67 @@
 		}
 
 		return false;
+	}
+
+	/** Quiet date body on default sort only — until first user header click or URL sort. */
+	function isQuietDefaultSortCol(table, index) {
+		var raw;
+		var parts;
+		var i;
+		var idx;
+
+		if (index === undefined || index === null || index < 0) {
+			return false;
+		}
+		if (table._k2SortUserChosen) {
+			return false;
+		}
+
+		raw = table.getAttribute('data-k2-quiet-default-sort-cols');
+		if (!raw) {
+			return false;
+		}
+
+		parts = String(raw).split(',');
+		for (i = 0; i < parts.length; i++) {
+			idx = parseInt(parts[i], 10);
+			if (!isNaN(idx) && idx === index) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	function isQuietSortBodyCol(table, index) {
+		return isQuietDefaultSortCol(table, index) || isQuietSortCol(table, index);
+	}
+
+	function applyColumnBodyClass(table, columnIndex, className) {
+		var bodies = table.tBodies || [];
+		var i;
+		var rows;
+		var j;
+		var row;
+
+		if (columnIndex === undefined || columnIndex === null || columnIndex < 0) {
+			return;
+		}
+
+		bodies = table.tBodies || [];
+		for (i = 0; i < bodies.length; i++) {
+			rows = bodies[i].rows;
+			for (j = 0; j < rows.length; j++) {
+				row = rows[j];
+				if (!row.cells || !row.cells[columnIndex]) {
+					continue;
+				}
+				if (row.cells[columnIndex].colSpan > 1) {
+					continue;
+				}
+				addClass(row.cells[columnIndex], className);
+			}
+		}
 	}
 
 	function clearColumnBodyClass(table, className) {
@@ -457,13 +519,15 @@
 		var row;
 
 		clearColumnBodyClass(table, SORTED_COL_CLASS);
+		clearColumnBodyClass(table, QUIET_DATE_BODY_CLASS);
 		if (sortIndex === undefined || sortIndex === null || sortIndex < 0) {
 			return;
 		}
 		if (anchorIndex >= 0 && sortIndex === anchorIndex) {
 			return;
 		}
-		if (isQuietSortCol(table, sortIndex)) {
+		if (isQuietSortBodyCol(table, sortIndex)) {
+			applyColumnBodyClass(table, sortIndex, QUIET_DATE_BODY_CLASS);
 			return;
 		}
 
@@ -772,6 +836,8 @@
 			return false;
 		}
 
+		table._k2SortUserChosen = true;
+
 		return sortTableByIndex(table, urlSort.index, urlSort.direction);
 	}
 
@@ -855,6 +921,8 @@
 		var isSameColumn = table._k2SortIndex === columnIndex;
 		var direction;
 
+		table._k2SortUserChosen = true;
+
 		if (isSameColumn) {
 			direction = table._k2SortDirection === 'desc' ? 'asc' : 'desc';
 		} else {
@@ -921,6 +989,8 @@
 	function initTable(table) {
 		var headers = table.tHead ? table.tHead.getElementsByTagName('th') : [];
 		var i;
+
+		table._k2SortUserChosen = false;
 
 		for (i = 0; i < headers.length; i++) {
 			if (!headers[i].getAttribute('data-k2-sort')) {

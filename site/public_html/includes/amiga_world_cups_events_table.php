@@ -19,17 +19,8 @@ require_once __DIR__ . '/amiga_wc_podium_th.php';
 
 const AMIGA_WORLD_CUPS_EVENTS_ANCHOR_COL = 1;
 const AMIGA_WORLD_CUPS_EVENTS_DEFAULT_SORT_COL = 0;
-/** Date is default order on Chronology; sortable but never active-sort emphasis. */
-const AMIGA_WORLD_CUPS_EVENTS_QUIET_SORT_COL = 0;
-
-function amiga_world_cups_events_sort_col_for_emphasis(int $colIndex, int $activeSortCol): int
-{
-    if ($colIndex === AMIGA_WORLD_CUPS_EVENTS_QUIET_SORT_COL && $activeSortCol === AMIGA_WORLD_CUPS_EVENTS_QUIET_SORT_COL) {
-        return -1;
-    }
-
-    return $activeSortCol;
-}
+/** Date col — quiet body on default load only (no game ID). */
+const AMIGA_WORLD_CUPS_EVENTS_QUIET_DATE_COL = 0;
 
 /** @deprecated Use amiga_wc_podium_metal_label_markup() — kept for call sites in this file. */
 function amiga_world_cups_events_podium_th(int $place): string
@@ -59,15 +50,29 @@ function amiga_world_cups_events_render_table(array $rows, array $nameMap, array
     $anchorCol = AMIGA_WORLD_CUPS_EVENTS_ANCHOR_COL;
     $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_WORLD_CUPS_EVENTS_DEFAULT_SORT_COL);
     $defaultSortDir = k2_table_default_sort_dir_from_request('desc');
+    $isDefaultSortView = k2_table_is_default_client_sort_view();
+    $dateEmphasisCol = k2_table_sort_col_for_emphasis(
+        AMIGA_WORLD_CUPS_EVENTS_QUIET_DATE_COL,
+        $defaultSortCol,
+        [AMIGA_WORLD_CUPS_EVENTS_QUIET_DATE_COL],
+        $isDefaultSortView
+    );
+    $dateCellClass = k2_table_quiet_date_cell_class(
+        AMIGA_WORLD_CUPS_EVENTS_QUIET_DATE_COL,
+        $defaultSortCol,
+        AMIGA_WORLD_CUPS_EVENTS_DEFAULT_SORT_COL,
+        $isDefaultSortView,
+        'k2-table-cell--right k2-wc-events-date'
+    );
     $tableClass = k2_table_ranked_sortable_class('k2-table--tournament-index k2-table--world-cups-events');
     $skipInitialSort = $defaultSortCol === AMIGA_WORLD_CUPS_EVENTS_DEFAULT_SORT_COL && $defaultSortDir === 'desc';
     ?>
 <div class="k2-table--world-cups-events-wrap">
 <?php k2_table_wrap_open(true); ?>
-<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>" data-k2-quiet-sort-cols="<?php echo AMIGA_WORLD_CUPS_EVENTS_QUIET_SORT_COL; ?>"<?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
+<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>"<?php echo k2_table_quiet_default_sort_col_attr([AMIGA_WORLD_CUPS_EVENTS_QUIET_DATE_COL]); ?><?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
 <thead>
     <tr>
-        <th<?php echo k2_table_sortable_th_attr(0, amiga_world_cups_events_sort_col_for_emphasis(0, $defaultSortCol), $defaultSortDir, 'k2-table-cell--right k2-wc-events-date'); ?> data-k2-sort="number">Date</th>
+        <th<?php echo k2_table_sortable_th_attr(0, $defaultSortCol, $defaultSortDir, 'k2-table-cell--right k2-wc-events-date'); ?> data-k2-sort="number">Date</th>
         <th<?php echo k2_table_sortable_th_attr(1, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Tournament</th>
         <th<?php echo k2_table_sortable_th_attr(2, $defaultSortCol, $defaultSortDir, 'k2-table-cell--center k2-table-cell--video-glyph'); ?> data-k2-sort="number"></th>
         <th<?php echo k2_table_sortable_th_attr(3, $defaultSortCol, $defaultSortDir, 'k2-table-cell--center'); ?> data-k2-sort="number">Players</th>
@@ -93,7 +98,7 @@ function amiga_world_cups_events_render_table(array $rows, array $nameMap, array
     $bronzeId = (int) ($row['bronze_player_id'] ?? 0);
     ?>
     <tr>
-        <td<?php echo k2_table_body_td_attr(0, $anchorCol, amiga_world_cups_events_sort_col_for_emphasis(0, $defaultSortCol), 'k2-table-cell--right k2-wc-events-date'); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value([
+        <td<?php echo k2_table_body_td_attr(0, $anchorCol, $dateEmphasisCol, $dateCellClass); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value([
             'event_date' => $row['event_date'] ?? null,
             'event_chrono' => $row['event_chrono'] ?? null,
         ]); ?>"><?php echo amiga_profile_format_event_date($row['event_date'] ?? null); ?></td>

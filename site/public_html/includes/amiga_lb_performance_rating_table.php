@@ -31,10 +31,23 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows): vo
     $lbSort = $isPerfect
         ? k2_lb_table_sort_state($defaultSortCol)
         : k2_lb_table_sort_state($defaultSortCol, AMIGA_LB_PERF_RATING_COL_PERF);
+    $isDefaultSortView = k2_table_is_default_client_sort_view();
+    $dateEmphasisCol = k2_table_sort_col_for_emphasis(
+        AMIGA_LB_PERF_RATING_COL_DATE,
+        $lbSort['sort_col'],
+        [AMIGA_LB_PERF_RATING_COL_DATE],
+        $isDefaultSortView && $isPerfect
+    );
+    $dateCellClass = k2_table_quiet_date_cell_class(
+        AMIGA_LB_PERF_RATING_COL_DATE,
+        $lbSort['sort_col'],
+        AMIGA_LB_PERF_RATING_COL_DATE,
+        $isDefaultSortView && $isPerfect,
+        'k2-table-cell--right' . ($isPerfect ? ' k2-amiga-lb-perf-rating-date' : '')
+    );
     $tableClass = k2_table_ranked_leaderboard_class(
         'k2-table--perf-rating-lb' . ($isPerfect ? ' k2-table--perf-rating-perfect' : '')
     );
-    $dateCellClass = 'k2-table-cell--right' . ($isPerfect ? ' k2-amiga-lb-perf-rating-date' : '');
 
     $perfHelp = amiga_perf_rating_column_help();
     $infinityHelp = amiga_perf_rating_perfect_infinity_help();
@@ -42,7 +55,7 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows): vo
 
     k2_table_wrap_open(true);
     ?>
-<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr($defaultSortCol); ?>>
+<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo $isPerfect ? k2_table_quiet_default_sort_col_attr([AMIGA_LB_PERF_RATING_COL_DATE]) : ''; ?><?php echo k2_table_skip_initial_sort_attr($defaultSortCol); ?>>
 
 <thead>
     <tr>
@@ -95,7 +108,7 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows): vo
                 (string) ($row['host_country'] ?? '')
             );
         ?></td>
-        <td<?php echo k2_lb_td(AMIGA_LB_PERF_RATING_COL_DATE, $lbSort, $dateCellClass); ?> data-k2-sort-value="<?php echo k2_h($dateSortValue); ?>"><?php echo amiga_profile_format_event_date($row['event_date'] ?? null); ?></td>
+        <td<?php echo k2_table_body_td_attr(AMIGA_LB_PERF_RATING_COL_DATE, $lbSort['anchor'], $dateEmphasisCol, $dateCellClass); ?> data-k2-sort-value="<?php echo k2_h($dateSortValue); ?>"><?php echo amiga_profile_format_event_date($row['event_date'] ?? null); ?></td>
     </tr>
         <?php
         $rank++;

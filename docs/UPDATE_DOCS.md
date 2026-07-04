@@ -48,6 +48,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | **K2 tooltips** (table headers, chart hovers, control help) | [`k2-tooltip-policy.md`](k2-tooltip-policy.md) |
 | **K2 table entity links** (player/tournament/country names, Amiga inline flags) | [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) |
 | **K2 tables** (sortable, wide, filter reload, table refactor) | **`docs/k2-table-implementation-checklist.md`** (then `docs/k2-table-and-games-plan.md` if needed) |
+| **K2 quiet date** (first-load date blast; ID default vs fallback tooling) | [`k2-table-quiet-date-column-policy.md`](k2-table-quiet-date-column-policy.md) · plan [`k2-table-quiet-date-unification-plan.md`](k2-table-quiet-date-unification-plan.md) |
 | **K2 page structure** (new page / tab / mode) | **`docs/k2-page-structure-checklist.md`** (then `url-routes.md`, `navigation-model.md`) |
 | Ladder replay scope / reset rules | `docs/replay-v1-scope-and-reset.md` (rare; big replay changes only) |
 | **Amiga Opponents wing** | [`amiga-opponents-wing-policy.md`](amiga-opponents-wing-policy.md) (port online H2H/WDL/Goals/DDs; incremental slices) |

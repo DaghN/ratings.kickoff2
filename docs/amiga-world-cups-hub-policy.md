@@ -76,7 +76,7 @@ Wing 1 is the **WC catalog index** only. It does **not** host a second copy of t
 | Element | v1 | v2+ |
 |---------|----|-----|
 | **Intro** | Hub chapter lede + wing map (snapshot-aware count + Covid copy) | Optional extra era copy |
-| **List** | Sortable table — one row per WC: date, host flag, name, players, games, podium (flag + linked name per medal). **Date** is default sort (`event_date` desc) but uses `data-k2-quiet-sort-cols="0"` — no active-sort highlight (chronology reads as plain columns). | Filters by decade / host nation |
+| **List** | Sortable table — one row per WC: date, host flag, name, players, games, podium (flag + linked name per medal). **Date** default sort (`event_date` desc); no game ID — **quiet date on first load** per [`k2-table-quiet-date-column-policy.md`](k2-table-quiet-date-column-policy.md) (legacy `data-k2-quiet-sort-cols` until plan Slice B). | Filters by decade / host nation |
 | **Row link** | **`/amiga/tournament.php?id={tournament_id}&view=event-stats`** — via `amiga_tournament_event_stats_url($id)` + `amiga_tournament_href()` (preserves `as=`). Optional `#tournament` anchor for scroll. **Default WC landing tab** — already first in WC tournament nav. | Same URL; richer tab content |
 | **Per-event richness** | **Enrich `tournament.php`** — especially **`view=event-stats`** (realm row from `amiga_world_cup_stats` + existing per-player event stats). Bracket / stages / games = other `view=` tabs on the **same** `id`. | Extrema game links, podium narrative on existing tabs |
 

@@ -34,17 +34,6 @@ function amiga_player_game_sort_col_index(string $sortKey): int
 
 /** ID column — game link anchor for calm-stats emphasis on first paint. */
 const AMIGA_PLAYER_GAMES_ANCHOR_COL = 0;
-/** Date col — sortable but never active-sort body emphasis. */
-const AMIGA_PLAYER_GAMES_QUIET_SORT_COL = 1;
-
-function amiga_player_game_sort_col_for_emphasis(int $colIndex, int $activeSortCol): int
-{
-    if ($colIndex === AMIGA_PLAYER_GAMES_QUIET_SORT_COL && $activeSortCol === AMIGA_PLAYER_GAMES_QUIET_SORT_COL) {
-        return -1;
-    }
-
-    return $activeSortCol;
-}
 
 /**
  * @param array<string, mixed> $row ratedresults row (+ optional tournament_name)
@@ -115,7 +104,7 @@ function amiga_player_game_row_html(
 
     return '<tr>'
         . k2_player_game_td(amiga_rated_game_id_html((int) $game['id']), 0, $sortedColIndex, '', $anchorCol)
-        . k2_player_game_td(amiga_player_game_date_html($game['Date']), 1, amiga_player_game_sort_col_for_emphasis(1, $sortedColIndex), 'k2-table-cell--left k2-table-cell--pad-left-xs k2-amiga-player-games-date', $anchorCol)
+        . k2_player_game_td(amiga_player_game_date_html($game['Date']), 1, $sortedColIndex, 'k2-table-cell--left k2-table-cell--pad-left-xs k2-amiga-player-games-date', $anchorCol)
         . k2_player_game_td($tournamentCell, 2, $sortedColIndex, 'k2-table-cell--left k2-amiga-tgame-team', $anchorCol)
         . k2_player_game_td($phaseCell, 3, $sortedColIndex, 'k2-table-cell--left', $anchorCol)
         . k2_player_game_td(amiga_rated_game_player_side_cell((int) $game['idA'], (string) $game['NameA'], $countryA, 'a'), 4, $sortedColIndex, 'k2-amiga-tgame-team k2-amiga-tgame-team--a', $anchorCol)

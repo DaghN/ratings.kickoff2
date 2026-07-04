@@ -6,7 +6,7 @@
  * and copy the nearest reference implementation (do not bare k2_table_js_enqueue() on full pages).
  *
  * @see docs/k2-table-implementation-checklist.md
- * @see js/k2-table.js — client sort re-applies the same body cell classes; `data-k2-quiet-sort-cols` suppresses active-sort emphasis on listed columns.
+ * @see js/k2-table.js — `data-k2-quiet-default-sort-cols` (default load only); legacy `data-k2-quiet-sort-cols` deprecated.
  */
 declare(strict_types=1);
 
@@ -317,4 +317,78 @@ function k2_table_skip_initial_sort_attr(int $defaultSortCol, string $defaultDir
     }
 
     return '';
+}
+
+/** True when ranked client-sort table has no `k2_sort` / `k2_dir` in the request (default sort view). */
+function k2_table_is_default_client_sort_view(): bool
+{
+    return k2_table_sort_query_params() === [];
+}
+
+/** True when server-sort page has no user `sort` query override. */
+function k2_table_is_default_server_sort_view(string $sortQueryKey = 'sort'): bool
+{
+    if (!isset($_GET[$sortQueryKey])) {
+        return true;
+    }
+
+    $raw = $_GET[$sortQueryKey];
+
+    return !is_string($raw) || trim($raw) === '';
+}
+
+/**
+ * Body emphasis column for quiet-date cells — returns -1 to skip `k2-table-col-sorted` on default load only.
+ *
+ * @param list<int> $quietDateCols
+ */
+function k2_table_sort_col_for_emphasis(
+    int $colIndex,
+    int $activeSortCol,
+    array $quietDateCols,
+    bool $isDefaultSortView
+): int {
+    if ($isDefaultSortView
+        && in_array($colIndex, $quietDateCols, true)
+        && $colIndex === $activeSortCol
+    ) {
+        return -1;
+    }
+
+    return $activeSortCol;
+}
+
+/**
+ * `data-k2-quiet-default-sort-cols` attribute for client-sort tables (quiet body on default load only).
+ *
+ * @param list<int> $indices
+ */
+function k2_table_quiet_default_sort_col_attr(array $indices): string
+{
+    if ($indices === []) {
+        return '';
+    }
+
+    $parts = [];
+    foreach ($indices as $index) {
+        $parts[] = (string) (int) $index;
+    }
+
+    return ' data-k2-quiet-default-sort-cols="' . k2_h(implode(',', $parts)) . '"';
+}
+
+/** Append `k2-table-col-quiet-date` when this date cell is quietly sorted on default load. */
+function k2_table_quiet_date_cell_class(
+    int $colIndex,
+    int $activeSortCol,
+    int $tableDefaultSortCol,
+    bool $isDefaultSortView,
+    string $extraClass = ''
+): string {
+    $classes = trim($extraClass);
+    if ($isDefaultSortView && $colIndex === $activeSortCol && $activeSortCol === $tableDefaultSortCol) {
+        $classes = trim($classes . ' k2-table-col-quiet-date');
+    }
+
+    return $classes;
 }
