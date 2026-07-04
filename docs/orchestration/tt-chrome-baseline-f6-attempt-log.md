@@ -233,3 +233,76 @@ Rating LB uses one primary snapshot query — usually **faster** than Countries�
 | 2026-07-04 | **y=0 only** — mid-scroll OK; realm carry-scroll is required (no feature removal); rejected “skip realm carry” |
 | 2026-07-04 | **Iter 3a shipped** — y=0 noop destination; revert narrow cloak |
 | 2026-07-04 | **Iter 3a result** — non-TT good; TT y=0 Type B; TT y>0 Countries Type A; framework + month/year code notes |
+| 2026-07-04 | **Perf fixes shipped** — month catalog in-memory; Countries index SQL GROUP BY |
+
+---
+
+## Perf investigation — month catalog + Countries (2026-07-04)
+
+**Probe:** `scripts/oneoff/amiga_tt_perf_probe.php` on local `ko2amiga_db`.
+
+### What is the “catalog”?
+
+Time-travel **ribbon** needs a list of every steppable period in the active wing (month / year / event) so PHP can render:
+
+- Period **picker** (dropdown of all months/years/events)
+- **Chevron** prev/next keys
+- **Cutoff tuple** for the current `as=` key
+
+Built by `amiga_rating_history_catalog_for_wing()` → cached in `AmigaSnapshotContext` on **every TT page** via `amiga_snapshot_context_from_request()` in `site_header` / snapshot chrome.
+
+| Wing | How catalog is built | Local timing |
+|------|----------------------|--------------|
+| **Event** | One `amiga_rating_history_tournaments()` load; cutoff = that event | **~9 ms** |
+| **Year** | Loop years; **one SQL per year** (`cutoff_tournament_for_year_end`) | **~27 ms** |
+| **Month** | Loop every calendar month (2001-11 → 2025-11); **one SQL per month** (`cutoff_tournament_for_month_end`) | **~283 ms** (289 queries) — **fixed 2026-07-04:** in-memory from tournament list **~2 ms** |
+
+**Month is slow because of N+1 queries in `amiga_rating_history_catalog_month()`** — not because month cutoffs are semantically harder than year. Event wing avoids per-row cutoff lookups because each catalog row *is* a tournament.
+
+**Header cost when wing=month:** `amiga_snapshot_context_from_request()` alone **~380 ms** vs **~3 ms** for event wing (same cutoff date, different `as=` wing label).
+
+That runs in **`site_header` before hub nav or page body** — explains month wing feeling “weird” on TT nav and why month can **mask** Countries carry-cloak timing (slow header keeps body cloaked longer).
+
+### Countries index — why so slow?
+
+**Index table columns** (`amiga_countries_index_table.php`): Rank, Country, Players, Games, Games/player, WC columns. **No rating, no elo_rank.**
+
+**Policy CH14:** `elo_rank` is for **roster** only, not index.
+
+**But code path for `countries.php`:**
+
+1. `amiga_countries_player_rows_at_cutoff()` — full snapshot join + WC slice-at-cutoff join for **every rated player** (~435 rows)
+2. **`amiga_countries_attach_elo_ranks_at_cutoff()`** — window scan over **`amiga_player_elo_rank_at_event`** for all rows ≤ cutoff
+3. `amiga_countries_index_rows()` — PHP roll-up to **~19 countries** (1.5 ms)
+
+**Local timings at `event:589` (2016-03-19):**
+
+| Step | ms |
+|------|-----|
+| `countries_player_rows_at_cutoff` (total) | **515** |
+| — of which `elo_attach_only` | **358** (~70%) |
+| Slim fetch (index fields only, no elo) | **~143** |
+| `amiga_countries_index_rows` | **1.5** |
+| Rating LB snapshot (same cutoff) | **145** |
+
+**Conclusion:** Countries index reuses the **roster player-row pipeline** including elo rank attachment that **the index never displays**. That is genuinely bad code relative to the simple table — not a data-size mystery. CH21 said ~470×21 is acceptable; the bug is **extra work**, not inherent aggregation cost.
+
+**Likely fixes (separate slices, not F6):**
+
+1. ~~**Index-only read**~~ — **Done 2026-07-04:** `amiga_countries_query_index_rows()` SQL `GROUP BY country_token`; `countries.php` uses it (no elo attach).
+2. **Split attach** — elo attach remains on roster path only (`amiga_countries_player_rows_at_cutoff`).
+3. ~~**Month catalog**~~ — **Done 2026-07-04:** derive month/year cutoffs from cached `amiga_rating_history_tournaments()` list (O(months+tournaments), no N+1 SQL).
+
+### After fix (local `ko2amiga_db`, 2026-07-04)
+
+| Path | Before | After |
+|------|--------|-------|
+| `catalog_month` | ~283 ms (289 SQL) | **~2 ms** |
+| TT header context (month wing) | ~380 ms | **~5 ms** |
+| Countries index TT (`event:589`) | ~515 ms (+358 ms elo) | **~137 ms** (parity OK) |
+| Countries index present | (via roster path) | **~8 ms** |
+
+### Dagh sign-off (2026-07-04)
+
+- **Countries hub** — snappy in browser after index SQL path.
+- **Month wing** — no longer exhibits abnormal TT nav behavior (header catalog no longer blocks).

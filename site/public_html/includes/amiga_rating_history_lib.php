@@ -207,6 +207,64 @@ function amiga_rating_history_catalog_event(mysqli $con): array
 }
 
 /**
+ * Last tournament in chrono-ASC {@see amiga_rating_history_tournaments()} on or before $dateYmd.
+ * Pass &$cursorIndex when scanning periods in order (months/years) — O(periods + tournaments).
+ *
+ * @param list<array{id: int, name: string, event_date: string, chrono: float, country: string}> $tournaments
+ * @return array{id: int, name: string, event_date: string, chrono: float, country: string}|null
+ */
+function amiga_rating_history_last_tournament_on_or_before_from_list(
+    array $tournaments,
+    string $dateYmd,
+    ?int &$cursorIndex = null
+): ?array {
+    if ($tournaments === []) {
+        return null;
+    }
+
+    if ($cursorIndex === null) {
+        $idx = -1;
+        foreach ($tournaments as $i => $tournament) {
+            if ($tournament['event_date'] <= $dateYmd) {
+                $idx = $i;
+            } else {
+                break;
+            }
+        }
+
+        return $idx >= 0 ? $tournaments[$idx] : null;
+    }
+
+    while ($cursorIndex + 1 < count($tournaments)
+        && $tournaments[$cursorIndex + 1]['event_date'] <= $dateYmd) {
+        $cursorIndex++;
+    }
+
+    return $cursorIndex >= 0 ? $tournaments[$cursorIndex] : null;
+}
+
+/**
+ * @param array{id: int, event_date: string, chrono: float}|null $tournament
+ * @return array{cutoff_tournament_id: int|null, cutoff_event_date: string|null, cutoff_chrono: float|null}
+ */
+function amiga_rating_history_catalog_cutoff_fields(?array $tournament): array
+{
+    if ($tournament === null) {
+        return [
+            'cutoff_tournament_id' => null,
+            'cutoff_event_date' => null,
+            'cutoff_chrono' => null,
+        ];
+    }
+
+    return [
+        'cutoff_tournament_id' => (int) $tournament['id'],
+        'cutoff_event_date' => (string) $tournament['event_date'],
+        'cutoff_chrono' => (float) $tournament['chrono'],
+    ];
+}
+
+/**
  * Every calendar month from first ladder month through last (inclusive).
  *
  * @return list<array<string, mixed>>
@@ -232,15 +290,22 @@ function amiga_rating_history_catalog_month(mysqli $con): array
     }
 
     $catalog = [];
+    $cutoffCursor = -1;
     for ($cursor = $start; $cursor <= $end; $cursor = $cursor->modify('+1 month')) {
         $ym = $cursor->format('Y-m');
-        $cutoff = amiga_rating_history_cutoff_tournament_for_month_end($con, $ym);
+        $monthEnd = $cursor->modify('last day of this month')->format('Y-m-d');
+        $cutoffTournament = amiga_rating_history_last_tournament_on_or_before_from_list(
+            $tournaments,
+            $monthEnd,
+            $cutoffCursor
+        );
+        $cutoffFields = amiga_rating_history_catalog_cutoff_fields($cutoffTournament);
         $catalog[] = [
             'key' => $ym,
             'label' => amiga_rating_history_format_month_label($ym),
-            'cutoff_tournament_id' => $cutoff['id'] ?? null,
-            'cutoff_event_date' => $cutoff['event_date'] ?? null,
-            'cutoff_chrono' => isset($cutoff['chrono']) ? (float) $cutoff['chrono'] : null,
+            'cutoff_tournament_id' => $cutoffFields['cutoff_tournament_id'],
+            'cutoff_event_date' => $cutoffFields['cutoff_event_date'],
+            'cutoff_chrono' => $cutoffFields['cutoff_chrono'],
             'has_finalize_in_period' => isset($finalizeMonths[$ym]),
         ];
     }
@@ -271,15 +336,22 @@ function amiga_rating_history_catalog_year(mysqli $con): array
     $endYear = (int) substr($bounds['max_date'], 0, 4);
 
     $catalog = [];
+    $cutoffCursor = -1;
     for ($year = $startYear; $year <= $endYear; $year++) {
         $key = (string) $year;
-        $cutoff = amiga_rating_history_cutoff_tournament_for_year_end($con, $year);
+        $yearEnd = sprintf('%04d-12-31', $year);
+        $cutoffTournament = amiga_rating_history_last_tournament_on_or_before_from_list(
+            $tournaments,
+            $yearEnd,
+            $cutoffCursor
+        );
+        $cutoffFields = amiga_rating_history_catalog_cutoff_fields($cutoffTournament);
         $catalog[] = [
             'key' => $key,
             'label' => $key,
-            'cutoff_tournament_id' => $cutoff['id'] ?? null,
-            'cutoff_event_date' => $cutoff['event_date'] ?? null,
-            'cutoff_chrono' => isset($cutoff['chrono']) ? (float) $cutoff['chrono'] : null,
+            'cutoff_tournament_id' => $cutoffFields['cutoff_tournament_id'],
+            'cutoff_event_date' => $cutoffFields['cutoff_event_date'],
+            'cutoff_chrono' => $cutoffFields['cutoff_chrono'],
             'has_finalize_in_period' => isset($finalizeYears[$key]),
         ];
     }
@@ -322,31 +394,18 @@ function amiga_rating_history_cutoff_tournament_for_year_end(mysqli $con, int $y
  */
 function amiga_rating_history_cutoff_tournament_on_or_before_date(mysqli $con, string $dateYmd): ?array
 {
-    $stmt = $con->prepare(
-        'SELECT t.id, t.event_date, t.chrono '
-        . 'FROM tournaments t '
-        . 'INNER JOIN amiga_player_event_snapshots s ON s.tournament_id = t.id '
-        . 'WHERE t.rating_finalized = 1 AND t.event_date <= ? '
-        . 'ORDER BY t.event_date DESC, t.chrono DESC, t.id DESC '
-        . 'LIMIT 1'
+    $tournament = amiga_rating_history_last_tournament_on_or_before_from_list(
+        amiga_rating_history_tournaments($con),
+        $dateYmd
     );
-    if (!$stmt) {
-        throw new RuntimeException('Failed to prepare month/year cutoff query.');
-    }
-    $stmt->bind_param('s', $dateYmd);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    $row = $res->fetch_assoc();
-    $stmt->close();
-
-    if ($row === null) {
+    if ($tournament === null) {
         return null;
     }
 
     return [
-        'id' => (int) $row['id'],
-        'event_date' => (string) $row['event_date'],
-        'chrono' => (float) $row['chrono'],
+        'id' => (int) $tournament['id'],
+        'event_date' => (string) $tournament['event_date'],
+        'chrono' => (float) $tournament['chrono'],
     ];
 }
 

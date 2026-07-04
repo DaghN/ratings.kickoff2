@@ -23,8 +23,7 @@ include __DIR__ . '/../../config/ko2amiga_config.php';
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $con->query("SET time_zone = '+00:00'");
 $ctx = amiga_lb_context($con);
-$playerRows = amiga_countries_player_rows($con, $ctx);
-$indexRows = amiga_countries_index_rows($playerRows);
+$indexRows = amiga_countries_query_index_rows($con, $ctx);
 $countryCount = count($indexRows);
 mysqli_close($con);
 
