@@ -294,5 +294,6 @@ When a failure is **solved and verified**, add one line under the row: **Resolve
 | 2026-07-04 | **F6 refined** — sub-ribbon blank at scroll top on TT ribbon nav; ribbon stable; old→blank→new; mid-scroll contrast |
 | 2026-07-04 | **F18 added** — TT hub-tab whole-page blank (Countries late cutoff; Present OK); smokes S9–S10 |
 | 2026-07-04 | **F19 added** — TT stamp LED hidden while sub-ribbon loads (F6 sibling) |
-| 2026-07-04 | **F6 attempt log** — informal iter 0–2 notebook — [`tt-chrome-baseline-f6-attempt-log.md`](orchestration/tt-chrome-baseline-f6-attempt-log.md) (iter 2 regressed; realm switch) |
+| 2026-07-04 | **F6 attempt log** — informal iter 0–3 notebook — [`tt-chrome-baseline-f6-attempt-log.md`](orchestration/tt-chrome-baseline-f6-attempt-log.md) |
+| 2026-07-04 | **Iter 3a result logged** — Type A/B/C blank framework; Countries + PHP stream order — [`tt-chrome-baseline-f6-attempt-log.md`](orchestration/tt-chrome-baseline-f6-attempt-log.md) |
 | 2026-07-04 | Baseline: removed pin touchpoint row; sticky-only tensions marked deferred |

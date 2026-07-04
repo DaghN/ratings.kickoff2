@@ -86,9 +86,150 @@ Rating LB still emits: header → TT chrome → hub nav → **LB query** → `.k
 
 ---
 
+## Attempt 3 — y=0 noop destination (`iter 3a`, approved 2026-07-04)
+
+| | |
+|--|--|
+| **Hypothesis** | Scroll-top bugs came from running mid-scroll cloak machinery when `y=0` (nothing to restore). Split paths: `y>0` = cloak + restore; `y=0` = clear payload, normal load. |
+| **Changes** | Removed `k2-carry-cloak-top`, `carrySubRibbonReady`, scroll-top timeout hacks. Destination: if `payload.y === 0` && no hash → clear key/back-scroll, skip `hasPending`. Kept chevron anchor + `storeScrollYFromForm` on source side. |
+| **Worked?** | **Partial — split result** (see below). |
+| **If streaming flash remains at y=0** | Address in iter 3b (PHP flush), not carry-scroll |
+
+### Dagh result — iter 3a (2026-07-04)
+
+| Context | Result |
+|---------|--------|
+| **Outside TT** (realm switch, present pages) | **Good** — smooth at y=0 and y>0 |
+| **TT, y=0** | **Bad** — sub-ribbon blank on wings, chevrons, pickers, **and hub nav** |
+| **TT, y>0, event/year** | **Mostly good** — **except Countries hub tab always whole-page blank** |
+| **TT, y>0, month** | **Mixed** — sometimes sub-ribbon blank on nav; Countries / WC tabs **not** whole-page blank |
+
+Iter 3a fixed non-TT / realm as predicted. **TT blanking is not one bug** — it splits by scroll position and blank *type*.
+
+---
+
+## Framework — two blank mechanisms (code-backed)
+
+| Type | When | Mechanism | What user sees |
+|------|------|-----------|----------------|
+| **A — Carry cloak** | TT (and any carry nav) when **`y > 0`** stored | `html.k2-carry-cloak body { visibility: hidden }` in `k2_carry_scroll_restore.php` until reveal (~700ms or `carryReady`) | **Whole viewport** empty (theme fill) — includes header, ribbon, hub nav — then content appears (often at carried scroll Y) |
+| **B — PHP streaming gap** | **`y = 0`** (iter 3a: no carry cloak) + TT pages | Server emits HTML **top-down**, then **blocks on DB** before hub chapter / table. No `flush()` on normal Amiga pages. | **Ribbon stable** (+ hub tabs if already sent); **everything below** empty until query finishes — old → gap → new |
+| **C — Table-only** | Pages with `$k2RankedCloak` | `ranked-table-pending` hides table until `k2-table.js` | **Only table** vanishes; chrome stays — “mostly good” mid-scroll |
+
+**Iter 3 split:** Non-TT mid-scroll = Type A only when needed. TT y=0 = Type B only (carry disengaged). TT y>0 = Type A on nav, then often Type C on table — **unless** reveal fires while body below viewport still missing (looks like Type A again).
+
+---
+
+## Why whole-page vs sub-ribbon blank?
+
+- **Whole-page blank** = almost always **Type A** (full body cloak) for some period — user sees nothing (or solid theme), not “ribbon + void”.
+- **Sub-ribbon blank** = **Type B** at y=0, or Type A ended but **viewport at carried Y** points at a region PHP has not emitted yet.
+
+---
+
+## PHP page order (why TT differs from Present)
+
+Typical TT hub page (e.g. `rating.php`, `countries.php`):
+
+```
+1. <head> + carry-scroll script (may cloak if y>0)
+2. site_header.php → amiga_snapshot_chrome (extra DB: context + wing catalog)
+3. amiga_hub_nav.php (hub tabs — data-k2-carry-scroll)
+4. ── BLOCK: heavy page query ──
+5. k2_hub_chapter + body (table, etc.)
+```
+
+**Present / non-TT:** step 2 has no snapshot chrome DB pass. **TT adds a second catalog/context load in header before step 4.**
+
+At **y=0**, carry does not cloak — browser may paint 1–3 as they arrive, then **gap at 4**. That matches “everything under ribbon” (hub tabs are under ribbon too once 3 is painted).
+
+At **y>0**, step 1 cloaks **entire body** until reveal — **whole-page blank** even if 2–3 are already buffered.
+
+---
+
+## Mystery (a) — Why month vs event/year differ?
+
+**Code does not give month/year/event equal cost in the header.**
+
+| Wing | Catalog build (`amiga_rating_history_catalog_for_wing`) | Header work |
+|------|-----------------------------------------------------------|-------------|
+| **Event** | One `amiga_rating_history_tournaments()` load | Event wing only: large picker HTML, `amiga_snapshot_chrome_event_layout_style()`, as-with listbox |
+| **Year** | Loop years → **one SQL per year** (`cutoff_tournament_for_year_end`) | Smaller picker |
+| **Month** | Loop every calendar month → **one SQL per month** (`cutoff_tournament_for_month_end`) | Smaller picker but **~200+ header queries** possible |
+
+So month is **not** “equally cheap” to year/event in code — **month catalog is the most expensive header path** (O(months) queries). That does **not** explain every Dagh observation but explains why wing mode is not interchangeable.
+
+**Observed asymmetry (hypothesis stack):**
+
+1. **y=0:** All wings → Type B streaming; month may feel worse when **header catalog** + **page query** both run before hub chapter (longer total gap).
+2. **y>0, month, Countries OK:** May reflect **how** you test (scroll position, cutoff early vs late) as much as wing — same cutoff tuple should hit same Countries query cost regardless of wing label on `as=`.
+3. **y>0, month, “sometimes” sub-ribbon:** Type A reveal at 700ms while document height ≥ Y but **hub chapter not yet parsed** — viewport shows empty band below ribbon.
+
+**Not a separate month nav code path** — same carry-scroll, same hub/ribbon forms; difference is **DB cost + cutoff + scroll Y**.
+
+---
+
+## Mystery (b) — Countries tab, y>0, event/year only, always whole-page blank?
+
+**Countries is the heaviest hub destination in code.**
+
+`countries.php` after hub nav:
+
+1. `amiga_countries_player_rows_at_cutoff()` — snapshot join + WC slice stats  
+2. `amiga_countries_attach_elo_ranks_at_cutoff()` — window over `amiga_player_elo_rank_at_event` ≤ cutoff  
+
+Both scale with **how much history exists before cutoff** (late cutoff → more rows scanned).
+
+Rating LB uses one primary snapshot query — usually **faster** than Countries’ pair.
+
+**Why whole-page (Type A) specifically:**
+
+- Hub nav to Countries at **y>0** → full carry cloak.  
+- `carryReady()` can pass when hub anchor exists and `scrollHeight >= Y`, often **before step 4–5 complete** (700ms timeout also forces reveal).  
+- `reveal()` + `scrollTo(Y)` → user looks at mid-page **before hub chapter/table exist** → **empty viewport = “whole page blank”**.  
+- Countries’ long step 4 makes this **deterministic** on event/year tests at late cutoffs.
+
+**Why month wing Countries tab might not show the same:**
+
+- If you often open Countries at **y=0** while on month wing → Type B (sub-ribbon only), not Type A.  
+- If cutoff is **early** on month picks → query fast → less time in Type A after reveal.  
+- **Timing interaction (strong):** event/year header catalog is **cheap** (one tournaments load) → hub nav hits the wire early → `carryReady()` or **700ms** fires **before** Countries’ heavy query finishes → reveal + `scrollTo(Y)` → empty viewport. **Month header catalog is expensive** (one SQL per calendar month) → hub nav is **late in the stream** → cloak often lasts through header **and** page query → reveal closer to hub chapter ready → less post-reveal void (still a long cloak, but not the same “flash blank after uncloak” pattern).  
+- **Not** because Countries PHP branches on wing — it uses `AmigaSnapshotContext` cutoff only.
+
+**Wing label on `as=` does not change Countries SQL** — **cutoff date + scroll Y + page weight** do.
+
+---
+
+## Attempt 3 post-mortem (short)
+
+| Prediction | Outcome |
+|------------|---------|
+| y=0 noop fixes realm / non-TT | **Yes** |
+| y=0 noop fixes TT sub-ribbon | **No** — Type B streaming exposed |
+| Mid-scroll unchanged | **Mostly yes** — except Countries cross-hub at y>0 |
+
+**Conclusion:** Carry-scroll was the wrong layer for TT y=0. The remaining TT issues are **page emission order + query latency**, compounded by Type A on y>0 cross-page hops to slow destinations (Countries).
+
+---
+
+## Likely next directions (updated)
+
+| Option | Idea | Notes |
+|--------|------|-------|
+| **3b — PHP flush (recommended)** | After hub nav (or hub chapter shell), `flush()` before heavy query on `rating.php`, `countries.php`, other TT hot paths | Fixes Type B at y=0 without touching carry-scroll; helps y>0 after reveal too |
+| **3c — Countries query slice** | Stored/prewarm or slimmer TT read for countries index | F18-adjacent; separate from carry |
+| **3d — Carry reveal gate (y>0 only)** | Do not `reveal()` until `.k2-hub-chapter` exists when cross-hub nav | Narrow fix for Type A + empty viewport; keep mid-scroll carry |
+| **Month catalog perf** | Cache or batch month catalog cutoff lookups | Header perf; not F6 per se but explains month wing pain |
+
+**Still rejected:** removing carry-scroll on realm or hub pills.
+
+---
+
 ## Changelog (this file)
 
 | Date | Entry |
 |------|--------|
 | 2026-07-04 | Log created after iter 2 feedback — iter 1 partial, iter 2 worse + realm regression |
 | 2026-07-04 | **y=0 only** — mid-scroll OK; realm carry-scroll is required (no feature removal); rejected “skip realm carry” |
+| 2026-07-04 | **Iter 3a shipped** — y=0 noop destination; revert narrow cloak |
+| 2026-07-04 | **Iter 3a result** — non-TT good; TT y=0 Type B; TT y>0 Countries Type A; framework + month/year code notes |

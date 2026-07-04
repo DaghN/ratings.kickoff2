@@ -3,7 +3,7 @@
 **Date:** 2026-07-04  
 **Track:** Amiga TT chrome baseline (in-flow)  
 **Failure targeted:** **F6** — sub-ribbon content blanks on TT ribbon nav at scroll top  
-**Status:** Iteration 2 — Dagh sign-off pending (iter 1 partial)  
+**Status:** Iteration 3a — Dagh retest pending (iter 2 reverted)  
 
 ---
 
