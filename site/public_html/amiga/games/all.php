@@ -42,7 +42,8 @@ if ($offset >= $totalMatches && $totalMatches > 0) {
 
 $games = amiga_realm_games_all_fetch_page($con, $state, $ctx, $limit);
 
-$hubCounts = amiga_games_hub_status_counts($con, $ctx);
+$hasActiveFilters = amiga_realm_games_all_has_active_filters($state);
+$hubCounts = amiga_games_hub_status_counts($con, $ctx, $hasActiveFilters ? null : $totalMatches);
 $k2AmigaGamesHubTotal = $hubCounts['total'];
 $k2AmigaGamesRecentCount = $hubCounts['recent'];
 
@@ -52,7 +53,6 @@ $shownCount = count($games);
 $firstShown = $totalMatches > 0 ? $offset + 1 : 0;
 $lastShown = $offset + $shownCount;
 $pagerBase = amiga_realm_games_all_query_params($state, false);
-$hasActiveFilters = amiga_realm_games_all_has_active_filters($state);
 $emptyMessage = $hasActiveFilters ? 'No games match these filters.' : 'No rated games yet.';
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_games_hub_shell_start.inc.php';

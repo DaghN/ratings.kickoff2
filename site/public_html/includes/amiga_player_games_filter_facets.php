@@ -139,7 +139,7 @@ function amiga_player_games_facet_result_counts(
         . "WHEN ((r.idA = $playerIdSql AND ABS(r.ActualScore - 1.0) < 0.001) OR (r.idB = $playerIdSql AND ABS(r.ActualScore) < 0.001)) THEN 'win' "
         . "WHEN ABS(r.ActualScore - 0.5) < 0.001 THEN 'draw' "
         . "ELSE 'loss' END AS bucket, COUNT(*) AS games "
-        . amiga_rated_games_from_sql()
+        . amiga_rated_games_from_sql($playerId)
         . ' WHERE ' . $where . ' GROUP BY bucket';
 
     $counts = ['win' => 0, 'draw' => 0, 'loss' => 0];
@@ -170,7 +170,7 @@ function amiga_player_games_facet_opponent_rows(
         . 'FROM ('
         . "SELECT CASE WHEN r.idA = $playerIdSql THEN r.idB ELSE r.idA END AS opponent_id, "
         . "CASE WHEN r.idA = $playerIdSql THEN r.NameB ELSE r.NameA END AS opponent_name "
-        . amiga_rated_games_from_sql()
+        . amiga_rated_games_from_sql($playerId)
         . ' WHERE ' . $where
         . ') AS s '
         . 'GROUP BY s.opponent_id, s.opponent_name '
@@ -201,7 +201,7 @@ function amiga_player_games_facet_tournament_rows(
     $params = [];
     $where = amiga_player_games_facet_where($playerId, $ctx, 'tournament', $types, $params, $snapshotCtx);
     $sql = 'SELECT r.tournament_id, r.tournament_name, COUNT(*) AS games '
-        . amiga_rated_games_from_sql()
+        . amiga_rated_games_from_sql($playerId)
         . ' WHERE ' . $where
         . ' GROUP BY r.tournament_id, r.tournament_name '
         . 'ORDER BY games DESC, r.tournament_name ASC';
@@ -238,7 +238,7 @@ function amiga_player_games_facet_country_rows(
     }
 
     $sql = 'SELECT ' . $bucketExpr . ' AS country, COUNT(*) AS games '
-        . amiga_rated_games_from_sql()
+        . amiga_rated_games_from_sql($playerId)
         . ' WHERE ' . $where
         . ' AND ' . $bucketExpr . ' IS NOT NULL AND TRIM(' . $bucketExpr . ") <> ''"
         . ' GROUP BY country ORDER BY country ASC';
@@ -270,7 +270,7 @@ function amiga_player_games_facet_year_histogram(
     $params = [];
     $where = amiga_player_games_facet_where($playerId, $ctx, $omitFacet, $types, $params, $snapshotCtx);
     $sql = 'SELECT YEAR(r.`Date`) AS yr, COUNT(*) AS games '
-        . amiga_rated_games_from_sql()
+        . amiga_rated_games_from_sql($playerId)
         . ' WHERE ' . $where . ' GROUP BY yr ORDER BY yr ASC';
 
     $sparse = [];
@@ -343,7 +343,7 @@ function amiga_player_games_facet_numeric_counts(
     $params = [];
     $where = amiga_player_games_facet_where($playerId, $ctx, $omitFacet, $types, $params, $snapshotCtx);
     $sql = 'SELECT ' . $valueExpr . ' AS v, COUNT(*) AS games '
-        . amiga_rated_games_from_sql()
+        . amiga_rated_games_from_sql($playerId)
         . ' WHERE ' . $where . ' GROUP BY v ORDER BY ' . $orderBy;
 
     $sparse = [];

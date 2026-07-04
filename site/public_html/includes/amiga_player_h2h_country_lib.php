@@ -47,6 +47,24 @@ function amiga_player_h2h_country_where_sql(
     );
 }
 
+function amiga_player_h2h_country_game_rows_cache_key(
+    int $playerId,
+    string $countryToken,
+    AmigaSnapshotContext $ctx,
+    string $select
+): string {
+    if (!$ctx->isActive()) {
+        $cutoffKey = 'present';
+    } else {
+        $cutoff = $ctx->cutoff();
+        $cutoffKey = $cutoff === null
+            ? 'at:empty'
+            : 'at:' . (int) ($cutoff['tournament_id'] ?? 0) . ':' . (string) ($cutoff['event_date'] ?? '') . ':' . (string) ($cutoff['chrono'] ?? '');
+    }
+
+    return $playerId . '|' . $countryToken . '|' . md5($select) . '|' . $cutoffKey;
+}
+
 /**
  * @return list<array<string, mixed>>
  */
@@ -57,6 +75,8 @@ function amiga_player_h2h_country_game_rows_raw(
     ?AmigaSnapshotContext $ctx = null,
     string $select = 'r.id, r.`Date`, r.idA, r.idB, r.NameA, r.NameB, r.GoalsA, r.GoalsB, r.ActualScore, r.WinnerID, r.SumOfGoals'
 ): array {
+    static $cache = [];
+
     $playerId = max(0, $playerId);
     $countryToken = amiga_player_opponents_country_token_from_field($countryToken);
     if ($playerId < 1 || $countryToken === '') {
@@ -64,14 +84,21 @@ function amiga_player_h2h_country_game_rows_raw(
     }
 
     $ctx = amiga_player_h2h_ctx($ctx);
+    $cacheKey = amiga_player_h2h_country_game_rows_cache_key($playerId, $countryToken, $ctx, $select);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $types = '';
     $params = [];
     $whereSql = amiga_player_h2h_country_where_sql($playerId, $countryToken, $ctx, $types, $params);
-    $sql = 'SELECT ' . $select . ' ' . amiga_rated_games_from_sql()
+    $sql = 'SELECT ' . $select . ' ' . amiga_rated_games_from_sql($playerId)
         . ' WHERE ' . $whereSql
         . ' ORDER BY r.`Date` ASC, r.id ASC';
 
-    return amiga_games_query_all($con, $sql, $types, $params);
+    $cache[$cacheKey] = amiga_games_query_all($con, $sql, $types, $params);
+
+    return $cache[$cacheKey];
 }
 
 /**

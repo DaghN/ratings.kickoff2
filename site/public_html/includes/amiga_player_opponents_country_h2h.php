@@ -36,13 +36,10 @@ function amiga_player_opponents_h2h_parse_country_param(mixed $raw): string
 /**
  * @return list<array{country_token: string, games: int}>
  */
-function amiga_player_opponents_h2h_played_countries(
-    mysqli $con,
-    int $playerId,
-    ?AmigaSnapshotContext $ctx = null
-): array {
+function amiga_player_opponents_h2h_played_countries_from_rows(array $countryRows): array
+{
     $out = [];
-    foreach (amiga_player_opponents_country_rows($con, $playerId, $ctx) as $row) {
+    foreach ($countryRows as $row) {
         $out[] = [
             'country_token' => (string) $row['country_token'],
             'games' => (int) $row['games'],
@@ -50,6 +47,19 @@ function amiga_player_opponents_h2h_played_countries(
     }
 
     return $out;
+}
+
+/**
+ * @return list<array{country_token: string, games: int}>
+ */
+function amiga_player_opponents_h2h_played_countries(
+    mysqli $con,
+    int $playerId,
+    ?AmigaSnapshotContext $ctx = null
+): array {
+    return amiga_player_opponents_h2h_played_countries_from_rows(
+        amiga_player_opponents_country_rows($con, $playerId, $ctx, false)
+    );
 }
 
 /**
@@ -380,7 +390,8 @@ function amiga_player_opponents_render_country_h2h_panel(
     }
 
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
-    $played = amiga_player_opponents_h2h_played_countries($con, $playerId, $ctx);
+    $countryRows = amiga_player_opponents_country_rows($con, $playerId, $ctx, false);
+    $played = amiga_player_opponents_h2h_played_countries_from_rows($countryRows);
     if ($defaultToTopCountry && $selectedCountryToken === '' && $played !== []) {
         $selectedCountryToken = amiga_player_opponents_h2h_default_country_token($played, $heroCountry);
     }
@@ -393,11 +404,17 @@ function amiga_player_opponents_render_country_h2h_panel(
         }
     );
 
-    $pair = $selectedCountryToken !== ''
-        ? amiga_player_opponents_h2h_resolve_country($con, $playerId, $selectedCountryToken, $ctx)
+    $bucket = $selectedCountryToken !== ''
+        ? amiga_player_opponents_country_bucket_from_rows($countryRows, $selectedCountryToken)
         : null;
-    $bucket = ($pair !== null && $selectedCountryToken !== '')
-        ? amiga_player_opponents_country_bucket($con, $playerId, $selectedCountryToken, $ctx)
+    if ($bucket !== null && (int) ($bucket['games'] ?? 0) > 0) {
+        $bucket = amiga_player_opponents_country_attach_perf_to_bucket($bucket, $con, $playerId, $ctx);
+    }
+    $pair = $bucket !== null
+        ? [
+            'country_token' => (string) $bucket['country_token'],
+            'games' => (int) $bucket['games'],
+        ]
         : null;
 
     $gamesShowName = $pickSource === 'games';

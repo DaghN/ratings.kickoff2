@@ -142,6 +142,12 @@ function amiga_lb_wc_slice_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx
         return [];
     }
 
+    static $cache = [];
+    $cacheKey = $cutoff['event_date'] . '|' . $cutoff['chrono'] . '|' . $cutoff['tournament_id'] . '|' . $view;
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $sliceKey = amiga_slice_key_world_cup();
     $sql = 'SELECT wcs.player_id,
                    wcs.tournaments_played AS wc_played,
@@ -157,33 +163,8 @@ function amiga_lb_wc_slice_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx
                    wcs.goals_against,
                    wcs.points,
                    ' . amiga_lb_wc_slice_v2_select_sql('wcs') . '
-            FROM (
-                SELECT x.player_id,
-                       x.tournaments_played,
-                       x.gold,
-                       x.silver,
-                       x.bronze,
-                       x.podiums,
-                       x.games,
-                       x.wins,
-                       x.draws,
-                       x.losses,
-                       x.goals_for,
-                       x.goals_against,
-                       x.points,
-                       ' . str_replace('wcs.', 'x.', amiga_lb_wc_slice_v2_select_sql('x')) . '
-                FROM (
-                    SELECT s.*,
-                           ROW_NUMBER() OVER (
-                               PARTITION BY s.player_id
-                               ORDER BY s.event_date DESC, s.event_chrono DESC, s.as_of_tournament_id DESC
-                           ) AS rn
-                    FROM amiga_player_slice_at_event s
-                    WHERE s.slice_key = ?
-                      AND (s.event_date, s.event_chrono, s.as_of_tournament_id) <= (?, ?, ?)
-                ) x
-                WHERE x.rn = 1 AND x.tournaments_played > 0
-            ) wcs
+            ' . amiga_lb_wc_player_slice_from_sql('wcs') . '
+            WHERE wcs.tournaments_played > 0
             ORDER BY ' . amiga_lb_wc_slice_order_sql($view) . '
 ';
 
@@ -194,7 +175,7 @@ function amiga_lb_wc_slice_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx
     $eventDate = $cutoff['event_date'];
     $chrono = $cutoff['chrono'];
     $tournamentId = $cutoff['tournament_id'];
-    $stmt->bind_param('ssdi', $sliceKey, $eventDate, $chrono, $tournamentId);
+    $stmt->bind_param('ssdis', $sliceKey, $eventDate, $chrono, $tournamentId, $sliceKey);
     if (!$stmt->execute()) {
         $stmt->close();
 
@@ -210,7 +191,7 @@ function amiga_lb_wc_slice_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx
     }
     $stmt->close();
 
-    return $rows;
+    return $cache[$cacheKey] = $rows;
 }
 
 function amiga_lb_wc_slice_player_count(mysqli $con, AmigaSnapshotContext $ctx): int

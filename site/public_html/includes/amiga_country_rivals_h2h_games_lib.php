@@ -9,6 +9,25 @@ require_once __DIR__ . '/amiga_player_games_lib.php';
 require_once __DIR__ . '/amiga_player_h2h_pair_lib.php';
 require_once __DIR__ . '/player_opponents_h2h_moments.php';
 
+function amiga_country_rivals_h2h_game_select_sql(): string
+{
+    return 'r.id, r.`Date`, r.idA, r.idB, r.NameA, r.NameB, r.GoalsA, r.GoalsB, r.ActualScore, r.WinnerID, r.SumOfGoals, r.RatingA, r.RatingB, r.country_a, r.country_b';
+}
+
+function amiga_country_rivals_h2h_game_rows_cache_key(
+    string $heroCountry,
+    string $rivalCountry,
+    AmigaSnapshotContext $ctx
+): string {
+    if (!$ctx->isActive()) {
+        return $heroCountry . '|' . $rivalCountry . '|present';
+    }
+    $cutoff = $ctx->cutoff();
+
+    return $heroCountry . '|' . $rivalCountry . '|at:'
+        . (int) ($cutoff['tournament_id'] ?? 0) . ':' . (string) ($cutoff['event_date'] ?? '') . ':' . (string) ($cutoff['chrono'] ?? '');
+}
+
 function amiga_country_rivals_games_token_sql(string $col): string
 {
     return 'CASE WHEN TRIM(' . $col . ') IS NULL OR TRIM(' . $col . ') = \'\' '
@@ -41,9 +60,10 @@ function amiga_country_rivals_h2h_game_rows_raw(
     mysqli $con,
     string $heroCountry,
     string $rivalCountry,
-    ?AmigaSnapshotContext $ctx = null,
-    string $select = 'r.id, r.`Date`, r.idA, r.idB, r.NameA, r.NameB, r.GoalsA, r.GoalsB, r.ActualScore, r.WinnerID, r.SumOfGoals, r.country_a, r.country_b'
+    ?AmigaSnapshotContext $ctx = null
 ): array {
+    static $cache = [];
+
     $heroCountry = amiga_country_rivals_normalize_token($heroCountry);
     $rivalCountry = amiga_country_rivals_normalize_token($rivalCountry);
     if ($heroCountry === '' || $rivalCountry === '' || amiga_country_rivals_is_domestic_rival($heroCountry, $rivalCountry)) {
@@ -51,14 +71,21 @@ function amiga_country_rivals_h2h_game_rows_raw(
     }
 
     $ctx = amiga_player_h2h_ctx($ctx);
+    $cacheKey = amiga_country_rivals_h2h_game_rows_cache_key($heroCountry, $rivalCountry, $ctx);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $types = '';
     $params = [];
     $whereSql = amiga_country_rivals_games_where_sql($heroCountry, $rivalCountry, $ctx, $types, $params);
-    $sql = 'SELECT ' . $select . ' ' . amiga_rated_games_from_sql()
+    $sql = 'SELECT ' . amiga_country_rivals_h2h_game_select_sql() . ' ' . amiga_rated_games_from_sql()
         . ' WHERE ' . $whereSql
         . ' ORDER BY r.`Date` ASC, r.id ASC';
 
-    return amiga_games_query_all($con, $sql, $types, $params);
+    $cache[$cacheKey] = amiga_games_query_all($con, $sql, $types, $params);
+
+    return $cache[$cacheKey];
 }
 
 /**

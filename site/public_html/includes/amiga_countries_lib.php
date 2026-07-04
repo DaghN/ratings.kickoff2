@@ -675,27 +675,19 @@ function amiga_countries_attach_elo_ranks_at_cutoff(mysqli $con, AmigaSnapshotCo
     }
 
     $placeholders = implode(',', array_fill(0, count($playerIds), '?'));
-    $sql = 'SELECT r.player_id, r.elo_rank FROM (
-        SELECT er.player_id, er.elo_rank,
-            ROW_NUMBER() OVER (
-                PARTITION BY er.player_id
-                ORDER BY er.event_date DESC, er.event_chrono DESC, er.tournament_id DESC
-            ) AS rn
+    $sql = 'SELECT er.player_id, er.elo_rank
         FROM amiga_player_elo_rank_at_event er
-        WHERE (er.event_date, er.event_chrono, er.tournament_id) <= (?, ?, ?)
-          AND er.player_id IN (' . $placeholders . ')
-    ) r WHERE r.rn = 1';
+        WHERE er.tournament_id = ?
+          AND er.player_id IN (' . $placeholders . ')';
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
         return $rows;
     }
-    $eventDate = $cutoff['event_date'];
-    $chrono = $cutoff['chrono'];
-    $tournamentId = $cutoff['tournament_id'];
+    $tournamentId = (int) $cutoff['tournament_id'];
     amiga_countries_stmt_bind(
         $stmt,
-        'sdi' . str_repeat('i', count($playerIds)),
-        array_merge([$eventDate, $chrono, $tournamentId], $playerIds)
+        'i' . str_repeat('i', count($playerIds)),
+        array_merge([$tournamentId], $playerIds)
     );
     if (!$stmt->execute()) {
         $stmt->close();

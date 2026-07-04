@@ -127,13 +127,13 @@ function amiga_games_highlights_fetch(
 
     $types = '';
     $params = [];
-    $cutoffSql = amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params);
-    $where = '1=1' . $cutoffSql;
+    $fromSql = amiga_realm_games_hub_lean_rated_from_sql($ctx, $types, $params);
+    $where = '1=1';
     if ($scope === 'world-cup') {
         $where .= ' AND ' . amiga_games_world_cup_name_sql('r.tournament_name');
     }
 
-    $select = amiga_realm_games_hub_select_sql() . amiga_rated_games_from_sql() . ' WHERE ' . $where;
+    $select = amiga_realm_games_hub_select_sql() . $fromSql . ' WHERE ' . $where;
 
     switch ($board) {
         case 'biggest_draws':

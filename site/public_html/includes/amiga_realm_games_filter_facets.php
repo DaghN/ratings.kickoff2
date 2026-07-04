@@ -63,7 +63,7 @@ function amiga_realm_games_facet_numeric_counts(
     $params = [];
     $where = amiga_realm_games_facet_where($state, $ctx, $omitFacet, $types, $params);
     $sql = 'SELECT ' . $valueExpr . ' AS v, COUNT(*) AS games '
-        . amiga_rated_games_from_sql() . ' WHERE ' . $where . ' GROUP BY v ORDER BY ' . $orderBy;
+        . amiga_realm_games_all_from_sql($state) . ' WHERE ' . $where . ' GROUP BY v ORDER BY ' . $orderBy;
 
     $sparse = [];
     foreach (k2_games_facet_query_rows($con, $sql, $types, $params) as $row) {
@@ -81,13 +81,34 @@ function amiga_realm_games_facet_host_country_rows(
     array $state,
     AmigaSnapshotContext $ctx,
 ): array {
-    $types = '';
-    $params = [];
-    $where = amiga_realm_games_facet_where($state, $ctx, 'host', $types, $params);
-    $sql = 'SELECT TRIM(r.tournament_country) AS country, COUNT(*) AS games '
-        . amiga_rated_games_from_sql()
-        . ' WHERE ' . $where . " AND TRIM(r.tournament_country) <> '' "
-        . 'GROUP BY country ORDER BY games DESC, country ASC';
+    if (amiga_realm_games_all_lean_eligible($state)) {
+        if ($ctx->isActive() || amiga_realm_games_all_catalog_eligible($state)) {
+            $types = '';
+            $params = [];
+            $sql = 'SELECT TRIM(t.country) AS country, COALESCE(SUM(c.game_count), 0) AS games '
+                . 'FROM tournaments t '
+                . 'LEFT JOIN amiga_tournament_catalog_stats c ON c.tournament_id = t.id '
+                . 'WHERE ' . amiga_tournament_public_visibility_where('t')
+                . amiga_snapshot_tournament_cutoff_and_sql($ctx, $types, $params, 't.event_date', 't.chrono', 't.id')
+                . " AND TRIM(t.country) <> '' "
+                . 'GROUP BY country ORDER BY games DESC, country ASC';
+        } else {
+            $types = '';
+            $params = [];
+            $fromSql = amiga_realm_games_all_lean_from_sql($state, $ctx, $types, $params);
+            $sql = 'SELECT TRIM(t.country) AS country, COUNT(*) AS games '
+                . $fromSql . " AND TRIM(t.country) <> '' "
+                . 'GROUP BY country ORDER BY games DESC, country ASC';
+        }
+    } else {
+        $types = '';
+        $params = [];
+        $where = amiga_realm_games_facet_where($state, $ctx, 'host', $types, $params);
+        $sql = 'SELECT TRIM(r.tournament_country) AS country, COUNT(*) AS games '
+            . amiga_realm_games_all_from_sql($state)
+            . ' WHERE ' . $where . " AND TRIM(r.tournament_country) <> '' "
+            . 'GROUP BY country ORDER BY games DESC, country ASC';
+    }
 
     $rows = [];
     foreach (k2_games_facet_query_rows($con, $sql, $types, $params) as $row) {
@@ -147,11 +168,61 @@ function amiga_realm_games_host_country_choices(array $rows): array
  * @param array<string, mixed> $state
  * @return array{gd: array<int, int>, gs: array<int, int>, ts: array<int, int>}
  */
+function amiga_realm_games_facet_score_line_counts_single_pass(
+    mysqli $con,
+    array $state,
+    AmigaSnapshotContext $ctx,
+): array {
+    if (amiga_realm_games_all_lean_eligible($state)) {
+        $types = '';
+        $params = [];
+        $fromSql = amiga_realm_games_all_lean_from_sql($state, $ctx, $types, $params);
+        $sql = 'SELECT gr.goal_difference AS gd, gr.sum_of_goals AS gs, GREATEST(g.goals_a, g.goals_b) AS ts '
+            . $fromSql;
+    } else {
+        $types = '';
+        $params = [];
+        $where = amiga_realm_games_facet_where($state, $ctx, 'gd', $types, $params);
+        $sql = 'SELECT r.GoalDifference AS gd, r.SumOfGoals AS gs, GREATEST(r.GoalsA, r.GoalsB) AS ts '
+            . amiga_realm_games_all_from_sql($state) . ' WHERE ' . $where;
+    }
+
+    $gdSparse = [];
+    $gsSparse = [];
+    $tsSparse = [];
+    foreach (k2_games_facet_query_rows($con, $sql, $types, $params) as $row) {
+        $gd = (int) ($row['gd'] ?? 0);
+        $gs = (int) ($row['gs'] ?? 0);
+        $ts = (int) ($row['ts'] ?? 0);
+        $gdSparse[$gd] = ($gdSparse[$gd] ?? 0) + 1;
+        $gsSparse[$gs] = ($gsSparse[$gs] ?? 0) + 1;
+        $tsSparse[$ts] = ($tsSparse[$ts] ?? 0) + 1;
+    }
+
+    return [
+        'gd' => k2_games_facet_expand_numeric_gaps($gdSparse),
+        'gs' => k2_games_facet_expand_numeric_gaps($gsSparse),
+        'ts' => k2_games_facet_expand_numeric_gaps($tsSparse),
+    ];
+}
+
+/**
+ * @param array<string, mixed> $state
+ * @return array{gd: array<int, int>, gs: array<int, int>, ts: array<int, int>}
+ */
 function amiga_realm_games_load_score_line_filter_facets(
     mysqli $con,
     array $state,
     AmigaSnapshotContext $ctx,
 ): array {
+    $gdActive = (int) ($state['gd'] ?? -1) >= 0;
+    $gsActive = (int) ($state['gs'] ?? -1) >= 0;
+    $tsActive = (int) ($state['ts'] ?? -1) >= 0;
+
+    if (!$gdActive && !$gsActive && !$tsActive) {
+        return amiga_realm_games_facet_score_line_counts_single_pass($con, $state, $ctx);
+    }
+
     return [
         'gd' => amiga_realm_games_facet_numeric_counts($con, $state, $ctx, 'gd', 'r.GoalDifference', 'v DESC'),
         'gs' => amiga_realm_games_facet_numeric_counts($con, $state, $ctx, 'gs', 'r.SumOfGoals', 'v ASC'),
@@ -207,7 +278,7 @@ function amiga_realm_games_all_opponent_rows(
         . 'FROM ('
         . "SELECT CASE WHEN r.idA = $playerIdSql THEN r.idB ELSE r.idA END AS opponent_id, "
         . "CASE WHEN r.idA = $playerIdSql THEN r.NameB ELSE r.NameA END AS opponent_name "
-        . amiga_rated_games_from_sql()
+        . amiga_rated_games_from_sql($playerId)
         . ' WHERE ' . $where
         . ') AS s '
         . 'GROUP BY s.opponent_id, s.opponent_name '

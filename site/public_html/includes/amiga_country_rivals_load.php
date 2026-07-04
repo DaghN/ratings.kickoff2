@@ -142,6 +142,61 @@ function amiga_country_rivals_rollup_from_pair_rows(array $pairRows): array
 }
 
 /**
+ * Pair matchup columns for country rollup (opponent rating unused in nation buckets).
+ *
+ * @return list<string>
+ */
+function amiga_country_rivals_pair_select_columns(): array
+{
+    $cols = amiga_matchup_opponents_select_columns(false);
+    foreach ($cols as $index => $col) {
+        if (str_contains($col, 'opponent_rating')) {
+            $cols[$index] = '0 AS opponent_rating';
+        }
+    }
+
+    return $cols;
+}
+
+/**
+ * Latest at-event pair rows for one hero country — hero filter inside the window (pattern A).
+ */
+function amiga_country_rivals_matchup_at_event_latest_from_sql(string $alias = 'm'): string
+{
+    $heroTokenSql = amiga_countries_token_sql('h');
+
+    return 'FROM amiga_player_matchup_at_event ' . $alias . "\n"
+        . 'INNER JOIN (' . "\n"
+        . '    SELECT x.player_id, x.opponent_id, x.as_of_tournament_id FROM (' . "\n"
+        . '        SELECT m.player_id, m.opponent_id, m.as_of_tournament_id, m.games,' . "\n"
+        . '            ROW_NUMBER() OVER (' . "\n"
+        . '                PARTITION BY m.player_id, m.opponent_id' . "\n"
+        . '                ORDER BY m.event_date DESC, m.event_chrono DESC, m.as_of_tournament_id DESC' . "\n"
+        . '            ) AS rn' . "\n"
+        . '        FROM amiga_player_matchup_at_event m' . "\n"
+        . '        INNER JOIN amiga_players h ON h.id = m.player_id AND ' . $heroTokenSql . ' = ?' . "\n"
+        . '        WHERE (m.event_date, m.event_chrono, m.as_of_tournament_id) <= (?, ?, ?)' . "\n"
+        . '    ) x WHERE x.rn = 1 AND x.games > 0' . "\n"
+        . ') ' . $alias . '_latest ON ' . $alias . '.player_id = ' . $alias . '_latest.player_id'
+        . ' AND ' . $alias . '.opponent_id = ' . $alias . '_latest.opponent_id'
+        . ' AND ' . $alias . '.as_of_tournament_id = ' . $alias . '_latest.as_of_tournament_id';
+}
+
+function amiga_country_rivals_rows_cache_key(string $heroCountry, AmigaSnapshotContext $ctx, bool $withPerf): string
+{
+    if (!$ctx->isActive()) {
+        $cutoffKey = 'present';
+    } else {
+        $cutoff = $ctx->cutoff();
+        $cutoffKey = $cutoff === null
+            ? 'at:empty'
+            : 'at:' . (int) ($cutoff['tournament_id'] ?? 0) . ':' . (string) ($cutoff['event_date'] ?? '') . ':' . (string) ($cutoff['chrono'] ?? '');
+    }
+
+    return $heroCountry . '|' . $cutoffKey . '|perf:' . ($withPerf ? '1' : '0');
+}
+
+/**
  * @return list<array<string, mixed>>
  */
 function amiga_country_rivals_pair_rows_raw(mysqli $con, string $heroCountry, ?AmigaSnapshotContext $ctx = null): array
@@ -153,14 +208,13 @@ function amiga_country_rivals_pair_rows_raw(mysqli $con, string $heroCountry, ?A
 
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
     $heroTokenSql = amiga_countries_token_sql('h');
-    $selectCols = amiga_matchup_opponents_select_columns($ctx->isActive());
+    $selectCols = amiga_country_rivals_pair_select_columns();
 
     if (!$ctx->isActive()) {
         $sql = 'SELECT ' . implode(', ', $selectCols)
             . ' FROM amiga_player_matchup_summary m'
             . ' INNER JOIN amiga_players h ON h.id = m.player_id'
             . ' LEFT JOIN amiga_players p ON p.id = m.opponent_id'
-            . ' LEFT JOIN amiga_player_current c ON c.player_id = m.opponent_id'
             . ' WHERE ' . $heroTokenSql . ' = ? AND m.games > 0';
         $stmt = $con->prepare($sql);
         if (!$stmt) {
@@ -173,22 +227,8 @@ function amiga_country_rivals_pair_rows_raw(mysqli $con, string $heroCountry, ?A
             return [];
         }
         $sql = 'SELECT ' . implode(', ', $selectCols)
-            . ' FROM ('
-            . '    SELECT x.* FROM ('
-            . '        SELECT m.*,'
-            . '            ROW_NUMBER() OVER ('
-            . '                PARTITION BY m.player_id, m.opponent_id'
-            . '                ORDER BY m.event_date DESC, m.event_chrono DESC, m.as_of_tournament_id DESC'
-            . '            ) AS rn'
-            . '        FROM amiga_player_matchup_at_event m'
-            . '        WHERE (m.event_date, m.event_chrono, m.as_of_tournament_id) <= (?, ?, ?)'
-            . '    ) x'
-            . '    WHERE x.rn = 1 AND x.games > 0'
-            . ') m'
-            . ' INNER JOIN amiga_players h ON h.id = m.player_id'
-            . ' LEFT JOIN amiga_players p ON p.id = m.opponent_id'
-            . ' ' . amiga_matchup_opponents_rating_at_cutoff_join_sql()
-            . ' WHERE ' . $heroTokenSql . ' = ?';
+            . ' ' . amiga_country_rivals_matchup_at_event_latest_from_sql('m')
+            . ' LEFT JOIN amiga_players p ON p.id = m.opponent_id';
         $stmt = $con->prepare($sql);
         if (!$stmt) {
             return [];
@@ -196,16 +236,7 @@ function amiga_country_rivals_pair_rows_raw(mysqli $con, string $heroCountry, ?A
         $eventDate = $cutoff['event_date'];
         $chrono = $cutoff['chrono'];
         $tournamentId = $cutoff['tournament_id'];
-        $stmt->bind_param(
-            'sdisdis',
-            $eventDate,
-            $chrono,
-            $tournamentId,
-            $eventDate,
-            $chrono,
-            $tournamentId,
-            $heroCountry
-        );
+        $stmt->bind_param('ssdi', $heroCountry, $eventDate, $chrono, $tournamentId);
     }
 
     if (!$stmt->execute()) {
@@ -243,33 +274,89 @@ function amiga_country_rivals_pair_rows(mysqli $con, string $heroCountry, ?Amiga
 /**
  * @return list<array<string, mixed>>
  */
-function amiga_country_rivals_rows(mysqli $con, string $heroCountry, ?AmigaSnapshotContext $ctx = null): array
-{
+function amiga_country_rivals_rows(
+    mysqli $con,
+    string $heroCountry,
+    ?AmigaSnapshotContext $ctx = null,
+    bool $withPerf = false
+): array {
+    static $cache = [];
+
     $heroCountry = amiga_country_rivals_normalize_token($heroCountry);
     if ($heroCountry === '') {
         return [];
     }
 
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+    $cacheKey = amiga_country_rivals_rows_cache_key($heroCountry, $ctx, $withPerf);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $pairRows = amiga_country_rivals_pair_rows($con, $heroCountry, $ctx);
     $rows = amiga_country_rivals_filter_cross_border_rows(
         amiga_country_rivals_rollup_from_pair_rows($pairRows),
         $heroCountry
     );
     if ($rows === []) {
+        $cache[$cacheKey] = [];
+
         return [];
     }
 
-    require_once __DIR__ . '/amiga_country_rivals_perf_lib.php';
-    $perfByRival = amiga_country_rivals_perf_ratings_batch($con, $heroCountry, $ctx);
-    foreach ($rows as $index => $row) {
-        $token = (string) $row['rival_token'];
-        $perf = $perfByRival[$token] ?? null;
-        $rows[$index]['performance_rating'] = is_array($perf) ? ($perf['performance_rating'] ?? null) : null;
-        $rows[$index]['performance_rating_vs_hero'] = is_array($perf) ? ($perf['performance_rating_vs_hero'] ?? null) : null;
+    if ($withPerf) {
+        require_once __DIR__ . '/amiga_country_rivals_perf_lib.php';
+        $perfByRival = amiga_country_rivals_perf_ratings_batch($con, $heroCountry, $ctx);
+        foreach ($rows as $index => $row) {
+            $token = (string) $row['rival_token'];
+            $perf = $perfByRival[$token] ?? null;
+            $rows[$index]['performance_rating'] = is_array($perf) ? ($perf['performance_rating'] ?? null) : null;
+            $rows[$index]['performance_rating_vs_hero'] = is_array($perf) ? ($perf['performance_rating_vs_hero'] ?? null) : null;
+        }
     }
 
+    $cache[$cacheKey] = $rows;
+
     return $rows;
+}
+
+/**
+ * @param list<array<string, mixed>> $rows
+ * @return array<string, mixed>|null
+ */
+function amiga_country_rivals_bucket_from_rows(array $rows, string $rivalCountry): ?array
+{
+    $rivalCountry = amiga_country_rivals_normalize_token($rivalCountry);
+    if ($rivalCountry === '') {
+        return null;
+    }
+
+    foreach ($rows as $row) {
+        if ((string) $row['rival_token'] === $rivalCountry) {
+            return $row;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * @param array<string, mixed> $bucket
+ * @return array<string, mixed>
+ */
+function amiga_country_rivals_attach_perf_to_bucket(
+    array $bucket,
+    mysqli $con,
+    string $heroCountry,
+    ?AmigaSnapshotContext $ctx = null
+): array {
+    require_once __DIR__ . '/amiga_country_rivals_perf_lib.php';
+    $rivalCountry = (string) ($bucket['rival_token'] ?? '');
+    $perf = amiga_country_rivals_perf_ratings_for_pair($con, $heroCountry, $rivalCountry, $ctx);
+    $bucket['performance_rating'] = $perf['performance_rating'] ?? null;
+    $bucket['performance_rating_vs_hero'] = $perf['performance_rating_vs_hero'] ?? null;
+
+    return $bucket;
 }
 
 /**
@@ -286,11 +373,8 @@ function amiga_country_rivals_bucket(
         return null;
     }
 
-    foreach (amiga_country_rivals_rows($con, $heroCountry, $ctx) as $row) {
-        if ((string) $row['rival_token'] === $rivalCountry) {
-            return $row;
-        }
-    }
-
-    return null;
+    return amiga_country_rivals_bucket_from_rows(
+        amiga_country_rivals_rows($con, $heroCountry, $ctx, false),
+        $rivalCountry
+    );
 }

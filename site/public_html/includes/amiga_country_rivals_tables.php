@@ -34,10 +34,14 @@ function amiga_country_rivals_table_sort_state(): array
 /**
  * @return list<array<string, mixed>>|null
  */
-function amiga_country_rivals_table_rows(mysqli $con, string $heroCountry, ?AmigaSnapshotContext $ctx = null): ?array
-{
+function amiga_country_rivals_table_rows(
+    mysqli $con,
+    string $heroCountry,
+    ?AmigaSnapshotContext $ctx = null,
+    bool $withPerf = false
+): ?array {
     $heroCountry = amiga_country_rivals_normalize_token($heroCountry);
-    $rows = amiga_country_rivals_rows($con, $heroCountry, $ctx);
+    $rows = amiga_country_rivals_rows($con, $heroCountry, $ctx, $withPerf);
     if ($rows === []) {
         echo '<p class="k2-hub-page-intro">No rated games vs any rival nation yet.</p>';
 
@@ -120,7 +124,7 @@ function amiga_country_rivals_render_wdl_table_from_rows(array $rows, string $he
 
 function amiga_country_rivals_render_wdl_table(mysqli $con, string $heroCountry, ?AmigaSnapshotContext $ctx = null): void
 {
-    $rows = amiga_country_rivals_table_rows($con, $heroCountry, $ctx);
+    $rows = amiga_country_rivals_table_rows($con, $heroCountry, $ctx, true);
     if ($rows === null) {
         return;
     }

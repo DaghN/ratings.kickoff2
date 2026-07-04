@@ -10,6 +10,7 @@ require_once __DIR__ . '/amiga_countries_lib.php';
 require_once __DIR__ . '/amiga_country_rivals_load.php';
 require_once __DIR__ . '/amiga_country_rivals_h2h_games_lib.php';
 require_once __DIR__ . '/amiga_realm_games_hub_lib.php';
+require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/amiga_snapshot_context.php';
 require_once __DIR__ . '/amiga_player_games_lib.php';
 require_once __DIR__ . '/amiga_player_current_lib.php';
@@ -531,14 +532,150 @@ function amiga_realm_games_all_where_sql(array $state, AmigaSnapshotContext $ctx
     return implode(' AND ', $where);
 }
 
+/** Player-scoped inner scan when a hero filter is active. */
+function amiga_realm_games_all_from_sql(array $state): string
+{
+    $playerId = (int) ($state['player'] ?? 0);
+
+    return amiga_rated_games_from_sql($playerId > 0 ? $playerId : null);
+}
+
+/**
+ * Lean tournament-indexed scan — skips the wide ratedresults subquery when filters are simple.
+ */
+function amiga_realm_games_all_lean_eligible(array $state): bool
+{
+    return ($state['country'] ?? '') === ''
+        && ($state['rival'] ?? '') === ''
+        && ($state['host'] ?? '') === ''
+        && ($state['event'] ?? 'all') !== 'world-cup'
+        && ($state['videos'] ?? '') !== 'with-videos'
+        && (int) ($state['opponent'] ?? 0) === 0
+        && (int) ($state['gd'] ?? -1) < 0
+        && (int) ($state['gs'] ?? -1) < 0
+        && (int) ($state['ts'] ?? -1) < 0
+        && (int) ($state['gf'] ?? -1) < 0
+        && (int) ($state['ga'] ?? -1) < 0
+        && (int) ($state['year'] ?? 0) === 0;
+}
+
+/** No hero-player filter — tournament catalog aggregates match full-realm scans. */
+function amiga_realm_games_all_catalog_eligible(array $state): bool
+{
+    return amiga_realm_games_all_lean_eligible($state)
+        && (int) ($state['player'] ?? 0) === 0;
+}
+
+/**
+ * @param-out string $types
+ * @param-out list<int|string> $params
+ */
+function amiga_realm_games_all_lean_player_and_cutoff_sql(
+    array $state,
+    AmigaSnapshotContext $ctx,
+    string &$types,
+    array &$params,
+): string {
+    $where = '';
+    $playerId = (int) ($state['player'] ?? 0);
+    if ($playerId > 0) {
+        $where .= ' AND (g.player_a_id = ' . $playerId . ' OR g.player_b_id = ' . $playerId . ')';
+    }
+
+    $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $types, $params, 't.event_date', 't.chrono', 't.id');
+    if ($cutoffSql !== '') {
+        $where .= $cutoffSql;
+    }
+
+    return $where;
+}
+
+/**
+ * @param-out string $types
+ * @param-out list<int|string> $params
+ */
+function amiga_realm_games_all_lean_from_sql(
+    array $state,
+    AmigaSnapshotContext $ctx,
+    string &$types,
+    array &$params,
+): string {
+    $where = '1=1' . amiga_realm_games_all_lean_player_and_cutoff_sql($state, $ctx, $types, $params);
+
+    return 'FROM amiga_games g '
+        . 'INNER JOIN amiga_game_ratings gr ON gr.game_id = g.id '
+        . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
+        . 'WHERE ' . $where;
+}
+
+/**
+ * Tournament catalog aggregate count at cutoff (parity with game scan — catalog parity probe).
+ */
+function amiga_realm_games_all_catalog_count(mysqli $con, AmigaSnapshotContext $ctx): int
+{
+    $types = '';
+    $params = [];
+    $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $types, $params, 't.event_date', 't.chrono', 't.id');
+    $rows = amiga_realm_games_hub_query_all(
+        $con,
+        'SELECT COALESCE(SUM(c.game_count), 0) AS c FROM tournaments t '
+            . 'LEFT JOIN amiga_tournament_catalog_stats c ON c.tournament_id = t.id '
+            . 'WHERE ' . amiga_tournament_public_visibility_where('t') . $cutoffSql,
+        $types,
+        $params,
+    );
+
+    return (int) ($rows[0]['c'] ?? 0);
+}
+
+/** @return list<int> */
+function amiga_realm_games_all_catalog_years(mysqli $con, AmigaSnapshotContext $ctx): array
+{
+    $types = '';
+    $params = [];
+    $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $types, $params, 't.event_date', 't.chrono', 't.id');
+    $rows = amiga_realm_games_hub_query_all(
+        $con,
+        'SELECT DISTINCT YEAR(t.event_date) AS y FROM tournaments t '
+            . 'WHERE ' . amiga_tournament_public_visibility_where('t') . $cutoffSql
+            . ' AND t.event_date IS NOT NULL ORDER BY y DESC',
+        $types,
+        $params,
+    );
+    $years = [];
+    foreach ($rows as $row) {
+        $years[] = (int) $row['y'];
+    }
+
+    return $years;
+}
+
 function amiga_realm_games_all_count(mysqli $con, array $state, AmigaSnapshotContext $ctx): int
 {
+    if (amiga_realm_games_all_lean_eligible($state)) {
+        if ($ctx->isActive() || amiga_realm_games_all_catalog_eligible($state)) {
+            return amiga_realm_games_all_catalog_count($con, $ctx);
+        }
+
+        $types = '';
+        $params = [];
+        $fromSql = amiga_realm_games_all_lean_from_sql($state, $ctx, $types, $params);
+        $rows = amiga_realm_games_hub_query_all(
+            $con,
+            'SELECT COUNT(*) AS c ' . $fromSql,
+            $types,
+            $params,
+        );
+
+        return (int) ($rows[0]['c'] ?? 0);
+    }
+
     $types = '';
     $params = [];
     $whereSql = amiga_realm_games_all_where_sql($state, $ctx, $types, $params);
     $rows = amiga_realm_games_hub_query_all(
         $con,
-        'SELECT COUNT(*) AS c ' . amiga_rated_games_from_sql() . ' WHERE ' . $whereSql,
+        'SELECT COUNT(*) AS c ' . amiga_realm_games_all_from_sql($state) . ' WHERE ' . $whereSql,
         $types,
         $params,
     );
@@ -559,10 +696,50 @@ function amiga_realm_games_all_fetch_page(mysqli $con, array $state, AmigaSnapsh
 
     $types = '';
     $params = [];
+
+    if (amiga_realm_games_all_lean_eligible($state)) {
+        $leanSortMap = [
+            'id' => 'g.id',
+            'date' => 'g.game_date',
+            'team_a' => 'pa.name',
+            'team_b' => 'pb.name',
+            'tournament' => 't.name',
+            'phase' => 'g.phase',
+            'result' => 'gr.actual_score',
+            'goals_for' => 'g.goals_a',
+            'against' => 'g.goals_b',
+            'diff' => 'gr.goal_difference',
+            'sum' => 'gr.sum_of_goals',
+            'rating_a' => 'gr.rating_a',
+            'rating_b' => 'gr.rating_b',
+        ];
+        $sortKey = $state['sort'];
+        $leanSort = $leanSortMap[$sortKey] ?? 'g.id';
+        $where = '1=1' . amiga_realm_games_all_lean_player_and_cutoff_sql($state, $ctx, $types, $params);
+        $sql = 'SELECT g.id AS id, g.game_date AS `Date`, g.player_a_id AS idA, pa.name AS NameA, '
+            . 'g.player_b_id AS idB, pb.name AS NameB, g.tournament_id AS tournament_id, t.name AS tournament_name, '
+            . 't.country AS tournament_country, g.phase AS phase, g.goals_a AS GoalsA, g.goals_b AS GoalsB, '
+            . 'gr.rating_a AS RatingA, gr.rating_b AS RatingB, gr.rating_difference AS RatingDifference, '
+            . 'gr.expected_score_a AS ExpectedScoreA, gr.expected_score_b AS ExpectedScoreB, gr.actual_score AS ActualScore, '
+            . 'gr.adjustment_a AS AdjustmentA, gr.adjustment_b AS AdjustmentB, gr.new_rating_a AS NewRatingA, '
+            . 'gr.new_rating_b AS NewRatingB, gr.sum_of_goals AS SumOfGoals, gr.goal_difference AS GoalDifference, '
+            . 'pa.country AS country_a, pb.country AS country_b '
+            . 'FROM amiga_games g '
+            . 'INNER JOIN amiga_game_ratings gr ON gr.game_id = g.id '
+            . 'INNER JOIN amiga_players pa ON pa.id = g.player_a_id '
+            . 'INNER JOIN amiga_players pb ON pb.id = g.player_b_id '
+            . 'LEFT JOIN tournaments t ON t.id = g.tournament_id '
+            . 'WHERE ' . $where
+            . ' ORDER BY ' . $leanSort . ' ' . $dirSql . ', g.id DESC '
+            . 'LIMIT ' . (int) $limit . ' OFFSET ' . (int) $offset;
+
+        return amiga_realm_games_hub_query_all($con, $sql, $types, $params);
+    }
+
     $whereSql = amiga_realm_games_all_where_sql($state, $ctx, $types, $params);
 
     $sql = amiga_realm_games_hub_select_sql()
-        . amiga_rated_games_from_sql()
+        . amiga_realm_games_all_from_sql($state)
         . ' WHERE ' . $whereSql
         . ' ORDER BY ' . $sortSql . ' ' . $dirSql . ', r.id DESC '
         . 'LIMIT ' . (int) $limit . ' OFFSET ' . (int) $offset;
@@ -701,6 +878,38 @@ function amiga_realm_games_all_fetch_players(mysqli $con): array
 /** @return list<int> */
 function amiga_realm_games_all_fetch_years(mysqli $con, AmigaSnapshotContext $ctx): array
 {
+    static $cache = [];
+    $cutoffForKey = $ctx->isActive() ? $ctx->cutoff() : null;
+    $cacheKey = $cutoffForKey === null
+        ? 'present'
+        : $cutoffForKey['event_date'] . '|' . $cutoffForKey['chrono'] . '|' . $cutoffForKey['tournament_id'];
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
+    $state = amiga_realm_games_all_request_state();
+    if (amiga_realm_games_all_lean_eligible($state)) {
+        if ($ctx->isActive() || amiga_realm_games_all_catalog_eligible($state)) {
+            return $cache[$cacheKey] = amiga_realm_games_all_catalog_years($con, $ctx);
+        }
+
+        $types = '';
+        $params = [];
+        $fromSql = amiga_realm_games_all_lean_from_sql($state, $ctx, $types, $params);
+        $rows = amiga_realm_games_hub_query_all(
+            $con,
+            'SELECT DISTINCT YEAR(g.game_date) AS y ' . $fromSql . ' ORDER BY y DESC',
+            $types,
+            $params
+        );
+        $years = [];
+        foreach ($rows as $row) {
+            $years[] = (int) $row['y'];
+        }
+
+        return $cache[$cacheKey] = $years;
+    }
+
     $types = '';
     $params = [];
     $cutoffSql = amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params);
@@ -717,7 +926,7 @@ function amiga_realm_games_all_fetch_years(mysqli $con, AmigaSnapshotContext $ct
         $years[] = (int) $row['y'];
     }
 
-    return $years;
+    return $cache[$cacheKey] = $years;
 }
 
 function amiga_realm_games_all_gd_label(int $value): string

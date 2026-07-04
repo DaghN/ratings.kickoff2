@@ -88,7 +88,7 @@ if (!isset($sortMap[$sortKey])) {
     $sortKey = AMIGA_PLAYER_GAMES_DEFAULT_SORT;
 }
 
-$fromSql = amiga_rated_games_from_sql();
+$fromSql = amiga_rated_games_from_sql($playerId);
 
 $whereTypes = '';
 $whereParams = [];

@@ -26,10 +26,10 @@ function amiga_country_rivals_nation_label(string $countryToken): string
 /**
  * @return list<array{country_token: string, games: int}>
  */
-function amiga_country_rivals_h2h_played_rivals(mysqli $con, string $heroCountry, ?AmigaSnapshotContext $ctx = null): array
+function amiga_country_rivals_h2h_played_rivals_from_rows(array $rivalsRows): array
 {
     $out = [];
-    foreach (amiga_country_rivals_rows($con, $heroCountry, $ctx) as $row) {
+    foreach ($rivalsRows as $row) {
         $out[] = [
             'country_token' => (string) $row['rival_token'],
             'games' => (int) $row['games'],
@@ -37,6 +37,16 @@ function amiga_country_rivals_h2h_played_rivals(mysqli $con, string $heroCountry
     }
 
     return $out;
+}
+
+/**
+ * @return list<array{country_token: string, games: int}>
+ */
+function amiga_country_rivals_h2h_played_rivals(mysqli $con, string $heroCountry, ?AmigaSnapshotContext $ctx = null): array
+{
+    return amiga_country_rivals_h2h_played_rivals_from_rows(
+        amiga_country_rivals_rows($con, $heroCountry, $ctx, false)
+    );
 }
 
 function amiga_country_rivals_top_rival_token(
@@ -86,12 +96,18 @@ function amiga_country_rivals_render_h2h_poster(
     string $rivalCountry,
     ?array $record,
     int $games,
-    ?AmigaSnapshotContext $ctx = null
+    ?AmigaSnapshotContext $ctx = null,
+    ?int $heroPlayerCount = null,
+    ?int $rivalPlayerCount = null
 ): void {
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
-    $playerCounts = amiga_countries_player_counts_by_token($con, $ctx);
-    $heroPlayerCount = $playerCounts[$heroCountry] ?? 0;
-    $rivalPlayerCount = $playerCounts[$rivalCountry] ?? 0;
+    if ($heroPlayerCount === null) {
+        $heroPlayerCount = amiga_countries_player_count($con, $heroCountry, $ctx);
+    }
+    if ($rivalPlayerCount === null) {
+        $rivalSummary = amiga_countries_query_country_summary($con, $ctx, $rivalCountry);
+        $rivalPlayerCount = $rivalSummary !== null ? (int) ($rivalSummary['players'] ?? 0) : 0;
+    }
     $heroLabel = $heroCountry === AMIGA_COUNTRIES_UNKNOWN_TOKEN ? 'Unknown' : $heroCountry;
     $rivalLabel = $rivalCountry === AMIGA_COUNTRIES_UNKNOWN_TOKEN ? 'Unknown' : $rivalCountry;
     $hasGames = $record !== null && $games > 0;
@@ -204,11 +220,13 @@ function amiga_country_rivals_render_h2h_panel(
     string $selectedRival = '',
     bool $defaultToTopRival = false,
     ?string $pickSource = null,
-    ?AmigaSnapshotContext $ctx = null
+    ?AmigaSnapshotContext $ctx = null,
+    ?array $heroSummaryRow = null
 ): void {
     $heroCountry = amiga_country_rivals_normalize_token($heroCountry);
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
-    $played = amiga_country_rivals_h2h_played_rivals($con, $heroCountry, $ctx);
+    $rivalsRows = amiga_country_rivals_rows($con, $heroCountry, $ctx, false);
+    $played = amiga_country_rivals_h2h_played_rivals_from_rows($rivalsRows);
     if ($defaultToTopRival && $selectedRival === '' && $played !== []) {
         $selectedRival = (string) $played[0]['country_token'];
     }
@@ -220,9 +238,13 @@ function amiga_country_rivals_render_h2h_panel(
         }
     );
     $bucket = $selectedRival !== ''
-        ? amiga_country_rivals_bucket($con, $heroCountry, $selectedRival, $ctx)
+        ? amiga_country_rivals_bucket_from_rows($rivalsRows, $selectedRival)
         : null;
+    if ($bucket !== null && (int) ($bucket['games'] ?? 0) > 0) {
+        $bucket = amiga_country_rivals_attach_perf_to_bucket($bucket, $con, $heroCountry, $ctx);
+    }
     $games = $bucket !== null ? (int) ($bucket['games'] ?? 0) : 0;
+    $heroPlayerCount = $heroSummaryRow !== null ? (int) ($heroSummaryRow['players'] ?? 0) : null;
     $h2hBase = k2_amiga_country_rivals_href($heroCountry, 'h2h');
     $gamesShowName = $pickSource === 'games';
     $alphaShowName = $pickSource === 'alpha';
@@ -277,7 +299,15 @@ function amiga_country_rivals_render_h2h_panel(
                 'goals_for' => (int) $bucket['goals_for'],
                 'goals_against' => (int) $bucket['goals_against'],
             ];
-            amiga_country_rivals_render_h2h_poster($con, $heroCountry, $rivalCountry, $record, $games, $ctx);
+            amiga_country_rivals_render_h2h_poster(
+                $con,
+                $heroCountry,
+                $rivalCountry,
+                $record,
+                $games,
+                $ctx,
+                $heroPlayerCount
+            );
             amiga_country_rivals_render_h2h_pair_detail($heroCountry, $rivalCountry, $bucket);
             amiga_country_rivals_render_h2h_all_games_link($heroCountry, $rivalCountry, $games);
             $momentGames = amiga_country_rivals_h2h_games_rows($con, $heroCountry, $rivalCountry, $ctx);

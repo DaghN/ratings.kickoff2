@@ -20,9 +20,9 @@ function amiga_games_hub_h(string $value): string
 /**
  * @return array{total: int, recent: int}
  */
-function amiga_games_hub_status_counts(mysqli $con, AmigaSnapshotContext $ctx): array
+function amiga_games_hub_status_counts(mysqli $con, AmigaSnapshotContext $ctx, ?int $totalOverride = null): array
 {
-    $total = amiga_lb_games_count($con, $ctx);
+    $total = $totalOverride ?? amiga_lb_games_count($con, $ctx);
     $recentTournaments = amiga_games_hub_recent_tournaments($con, $ctx);
     $recent = amiga_games_hub_recent_game_count($con, $recentTournaments, $ctx);
 
@@ -37,7 +37,15 @@ function amiga_games_hub_recent_tournaments(
     AmigaSnapshotContext $ctx,
     int $limit = AMIGA_GAMES_HUB_RECENT_TOURNAMENT_LIMIT,
 ): array {
+    static $cache = [];
     $limit = max(1, min(20, $limit));
+    $cutoffForKey = $ctx->isActive() ? $ctx->cutoff() : null;
+    $cacheKey = ($cutoffForKey === null ? 'present' : $cutoffForKey['event_date'] . '|' . $cutoffForKey['chrono'] . '|' . $cutoffForKey['tournament_id'])
+        . '|' . $limit;
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $types = '';
     $params = [];
     $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $types, $params);
@@ -68,7 +76,7 @@ function amiga_games_hub_recent_tournaments(
     }
     $stmt->close();
 
-    return $rows;
+    return $cache[$cacheKey] = $rows;
 }
 
 /**
@@ -81,6 +89,15 @@ function amiga_games_hub_recent_game_count(
 ): int {
     if ($recentTournaments === []) {
         return 0;
+    }
+
+    if (!$ctx->isActive()) {
+        $total = 0;
+        foreach ($recentTournaments as $row) {
+            $total += (int) ($row['game_count'] ?? 0);
+        }
+
+        return $total;
     }
 
     $ids = array_values(array_filter(
@@ -96,11 +113,18 @@ function amiga_games_hub_recent_game_count(
     $params = $ids;
     $cutoffTypes = '';
     $cutoffParams = [];
-    $cutoffSql = amiga_snapshot_rated_game_cutoff_and_sql($ctx, $cutoffTypes, $cutoffParams);
+    $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql(
+        $ctx,
+        $cutoffTypes,
+        $cutoffParams,
+        't.event_date',
+        't.chrono',
+        't.id',
+    );
 
-    $sql = 'SELECT COUNT(*) AS n '
-        . amiga_rated_games_from_sql()
-        . ' WHERE r.tournament_id IN (' . $placeholders . ')' . $cutoffSql;
+    $sql = 'SELECT COUNT(*) AS n FROM amiga_games g '
+        . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
+        . 'WHERE g.tournament_id IN (' . $placeholders . ')' . $cutoffSql;
     $types .= $cutoffTypes;
     $params = array_merge($params, $cutoffParams);
 
@@ -134,7 +158,31 @@ function amiga_games_hub_recent_games_for_tournament(
 
     require_once __DIR__ . '/amiga_realm_games_hub_lib.php';
 
-    return amiga_realm_games_hub_fetch_tournament_games($con, $tournamentId, $ctx, 'DESC');
+    $byTournament = amiga_realm_games_hub_fetch_games_by_tournaments($con, [$tournamentId], $ctx);
+
+    return $byTournament[$tournamentId] ?? [];
+}
+
+/**
+ * @param list<array<string, mixed>> $recentTournaments
+ * @return array<int, list<array<string, mixed>>>
+ */
+function amiga_games_hub_recent_games_by_tournament(
+    mysqli $con,
+    array $recentTournaments,
+    AmigaSnapshotContext $ctx,
+): array {
+    $ids = array_values(array_filter(
+        array_map(static fn (array $row): int => (int) ($row['id'] ?? 0), $recentTournaments),
+        static fn (int $id): bool => $id > 0,
+    ));
+    if ($ids === []) {
+        return [];
+    }
+
+    require_once __DIR__ . '/amiga_realm_games_hub_lib.php';
+
+    return amiga_realm_games_hub_fetch_games_by_tournaments($con, $ids, $ctx);
 }
 
 function amiga_games_hub_tournament_section_heading(array $tournamentRow): string

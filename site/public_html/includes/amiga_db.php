@@ -14,10 +14,21 @@ function amiga_game_chronology_order_sql(string $direction = 'ASC'): string
     return "g.game_date {$dir}, g.id {$dir}";
 }
 
-/** Subquery alias `r` with column names compatible with legacy ratedresults consumers. */
-function amiga_rated_games_from_sql(): string
+/**
+ * Subquery alias `r` with column names compatible with legacy ratedresults consumers.
+ *
+ * When $scopePlayerId is set, the player predicate is pushed into the inner scan so
+ * idx_amiga_games_player_a / player_b are used instead of materializing all ~27k games.
+ */
+function amiga_rated_games_from_sql(?int $scopePlayerId = null): string
 {
-    return <<<'SQL'
+    $playerWhere = '';
+    if ($scopePlayerId !== null && $scopePlayerId > 0) {
+        $pid = (int) $scopePlayerId;
+        $playerWhere = "\n    WHERE g.player_a_id = {$pid} OR g.player_b_id = {$pid}";
+    }
+
+    return <<<SQL
 FROM (
     SELECT
         g.id,
@@ -60,7 +71,7 @@ FROM (
     INNER JOIN amiga_game_ratings gr ON gr.game_id = g.id
     INNER JOIN amiga_players pa ON pa.id = g.player_a_id
     INNER JOIN amiga_players pb ON pb.id = g.player_b_id
-    LEFT JOIN tournaments t ON t.id = g.tournament_id
+    LEFT JOIN tournaments t ON t.id = g.tournament_id{$playerWhere}
 ) r
 SQL;
 }

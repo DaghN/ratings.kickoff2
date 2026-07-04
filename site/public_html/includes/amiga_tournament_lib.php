@@ -572,11 +572,111 @@ function amiga_live_tournament_format_player_slot(
     return '<span class="k2-amiga-live-view__placeholder">' . k2_h($placeholder) . '</span>';
 }
 
+function amiga_tournament_index_cutoff_cache_key(?AmigaSnapshotContext $ctx): string
+{
+    require_once __DIR__ . '/amiga_snapshot_context.php';
+
+    $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+    if (!$ctx->isActive()) {
+        return 'present';
+    }
+    $cutoff = $ctx->cutoff();
+    if ($cutoff === null) {
+        return 'present';
+    }
+
+    return $cutoff['event_date'] . '|' . (string) $cutoff['chrono'] . '|' . (int) $cutoff['tournament_id'];
+}
+
+/**
+ * Full at-cutoff tournament catalog (request-scoped cache).
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_tournament_index_cached_all_rows(mysqli $con, ?AmigaSnapshotContext $ctx = null): array
+{
+    require_once __DIR__ . '/amiga_snapshot_context.php';
+
+    static $cache = [];
+    $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+    $cacheKey = amiga_tournament_index_cutoff_cache_key($ctx);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
+    $types = '';
+    $params = [];
+    $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $types, $params);
+    $sql = 'SELECT t.id, t.name, t.event_date, t.chrono, t.is_cup, t.has_league, t.has_cup, t.equal_teams, t.country, t.player_count,
+                   t.lifecycle_status,
+                   COALESCE(c.game_count, 0) AS game_count,
+                   COALESCE(c.standing_players, 0) AS standing_players,
+                   COALESCE(c.standing_rows, 0) AS standing_rows,
+                   COALESCE(c.league_scopes, 0) AS league_scopes,
+                   COALESCE(c.knockout_ties, 0) AS knockout_ties,
+                   COALESCE(c.has_perfect_participant, 0) AS has_perfect_participant,
+                   wp.id AS winner_player_id,
+                   wp.name AS winner_name,
+                   wp.country AS winner_country
+            FROM tournaments t
+            LEFT JOIN amiga_tournament_catalog_stats c ON c.tournament_id = t.id
+            LEFT JOIN (
+                SELECT tournament_id, MIN(player_id) AS player_id
+                FROM amiga_player_event_snapshots
+                WHERE is_winner = 1
+                GROUP BY tournament_id
+            ) win ON win.tournament_id = t.id
+            LEFT JOIN amiga_players wp ON wp.id = win.player_id
+            WHERE ' . amiga_tournament_public_visibility_where('t') . $cutoffSql . '
+            ORDER BY COALESCE(t.chrono, 999999) DESC, COALESCE(t.event_date, \'1970-01-01\') DESC, t.name ASC';
+    if ($types === '') {
+        $res = mysqli_query($con, $sql);
+        if ($res === false) {
+            $cache[$cacheKey] = [];
+
+            return $cache[$cacheKey];
+        }
+    } else {
+        $stmt = mysqli_prepare($con, $sql);
+        if ($stmt === false) {
+            $cache[$cacheKey] = [];
+
+            return $cache[$cacheKey];
+        }
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+        mysqli_stmt_execute($stmt);
+        $res = mysqli_stmt_get_result($stmt);
+        if ($res === false) {
+            mysqli_stmt_close($stmt);
+            $cache[$cacheKey] = [];
+
+            return $cache[$cacheKey];
+        }
+    }
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($res)) {
+        $rows[] = $row;
+    }
+    mysqli_free_result($res);
+    if (isset($stmt)) {
+        mysqli_stmt_close($stmt);
+    }
+    $cache[$cacheKey] = $rows;
+
+    return $cache[$cacheKey];
+}
+
 /**
  * @return array<string, mixed>|null
  */
 function amiga_tournament_load(mysqli $con, int $tournamentId, bool $publicOnly = true): ?array
 {
+    static $cache = [];
+    $cacheKey = $tournamentId . '|' . ($publicOnly ? '1' : '0');
+    if (array_key_exists($cacheKey, $cache)) {
+        return $cache[$cacheKey];
+    }
+
     $visibility = $publicOnly ? ' AND ' . amiga_tournament_public_visibility_where('t') : '';
     $sql = 'SELECT t.id, t.name, t.chrono, t.event_date, t.is_cup, t.country, t.equal_teams, t.player_count,
                    t.lifecycle_status
@@ -594,7 +694,9 @@ function amiga_tournament_load(mysqli $con, int $tournamentId, bool $publicOnly 
         mysqli_free_result($res);
     }
     mysqli_stmt_close($stmt);
-    return $row ?: null;
+    $cache[$cacheKey] = $row ?: null;
+
+    return $cache[$cacheKey];
 }
 
 /**
@@ -602,6 +704,12 @@ function amiga_tournament_load(mysqli $con, int $tournamentId, bool $publicOnly 
  */
 function amiga_tournament_list_scopes(mysqli $con, int $tournamentId, string $scopeType = 'league'): array
 {
+    static $cache = [];
+    $cacheKey = $tournamentId . '|' . $scopeType;
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $stmt = mysqli_prepare(
         $con,
         'SELECT DISTINCT scope_key FROM amiga_tournament_standings
@@ -622,7 +730,9 @@ function amiga_tournament_list_scopes(mysqli $con, int $tournamentId, string $sc
         mysqli_free_result($res);
     }
     mysqli_stmt_close($stmt);
-    return $keys;
+    $cache[$cacheKey] = $keys;
+
+    return $cache[$cacheKey];
 }
 
 /**
@@ -669,6 +779,12 @@ function amiga_tournament_standings_rows(
     string $scopeType = 'league',
     string $scopeKey = ''
 ): array {
+    static $cache = [];
+    $cacheKey = $tournamentId . '|' . $scopeType . '|' . $scopeKey;
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $sql = 'SELECT s.position, s.games, s.wins, s.draws, s.losses,
                    s.goals_for, s.goals_against, s.points,
                    p.id AS player_id, p.name AS player_name, p.country
@@ -691,7 +807,9 @@ function amiga_tournament_standings_rows(
         mysqli_free_result($res);
     }
     mysqli_stmt_close($stmt);
-    return $rows;
+    $cache[$cacheKey] = $rows;
+
+    return $cache[$cacheKey];
 }
 
 /**
@@ -848,8 +966,12 @@ function amiga_tournament_videos_url(
 /** Indexed lookup on ``amiga_games.tournament_id`` (`idx_amiga_games_tournament`). */
 function amiga_tournament_game_count(mysqli $con, int $tournamentId): int
 {
+    static $cache = [];
     if ($tournamentId < 1) {
         return 0;
+    }
+    if (isset($cache[$tournamentId])) {
+        return $cache[$tournamentId];
     }
     $stmt = mysqli_prepare($con, 'SELECT COUNT(*) AS n FROM amiga_games WHERE tournament_id = ?');
     if ($stmt === false) {
@@ -864,7 +986,9 @@ function amiga_tournament_game_count(mysqli $con, int $tournamentId): int
     }
     mysqli_stmt_close($stmt);
 
-    return (int) ($row['n'] ?? 0);
+    $cache[$tournamentId] = (int) ($row['n'] ?? 0);
+
+    return $cache[$tournamentId];
 }
 
 /**
@@ -874,8 +998,12 @@ function amiga_tournament_game_count(mysqli $con, int $tournamentId): int
  */
 function amiga_tournament_winner(mysqli $con, int $tournamentId): ?array
 {
+    static $cache = [];
     if ($tournamentId < 1) {
         return null;
+    }
+    if (array_key_exists($tournamentId, $cache)) {
+        return $cache[$tournamentId];
     }
     $sql = 'SELECT p.id AS player_id, p.name AS player_name, COALESCE(p.country, \'\') AS player_country
             FROM amiga_player_event_snapshots s
@@ -896,19 +1024,25 @@ function amiga_tournament_winner(mysqli $con, int $tournamentId): ?array
     }
     mysqli_stmt_close($stmt);
     if ($row === null) {
+        $cache[$tournamentId] = null;
+
         return null;
     }
     $playerId = (int) ($row['player_id'] ?? 0);
     $playerName = trim((string) ($row['player_name'] ?? ''));
     if ($playerId < 1 || $playerName === '') {
+        $cache[$tournamentId] = null;
+
         return null;
     }
 
-    return [
+    $cache[$tournamentId] = [
         'player_id' => $playerId,
         'player_name' => $playerName,
         'player_country' => trim((string) ($row['player_country'] ?? '')),
     ];
+
+    return $cache[$tournamentId];
 }
 
 /**
@@ -943,8 +1077,13 @@ function amiga_tournament_game_player_choices(mysqli $con, int $tournamentId): a
  */
 function amiga_tournament_games_rows(mysqli $con, int $tournamentId, int $playerFilter = 0): array
 {
+    static $cache = [];
     if ($tournamentId < 1) {
         return [];
+    }
+    $cacheKey = $tournamentId . '|' . $playerFilter;
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
     }
 
     require_once __DIR__ . '/amiga_db.php';
@@ -984,7 +1123,9 @@ function amiga_tournament_games_rows(mysqli $con, int $tournamentId, int $player
     }
     mysqli_stmt_close($stmt);
 
-    return $rows;
+    $cache[$cacheKey] = $rows;
+
+    return $cache[$cacheKey];
 }
 
 /** Standings/stages sub-nav link — folder path per mode (WC → stages.php, else standings.php). */
@@ -1857,67 +1998,17 @@ function amiga_tournament_index_rows(
     require_once __DIR__ . '/amiga_snapshot_context.php';
 
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+    $offset = max(0, $offset);
+    $allRows = amiga_tournament_index_cached_all_rows($con, $ctx);
     if ($limit < 1) {
-        $limit = amiga_tournament_index_count($con, $ctx);
+        if ($offset === 0) {
+            return $allRows;
+        }
+        $limit = count($allRows);
     }
     $limit = max(1, min(5000, $limit));
-    $offset = max(0, $offset);
-    // Read stored catalog aggregates (amiga_tournament_catalog_stats) — not live scans on amiga_games.
-    $types = '';
-    $params = [];
-    $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $types, $params);
-    $sql = 'SELECT t.id, t.name, t.event_date, t.chrono, t.is_cup, t.has_league, t.has_cup, t.equal_teams, t.country, t.player_count,
-                   t.lifecycle_status,
-                   COALESCE(c.game_count, 0) AS game_count,
-                   COALESCE(c.standing_players, 0) AS standing_players,
-                   COALESCE(c.standing_rows, 0) AS standing_rows,
-                   COALESCE(c.league_scopes, 0) AS league_scopes,
-                   COALESCE(c.knockout_ties, 0) AS knockout_ties,
-                   COALESCE(c.has_perfect_participant, 0) AS has_perfect_participant,
-                   wp.id AS winner_player_id,
-                   wp.name AS winner_name,
-                   wp.country AS winner_country
-            FROM tournaments t
-            LEFT JOIN amiga_tournament_catalog_stats c ON c.tournament_id = t.id
-            LEFT JOIN (
-                SELECT tournament_id, MIN(player_id) AS player_id
-                FROM amiga_player_event_snapshots
-                WHERE is_winner = 1
-                GROUP BY tournament_id
-            ) win ON win.tournament_id = t.id
-            LEFT JOIN amiga_players wp ON wp.id = win.player_id
-            WHERE ' . amiga_tournament_public_visibility_where('t') . $cutoffSql . '
-            ORDER BY COALESCE(t.chrono, 999999) DESC, COALESCE(t.event_date, \'1970-01-01\') DESC, t.name ASC
-            LIMIT ' . (int) $limit . ' OFFSET ' . (int) $offset;
-    if ($types === '') {
-        $res = mysqli_query($con, $sql);
-        if ($res === false) {
-            return [];
-        }
-    } else {
-        $stmt = mysqli_prepare($con, $sql);
-        if ($stmt === false) {
-            return [];
-        }
-        mysqli_stmt_bind_param($stmt, $types, ...$params);
-        mysqli_stmt_execute($stmt);
-        $res = mysqli_stmt_get_result($stmt);
-        if ($res === false) {
-            mysqli_stmt_close($stmt);
 
-            return [];
-        }
-    }
-    $rows = [];
-    while ($row = mysqli_fetch_assoc($res)) {
-        $rows[] = $row;
-    }
-    mysqli_free_result($res);
-    if (isset($stmt)) {
-        mysqli_stmt_close($stmt);
-    }
-
-    return $rows;
+    return array_slice($allRows, $offset, $limit);
 }
 
 function amiga_tournament_index_count(mysqli $con, ?AmigaSnapshotContext $ctx = null): int
@@ -1925,35 +2016,8 @@ function amiga_tournament_index_count(mysqli $con, ?AmigaSnapshotContext $ctx = 
     require_once __DIR__ . '/amiga_snapshot_context.php';
 
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
-    $types = '';
-    $params = [];
-    $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $types, $params);
-    $sql = 'SELECT COUNT(*) AS n FROM tournaments t WHERE ' . amiga_tournament_public_visibility_where('t') . $cutoffSql;
-    if ($types === '') {
-        $res = mysqli_query($con, $sql);
-        if ($res === false) {
-            return 0;
-        }
-        $row = mysqli_fetch_assoc($res);
-        mysqli_free_result($res);
 
-        return (int) ($row['n'] ?? 0);
-    }
-
-    $stmt = mysqli_prepare($con, $sql);
-    if ($stmt === false) {
-        return 0;
-    }
-    mysqli_stmt_bind_param($stmt, $types, ...$params);
-    mysqli_stmt_execute($stmt);
-    $res = mysqli_stmt_get_result($stmt);
-    $row = $res ? mysqli_fetch_assoc($res) : false;
-    if ($res) {
-        mysqli_free_result($res);
-    }
-    mysqli_stmt_close($stmt);
-
-    return $row !== false ? (int) ($row['n'] ?? 0) : 0;
+    return count(amiga_tournament_index_cached_all_rows($con, $ctx));
 }
 
 /**
@@ -2266,14 +2330,24 @@ function amiga_tournament_format_kind(array $tournament, array $leagueLabeledSco
  */
 function amiga_tournament_knockout_bracket_data(mysqli $con, int $tournamentId, array $scopeKeys): array
 {
-    $buckets = [
+    static $cache = [];
+    $empty = [
         'main' => [],
         'placement_final' => [],
         'placement_bracket' => [],
     ];
     if ($scopeKeys === [] || $tournamentId < 1) {
-        return $buckets;
+        return $empty;
     }
+    if (isset($cache[$tournamentId])) {
+        return $cache[$tournamentId];
+    }
+
+    $buckets = [
+        'main' => [],
+        'placement_final' => [],
+        'placement_bracket' => [],
+    ];
 
     /** @var array<string, list<array<string, mixed>>> $byPhase */
     $byPhase = [];
@@ -2357,7 +2431,9 @@ function amiga_tournament_knockout_bracket_data(mysqli $con, int $tournamentId, 
         );
     }
 
-    return $buckets;
+    $cache[$tournamentId] = $buckets;
+
+    return $cache[$tournamentId];
 }
 
 /**

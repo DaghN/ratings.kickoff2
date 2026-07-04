@@ -340,6 +340,7 @@ No `prove` gate v1 (read-time only).
 |------|------|
 | Jun 2026 | **Shipped CRV-1–7** — four wings, H2H charts, games filter. |
 | Jun 2026 | **Domestic exclusion** — A→A dropped from all wings; H2H default rival = top cross-border pair. |
+| Jul 2026 | **TT perf Track A** — Goals/DDs skip perf batch (`withPerf=false`); W/D/L opts in; H2H pair games + perf + chart payloads share one memoized `h2h_game_rows_raw()` read per request. |
 
 ---
 

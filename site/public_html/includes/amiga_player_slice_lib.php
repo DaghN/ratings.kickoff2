@@ -156,3 +156,53 @@ function amiga_player_wc_medal_counts(mysqli $con, int $playerId, ?AmigaSnapshot
         'wc_bronze' => (int) ($row['wc_bronze'] ?? 0),
     ];
 }
+
+/**
+ * Latest world_cup player slice row per player at cutoff — narrow window + PK join-back.
+ *
+ * Bind params after caller WHERE: slice_key, event_date, chrono, tournament_id, slice_key.
+ * Types: ssdis
+ */
+function amiga_lb_wc_player_slice_from_sql(string $alias = 'wcs'): string
+{
+    return "FROM amiga_player_slice_at_event {$alias}\n"
+        . "INNER JOIN (\n"
+        . "    SELECT x.player_id, x.as_of_tournament_id FROM (\n"
+        . "        SELECT s.player_id, s.as_of_tournament_id,\n"
+        . "            ROW_NUMBER() OVER (\n"
+        . "                PARTITION BY s.player_id\n"
+        . "                ORDER BY s.event_date DESC, s.event_chrono DESC, s.as_of_tournament_id DESC\n"
+        . "            ) AS rn\n"
+        . "        FROM amiga_player_slice_at_event s\n"
+        . "        WHERE s.slice_key = ?\n"
+        . "          AND (s.event_date, s.event_chrono, s.as_of_tournament_id) <= (?, ?, ?)\n"
+        . "    ) x WHERE x.rn = 1\n"
+        . ") {$alias}_latest ON {$alias}_latest.player_id = {$alias}.player_id\n"
+        . "    AND {$alias}.slice_key = ?\n"
+        . "    AND {$alias}.as_of_tournament_id = {$alias}_latest.as_of_tournament_id";
+}
+
+/**
+ * Latest world_cup country slice row per nation at cutoff — narrow window + PK join-back.
+ *
+ * Bind params: slice_key, event_date, chrono, tournament_id, slice_key.
+ * Types: ssdis
+ */
+function amiga_lb_wc_country_slice_from_sql(string $alias = 'ccs'): string
+{
+    return "FROM amiga_country_slice_at_event {$alias}\n"
+        . "INNER JOIN (\n"
+        . "    SELECT x.country_token, x.as_of_tournament_id FROM (\n"
+        . "        SELECT s.country_token, s.as_of_tournament_id,\n"
+        . "            ROW_NUMBER() OVER (\n"
+        . "                PARTITION BY s.country_token\n"
+        . "                ORDER BY s.event_date DESC, s.event_chrono DESC, s.as_of_tournament_id DESC\n"
+        . "            ) AS rn\n"
+        . "        FROM amiga_country_slice_at_event s\n"
+        . "        WHERE s.slice_key = ?\n"
+        . "          AND (s.event_date, s.event_chrono, s.as_of_tournament_id) <= (?, ?, ?)\n"
+        . "    ) x WHERE x.rn = 1\n"
+        . ") {$alias}_latest ON {$alias}_latest.country_token = {$alias}.country_token\n"
+        . "    AND {$alias}.slice_key = ?\n"
+        . "    AND {$alias}.as_of_tournament_id = {$alias}_latest.as_of_tournament_id";
+}

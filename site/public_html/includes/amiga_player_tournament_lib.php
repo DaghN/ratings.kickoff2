@@ -353,8 +353,12 @@ function amiga_player_tournaments_filter_url(
  */
 function amiga_tournament_participation_rows(mysqli $con, int $tournamentId): array
 {
+    static $cache = [];
     if ($tournamentId < 1) {
         return [];
+    }
+    if (isset($cache[$tournamentId])) {
+        return $cache[$tournamentId];
     }
 
     $sql = 'SELECT p.player_id,
@@ -407,7 +411,9 @@ function amiga_tournament_participation_rows(mysqli $con, int $tournamentId): ar
     }
     mysqli_stmt_close($stmt);
 
-    return $rows;
+    $cache[$tournamentId] = $rows;
+
+    return $cache[$tournamentId];
 }
 
 /**
@@ -487,57 +493,32 @@ function amiga_lb_performance_rating_rows(mysqli $con, ?AmigaSnapshotContext $ct
         return amiga_lb_performance_rating_rows_at_cutoff($con, $ctx);
     }
 
-    $sql = 'SELECT ranked.player_id,
-                   ranked.player_name,
-                   ranked.Rating,
-                   ranked.country,
-                   ranked.NumberGames,
-                   ranked.tournament_id,
-                   ranked.tournament_name,
-                   ranked.event_date,
-                   ranked.event_chrono,
-                   ranked.event_games,
-                   ranked.event_wins,
-                   ranked.event_draws,
-                   ranked.event_losses,
-                   ranked.performance_rating,
-                   ranked.host_country
-            FROM (
-                SELECT pl.id AS player_id,
-                       pl.name AS player_name,
-                       s.Rating,
-                       pl.country AS country,
-                       s.NumberGames,
-                       part.tournament_id,
-                       part.tournament_name,
-                       t.country AS host_country,
-                       part.event_date,
-                       part.event_chrono,
-                       part.games AS event_games,
-                       part.wins AS event_wins,
-                       part.draws AS event_draws,
-                       part.losses AS event_losses,
-                       part.performance_rating,
-                       ROW_NUMBER() OVER (
-                           PARTITION BY part.player_id
-                           ORDER BY part.performance_rating DESC,
-                                    part.games DESC,
-                                    part.tournament_id DESC
-                       ) AS rn
-                FROM amiga_player_event_snapshots part
-                INNER JOIN amiga_players pl ON pl.id = part.player_id
-                ' . amiga_player_career_join_sql($con, 'part.player_id') . '
-                INNER JOIN tournaments t ON t.id = part.tournament_id
-                WHERE part.performance_rating IS NOT NULL
-                  AND part.games >= 2
-                  AND s.NumberGames > 0
-                  AND ' . amiga_tournament_public_visibility_where('t') . '
-            ) ranked
-            WHERE ranked.rn = 1
-            ORDER BY ranked.performance_rating DESC,
-                     ranked.event_games DESC,
-                     ranked.Rating DESC,
-                     ranked.player_id ASC';
+    require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
+
+    $sql = 'SELECT p.id AS player_id,
+                   p.name AS player_name,
+                   s.Rating,
+                   p.country AS country,
+                   s.NumberGames,
+                   part.tournament_id,
+                   part.tournament_name,
+                   t.country AS host_country,
+                   part.event_date,
+                   part.event_chrono,
+                   part.games AS event_games,
+                   part.wins AS event_wins,
+                   part.draws AS event_draws,
+                   part.losses AS event_losses,
+                   part.performance_rating
+            FROM amiga_players p '
+        . amiga_player_career_join_sql($con, 'p.id') . ' '
+        . amiga_lb_best_perf_event_join_sql('part', false) . '
+            INNER JOIN tournaments t ON t.id = part.tournament_id
+            WHERE s.NumberGames > 0
+            ORDER BY part.performance_rating DESC,
+                     part.games DESC,
+                     s.Rating DESC,
+                     p.id ASC';
     $result = mysqli_query($con, $sql);
     if (!$result) {
         return [];

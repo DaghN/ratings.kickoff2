@@ -219,9 +219,6 @@ if ($isKnockoutView && $scopeKey !== '') {
     $knockoutWinner = amiga_tournament_knockout_resolve_winner($knockoutFixture, $rows);
 }
 
-$bracketData = $hasBracket
-    ? amiga_tournament_knockout_bracket_data($con, $id, $knockoutScopes)
-    : ['main' => [], 'placement_final' => [], 'placement_bracket' => []];
 
 $eventStatsRows = amiga_tournament_participation_rows($con, $id);
 
@@ -342,6 +339,15 @@ if ($hasVideosTab) {
 }
 
 $isStagesContentView = $pageView === 'stages' || ($pageView === 'standings' && !$isWorldCupEvent);
+
+$bracketData = [
+    'main' => [],
+    'placement_final' => [],
+    'placement_bracket' => [],
+];
+if ($hasBracket && $isStagesContentView) {
+    $bracketData = amiga_tournament_knockout_bracket_data($con, $id, $knockoutScopes);
+}
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_href.php';
 

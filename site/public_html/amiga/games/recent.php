@@ -13,19 +13,21 @@ $k2AmigaGamesPageTitle = 'Games — Recent';
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $ctx = amiga_lb_context($con);
 
+$recentTournaments = amiga_games_hub_recent_tournaments($con, $ctx);
 $hubCounts = amiga_games_hub_status_counts($con, $ctx);
 $k2AmigaGamesHubTotal = $hubCounts['total'];
 $k2AmigaGamesRecentCount = $hubCounts['recent'];
 
+$gamesByTournament = amiga_games_hub_recent_games_by_tournament($con, $recentTournaments, $ctx);
 $recentSections = [];
-foreach (amiga_games_hub_recent_tournaments($con, $ctx) as $tournamentRow) {
+foreach ($recentTournaments as $tournamentRow) {
     $tournamentId = (int) ($tournamentRow['id'] ?? 0);
     if ($tournamentId < 1) {
         continue;
     }
     $recentSections[] = [
         'heading' => amiga_games_hub_tournament_section_heading($tournamentRow),
-        'rows' => amiga_games_hub_recent_games_for_tournament($con, $tournamentId, $ctx),
+        'rows' => $gamesByTournament[$tournamentId] ?? [],
     ];
 }
 

@@ -1,6 +1,6 @@
 # Handoff 2026-07-04-004 — Amiga realm TT query optimization sweep
 
-**Status:** Open · **Owner:** next agent · **Method doc (read first):** [`docs/amiga-tt-query-optimization-playbook.md`](../../amiga-tt-query-optimization-playbook.md)
+**Status:** Done (slice 1) · **Owner:** agent 2026-07-04 · **Method doc (read first):** [`docs/amiga-tt-query-optimization-playbook.md`](../../amiga-tt-query-optimization-playbook.md)
 **Predecessor evidence:** [`2026-07-04-003`](2026-07-04-003-f6-rating-lb-tt-nav-flawless.md) + [`tt-chrome-baseline-f6-attempt-log.md`](../tt-chrome-baseline-f6-attempt-log.md) (Attempts 4-5, Three slow LB wings, World Cups hub).
 
 ---
@@ -56,7 +56,7 @@ Known suspects going in (playbook §4):
 
 - **Do NOT** touch `k2_carry_scroll_restore.php` / `js/k2-carry-scroll.js` (F6 track, sign-off pending) — query work only.
 - **Do NOT** touch online-realm files (`peak_month_leaderboard_query.php`, `lb_activity_lib.php`, `league_standings.php`, `player_milestones_helpers.php` online paths).
-- **F20 Countries rivals H2H** (2.2-3.7 s) has its own audit handoff [`2026-07-04-002`](2026-07-04-002-f20-country-rivals-h2h-audit.md) — take it only if Dagh says so in-session; it needs dedupe (pattern D) + narrow shapes (A), not chrome work.
+- **F20 Countries rivals H2H** — **shipped** same day in [`2026-07-04-002`](2026-07-04-002-f20-country-rivals-h2h-audit.md) (query slice; chrome flush still optional).
 - New indexes: DDL in `scripts/amiga/sql/` + `sql/derived/` mirror + ALTER local `ko2amiga_db`; staging inherits via next export. No prod/staging direct edits.
 - No new `SELECT snap.*` / wide-alias ROW_NUMBER windows anywhere — shared helpers or dense equality.
 
@@ -65,3 +65,31 @@ Known suspects going in (playbook §4):
 | Date | Entry |
 |------|-------|
 | 2026-07-04 | Handoff created after LB wings + WC hub fixes; playbook published |
+| 2026-07-04 | **Slice 1 shipped** — census probe `scripts/oneoff/amiga_tt_page_census_probe.php`; fixes below. Re-run census before closing remaining gaps. |
+
+### Census before / after (curl total, worst cutoff unless noted)
+
+| Page | Before | After | Notes |
+|------|--------|-------|-------|
+| `/amiga/games/all.php` | **2.0 s** (all cutoffs) | **~0.08 s** (`year:2024`) · ~0.6 s present | Lean scan + catalog stats for count/years/host; single-pass score-line facets |
+| `/amiga/games/recent.php` | **1.0 s** (`year:2024`) | **~0.6 s** | Lean tournament-indexed hub fetch |
+| `/amiga/world-cups/players/*` | 0.25–0.31 s | **~0.09 s** | WC slice narrow window + request cache |
+| `/amiga/player/games.php?id=382` | **1.3–1.5 s** | **~1.4 s** | DB path **15 ms** (player-scoped inner scan); curl still HTML-bound (~1500 `<tr>`) — not a query vanish |
+| `/amiga/country/rivals/*` | **1.0–2.3 s** | unchanged | **F20 handoff** — out of scope this slice |
+| Rating LB + other LB wings | already ≤0.7 s | unchanged | prior 3d-b work |
+
+Probe: `scripts/oneoff/amiga_games_all_tt_probe.php` — blocking lib calls at `year:2024` **~235 ms** (was ~1800 ms).
+
+### Shipped code (slice 1)
+
+- **WC slice** — `amiga_lb_wc_player_slice_from_sql()` / `amiga_lb_wc_country_slice_from_sql()` + request cache; parity `scripts/oneoff/amiga_wc_slice_parity_probe.php` green ×6 cutoffs ×3 views.
+- **Countries roster elo attach** — dense equality `er.tournament_id = cutoff` (pattern B).
+- **Games All** — player-scoped / lean game scans; catalog-stats count/years/host at TT; combined score-line facet pass; hub count dedupe.
+- **Games Recent** — lean tournament-indexed fetch in `amiga_realm_games_hub_lib.php`.
+- **Player games** — `amiga_rated_games_from_sql($playerId)` pushes hero filter into indexed inner scan.
+
+### Remaining (next slice if needed)
+
+- **Player games curl > 0.8 s** — query fixed; page time = rendering ~1500-row table + filter chrome (no product change allowed).
+- **F20 country rivals** — **done** — [`2026-07-04-002`](2026-07-04-002-f20-country-rivals-h2h-audit.md) query slice.
+- **Present-mode `/amiga/games/all.php`** — ~0.6–0.9 s (score-line game scan); TT cutoffs now fast.

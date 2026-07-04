@@ -82,12 +82,14 @@ Numbers: old window 1.7-3.4 s; narrow+join-back (pattern A) still 0.9-2.3 s beca
 
 | Site | Table / shape | Likely severity |
 |------|---------------|-----------------|
-| `amiga_slice_snapshot_lib.php` (`amiga_lb_wc_slice_rows_at_cutoff`) + `amiga_country_slice_snapshot_lib.php` | `s.*` / `x.*` windows over `amiga_player_slice_at_event` (3k rows x 46 cols) and `amiga_country_slice_at_event` (353 x 55) | Low-moderate (~80-120 ms) — small tables; same shape A if they grow |
-| `amiga_player_slice_lib.php` (`amiga_slice_at_cutoff_join_sql`) | already-narrow column list over slice table | OK as is |
-| `amiga_countries_lib.php` (`amiga_countries_attach_elo_ranks_at_cutoff`) | window over **er table** but filtered to a player-id list | Candidate for **pattern B** (dense equality) if it shows up in a probe |
+| `amiga_community_histogram_lib.php` | `raw_world_cups_played` still uses inline slice window join | Low unless Activity histogram API flagged |
 | `amiga_matchup_snapshot_lib.php`, `amiga_player_snapshot_lib.php`, `amiga_player_rank_history_lib.php`, `amiga_elo_rank_lib.php`, `amiga_player_h2h_pair_lib.php` | windows filtered by `player_id = ?` (single player / pair) | Cheap; leave unless probed slow |
-| **F20 Countries rivals H2H** | double `amiga_country_rivals_rows()` + poster overfetch, 2.2-3.7 s | Known open item — handoff [`2026-07-04-002`](orchestration/agent-handoffs/2026-07-04-002-f20-country-rivals-h2h-audit.md); apply patterns D + A |
-| `peak_month_leaderboard_query.php`, `lb_activity_lib.php`, `league_standings.php`, `player_milestones_helpers.php` | **online realm** | Out of Amiga TT scope — check realm before touching |
+| **F20 Countries rivals H2H + wdl/goals/dds** | ~~double `rivals_rows` + wide matchup window + perf batch on all table wings~~ | **Fixed 2026-07-04** — cache + narrow window + scoped perf; Goals/DDs skip perf batch; H2H pair games memo shared with perf + chart payloads |
+| **`amiga/player/games.php` (busy player)** | DB **~15 ms** after player-scoped scan; curl **~1.4 s** = ~1500-row HTML + filter chrome, not query vanish | Do not re-window; next lever is render/pagination (product) |
+| **`amiga/games/all.php` present-only** | score-line facets still one game scan (~190 ms) when no TT cutoff | TT cutoffs use catalog path (~235 ms total probe) |
+| `peak_month_leaderboard_query.php`, `lb_activity_lib.php`, `league_standings.php`, `player_milestones_helpers.php` | **online realm** | Out of Amiga TT scope |
+
+**Fixed this sweep (do not redo):** WC player/country slice narrow window + cache; countries `attach_elo_ranks` dense equality; games all/recent lean paths; player games inner scan; **F20 country rivals** (narrow matchup window, request cache, H2H dedupe, TT perf batch country-col fix).
 
 ---
 
@@ -114,3 +116,10 @@ Numbers: old window 1.7-3.4 s; narrow+join-back (pattern A) still 0.9-2.3 s beca
 | Peak rating | 2,248-3,437 ms | 71-120 ms | A + B |
 | WC share-of-year lookup | 2,581 ms | 48 ms | C |
 | WC chronology page (curl) | ~5 s | ~0.5 s | C + D |
+| WC player slice rows @ cutoff | ~80-250 ms (wide window) | ~40-90 ms | A + D |
+| WC country slice rows @ cutoff | ~80-120 ms (wide window) | ~40-80 ms | A + D |
+| Countries roster elo attach | window on er table | equality on `tournament_id` | B |
+| Games All @ TT cutoff (lib probe) | ~1800 ms | ~235 ms | lean scan + catalog stats + single-pass facets |
+| Games All curl @ `year:2024` | ~2.0 s | ~0.08 s | above |
+| Games Recent curl @ `year:2024` | ~1.0 s | ~0.6 s | lean tournament fetch |
+| Player games query (id=382) | full-realm subquery scan | ~15 ms | player-scoped inner scan |

@@ -121,7 +121,7 @@ if ($k2AmigaCountryView === 'rivals') {
         if ($pickSource === null && ($selectedRival !== '' || $h2hDefaultRival)) {
             $pickSource = 'games';
         }
-        amiga_country_rivals_render_h2h_panel($con, $countryToken, $selectedRival, $h2hDefaultRival, $pickSource, $ctx);
+        amiga_country_rivals_render_h2h_panel($con, $countryToken, $selectedRival, $h2hDefaultRival, $pickSource, $ctx, $summaryRow);
     } elseif ($k2AmigaCountryRivalsView === 'wdl') {
         amiga_country_rivals_render_wdl_table($con, $countryToken, $ctx);
     } elseif ($k2AmigaCountryRivalsView === 'goals') {

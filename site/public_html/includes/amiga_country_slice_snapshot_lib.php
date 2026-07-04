@@ -148,23 +148,18 @@ function amiga_lb_wc_country_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $c
         return [];
     }
 
+    static $cache = [];
+    $cacheKey = $cutoff['event_date'] . '|' . $cutoff['chrono'] . '|' . $cutoff['tournament_id'] . '|' . $view;
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $sliceKey = amiga_slice_key_world_cup();
-    $sql = 'SELECT ranked.country_token,
-                   ' . str_replace('ccs.', 'ranked.', amiga_lb_wc_country_select_sql('ccs')) . '
-            FROM (
-                SELECT x.*,
-                       ROW_NUMBER() OVER (
-                           PARTITION BY x.country_token
-                           ORDER BY x.event_date DESC, x.event_chrono DESC, x.as_of_tournament_id DESC
-                       ) AS rn
-                FROM amiga_country_slice_at_event x
-                WHERE x.slice_key = ?
-                  AND (x.event_date, x.event_chrono, x.as_of_tournament_id)
-                      <= (?, ?, ?)
-            ) ranked
-            WHERE ranked.rn = 1
-              AND ranked.players > 0
-            ORDER BY ' . amiga_lb_wc_country_order_sql($view, 'ranked') . '
+    $sql = 'SELECT ccs.country_token,
+                   ' . amiga_lb_wc_country_select_sql('ccs') . '
+            ' . amiga_lb_wc_country_slice_from_sql('ccs') . '
+            WHERE ccs.players > 0
+            ORDER BY ' . amiga_lb_wc_country_order_sql($view, 'ccs') . '
 ';
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
@@ -173,7 +168,7 @@ function amiga_lb_wc_country_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $c
     $eventDate = $cutoff['event_date'];
     $chrono = $cutoff['chrono'];
     $tournamentId = $cutoff['tournament_id'];
-    $stmt->bind_param('ssdi', $sliceKey, $eventDate, $chrono, $tournamentId);
+    $stmt->bind_param('ssdis', $sliceKey, $eventDate, $chrono, $tournamentId, $sliceKey);
     if (!$stmt->execute()) {
         $stmt->close();
 
@@ -189,7 +184,7 @@ function amiga_lb_wc_country_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $c
     }
     $stmt->close();
 
-    return $rows;
+    return $cache[$cacheKey] = $rows;
 }
 
 function amiga_lb_wc_country_count(mysqli $con, AmigaSnapshotContext $ctx): int

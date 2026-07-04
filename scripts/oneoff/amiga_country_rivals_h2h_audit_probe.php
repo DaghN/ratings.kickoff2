@@ -39,12 +39,19 @@ foreach ($cutoffs as $label => $as) {
     bench('h2h_goals_buckets subject', fn () => amiga_country_rivals_h2h_goals_buckets($con, $hero, $rival, $ctx, 'subject'));
     bench('h2h_scoreline_heatmap', fn () => amiga_country_rivals_h2h_scoreline_heatmap_payload($con, $hero, $rival, $ctx));
 
-    echo "Simulated panel path (sequential as page):\n";
+    echo "Simulated panel path (sequential as page — optimized H2H flow):\n";
     $tPanel = microtime(true);
     amiga_countries_query_country_summary($con, $ctx, $hero);
-    amiga_country_rivals_h2h_played_rivals($con, $hero, $ctx);
-    amiga_country_rivals_bucket($con, $hero, $rival, $ctx);
-    amiga_countries_player_counts_by_token($con, $ctx);
+    $rivalsRows = amiga_country_rivals_rows($con, $hero, $ctx, false);
+    $played = amiga_country_rivals_h2h_played_rivals_from_rows($rivalsRows);
+    unset($played);
+    $bucket = amiga_country_rivals_bucket_from_rows($rivalsRows, $rival);
+    if ($bucket !== null && (int) ($bucket['games'] ?? 0) > 0) {
+        $bucket = amiga_country_rivals_attach_perf_to_bucket($bucket, $con, $hero, $ctx);
+    }
+    unset($bucket);
+    $rivalSummary = amiga_countries_query_country_summary($con, $ctx, $rival);
+    unset($rivalSummary);
     amiga_country_rivals_h2h_games_rows($con, $hero, $rival, $ctx);
     echo 'panel_sequential_total: ' . ms($tPanel) . " ms\n";
 }

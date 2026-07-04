@@ -36,7 +36,13 @@ function amiga_tournament_step_row_by_id(
     mysqli $con,
     ?AmigaSnapshotContext $ctx = null,
 ): array {
+    static $cache = [];
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+    $cacheKey = amiga_tournament_index_cutoff_cache_key($ctx);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $rows = amiga_tournament_index_rows($con, 0, 0, $ctx);
     /** @var array<int, array<string, mixed>> $byId */
     $byId = [];
@@ -46,8 +52,9 @@ function amiga_tournament_step_row_by_id(
             $byId[$id] = $row;
         }
     }
+    $cache[$cacheKey] = $byId;
 
-    return $byId;
+    return $cache[$cacheKey];
 }
 
 /** @param array{value: string, label: string, meta?: string, flag_html?: string} $choice */
@@ -142,21 +149,51 @@ function amiga_tournament_step_player_facet_counts(mysqli $con, array $catalog, 
         'wc_only' => (bool) ($filterBag['wc_only'] ?? false),
     ];
     $eligible = amiga_tournament_step_eligible_key_set($con, $catalog, $facetBag);
-    /** @var array<int, int> $counts */
-    $counts = [];
-    foreach (amiga_participation_eligible_players($con) as $player) {
-        $playerId = (int) $player['id'];
-        $participated = amiga_player_participated_event_key_set($con, $playerId);
-        $count = 0;
-        foreach ($eligible as $key => $_) {
-            if (isset($participated[$key])) {
-                $count++;
-            }
-        }
-        if ($count > 0) {
-            $counts[$playerId] = $count;
+    if ($eligible === []) {
+        return [];
+    }
+
+    $tournamentIds = [];
+    foreach (array_keys($eligible) as $key) {
+        $tid = (int) $key;
+        if ($tid > 0) {
+            $tournamentIds[] = $tid;
         }
     }
+    if ($tournamentIds === []) {
+        return [];
+    }
+
+    $placeholders = implode(',', array_fill(0, count($tournamentIds), '?'));
+    $types = str_repeat('i', count($tournamentIds));
+    $sql = 'SELECT s.player_id, COUNT(DISTINCT s.tournament_id) AS cnt
+            FROM amiga_player_event_snapshots s
+            WHERE s.NumberGames > 0
+              AND s.tournament_id IN (' . $placeholders . ')
+            GROUP BY s.player_id';
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        return [];
+    }
+    $stmt->bind_param($types, ...$tournamentIds);
+    if (!$stmt->execute()) {
+        $stmt->close();
+
+        return [];
+    }
+    $res = $stmt->get_result();
+    /** @var array<int, int> $counts */
+    $counts = [];
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $playerId = (int) ($row['player_id'] ?? 0);
+            if ($playerId > 0) {
+                $counts[$playerId] = (int) ($row['cnt'] ?? 0);
+            }
+        }
+        $res->free();
+    }
+    $stmt->close();
 
     return $counts;
 }
@@ -208,7 +245,13 @@ function amiga_tournament_step_catalog(
     mysqli $con,
     ?AmigaSnapshotContext $ctx = null,
 ): array {
+    static $cache = [];
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+    $cacheKey = amiga_tournament_index_cutoff_cache_key($ctx);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $rows = amiga_tournament_index_rows($con, 0, 0, $ctx);
     /** @var list<array{key: string}> $catalog */
     $catalog = [];
@@ -218,8 +261,9 @@ function amiga_tournament_step_catalog(
             $catalog[] = ['key' => (string) $tid];
         }
     }
+    $cache[$cacheKey] = $catalog;
 
-    return $catalog;
+    return $cache[$cacheKey];
 }
 
 /**

@@ -3,7 +3,7 @@
 **Date:** 2026-07-04  
 **Track:** Amiga TT chrome baseline · carry-scroll / hash landing  
 **Failure targeted:** **F20** — TT flag / roster / entity nav header flash before content (y ≠ 0)  
-**Status:** **Audit complete 2026-07-04** — query debt + chrome classified; no fix shipped (audit-only)  
+**Status:** **Query slice shipped 2026-07-04** — patterns D + A + scoped perf; parity green; panel ~0.7–1.1 s TT (was 2.2–3.7 s). Chrome flush (3b) still optional follow-up.  
 **Dagh note:** May refer to this as **T20 audit** — same as **F20** in [`amiga-tt-chrome-sticky-invariants.md`](../amiga-tt-chrome-sticky-invariants.md).
 
 ---
@@ -113,7 +113,52 @@ Roster-path overfetch is fixed; **rivals path is a separate debt class** (matchu
 
 ---
 
-## Out of scope
+## Query fix shipped (2026-07-04)
+
+**Probe:** `scripts/oneoff/amiga_country_rivals_parity_probe.php` (PARITY OK ×3 heroes ×6 cutoffs) · `amiga_country_rivals_h2h_audit_probe.php`
+
+### After (England vs Italy, optimized H2H panel path)
+
+| Phase | Present | `event:22` | `event:589` | `month:2025-09` |
+|-------|---------|------------|-------------|-----------------|
+| **Panel sequential total** | **438 ms** | **1087 ms** | **710 ms** | **709 ms** |
+| curl H2H page | ~1.2–1.4 s | ~1.4 s | — | — |
+
+**Before panel sequential:** 1272–3727 ms (audit table above).
+
+### Changes
+
+1. **Pattern D** — request cache on `amiga_country_rivals_rows()`; H2H panel single pass (`withPerf=false`) + `bucket_from_rows` + `attach_perf_to_pair` only.
+2. **Pattern A** — `amiga_country_rivals_matchup_at_event_latest_from_sql()` hero filter inside window + PK join-back (no `SELECT m.*` over full table).
+3. **Poster** — hero player count from `$summaryRow`; rival via `amiga_countries_query_country_summary()` (not full index).
+4. **Memo** — `amiga_country_rivals_h2h_game_rows_raw()` request cache (moments + chart APIs on same request).
+5. **Bugfix** — `amiga_country_rivals_perf_ratings_batch()` uses game `country_a`/`country_b` (player-table join returned 0 rows at TT cutoffs → perf was always null in TT).
+
+**Files:** `amiga_country_rivals_load.php`, `amiga_country_rivals_h2h.php`, `amiga_country_rivals_perf_lib.php`, `amiga_country_rivals_h2h_games_lib.php`, `amiga_country_page.php`.
+
+**Still open (chrome):** Type B void at y=0 — PHP flush after hero shell (3b); Type A carry gate at y>0 (3d optional).
+
+### Track A table wings + H2H pair memo (2026-07-04)
+
+**Goal:** Stop full perf batch on Goals/DDs; squeeze H2H duplicate pair-game reads.
+
+| Page (present curl) | Before | After |
+|---------------------|--------|-------|
+| rivals/goals.php?country=Germany | ~0.82 s | **~0.21 s** |
+| rivals/dds.php?country=Germany | ~0.80 s | **~0.19 s** |
+| rivals/h2h.php England/Italy | ~0.95 s | **~0.57 s** |
+| rivals/wdl.php (needs perf batch) | ~0.74 s | ~0.83 s |
+
+**H2H panel sequential (probe):** **208–273 ms** TT (was 710–1087 ms after first query slice; 1272–3727 ms pre-fix).
+
+**Changes:**
+1. `amiga_country_rivals_rows()` default `$withPerf=false`; W/D/L wing opts in; Goals/DDs rollup-only.
+2. Request cache on `amiga_country_rivals_perf_ratings_batch()`.
+3. `amiga_country_rivals_perf_from_game_rows()` + pair perf reads memoized `h2h_game_rows_raw()` (canonical select incl. ratings); chart API payloads reuse same cache within request.
+
+**Oracle:** `amiga_country_rivals_parity_probe.php` PARITY OK.
+
+**Files:** `amiga_country_rivals_load.php`, `amiga_country_rivals_tables.php`, `amiga_country_rivals_perf_lib.php`, `amiga_country_rivals_h2h_games_lib.php`.
 
 - **F6** (TT ribbon nav blank at y=0) — separate slice (iter 3b PHP flush on rating LB / hub pages)
 - Stored-truth / new DB tables

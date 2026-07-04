@@ -117,32 +117,102 @@ function amiga_player_opponents_country_rollup_from_pair_rows(array $pairRows): 
     return $rows;
 }
 
+function amiga_player_opponents_country_rows_cache_key(int $playerId, AmigaSnapshotContext $ctx, bool $withPerf): string
+{
+    if (!$ctx->isActive()) {
+        $cutoffKey = 'present';
+    } else {
+        $cutoff = $ctx->cutoff();
+        $cutoffKey = $cutoff === null
+            ? 'at:empty'
+            : 'at:' . (int) ($cutoff['tournament_id'] ?? 0) . ':' . (string) ($cutoff['event_date'] ?? '') . ':' . (string) ($cutoff['chrono'] ?? '');
+    }
+
+    return $playerId . '|' . $cutoffKey . '|perf:' . ($withPerf ? '1' : '0');
+}
+
 /**
  * @return list<array<string, mixed>>
  */
-function amiga_player_opponents_country_rows(mysqli $con, int $playerId, ?AmigaSnapshotContext $ctx = null): array
-{
+function amiga_player_opponents_country_rows(
+    mysqli $con,
+    int $playerId,
+    ?AmigaSnapshotContext $ctx = null,
+    bool $withPerf = false
+): array {
+    static $cache = [];
+
     if ($playerId < 1) {
         return [];
     }
 
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+    $cacheKey = amiga_player_opponents_country_rows_cache_key($playerId, $ctx, $withPerf);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $pairRows = amiga_player_opponents_matchup_rows($con, $playerId, $ctx);
     $rows = amiga_player_opponents_country_rollup_from_pair_rows($pairRows);
     if ($rows === []) {
+        $cache[$cacheKey] = [];
+
         return [];
     }
 
-    require_once __DIR__ . '/amiga_player_opponents_country_perf_lib.php';
-    $perfByToken = amiga_player_opponents_country_perf_ratings_batch($con, $playerId, $ctx);
-    foreach ($rows as $index => $row) {
-        $token = (string) $row['country_token'];
-        $perf = $perfByToken[$token] ?? null;
-        $rows[$index]['performance_rating'] = is_array($perf) ? ($perf['performance_rating'] ?? null) : null;
-        $rows[$index]['performance_rating_vs_hero'] = is_array($perf) ? ($perf['performance_rating_vs_hero'] ?? null) : null;
+    if ($withPerf) {
+        require_once __DIR__ . '/amiga_player_opponents_country_perf_lib.php';
+        $perfByToken = amiga_player_opponents_country_perf_ratings_batch($con, $playerId, $ctx);
+        foreach ($rows as $index => $row) {
+            $token = (string) $row['country_token'];
+            $perf = $perfByToken[$token] ?? null;
+            $rows[$index]['performance_rating'] = is_array($perf) ? ($perf['performance_rating'] ?? null) : null;
+            $rows[$index]['performance_rating_vs_hero'] = is_array($perf) ? ($perf['performance_rating_vs_hero'] ?? null) : null;
+        }
     }
 
+    $cache[$cacheKey] = $rows;
+
     return $rows;
+}
+
+/**
+ * @param list<array<string, mixed>> $rows
+ * @return array<string, mixed>|null
+ */
+function amiga_player_opponents_country_bucket_from_rows(array $rows, string $countryToken): ?array
+{
+    $countryToken = amiga_player_opponents_country_token_from_field($countryToken);
+    if ($countryToken === '') {
+        return null;
+    }
+
+    foreach ($rows as $row) {
+        if ((string) $row['country_token'] === $countryToken) {
+            return $row;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * @param array<string, mixed> $bucket
+ * @return array<string, mixed>
+ */
+function amiga_player_opponents_country_attach_perf_to_bucket(
+    array $bucket,
+    mysqli $con,
+    int $playerId,
+    ?AmigaSnapshotContext $ctx = null
+): array {
+    require_once __DIR__ . '/amiga_player_opponents_country_perf_lib.php';
+    $countryToken = (string) ($bucket['country_token'] ?? '');
+    $perf = amiga_player_opponents_country_perf_ratings_for_token($con, $playerId, $countryToken, $ctx);
+    $bucket['performance_rating'] = $perf['performance_rating'] ?? null;
+    $bucket['performance_rating_vs_hero'] = $perf['performance_rating_vs_hero'] ?? null;
+
+    return $bucket;
 }
 
 /**
@@ -159,11 +229,8 @@ function amiga_player_opponents_country_bucket(
         return null;
     }
 
-    foreach (amiga_player_opponents_country_rows($con, $playerId, $ctx) as $row) {
-        if ((string) $row['country_token'] === $countryToken) {
-            return $row;
-        }
-    }
-
-    return null;
+    return amiga_player_opponents_country_bucket_from_rows(
+        amiga_player_opponents_country_rows($con, $playerId, $ctx, false),
+        $countryToken
+    );
 }

@@ -12,22 +12,26 @@ require_once __DIR__ . '/amiga_snapshot_context.php';
 
 /**
  * Latest at-event matchup row per opponent on or before cutoff (alias ``m``).
+ *
+ * Narrow window + PK join-back (pattern A) — do not widen to SELECT m.* in the window.
  */
 function amiga_matchup_at_event_latest_from_sql(string $alias = 'm'): string
 {
-    return "FROM (\n"
-        . "    SELECT x.* FROM (\n"
-        . "        SELECT m.*,\n"
-        . "            ROW_NUMBER() OVER (\n"
-        . "                PARTITION BY m.player_id, m.opponent_id\n"
-        . "                ORDER BY m.event_date DESC, m.event_chrono DESC, m.as_of_tournament_id DESC\n"
-        . "            ) AS rn\n"
-        . "        FROM amiga_player_matchup_at_event m\n"
-        . "        WHERE m.player_id = ?\n"
-        . "          AND (m.event_date, m.event_chrono, m.as_of_tournament_id) <= (?, ?, ?)\n"
-        . "    ) x\n"
-        . "    WHERE x.rn = 1\n"
-        . ") {$alias}";
+    return 'FROM amiga_player_matchup_at_event ' . $alias . "\n"
+        . 'INNER JOIN (' . "\n"
+        . '    SELECT x.player_id, x.opponent_id, x.as_of_tournament_id FROM (' . "\n"
+        . '        SELECT m.player_id, m.opponent_id, m.as_of_tournament_id, m.games,' . "\n"
+        . '            ROW_NUMBER() OVER (' . "\n"
+        . '                PARTITION BY m.player_id, m.opponent_id' . "\n"
+        . '                ORDER BY m.event_date DESC, m.event_chrono DESC, m.as_of_tournament_id DESC' . "\n"
+        . '            ) AS rn' . "\n"
+        . '        FROM amiga_player_matchup_at_event m' . "\n"
+        . '        WHERE m.player_id = ?' . "\n"
+        . '          AND (m.event_date, m.event_chrono, m.as_of_tournament_id) <= (?, ?, ?)' . "\n"
+        . '    ) x WHERE x.rn = 1 AND x.games > 0' . "\n"
+        . ') ' . $alias . '_latest ON ' . $alias . '.player_id = ' . $alias . '_latest.player_id'
+        . ' AND ' . $alias . '.opponent_id = ' . $alias . '_latest.opponent_id'
+        . ' AND ' . $alias . '.as_of_tournament_id = ' . $alias . '_latest.as_of_tournament_id';
 }
 
 /**
@@ -120,7 +124,6 @@ function amiga_player_matchup_opponent_rows(mysqli $con, int $playerId, ?AmigaSn
             . ' ' . amiga_matchup_at_event_latest_from_sql('m')
             . ' LEFT JOIN amiga_players p ON p.id = m.opponent_id'
             . ' ' . amiga_matchup_opponents_rating_at_cutoff_join_sql()
-            . ' WHERE m.games > 0'
             . ' ORDER BY m.games DESC, opponent_name ASC';
         $stmt = $con->prepare($sql);
         if (!$stmt) {
