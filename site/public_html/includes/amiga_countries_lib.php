@@ -68,6 +68,24 @@ function amiga_countries_normalize_country_param(string $raw): string
 }
 
 /**
+ * @param list<mixed> $params
+ */
+function amiga_countries_stmt_bind(mysqli_stmt $stmt, string $types, array $params): void
+{
+    if ($types === '' || $params === []) {
+        return;
+    }
+    $refs = [];
+    foreach ($params as $i => $value) {
+        $refs[$i] = &$params[$i];
+    }
+    array_unshift($refs, $types);
+    if (!call_user_func_array([$stmt, 'bind_param'], $refs)) {
+        throw new RuntimeException('bind amiga_countries_stmt: ' . $stmt->error);
+    }
+}
+
+/**
  * Countries hub index — direct SQL aggregation (present or snapshot at cutoff).
  *
  * @return list<array<string, mixed>>
@@ -203,6 +221,295 @@ function amiga_countries_normalize_index_row(array $row): array
         'wc_bronze' => (int) ($row['wc_bronze'] ?? 0),
         'games_per_player' => $players > 0 ? round($games / $players, 1) : 0.0,
     ];
+}
+
+/**
+ * Country roster — one nation's rated players (present or snapshot at cutoff).
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_countries_query_roster_rows(mysqli $con, AmigaSnapshotContext $ctx, string $countryToken): array
+{
+    $countryToken = amiga_countries_normalize_country_param($countryToken);
+    if ($countryToken === '') {
+        return [];
+    }
+
+    if (!$ctx->isActive()) {
+        return amiga_countries_player_rows_present_for_country($con, $countryToken);
+    }
+
+    return amiga_countries_player_rows_at_cutoff_for_country($con, $ctx, $countryToken);
+}
+
+/**
+ * Hero / nav summary for one country without loading the full ladder.
+ *
+ * @return array<string, mixed>|null
+ */
+function amiga_countries_query_country_summary(
+    mysqli $con,
+    AmigaSnapshotContext $ctx,
+    string $countryToken
+): ?array {
+    $countryToken = amiga_countries_normalize_country_param($countryToken);
+    if ($countryToken === '') {
+        return null;
+    }
+
+    if (!$ctx->isActive()) {
+        $rows = amiga_countries_query_index_rows_present_for_country($con, $countryToken);
+    } else {
+        $rows = amiga_countries_query_index_rows_at_cutoff_for_country($con, $ctx, $countryToken);
+    }
+
+    return $rows[0] ?? null;
+}
+
+/**
+ * Build index-shaped summary from roster player rows (one SQL on roster path).
+ *
+ * @param list<array<string, mixed>> $playerRows
+ * @return array<string, mixed>|null
+ */
+function amiga_countries_summary_row_from_player_rows(array $playerRows, string $countryToken): ?array
+{
+    if ($playerRows === []) {
+        return null;
+    }
+
+    $countryToken = amiga_countries_normalize_country_param($countryToken);
+    $players = count($playerRows);
+    $games = 0;
+    $wcPlayers = 0;
+    $wcEntries = 0;
+    $wcGold = 0;
+    $wcSilver = 0;
+    $wcBronze = 0;
+    foreach ($playerRows as $row) {
+        $games += (int) $row['number_games'];
+        $wcPlayed = (int) $row['wc_played'];
+        if ($wcPlayed >= 1) {
+            $wcPlayers++;
+        }
+        $wcEntries += $wcPlayed;
+        $wcGold += (int) $row['wc_gold'];
+        $wcSilver += (int) $row['wc_silver'];
+        $wcBronze += (int) $row['wc_bronze'];
+    }
+
+    return amiga_countries_normalize_index_row([
+        'country_token' => $countryToken,
+        'players' => $players,
+        'games' => $games,
+        'wc_players' => $wcPlayers,
+        'wc_entries' => $wcEntries,
+        'wc_gold' => $wcGold,
+        'wc_silver' => $wcSilver,
+        'wc_bronze' => $wcBronze,
+    ]);
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function amiga_countries_query_index_rows_present_for_country(mysqli $con, string $countryToken): array
+{
+    $tokenSql = amiga_countries_token_sql('p');
+    $sliceKey = amiga_slice_key_world_cup();
+    $sql = 'SELECT ' . $tokenSql . ' AS country_token, '
+        . 'COUNT(*) AS players, '
+        . 'SUM(s.NumberGames) AS games, '
+        . 'SUM(CASE WHEN COALESCE(wcs.tournaments_played, 0) >= 1 THEN 1 ELSE 0 END) AS wc_players, '
+        . 'SUM(COALESCE(wcs.tournaments_played, 0)) AS wc_entries, '
+        . 'SUM(COALESCE(wcs.gold, 0)) AS wc_gold, '
+        . 'SUM(COALESCE(wcs.silver, 0)) AS wc_silver, '
+        . 'SUM(COALESCE(wcs.bronze, 0)) AS wc_bronze '
+        . amiga_player_base_from_sql($con, 's') . ' '
+        . 'LEFT JOIN amiga_player_slice_totals wcs ON wcs.player_id = p.id AND wcs.slice_key = ? '
+        . 'WHERE s.NumberGames > 0 AND ' . $tokenSql . ' = ? '
+        . 'GROUP BY ' . $tokenSql;
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare amiga_countries_query_index_rows_present_for_country: ' . $con->error);
+    }
+    amiga_countries_stmt_bind($stmt, 'ss', [$sliceKey, $countryToken]);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute amiga_countries_query_index_rows_present_for_country: ' . $stmt->error);
+    }
+    $result = $stmt->get_result();
+    $rows = [];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $rows[] = amiga_countries_normalize_index_row($row);
+        }
+        $result->free();
+    }
+    $stmt->close();
+
+    return $rows;
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function amiga_countries_query_index_rows_at_cutoff_for_country(
+    mysqli $con,
+    AmigaSnapshotContext $ctx,
+    string $countryToken
+): array {
+    $cutoff = $ctx->cutoff();
+    if ($cutoff === null) {
+        return [];
+    }
+
+    $tokenSql = amiga_countries_token_sql('p');
+    $sliceKey = amiga_slice_key_world_cup();
+    $sliceJoin = amiga_slice_at_cutoff_join_sql();
+    $sql = 'SELECT ' . $tokenSql . ' AS country_token, '
+        . 'COUNT(*) AS players, '
+        . 'SUM(s.NumberGames) AS games, '
+        . 'SUM(CASE WHEN COALESCE(wcs.tournaments_played, 0) >= 1 THEN 1 ELSE 0 END) AS wc_players, '
+        . 'SUM(COALESCE(wcs.tournaments_played, 0)) AS wc_entries, '
+        . 'SUM(COALESCE(wcs.gold, 0)) AS wc_gold, '
+        . 'SUM(COALESCE(wcs.silver, 0)) AS wc_silver, '
+        . 'SUM(COALESCE(wcs.bronze, 0)) AS wc_bronze '
+        . amiga_lb_snapshot_from_sql('s') . ' '
+        . str_replace('t.player_id', 'p.id', $sliceJoin['sql']) . ' '
+        . 'WHERE s.NumberGames > 0 AND ' . $tokenSql . ' = ? '
+        . 'GROUP BY ' . $tokenSql;
+
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare amiga_countries_query_index_rows_at_cutoff_for_country: ' . $con->error);
+    }
+
+    $eventDate = $cutoff['event_date'];
+    $chrono = $cutoff['chrono'];
+    $tournamentId = $cutoff['tournament_id'];
+    amiga_countries_stmt_bind($stmt, 'sdissdis', [
+        $eventDate,
+        $chrono,
+        $tournamentId,
+        $sliceKey,
+        $eventDate,
+        $chrono,
+        $tournamentId,
+        $countryToken,
+    ]);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute amiga_countries_query_index_rows_at_cutoff_for_country: ' . $stmt->error);
+    }
+    $result = $stmt->get_result();
+    $rows = [];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $rows[] = amiga_countries_normalize_index_row($row);
+        }
+        $result->free();
+    }
+    $stmt->close();
+
+    return $rows;
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function amiga_countries_player_rows_present_for_country(mysqli $con, string $countryToken): array
+{
+    $tokenSql = amiga_countries_token_sql('p');
+    $sliceKey = amiga_slice_key_world_cup();
+    $sql = 'SELECT p.id AS player_id, p.name AS player_name, ' . $tokenSql . ' AS country_token, '
+        . 'COALESCE(s.Rating, 0) AS rating, s.elo_rank, COALESCE(s.NumberGames, 0) AS number_games, '
+        . 'COALESCE(wcs.tournaments_played, 0) AS wc_played, COALESCE(wcs.gold, 0) AS wc_gold, '
+        . 'COALESCE(wcs.silver, 0) AS wc_silver, COALESCE(wcs.bronze, 0) AS wc_bronze, '
+        . 's.last_tournament_id, s.last_event_date, lt.name AS last_tournament_name, lt.country AS last_tournament_country '
+        . amiga_player_base_from_sql($con, 's') . ' '
+        . 'LEFT JOIN amiga_player_slice_totals wcs ON wcs.player_id = p.id AND wcs.slice_key = ? '
+        . 'LEFT JOIN tournaments lt ON lt.id = s.last_tournament_id '
+        . 'WHERE s.NumberGames > 0 AND ' . $tokenSql . ' = ? '
+        . 'ORDER BY s.Rating DESC, p.id ASC';
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare amiga_countries_player_rows_present_for_country: ' . $con->error);
+    }
+    amiga_countries_stmt_bind($stmt, 'ss', [$sliceKey, $countryToken]);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute amiga_countries_player_rows_present_for_country: ' . $stmt->error);
+    }
+    $result = $stmt->get_result();
+    $rows = [];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $rows[] = amiga_countries_normalize_player_row($row);
+        }
+        $result->free();
+    }
+    $stmt->close();
+
+    return $rows;
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function amiga_countries_player_rows_at_cutoff_for_country(
+    mysqli $con,
+    AmigaSnapshotContext $ctx,
+    string $countryToken
+): array {
+    $cutoff = $ctx->cutoff();
+    if ($cutoff === null) {
+        return [];
+    }
+
+    $tokenSql = amiga_countries_token_sql('p');
+    $sliceKey = amiga_slice_key_world_cup();
+    $sliceJoin = amiga_slice_at_cutoff_join_sql();
+    $sql = 'SELECT p.id AS player_id, p.name AS player_name, ' . $tokenSql . ' AS country_token, '
+        . 'COALESCE(s.Rating, 0) AS rating, COALESCE(s.NumberGames, 0) AS number_games, '
+        . 'COALESCE(wcs.tournaments_played, 0) AS wc_played, COALESCE(wcs.gold, 0) AS wc_gold, '
+        . 'COALESCE(wcs.silver, 0) AS wc_silver, COALESCE(wcs.bronze, 0) AS wc_bronze, '
+        . 's.tournament_id AS last_tournament_id, s.event_date AS last_event_date, lt.name AS last_tournament_name, lt.country AS last_tournament_country '
+        . amiga_lb_snapshot_from_sql('s') . ' '
+        . str_replace('t.player_id', 'p.id', $sliceJoin['sql']) . ' '
+        . 'LEFT JOIN tournaments lt ON lt.id = s.tournament_id '
+        . 'WHERE s.NumberGames > 0 AND ' . $tokenSql . ' = ? '
+        . 'ORDER BY s.Rating DESC, p.id ASC';
+
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare amiga_countries_player_rows_at_cutoff_for_country: ' . $con->error);
+    }
+
+    $eventDate = $cutoff['event_date'];
+    $chrono = $cutoff['chrono'];
+    $tournamentId = $cutoff['tournament_id'];
+    amiga_countries_stmt_bind($stmt, 'sdissdis', [
+        $eventDate,
+        $chrono,
+        $tournamentId,
+        $sliceKey,
+        $eventDate,
+        $chrono,
+        $tournamentId,
+        $countryToken,
+    ]);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute amiga_countries_player_rows_at_cutoff_for_country: ' . $stmt->error);
+    }
+    $result = $stmt->get_result();
+    $rows = [];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $rows[] = amiga_countries_normalize_player_row($row);
+        }
+        $result->free();
+    }
+    $stmt->close();
+
+    return amiga_countries_attach_elo_ranks_at_cutoff($con, $ctx, $rows);
 }
 
 /**
@@ -355,6 +662,19 @@ function amiga_countries_attach_elo_ranks_at_cutoff(mysqli $con, AmigaSnapshotCo
     }
 
     $rankByPlayer = [];
+    $playerIds = [];
+    foreach ($rows as $row) {
+        $playerId = (int) ($row['player_id'] ?? 0);
+        if ($playerId > 0) {
+            $playerIds[$playerId] = true;
+        }
+    }
+    $playerIds = array_keys($playerIds);
+    if ($playerIds === []) {
+        return $rows;
+    }
+
+    $placeholders = implode(',', array_fill(0, count($playerIds), '?'));
     $sql = 'SELECT r.player_id, r.elo_rank FROM (
         SELECT er.player_id, er.elo_rank,
             ROW_NUMBER() OVER (
@@ -363,6 +683,7 @@ function amiga_countries_attach_elo_ranks_at_cutoff(mysqli $con, AmigaSnapshotCo
             ) AS rn
         FROM amiga_player_elo_rank_at_event er
         WHERE (er.event_date, er.event_chrono, er.tournament_id) <= (?, ?, ?)
+          AND er.player_id IN (' . $placeholders . ')
     ) r WHERE r.rn = 1';
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
@@ -371,7 +692,11 @@ function amiga_countries_attach_elo_ranks_at_cutoff(mysqli $con, AmigaSnapshotCo
     $eventDate = $cutoff['event_date'];
     $chrono = $cutoff['chrono'];
     $tournamentId = $cutoff['tournament_id'];
-    $stmt->bind_param('sdi', $eventDate, $chrono, $tournamentId);
+    amiga_countries_stmt_bind(
+        $stmt,
+        'sdi' . str_repeat('i', count($playerIds)),
+        array_merge([$eventDate, $chrono, $tournamentId], $playerIds)
+    );
     if (!$stmt->execute()) {
         $stmt->close();
 

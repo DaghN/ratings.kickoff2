@@ -362,6 +362,16 @@ Late TT cutoffs scan more snapshot / elo history → cost grows even though **di
 
 ### Likely fix slice (not implemented)
 
-1. `amiga_countries_query_roster_rows($con, $ctx, $countryToken)` — SQL filtered + elo attach **for roster player ids only**
-2. Hero summary: one row from `amiga_countries_query_index_rows` filtered by token, or single-country aggregate
+1. ~~`amiga_countries_query_roster_rows($con, $ctx, $countryToken)`~~ — **Done 2026-07-04:** SQL filtered + elo attach scoped to roster player ids
+2. ~~Hero summary~~ — **Done:** derived from roster rows (roster view) or `amiga_countries_query_country_summary` (rivals)
 3. Optional: F20 chrome — flush hero shell before query, or hash scroll after content (separate from query perf)
+
+### After roster fetch fix (local, Greece, 2026-07-04)
+
+| `as=` | Before (all players) | After (`query_roster_rows`) | Parity |
+|-------|----------------------|----------------------------|--------|
+| Present | ~25 ms | **~2 ms** | OK |
+| `month:2025-09` | ~845 ms | **~208 ms** | OK |
+| `event:589` | ~968 ms | **~172 ms** | OK |
+
+Elo attach now uses `player_id IN (...)` from fetched rows only (helps global path too).

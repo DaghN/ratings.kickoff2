@@ -79,12 +79,13 @@ include __DIR__ . '/../../config/ko2amiga_config.php';
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $con->query("SET time_zone = '+00:00'");
 $ctx = amiga_lb_context($con);
-$playerRows = amiga_countries_player_rows($con, $ctx);
-$indexRows = amiga_countries_index_rows($playerRows);
-$summaryRow = amiga_countries_index_row_for_token($indexRows, $countryToken);
-$rosterRows = $k2AmigaCountryView === 'roster'
-    ? amiga_countries_roster_rows($playerRows, $countryToken)
-    : [];
+if ($k2AmigaCountryView === 'roster') {
+    $rosterRows = amiga_countries_query_roster_rows($con, $ctx, $countryToken);
+    $summaryRow = amiga_countries_summary_row_from_player_rows($rosterRows, $countryToken);
+} else {
+    $summaryRow = amiga_countries_query_country_summary($con, $ctx, $countryToken);
+    $rosterRows = [];
+}
 
 if ($summaryRow === null) {
     mysqli_close($con);

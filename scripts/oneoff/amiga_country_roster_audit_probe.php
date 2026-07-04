@@ -25,7 +25,8 @@ foreach (['present', 'month:2025-09', 'month:2002-01', 'event:589'] as $as) {
     bench('header_snapshot_context', fn () => amiga_snapshot_context_from_request($con));
     $ctx = amiga_snapshot_context_from_request($con);
 
-    $all = bench('player_rows_all_countries', fn () => amiga_countries_player_rows($con, $ctx));
+    bench('query_roster_rows_new', fn () => amiga_countries_query_roster_rows($con, $ctx, $country));
+    $all = bench('player_rows_all_countries_legacy', fn () => amiga_countries_player_rows($con, $ctx));
     echo '  all_players=' . count($all) . "\n";
     bench('index_rows_php_rollup', fn () => amiga_countries_index_rows($all));
     $roster = bench('roster_rows_php_filter', fn () => amiga_countries_roster_rows($all, $country));
