@@ -476,30 +476,27 @@ function amiga_lb_honours_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx)
         return [];
     }
 
-    $sql = 'SELECT t.player_id,
+    /* Request-scoped cache — tournament-honours.php needs rows + player count and
+       amiga_lb_honours_player_count() TT path counts these same rows. */
+    static $cache = [];
+    $cacheKey = $cutoff['event_date'] . '|' . $cutoff['chrono'] . '|' . $cutoff['tournament_id'];
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
+    $sql = 'SELECT p.id AS player_id,
                    p.name AS player_name,
                    p.country,
-                   COALESCE(t.Rating, 0) AS rating,
-                   t.tournaments_played,
-                   t.event_gold,
-                   t.event_silver,
-                   t.event_bronze,
-                   t.event_podiums,
-                   t.perfect_events
-            FROM (
-                SELECT x.* FROM (
-                    SELECT snap.*,
-                        ROW_NUMBER() OVER (
-                            PARTITION BY snap.player_id
-                            ORDER BY snap.event_date DESC, snap.event_chrono DESC, snap.tournament_id DESC
-                        ) AS rn
-                    FROM amiga_player_event_snapshots snap
-                    WHERE (snap.event_date, snap.event_chrono, snap.tournament_id) <= (?, ?, ?)
-                ) x
-                WHERE x.rn = 1 AND x.tournaments_played > 0
-            ) t
-            INNER JOIN amiga_players p ON p.id = t.player_id
-            ORDER BY ' . amiga_lb_tournament_honours_order_sql('t');
+                   COALESCE(s.Rating, 0) AS rating,
+                   s.tournaments_played,
+                   s.event_gold,
+                   s.event_silver,
+                   s.event_bronze,
+                   s.event_podiums,
+                   s.perfect_events
+            ' . amiga_lb_snapshot_from_sql('s') . '
+            WHERE s.tournaments_played > 0
+            ORDER BY ' . amiga_lb_tournament_honours_order_sql('s');
 
     $stmt = $con->prepare($sql);
     if (!$stmt) {
@@ -529,7 +526,7 @@ function amiga_lb_honours_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx)
     }
     $stmt->close();
 
-    return $rows;
+    return $cache[$cacheKey] = $rows;
 }
 
 /**
@@ -542,33 +539,22 @@ function amiga_lb_calendar_geo_rows_at_cutoff(mysqli $con, AmigaSnapshotContext 
         return [];
     }
 
-    $sql = 'SELECT t.player_id,
+    $sql = 'SELECT p.id AS player_id,
                    p.name AS player_name,
                    p.country,
-                   COALESCE(t.Rating, 0) AS rating,
-                   t.peak_year_games,
-                   t.peak_year_games_year,
-                   t.peak_year_tournaments,
-                   t.peak_year_tournaments_year,
-                   t.countries_played_in,
-                   t.opponent_countries_faced,
-                   t.opponent_countries_beaten
-            FROM (
-                SELECT x.* FROM (
-                    SELECT snap.*,
-                        ROW_NUMBER() OVER (
-                            PARTITION BY snap.player_id
-                            ORDER BY snap.event_date DESC, snap.event_chrono DESC, snap.tournament_id DESC
-                        ) AS rn
-                    FROM amiga_player_event_snapshots snap
-                    WHERE (snap.event_date, snap.event_chrono, snap.tournament_id) <= (?, ?, ?)
-                ) x
-                WHERE x.rn = 1 AND x.NumberGames > 0
-            ) t
-            INNER JOIN amiga_players p ON p.id = t.player_id
-            ORDER BY t.peak_year_games DESC,
-                     t.peak_year_games_year ASC,
-                     t.player_id ASC';
+                   COALESCE(s.Rating, 0) AS rating,
+                   s.peak_year_games,
+                   s.peak_year_games_year,
+                   s.peak_year_tournaments,
+                   s.peak_year_tournaments_year,
+                   s.countries_played_in,
+                   s.opponent_countries_faced,
+                   s.opponent_countries_beaten
+            ' . amiga_lb_snapshot_from_sql('s') . '
+            WHERE s.NumberGames > 0
+            ORDER BY s.peak_year_games DESC,
+                     s.peak_year_games_year ASC,
+                     p.id ASC';
 
     $stmt = $con->prepare($sql);
     if (!$stmt) {
@@ -852,16 +838,15 @@ function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx): mys
         . amiga_lb_snapshot_from_sql('s')
         . ' LEFT JOIN tournaments tpr ON tpr.id = s.peak_rating_tournament_id '
         . $joinPeakSnap
+        /* amiga_player_elo_rank_at_event is DENSE: every finalize writes one row per
+           debuted player (verified rows-per-event == cumulative debuts across all 605
+           events), so "latest row per player <= cutoff" == "rows at the cutoff event".
+           The previous ROW_NUMBER window over all rows <= cutoff scanned up to 173k
+           rows (~1.7-3.4 s); this equality read is ~10-15 ms with identical rows. */
         . ' LEFT JOIN ('
-        . '    SELECT x.player_id, x.peak_elo_rank, x.peak_elo_rank_tournament_id FROM ('
-        . '        SELECT er.player_id, er.peak_elo_rank, er.peak_elo_rank_tournament_id,'
-        . '            ROW_NUMBER() OVER ('
-        . '                PARTITION BY er.player_id'
-        . '                ORDER BY er.event_date DESC, er.event_chrono DESC, er.tournament_id DESC'
-        . '            ) AS rn'
-        . '        FROM amiga_player_elo_rank_at_event er'
-        . '        WHERE (er.event_date, er.event_chrono, er.tournament_id) <= (?, ?, ?)'
-        . '    ) x WHERE x.rn = 1'
+        . '    SELECT er.player_id, er.peak_elo_rank, er.peak_elo_rank_tournament_id'
+        . '    FROM amiga_player_elo_rank_at_event er'
+        . '    WHERE er.tournament_id = ?'
         . ') er ON er.player_id = p.id '
         . 'LEFT JOIN tournaments tpke ON tpke.id = er.peak_elo_rank_tournament_id '
         . $peakRankPlayedJoinTt
@@ -876,7 +861,7 @@ function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx): mys
     $eventDate = $cutoff['event_date'];
     $chrono = $cutoff['chrono'];
     $tournamentId = $cutoff['tournament_id'];
-    $stmt->bind_param('sdisdi', $eventDate, $chrono, $tournamentId, $eventDate, $chrono, $tournamentId);
+    $stmt->bind_param('sdii', $eventDate, $chrono, $tournamentId, $tournamentId);
     if (!$stmt->execute()) {
         throw new RuntimeException('execute amiga peak rating lb snapshot: ' . $stmt->error);
     }

@@ -498,3 +498,21 @@ Waste stacked on top of the slow scan:
 ## World Cups hub — TT read fix (2026-07-04, same session)
 
 Not an F6 chrome attempt but same clock family. All `/amiga/world-cups/*` pages multi-second in TT (`event:583` chronology ~5 s). **Cause:** `amiga_world_cup_stats_apply_share_of_year_games()` → `amiga_community_year_realm_games_at_cutoff()` — `amiga_community_stat_facts` has **446k rows** and only `tournament_id`-first indexes, so the latest-fact-per-year subquery (`tournament_id <= cutoff` + metric filters) full-scanned: **2,581 ms** at `event:583`. Fix: new index `idx_community_facts_metric_period` (`period_type, slice_type, slice_key, metric_key, count_basis, period_key, tournament_id`) → **48 ms** (54×); DDL in `scripts/amiga/sql/034_community_stats.sql` + `sql/derived/` mirror (staging picks it up on next export). Plus request cache on `amiga_world_cup_stats_rows()` (hub shell chapter count + page body each ran it, separate connections). Curl `event:583`: chronology 5+ s → **~0.5 s**; players/stats/countries wings 0.4–0.8 s.
+
+---
+
+## Three slow LB wings — TT reads fixed (2026-07-04, Dagh report)
+
+**Dagh:** tournament-honours / calendar-geo / peak-rating vanish completely in TT (any y) before drawing slowly; "something quite poor or broken, maybe memory." **Diagnosis:** all three had private TT queries that never got the 3d-b1 narrow-scan treatment — blocks of 1.1–3.4 s at `year:2024`, far past the 700 ms cloak/gate ceiling, so both the y=0 chrome gate and the y>0 carry cloak timed out into a void. (PHP memory was fine, 4–6 MB — the "memory" feel was MySQL materializing wide temp tables server-side.) Probes: `amiga_lb_slow_wings_tt_probe.php`, `amiga_lb_slow_wings_variant_probe.php`, `amiga_lb_peak_rating_parity_probe.php`.
+
+| Wing (TT `year:2024`) | Before | After | Fix |
+|------|--------|-------|-----|
+| tournament-honours | 586 ms **×2** (page reran the identical query for the footer count) | **43 ms ×1** | `amiga_lb_honours_rows_at_cutoff()` → shared `amiga_lb_snapshot_from_sql()` narrow shape + request cache (`amiga_lb_honours_player_count()` TT path counts the cached rows) |
+| calendar-geo | 1,072 ms | **41 ms** | `amiga_lb_calendar_geo_rows_at_cutoff()` → same shared narrow shape (had its own inline wide `snap.*` window copy) |
+| peak-rating | 2,248 ms | **92 ms** | `amiga_lb_query_peak_rating()` er-join rewritten: `amiga_player_elo_rank_at_event` is **dense** (each finalize writes one row per debuted player — verified rows-per-event == cumulative debuts across all 605 events), so latest-per-player ≤ cutoff ≡ `WHERE er.tournament_id = <cutoff event>` — the 173k-row ROW_NUMBER window was pure waste |
+
+**Parity:** honours + calendar-geo old-vs-new across 3 cutoffs OK; peak-rating full row-set old-vs-new across **7 scenarios** (`year:2024`, `year:2001`, `month:2002-06`, `month:2014-07`, `event:589`, `event:22`, `month:2025-09`) all OK. Curl: all three TT pages **0.4–0.95 s** (≈ present), 468 rows, no PHP warnings.
+
+**Pattern note for future wings:** any remaining `SELECT snap.*` + ROW_NUMBER copies are the same bug — one is left in `amiga_player_snapshot_lib.php` (`amiga_player_snapshot_row_at_cutoff`, single-player `player_id = ?` filter so cheap, fine as is). Dense-event equality is preferable to narrow+join-back wherever the table writes one row per player per finalize (er table: narrow+join-back still cost 0.9–2.3 s; dense equality 10–15 ms).
+
+**Method generalized:** the full playbook for carrying these optimizations to the rest of the realm (patterns, probe/parity templates, budgets, remaining-suspects inventory) is [`docs/amiga-tt-query-optimization-playbook.md`](../amiga-tt-query-optimization-playbook.md).
