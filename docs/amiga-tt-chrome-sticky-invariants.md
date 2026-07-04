@@ -68,7 +68,7 @@ When you change the left column, **re-run reproduction** for the listed failures
 
 | When you change… | Re-run failures… |
 |------------------|------------------|
-| Carry-scroll cloak / reveal / payload | F1, F6, F7, F8 |
+| Carry-scroll cloak / reveal / payload | F1, F6, F7, F8, F18 |
 | Head inline boot or early `<html>` classes | F3, F12 |
 | Chrome render order or wrapper markup | F1, F2, F13 |
 | Stamp script load order | F13, F14 |
@@ -121,13 +121,15 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Try to reproduce** | Cold load + chevron nav on rating LB Event wing. |
 | **Touchpoints** | Head boot CSS, pin JS bar geometry, `theme.css` |
 
-### F6 — Header or TT chrome flashes during carry-scroll restore
+### F6 — Sub-ribbon content blanks on TT ribbon nav at scroll top
 
 | | |
 |--|--|
-| **What you see** | On mid-scroll navigation (chevron, hub pill), site header or ribbon flashes at scroll `0` or wrong Y before settling. |
-| **Try to reproduce** | Player profile (or long LB) — scroll down → hub pill or chevron with carry-scroll. |
-| **Touchpoints** | `k2_carry_scroll_restore.php`, cloak CSS |
+| **What you see** | At **`scrollY ≈ 0`**, TT ribbon navigation (wings, chevrons, dropdown pickers) causes **hub chapter and everything below** to vanish briefly, then redraw. **Site header, temporal stamp, and snapshot ribbon stay visible** — no blink on the ribbon stack. Sequence is **old content → blank → new content** (not new content appearing first, then blanking). Chevron, wing, and dropdown behave **about the same** — blanking is **very consistent** at top. |
+| **Contrast (control)** | Scroll down even slightly → same ribbon nav usually **does not** blank sub-ribbon chrome; mainly the table (or primary body block) updates while hub nav, filters, and ribbon feel stable. |
+| **Try to reproduce** | Rating LB `?as=event:{id}` — scroll to **top** → chevron, wing tab, or picker step → watch from hub chapter downward. Repeat with one wheel-tick of scroll for contrast. |
+| **Touchpoints** | `k2_carry_scroll_restore.php`, cloak CSS, `js/k2-carry-scroll.js` (TT ribbon `data-k2-carry-scroll`) |
+| **Reported** | 2026-07-04 — baseline explore (Dagh); mapped before slice 0 |
 
 ### F7 — Ribbon vertical jump during nav while **stuck**
 
@@ -218,6 +220,15 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Touchpoints** | Pin JS, head boot, CSS |
 | **Note** | Policy mismatch symptom from the reverted attempt (fixed-from-load). |
 
+### F18 — TT hub-tab nav whole-page blank (late cutoff; Present OK)
+
+| | |
+|--|--|
+| **What you see** | On **Countries** hub (and sometimes **World Cups → Chronology**), switching views via the **hub bar** sometimes causes a **whole-page** blank and redraw — not limited to content below the ribbon. **Present day** at the same route: effectively instant, no blank. **TT:** severity depends on cutoff — **early** time-travel dates often fine; **late** cutoffs (towards 2025) especially bad on Countries. Suspicious parity gap: at the **same effective “latest tournament” cutoff**, Present is instant but TT **always** whole-page blanks on Countries. Intermittent on WC chronology tab (`?as=event:585`); Countries hub bar nav more pronounced. |
+| **Try to reproduce** | `countries.php?as=event:{late}` — hub bar between views at scroll top and mid-scroll; compare `countries.php` Present (no `as=`). Repeat with an **early** `as=event:{id}` vs **late** id. WC: `world-cups/chronology.php?as=event:585` — hub tab vs Present same tab. |
+| **Touchpoints** | Hub `data-k2-carry-scroll` nav, `k2_carry_scroll_restore.php`, ranked table cloak (`$k2RankedCloak`), TT snapshot chrome render path, Countries / World Cups hub shell |
+| **Reported** | 2026-07-04 — baseline explore (Dagh); separate thread from F6 though both use carry-scroll |
+
 ---
 
 ## Reproduction recipes (smoke)
@@ -226,14 +237,18 @@ Minimum manual pass after touching § Integration touchpoints. Maps to failures 
 
 | # | Steps | Watch for |
 |---|--------|-----------|
-| **S1** | Rating LB `?as=event:{id}` — load at top | F17, F10, F13 |
+| **S1** | Rating LB `?as=event:{id}` — load at top → ribbon chevron / wing / picker | F6, F17, F10, F13 |
+| **S1b** | Same page — one wheel-tick down → ribbon chevron ×2 | F6 contrast (should not blank sub-ribbon) |
 | **S2** | Scroll mid-page → chevron ×2 | F1, F3, F14 |
 | **S3** | Scroll until ribbon **stuck** at viewport top → chevron | F3, F4, F7, F8 |
 | **S4** | Scroll until header gone (**stuck** at top) → chevron | F4, F7, F8 |
 | **S5** | Present → Time travel toggle (incl. after prior pushpin opt-out → Present → toggle again) | F11, F12, F13 |
 | **S6** | Wing tab Event → Month → Year | F14, F2 |
 | **S7** | Pushpin opt out → scroll → reload | F15, F16 |
-| **S8** | Player profile mid-scroll → hub pill carry | F6, F1 |
+| **S8** | Player profile mid-scroll → hub pill carry | F1 (F6 contrast — mid-scroll) |
+| **S9** | Countries `?as=event:{late}` vs Present — hub bar view switch | F18 |
+| **S9b** | Countries early vs late `as=` — same hub bar nav | F18 cutoff sensitivity |
+| **S10** | WC chronology `?as=event:585` — hub tab vs Present | F18 |
 
 **Local base URL:** `http://ratingskickoff.test/amiga/leaderboards/rating.php?as=event:589` (adjust event id).
 
@@ -265,4 +280,6 @@ When a failure is **solved and verified**, add one line under the row: **Resolve
 | 2026-07-04 | **Stripped** to failures + tensions only; removed causes and solution attempts |
 | 2026-07-04 | Added § **Where causes and fixes are documented** (handoff path + workflow) |
 | 2026-07-04 | Aligned failure wording with CD4 (**top: 0** latch; in-flow header) |
+| 2026-07-04 | **F6 refined** — sub-ribbon blank at scroll top on TT ribbon nav; ribbon stable; old→blank→new; mid-scroll contrast |
+| 2026-07-04 | **F18 added** — TT hub-tab whole-page blank (Countries late cutoff; Present OK); smokes S9–S10 |
 | 2026-07-04 | Baseline: removed pin touchpoint row; sticky-only tensions marked deferred |

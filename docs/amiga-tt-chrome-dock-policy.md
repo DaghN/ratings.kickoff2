@@ -202,7 +202,7 @@ Stamp motion on navigation: **CD7** (§3). Stamp sync script load order: existin
 
 ## 8. Implementation
 
-**Baseline phase (current):** TT chrome **in flow only** — C02 pin/sticky **removed** Jul 2026. Goal: nav stability (failures register F1–F8, S1–S2, S5–S6, S8) before any CD2–CD4 sticky work.
+**Baseline phase (current):** TT chrome **in flow only** — C02 pin/sticky **removed** Jul 2026. Goal: nav stability before any CD2–CD4 sticky work. **First reported baseline targets:** **F6** (sub-ribbon blank at scroll top on TT ribbon nav) + **F18** (TT hub-tab whole-page blank, late cutoff / Present parity gap) — smokes **S1**, **S1b**, **S9–S10** in [`amiga-tt-chrome-sticky-invariants.md`](amiga-tt-chrome-sticky-invariants.md).
 
 **Deferred** — CD sticky implementation after baseline handoff. Policy CD1–CD10 above is the source of truth for the **future** sticky track. New plan **§0** links [`amiga-tt-chrome-sticky-invariants.md`](amiga-tt-chrome-sticky-invariants.md). See failures register § **Where causes and fixes are documented**.
 
