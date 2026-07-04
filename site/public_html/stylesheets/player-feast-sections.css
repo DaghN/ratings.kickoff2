@@ -163,9 +163,9 @@
 
 .pm3d-section--played-weeks .pm3d-section__content > .pm3-cal--hero {
 	padding-bottom: 16px;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
+	display: grid;
+	grid-template-columns: minmax(0, 3fr) auto minmax(0, 7fr);
+	align-items: start;
 }
 
 .pm3d-section--played-weeks .pm3d-section__hint {
@@ -182,6 +182,7 @@
 }
 
 .pm3d-section--played-weeks .pm3d-section__content > .pm3-cal--hero.pm3-cal--weeks .pm3-cal__years {
+	grid-column: 2;
 	width: fit-content;
 	max-width: 100%;
 }

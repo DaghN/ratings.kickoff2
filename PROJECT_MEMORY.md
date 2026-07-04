@@ -134,6 +134,7 @@
 
 ## Recent log
 
+| 2026-07-04 | **Profile played-weeks heatmap** — 30/70 left/right spare-space grid (was centred 50/50); `player-feast-sections.css`. |
 | 2026-07-04 | **Amiga Games Highlights — Tournament column** — Date → Tournament → Player A (parity with Recent); `default_sort_col` +1 on all five boards (× two scopes); join-back already had tournament cols — no SQL change; parity + TT probe green. |
 | 2026-07-04 | **Online Track O5-lite — Status year defer + first_games memo** — defer current-year league bundle to client prewarm; request memo on `k2_league_load_first_games`. `build_period_competitions` **~530→~98 ms**; curl `/status.php` **~0.40→~0.15 s**. Handoff [`2026-07-04-017`](docs/orchestration/agent-handoffs/2026-07-04-017-online-track-o5-status-year-defer-memo.md). |
 | 2026-07-04 | **Online Track O1 — games/all score-line facet dedupe** — request cache + single-pass `GROUP BY gd, gs, ts` when score-line filters idle (port Amiga realm games pattern). Facet load **~3704→~995 ms**; census curl **3.94→1.31 s**. **<0.5 s** target not met (full-table aggregation + HTML remain). Parity OK — `online_track_o1_parity_probe.php`. Handoff [`2026-07-04-014`](docs/orchestration/agent-handoffs/2026-07-04-014-online-track-o1-games-all-facets.md). |
