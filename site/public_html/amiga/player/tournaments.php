@@ -105,8 +105,6 @@ $yearCounts = amiga_tournament_index_inject_selected_year(
 );
 $countryChoices = amiga_tournament_index_country_listbox_choices($countryCounts);
 $yearChoices = amiga_tournament_index_year_listbox_choices($yearCounts);
-$showCountryFilter = count($countryCounts) > 1 || $countryFilter !== '';
-$showYearFilter = count($yearCounts) > 1 || $yearFilter > 0;
 
 $tournaments = amiga_player_tournament_participation_filter_events(
     $allTournamentRows,
@@ -129,6 +127,14 @@ $listSummary = amiga_player_tournaments_list_summary(
     $podiumFilter,
 );
 $tournamentsFilterAction = k2_amiga_route('amiga-player-tournaments');
+$filtersActive = amiga_player_tournaments_filters_active(
+    $eventFilter,
+    $countryFilter,
+    $yearFilter,
+    $perfectFilter,
+    $winnerFilter,
+    $podiumFilter
+);
 amiga_player_publish_hero_context($pm, $con);
 mysqli_close($con);
 
@@ -155,8 +161,6 @@ $k2PlayerTournamentsCountryFilter = $countryFilter;
 $k2PlayerTournamentsYearFilter = $yearFilter;
 $k2PlayerTournamentsCountryChoices = $countryChoices;
 $k2PlayerTournamentsYearChoices = $yearChoices;
-$k2PlayerTournamentsShowCountryFilter = $showCountryFilter;
-$k2PlayerTournamentsShowYearFilter = $showYearFilter;
 $k2PlayerTournamentsFilterAction = $tournamentsFilterAction;
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournaments_filters_nav.php';
 ?>
@@ -164,9 +168,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournaments_filters_
 <section class="k2-player-tournaments-table-view">
 <div class="k2-player-games-status" data-k2-carry-scroll>
 	<?php echo k2_h($listSummary); ?>
-<?php if (amiga_player_tournaments_filters_active($eventFilter, $countryFilter, $yearFilter, $perfectFilter, $winnerFilter, $podiumFilter)) { ?>
-	<a class="k2-player-games-reset" href="<?php echo k2_h(amiga_player_tournaments_reset_url($playerId)); ?>">Reset filters</a>
-<?php } ?>
+	<a class="k2-player-games-reset<?php echo $filtersActive ? '' : ' is-idle'; ?>" href="<?php echo k2_h(amiga_player_tournaments_reset_url($playerId)); ?>"<?php echo $filtersActive ? '' : ' aria-disabled="true" tabindex="-1"'; ?>>Reset filters</a>
 </div>
 
 <div id="<?php echo k2_h(K2_PLAYER_TOURNAMENTS_TABLE_ANCHOR); ?>" class="k2-player-tournaments-table-anchor" tabindex="-1"></div>

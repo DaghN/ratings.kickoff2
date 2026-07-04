@@ -1348,17 +1348,23 @@ function amiga_tournament_index_inject_selected_year(array $counts, int $year): 
 
 /**
  * @param array<string, int> $counts
- * @return list<array{value: string, label: string, meta: string}>
+ * @return list<array{value: string, label: string, meta: string, flag_html?: string}>
  */
 function amiga_tournament_index_country_listbox_choices(array $counts): array
 {
+    require_once __DIR__ . '/k2_amiga_country_flag.php';
     $choices = [['value' => '', 'label' => '', 'meta' => '']];
     foreach ($counts as $country => $count) {
-        $choices[] = [
+        $choice = [
             'value' => $country,
             'label' => $country,
             'meta' => (string) (int) $count,
         ];
+        $flagHtml = k2_amiga_country_flag_img($country, ['decorative' => true]);
+        if ($flagHtml !== '') {
+            $choice['flag_html'] = $flagHtml;
+        }
+        $choices[] = $choice;
     }
 
     return $choices;

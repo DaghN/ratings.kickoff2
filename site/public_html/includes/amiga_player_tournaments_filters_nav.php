@@ -10,7 +10,6 @@
  * Set $k2PlayerTournamentsCountryFilter: '' | host country name
  * Set $k2PlayerTournamentsYearFilter: 0 | calendar year
  * Set $k2PlayerTournamentsCountryChoices / $k2PlayerTournamentsYearChoices
- * Set $k2PlayerTournamentsShowCountryFilter / $k2PlayerTournamentsShowYearFilter (bool)
  * Set $k2PlayerTournamentsFilterAction (form action URL)
  */
 declare(strict_types=1);
@@ -28,8 +27,6 @@ $k2PlayerTournamentsCountryFilter = $k2PlayerTournamentsCountryFilter ?? '';
 $k2PlayerTournamentsYearFilter = (int) ($k2PlayerTournamentsYearFilter ?? 0);
 $k2PlayerTournamentsCountryChoices = $k2PlayerTournamentsCountryChoices ?? [['value' => '', 'label' => '', 'meta' => '']];
 $k2PlayerTournamentsYearChoices = $k2PlayerTournamentsYearChoices ?? [['value' => '0', 'label' => '', 'meta' => '']];
-$k2PlayerTournamentsShowCountryFilter = !empty($k2PlayerTournamentsShowCountryFilter);
-$k2PlayerTournamentsShowYearFilter = !empty($k2PlayerTournamentsShowYearFilter);
 $k2PlayerTournamentsFilterAction = (string) ($k2PlayerTournamentsFilterAction ?? '');
 
 $k2PlayerTournamentsSegmentUrl = static function (
@@ -151,7 +148,6 @@ $k2PlayerTournamentsSortParams = k2_table_sort_query_params();
 	</nav>
 </div>
 </div>
-<?php if ($k2PlayerTournamentsShowCountryFilter || $k2PlayerTournamentsShowYearFilter) { ?>
 <form class="k2-player-games-controls" method="get" action="<?php echo htmlspecialchars($k2PlayerTournamentsFilterAction, ENT_QUOTES, 'UTF-8'); ?>" data-k2-carry-scroll>
 	<div class="k2-player-games-controls__meta">
 		<input type="hidden" name="id" value="<?php echo $k2PlayerTournamentsPlayerId; ?>" />
@@ -167,32 +163,21 @@ $k2PlayerTournamentsSortParams = k2_table_sort_query_params();
 <?php if ($k2PlayerTournamentsPodiumFilter !== '') { ?>
 		<input type="hidden" name="podium" value="<?php echo htmlspecialchars($k2PlayerTournamentsPodiumFilter, ENT_QUOTES, 'UTF-8'); ?>" />
 <?php } ?>
-<?php if (!$k2PlayerTournamentsShowCountryFilter && $k2PlayerTournamentsCountryFilter !== '') { ?>
-		<input type="hidden" name="country" value="<?php echo htmlspecialchars($k2PlayerTournamentsCountryFilter, ENT_QUOTES, 'UTF-8'); ?>" />
-<?php } ?>
-<?php if (!$k2PlayerTournamentsShowYearFilter && $k2PlayerTournamentsYearFilter > 0) { ?>
-		<input type="hidden" name="year" value="<?php echo (int) $k2PlayerTournamentsYearFilter; ?>" />
-<?php } ?>
 <?php foreach ($k2PlayerTournamentsSortParams as $sortKey => $sortValue) { ?>
 		<input type="hidden" name="<?php echo htmlspecialchars((string) $sortKey, ENT_QUOTES, 'UTF-8'); ?>" value="<?php echo htmlspecialchars((string) $sortValue, ENT_QUOTES, 'UTF-8'); ?>" />
 <?php } ?>
 	</div>
 	<div class="k2-amiga-player-games-filter-rows">
-		<div class="k2-player-games-controls__fields k2-amiga-player-games-filter-row">
-<?php if ($k2PlayerTournamentsShowCountryFilter) { ?>
-			<div class="k2-player-games-controls__field">
+		<div class="k2-player-games-controls__fields k2-amiga-player-games-filter-row k2-amiga-player-tournaments-listbox-row">
+			<div class="k2-player-games-controls__field k2-amiga-player-tournaments-country-field">
 				<span class="server-period-activity-leaderboard__picker-label">Host country</span>
 				<?php k2_archive_listbox_render('country', 'k2-player-tournaments-country', $k2PlayerTournamentsCountryFilter, $k2PlayerTournamentsCountryChoices, 'Filter by host country', '', '', false, ''); ?>
 			</div>
-<?php } ?>
-<?php if ($k2PlayerTournamentsShowYearFilter) { ?>
-			<div class="k2-player-games-controls__field">
+			<div class="k2-player-games-controls__field k2-amiga-player-tournaments-year-field">
 				<span class="server-period-activity-leaderboard__picker-label">Year</span>
 				<?php k2_archive_listbox_render('year', 'k2-player-tournaments-year', (string) $k2PlayerTournamentsYearFilter, $k2PlayerTournamentsYearChoices, 'Events from this calendar year', '', '', false, '0'); ?>
 			</div>
-<?php } ?>
 		</div>
 	</div>
 </form>
-<?php } ?>
 </div>

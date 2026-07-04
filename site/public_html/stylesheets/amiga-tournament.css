@@ -1196,53 +1196,6 @@ body.k2-site .k2-amiga-organizer-results__undo:focus-visible {
 	font-weight: 700;
 }
 
-body.k2-site .k2-amiga-realm-games-all-segment-filters {
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	align-items: flex-start;
-	gap: var(--k2-nav-gap);
-	width: fit-content;
-	max-width: 100%;
-	margin-bottom: var(--k2-nav-gap);
-}
-
-body.k2-site .k2-amiga-realm-games-all-segment-filters .k2-chrome-tabs.k2-amiga-tournament-index-tabs {
-	margin-top: 0;
-	margin-bottom: 0;
-}
-
-body.k2-site .k2-amiga-realm-games-all-filters > .k2-amiga-realm-games-all-segment-filters + .k2-realm-games-filters__form {
-	margin-top: 0;
-}
-
 body.k2-site .k2-realm-games-filters__host-pick.k2-archive-listbox--ghost-sized {
 	min-width: 12rem;
-}
-
-body.k2-site .k2-amiga-realm-games-all-filters .k2-realm-games-filters__row-label {
-	flex: 0 0 5.5rem;
-}
-
-/* Tournaments catalog + player history — segment toggles vs listbox pickers use different gaps. */
-body.k2-site .k2-amiga-tournament-index-segment-filters {
-	display: flex;
-	flex-direction: column;
-	gap: var(--k2-nav-gap);
-	width: fit-content;
-	max-width: 100%;
-}
-
-body.k2-site .k2-amiga-tournament-index-segment-filters .k2-chrome-tabs.k2-amiga-tournament-index-tabs,
-body.k2-site .k2-amiga-tournament-index-segment-filters .k2-chrome-tabs.k2-amiga-player-tournaments-tabs {
-	margin-top: 0;
-	margin-bottom: 0;
-}
-
-/* Player tournament history — four segment toggles on one row. */
-body.k2-site .k2-amiga-player-tournaments-segment-filters {
-	flex-direction: row;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: calc(var(--k2-nav-gap) * 2);
 }

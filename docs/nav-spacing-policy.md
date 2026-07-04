@@ -24,7 +24,7 @@ This policy locks the **target model** and **scope** for a one-time fix that poi
 | N2 | **Bottom-only ownership:** Each nav layer owns `margin-bottom: var(--k2-nav-gap)`. **Content never sets `margin-top`** for chrome spacing. Sub-layers never use `margin-top` for stack spacing. |
 | N3 | **No `:has()` spacing switches:** Inter-nav and nav-to-content gaps are the same value under N1, so conditional zeroing (`:has(+ sub-nav)`) is unnecessary in the end state. Delete those lists in Phase 2 -- do not extend them. |
 | N4 | **Cards with gaps, not nav caps:** Tables and panels stay bordered cards with visible air above them. Retire the dead "bar + table wrap" rule and defensive border-top reassertions tied to a never-shipped "cap" look. Scroll-mirror active state may still need local border fixes -- verify visually after retirement. |
-| N5 | **One token spine:** Single `--k2-nav-gap` only (Phase 2 dropped legacy alias tokens). |
+| N5 | **One token spine:** `--k2-nav-gap` for default chrome. **`--k2-player-hero-chrome-gap`** (24px) for feast player hero seams on `body.k2-player-wing` only — documented exception, not a tier system. |
 | N6 | **Optional hub exception (product gate):** After smoke, Games hub, Milestones hub, and LB Activity sub-tabs may keep **`--k2-hub-subnav-gap: 16px`** on **those three class hooks only** if 12px feels cramped. Never a tier system; never reintroduce `:has()`. Default recommendation: **collapse to 12px** (Option A). |
 | N7 | **Realm parity:** Amiga hub, LB, player, and WC includes follow the same rules as online. No Amiga-only spacing forks. |
 | N8 | **Markup normalization in scope:** Fix redundant `lb_nav_end.php` close, one `.k2-page-nav` close per shell (Games + Amiga WC shells currently diverge from Milestones shell). Spacing CSS must not rely on misleading wrapper comments. |
@@ -74,10 +74,10 @@ Spacing migration must sweep **margin-bottom** on every block that separates nav
 | Sub-nav chrome (activity, games hub, ms hub, WC, player opponents/milestones) | mixed 12/16px + `margin-top` lists | `margin-bottom: var(--k2-nav-gap)` or N6 exception; **`margin-top: 0`** |
 | `.k2-lb-league-honours` panel | bespoke `margin-top` + subnav `margin-bottom` | drop panel `margin-top`; subnav `margin-bottom: var(--k2-nav-gap)` |
 | `.k2-player-nav-bar` | **20px** default; **12px** on `body.k2-player-wing` | **20->12px** or documented exception (N10) |
-| `.k2-player-hero` | **`calc(var(--k2-nav-gap) + 12px)`** (24px at default token) | Player-wing hero only — extra air before player nav; H2H-style glow panel |
+| `.k2-player-hero` | **`var(--k2-player-hero-chrome-gap)`** (24px) on `body.k2-player-wing` only | Feast hero — extra air before/after in chrome stack (glow panel); hub bar bottom uses same token |
 | `.k2-amiga-tournament-hero` | tournament **16px** → **`var(--k2-nav-gap)`** | Entity hero in chrome stack (quiet surface) |
 | Amiga tournament detail nav | reuses `.k2-player-nav-bar` on `tournament.php` | **12px** via shared `.k2-player-nav-bar` rule (N10) |
-| Amiga tournaments index filter | `.k2-chrome-tabs` in `.k2-amiga-tournament-index-segment-filters` | segment rows: inner `gap: --k2-nav-gap`; segment block → listbox: parent `.k2-player-games-filters` default **6px**; one `--k2-nav-gap` below whole filter block |
+| Amiga tournaments index filter | `.k2-chrome-tabs` in `.k2-amiga-tournament-index-segment-filters` | **Superseded for vertical rhythm (Jul 2026):** [`filter-stack-spacing-policy.md`](filter-stack-spacing-policy.md) — bottom-only `--k2-nav-gap`, no wrapper `gap`; horizontal picker rows stay local |
 | Player wing top tabs | `.k2-chrome-tabs.k2-player-wing-tabs` | segment width; tournament detail keeps full-width `.k2-player-nav-bar` |
 
 ---
@@ -102,7 +102,7 @@ Grep pass on nav-like blocks in `theme.css`. **Token-only** swaps (12px → `var
 | Item | Value | Why |
 |------|-------|-----|
 | `.k2-player-opponents:has(.k2-player-opponents-h2h) .k2-player-opponents__nav` | `margin-bottom: 20px` | H2H picker block needs more air than table wing |
-| `.k2-player-hero` | `calc(var(--k2-nav-gap) + 12px)` | Player-wing hero only — extra gap before `.k2-player-nav-bar`; country/tournament heroes stay `--k2-nav-gap` |
+| `.k2-player-hero` | `var(--k2-player-hero-chrome-gap)` on `body.k2-player-wing` | Feast hero hub→hero and hero→player nav; token in `:root` |
 | `.k2-player-opponents__nav-row` (shipped Jun 2026) | flex row; `gap: calc(var(--k2-nav-gap) * 2)` between wing + grain segments | Amiga Opponents **vs Player · vs Country** beside wing tabs — [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md) §6 |
 | `.k2-hub-bar` top margin | `16px` | Header-to-hub rhythm, not `--k2-nav-gap` |
 | `.k2-hub-chapter-to-content-gap` | `22px` | HoF-only editorial gap; out of nav stack v1 |
@@ -158,7 +158,7 @@ Panel-**internal** navigation stays local until explicitly widened:
 | **2 -- Language** | Bottom-only everywhere; delete `:has()` and dead rules; markup + Amiga parity; drop token aliases |
 | **3 -- Polish** | Grep stray nav margins; tokenize holdouts; delete dead rules; document exceptions |
 
-Detail, file list, smoke URLs: [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md). **Agent checklist (new nav bars):** [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md).
+Detail, file list, smoke URLs: [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md). **Filter composite stacks (Tier 1 pages):** [`filter-stack-spacing-policy.md`](filter-stack-spacing-policy.md) · [`filter-stack-spacing-implementation-plan.md`](filter-stack-spacing-implementation-plan.md). **Agent checklist (new nav bars):** [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md).
 
 ---
 

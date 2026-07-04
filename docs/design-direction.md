@@ -213,6 +213,7 @@ Navigation pattern:
 
 - Hub, player, and leaderboard wings use **segment track + outline active cell**.
 - **Page nav vertical spacing** -- Phases 1-3 shipped (Jun 2026): [`nav-spacing-policy.md`](nav-spacing-policy.md) + [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md). **New nav bars:** [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md). Single **`--k2-nav-gap` (12px)**; bottom-only ownership.
+- **Filter stack vertical spacing** -- Shipped (Jul 2026): [`filter-stack-spacing-policy.md`](filter-stack-spacing-policy.md) + [`filter-stack-spacing-implementation-plan.md`](filter-stack-spacing-implementation-plan.md). Same token + bottom-only model; **no wrapper column `gap`** on Tier 1 filter pages; horizontal picker `gap` unchanged.
 - Hub and player nav no longer support A/B style overrides; the preview/tuning scaffolding has been pruned.
 - Tint picker: compact right-anchored **Tint** disclosure pill (current swatch dot when closed); four swatch choices open to its left; closed by default and **closes on any site navigation** (not persisted across page loads); segment-outline active choice; inactive swatches dimmed (`k2_tint_picker.php`, `k2-tint-toggle.js`).
 - Secondary actions can use quiet rounded pills when they act like controls rather than content links (e.g. Player Games `Reset` / pager actions); Status Leagues keeps period tabs separate from its spacious prev/picker/next stepper.
@@ -222,7 +223,7 @@ Imagery:
 - No repeating site-wide decorative banner.
 - Use imagery where it earns its place, e.g. Status heritage box or future Amiga photos.
 - **Amiga player hero:** country as fourth hero stat (label + flag under Rank/Rating/Games); `k2_amiga_country_flag.php` + `img/flags/amiga/`.
-- **Player hero (online + Amiga player wing):** `.k2-player-hero` — 2px accent border + layered panel glow (rhymes with H2H fighter cards); avatar ring uses matching accent glow; **`margin-bottom: calc(var(--k2-nav-gap) + 12px)`** — extra air before player nav. **Not** applied to `.k2-country-hero` / tournament heroes (quiet 1px surface).
+- **Player hero (online + Amiga player wing):** `.k2-player-hero` — 2px accent border + layered panel glow (rhymes with H2H fighter cards); avatar ring uses matching accent glow; **`--k2-player-hero-chrome-gap` (24px)** on hub bar bottom + hero bottom in `body.k2-player-wing` — extra air for glow panel. **Not** applied to `.k2-country-hero` / tournament heroes (quiet 1px surface).
 - **Amiga table flags + entity links:** one leaderboard flag impression (`k2-amiga-country-flag-img`, 20×15); inline `[flag][name]` via `k2_amiga_lb_player_cell()` / `k2_amiga_lb_tournament_cell()` / `k2_amiga_lb_country_cell()` — **no dedicated flag-only Country columns** (migration: [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md)). Flag img → `k2_amiga_country_flag_link()`; entity names → `k2-link-star` helpers. Video spotlight caption: tgame `flag_link` + decorative (caption-only).
 - Status heritage box may use a clipped tint-following halo behind the art; the inset boundary contains the light.
 - Dense tables and charts should start high on the page.

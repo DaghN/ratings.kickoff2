@@ -136,7 +136,10 @@
 
 | When | Note |
 |------|------|
-| 2026-07-03 | **Amiga player tournaments filters** — four horizontal segment toggles (World Cups · Perfect run · Wins · Podiums) on one row; `winner=with-win` / `podium=with-podium` URL params; listbox row unchanged. |
+| 2026-07-03 | **Player feast hero chrome gap** — `--k2-player-hero-chrome-gap` (24px): hub bar → hero + hero → player nav on `body.k2-player-wing` (online + Amiga); replaces `calc(nav-gap + 12px)`. |
+| 2026-07-03 | **Amiga tournaments catalog filters** — host country / year / winner / winning country listboxes always visible; Reset filters pill always shown (`is-idle` when inactive); parity with player tournament history. |
+| 2026-07-03 | **Filter stack spacing (shipped)** — Tier 1 five pages: bottom-only `--k2-nav-gap`, no wrapper vertical `gap`; Amiga player games scope tabs moved outside filter wrapper (wing→scope 12px, scope→form 12px). Policy [`filter-stack-spacing-policy.md`](docs/filter-stack-spacing-policy.md). |
+| 2026-07-03 | **Amiga player tournaments filters** — four horizontal segment toggles (World Cups · Perfect run · Wins · Podiums); host country + year listboxes always visible (7.5rem / 50px / 6rem slots); Reset filters pill always shown (`is-idle` when inactive); host country panel rows get inline flags via shared `amiga_tournament_index_country_listbox_choices()`. |
 | 2026-07-03 | **Mobile / smartphone policy** — locked intent: read-first + pinch-second; dense tables stay tables (not card-reflow debt). Agent doc [`k2-mobile-smartphone-policy.md`](docs/k2-mobile-smartphone-policy.md); cross-refs in `design-direction`, `PROJECT_BRIEF`, `k2-tooltip-policy`, `AGENTS.md`. Known gaps: chart tap-to-tooltip, hover+click tap/double-tap, nav touch targets. |
 | 2026-07-03 | **Browser Back scroll restore** — `k2_carry_scroll_restore.php`: `pagehide` saves scrollY per URL; `back_forward` reload restores it (overrides `#player` hash landing); inbound hash scroll strips hash via `replaceState` so history tracks free scroll. |
 | 2026-07-03 | **TT Event ribbon — table inline flag** — stepper uses `k2_amiga_inline_flag_and_link()` (`k2-amiga-wc-podium-player`, 20×15); not prose `inline-flag-text`. |

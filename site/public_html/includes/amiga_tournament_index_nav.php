@@ -11,8 +11,7 @@
  * Set $k2AmigaTournamentIndexWinnerCountryFilter before include: '' | winning country name
  * Set $k2AmigaTournamentIndexCountryChoices / $k2AmigaTournamentIndexYearChoices (listbox rows)
  * Set $k2AmigaTournamentIndexWinnerChoices / $k2AmigaTournamentIndexWinnerCountryChoices (listbox rows)
- * Set $k2AmigaTournamentIndexShowCountryFilter / $k2AmigaTournamentIndexShowYearFilter (bool)
- * Set $k2AmigaTournamentIndexShowWinnerFilter / $k2AmigaTournamentIndexShowWinnerCountryFilter (bool)
+ * Listboxes are always visible (parity with player tournament history filters).
  */
 declare(strict_types=1);
 
@@ -33,10 +32,6 @@ $k2AmigaTournamentIndexCountryChoices = $k2AmigaTournamentIndexCountryChoices ??
 $k2AmigaTournamentIndexYearChoices = $k2AmigaTournamentIndexYearChoices ?? [['value' => '0', 'label' => '', 'meta' => '']];
 $k2AmigaTournamentIndexWinnerChoices = $k2AmigaTournamentIndexWinnerChoices ?? [['value' => '0', 'label' => '', 'meta' => '']];
 $k2AmigaTournamentIndexWinnerCountryChoices = $k2AmigaTournamentIndexWinnerCountryChoices ?? [['value' => '', 'label' => '', 'meta' => '']];
-$k2AmigaTournamentIndexShowCountryFilter = !empty($k2AmigaTournamentIndexShowCountryFilter);
-$k2AmigaTournamentIndexShowYearFilter = !empty($k2AmigaTournamentIndexShowYearFilter);
-$k2AmigaTournamentIndexShowWinnerFilter = !empty($k2AmigaTournamentIndexShowWinnerFilter);
-$k2AmigaTournamentIndexShowWinnerCountryFilter = !empty($k2AmigaTournamentIndexShowWinnerCountryFilter);
 
 $k2AmigaTournamentIndexListboxArgs = [
     $k2AmigaTournamentIndexCountryFilter,
@@ -108,7 +103,6 @@ if ($k2AmigaTournamentIndexCtx instanceof AmigaSnapshotContext && $k2AmigaTourna
 	</nav>
 </div>
 </div>
-<?php if ($k2AmigaTournamentIndexShowCountryFilter || $k2AmigaTournamentIndexShowYearFilter || $k2AmigaTournamentIndexShowWinnerFilter || $k2AmigaTournamentIndexShowWinnerCountryFilter) { ?>
 <form class="k2-player-games-controls" method="get" action="<?php echo htmlspecialchars($k2AmigaTournamentIndexFormAction, ENT_QUOTES, 'UTF-8'); ?>" data-k2-carry-scroll>
 	<div class="k2-player-games-controls__meta">
 <?php if ($k2AmigaTournamentIndexAsParam !== '') { ?>
@@ -123,50 +117,29 @@ if ($k2AmigaTournamentIndexCtx instanceof AmigaSnapshotContext && $k2AmigaTourna
 <?php if ($k2AmigaTournamentIndexVideosFilter !== '') { ?>
 		<input type="hidden" name="videos" value="<?php echo htmlspecialchars($k2AmigaTournamentIndexVideosFilter, ENT_QUOTES, 'UTF-8'); ?>" />
 <?php } ?>
-<?php if (!$k2AmigaTournamentIndexShowCountryFilter && $k2AmigaTournamentIndexCountryFilter !== '') { ?>
-		<input type="hidden" name="country" value="<?php echo htmlspecialchars($k2AmigaTournamentIndexCountryFilter, ENT_QUOTES, 'UTF-8'); ?>" />
-<?php } ?>
-<?php if (!$k2AmigaTournamentIndexShowYearFilter && $k2AmigaTournamentIndexYearFilter > 0) { ?>
-		<input type="hidden" name="year" value="<?php echo (int) $k2AmigaTournamentIndexYearFilter; ?>" />
-<?php } ?>
-<?php if (!$k2AmigaTournamentIndexShowWinnerFilter && $k2AmigaTournamentIndexWinnerFilter > 0) { ?>
-		<input type="hidden" name="winner" value="<?php echo (int) $k2AmigaTournamentIndexWinnerFilter; ?>" />
-<?php } ?>
-<?php if (!$k2AmigaTournamentIndexShowWinnerCountryFilter && $k2AmigaTournamentIndexWinnerCountryFilter !== '') { ?>
-		<input type="hidden" name="winner_country" value="<?php echo htmlspecialchars($k2AmigaTournamentIndexWinnerCountryFilter, ENT_QUOTES, 'UTF-8'); ?>" />
-<?php } ?>
 <?php foreach ($k2AmigaTournamentIndexSortParams as $sortKey => $sortValue) { ?>
 		<input type="hidden" name="<?php echo htmlspecialchars((string) $sortKey, ENT_QUOTES, 'UTF-8'); ?>" value="<?php echo htmlspecialchars((string) $sortValue, ENT_QUOTES, 'UTF-8'); ?>" />
 <?php } ?>
 	</div>
 	<div class="k2-amiga-player-games-filter-rows">
 		<div class="k2-player-games-controls__fields k2-amiga-player-games-filter-row">
-<?php if ($k2AmigaTournamentIndexShowCountryFilter) { ?>
 			<div class="k2-player-games-controls__field">
 				<span class="server-period-activity-leaderboard__picker-label">Host country</span>
 				<?php k2_archive_listbox_render('country', 'k2-amiga-tournament-index-country', $k2AmigaTournamentIndexCountryFilter, $k2AmigaTournamentIndexCountryChoices, 'Filter by host country', '', '', false, ''); ?>
 			</div>
-<?php } ?>
-<?php if ($k2AmigaTournamentIndexShowYearFilter) { ?>
 			<div class="k2-player-games-controls__field">
 				<span class="server-period-activity-leaderboard__picker-label">Year</span>
 				<?php k2_archive_listbox_render('year', 'k2-amiga-tournament-index-year', (string) $k2AmigaTournamentIndexYearFilter, $k2AmigaTournamentIndexYearChoices, 'Tournaments from this calendar year', '', '', false, '0'); ?>
 			</div>
-<?php } ?>
-<?php if ($k2AmigaTournamentIndexShowWinnerFilter) { ?>
 			<div class="k2-player-games-controls__field">
 				<span class="server-period-activity-leaderboard__picker-label">Winner</span>
 				<?php k2_archive_listbox_render('winner', 'k2-amiga-tournament-index-winner', (string) $k2AmigaTournamentIndexWinnerFilter, $k2AmigaTournamentIndexWinnerChoices, 'Filter by tournament winner', '', '', false, '0'); ?>
 			</div>
-<?php } ?>
-<?php if ($k2AmigaTournamentIndexShowWinnerCountryFilter) { ?>
 			<div class="k2-player-games-controls__field">
 				<span class="server-period-activity-leaderboard__picker-label">Winning country</span>
 				<?php k2_archive_listbox_render('winner_country', 'k2-amiga-tournament-index-winner-country', $k2AmigaTournamentIndexWinnerCountryFilter, $k2AmigaTournamentIndexWinnerCountryChoices, 'Filter by winning country', '', '', false, ''); ?>
 			</div>
-<?php } ?>
 		</div>
 	</div>
 </form>
-<?php } ?>
 </div>

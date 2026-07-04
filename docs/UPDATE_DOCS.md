@@ -44,6 +44,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | Visual identity / theme | `docs/design-direction.md` |
 | **Mobile / smartphone** (audits, responsive, dense tables on phone) | [`k2-mobile-smartphone-policy.md`](k2-mobile-smartphone-policy.md) |
 | **Page nav spacing** (chrome stack gaps) | [`nav-spacing-policy.md`](nav-spacing-policy.md) · [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md) |
+| **Filter stack spacing** (Tier 1 filter composites; extends nav N2) | [`filter-stack-spacing-policy.md`](filter-stack-spacing-policy.md) · [`filter-stack-spacing-implementation-plan.md`](filter-stack-spacing-implementation-plan.md) |
 | **K2 tooltips** (table headers, chart hovers, control help) | [`k2-tooltip-policy.md`](k2-tooltip-policy.md) |
 | **K2 table entity links** (player/tournament/country names, Amiga inline flags) | [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) |
 | **K2 tables** (sortable, wide, filter reload, table refactor) | **`docs/k2-table-implementation-checklist.md`** (then `docs/k2-table-and-games-plan.md` if needed) |

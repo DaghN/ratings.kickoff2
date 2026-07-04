@@ -27,7 +27,9 @@ Spacing contract: [`nav-spacing-policy.md`](nav-spacing-policy.md). Segment gram
 | Games hub sub-nav | `includes/games_hub_nav.php` | `games/recent.php` + `games_hub_shell_*.inc.php` | `.k2-games-hub-tabs` |
 | Milestones hub sub-nav | `includes/milestones_hub_nav.php` | `milestones/recent.php` + `milestones_hub_shell_*.inc.php` | `.k2-ms-hub-tabs` in `player-milestones.css` |
 | Amiga LB wing | `includes/amiga_lb_nav.php` | `amiga/leaderboards/rating.php` | `.k2-chrome-tabs.k2-amiga-lb-tabs` — **no World Cups tab** (WC player stats = hub wing 3 only) |
-| Amiga tournaments index filter | `includes/amiga_tournament_index_nav.php` | `amiga/tournaments.php` | `.k2-chrome-tabs.k2-amiga-tournament-index-tabs` |
+| Amiga tournaments index filter | `includes/amiga_tournament_index_nav.php` | `amiga/tournaments.php` | `.k2-chrome-tabs.k2-amiga-tournament-index-tabs` — spacing: [`filter-stack-spacing-policy.md`](filter-stack-spacing-policy.md) |
+| Amiga player games / tournaments filters | `amiga/player/games.php`, `amiga_player_tournaments_filters_nav.php` | player wing games + tournaments | `.k2-player-games-filters` — spacing: filter-stack policy |
+| Games All vault filters | `k2_realm_games_all_filters_ui.php`, `amiga_realm_games_all_filters_ui.php` | `games/all.php`, `amiga/games/all.php` | `.k2-realm-games-filters` — spacing: filter-stack policy |
 | Amiga WC hub wing | `includes/amiga_world_cups_hub_nav.php` | `amiga/world-cups/` shell | `.k2-amiga-world-cups-hub-tabs` |
 | Amiga WC inner tabs | `amiga_world_cups_players_nav.php`, `_countries_nav.php`, `_stats_nav.php` | WC players/countries/stats views | Stacked `.k2-chrome-tabs` siblings |
 | Player profile nav | `includes/player_nav.php` | `player/*.php` with `body.k2-player-wing` | `.k2-chrome-tabs.k2-player-wing-tabs` (segment width; `.k2-player-nav-bar` stays full-width on tournament detail) |
@@ -61,7 +63,7 @@ Hub primary tabs use `.k2-hub-bar` > `.k2-hub-tabs.k2-nav-pills` > `.k2-hub-tabs
 
 ## 3) Spacing rules (mandatory)
 
-Token: **`--k2-nav-gap: 12px`** in `theme.css`. Full policy: [`nav-spacing-policy.md`](nav-spacing-policy.md).
+Token: **`--k2-nav-gap: 12px`** in `theme.css`. Full policy: [`nav-spacing-policy.md`](nav-spacing-policy.md). **Filter composite stacks (segment toggles + listboxes):** [`filter-stack-spacing-policy.md`](filter-stack-spacing-policy.md) — same bottom-only rule; no wrapper vertical `gap`.
 
 | Rule | Do | Don't |
 |------|-----|-------|
@@ -113,4 +115,6 @@ Adding a **new sub-nav class** to `theme.css`? Add it to the existing sub-nav bl
 - [`navigation-model.md`](navigation-model.md) -- NM1-NM6: hub bar always present, active pill only on places, entity pages at realm root (the *why* behind active-pill + page-placement choices)
 - [`nav-spacing-policy.md`](nav-spacing-policy.md) -- locked decisions N1-N10, patterns A/B/C
 - [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md) -- shipped phases + smoke URLs
+- [`filter-stack-spacing-policy.md`](filter-stack-spacing-policy.md) -- Tier 1 filter composites F1-F8 (extends N2; no wrapper vertical gap)
+- [`filter-stack-spacing-implementation-plan.md`](filter-stack-spacing-implementation-plan.md) -- shipped slices + smoke URLs
 - [`design-direction.md`](design-direction.md) -- segment track visuals, tint picker

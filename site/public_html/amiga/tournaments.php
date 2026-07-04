@@ -174,10 +174,6 @@ $countryChoices = amiga_tournament_index_country_listbox_choices($countryCounts)
 $yearChoices = amiga_tournament_index_year_listbox_choices($yearCounts);
 $winnerChoices = amiga_tournament_index_winner_listbox_choices($winnerCounts);
 $winnerCountryChoices = amiga_tournament_index_winner_country_listbox_choices($winnerCountryCounts);
-$showCountryFilter = count($countryCounts) > 1 || $countryFilter !== '';
-$showYearFilter = count($yearCounts) > 1 || $yearFilter > 0;
-$showWinnerFilter = count($winnerCounts) > 1 || $winnerFilter > 0;
-$showWinnerCountryFilter = count($winnerCountryCounts) > 1 || $winnerCountryFilter !== '';
 
 $rows = amiga_tournament_index_filter_rows(
     $allRows,
@@ -207,6 +203,16 @@ $listSummary = amiga_tournament_index_list_summary(
     $winnerCountryFilter,
     $winnerFilterName
 );
+$filtersActive = amiga_tournament_index_filters_active(
+    $wcFilter,
+    $typeFilter,
+    $videosFilter,
+    $countryFilter,
+    $yearFilter,
+    '',
+    $winnerFilter,
+    $winnerCountryFilter
+);
 ?>
 
 <?php
@@ -225,18 +231,12 @@ $k2AmigaTournamentIndexCountryChoices = $countryChoices;
 $k2AmigaTournamentIndexYearChoices = $yearChoices;
 $k2AmigaTournamentIndexWinnerChoices = $winnerChoices;
 $k2AmigaTournamentIndexWinnerCountryChoices = $winnerCountryChoices;
-$k2AmigaTournamentIndexShowCountryFilter = $showCountryFilter;
-$k2AmigaTournamentIndexShowYearFilter = $showYearFilter;
-$k2AmigaTournamentIndexShowWinnerFilter = $showWinnerFilter;
-$k2AmigaTournamentIndexShowWinnerCountryFilter = $showWinnerCountryFilter;
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_index_nav.php';
 ?>
 
 <div class="k2-player-games-status" data-k2-carry-scroll>
 	<?php echo k2_h($listSummary); ?>
-<?php if (amiga_tournament_index_filters_active($wcFilter, $typeFilter, $videosFilter, $countryFilter, $yearFilter, '', $winnerFilter, $winnerCountryFilter)) { ?>
-	<a class="k2-player-games-reset" href="<?php echo k2_h(amiga_tournament_index_reset_url()); ?>">Reset filters</a>
-<?php } ?>
+	<a class="k2-player-games-reset<?php echo $filtersActive ? '' : ' is-idle'; ?>" href="<?php echo k2_h(amiga_tournament_index_reset_url()); ?>"<?php echo $filtersActive ? '' : ' aria-disabled="true" tabindex="-1"'; ?>>Reset filters</a>
 </div>
 
 <?php amiga_tournament_index_render_table($rows); ?>

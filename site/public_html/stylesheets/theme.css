@@ -59,6 +59,8 @@
 	--k2-chart-max-width: 960px;
 	/* Page chrome nav stack -- see docs/nav-spacing-policy.md */
 	--k2-nav-gap: 12px;
+	/* Feast player hero in player wing -- glow panel air above/below in chrome stack */
+	--k2-player-hero-chrome-gap: 24px;
 	/* Hub chapter intro → first body block (HoF table, etc.) */
 	--k2-hub-chapter-to-content-gap: 22px;
 	/* Shared by .k2-table-tooltip and Chart.js (chart-theme.js) */
@@ -3248,15 +3250,28 @@ body.k2-site .k2-player-games-action:focus-visible {
 }
 
 /* Amiga player tournament history — chrome tab segments + listbox row (catalog index parity) */
-body.k2-site .k2-amiga-player-tournaments-filters .k2-player-games-controls {
-	margin-top: 0;
-	margin-bottom: 0;
+body.k2-site .k2-amiga-player-tournaments-filters {
+	--k2-player-tournaments-country-width: 9rem;
+	--k2-player-tournaments-year-width: 6rem;
+	--k2-player-tournaments-listbox-gap: 40px;
+}
+
+body.k2-site .k2-amiga-player-tournaments-filters .k2-amiga-player-tournaments-country-field {
+	flex: 0 0 var(--k2-player-tournaments-country-width);
+	width: var(--k2-player-tournaments-country-width);
+	min-width: var(--k2-player-tournaments-country-width);
+	max-width: var(--k2-player-tournaments-country-width);
+}
+
+body.k2-site .k2-amiga-player-tournaments-filters .k2-amiga-player-tournaments-year-field {
+	flex: 0 0 var(--k2-player-tournaments-year-width);
+	width: var(--k2-player-tournaments-year-width);
+	min-width: var(--k2-player-tournaments-year-width);
+	max-width: var(--k2-player-tournaments-year-width);
 }
 
 body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
+	display: block;
 	width: 100%;
 	max-width: 100%;
 	min-width: 0;
@@ -3266,18 +3281,30 @@ body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) {
 body.k2-site .k2-amiga-tournament-index-segment-filters {
 	display: flex;
 	flex-direction: column;
-	gap: var(--k2-nav-gap);
 	width: fit-content;
 	max-width: 100%;
 }
 
-body.k2-site .k2-amiga-tournament-index-segment-filters .k2-chrome-tabs.k2-amiga-tournament-index-tabs,
-body.k2-site .k2-amiga-tournament-index-segment-filters .k2-chrome-tabs.k2-amiga-player-tournaments-tabs {
+/* Column segment stacks — margin between toggle rows only (filter-stack policy F2/F3). */
+body.k2-site .k2-amiga-tournament-index-segment-filters:not(.k2-amiga-player-tournaments-segment-filters) > .k2-chrome-tabs.k2-amiga-tournament-index-tabs,
+body.k2-site .k2-amiga-tournament-index-segment-filters:not(.k2-amiga-player-tournaments-segment-filters) > .k2-chrome-tabs.k2-amiga-player-tournaments-tabs {
 	margin-top: 0;
 	margin-bottom: 0;
 }
 
-/* Player tournament history — four segment toggles on one row. */
+body.k2-site .k2-amiga-tournament-index-segment-filters:not(.k2-amiga-player-tournaments-segment-filters) > .k2-chrome-tabs:not(:last-child) {
+	margin-bottom: var(--k2-nav-gap);
+}
+
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) > .k2-amiga-tournament-index-segment-filters {
+	margin-bottom: var(--k2-nav-gap);
+}
+
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) > .k2-amiga-tournament-index-segment-filters:last-child {
+	margin-bottom: 0;
+}
+
+/* Player tournament history — four segment toggles on one horizontal row. */
 body.k2-site .k2-amiga-player-tournaments-segment-filters {
 	flex-direction: row;
 	flex-wrap: wrap;
@@ -3285,14 +3312,21 @@ body.k2-site .k2-amiga-player-tournaments-segment-filters {
 	gap: calc(var(--k2-nav-gap) * 2);
 }
 
-body.k2-site .k2-player-games-filters .k2-chrome-tabs.k2-amiga-player-games-scope-tabs,
-body.k2-site .k2-player-games-filters .k2-chrome-tabs.k2-amiga-tournament-index-tabs,
-body.k2-site .k2-player-games-filters .k2-chrome-tabs.k2-amiga-player-tournaments-tabs {
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) > .k2-amiga-player-tournaments-segment-filters {
+	margin-bottom: var(--k2-nav-gap);
+}
+
+body.k2-site .k2-amiga-player-tournaments-segment-filters > .k2-chrome-tabs.k2-amiga-player-tournaments-tabs {
 	margin-top: 0;
 	margin-bottom: 0;
 }
 
+body.k2-site .k2-player-games-filters .k2-player-games-filters-anchor {
+	margin: 0;
+}
+
 body.k2-site .k2-player-games-filters .k2-player-games-controls {
+	margin-top: 0;
 	margin-bottom: 0;
 	width: 100%;
 }
@@ -3338,6 +3372,80 @@ body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-ga
 	max-width: 100% !important;
 }
 
+/* Player tournament history — fixed listbox slots (override ghost auto-width above). */
+body.k2-site .k2-amiga-player-tournaments-filters.k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-games-controls .k2-archive-listbox--ghost-sized {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	align-self: stretch;
+}
+
+body.k2-site .k2-amiga-player-tournaments-filters.k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-games-controls__field > .k2-archive-listbox--ghost-sized {
+	width: 100% !important;
+	max-width: 100% !important;
+	min-width: 0 !important;
+}
+
+body.k2-site .k2-amiga-player-tournaments-filters .k2-archive-listbox--ghost-sized .k2-archive-listbox__size-anchor {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	width: 100%;
+	max-width: 100%;
+}
+
+body.k2-site .k2-amiga-player-tournaments-filters .k2-archive-listbox__trigger {
+	box-sizing: border-box;
+	width: 100% !important;
+	max-width: 100% !important;
+	min-width: 0 !important;
+}
+
+/* Listbox row — after shared player-games filter rules so gap/width win over 10px defaults. */
+body.k2-site .k2-amiga-player-tournaments-filters.k2-player-games-filters:not(.k2-realm-games-filters) .k2-player-games-controls__fields.k2-amiga-player-games-filter-row.k2-amiga-player-tournaments-listbox-row {
+	flex-wrap: nowrap;
+	align-items: flex-end;
+	gap: var(--k2-player-tournaments-listbox-gap);
+}
+
+body.k2-site .k2-amiga-player-tournaments-filters.k2-player-games-filters:not(.k2-realm-games-filters) .k2-amiga-player-tournaments-country-field.k2-player-games-controls__field {
+	flex: 0 0 var(--k2-player-tournaments-country-width);
+	width: var(--k2-player-tournaments-country-width);
+	min-width: var(--k2-player-tournaments-country-width);
+	max-width: var(--k2-player-tournaments-country-width);
+}
+
+body.k2-site .k2-amiga-player-tournaments-filters.k2-player-games-filters:not(.k2-realm-games-filters) .k2-amiga-player-tournaments-year-field.k2-player-games-controls__field {
+	flex: 0 0 var(--k2-player-tournaments-year-width);
+	width: var(--k2-player-tournaments-year-width);
+	min-width: var(--k2-player-tournaments-year-width);
+	max-width: var(--k2-player-tournaments-year-width);
+}
+
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-archive-listbox__option--with-flag {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 6px;
+}
+
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-archive-listbox--meta-options .k2-archive-listbox__option--with-flag.k2-archive-listbox__option--split {
+	justify-content: flex-start;
+}
+
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-archive-listbox__option-flag {
+	flex: 0 0 auto;
+	line-height: 0;
+}
+
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-archive-listbox__option-flag .k2-amiga-country-flag-img {
+	display: block;
+}
+
+body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-archive-listbox__option--with-flag .k2-archive-listbox__option-label {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
 body.k2-site .k2-player-games-filters:not(.k2-realm-games-filters) .k2-archive-listbox__panel {
 	left: 0;
 	right: auto;
@@ -3373,6 +3481,30 @@ body.k2-site .k2-player-games-filters .k2-player-games-action {
 }
 
 /* All games vault filters (`games/all.php`) */
+body.k2-site .k2-amiga-realm-games-all-segment-filters {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: var(--k2-nav-gap);
+	width: fit-content;
+	max-width: 100%;
+	margin-bottom: var(--k2-nav-gap);
+}
+
+body.k2-site .k2-amiga-realm-games-all-segment-filters .k2-chrome-tabs.k2-amiga-tournament-index-tabs {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+body.k2-site .k2-amiga-realm-games-all-filters > .k2-amiga-realm-games-all-segment-filters + .k2-realm-games-filters__form {
+	margin-top: 0;
+}
+
+body.k2-site .k2-amiga-realm-games-all-filters .k2-realm-games-filters__row-label {
+	flex: 0 0 5.5rem;
+}
+
 body.k2-site .k2-realm-games-filters {
 	--k2-realm-games-filter-gap: 20px;
 	--k2-realm-games-picker-width: 12rem;
@@ -3391,7 +3523,11 @@ body.k2-site .k2-realm-games-filters__row {
 	flex-wrap: nowrap;
 	align-items: flex-end;
 	gap: 10px 20px;
-	margin-bottom: 18px;
+	margin-bottom: var(--k2-nav-gap);
+}
+
+body.k2-site .k2-realm-games-filters__row:last-child {
+	margin-bottom: 0;
 }
 
 body.k2-site .k2-realm-games-filters__row[hidden] {
@@ -3722,6 +3858,23 @@ body.k2-site a.k2-player-games-reset:focus-visible {
 	background: color-mix(in srgb, var(--k2-accent) 20%, var(--k2-bg-elevated));
 	text-decoration: none;
 	outline: none;
+}
+
+body.k2-site a.k2-player-games-reset.is-idle,
+body.k2-site a.k2-player-games-reset.is-idle:visited {
+	border-color: color-mix(in srgb, var(--k2-text-muted) 22%, transparent);
+	background: transparent;
+	color: var(--k2-text-muted);
+	font-weight: 500;
+	cursor: default;
+	pointer-events: none;
+}
+
+body.k2-site a.k2-player-games-reset.is-idle:hover,
+body.k2-site a.k2-player-games-reset.is-idle:focus-visible {
+	color: var(--k2-text-muted);
+	border-color: color-mix(in srgb, var(--k2-text-muted) 22%, transparent);
+	background: transparent;
 }
 
 @media (max-width: 520px) {
@@ -4169,7 +4322,7 @@ body.k2-site .k2-player-page-anchor {
 .k2-player-hero {
 	position: relative;
 	overflow: hidden;
-	margin-bottom: calc(var(--k2-nav-gap) + 12px);
+	margin-bottom: 0;
 	padding: 0;
 	--k2-player-hero-glow-side: var(--k2-accent);
 	border: 2px solid var(--k2-player-hero-glow-side);
@@ -4186,6 +4339,14 @@ body.k2-site .k2-player-page-anchor {
 body.k2-site .k2-player-hero.k2-player-hero--feast {
 	width: fit-content;
 	max-width: 100%;
+}
+
+body.k2-site.k2-player-wing .k2-hub-bar {
+	margin-bottom: var(--k2-player-hero-chrome-gap);
+}
+
+body.k2-site.k2-player-wing .k2-player-hero {
+	margin-bottom: var(--k2-player-hero-chrome-gap);
 }
 
 body.k2-site .k2-player-hero.k2-player-hero--feast .k2-player-hero__inner {

@@ -195,14 +195,14 @@ $heroGoalDiffChoices = $filterChoices['gd'];
 $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : '';
 ?>
 
+<div id="<?php echo k2_h(K2_PLAYER_GAMES_FILTERS_ANCHOR); ?>" class="k2-player-games-filters-anchor" tabindex="-1"></div>
+<div class="k2-chrome-tabs k2-amiga-player-games-scope-tabs">
+    <nav class="k2-chrome-tabs__bar" data-k2-carry-scroll role="tablist" aria-label="Game scope">
+        <a href="<?php echo amiga_games_h(amiga_games_event_filter_url($gamesUrlState, 'all')); ?>" class="k2-chrome-tabs__tab<?php echo $eventFilter === 'all' ? ' is-active' : ''; ?>"<?php echo $eventFilter === 'all' ? ' aria-current="true"' : ''; ?>>All games</a>
+        <a href="<?php echo amiga_games_h(amiga_games_event_filter_url($gamesUrlState, 'world-cup')); ?>" class="k2-chrome-tabs__tab<?php echo $eventFilter === 'world-cup' ? ' is-active' : ''; ?>"<?php echo $eventFilter === 'world-cup' ? ' aria-current="true"' : ''; ?>>World Cup</a>
+    </nav>
+</div>
 <div class="k2-player-games-filters">
-    <div id="<?php echo k2_h(K2_PLAYER_GAMES_FILTERS_ANCHOR); ?>" class="k2-player-games-filters-anchor" tabindex="-1"></div>
-    <div class="k2-chrome-tabs k2-amiga-player-games-scope-tabs">
-        <nav class="k2-chrome-tabs__bar" data-k2-carry-scroll role="tablist" aria-label="Game scope">
-            <a href="<?php echo amiga_games_h(amiga_games_event_filter_url($gamesUrlState, 'all')); ?>" class="k2-chrome-tabs__tab<?php echo $eventFilter === 'all' ? ' is-active' : ''; ?>"<?php echo $eventFilter === 'all' ? ' aria-current="true"' : ''; ?>>All games</a>
-            <a href="<?php echo amiga_games_h(amiga_games_event_filter_url($gamesUrlState, 'world-cup')); ?>" class="k2-chrome-tabs__tab<?php echo $eventFilter === 'world-cup' ? ' is-active' : ''; ?>"<?php echo $eventFilter === 'world-cup' ? ' aria-current="true"' : ''; ?>>World Cup</a>
-        </nav>
-    </div>
     <form class="k2-player-games-controls" method="get" action="<?php echo amiga_games_h(k2_amiga_route('amiga-player-games')); ?>" data-k2-carry-scroll>
         <div class="k2-player-games-controls__meta">
             <input type="hidden" name="id" value="<?php echo $playerId; ?>" />
