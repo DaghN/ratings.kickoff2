@@ -108,6 +108,17 @@ Iter 3a fixed non-TT / realm as predicted. **TT blanking is not one bug** — it
 
 ---
 
+## Attempt 3 — PHP stream flush (`iter 3b`, 2026-07-04)
+
+| | |
+|--|--|
+| **Hypothesis** | Type B at TT y=0 is PHP blocking on wing queries before hub chapter / wing tabs emit. Flush after chrome shell so browser paints ribbon + hub nav + LB wing nav before heavy query. |
+| **Changes** | `k2_page_stream_flush.php` + `amiga_lb_emit_wing_nav.inc.php`. All seven Amiga LB wings: hub nav → wing nav (chapter + tabs) → `flush()` → wing query → table. `countries.php`: hub nav → `flush()` → index query → hub chapter. |
+| **Worked?** | **Failed — reverted 2026-07-04.** Shipped with infinite `ob_flush` hang (hotfixed); Dagh retest: present LB felt slower; TT y=0 sub-ribbon blank unchanged; y>0 Type A (Countries full-page blank) unchanged. Wrong layer for F6. |
+| **Out of scope** | Perf-rating sub-wings (query-before-shell layout); carry-scroll changes; iter 3d reveal gate. |
+
+---
+
 ## Framework — two blank mechanisms (code-backed)
 
 | Type | When | Mechanism | What user sees |
@@ -135,13 +146,14 @@ Typical TT hub page (e.g. `rating.php`, `countries.php`):
 1. <head> + carry-scroll script (may cloak if y>0)
 2. site_header.php → amiga_snapshot_chrome (extra DB: context + wing catalog)
 3. amiga_hub_nav.php (hub tabs — data-k2-carry-scroll)
-4. ── BLOCK: heavy page query ──
-5. k2_hub_chapter + body (table, etc.)
+4. LB wing nav (hub chapter + wing tabs) — **reverted:** query-then-nav (pre-3b order)
+5. ── BLOCK: heavy page query ──
+6. table / hub chapter body (Countries: chapter lede after index query)
 ```
 
-**Present / non-TT:** step 2 has no snapshot chrome DB pass. **TT adds a second catalog/context load in header before step 4.**
+**Present / non-TT:** step 2 has no snapshot chrome DB pass. **TT adds a second catalog/context load in header before step 5.**
 
-At **y=0**, carry does not cloak — browser may paint 1–3 as they arrive, then **gap at 4**. That matches “everything under ribbon” (hub tabs are under ribbon too once 3 is painted).
+At **y=0**, carry does not cloak — browser may paint 1–3 as they arrive, then **gap at 4** (hub chapter + wing nav after query). That matches “everything under ribbon” blanking.
 
 At **y>0**, step 1 cloaks **entire body** until reveal — **whole-page blank** even if 2–3 are already buffered.
 
@@ -216,7 +228,7 @@ Rating LB uses one primary snapshot query — usually **faster** than Countries�
 
 | Option | Idea | Notes |
 |--------|------|-------|
-| **3b — PHP flush (recommended)** | After hub nav (or hub chapter shell), `flush()` before heavy query on `rating.php`, `countries.php`, other TT hot paths | Fixes Type B at y=0 without touching carry-scroll; helps y>0 after reveal too |
+| **3b — PHP flush** | ~~After hub nav, flush before heavy query~~ | **Failed — reverted.** Did not pass TT smokes; perceptual present slowdown. |
 | **3c — Countries query slice** | Stored/prewarm or slimmer TT read for countries index | F18-adjacent; separate from carry |
 | **3d — Carry reveal gate (y>0 only)** | Do not `reveal()` until `.k2-hub-chapter` exists when cross-hub nav | Narrow fix for Type A + empty viewport; keep mid-scroll carry |
 | **Month catalog perf** | Cache or batch month catalog cutoff lookups | Header perf; not F6 per se but explains month wing pain |
@@ -234,6 +246,8 @@ Rating LB uses one primary snapshot query — usually **faster** than Countries�
 | 2026-07-04 | **Iter 3a shipped** — y=0 noop destination; revert narrow cloak |
 | 2026-07-04 | **Iter 3a result** — non-TT good; TT y=0 Type B; TT y>0 Countries Type A; framework + month/year code notes |
 | 2026-07-04 | **Perf fixes shipped** — month catalog in-memory; Countries index SQL GROUP BY |
+| 2026-07-04 | **Iter 3b reverted** — PHP flush failed F6 smokes; present LB slower feel; deleted flush helpers |
+| 2026-07-04 | **Iter 3b hotfix** — `k2_page_stream_flush()` used `ob_flush()` in while loop (infinite hang); fixed to `ob_end_flush()` |
 
 ---
 
@@ -375,3 +389,19 @@ Late TT cutoffs scan more snapshot / elo history → cost grows even though **di
 | `event:589` | ~968 ms | **~172 ms** | OK |
 
 Elo attach now uses `player_id IN (...)` from fetched rows only (helps global path too).
+
+---
+
+## F20 audit — Country rivals H2H (2026-07-04)
+
+**Handoff:** [`2026-07-04-002-f20-country-rivals-h2h-audit.md`](agent-handoffs/2026-07-04-002-f20-country-rivals-h2h-audit.md) · **Probe:** `scripts/oneoff/amiga_country_rivals_h2h_audit_probe.php`
+
+Roster query fix does **not** cover rivals H2H — panel sequential total **2.2–3.7 s** at late TT (`event:589` / `month:2025-09`). Primary overfetch: **double `amiga_country_rivals_rows()`** in `render_h2h_panel` + full-index `player_counts_by_token` for poster.
+
+| TT scenario | Blank type | Driver |
+|-------------|------------|--------|
+| `y=0` direct H2H | **Type B** | Header+ribbon stream first; ~2–5 s gap before hero/H2H |
+| `y>0` carry from ribbon | **Type A** | Cloak + early `carryReady()` on TT nav before hero/H2H |
+| Charts after paint | **Type C** | API-loaded chart shells only |
+
+**Next slice:** query dedupe in panel, then PHP flush after hub nav (3b); optional carry gate on `.k2-country-hero` (3d).

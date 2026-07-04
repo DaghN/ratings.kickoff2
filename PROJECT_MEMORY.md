@@ -137,6 +137,7 @@
 | When | Note |
 |------|------|
 | 2026-07-04 | **Result streaks — orphan scope** — post-game writer + verify oracle skip deleted ids (no `playertable` row); fixes Steve simul FAIL on player 287 (LeeLaptop). Milestones unchanged. |
+| 2026-07-04 | **F20 rivals H2H audit** — England/Italy probe: panel 2.2–3.7 s TT; double `rivals_rows`; Type B at y=0 / Type A at y>0; recommend query dedupe then PHP flush (3b). Handoff `2026-07-04-002`. |
 | 2026-07-04 | **Status recency clocks** — Recent logins/games/live/day-tab times split weekday + `HH:MM` columns so clocks align vertically. |
 | 2026-07-04 | **Status New players dates** — join dates space-padded (`Jul  1, 2026`) + right-aligned in recency column so comma/year line up before names. |
 | 2026-07-04 | **Status active LB sort toggle** — `status.php` duplicate `k2-table.js` load (head + jukebox enqueue) fixed via `k2_table_js_enqueue()`; `k2-table.js` skips re-init on same table (`data-k2-table-init`). |
@@ -147,6 +148,7 @@
 | 2026-07-04 | **Amiga profile chart ink** — solo rating chart → chart chrome (`T.chrome()` + chrome peak/toggle CSS); solo rank chart → chart pitch (`T.pitch()` + pitch peak/toggle CSS); online profile rating chart stays chart amber. |
 | 2026-07-04 | **Player feast hero inset** — `--k2-player-hero-glow-inset` (14px) left margin on `body.k2-player-wing` feast hero so panel glow is not clipped at the content edge; vertical chrome stays 24px. |
 | 2026-07-04 | **Online Peak rating LB context tooltip polish** — games list uses shared parent grid (dash-aligned scores); removed peak-game row highlight; game rows in idA/idB order; cursor-aware placement (prefer right of pointer); **newest game first** — `lb_peak_rating_lib.php`, `theme.css`, `lb-peak-rating-tooltip.js`. |
+| 2026-07-04 | **TT baseline F6 iter 3b reverted** — PHP flush failed smokes (TT blank unchanged, present LB slower feel); next: iter 3d reveal gate or query speed. |
 | 2026-07-04 | **TT baseline F6 iter 3a result** — non-TT good; TT y=0 streaming gap (Type B); Countries y>0 whole-page blank (Type A) — analysis in attempt log. |
 | 2026-07-04 | **TT perf probe** — month catalog 289× SQL (~283 ms); Countries index pays roster elo attach (~358 ms wasted) — `scripts/oneoff/amiga_tt_perf_probe.php`. |
 | 2026-07-04 | **TT perf fixes** — month/year catalog from tournament list (~2 ms); Countries index SQL GROUP BY (~137 ms TT, parity OK) — Dagh sign-off: Countries snappy, month wing normal — `amiga_rating_history_lib.php`, `amiga_countries_lib.php`, `countries.php`. |
