@@ -130,7 +130,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Try to reproduce** | Rating LB `?as=event:{id}` — scroll to **top** → chevron, wing tab, or picker step → watch from hub chapter downward. Repeat with one wheel-tick of scroll for contrast. |
 | **Touchpoints** | `k2_carry_scroll_restore.php`, cloak CSS, `js/k2-carry-scroll.js` (TT ribbon `data-k2-carry-scroll`) |
 | **Reported** | 2026-07-04 — baseline explore (Dagh); mapped before slice 0 |
-| **Resolved** | *Pending Dagh sign-off* — [slice 0 handoff](orchestration/agent-handoffs/2026-07-04-001-tt-chrome-baseline-slice-0.md) (iterations 1–2) |
+| **Resolved** | *Pending Dagh sign-off* — [slice 0 handoff](orchestration/agent-handoffs/2026-07-04-001-tt-chrome-baseline-slice-0.md) · [attempt log](../orchestration/tt-chrome-baseline-f6-attempt-log.md) (iter 2 regressed) |
 
 ### F7 — Ribbon vertical jump during nav while **stuck**
 
@@ -294,5 +294,5 @@ When a failure is **solved and verified**, add one line under the row: **Resolve
 | 2026-07-04 | **F6 refined** — sub-ribbon blank at scroll top on TT ribbon nav; ribbon stable; old→blank→new; mid-scroll contrast |
 | 2026-07-04 | **F18 added** — TT hub-tab whole-page blank (Countries late cutoff; Present OK); smokes S9–S10 |
 | 2026-07-04 | **F19 added** — TT stamp LED hidden while sub-ribbon loads (F6 sibling) |
-| 2026-07-04 | **F6 slice 0 iter 2** — revert y=0 cloak skip; no domReady/700ms early reveal at scroll top; narrow cloak-top; picker anchor |
+| 2026-07-04 | **F6 attempt log** — informal iter 0–2 notebook — [`tt-chrome-baseline-f6-attempt-log.md`](orchestration/tt-chrome-baseline-f6-attempt-log.md) (iter 2 regressed; realm switch) |
 | 2026-07-04 | Baseline: removed pin touchpoint row; sticky-only tensions marked deferred |
