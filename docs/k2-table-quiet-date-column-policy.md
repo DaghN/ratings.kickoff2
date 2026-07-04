@@ -77,7 +77,7 @@ User later sorts by Date → normal emphasis (blast OK)
 | **QD5** | **LB / special date columns** (Peak date, Last event date) — normal emphasis when sorted; sorting by those dates is intentional. |
 | **QD6** | **Tooling:** `k2-table-col-quiet-date` CSS + shared PHP helper that gates emphasis on **default sort context** — not “always mute when date col is active”. Class name: **`k2-table-col-quiet-date`**. |
 | **QD7** | **Vocabulary:** “Dates too **bright on first load**” / “don't blast dates” → try **ID default** first; else quiet date on default load. User sorted by Date → blast OK. |
-| **QD8** | **Legacy `data-k2-quiet-sort-cols` is not sufficient** — it suppresses emphasis whenever that column is the active sort (including after a user header click). Target behaviour requires **default-load-only** gating in **both** PHP (SSR) and `k2-table.js` (client re-sort). See § Default-load-only gating below. |
+| **QD8** | **Default-load-only gating** — quiet date requires **default sort context** in **both** PHP (SSR) and `k2-table.js` (`data-k2-quiet-default-sort-cols`, `_k2SortUserChosen`). Do not use always-on quiet while Date is active sort. |
 
 ---
 
@@ -90,31 +90,17 @@ Quiet date must distinguish **two states**:
 | **Default view** — table opened with default Date sort; user has not chosen another sort | Muted (`k2-table-col-quiet-date`) | Normal (loud) |
 | **User-chosen Date sort** — user clicked a sort header (including Date after sorting another column) | Normal `k2-table-col-sorted` | Normal |
 
-### Why `data-k2-quiet-sort-cols` is too broad
-
-On client-sort tables, `k2-table.js` reads `data-k2-quiet-sort-cols` and `isQuietSortCol()` returns true whenever that column index is the **current** active sort — in both `setSortState()` (header classes) and `refreshSortedColumnEmphasis()` (body classes).
-
-That means a user who clicks **Date** after sorting by Name still gets quiet dates. That violates QD3.
-
-**Do not** add new date-quiet surfaces using `data-k2-quiet-sort-cols` alone. Existing WC Chronology / tournament catalog attrs are **legacy** until Slice B migrates them.
-
 ### PHP (server-sort and SSR first paint)
 
-- `k2_table_is_default_sort_view()` — true when the request has **no user sort override** (e.g. no `sort` / `k2_sort` query param, or param matches table default only on first landing — see plan for edge cases).
+- `k2_table_is_default_client_sort_view()` / `k2_table_is_default_server_sort_view()` — true when the request has **no user sort override**.
 - `k2_table_sort_col_for_emphasis(..., $isDefaultSortView)` — pass `-1` (no body emphasis) only when `$isDefaultSortView && date col is active`.
 - Apply `k2-table-col-quiet-date` on date `<td>` under the same condition.
 
 ### JS (client-sort tables)
 
-Required change in `k2-table.js` (plan Slice B / sub-slice **B-js**):
-
-1. Track whether the current sort state is **user-initiated** (header click) vs **default** (initial `applyDefaultSortState` / `applyDefaultSortHeaderState`).
-2. Apply quiet suppression **only** for default-initiated sort on listed date columns.
-3. After any user header click, date columns behave like normal sorted columns (full header + body emphasis).
-
-**Target attribute (proposed):** `data-k2-quiet-default-sort-cols="0,…"` — quiet **only** until first user sort interaction; supersedes date use of `data-k2-quiet-sort-cols`. Implementation detail in plan § JS track.
-
-**Header:** default Date sort keeps **normal** header sort chrome (QD3). Legacy `data-k2-quiet-sort-cols` incorrectly suppresses header classes too — another reason to migrate.
+- Attribute: **`data-k2-quiet-default-sort-cols="0,…"`** — quiet body **only** until first user sort interaction.
+- `table._k2SortUserChosen = true` on header click / URL sort — after that, Date columns use normal emphasis.
+- Headers stay **loud** on default Date sort (QD3); only body cells mute via `k2-table-col-quiet-date`.
 
 ---
 
@@ -132,9 +118,13 @@ Required change in `k2-table.js` (plan Slice B / sub-slice **B-js**):
 
 | Signal | Example |
 |--------|---------|
-| No game ID column; table defaults to Date | WC Chronology, tournament catalog |
-| Event/tournament row lists | Player tournament history (evaluate) |
-| Date default is design choice, not user action | Catalog index first paint |
+| No game ID column; table defaults to Date | WC Chronology, tournament catalog, perf-rating Perfect |
+| Event/tournament row lists | Player tournament history, live tournament index |
+| Date default is design choice, not user action | Catalog / chronology first paint |
+
+### Shipped opt-in surfaces (Jul 2026)
+
+WC Chronology · tournament catalog · perf-rating Perfect · player tournament history · live tournament index — see plan § Opt-in surfaces.
 
 ## When **not** to use quiet date
 
@@ -151,7 +141,7 @@ Required change in `k2-table.js` (plan Slice B / sub-slice **B-js**):
 
 1. **`k2-table-col-quiet-date`** on date `<td>` when **`$isDefaultSortView`** and Date is the active sort column.
 2. **Do not** quiet when user sort param / header click indicates explicit Date sort.
-3. **Client-sort:** migrate off bare `data-k2-quiet-sort-cols` for date — use default-load-only JS gating (§ Default-load-only gating, plan § JS track).
+3. **Client-sort:** `data-k2-quiet-default-sort-cols` + `_k2SortUserChosen` in `k2-table.js` (§ Default-load-only gating).
 4. **Shared helpers** in `k2_table_helpers.php` — always pass default-sort context.
 
 Full rollout: [`k2-table-quiet-date-unification-plan.md`](k2-table-quiet-date-unification-plan.md).
@@ -162,7 +152,6 @@ Full rollout: [`k2-table-quiet-date-unification-plan.md`](k2-table-quiet-date-un
 
 - Quiet date when user explicitly sorted by Date.
 - Quiet date on game ledgers that already default to ID (use ID default; Slice C).
-- **`data-k2-quiet-sort-cols` alone** for new quiet date work — always-on quiet while Date is active sort (wrong after user clicks Date).
 - Copy-pasting per-table `*_sort_col_for_emphasis()` without default-sort context.
 - Assuming every Date column needs quiet treatment.
 

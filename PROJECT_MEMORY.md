@@ -136,7 +136,8 @@
 
 | When | Note |
 |------|------|
-| 2026-07-04 | **K2 quiet date — implemented** — shared helpers (`k2_table_sort_col_for_emphasis`, `k2-table-col-quiet-date`), `data-k2-quiet-default-sort-cols` + B-js in `k2-table.js`; WC Chronology + tournament catalog + perf Perfect; removed wrong quiet on Amiga player games user Date sort. |
+| 2026-07-04 | **K2 quiet date — complete** — five Amiga Date-default tables opt in (WC Chronology, tournament catalog, perf Perfect, player tournament history, live index); legacy `data-k2-quiet-sort-cols` removed from JS; docs swept. |
+| 2026-07-04 | **K2 quiet date — implemented** — shared helpers, `data-k2-quiet-default-sort-cols`, unified CSS; removed wrong quiet on Amiga player games user Date sort. |
 | 2026-07-04 | **TT ribbon wing tab order** — Event · Month · Year (was Year · Month · Event); default entry unchanged (`as=event:{first}`). Policy T8 + design-direction updated. |
 | 2026-07-04 | **Amiga H2H rating compare peak links** — tournament names in peak summary use hero/rival chrome/red (`pm3-chart-peak-link--subject/opponent`); `peakAfterClause` now forwards `peakLinkClass` to rank chart core. |
 | 2026-07-03 | **Player feast hero chrome gap** — `--k2-player-hero-chrome-gap` (24px): hub bar → hero + hero → player nav on `body.k2-player-wing` (online + Amiga); replaces `calc(nav-gap + 12px)`. |

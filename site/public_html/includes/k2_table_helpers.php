@@ -6,7 +6,7 @@
  * and copy the nearest reference implementation (do not bare k2_table_js_enqueue() on full pages).
  *
  * @see docs/k2-table-implementation-checklist.md
- * @see js/k2-table.js — `data-k2-quiet-default-sort-cols` (default load only); legacy `data-k2-quiet-sort-cols` deprecated.
+ * @see js/k2-table.js — `data-k2-quiet-default-sort-cols` (default load only).
  */
 declare(strict_types=1);
 

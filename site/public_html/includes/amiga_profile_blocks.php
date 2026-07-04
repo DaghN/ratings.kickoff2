@@ -21,6 +21,8 @@ const AMIGA_TOURNAMENT_EVENT_STATS_ANCHOR_COL = 1;
 const AMIGA_TOURNAMENT_EVENT_STATS_DEFAULT_SORT_COL = 11;
 const AMIGA_PLAYER_TOURNAMENT_HISTORY_ANCHOR_COL = 1;
 const AMIGA_PLAYER_TOURNAMENT_HISTORY_DEFAULT_SORT_COL = 0;
+/** Date col — quiet body on default load only (no game ID). */
+const AMIGA_PLAYER_TOURNAMENT_HISTORY_QUIET_DATE_COL = 0;
 const AMIGA_TOURNAMENT_INDEX_ANCHOR_COL = 1;
 const AMIGA_TOURNAMENT_INDEX_DEFAULT_SORT_COL = 0;
 /** Date col — quiet body on default load only (no game ID). */
@@ -523,11 +525,25 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
     $anchorCol = AMIGA_PLAYER_TOURNAMENT_HISTORY_ANCHOR_COL;
     $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_PLAYER_TOURNAMENT_HISTORY_DEFAULT_SORT_COL);
     $defaultSortDir = k2_table_default_sort_dir_from_request('desc');
+    $isDefaultSortView = k2_table_is_default_client_sort_view();
+    $dateEmphasisCol = k2_table_sort_col_for_emphasis(
+        AMIGA_PLAYER_TOURNAMENT_HISTORY_QUIET_DATE_COL,
+        $defaultSortCol,
+        [AMIGA_PLAYER_TOURNAMENT_HISTORY_QUIET_DATE_COL],
+        $isDefaultSortView
+    );
+    $dateCellClass = k2_table_quiet_date_cell_class(
+        AMIGA_PLAYER_TOURNAMENT_HISTORY_QUIET_DATE_COL,
+        $defaultSortCol,
+        AMIGA_PLAYER_TOURNAMENT_HISTORY_DEFAULT_SORT_COL,
+        $isDefaultSortView,
+        'k2-table-cell--right'
+    );
     $tableClass = k2_table_ranked_sortable_class('k2-table--player-tournaments');
     $skipInitialSort = $defaultSortCol === AMIGA_PLAYER_TOURNAMENT_HISTORY_DEFAULT_SORT_COL && $defaultSortDir === 'desc';
     ?>
 <?php k2_table_wrap_open(true); ?>
-<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>"<?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
+<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>"<?php echo k2_table_quiet_default_sort_col_attr([AMIGA_PLAYER_TOURNAMENT_HISTORY_QUIET_DATE_COL]); ?><?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
 	<thead>
 		<tr>
 			<th<?php echo k2_table_sortable_th_attr(0, $defaultSortCol, $defaultSortDir, 'k2-table-cell--right'); ?> data-k2-sort="number">Date</th>
@@ -563,7 +579,7 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
         $hostCountry = (string) ($t['country'] ?? '');
         ?>
 		<tr>
-			<td<?php echo k2_table_body_td_attr(0, $anchorCol, $defaultSortCol, 'k2-table-cell--right'); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value($t); ?>"><?php echo amiga_profile_format_event_date($t['event_date'] ?? null); ?></td>
+			<td<?php echo k2_table_body_td_attr(0, $anchorCol, $dateEmphasisCol, $dateCellClass); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value($t); ?>"><?php echo amiga_profile_format_event_date($t['event_date'] ?? null); ?></td>
 			<td<?php echo k2_table_body_td_attr(1, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php
                 echo k2_amiga_lb_tournament_cell((int) $t['id'], (string) $t['name'], $hostCountry);
             ?></td>

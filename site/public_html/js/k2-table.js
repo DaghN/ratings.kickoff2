@@ -372,33 +372,6 @@
 		return isNaN(index) ? -1 : index;
 	}
 
-	/** Column indices that sort but never get active-sort header/body emphasis (comma-separated). @deprecated Use data-k2-quiet-default-sort-cols for date. */
-	function isQuietSortCol(table, index) {
-		var raw;
-		var parts;
-		var i;
-		var idx;
-
-		if (index === undefined || index === null || index < 0) {
-			return false;
-		}
-
-		raw = table.getAttribute('data-k2-quiet-sort-cols');
-		if (!raw) {
-			return false;
-		}
-
-		parts = String(raw).split(',');
-		for (i = 0; i < parts.length; i++) {
-			idx = parseInt(parts[i], 10);
-			if (!isNaN(idx) && idx === index) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	/** Quiet date body on default sort only — until first user header click or URL sort. */
 	function isQuietDefaultSortCol(table, index) {
 		var raw;
@@ -427,10 +400,6 @@
 		}
 
 		return false;
-	}
-
-	function isQuietSortBodyCol(table, index) {
-		return isQuietDefaultSortCol(table, index) || isQuietSortCol(table, index);
 	}
 
 	function applyColumnBodyClass(table, columnIndex, className) {
@@ -526,7 +495,7 @@
 		if (anchorIndex >= 0 && sortIndex === anchorIndex) {
 			return;
 		}
-		if (isQuietSortBodyCol(table, sortIndex)) {
+		if (isQuietDefaultSortCol(table, sortIndex)) {
 			applyColumnBodyClass(table, sortIndex, QUIET_DATE_BODY_CLASS);
 			return;
 		}
@@ -553,9 +522,7 @@
 
 		clearSortState(table);
 		header.setAttribute('aria-sort', direction === 'desc' ? 'descending' : 'ascending');
-		if (!isQuietSortCol(table, header.cellIndex)) {
-			addClass(header, direction === 'desc' ? SORTED_DESC_CLASS : SORTED_ASC_CLASS);
-		}
+		addClass(header, direction === 'desc' ? SORTED_DESC_CLASS : SORTED_ASC_CLASS);
 		refreshSortedColumnEmphasis(table);
 	}
 

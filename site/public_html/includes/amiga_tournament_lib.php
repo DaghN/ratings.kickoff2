@@ -17,6 +17,8 @@ const AMIGA_TOURNAMENT_PUBLIC_LIFECYCLE_STATUSES = ['completed', 'archived'];
 const AMIGA_PUBLIC_LIVE_TOURNAMENT_IDS = [];
 const AMIGA_LIVE_TOURNAMENT_INDEX_ANCHOR_COL = 0;
 const AMIGA_LIVE_TOURNAMENT_INDEX_DEFAULT_SORT_COL = 1;
+/** Date col — quiet body on default load only (no game ID). */
+const AMIGA_LIVE_TOURNAMENT_INDEX_QUIET_DATE_COL = 1;
 const AMIGA_TOURNAMENT_STANDINGS_ANCHOR_COL = 1;
 const AMIGA_TOURNAMENT_STANDINGS_DEFAULT_SORT_COL = 0;
 const AMIGA_TOURNAMENT_GAMES_DEFAULT_SORT_COL = 0;
@@ -352,11 +354,25 @@ function amiga_live_tournament_index_render_table(array $rows, bool $allowlistCo
     $anchorCol = AMIGA_LIVE_TOURNAMENT_INDEX_ANCHOR_COL;
     $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_LIVE_TOURNAMENT_INDEX_DEFAULT_SORT_COL);
     $defaultSortDir = k2_table_default_sort_dir_from_request('desc');
+    $isDefaultSortView = k2_table_is_default_client_sort_view();
+    $dateEmphasisCol = k2_table_sort_col_for_emphasis(
+        AMIGA_LIVE_TOURNAMENT_INDEX_QUIET_DATE_COL,
+        $defaultSortCol,
+        [AMIGA_LIVE_TOURNAMENT_INDEX_QUIET_DATE_COL],
+        $isDefaultSortView
+    );
+    $dateCellClass = k2_table_quiet_date_cell_class(
+        AMIGA_LIVE_TOURNAMENT_INDEX_QUIET_DATE_COL,
+        $defaultSortCol,
+        AMIGA_LIVE_TOURNAMENT_INDEX_DEFAULT_SORT_COL,
+        $isDefaultSortView,
+        ''
+    );
     $tableClass = k2_table_ranked_sortable_class('k2-table--live-tournament-index');
     $skipInitialSort = $defaultSortCol === AMIGA_LIVE_TOURNAMENT_INDEX_DEFAULT_SORT_COL && $defaultSortDir === 'desc';
     ?>
 <?php k2_table_wrap_open(true); ?>
-<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>"<?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
+<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>"<?php echo k2_table_quiet_default_sort_col_attr([AMIGA_LIVE_TOURNAMENT_INDEX_QUIET_DATE_COL]); ?><?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
 <thead>
   <tr>
     <th<?php echo k2_table_sortable_th_attr(0, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Tournament</th>
@@ -383,7 +399,7 @@ function amiga_live_tournament_index_render_table(array $rows, bool $allowlistCo
 <?php foreach ($rows as $row) { ?>
   <tr>
     <td<?php echo k2_table_body_td_attr(0, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php echo amiga_live_tournament_link((int) $row['id'], (string) $row['name']); ?></td>
-    <td<?php echo k2_table_body_td_attr(1, $anchorCol, $defaultSortCol); ?> data-k2-sort-value="<?php echo amiga_live_tournament_index_date_sort_value($row); ?>"><?php echo $row['event_date'] !== null ? k2_h((string) $row['event_date']) : '—'; ?></td>
+    <td<?php echo k2_table_body_td_attr(1, $anchorCol, $dateEmphasisCol, $dateCellClass); ?> data-k2-sort-value="<?php echo amiga_live_tournament_index_date_sort_value($row); ?>"><?php echo $row['event_date'] !== null ? k2_h((string) $row['event_date']) : '—'; ?></td>
     <td<?php echo k2_table_body_td_attr(2, $anchorCol, $defaultSortCol); ?>><?php echo !empty($row['country']) ? k2_h((string) $row['country']) : '—'; ?></td>
     <td<?php echo k2_table_body_td_attr(3, $anchorCol, $defaultSortCol); ?>><span class="k2-amiga-tournament-badge"><?php echo k2_h((string) $row['lifecycle_status']); ?></span></td>
     <td<?php echo k2_table_body_td_attr(4, $anchorCol, $defaultSortCol); ?>><?php echo (int) ($row['played_count'] ?? 0); ?></td>

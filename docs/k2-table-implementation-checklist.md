@@ -19,7 +19,9 @@ Full behaviour contract and page inventory: [`k2-table-and-games-plan.md`](k2-ta
 |----------|-------------------------|--------|
 | Hub leaderboard wing (Rank + Player cols) | `includes/k2_lb_sortable_table_head.inc.php` + any `leaderboards/rating.php` | `$k2RankedCloak`; `k2_lb_table_sort_state()` + `k2_lb_th()` / `k2_lb_td()` SSR |
 | Hub LB body | `leaderboards/rating.php` table markup | `k2_table_ranked_leaderboard_class()`; all columns via `k2_lb_th` / `k2_lb_td` |
-| Wide sortable + filter pills (full page reload) | `amiga/tournaments.php` + `amiga_tournament_index_render_table()` in `amiga_profile_blocks.php` | Filter URLs merge `k2_table_sort_query_params()` |
+| Wide sortable + filter pills (full page reload) | `amiga/tournaments.php` + `amiga_tournament_index_render_table()` in `amiga_profile_blocks.php` | Filter URLs merge `k2_table_sort_query_params()`; **Date** quiet on default load |
+| Amiga player tournament history | `amiga/player/tournaments.php` + `amiga_profile_render_tournament_history_table()` in `amiga_profile_blocks.php` | Same quiet-date pattern as catalog |
+| Amiga live tournament index | `amiga/live-tournaments.php` + `amiga_live_tournament_index_render_table()` in `amiga_tournament_lib.php` | Date col 1; quiet on default load |
 | Player wing ledger (W/D/L · Goals · DDs) | `includes/player_opponents_tables.php` + `player_opponents_page.php` | Ledger-only cloak/assets; H2H unchanged |
 | Player games (server sort + filters + pager) | `player/games.php` + `includes/k2_player_game_row.php` | **Server** sort — not `k2-table.js` sort |
 | Amiga player games (server sort + filters, full list) | `amiga/player/games.php` + `includes/amiga_player_game_row.php` | Faceted listboxes; see [`k2-table-and-games-plan.md`](k2-table-and-games-plan.md) § Amiga Player Games |
@@ -28,7 +30,8 @@ Full behaviour contract and page inventory: [`k2-table-and-games-plan.md`](k2-ta
 | Tournament event stats (wide, SSR order = SQL) | `amiga_tournament_render_event_stats_table()` in `amiga_profile_blocks.php` | `data-k2-skip-initial-sort="1"` when SSR order matches default |
 | Tournament standings + games (Amiga) | `amiga_tournament_render_standings_table()` / `amiga_tournament_render_games_table()` in `amiga_tournament_lib.php` | Page cloak on `amiga/tournament.php`; dynamic anchor col on games table |
 | Amiga WC stats / players LB | `includes/amiga_world_cup_stats_table.php`, `includes/amiga_wc_players_table.php` | Shell: `amiga_wc_*_lb_shell_start.inc.php` |
-| Amiga WC hub events catalog | `includes/amiga_world_cups_events_table.php` + `amiga/world-cups/chronology.php` | Tournaments-index columns minus Format; medal SVG headers; podium = flag + player link; **Date** quiet sort — [`k2-table-quiet-date-column-policy.md`](k2-table-quiet-date-column-policy.md) |
+| Amiga WC hub events catalog | `includes/amiga_world_cups_events_table.php` + `amiga/world-cups/chronology.php` | Tournaments-index columns minus Format; medal SVG headers; podium = flag + player link; **Date** quiet on default load — [`k2-table-quiet-date-column-policy.md`](k2-table-quiet-date-column-policy.md) |
+| Amiga perf-rating LB (Perfect wing) | `includes/amiga_lb_performance_rating_table.php` | Date col 9; quiet on default load for Perfect view only |
 | Amiga Countries hub (index + roster) | `includes/amiga_countries_index_table.php`, `includes/amiga_countries_roster_table.php` + `amiga/countries.php`, legacy `countries/roster.php` | Medal SVG headers; flag per roster row; default sort players DESC / games DESC tiebreak (index) · rating DESC (roster) — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
 | League period games | `includes/k2_league_period_page.php` | Mirror + sortable |
 | Static / header-help only | `game.php` | No sortable bundle |
@@ -63,7 +66,7 @@ Online hub LB wings may use `k2_lb_sortable_table_head.inc.php` instead of the g
 6. Every `<th>`: hub LBs use `k2_lb_th($col, $lbSort, $extraClass)`; other wide tables use `k2_table_sortable_th_attr(...)`.
 7. Every body `<td>`: hub LBs use `k2_lb_td($col, $lbSort, $extraClass)`; other wide tables use `k2_table_body_td_attr(...)`.
 8. `data-k2-skip-initial-sort="1"` when **SQL row order already matches** default sort (avoids reorder flash). **Never** set skip when PHP row order uses a different `ORDER BY` than the wing’s default column (WC player sub-wings: per-view order in `amiga_lb_wc_slice_order_sql()`).
-9. **Quiet date (opt-in fallback)** — avoid **first-load date blast** when table must default-sort by Date and has **no game ID**: mute date body on first paint only ([`k2-table-quiet-date-column-policy.md`](k2-table-quiet-date-column-policy.md)). **Prefer ID default** first. **Not** when user chooses Date sort. **Ask** Dagh. Plan: [`k2-table-quiet-date-unification-plan.md`](k2-table-quiet-date-unification-plan.md).
+9. **Quiet date (opt-in fallback)** — when table must default-sort by Date and has **no game ID**: `$isDefaultSortView`, `k2_table_sort_col_for_emphasis`, `k2_table_quiet_date_cell_class`, `k2_table_quiet_default_sort_col_attr` ([`k2-table-quiet-date-column-policy.md`](k2-table-quiet-date-column-policy.md)). **Prefer ID default** first. **Not** when user chooses Date sort. **Ask** Dagh on new tables. Shipped surfaces: plan § Opt-in surfaces.
 10. Filter / pill / chevron URLs: `array_merge($params, k2_table_sort_query_params())` or `k2_table_merge_sort_query_for_path()`.
 
 ### Anchor column
@@ -105,4 +108,4 @@ Player, tournament, and country **name** cells: [`k2-table-entity-links-policy.m
 
 ---
 
-*Last updated: Jun 2026 — institutional checklist; keep in sync when a new table archetype ships.*
+*Last updated: Jul 2026 — institutional checklist; keep in sync when a new table archetype ships.*

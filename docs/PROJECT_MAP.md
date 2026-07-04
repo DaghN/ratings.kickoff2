@@ -32,7 +32,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | `docs/k2-table-implementation-checklist.md` | **K2 tables** — mandatory before new/refactored sortable tables; run `scripts/audit_k2_table_compliance.py` for backlog |
 | `docs/k2-tooltip-policy.md` | **K2 tooltips** — mandatory before table header/column help, chart hovers, or control tooltips; audit flags `<th title=` |
 | `docs/k2-table-entity-links-policy.md` | **K2 table entity links** — player/tournament/country name helpers, Amiga inline flags; no flag-only Country columns |
-| `docs/k2-table-quiet-date-column-policy.md` | **K2 quiet date** — avoid first-load date blast; ID default first; fallback tooling + plan |
+| `docs/k2-table-quiet-date-column-policy.md` | **K2 quiet date** — avoid first-load date blast; ID default first; shipped on five Amiga tables (Jul 2026) |
 | `docs/k2-nav-implementation-checklist.md` | **K2 page chrome nav** — mandatory before new wing/sub-nav/hub shell; spacing in `nav-spacing-policy.md`; **filter stacks** in `filter-stack-spacing-policy.md` |
 | `docs/navigation-model.md` | **Hub-vs-entity invariants (NM1–NM6)** — which pages get an active pill; where entity pages live (realm root, singular namespace, no pill). Read before active-pill / page-placement decisions |
 | `docs/present-layer-ia.md` | **Present layer & site completion** — News, pulse, Misc shelf, leaf pages, footer/about, path to shippable v1 (intent/policy; PL1–PL16) |
