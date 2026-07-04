@@ -29,7 +29,7 @@ $DoubleDigitsRatio = $row[13];
 $CleanSheetsRatio = $row[14];
 
 $ActivityPlayers = $NumberOfPlayers;
-$r = mysqli_query($con, 'SELECT COUNT(*) AS c FROM playertable WHERE Display = 1 AND NumberGames >= 1');
+$r = mysqli_query($con, 'SELECT COUNT(*) AS c FROM playertable WHERE NumberGames >= 1');
 if ($r !== false) {
     $activityRow = mysqli_fetch_assoc($r);
     mysqli_free_result($r);

@@ -2,7 +2,7 @@
 /**
  * Leaderboard player pool filters (ranked1–7 only; not Hall of Fame).
  *
- * Default: include inactive and provisional (Display = 1 only).
+ * Base pool: at least one rated game (`NumberGames >= 1`). Legacy `Display` is not used on read paths.
  * Query params inactive=0 / provisional=0 tighten the pool.
  *
  * Established player threshold (rated games): same as HoF ratio/average eligibility and
@@ -12,6 +12,24 @@ require_once __DIR__ . '/k2_routes.php';
 
 if (!defined('K2_ESTABLISHED_MIN_GAMES')) {
     define('K2_ESTABLISHED_MIN_GAMES', 20);
+}
+
+/** Minimum rated games for ladder pool membership (replaces legacy Display = 1 reads). */
+function k2_playertable_min_rated_games(): int
+{
+    return 1;
+}
+
+/**
+ * SQL predicate: player has at least one rated game.
+ *
+ * @param string $alias Table alias without trailing dot (empty = unqualified columns).
+ */
+function k2_playertable_rated_pool_sql(string $alias = ''): string
+{
+    $prefix = $alias !== '' ? preg_replace('/[^a-zA-Z0-9_]/', '', $alias) . '.' : '';
+
+    return $prefix . 'NumberGames >= ' . k2_playertable_min_rated_games();
 }
 
 function k2_established_min_games(): int
@@ -47,7 +65,7 @@ function k2_lb_player_where_sql_for_alias(string $alias, ?array $opts = null): s
     $opts = $opts ?? k2_lb_filter_opts();
     $prefix = $alias !== '' ? preg_replace('/[^a-zA-Z0-9_]/', '', $alias) . '.' : '';
 
-    $parts = [$prefix . 'Display = 1'];
+    $parts = [k2_playertable_rated_pool_sql($alias)];
     if (empty($opts['include_inactive'])) {
         $parts[] = $prefix . 'LastGame >= DATE_SUB(NOW(), INTERVAL 12 MONTH)';
     }

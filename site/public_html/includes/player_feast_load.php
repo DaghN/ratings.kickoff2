@@ -22,19 +22,21 @@ function player_feast_load_pm(mysqli $con, int $id): array
         throw new RuntimeException('Player not found.');
     }
 
+    $games = k2_db_is_null($row['NumberGames'] ?? null) ? 0 : (int) $row['NumberGames'];
+    $ladderVisible = $games >= 1;
+
     $rankResult = k2_player_feast_query(
         $con,
         'ladder_rank',
-        "SELECT COUNT(*)+1 AS plrank FROM playertable WHERE display = 1 AND rating > (SELECT rating FROM playertable WHERE id='$escId')"
+        "SELECT COUNT(*)+1 AS plrank FROM playertable WHERE NumberGames >= 1 AND rating > (SELECT rating FROM playertable WHERE id='$escId')"
     );
     $rankRow = mysqli_fetch_row($rankResult);
     $rank = (int) $rankRow[0];
 
-    $display = (int) $row['Display'] === 1;
-    $rating = $display && !k2_db_is_null($row['Rating']) ? (int) round((float) $row['Rating']) : null;
-    $peak = $display && !k2_db_is_null($row['PeakRating']) && (float) $row['PeakRating'] != 0
+    $display = $ladderVisible;
+    $rating = $ladderVisible && !k2_db_is_null($row['Rating']) ? (int) round((float) $row['Rating']) : null;
+    $peak = $ladderVisible && !k2_db_is_null($row['PeakRating']) && (float) $row['PeakRating'] != 0
         ? (int) round((float) $row['PeakRating']) : null;
-    $games = k2_db_is_null($row['NumberGames']) ? 0 : (int) $row['NumberGames'];
     $wins = k2_db_is_null($row['NumberWins']) ? 0 : (int) $row['NumberWins'];
     $draws = k2_db_is_null($row['NumberDraws']) ? 0 : (int) $row['NumberDraws'];
     $losses = k2_db_is_null($row['NumberLosses']) ? 0 : (int) $row['NumberLosses'];
@@ -320,7 +322,7 @@ function player_feast_expose_hero_vars(array $pm): void
     $Name = $pm['name'];
     $rank = (int) $pm['rank'];
     $NumberGames = (int) $pm['games'];
-    $Display = !empty($pm['display']) ? 1 : 0;
+    $Display = (int) $pm['games'] >= 1 ? 1 : 0;
     $Rating = ($Display === 1 && $pm['rating'] !== null) ? (float) $pm['rating'] : null;
     $PeakRating = ($Display === 1 && $pm['peak'] !== null) ? (float) $pm['peak'] : null;
 }

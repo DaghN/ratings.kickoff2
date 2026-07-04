@@ -59,7 +59,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 			<ul class="k2-status-live-list">
 <?php foreach ($liveGames as $g) { ?>
 				<li>
-					<span class="k2-status-live-list__time"><?php echo k2_status_h(k2_status_short_time($g['start'])); ?></span>
+					<?php echo k2_status_day_clock_html($g['start'], 'k2-status-live-list__time'); ?>
 					<span class="k2-status-match">
 						<span class="k2-status-match__side"><?php echo k2_status_player_link_or_name($g['id_a'], $g['name_a']); ?></span>
 						<span class="k2-status-score"><?php echo k2_status_score_html((int) $g['score_a'], (int) $g['score_b']); ?></span>
@@ -140,7 +140,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 			<ul class="k2-status-recency-list">
 <?php foreach ($logins as $row) { ?>
 				<li>
-					<span class="k2-status-recency-list__when"><?php echo k2_status_h(k2_status_short_time($row['at'])); ?></span>
+					<?php echo k2_status_day_clock_html($row['at']); ?>
 					<?php echo k2_status_player_link($row['id'], $row['name']); ?>
 				</li>
 <?php } ?>
@@ -159,7 +159,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 			<ul class="k2-status-recency-list">
 <?php foreach ($recentGames as $g) { ?>
 				<li>
-					<span class="k2-status-recency-list__when"><?php echo k2_status_h(k2_status_short_time($g['at'])); ?></span>
+					<?php echo k2_status_day_clock_html($g['at']); ?>
 					<span class="k2-status-match">
 						<span class="k2-status-match__side"><?php echo k2_status_player_link($g['id_a'], $g['name_a']); ?></span>
 						<span class="k2-status-score"><?php echo k2_status_score_html((int) $g['goals_a'], (int) $g['goals_b']); ?></span>
@@ -179,7 +179,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 			<ul class="k2-status-recency-list">
 <?php foreach ($registrations as $row) { ?>
 				<li>
-					<span class="k2-status-recency-list__when"><?php echo k2_status_h(date('M j, Y', strtotime($row['joined']) ?: time())); ?></span>
+					<span class="k2-status-recency-list__when"><?php echo k2_status_h(k2_status_registration_date($row['joined'])); ?></span>
 					<?php echo k2_status_player_link($row['id'], $row['name']); ?>
 				</li>
 <?php } ?>

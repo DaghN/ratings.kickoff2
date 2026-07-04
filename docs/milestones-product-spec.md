@@ -112,6 +112,8 @@ Data source: `player_milestones.achieved_at` + catalog tier + display name.
 | `milestone_definitions` | SCH-011; **112** rows from [`site/public_html/ops/data/milestones_definitions_seed.json`](../site/public_html/ops/data/milestones_definitions_seed.json) |
 | `player_milestones` unlock rules | **112/112** keys — all rebuild waves done; forward path PHP ops P6 + `FinalizeUtcDay` + register — [`milestones-facilitation.md`](milestones-facilitation.md) |
 | `player_milestone_totals` | SCH-020; per-player tier counts for meta LB + profile hero |
+| **Recent feed reader** | `k2_milestone_recent_unlocks()` — all unlock rows by `achieved_at`; **no `playertable` pool gate** (includes `entered_arena` for registrants before first rated game) |
+| **Meta LB reader** | `k2_milestone_meta_leaderboard_rows()` — **`NumberGames >= 1`** only (no `Display`) |
 
 ---
 

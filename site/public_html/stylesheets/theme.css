@@ -6285,6 +6285,7 @@ body.k2-site .k2-status-day-picker .k2-status-day-picker__fp-anchor {
 
 	.k2-status-room__panel-new .k2-status-recency-list:not(.k2-status-day-games-list) > li > .k2-status-recency-list__when {
 		width: 12ch;
+		text-align: right;
 	}
 }
 
@@ -6307,11 +6308,33 @@ body.k2-site .k2-status-day-picker .k2-status-day-picker__fp-anchor {
 	font-variant-numeric: tabular-nums;
 }
 
+.k2-status-recency-list__when--day-clock {
+	display: inline-grid;
+	grid-template-columns: 3ch 5ch;
+	column-gap: 0.25em;
+	align-items: baseline;
+	width: fit-content;
+}
+
+.k2-status-recency-list__when-clock {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+
+.k2-status-live-list__time.k2-status-recency-list__when--day-clock {
+	min-width: 0;
+}
+
 .k2-status-recency-list:not(.k2-status-day-games-list) .k2-status-recency-list__when {
 	grid-column: 1;
 	flex: none;
 	min-width: 0;
 	justify-self: start;
+}
+
+.k2-status-room__panel-new .k2-status-recency-list:not(.k2-status-day-games-list) .k2-status-recency-list__when {
+	justify-self: end;
+	text-align: right;
 }
 
 .k2-status-recency-list:not(.k2-status-day-games-list) .k2-status-match,
@@ -6342,7 +6365,7 @@ body.k2-site .k2-status-day-picker .k2-status-day-picker__fp-anchor {
 /* Daily tab games list: shared column tracks; game ids right-aligned in col 3. */
 .k2-status-recency-list.k2-status-day-games-list {
 	display: grid;
-	grid-template-columns: 5.25em max-content max-content;
+	grid-template-columns: max-content max-content max-content;
 	column-gap: 12px;
 	width: fit-content;
 	max-width: 100%;

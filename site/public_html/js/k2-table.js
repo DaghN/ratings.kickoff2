@@ -957,6 +957,11 @@
 		var headers = table.tHead ? table.tHead.getElementsByTagName('th') : [];
 		var i;
 
+		if (table.getAttribute('data-k2-table-init') === '1') {
+			return;
+		}
+		table.setAttribute('data-k2-table-init', '1');
+
 		table._k2SortUserChosen = false;
 
 		for (i = 0; i < headers.length; i++) {

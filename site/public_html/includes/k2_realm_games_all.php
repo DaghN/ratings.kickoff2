@@ -200,7 +200,7 @@ function k2_realm_games_all_sanitize_filters(mysqli $con, array &$state): void
 	if ($state['player'] > 0) {
 		$playerRows = k2_realm_games_all_query_all(
 			$con,
-			'SELECT id FROM playertable WHERE id = ? AND Display = 1 LIMIT 1',
+			'SELECT id FROM playertable WHERE id = ? AND NumberGames >= 1 LIMIT 1',
 			'i',
 			[$state['player']]
 		);

@@ -18,7 +18,7 @@ function online_player_glance_payload(mysqli $con, int $playerId): array
     }
 
     $stmt = $con->prepare(
-        'SELECT id, Name, Display, Rating, NumberGames FROM playertable WHERE id = ? LIMIT 1'
+        'SELECT id, Name, Rating, NumberGames FROM playertable WHERE id = ? LIMIT 1'
     );
     if ($stmt === false) {
         throw new RuntimeException('Player lookup failed.');
@@ -38,15 +38,15 @@ function online_player_glance_payload(mysqli $con, int $playerId): array
         throw new RuntimeException('Player not found.');
     }
 
-    $display = (int) ($row['Display'] ?? 0) === 1;
     $games = k2_db_is_null($row['NumberGames'] ?? null) ? 0 : (int) $row['NumberGames'];
+    $ladderVisible = $games >= 1;
     $rating = null;
     $rank = null;
-    if ($display && !k2_db_is_null($row['Rating'] ?? null)) {
+    if ($ladderVisible && !k2_db_is_null($row['Rating'] ?? null)) {
         $rating = (int) round((float) $row['Rating']);
         $rankStmt = $con->prepare(
             'SELECT COUNT(*) + 1 AS plrank FROM playertable '
-            . 'WHERE Display = 1 AND Rating > (SELECT Rating FROM playertable WHERE id = ? LIMIT 1)'
+            . 'WHERE NumberGames >= 1 AND Rating > (SELECT Rating FROM playertable WHERE id = ? LIMIT 1)'
         );
         if ($rankStmt !== false) {
             $rankStmt->bind_param('i', $playerId);
@@ -71,9 +71,9 @@ function online_player_glance_payload(mysqli $con, int $playerId): array
         'realm' => 'online',
         'id' => (int) $row['id'],
         'name' => (string) ($row['Name'] ?? ''),
-        'display' => $display,
+        'display' => $ladderVisible,
         'pre_debut' => false,
-        'rank' => $display ? $rank : null,
+        'rank' => $ladderVisible ? $rank : null,
         'rating' => $rating,
         'games' => $games,
         'milestone_tiers' => $milestoneTiers,

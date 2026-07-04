@@ -535,7 +535,7 @@ function k2_milestone_meta_leaderboard_rows(mysqli $con): array
                 COALESCE(t.legendary, 0) AS legendary
             FROM playertable p
             LEFT JOIN player_milestone_totals t ON t.player_id = p.ID
-            WHERE p.NumberGames >= 1 AND p.Display = 1
+            WHERE p.NumberGames >= 1
             ORDER BY
                 total DESC,
                 aspirational DESC,
@@ -559,7 +559,7 @@ function k2_milestone_meta_leaderboard_rows(mysqli $con): array
             FROM playertable p
             LEFT JOIN player_milestones pm ON pm.player_id = p.ID
             LEFT JOIN milestone_definitions md ON md.milestone_key = pm.milestone_key
-            WHERE p.NumberGames >= 1 AND p.Display = 1
+            WHERE p.NumberGames >= 1
             GROUP BY p.ID, p.Name
             ORDER BY
                 total DESC,
@@ -924,7 +924,7 @@ function k2_milestone_recent_unlocks(mysqli $con, int $limit = K2_MILESTONE_RECE
             md.tier_band,
             md.chart_token
         FROM player_milestones pm
-        INNER JOIN playertable p ON p.ID = pm.player_id AND p.Display = 1
+        INNER JOIN playertable p ON p.ID = pm.player_id
         INNER JOIN milestone_definitions md ON md.milestone_key = pm.milestone_key
         WHERE 1=1$tierFilterSql
         ORDER BY pm.achieved_at DESC

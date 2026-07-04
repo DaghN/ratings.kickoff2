@@ -222,7 +222,7 @@ function player_opponents_h2h_load_player_card(mysqli $con, int $playerId): ?arr
         return null;
     }
 
-    $stmt = $con->prepare('SELECT Name, Rating, Display FROM playertable WHERE ID = ? LIMIT 1');
+    $stmt = $con->prepare('SELECT Name, Rating, NumberGames FROM playertable WHERE ID = ? LIMIT 1');
     if (!$stmt) {
         return null;
     }
@@ -243,12 +243,13 @@ function player_opponents_h2h_load_player_card(mysqli $con, int $playerId): ?arr
         return null;
     }
 
-    $display = (int) ($row['Display'] ?? 0) === 1;
+    $games = k2_db_is_null($row['NumberGames'] ?? null) ? 0 : (int) $row['NumberGames'];
+    $ladderVisible = $games >= 1;
     $rank = null;
-    if ($display) {
+    if ($ladderVisible) {
         $rankStmt = $con->prepare(
             'SELECT COUNT(*) + 1 AS plrank FROM playertable '
-            . 'WHERE Display = 1 AND Rating > (SELECT Rating FROM playertable WHERE ID = ? LIMIT 1)'
+            . 'WHERE NumberGames >= 1 AND Rating > (SELECT Rating FROM playertable WHERE ID = ? LIMIT 1)'
         );
         if ($rankStmt) {
             $rankStmt->bind_param('i', $playerId);
@@ -269,7 +270,7 @@ function player_opponents_h2h_load_player_card(mysqli $con, int $playerId): ?arr
     return [
         'player_id' => $playerId,
         'name' => (string) $row['Name'],
-        'display' => $display,
+        'display' => $ladderVisible,
         'rank' => $rank,
         'rating' => $row['Rating'],
     ];

@@ -394,6 +394,42 @@ function k2_status_short_time(?string $datetime): string
     return $ts === false ? '—' : date('D H:i', $ts);
 }
 
+/**
+ * Weekday + clock for status recency rows — split columns so HH:MM aligns vertically.
+ *
+ * @param non-empty-string $wrapperClass
+ */
+function k2_status_day_clock_html(?string $datetime, string $wrapperClass = 'k2-status-recency-list__when'): string
+{
+    $classes = k2_status_h(trim($wrapperClass . ' k2-status-recency-list__when--day-clock'));
+    if ($datetime === null || $datetime === '') {
+        return '<span class="' . $classes . '"><span class="k2-status-recency-list__when-na">—</span></span>';
+    }
+    $ts = strtotime($datetime);
+    if ($ts === false) {
+        return '<span class="' . $classes . '"><span class="k2-status-recency-list__when-na">—</span></span>';
+    }
+
+    return '<span class="' . $classes . '">'
+        . '<span class="k2-status-recency-list__when-day">' . k2_status_h(date('D', $ts)) . '</span>'
+        . '<span class="k2-status-recency-list__when-clock">' . k2_status_h(date('H:i', $ts)) . '</span>'
+        . '</span>';
+}
+
+/** Join date for New players panel — space-padded day so comma/year align in the recency column. */
+function k2_status_registration_date(?string $datetime): string
+{
+    if ($datetime === null || $datetime === '') {
+        return '—';
+    }
+    $ts = strtotime($datetime);
+    if ($ts === false) {
+        return '—';
+    }
+
+    return date('M ', $ts) . sprintf('%2d', (int) date('j', $ts)) . date(', Y', $ts);
+}
+
 /** Scoreline for status recency lists — winning side blue + bold. */
 function k2_status_score_html(int $goalsA, int $goalsB): string
 {
@@ -467,7 +503,7 @@ function k2_status_arc_ticker(mysqli $con, ?string &$error = null): ?array
     }
     $ts = strtotime((string) $first);
 
-    $r = mysqli_query($con, 'SELECT COUNT(*) AS c FROM playertable WHERE Display = 1 AND NumberGames >= 1');
+    $r = mysqli_query($con, 'SELECT COUNT(*) AS c FROM playertable WHERE NumberGames >= 1');
     if ($r === false) {
         $error = mysqli_error($con);
 
@@ -517,7 +553,7 @@ function k2_status_pulse(mysqli $con, ?string &$error = null): ?array
     mysqli_free_result($r);
     $live = (int) ($row['c'] ?? 0);
 
-    $r = mysqli_query($con, 'SELECT MAX(LastLogin) AS t FROM playertable WHERE Display = 1');
+    $r = mysqli_query($con, 'SELECT MAX(LastLogin) AS t FROM playertable');
     if ($r === false) {
         $error = mysqli_error($con);
 
@@ -552,7 +588,7 @@ function k2_status_active_top_rated(mysqli $con, ?string &$error = null): ?array
 {
     $error = null;
     $sql = 'SELECT ID, Name, Rating, LastGame, NumberGames FROM playertable '
-        . 'WHERE Display = 1 AND LastGame >= DATE_SUB(NOW(), INTERVAL 12 MONTH) '
+        . 'WHERE NumberGames >= 1 AND LastGame >= DATE_SUB(NOW(), INTERVAL 12 MONTH) '
         . 'ORDER BY Rating DESC';
     $r = mysqli_query($con, $sql);
     if ($r === false) {
@@ -1191,7 +1227,8 @@ function k2_status_recent_logins(mysqli $con, int $limit = 10, ?string &$error =
 {
     $error = null;
     $limit = max(1, min(30, $limit));
-    $sql = 'SELECT ID, Name, LastLogin FROM playertable WHERE Display = 1 '
+    // Lobby recency — not ladder eligibility; do not gate by Display (see Online now panel).
+    $sql = 'SELECT ID, Name, LastLogin FROM playertable '
         . 'ORDER BY LastLogin DESC LIMIT ' . $limit;
     $r = mysqli_query($con, $sql);
     if ($r === false) {
@@ -1217,7 +1254,8 @@ function k2_status_recent_registrations(mysqli $con, int $limit = 10, ?string &$
 {
     $error = null;
     $limit = max(1, min(30, $limit));
-    $sql = 'SELECT ID, Name, JoinDate FROM playertable WHERE Display = 1 '
+    // Lobby recency — not ladder eligibility; do not gate by Display (see Online now panel).
+    $sql = 'SELECT ID, Name, JoinDate FROM playertable '
         . 'ORDER BY JoinDate DESC LIMIT ' . $limit;
     $r = mysqli_query($con, $sql);
     if ($r === false) {

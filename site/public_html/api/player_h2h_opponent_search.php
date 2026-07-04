@@ -97,8 +97,12 @@ if ($realm === 'amiga') {
         $gamesByOpponent[(int) $row['opponent_id']] = (int) $row['games'];
     }
 
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_current_lib.php';
+    $careerTable = amiga_player_career_table($con);
+
     $sql = 'SELECT p.id AS id, p.name AS name FROM amiga_players p '
-        . 'WHERE p.display = 1 AND p.name IS NOT NULL AND p.name <> \'\' '
+        . 'INNER JOIN `' . $careerTable . '` s ON s.player_id = p.id '
+        . 'WHERE s.NumberGames > 0 AND p.name IS NOT NULL AND p.name <> \'\' '
         . 'AND p.id <> ? AND LOWER(p.name) LIKE LOWER(?) ESCAPE \'\\\\\' '
         . 'ORDER BY p.name ASC LIMIT ?';
     $stmt = $con->prepare($sql);
@@ -168,13 +172,13 @@ if ($hasSummary) {
     $sql = 'SELECT p.ID AS id, p.Name AS name, COALESCE(m.games, 0) AS games_vs '
         . 'FROM playertable p '
         . 'LEFT JOIN player_matchup_summary m ON m.player_id = ? AND m.opponent_id = p.ID '
-        . 'WHERE p.Display = 1 AND p.Name IS NOT NULL AND p.Name <> \'\' '
+        . 'WHERE p.NumberGames >= 1 AND p.Name IS NOT NULL AND p.Name <> \'\' '
         . 'AND p.ID <> ? AND LOWER(p.Name) LIKE LOWER(?) ESCAPE \'\\\\\' '
         . 'ORDER BY p.Name ASC LIMIT ?';
 } else {
     $sql = 'SELECT p.ID AS id, p.Name AS name, 0 AS games_vs '
         . 'FROM playertable p '
-        . 'WHERE p.Display = 1 AND p.Name IS NOT NULL AND p.Name <> \'\' '
+        . 'WHERE p.NumberGames >= 1 AND p.Name IS NOT NULL AND p.Name <> \'\' '
         . 'AND p.ID <> ? AND LOWER(p.Name) LIKE LOWER(?) ESCAPE \'\\\\\' '
         . 'ORDER BY p.Name ASC LIMIT ?';
 }

@@ -55,25 +55,18 @@ function ko2_escape_like($s)
 /**
  * @return list<array{id: int, name: string, rating: int, realm: string}>
  */
-function ko2_player_search_rows(mysqli $con, string $pattern, int $limit, string $realmId, bool $onlineDisplayFilter): array
+function ko2_player_search_rows(mysqli $con, string $pattern, int $limit, string $realmId): array
 {
     if ($realmId === 'amiga') {
         require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_current_lib.php';
         $careerTable = amiga_player_career_table($con);
-        $where = 'p.name IS NOT NULL AND p.name <> \'\' AND LOWER(p.name) LIKE LOWER(?) ESCAPE \'\\\\\''
-            . ' AND s.NumberGames > 0';
-        $sql = 'SELECT p.id AS ID, p.name AS Name, ROUND(s.Rating) AS ratingRounded '
-            . 'FROM amiga_players p INNER JOIN `' . $careerTable . '` s ON s.player_id = p.id WHERE '
+        $where = 'p.name IS NOT NULL AND p.name <> \'\' AND LOWER(p.name) LIKE LOWER(?) ESCAPE \'\\\\\'';
+        $sql = 'SELECT p.id AS ID, p.name AS Name, ROUND(COALESCE(s.Rating, 1600)) AS ratingRounded '
+            . 'FROM amiga_players p LEFT JOIN `' . $careerTable . '` s ON s.player_id = p.id WHERE '
             . $where . ' ORDER BY p.name ASC LIMIT ?';
     } else {
         $where = 'Name IS NOT NULL AND Name <> \'\' AND LOWER(Name) LIKE LOWER(?) ESCAPE \'\\\\\'';
-        if ($onlineDisplayFilter) {
-            $where = 'Display = 1 AND ' . $where;
-        } else {
-            $where = 'NumberGames > 0 AND ' . $where;
-        }
-
-        $sql = 'SELECT ID, Name, ROUND(Rating) AS ratingRounded FROM playertable WHERE '
+        $sql = 'SELECT ID, Name, ROUND(COALESCE(Rating, 1600)) AS ratingRounded FROM playertable WHERE '
             . $where . ' ORDER BY Name ASC LIMIT ?';
     }
 
@@ -173,7 +166,7 @@ if ($realm === 'online' || $realm === 'all') {
     $fetchLimit = $realm === 'all' ? $limit : $limit;
     $players = array_merge(
         $players,
-        ko2_player_search_rows($con, $pattern, $fetchLimit, 'online', true)
+        ko2_player_search_rows($con, $pattern, $fetchLimit, 'online')
     );
     mysqli_close($con);
 }
@@ -184,7 +177,7 @@ if ($realm === 'amiga' || $realm === 'all') {
         $fetchLimit = $realm === 'all' ? $limit : $limit;
         $players = array_merge(
             $players,
-            ko2_player_search_rows($con, $pattern, $fetchLimit, 'amiga', false)
+            ko2_player_search_rows($con, $pattern, $fetchLimit, 'amiga')
         );
         mysqli_close($con);
     }

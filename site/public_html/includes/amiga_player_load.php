@@ -49,7 +49,7 @@ function amiga_player_load(mysqli $con, int $id, ?AmigaSnapshotContext $ctx = nu
 function amiga_player_load_present(mysqli $con, int $id): array
 {
     $stmt = $con->prepare(
-        'SELECT p.id AS ID, p.name AS Name, p.country AS Country, p.display AS Display, '
+        'SELECT p.id AS ID, p.name AS Name, p.country AS Country, '
         . 's.Rating, s.elo_rank, s.PeakRating, s.NumberGames, s.tournaments_played, s.NumberWins, s.NumberDraws, s.NumberLosses, '
         . 's.WinRatio, s.GoalsFor, s.GoalsAgainst, s.GoalRatio, s.peak_rating_tournament_id, s.AverageOpponentRating '
         . amiga_player_base_from_sql($con) . ' WHERE p.id = ? LIMIT 1'
@@ -72,7 +72,7 @@ function amiga_player_load_present(mysqli $con, int $id): array
         throw new RuntimeException('Player has no rated games.');
     }
 
-    $display = (int) ($row['Display'] ?? 0) === 1;
+    $display = $games >= 1;
 
     return [
         'id' => (int) $row['ID'],

@@ -25,7 +25,7 @@ function k2_league_period_participation_eligible_players(mysqli $con): array
     }
 
     $sql = 'SELECT ID AS id, Name AS name FROM playertable '
-        . 'WHERE Display = 1 AND NumberGames > 0 AND Name IS NOT NULL AND TRIM(Name) <> \'\' '
+        . 'WHERE NumberGames >= 1 AND Name IS NOT NULL AND TRIM(Name) <> \'\' '
         . 'ORDER BY Name ASC, ID ASC';
     $res = $con->query($sql);
     if (!$res) {
@@ -59,7 +59,7 @@ function k2_league_period_online_player_has_rated_games(mysqli $con, int $player
     }
 
     $stmt = $con->prepare(
-        'SELECT 1 FROM playertable WHERE ID = ? AND Display = 1 AND NumberGames > 0 LIMIT 1'
+        'SELECT 1 FROM playertable WHERE ID = ? AND NumberGames >= 1 LIMIT 1'
     );
     if (!$stmt) {
         $cache[$playerId] = false;

@@ -198,8 +198,8 @@ function amiga_player_pre_debut_row(array $playerRow): array
  */
 function amiga_player_row_from_snapshot(array $playerRow, array $snap, int $rank): array
 {
-    $display = (int) ($snap['Display'] ?? 0) === 1;
     $games = (int) ($snap['NumberGames'] ?? 0);
+    $display = $games >= 1;
 
     return [
         'id' => (int) $playerRow['ID'],

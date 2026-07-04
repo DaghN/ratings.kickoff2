@@ -60,12 +60,12 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 |-------|--------|--------|
 | **Pulse** | `playertable`, `resulttable`, optional `generalstatstable` | Online count, live game count, last login recency; no CPU/disk/mem |
 | **Rated-games arc** | `generalstatstable` + `ratedresults` + `playertable` | Compact all-time sentence (`players`, `online Kick Off 2 games`, first rated date); no hub link (Activity tab is separate) |
-| **Active rated leaderboard** | `playertable` | Full active list, not capped: `ORDER BY Rating DESC`; **`LastGame` ≥ now − 12 months**; rating shown **0 decimals**; public display rule (`Display = 1`); names → profiles; **Elo** → rating LB row (`k2_lb_rating_cell_link()`); heading count is exact active row count; sortable `#`/Player/Elo/Games headers with compact help — **Elo** help notes 12‑month active window + complete leaderboards live in the Leaderboards hub section; **Games** = career `NumberGames` (“Games played (career).”); link `Leaderboards →` opens broad Leaderboards section |
+| **Active rated leaderboard** | `playertable` | Full active list, not capped: `ORDER BY Rating DESC`; **`LastGame` ≥ now − 12 months**; **`NumberGames` ≥ 1**; rating shown **0 decimals**; names → profiles; **Elo** → rating LB row (`k2_lb_rating_cell_link()`); heading count is exact active row count; sortable `#`/Player/Elo/Games headers with compact help — **Elo** help notes 12‑month active window + complete leaderboards live in the Leaderboards hub section; **Games** = career `NumberGames` (“Games played (career).”); link `Leaderboards →` opens broad Leaderboards section |
 | **League stack** | **`player_period_league`** when present; else `ratedresults` scan | **Calendar day**, **Monday-start calendar week**, **calendar month**, **calendar year**; UI current/previous boundaries use server `NOW()`; **stored `period_start` keys are UTC** per [`website-data-contract.md`](website-data-contract.md); **3 / 1 / 0** pts from `ActualScore`; aggregate per player: Pld, W, D, L, GF, GA, GD, Pts; sort Pts ↓, GD ↓, GF ↓; **all players with ≥1 game in period**; reader: `status_queries.php` |
 | **Online now** | `playertable` · nonzero `IsOnline` | Do not gate by `Display`; this is lobby presence, not ladder eligibility |
 | **Live games** | `resulttable` | Started, not finished, not shelved (match legacy filter when verified) |
-| **Recent logins** | `playertable` · `LastLogin DESC` | ~10 |
-| **Recent registrations** | `playertable` · `JoinDate DESC` | ~10; important community signal |
+| **Recent logins** | `playertable` · `LastLogin DESC` | ~10; **do not gate by `Display`** (lobby signal, like Online now) |
+| **Recent registrations** | `playertable` · `JoinDate DESC` | ~10; important community signal; **do not gate by `Display`** (includes registrants before first rated game) |
 | **Recent rated games** | `ratedresults` · `Date DESC` | ~10; show player names and score only, no rating deltas; header link `Games →` opens full Games list |
 | **Heritage box** | static image | Box art only; **Play & Setup** is a hub tab. Inset now links to **`boxart.php`** (illustrated box-art history) |
 

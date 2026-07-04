@@ -215,9 +215,9 @@
         root._dayGamesCache[key] = html;
     }
 
-    function formatDayGameTime(datetime) {
+    function formatDayGameTimeHtml(datetime) {
         if (!datetime) {
-            return '—';
+            return '<span class="k2-status-recency-list__when k2-status-recency-list__when--day-clock"><span class="k2-status-recency-list__when-na">—</span></span>';
         }
         var normalized = String(datetime).trim().replace(' ', 'T');
         if (!/Z$/i.test(normalized)) {
@@ -225,12 +225,17 @@
         }
         var d = new Date(normalized);
         if (isNaN(d.getTime())) {
-            return '—';
+            return '<span class="k2-status-recency-list__when k2-status-recency-list__when--day-clock"><span class="k2-status-recency-list__when-na">—</span></span>';
         }
         var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         var h = d.getUTCHours();
         var m = d.getUTCMinutes();
-        return days[d.getUTCDay()] + ' ' + String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+        var day = days[d.getUTCDay()];
+        var clock = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+        return '<span class="k2-status-recency-list__when k2-status-recency-list__when--day-clock">'
+            + '<span class="k2-status-recency-list__when-day">' + escapeHtml(day) + '</span>'
+            + '<span class="k2-status-recency-list__when-clock">' + escapeHtml(clock) + '</span>'
+            + '</span>';
     }
 
     function formatStatusScoreHtml(goalsA, goalsB) {
@@ -253,7 +258,7 @@
         for (var i = 0; i < games.length; i++) {
             var g = games[i];
             html += '<li>';
-            html += '<span class="k2-status-recency-list__when">' + escapeHtml(formatDayGameTime(g.at)) + '</span>';
+            html += formatDayGameTimeHtml(g.at);
             html += '<span class="k2-status-match">';
             html += '<span class="k2-status-match__side"><a class="k2-link-star" data-k2-player-glance="'
                 + parseInt(g.id_a, 10) + '" href="/player/profile.php?id='

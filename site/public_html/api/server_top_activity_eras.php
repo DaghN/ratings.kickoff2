@@ -61,7 +61,7 @@ if ($check === false || mysqli_num_rows($check) === 0) {
 
 $topSql = 'SELECT p.ID AS player_id, p.Name AS player_name, p.NumberGames AS total_games '
     . 'FROM playertable p '
-    . 'WHERE p.Display = 1 AND p.NumberGames >= 1 '
+    . 'WHERE p.NumberGames >= 1 '
     . 'ORDER BY p.NumberGames DESC, p.ID ASC '
     . 'LIMIT ' . $limit;
 

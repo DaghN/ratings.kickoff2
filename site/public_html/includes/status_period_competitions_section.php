@@ -100,7 +100,7 @@ if (!function_exists('k2_status_render_day_games_list')) {
 							<ul class="k2-status-recency-list k2-status-day-games-list">
 <?php foreach ($games as $g) { ?>
 								<li>
-									<span class="k2-status-recency-list__when"><?php echo k2_status_h(k2_status_short_time($g['at'])); ?></span>
+									<?php echo k2_status_day_clock_html($g['at']); ?>
 									<span class="k2-status-match">
 										<span class="k2-status-match__side"><?php echo k2_status_player_link($g['id_a'], $g['name_a']); ?></span>
 										<span class="k2-status-score"><?php echo k2_status_score_html((int) $g['goals_a'], (int) $g['goals_b']); ?></span>

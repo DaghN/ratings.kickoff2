@@ -136,6 +136,9 @@
 
 | When | Note |
 |------|------|
+| 2026-07-04 | **Status recency clocks** — Recent logins/games/live/day-tab times split weekday + `HH:MM` columns so clocks align vertically. |
+| 2026-07-04 | **Status New players dates** — join dates space-padded (`Jul  1, 2026`) + right-aligned in recency column so comma/year line up before names. |
+| 2026-07-04 | **Status active LB sort toggle** — `status.php` duplicate `k2-table.js` load (head + jukebox enqueue) fixed via `k2_table_js_enqueue()`; `k2-table.js` skips re-init on same table (`data-k2-table-init`). |
 | 2026-07-04 | **H2H rating compare toolbar** — view + line-style toggles stacked in two rows (Amiga/online Opponents H2H; matches profile rank chart layout). |
 | 2026-07-04 | **Amiga profile chart headings** — `Elo rating` / `Elo rank` panel titles use chart pitch / chart chrome ink (online rating heading stays chart amber). |
 | 2026-07-04 | **Amiga profile rating chart toolbar** — view + line-style toggles stacked in two rows (matches rank chart toolbar layout). |
@@ -195,6 +198,8 @@
 | 2026-07-03 | **Amiga player games table** — parity with online player games: **Result** before **Adjustment**; hero/opponent rating cols → **Rating A** / **Rating B** (`amiga/player/games.php`, `amiga_player_game_row.php`). |
 | 2026-07-03 | **Online player games table** — hero/opponent rating cols → **Rating A** / **Rating B** (Team A/B pre-game Elo; tooltips match Amiga games recent); sort keys `rating_a`/`rating_b`. |
 | 2026-07-03 | **Online player games table** — **Result** column moved to just before **Adjustment**; sort-col index map + row renderer updated (`player/games.php`, `k2_player_game_row.php`). |
+| 2026-07-04 | **Player search — no games gate** — `api/player_search.php` lists all named accounts (online + Amiga); rating meta uses `COALESCE(Rating, 1600)`. Ladder/filter pickers elsewhere still use `NumberGames >= 1` where appropriate. |
+| 2026-07-04 | **Retire Display read guards site-wide** — PHP read paths use **`NumberGames >= 1`** for ladder pool (`k2_playertable_rated_pool_sql()` in `lb_player_filters.php`); lobby recency + milestones Recent ungated. Legacy `Display` column untouched on import; ops post-game write unchanged pending Steve policy. |
 | 2026-07-02 | **Online player games table** — dropped redundant **Opponent** name column (Team A/B already show both players); updated `k2_player_game_sort_col_index()` + row renderer column indexes (`player/games.php`, `k2_player_game_row.php`). |
 | 2026-07-03 | **Player name hover glance — show gate 500ms** — `SHOW_DELAY_MS` in `amiga-player-glance.js` (online + Amiga). |
 | 2026-07-03 | **Amiga tournament stepper — host-country option flags** — host-country listbox dropdown rows only (`flag_html`); with-player stays text-only. |

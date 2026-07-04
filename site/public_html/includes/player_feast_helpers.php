@@ -229,7 +229,7 @@ function pm_tenure_plus_label(int $yearsOnLadder): string
 }
 
 /**
- * Ladder rank for a career total among Display = 1 players (higher stat = better rank).
+ * Ladder rank for a career total among players with at least one rated game (higher stat = better rank).
  * NULL stats are treated as 0 — avoids false #1 when SQL comparisons against NULL match no rows.
  */
 function pm_playertable_career_stat_rank(mysqli $con, int $playerId, string $column): ?int
@@ -240,7 +240,7 @@ function pm_playertable_career_stat_rank(mysqli $con, int $playerId, string $col
     }
 
     $playerId = (int) $playerId;
-    $sql = 'SELECT COUNT(*) + 1 AS r FROM playertable WHERE Display = 1 AND COALESCE(`'
+    $sql = 'SELECT COUNT(*) + 1 AS r FROM playertable WHERE NumberGames >= 1 AND COALESCE(`'
         . $column . '`, 0) > COALESCE((SELECT `' . $column . '` FROM playertable WHERE id = ' . $playerId . '), 0)';
     $label = 'career_rank_' . $column;
     $result = function_exists('k2_player_feast_query')

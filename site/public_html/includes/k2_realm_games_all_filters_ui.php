@@ -16,7 +16,7 @@ function k2_realm_games_all_fetch_players(mysqli $con): array
 	$rows = k2_realm_games_all_query_all(
 		$con,
 		'SELECT ID AS id, Name AS name, ROUND(Rating) AS rating FROM playertable '
-			. 'WHERE Display = 1 AND NumberGames > 0 AND Name IS NOT NULL AND Name <> \'\' '
+			. 'WHERE NumberGames >= 1 AND Name IS NOT NULL AND Name <> \'\' '
 			. 'ORDER BY Name ASC, Rating DESC',
 		'',
 		[]

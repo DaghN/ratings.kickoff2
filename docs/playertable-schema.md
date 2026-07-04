@@ -212,7 +212,7 @@ In the app, **registering = entering the lobby**. Milestone **`entered_arena`**:
 
 ## Related site filters (historical context)
 
-- **`Display = 1`** — used on ranked pages to mean “show on ladder listings.”
+- **`Display`** — legacy SteveB / Unity listing flag; **not used on PHP read paths** (Jul 2026). Ladder pool = **`NumberGames >= 1`** via `k2_playertable_rated_pool_sql()` in `lb_player_filters.php`.
 - **`PlayerRank <> 9999`** — legacy **Unity / server-side rank** slot; **449** accounts keep the default **`9999`**. The ratings site previously filtered on this, which hid almost everyone.
 
 ### Display without derived career stats (Jun 2026)

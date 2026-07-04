@@ -12,7 +12,7 @@ if (empty($Name)) {
 	return;
 }
 $heroInitial = strtoupper(substr((string) $Name, 0, 1));
-$heroDisplay = isset($Display) && (int) $Display === 1;
+$heroDisplay = isset($NumberGames) && !k2_db_is_null($NumberGames) && (int) $NumberGames >= 1;
 $heroRank = $heroDisplay && isset($rank) ? '#' . (int) $rank : '—';
 $heroRating = $heroDisplay && isset($Rating) && !k2_db_is_null($Rating) ? k2_fmt_int($Rating, '—') : '—';
 $heroGames = isset($NumberGames) && !k2_db_is_null($NumberGames) ? (int) $NumberGames : 0;

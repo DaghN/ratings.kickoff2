@@ -17,7 +17,7 @@ if (empty($Name)) {
 
 $heroInitial = strtoupper(substr((string) $Name, 0, 1));
 $heroPreDebut = !empty($k2AmigaPlayerPreDebut);
-$heroDisplay = !$heroPreDebut && isset($Display) && (int) $Display === 1;
+$heroDisplay = !$heroPreDebut && isset($NumberGames) && (int) $NumberGames >= 1;
 $heroRating = $heroPreDebut
     ? '—'
     : ($heroDisplay && isset($Rating) && !k2_db_is_null($Rating) ? k2_fmt_int($Rating, '—') : '—');
