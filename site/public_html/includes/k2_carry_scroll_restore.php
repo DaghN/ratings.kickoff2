@@ -10,6 +10,11 @@
  *
  * Normal navigations (no pending restore) are never cloaked and behave exactly as default.
  *
+ * Scroll top (y=0): when the stored payload is { y: 0 } with no nav anchor, scroll
+ * restore is a no-op — skip the cloak entirely (baseline F6: TT ribbon nav at top).
+ * When y=0 but a pill anchor is stored, keep the cloak and wait for carrySubRibbonReady()
+ * before reveal so hub chapter / hero below the TT ribbon is parsed (not a blank flash).
+ *
  * URL hash landing: do not add page-local hash scroll scripts — extend this file instead.
  *
  * Browser Back: pagehide stores scrollY per pathname+search; back_forward reload restores
@@ -177,6 +182,13 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 		hashId = SERVER_TARGET;
 	}
 	var payload = hashId ? null : (backPayload || readPayload());
+
+	/* y=0 without anchor: nothing to restore; cloaking only blanks sub-ribbon chrome (F6). */
+	if (payload && payload.y === 0 && !payload.anchor && !hashId && !backPayload) {
+		clearKey();
+		payload = null;
+	}
+
 	var hasPending = !!hashId || !!payload;
 
 	/* ---------- cloak ---------- */
@@ -285,6 +297,17 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 		return !!document.querySelector('.k2-player-hero.k2-player-hero--feast:not(.k2-amiga-player-glance__hero)');
 	}
 
+	/* Parsed through hub chapter or player feast hero — page chrome below TT ribbon. */
+	function carrySubRibbonReady() {
+		if (document.querySelector('.k2-hub-chapter')) {
+			return true;
+		}
+		if (feastHeroPresent()) {
+			return true;
+		}
+		return document.readyState !== 'loading';
+	}
+
 	function carryReady() {
 		if (!document.body) {
 			return false;
@@ -298,7 +321,11 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 		if (payload.anchor && payload.anchor.label && !findAnchorNav(payload.anchor)) {
 			return false;
 		}
-		return maxScrollTop() >= resolveTargetY(payload) - 1;
+		var targetY = resolveTargetY(payload);
+		if (targetY <= 0 && !carrySubRibbonReady()) {
+			return false;
+		}
+		return maxScrollTop() >= targetY - 1;
 	}
 
 	/* ---------- hash target ---------- */

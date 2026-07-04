@@ -2,6 +2,8 @@
 /**
  * Match-result streaks — consecutive W/D/L (and non-*) runs on rated games.
  * Counts on playertable; personal-best run boundaries in player_result_streaks.
+ * Post-game + verify scope: registered players only (`playertable` row). Deleted ids in
+ * ratedresults are skipped — Streaks LB has no surface for them; milestones use post-game counters.
  *
  * Tie policy: first achievement wins (earlier best_end_at kept when length ties).
  * Post-game: k2_result_streak_after_rated_game() from process_completed_game.
@@ -27,6 +29,39 @@ function k2_result_streak_playertable_longest_columns(): array
         'non_draw' => 'LongestNonDrawStreak',
         'non_loss' => 'LongestNonLossStreak',
     ];
+}
+
+/** SQL: distinct player ids from rated games that still exist in playertable. */
+function k2_result_streak_registered_players_sql(): string
+{
+    return 'SELECT DISTINCT g.`player_id` FROM ('
+        . 'SELECT `idA` AS `player_id` FROM `ratedresults` WHERE `idA` > 0 '
+        . 'UNION '
+        . 'SELECT `idB` FROM `ratedresults` WHERE `idB` > 0'
+        . ') AS g '
+        . 'INNER JOIN `playertable` p ON p.`ID` = g.`player_id` '
+        . 'ORDER BY g.`player_id` ASC';
+}
+
+function k2_result_streak_player_in_playertable(mysqli $con, int $playerId): bool
+{
+    if ($playerId < 1) {
+        return false;
+    }
+    $stmt = $con->prepare('SELECT 1 FROM `playertable` WHERE `ID` = ? LIMIT 1');
+    if ($stmt === false) {
+        return false;
+    }
+    $stmt->bind_param('i', $playerId);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $ok = $res !== false && $res->num_rows > 0;
+    if ($res) {
+        $res->free();
+    }
+    $stmt->close();
+
+    return $ok;
 }
 
 function k2_result_streak_playertable_longest_column(string $streakType): string
@@ -335,13 +370,7 @@ function k2_result_streak_rebuild_all(mysqli $con): int
 {
     $con->query('TRUNCATE TABLE `player_result_streaks`');
 
-    $playersRes = $con->query(
-        'SELECT DISTINCT `player_id` FROM ('
-        .         'SELECT `idA` AS `player_id` FROM `ratedresults` WHERE `idA` > 0 '
-        . 'UNION '
-        . 'SELECT `idB` FROM `ratedresults` WHERE `idB` > 0'
-        . ') AS `players` ORDER BY `player_id` ASC'
-    );
+    $playersRes = $con->query(k2_result_streak_registered_players_sql());
     if ($playersRes === false) {
         throw new RuntimeException('player list query failed');
     }
@@ -447,15 +476,14 @@ function k2_result_streak_oracle_mismatches(
     $mismatches = [];
     $colMap = k2_result_streak_playertable_longest_columns();
 
-    $sql = 'SELECT DISTINCT `player_id` FROM ('
-        .         'SELECT `idA` AS `player_id` FROM `ratedresults` WHERE `idA` > 0 '
-        . 'UNION '
-        . 'SELECT `idB` FROM `ratedresults` WHERE `idB` > 0'
-        . ') AS `players`';
     if ($playerId !== null) {
-        $sql .= ' WHERE `player_id` = ' . (int) $playerId;
+        if (!k2_result_streak_player_in_playertable($con, $playerId)) {
+            return [];
+        }
+        $sql = 'SELECT ' . (int) $playerId . ' AS `player_id`';
+    } else {
+        $sql = k2_result_streak_registered_players_sql();
     }
-    $sql .= ' ORDER BY `player_id` ASC';
 
     $playersRes = $con->query($sql);
     if ($playersRes === false) {
@@ -673,6 +701,9 @@ function k2_result_streak_after_rated_game(
 
     foreach ([$idA, $idB] as $playerId) {
         if ($playerId < 1 || !isset($playersAfter[$playerId])) {
+            continue;
+        }
+        if (!k2_result_streak_player_in_playertable($con, $playerId)) {
             continue;
         }
 

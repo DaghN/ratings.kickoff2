@@ -50,8 +50,8 @@ Use this list before prod cutover. Do not treat “Python passed yesterday” as
 
 | Topic | Contract | Implementation | Status |
 |-------|----------|----------------|--------|
-| Per-game match-result runs | Incremental after outcome | `post_game_*` + `player_result_streaks.php` | **Fixed** |
-| Verify | Stored rows vs chronological oracle | `verify_result_streaks_parity.php` in `run_verify_ops_sim.php` | **Fixed** — `kooldb1` simul sign-off Jun 2026 |
+| Per-game match-result runs | Incremental after outcome | `post_game_*` + `player_result_streaks.php` | **Fixed** — registered players only (Jul 2026); deleted ids skipped |
+| Verify | Stored rows vs chronological oracle | `verify_result_streaks_parity.php` in `run_verify_ops_sim.php` | **Fixed** — oracle + `Longest*` for `playertable` rows only (Jul 2026 orphan scope) |
 
 ---
 

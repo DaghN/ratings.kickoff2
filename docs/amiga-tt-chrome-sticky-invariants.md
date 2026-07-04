@@ -130,6 +130,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Try to reproduce** | Rating LB `?as=event:{id}` — scroll to **top** → chevron, wing tab, or picker step → watch from hub chapter downward. Repeat with one wheel-tick of scroll for contrast. |
 | **Touchpoints** | `k2_carry_scroll_restore.php`, cloak CSS, `js/k2-carry-scroll.js` (TT ribbon `data-k2-carry-scroll`) |
 | **Reported** | 2026-07-04 — baseline explore (Dagh); mapped before slice 0 |
+| **Resolved** | [slice 0 handoff](orchestration/agent-handoffs/2026-07-04-001-tt-chrome-baseline-slice-0.md) — Jul 2026; Dagh manual S1 sign-off pending |
 
 ### F7 — Ribbon vertical jump during nav while **stuck**
 
@@ -282,4 +283,5 @@ When a failure is **solved and verified**, add one line under the row: **Resolve
 | 2026-07-04 | Aligned failure wording with CD4 (**top: 0** latch; in-flow header) |
 | 2026-07-04 | **F6 refined** — sub-ribbon blank at scroll top on TT ribbon nav; ribbon stable; old→blank→new; mid-scroll contrast |
 | 2026-07-04 | **F18 added** — TT hub-tab whole-page blank (Countries late cutoff; Present OK); smokes S9–S10 |
+| 2026-07-04 | **F6 slice 0 shipped** — carry-scroll scroll-top gate + chevron anchor; handoff [`2026-07-04-001-tt-chrome-baseline-slice-0.md`](orchestration/agent-handoffs/2026-07-04-001-tt-chrome-baseline-slice-0.md) |
 | 2026-07-04 | Baseline: removed pin touchpoint row; sticky-only tensions marked deferred |

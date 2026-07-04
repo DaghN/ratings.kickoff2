@@ -136,6 +136,7 @@
 
 | When | Note |
 |------|------|
+| 2026-07-04 | **Result streaks — orphan scope** — post-game writer + verify oracle skip deleted ids (no `playertable` row); fixes Steve simul FAIL on player 287 (LeeLaptop). Milestones unchanged. |
 | 2026-07-04 | **Status recency clocks** — Recent logins/games/live/day-tab times split weekday + `HH:MM` columns so clocks align vertically. |
 | 2026-07-04 | **Status New players dates** — join dates space-padded (`Jul  1, 2026`) + right-aligned in recency column so comma/year line up before names. |
 | 2026-07-04 | **Status active LB sort toggle** — `status.php` duplicate `k2-table.js` load (head + jukebox enqueue) fixed via `k2_table_js_enqueue()`; `k2-table.js` skips re-init on same table (`data-k2-table-init`). |
@@ -146,6 +147,7 @@
 | 2026-07-04 | **Amiga profile chart ink** — solo rating chart → chart chrome (`T.chrome()` + chrome peak/toggle CSS); solo rank chart → chart pitch (`T.pitch()` + pitch peak/toggle CSS); online profile rating chart stays chart amber. |
 | 2026-07-04 | **Player feast hero inset** — `--k2-player-hero-glow-inset` (14px) left margin on `body.k2-player-wing` feast hero so panel glow is not clipped at the content edge; vertical chrome stays 24px. |
 | 2026-07-04 | **Online Peak rating LB context tooltip polish** — games list uses shared parent grid (dash-aligned scores); removed peak-game row highlight; game rows in idA/idB order; cursor-aware placement (prefer right of pointer); **newest game first** — `lb_peak_rating_lib.php`, `theme.css`, `lb-peak-rating-tooltip.js`. |
+| 2026-07-04 | **TT baseline slice 0 (F6)** — carry-scroll skip cloak at y=0 no-anchor; `carrySubRibbonReady()` before reveal; chevron stores nav anchor — handoff [`2026-07-04-001-tt-chrome-baseline-slice-0.md`](docs/orchestration/agent-handoffs/2026-07-04-001-tt-chrome-baseline-slice-0.md). |
 | 2026-07-04 | **TT baseline failures logged** — **F6** (sub-ribbon blank at scroll top, ribbon stable, old→blank→new) + **F18** (Countries/WC hub tab TT late-cutoff whole-page blank; Present OK) — smokes S1/S1b/S9–S10 — [`amiga-tt-chrome-sticky-invariants.md`](docs/amiga-tt-chrome-sticky-invariants.md). |
 | 2026-07-04 | **C02 TT ribbon pin removed** — surgical revert of `3567037` pin slice; in-flow baseline only — `amiga_snapshot_chrome.php`, `theme.css`; deleted `k2-amiga-time-travel-pin.js`. |
 | 2026-07-04 | **TT chrome policy §7 trimmed** — cause/architecture tables removed; symptoms → failures register only. |

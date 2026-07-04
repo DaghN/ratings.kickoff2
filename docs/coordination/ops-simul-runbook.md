@@ -93,9 +93,11 @@ php ops/run_verify_ops_sim.php --target local-work
 | **Exit 0** | No check with severity **`fail`** (warnings allowed) |
 | **Purpose** | **Internal consistency** on work after incremental ops — “did post-game + day ticks leave plausible rows?” |
 
-Checks include: processed vs unprocessed `ratedresults`; contract **six-value** totals vs processed game count; `player_league_award` / finalized `league_period`; league-related milestone key count; informational `perfect_day` / `nightmare_day`; `entered_arena` vs `JoinDate` (prepare seed, not simul); game-sourced milestone row count; **`player_milestone_totals` parity**; **`milestone_definitions.holder_count` parity** (SCH-021 — stored count vs all `player_milestones` rows per key, including orphan earners).
+Checks include: processed vs unprocessed `ratedresults`; contract **six-value** totals vs processed game count; `player_league_award` / finalized `league_period`; league-related milestone key count; informational `perfect_day` / `nightmare_day`; `entered_arena` vs `JoinDate` (prepare seed, not simul); game-sourced milestone row count; **`player_milestone_totals` parity**; **`milestone_definitions.holder_count` parity** (SCH-021 — stored count vs all `player_milestones` rows per key, including orphan earners); **`result_streak_oracle`** (SCH-026 — `player_result_streaks` + `playertable.Longest*` for **registered players only**; deleted ids in `ratedresults` skipped).
 
 **Holder-count FAIL:** bump drift only — investigate bump path during simul. Fix: **`zero-derived` → simul again** ([`work-db-prepare.md`](../work-db-prepare.md) §1.5). Orphan unlocks (deleted accounts) are **expected** and count toward `holder_count`.
+
+**Result-streak FAIL on deleted player id (e.g. 287):** sync Jul 2026 `player_result_streaks.php` — writer + verify scope to `playertable` only; milestones/leagues for orphans unchanged.
 
 **Orphan diagnostics (read-only):**
 

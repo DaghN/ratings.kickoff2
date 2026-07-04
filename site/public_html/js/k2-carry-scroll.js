@@ -237,9 +237,19 @@
 					: null;
 
 			if (gamesAction && gamesAction.href) {
-
-				storeScrollY();
-
+				var carryNav = gamesAction.closest
+					? gamesAction.closest('nav[data-k2-carry-scroll]')
+					: null;
+				if (carryNav) {
+					var carryPayload = { y: scrollYNow() };
+					var carryAnchor = carryAnchorFromNav(carryNav);
+					if (carryAnchor) {
+						carryPayload.anchor = carryAnchor;
+					}
+					writePayload(carryPayload);
+				} else {
+					storeScrollY();
+				}
 			}
 
 		},

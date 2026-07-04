@@ -305,9 +305,9 @@ Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 
 **Full rebuild:** `k2_result_streak_rebuild_all()` — walk each player’s rated games, apply same streak rules as `post_game_player_state.php`, write rows where `best_streak > 0`.
 
-**Post-game rule:** After `playertable` streak counters update each rated game (`k2_result_streak_after_rated_game` in `process_completed_game.php`), upsert boundaries when `best_streak` strictly increases; maintain `current_run_start_game_id` for the active run.
+**Post-game rule:** After `playertable` streak counters update each rated game (`k2_result_streak_after_rated_game` in `process_completed_game.php`), upsert boundaries when `best_streak` strictly increases; maintain `current_run_start_game_id` for the active run. **Scope:** registered players only (`playertable` row). Deleted ids in `ratedresults` are skipped (no Streaks LB surface; milestones use separate post-game counters).
 
-**Parity check:** `k2_result_streak_oracle_mismatches()` — stored vs chronological walker; optional `checkPlayertable=true` after ops simul. Repair: `scripts/rebuild_player_result_streaks.php` (dev / oracle only, not work sign-off).
+**Parity check:** `k2_result_streak_oracle_mismatches()` — stored vs chronological walker for **playertable** players only; optional `checkPlayertable=true` after ops simul (`Longest*` must match `best_streak`). Repair: `scripts/rebuild_player_result_streaks.php` (dev / oracle only, not work sign-off).
 
 **Implementation:** `site/public_html/includes/player_result_streaks.php`; migration **SCH-026**; zero-derived truncates table.
 

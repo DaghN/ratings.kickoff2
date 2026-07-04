@@ -136,7 +136,7 @@ One row per **logical derived artifact**. Not every column gets its own row.
 | `activity_participation_per_player` | Per-player participation vs period counts | **Fail** if mismatch |
 | `activity_play_streak_oracle` | `best_streak` vs period-list walker | **Fail** if mismatch (DDR-011) |
 | `activity_hof_play_streak_*` | HoF `Longest*PlayStreak` vs `MAX(best_streak)` | **Fail** if mismatch |
-| `result_streak_oracle` | `player_result_streaks` vs chronological walker + `playertable.Longest*` | **Fail** if mismatch (DDR-015) |
+| `result_streak_oracle` | `player_result_streaks` vs chronological walker + `playertable.Longest*` (registered players only) | **Fail** if mismatch (DDR-015) |
 
 Exit **1** only on severity **`fail`**. Warnings do not fail the run.
 
