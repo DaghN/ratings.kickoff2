@@ -248,7 +248,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Try to reproduce** | Countries or rating LB with `?as=month:{late}` — scroll mid-page → click Greece flag → `/amiga/country/roster.php?country=Greece&as=…#k2-country-roster`. Compare Present (no `as=`). Also after hub-pill carry at `y > 0`. |
 | **Touchpoints** | `amiga_country_page.php` (query block after hub nav), `k2_carry_scroll_restore.php` (hash `#k2-country-roster` cloak + 700 ms reveal; optional carried `y > 0`), `k2_amiga_country_roster_href()` hash anchor, `amiga_countries_player_rows()` global fetch |
 | **Reported** | 2026-07-04 — Dagh; same overfetch class as pre-fix Countries index (audit: roster still loads **all** rated players + global elo attach for **one** country) |
-| **Note** | Flag links always append `#k2-country-roster` → hash landing engages body cloak even when scroll carry payload was cleared. Slow roster TT query lengthens header-only void. **Query slice 2026-07-04:** country-filtered roster fetch + scoped elo attach (~4× faster late TT; F20 chrome may remain. |
+| **Note** | Flag links always append `#k2-country-roster` → hash landing engages body cloak even when scroll carry payload was cleared. Slow roster TT query lengthens header-only void. **Query slice 2026-07-04:** country-filtered roster fetch + scoped elo attach (~4× faster late TT; roster snappy). **Rivals H2H audit 2026-07-04:** separate debt — double `rivals_rows` + ~2–5 s Type B at `y=0` / Type A at `y>0` on `/country/rivals/h2h.php`; see handoff `2026-07-04-002`. |
 
 ---
 

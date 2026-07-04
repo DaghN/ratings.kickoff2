@@ -3,7 +3,7 @@
 **Date:** 2026-07-04  
 **Track:** Amiga TT chrome baseline · carry-scroll / hash landing  
 **Failure targeted:** **F20** — TT flag / roster / entity nav header flash before content (y ≠ 0)  
-**Status:** Query perf slices done (roster snappy); **F20 chrome audit pending**  
+**Status:** **Audit complete 2026-07-04** — query debt + chrome classified; no fix shipped (audit-only)  
 **Dagh note:** May refer to this as **T20 audit** — same as **F20** in [`amiga-tt-chrome-sticky-invariants.md`](../amiga-tt-chrome-sticky-invariants.md).
 
 ---
@@ -62,6 +62,54 @@ Also try late cutoff: `as=event:589`, `as=month:2025-09`.
 - Update F20 row in invariants if symptom changed after roster fix
 - Optional: `scripts/oneoff/amiga_country_rivals_h2h_audit_probe.php` if useful
 - **No fix required in audit slice** unless Dagh asks — audit + recommendation only
+
+---
+
+## Audit results (2026-07-04)
+
+**Probe:** `scripts/oneoff/amiga_country_rivals_h2h_audit_probe.php` · England vs Italy · local `ko2amiga_db`
+
+### Query timings (ms)
+
+| Phase | Present | `event:22` | `event:589` | `month:2025-09` |
+|-------|---------|------------|-------------|-----------------|
+| `country_summary` | 2.7 | 171 | 130 | 154 |
+| `rivals_rows` (played + perf batch) | 536 | **1421** | 869 | **1509** |
+| `rivals_bucket` (**dup** full `rivals_rows`) | 575 | 1321 | 850 | 1482 |
+| `player_counts_by_token` (all countries) | 11 | 146 | 149 | 153 |
+| `h2h_games_rows` (pair, sync page) | 579 | 305 | 280 | 321 |
+| **Panel sequential total** | 1272 | **3155** | 2171 | **3727** |
+
+**Full page (curl):** TTFB 71–117 ms; total 2.4–5.0 s (body streams after header+ribbon).
+
+### Global overfetch (rivals H2H hot path)
+
+1. **`amiga_country_rivals_render_h2h_panel`** calls `amiga_country_rivals_h2h_played_rivals` then `amiga_country_rivals_bucket` — each runs full `amiga_country_rivals_rows()` (~850–1500 ms TT).
+2. **Poster** calls `amiga_countries_player_counts_by_token()` → full countries index (~145 ms TT) for two card counts (hero count already in `$summaryRow`).
+3. **`amiga_country_rivals_h2h_games_rows`** on page (~280 ms TT); chart JS hits same game rows again via API endpoints.
+
+Roster-path overfetch is fixed; **rivals path is a separate debt class** (matchup rollup + perf batch + duplicate panel reads).
+
+### Chrome classification (manual + instrumentation)
+
+| Scenario | Class | What you see |
+|----------|-------|--------------|
+| TT **`y ≈ 0`**, direct H2H URL | **Type B** | Header + hub + TT ribbon paint immediately; **2–5 s sub-ribbon void** before hero + H2H panel (no body cloak). Worse at `event:22` / `month:2025-09`. |
+| TT **`y > 0`**, carry from ribbon/hub | **Type A** | Full body cloak up to 700 ms; reveal when TT nav + `minHeight` satisfy `carryReady()` — often **before hero/H2H stream** → header-only or empty band at carried Y. |
+| Present **`y ≈ 0`** | **Type B (mild)** | ~2.4 s total; hero/H2H appear without harsh flash. |
+| Hash `#k2-country-roster` (pending or URL) | **Type A → hash scroll** | Rivals page still emits `#k2-country-roster` anchor (before hero). Cloak until anchor exists; lands ~hero top, not H2H panel. Flag links target roster, not H2H. |
+| After content paints | **Type C (charts only)** | Chart panels “Loading…” via deferred API — not primary F20 symptom. `$k2RankedCloak` set but no sortable table on this page. |
+
+**Carry touchpoints on this route:** `k2_carry_scroll_restore.php` (head); country segment nav `aria-label="Country sections"`; rivals wings `aria-label="Rivals views"`; H2H listbox wrapper `data-k2-carry-scroll`. **`carryReady()`** gates on stored nav label (often TT ribbon) — **not** hero or `.k2-country-rivals-h2h`.
+
+### Recommended next slice (priority)
+
+1. **Query dedupe (first)** — single `rivals_rows` pass in panel; index row / summary for rival player count; memoize pair game rows for moments (chart APIs stay async).
+2. **PHP `flush()` after hub nav (3b)** — emit hero + country/rivals nav shell before heavy rivals queries; fixes Type B at `y=0` without touching carry-scroll.
+3. **Carry reveal gate (3d, optional)** — on country entity pages, defer reveal until `.k2-country-hero` exists when `y > 0`.
+4. **Hash (optional)** — omit roster anchor on non-roster views, or defer hash scroll until hero parsed.
+
+**Do not** remove realm/hub carry-scroll.
 
 ---
 

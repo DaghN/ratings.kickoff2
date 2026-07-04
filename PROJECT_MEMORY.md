@@ -148,7 +148,7 @@
 | 2026-07-04 | **Amiga profile chart ink** — solo rating chart → chart chrome (`T.chrome()` + chrome peak/toggle CSS); solo rank chart → chart pitch (`T.pitch()` + pitch peak/toggle CSS); online profile rating chart stays chart amber. |
 | 2026-07-04 | **Player feast hero inset** — `--k2-player-hero-glow-inset` (14px) left margin on `body.k2-player-wing` feast hero so panel glow is not clipped at the content edge; vertical chrome stays 24px. |
 | 2026-07-04 | **Online Peak rating LB context tooltip polish** — games list uses shared parent grid (dash-aligned scores); removed peak-game row highlight; game rows in idA/idB order; cursor-aware placement (prefer right of pointer); **newest game first** — `lb_peak_rating_lib.php`, `theme.css`, `lb-peak-rating-tooltip.js`. |
-| 2026-07-04 | **TT baseline F6 iter 3b reverted** — PHP flush failed smokes (TT blank unchanged, present LB slower feel); next: iter 3d reveal gate or query speed. |
+| 2026-07-04 | **TT baseline F6 iter 3b reverted** — PHP flush failed smokes; handoff for iter 3d+ rating LB — [`2026-07-04-003`](docs/orchestration/agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md). |
 | 2026-07-04 | **TT baseline F6 iter 3a result** — non-TT good; TT y=0 streaming gap (Type B); Countries y>0 whole-page blank (Type A) — analysis in attempt log. |
 | 2026-07-04 | **TT perf probe** — month catalog 289× SQL (~283 ms); Countries index pays roster elo attach (~358 ms wasted) — `scripts/oneoff/amiga_tt_perf_probe.php`. |
 | 2026-07-04 | **TT perf fixes** — month/year catalog from tournament list (~2 ms); Countries index SQL GROUP BY (~137 ms TT, parity OK) — Dagh sign-off: Countries snappy, month wing normal — `amiga_rating_history_lib.php`, `amiga_countries_lib.php`, `countries.php`. |

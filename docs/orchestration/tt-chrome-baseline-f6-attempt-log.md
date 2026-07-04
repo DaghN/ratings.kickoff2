@@ -230,7 +230,7 @@ Rating LB uses one primary snapshot query — usually **faster** than Countries�
 |--------|------|-------|
 | **3b — PHP flush** | ~~After hub nav, flush before heavy query~~ | **Failed — reverted.** Did not pass TT smokes; perceptual present slowdown. |
 | **3c — Countries query slice** | Stored/prewarm or slimmer TT read for countries index | F18-adjacent; separate from carry |
-| **3d — Carry reveal gate (y>0 only)** | Do not `reveal()` until `.k2-hub-chapter` exists when cross-hub nav | Narrow fix for Type A + empty viewport; keep mid-scroll carry |
+| **3d — Carry reveal gate + query audit (recommended)** | No `reveal()` until `.k2-hub-chapter` (+ wing tabs) exist when `y > 0`; audit rating LB TT queries; narrow URL `?as=month:2014-07` | Handoff [`2026-07-04-003`](agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md) — success = only table may vanish |
 | **Month catalog perf** | Cache or batch month catalog cutoff lookups | Header perf; not F6 per se but explains month wing pain |
 
 **Still rejected:** removing carry-scroll on realm or hub pills.
@@ -247,6 +247,7 @@ Rating LB uses one primary snapshot query — usually **faster** than Countries�
 | 2026-07-04 | **Iter 3a result** — non-TT good; TT y=0 Type B; TT y>0 Countries Type A; framework + month/year code notes |
 | 2026-07-04 | **Perf fixes shipped** — month catalog in-memory; Countries index SQL GROUP BY |
 | 2026-07-04 | **Iter 3b reverted** — PHP flush failed F6 smokes; present LB slower feel; deleted flush helpers |
+| 2026-07-04 | **F6 rating LB handoff** — iter 3d+ audit-first, flawless nav bar — [`2026-07-04-003`](docs/orchestration/agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md) |
 | 2026-07-04 | **Iter 3b hotfix** — `k2_page_stream_flush()` used `ob_flush()` in while loop (infinite hang); fixed to `ob_end_flush()` |
 
 ---
