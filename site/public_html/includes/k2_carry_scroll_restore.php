@@ -10,10 +10,10 @@
  *
  * Normal navigations (no pending restore) are never cloaked and behave exactly as default.
  *
- * Scroll top (y=0): when the stored payload is { y: 0 } with no nav anchor, scroll
- * restore is a no-op — skip the cloak entirely (baseline F6: TT ribbon nav at top).
- * When y=0 but a pill anchor is stored, keep the cloak and wait for carrySubRibbonReady()
- * before reveal so hub chapter / hero below the TT ribbon is parsed (not a blank flash).
+ * Scroll top (y=0): keep the body cloak until sub-ribbon chrome exists in the DOM.
+ * PHP often streams TT ribbon before the hub chapter (LB query still running); revealing
+ * early shows ribbon + blank below (F6). Do not skip the cloak at y=0; wait for
+ * carrySubRibbonReady() and do not use the MAX_CLOAK_MS timeout to reveal at scroll top.
  *
  * URL hash landing: do not add page-local hash scroll scripts — extend this file instead.
  *
@@ -24,6 +24,17 @@
 ?>
 <style>
 html.k2-carry-cloak body { visibility: hidden !important; }
+/* Scroll-top carry: keep site header + TT stamp + ribbon visible; hide sub-ribbon until ready (F6). */
+html.k2-carry-cloak-top body { visibility: visible !important; }
+html.k2-carry-cloak-top body * { visibility: hidden !important; }
+html.k2-carry-cloak-top .k2-site-header,
+html.k2-carry-cloak-top .k2-site-header *,
+html.k2-carry-cloak-top .k2-amiga-tt-stamp,
+html.k2-carry-cloak-top .k2-amiga-tt-stamp *,
+html.k2-carry-cloak-top .k2-amiga-time-travel,
+html.k2-carry-cloak-top .k2-amiga-time-travel * {
+	visibility: visible !important;
+}
 </style>
 <script>
 (function () {
@@ -182,13 +193,7 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 		hashId = SERVER_TARGET;
 	}
 	var payload = hashId ? null : (backPayload || readPayload());
-
-	/* y=0 without anchor: nothing to restore; cloaking only blanks sub-ribbon chrome (F6). */
-	if (payload && payload.y === 0 && !payload.anchor && !hashId && !backPayload) {
-		clearKey();
-		payload = null;
-	}
-
+	var scrollTopCarry = !!(payload && payload.y <= 0);
 	var hasPending = !!hashId || !!payload;
 
 	/* ---------- cloak ---------- */
@@ -200,6 +205,9 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 			return;
 		}
 		document.documentElement.classList.add('k2-carry-cloak');
+		if (scrollTopCarry) {
+			document.documentElement.classList.add('k2-carry-cloak-top');
+		}
 		cloaked = true;
 	}
 
@@ -208,6 +216,7 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 			return;
 		}
 		document.documentElement.classList.remove('k2-carry-cloak');
+		document.documentElement.classList.remove('k2-carry-cloak-top');
 		cloaked = false;
 	}
 
@@ -305,7 +314,18 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 		if (feastHeroPresent()) {
 			return true;
 		}
-		return document.readyState !== 'loading';
+		if (document.querySelector('.k2-amiga-tournament-page__header, .k2-amiga-country-page')) {
+			return true;
+		}
+		return false;
+	}
+
+	function carryTargetY() {
+		return payload ? resolveTargetY(payload) : 0;
+	}
+
+	function isScrollTopCarry() {
+		return !!payload && carryTargetY() <= 0;
 	}
 
 	function carryReady() {
@@ -321,7 +341,7 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 		if (payload.anchor && payload.anchor.label && !findAnchorNav(payload.anchor)) {
 			return false;
 		}
-		var targetY = resolveTargetY(payload);
+		var targetY = carryTargetY();
 		if (targetY <= 0 && !carrySubRibbonReady()) {
 			return false;
 		}
@@ -443,10 +463,14 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 					return;
 				}
 			} else if (payload) {
-				/* Reveal the instant the page is ready enough (often before first paint):
-				   source nav parsed (hero above it complete) + page tall enough for the
-				   target Y. domReady fallback handles destinations missing the nav. */
-				if (carryReady() || domReady) {
+				/* Reveal when tall enough + anchor nav (mid-scroll), or sub-ribbon parsed
+				   (scroll top). domReady fallback only for mid-scroll — at scroll top PHP
+				   may still be running while readyState is loading; never reveal early. */
+				if (carryReady()) {
+					finishCarry();
+					return;
+				}
+				if (domReady && carryTargetY() > 0) {
 					finishCarry();
 					return;
 				}
@@ -455,6 +479,12 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 			/* fall through to timeout safety */
 		}
 		if (Date.now() - startTime > MAX_CLOAK_MS) {
+			/* Scroll-top carry: PHP may still be streaming hub chapter after 700ms (month
+			   wing / heavy LB). Keep cloaked until carrySubRibbonReady or window load. */
+			if (isScrollTopCarry() && !carrySubRibbonReady()) {
+				requestAnimationFrame(tick);
+				return;
+			}
 			try {
 				if (hashId) {
 					finishHash();

@@ -130,7 +130,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Try to reproduce** | Rating LB `?as=event:{id}` — scroll to **top** → chevron, wing tab, or picker step → watch from hub chapter downward. Repeat with one wheel-tick of scroll for contrast. |
 | **Touchpoints** | `k2_carry_scroll_restore.php`, cloak CSS, `js/k2-carry-scroll.js` (TT ribbon `data-k2-carry-scroll`) |
 | **Reported** | 2026-07-04 — baseline explore (Dagh); mapped before slice 0 |
-| **Resolved** | [slice 0 handoff](orchestration/agent-handoffs/2026-07-04-001-tt-chrome-baseline-slice-0.md) — Jul 2026; Dagh manual S1 sign-off pending |
+| **Resolved** | *Pending Dagh sign-off* — [slice 0 handoff](orchestration/agent-handoffs/2026-07-04-001-tt-chrome-baseline-slice-0.md) (iterations 1–2) |
 
 ### F7 — Ribbon vertical jump during nav while **stuck**
 
@@ -230,6 +230,16 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Touchpoints** | Hub `data-k2-carry-scroll` nav, `k2_carry_scroll_restore.php`, ranked table cloak (`$k2RankedCloak`), TT snapshot chrome render path, Countries / World Cups hub shell |
 | **Reported** | 2026-07-04 — baseline explore (Dagh); separate thread from F6 though both use carry-scroll |
 
+### F19 — TT stamp LED hidden until sub-ribbon / table ready
+
+| | |
+|--|--|
+| **What you see** | On TT ribbon nav, the **LED date** (temporal stamp clock) vanishes for as long as the table or sub-ribbon body is loading — appears coupled to heavy page work, though LED data is known at cutoff. |
+| **Try to reproduce** | Rating LB `?as=event:{id}` at scroll top → period picker or slow month wing chevron → watch stamp LED vs hub chapter / table. |
+| **Touchpoints** | `k2_carry_scroll_restore.php` body cloak, `amiga_time_travel_stamp.php`, `k2-amiga-tt-stamp.js` (`led-fade-pending` on wing entry only) |
+| **Reported** | 2026-07-04 — slice 0 feedback (Dagh); may share F6 carry-cloak timing |
+| **Note** | Scroll-top **narrow cloak** (`k2-carry-cloak-top`) keeps stamp visible while waiting; wing-tab entry (`k2_tt_entry=wing`) still intentionally fades LED |
+
 ---
 
 ## Reproduction recipes (smoke)
@@ -238,7 +248,7 @@ Minimum manual pass after touching § Integration touchpoints. Maps to failures 
 
 | # | Steps | Watch for |
 |---|--------|-----------|
-| **S1** | Rating LB `?as=event:{id}` — load at top → ribbon chevron / wing / picker | F6, F17, F10, F13 |
+| **S1** | Rating LB `?as=event:{id}` — load at top → ribbon chevron / wing / picker | F6, F19, F17, F10, F13 |
 | **S1b** | Same page — one wheel-tick down → ribbon chevron ×2 | F6 contrast (should not blank sub-ribbon) |
 | **S2** | Scroll mid-page → chevron ×2 | F1, F3, F14 |
 | **S3** | Scroll until ribbon **stuck** at viewport top → chevron | F3, F4, F7, F8 |
@@ -283,5 +293,6 @@ When a failure is **solved and verified**, add one line under the row: **Resolve
 | 2026-07-04 | Aligned failure wording with CD4 (**top: 0** latch; in-flow header) |
 | 2026-07-04 | **F6 refined** — sub-ribbon blank at scroll top on TT ribbon nav; ribbon stable; old→blank→new; mid-scroll contrast |
 | 2026-07-04 | **F18 added** — TT hub-tab whole-page blank (Countries late cutoff; Present OK); smokes S9–S10 |
-| 2026-07-04 | **F6 slice 0 shipped** — carry-scroll scroll-top gate + chevron anchor; handoff [`2026-07-04-001-tt-chrome-baseline-slice-0.md`](orchestration/agent-handoffs/2026-07-04-001-tt-chrome-baseline-slice-0.md) |
+| 2026-07-04 | **F19 added** — TT stamp LED hidden while sub-ribbon loads (F6 sibling) |
+| 2026-07-04 | **F6 slice 0 iter 2** — revert y=0 cloak skip; no domReady/700ms early reveal at scroll top; narrow cloak-top; picker anchor |
 | 2026-07-04 | Baseline: removed pin touchpoint row; sticky-only tensions marked deferred |

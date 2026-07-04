@@ -112,6 +112,70 @@
 
 	}
 
+	function carryAnchorFromTimeTravelRibbon() {
+
+		var section = document.querySelector('.k2-amiga-time-travel--active, .k2-amiga-time-travel');
+
+		if (!section) {
+
+			return null;
+
+		}
+
+		var nav = section.querySelector('nav[data-k2-carry-scroll][aria-label="Time travel snapshot"]');
+
+		if (!nav) {
+
+			nav = section.querySelector('nav[data-k2-carry-scroll]');
+
+		}
+
+		return carryAnchorFromNav(nav);
+
+	}
+
+	function storeScrollYFromForm(form) {
+
+		var payload = { y: scrollYNow() };
+
+		var anchor = null;
+
+		if (form && form.closest) {
+
+			var ttSection = form.closest('.k2-amiga-time-travel--active, .k2-amiga-time-travel');
+
+			if (ttSection) {
+
+				var stepperNav = ttSection.querySelector('nav[data-k2-carry-scroll][aria-label="Time travel snapshot"]');
+
+				anchor = carryAnchorFromNav(stepperNav);
+
+				if (!anchor) {
+
+					anchor = carryAnchorFromNav(ttSection.querySelector('nav[data-k2-carry-scroll]'));
+
+				}
+
+			}
+
+		}
+
+		if (!anchor) {
+
+			anchor = carryAnchorFromTimeTravelRibbon();
+
+		}
+
+		if (anchor) {
+
+			payload.anchor = anchor;
+
+		}
+
+		writePayload(payload);
+
+	}
+
 
 
 	function storeScrollYFromPill(pill) {
@@ -288,7 +352,7 @@
 
 			}
 
-			storeScrollY();
+			storeScrollYFromForm(target.closest('form[data-k2-carry-scroll]'));
 
 		},
 
