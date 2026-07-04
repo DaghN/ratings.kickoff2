@@ -193,6 +193,28 @@ function player_feast_busiest_games_href(int $playerId, string $periodType, stri
     return k2_player_games_url_with_list_anchor('/player/games.php?' . http_build_query($params));
 }
 
+/** Format one `ratedresults`.`Date` for profile presence, or em dash when unset. */
+function player_feast_format_rated_game_date(?string $date): string
+{
+    if ($date === null || trim($date) === '') {
+        return '—';
+    }
+    $ts = strtotime(trim($date));
+
+    return $ts !== false ? date('M j, Y', $ts) : '—';
+}
+
+/** `Y-m-d` from `ratedresults`.`Date`, or empty when unset (calendar widgets). */
+function player_feast_rated_game_date_ymd(?string $date): string
+{
+    if ($date === null || trim($date) === '') {
+        return '';
+    }
+    $ts = strtotime(trim($date));
+
+    return $ts !== false ? date('Y-m-d', $ts) : '';
+}
+
 /**
  * Whole calendar years from first rated game date through today (0 in year one).
  */

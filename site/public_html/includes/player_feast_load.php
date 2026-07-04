@@ -106,10 +106,19 @@ function player_feast_load_pm(mysqli $con, int $id): array
         "SELECT Date FROM ratedresults WHERE idA='$escId' OR idB='$escId' ORDER BY Date ASC, id ASC LIMIT 1"
     );
     $firstGameRow = $firstGameResult ? mysqli_fetch_assoc($firstGameResult) : null;
-    $firstGameDate = $firstGameRow ? (string) $firstGameRow['Date'] : (string) $row['JoinDate'];
-    $firstGameTs = strtotime($firstGameDate) ?: 0;
-    $tenureYears = pm_years_on_ladder_since($firstGameDate);
-    $tenureLabel = pm_tenure_plus_label($tenureYears);
+    $firstGameDateRaw = $firstGameRow ? (string) $firstGameRow['Date'] : null;
+
+    $lastGameResult = k2_player_feast_query(
+        $con,
+        'last_rated_game',
+        "SELECT Date FROM ratedresults WHERE idA='$escId' OR idB='$escId' ORDER BY Date DESC, id DESC LIMIT 1"
+    );
+    $lastGameRow = $lastGameResult ? mysqli_fetch_assoc($lastGameResult) : null;
+    $lastGameDateRaw = $lastGameRow ? (string) $lastGameRow['Date'] : null;
+
+    $firstGameDateYmd = player_feast_rated_game_date_ymd($firstGameDateRaw);
+    $tenureYears = $firstGameDateRaw !== null ? pm_years_on_ladder_since($firstGameDateRaw) : 0;
+    $tenureLabel = $firstGameDateRaw !== null ? pm_tenure_plus_label($tenureYears) : '—';
 
     $differentOpponents = (int) $row['DifferentOpponents'];
 
@@ -143,7 +152,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
         'display' => $display,
         'join_date' => date('M Y', strtotime((string) $row['JoinDate'])),
         'join_date_ymd' => date('Y-m-d', strtotime((string) $row['JoinDate']) ?: time()),
-        'last_game' => date('M j, Y', strtotime((string) $row['LastGame'])),
+        'last_game' => player_feast_format_rated_game_date($lastGameDateRaw),
         'last_login' => date('M j, Y', strtotime((string) $row['LastLogin'])),
         'days_this_year' => $daysThisYear,
         'games_this_year' => $gamesThisYear,
@@ -153,8 +162,8 @@ function player_feast_load_pm(mysqli $con, int $id): array
         'most_goals_scored' => (int) $row['MostGoalsScored'],
         'years_on_ladder' => $tenureYears,
         'tenure_label' => $tenureLabel,
-        'first_game_date' => date('M j, Y', $firstGameTs ?: time()),
-        'first_game_date_ymd' => date('Y-m-d', $firstGameTs ?: time()),
+        'first_game_date' => player_feast_format_rated_game_date($firstGameDateRaw),
+        'first_game_date_ymd' => $firstGameDateYmd,
         'different_opponents' => $differentOpponents,
         'different_victims' => (int) $row['DifferentVictims'],
         'busiest' => $busiest,

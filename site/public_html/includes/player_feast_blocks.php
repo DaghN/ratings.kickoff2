@@ -34,7 +34,10 @@ function player_feast_section_close(): void
 
 function player_feast_render_played_days(int $playerId, string $firstGameDateYmd, string $playerName = ''): void
 {
-    $fromAttr = preg_match('/^\d{4}-\d{2}-\d{2}$/', $firstGameDateYmd) ? $firstGameDateYmd : date('Y-m-d');
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $firstGameDateYmd)) {
+        return;
+    }
+    $fromAttr = $firstGameDateYmd;
     ?>
 <section class="pm3d-section pm3d-section--played-days" id="played-days">
 	<h2 class="k2-panel-heading pm3d-section__title visually-hidden">Played days</h2>
@@ -51,7 +54,10 @@ function player_feast_render_played_days(int $playerId, string $firstGameDateYmd
 
 function player_feast_render_played_weeks(int $playerId, string $firstGameDateYmd, string $playerName = ''): void
 {
-    $fromAttr = preg_match('/^\d{4}-\d{2}-\d{2}$/', $firstGameDateYmd) ? $firstGameDateYmd : date('Y-m-d');
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $firstGameDateYmd)) {
+        return;
+    }
+    $fromAttr = $firstGameDateYmd;
     ?>
 <section class="pm3d-section pm3d-section--played-weeks" id="played-weeks">
 	<h2 class="k2-panel-heading pm3d-section__title visually-hidden">Played weeks</h2>

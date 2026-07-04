@@ -126,7 +126,7 @@ Profile does **not** duplicate those tables.
 | Block | Answers |
 |-------|---------|
 | Hero | Rank, strength, volume — “how does he sit on the ladder?” |
-| Presence | Last rated game, first rated game, days this year, games this year — “is he still around?” |
+| Presence | Last rated game, first rated game, days this year, games this year — “is he still around?” **First/last rated game** = earliest/latest `ratedresults`.`Date` only (never `JoinDate` / `playertable.LastGame`); **—** when no rated games. |
 | Career | Games, wins, goals, opponents — “what kind of player?” (not full W/D-L grid; no DDs in at-a-glance) |
 | Bursts of activity | Busiest day / week / month / year — celebrate volume spikes after participation arc |
 | Moments | Giant-killing + trophy games — specific memorable events |
