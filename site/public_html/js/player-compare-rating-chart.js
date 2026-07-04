@@ -434,15 +434,25 @@
         }));
     }
 
-    function peakAfterClause(tournamentName) {
+    function peakAfterClause(tournament, options) {
         var Core = window.K2PlayerRankChartCore;
         if (Core && Core.peakAfterClause) {
-            return Core.peakAfterClause(tournamentName);
+            return Core.peakAfterClause(tournament, options);
         }
-        if (!tournamentName) {
+        if (!tournament) {
             return '';
         }
-        return ', after ' + escapeHtml(tournamentName);
+        if (typeof tournament === 'string') {
+            if (!tournament) {
+                return '';
+            }
+            return ', after ' + escapeHtml(tournament);
+        }
+        var name = tournament.tournamentName ? String(tournament.tournamentName) : '';
+        if (!name) {
+            return '';
+        }
+        return ', after ' + escapeHtml(name);
     }
 
     function renderRatingPeakSummary(summary, peak, namePrefix, valueClass, linkClass) {

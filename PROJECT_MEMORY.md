@@ -136,6 +136,7 @@
 
 | When | Note |
 |------|------|
+| 2026-07-04 | **Amiga H2H rating compare peak links** — tournament names in peak summary use hero/rival chrome/red (`pm3-chart-peak-link--subject/opponent`); `peakAfterClause` now forwards `peakLinkClass` to rank chart core. |
 | 2026-07-03 | **Player feast hero chrome gap** — `--k2-player-hero-chrome-gap` (24px): hub bar → hero + hero → player nav on `body.k2-player-wing` (online + Amiga); replaces `calc(nav-gap + 12px)`. |
 | 2026-07-03 | **Amiga tournaments catalog filters** — host country / year / winner / winning country listboxes always visible; Reset filters pill always shown (`is-idle` when inactive); parity with player tournament history. |
 | 2026-07-03 | **Filter stack spacing (shipped)** — Tier 1 five pages: bottom-only `--k2-nav-gap`, no wrapper vertical `gap`; Amiga player games scope tabs moved outside filter wrapper (wing→scope 12px, scope→form 12px). Policy [`filter-stack-spacing-policy.md`](docs/filter-stack-spacing-policy.md). |
