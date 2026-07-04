@@ -80,26 +80,22 @@ function k2_lb_peak_rating_context_cell_attrs(int $playerId, mixed $peakRating, 
 }
 
 /**
- * Hero-centric game row for peak-context JSON.
+ * Game row for peak-context JSON (idA/idB order; rating_delta is for the subject player).
  *
  * @param array<string, mixed> $row
  * @return array<string, mixed>
  */
 function k2_lb_peak_rating_context_game_row(array $row, int $heroId, bool $isPeak): array
 {
-    $isHeroA = (int) ($row['idA'] ?? 0) === $heroId;
     $processed = k2_rated_game_is_processed($row);
-    $heroGoals = $isHeroA ? (int) ($row['GoalsA'] ?? 0) : (int) ($row['GoalsB'] ?? 0);
-    $oppGoals = $isHeroA ? (int) ($row['GoalsB'] ?? 0) : (int) ($row['GoalsA'] ?? 0);
-    $heroRating = null;
-    $oppRating = null;
+    $ratingA = null;
+    $ratingB = null;
     $ratingDelta = null;
 
     if ($processed) {
-        $heroRatingRaw = $isHeroA ? $row['RatingA'] : $row['RatingB'];
-        $oppRatingRaw = $isHeroA ? $row['RatingB'] : $row['RatingA'];
-        $heroRating = $heroRatingRaw !== null ? (int) round((float) $heroRatingRaw) : null;
-        $oppRating = $oppRatingRaw !== null ? (int) round((float) $oppRatingRaw) : null;
+        $ratingA = $row['RatingA'] !== null ? (int) round((float) $row['RatingA']) : null;
+        $ratingB = $row['RatingB'] !== null ? (int) round((float) $row['RatingB']) : null;
+        $isHeroA = (int) ($row['idA'] ?? 0) === $heroId;
         $adjRaw = $isHeroA ? $row['AdjustmentA'] : $row['AdjustmentB'];
         $ratingDelta = $adjRaw !== null ? round((float) $adjRaw, 1) : null;
     }
@@ -108,12 +104,12 @@ function k2_lb_peak_rating_context_game_row(array $row, int $heroId, bool $isPea
         'id' => (int) ($row['id'] ?? 0),
         'at' => (string) ($row['Date'] ?? ''),
         'is_peak' => $isPeak,
-        'hero_name' => $isHeroA ? (string) ($row['NameA'] ?? '') : (string) ($row['NameB'] ?? ''),
-        'hero_rating' => $heroRating,
-        'hero_goals' => $heroGoals,
-        'opponent_name' => $isHeroA ? (string) ($row['NameB'] ?? '') : (string) ($row['NameA'] ?? ''),
-        'opponent_rating' => $oppRating,
-        'opponent_goals' => $oppGoals,
+        'name_a' => (string) ($row['NameA'] ?? ''),
+        'name_b' => (string) ($row['NameB'] ?? ''),
+        'goals_a' => (int) ($row['GoalsA'] ?? 0),
+        'goals_b' => (int) ($row['GoalsB'] ?? 0),
+        'rating_a' => $ratingA,
+        'rating_b' => $ratingB,
         'rating_delta' => $ratingDelta,
     ];
 }
@@ -200,7 +196,7 @@ function k2_lb_peak_rating_context_fetch_games(mysqli $con, int $playerId, int $
         );
     }
 
-    return $games;
+    return array_reverse($games);
 }
 
 /**

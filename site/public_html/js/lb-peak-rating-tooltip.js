@@ -14,6 +14,10 @@
 	var hideTipTimer = null;
 	var activePlayerId = null;
 	var tipDismissInstalled = false;
+	var lastPointer = { x: null, y: null };
+	var TIP_MARGIN = 8;
+	var TIP_OFFSET_X = 12;
+	var TIP_OFFSET_Y = 10;
 
 	function escapeHtml(text) {
 		return String(text)
@@ -75,20 +79,18 @@
 		var i;
 		for (i = 0; i < games.length; i++) {
 			var g = games[i];
-			var rowClass = 'k2-lb-peak-context-games-list__row'
-				+ (g.is_peak ? ' k2-lb-peak-context-games-list__row--peak' : '');
-			html += '<li class="' + rowClass + '">';
+			html += '<li class="k2-lb-peak-context-games-list__row">';
 			html += '<span class="k2-lb-peak-context-games-list__cell k2-lb-peak-context-games-list__when">' + escapeHtml(formatGameWhen(g.at)) + '</span>';
 			html += '<span class="k2-lb-peak-context-games-list__cell k2-lb-peak-context-games-list__side k2-lb-peak-context-games-list__side--a">';
-			html += renderPlayerSide(g.hero_name, g.hero_rating);
+			html += renderPlayerSide(g.name_a, g.rating_a);
 			html += '</span>';
 			html += '<span class="k2-lb-peak-context-games-list__cell k2-lb-peak-context-games-list__goals k2-lb-peak-context-games-list__goals--a">'
-				+ formatWinningGoalCell(g.hero_goals, g.opponent_goals) + '</span>';
+				+ formatWinningGoalCell(g.goals_a, g.goals_b) + '</span>';
 			html += '<span class="k2-lb-peak-context-games-list__cell k2-lb-peak-context-games-list__score-sep" aria-hidden="true">–</span>';
 			html += '<span class="k2-lb-peak-context-games-list__cell k2-lb-peak-context-games-list__goals k2-lb-peak-context-games-list__goals--b">'
-				+ formatWinningGoalCell(g.opponent_goals, g.hero_goals) + '</span>';
+				+ formatWinningGoalCell(g.goals_b, g.goals_a) + '</span>';
 			html += '<span class="k2-lb-peak-context-games-list__cell k2-lb-peak-context-games-list__side k2-lb-peak-context-games-list__side--b">';
-			html += renderPlayerSide(g.opponent_name, g.opponent_rating);
+			html += renderPlayerSide(g.name_b, g.rating_b);
 			html += '</span>';
 			html += '<span class="k2-lb-peak-context-games-list__cell k2-lb-peak-context-games-list__delta">' + formatRatingDelta(g.rating_delta) + '</span>';
 			html += '</li>';
@@ -117,31 +119,72 @@
 		return tip;
 	}
 
-	function positionTooltip(anchor, tip) {
+	function rememberPointer(event) {
+		if (event && typeof event.clientX === 'number' && typeof event.clientY === 'number') {
+			lastPointer.x = event.clientX;
+			lastPointer.y = event.clientY;
+		}
+	}
+
+	function pointerForAnchor(anchor, pointer) {
+		if (pointer && typeof pointer.x === 'number' && typeof pointer.y === 'number') {
+			return { x: pointer.x, y: pointer.y };
+		}
 		var rect = anchor.getBoundingClientRect();
+		return {
+			x: rect.left + rect.width / 2,
+			y: rect.top + rect.height / 2,
+		};
+	}
+
+	function clamp(value, min, max) {
+		return Math.max(min, Math.min(value, max));
+	}
+
+	function positionTooltip(anchor, tip, pointer) {
+		var pt = pointerForAnchor(anchor, pointer);
 		var tipRect;
-		var margin = 8;
 		var left;
 		var top;
 		var viewW = window.innerWidth;
+		var viewH = window.innerHeight;
+		var spaceRight;
+		var spaceLeft;
+		var spaceBelow;
+		var spaceAbove;
+
 		tip.style.left = '0px';
 		tip.style.top = '0px';
 		tip.hidden = false;
 		tipRect = tip.getBoundingClientRect();
-		left = rect.left + rect.width / 2 - tipRect.width / 2;
-		if (left + tipRect.width > viewW - margin) {
-			left = viewW - margin - tipRect.width;
-		}
-		if (left < margin) {
-			left = margin;
-		}
-		top = rect.top - tipRect.height - margin;
-		if (top < margin) {
-			top = rect.bottom + margin;
-			tip.classList.add('k2-table-tooltip--below-anchor');
+
+		spaceRight = viewW - TIP_MARGIN - (pt.x + TIP_OFFSET_X);
+		spaceLeft = pt.x - TIP_OFFSET_X - TIP_MARGIN;
+		spaceBelow = viewH - TIP_MARGIN - (pt.y + TIP_OFFSET_Y);
+		spaceAbove = pt.y - TIP_OFFSET_Y - TIP_MARGIN;
+
+		if (tipRect.width <= spaceRight) {
+			left = pt.x + TIP_OFFSET_X;
+		} else if (tipRect.width <= spaceLeft) {
+			left = pt.x - tipRect.width - TIP_OFFSET_X;
 		} else {
-			tip.classList.remove('k2-table-tooltip--below-anchor');
+			left = pt.x + TIP_OFFSET_X;
 		}
+
+		if (tipRect.height <= spaceBelow) {
+			top = pt.y + TIP_OFFSET_Y;
+		} else if (tipRect.height <= spaceAbove) {
+			top = pt.y - tipRect.height - TIP_OFFSET_Y;
+		} else if (spaceBelow >= spaceAbove) {
+			top = pt.y + TIP_OFFSET_Y;
+		} else {
+			top = pt.y - tipRect.height - TIP_OFFSET_Y;
+		}
+
+		left = clamp(left, TIP_MARGIN, viewW - tipRect.width - TIP_MARGIN);
+		top = clamp(top, TIP_MARGIN, viewH - tipRect.height - TIP_MARGIN);
+
+		tip.classList.remove('k2-table-tooltip--below-anchor');
 		tip.style.left = Math.round(left) + 'px';
 		tip.style.top = Math.round(top) + 'px';
 	}
@@ -159,7 +202,7 @@
 			bodyEl.innerHTML = bodyHtml;
 		}
 		tip.setAttribute('aria-hidden', 'false');
-		positionTooltip(cell, tip);
+		positionTooltip(cell, tip, lastPointer);
 	}
 
 	function hideTooltip() {
@@ -247,13 +290,15 @@
 		if (!playerId) {
 			return;
 		}
-		cell.addEventListener('mouseenter', function () {
+		cell.addEventListener('mouseenter', function (event) {
 			if (hideTipTimer) {
 				clearTimeout(hideTipTimer);
 				hideTipTimer = null;
 			}
+			rememberPointer(event);
 			showCellTooltip(cell, playerId);
 		});
+		cell.addEventListener('mousemove', rememberPointer);
 		cell.addEventListener('mouseleave', scheduleHideTooltip);
 		cell.addEventListener('focus', function () {
 			showCellTooltip(cell, playerId);

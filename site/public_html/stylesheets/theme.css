@@ -1796,9 +1796,10 @@ body.k2-site .k2-table-tooltip--lb-peak-context .k2-table-tooltip__body {
 }
 
 body.k2-site .k2-lb-peak-context-games-list {
-	display: flex;
-	flex-direction: column;
-	gap: 0;
+	display: grid;
+	grid-template-columns: 11.5em auto 2.1ch 0.95ch 2.1ch auto 4.5em;
+	column-gap: 6px;
+	align-items: baseline;
 	width: max-content;
 	max-width: 100%;
 	margin: 0;
@@ -1808,26 +1809,16 @@ body.k2-site .k2-lb-peak-context-games-list {
 }
 
 body.k2-site .k2-lb-peak-context-games-list__row {
-	display: grid;
-	grid-template-columns: 11.5em auto 2.1ch 0.95ch 2.1ch auto 4.5em;
-	column-gap: 6px;
-	align-items: baseline;
-	padding: 4px 6px;
-	border-bottom: 1px solid var(--k2-border-subtle);
-}
-
-body.k2-site .k2-lb-peak-context-games-list__row:last-child {
-	border-bottom: none;
-}
-
-body.k2-site .k2-lb-peak-context-games-list__row--peak {
-	background: color-mix(in srgb, var(--k2-link-star) 16%, transparent);
-	border-radius: var(--k2-radius-sm);
-	border-bottom-color: transparent;
+	display: contents;
 }
 
 body.k2-site .k2-lb-peak-context-games-list__cell {
-	padding: 0;
+	padding: 4px 0;
+	border-bottom: 1px solid var(--k2-border-subtle);
+}
+
+body.k2-site .k2-lb-peak-context-games-list__row:last-child > .k2-lb-peak-context-games-list__cell {
+	border-bottom: none;
 }
 
 body.k2-site .k2-lb-peak-context-games-list__when {

@@ -158,7 +158,7 @@ LANDING             Status default                   News tab ◻ (placeholder)
 
 ### 6.1 Optional sticky time-travel ribbon (C02) — shipped
 
-**Status:** **Shipped** Jun 2026.
+**Status:** **Shipped** Jun 2026. **Evolution:** default scroll-linked dock + ribbon-before-stamp — approved CD track [`amiga-tt-chrome-dock-policy.md`](amiga-tt-chrome-dock-policy.md) (Jul 2026, not yet implemented); supersedes C02 when shipped.
 
 **Problem:** TT chevrons at top of page; long profile/tournament scroll loses the navigator. Always-on sticky felt too intrusive.
 

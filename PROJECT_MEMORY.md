@@ -136,6 +136,8 @@
 
 | When | Note |
 |------|------|
+| 2026-07-04 | **Online Peak rating LB context tooltip polish** — games list uses shared parent grid (dash-aligned scores); removed peak-game row highlight; game rows in idA/idB order; cursor-aware placement (prefer right of pointer); **newest game first** — `lb_peak_rating_lib.php`, `theme.css`, `lb-peak-rating-tooltip.js`. |
+| 2026-07-04 | **TT chrome dock (CD track)** — policy + **implementation plan** (slices 0–6): ribbon→stamp, default scroll-linked dock, pushpin opt-out — [`amiga-tt-chrome-dock-policy.md`](docs/amiga-tt-chrome-dock-policy.md) · [`amiga-tt-chrome-dock-implementation-plan.md`](docs/amiga-tt-chrome-dock-implementation-plan.md). |
 | 2026-07-04 | **K2 quiet date — complete** — five Amiga Date-default tables opt in (WC Chronology, tournament catalog, perf Perfect, player tournament history, live index); legacy `data-k2-quiet-sort-cols` removed from JS; docs swept. |
 | 2026-07-04 | **K2 quiet date — implemented** — shared helpers, `data-k2-quiet-default-sort-cols`, unified CSS; removed wrong quiet on Amiga player games user Date sort. |
 | 2026-07-04 | **TT ribbon wing tab order** — Event · Month · Year (was Year · Month · Event); default entry unchanged (`as=event:{first}`). Policy T8 + design-direction updated. |
