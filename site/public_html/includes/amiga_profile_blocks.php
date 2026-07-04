@@ -819,14 +819,18 @@ function amiga_profile_render_rating_chart(int $playerId): void
 	<div class="player-rating-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>" data-realm="amiga"<?php echo $asAttr; ?>>
 		<h3 class="k2-panel-heading">Elo rating</h3>
 		<p class="k2-chart-block__hint">Calendar view: end-of-day rating after each tournament day. Tournament # view: one point per finalized event.</p>
-		<div class="pm3d-chart-toolbar">
-			<div class="pm3d-rating-toggle" role="tablist" aria-label="Rating chart view">
-				<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-view="date">By date</button>
-				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="game">By tournament #</button>
+		<div class="pm3d-chart-toolbar player-rating-chart__toolbar">
+			<div class="player-rating-chart__toolbar-row">
+				<div class="pm3d-rating-toggle" role="tablist" aria-label="Rating chart view">
+					<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-view="date">By date</button>
+					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-view="game">By tournament #</button>
+				</div>
 			</div>
-			<div class="pm3d-rating-toggle player-rating-chart__line-style" role="tablist" aria-label="Rating line style">
-				<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-line-style="stepped">Stepwise</button>
-				<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-line-style="smooth">Connected</button>
+			<div class="player-rating-chart__toolbar-row">
+				<div class="pm3d-rating-toggle player-rating-chart__line-style" role="tablist" aria-label="Rating line style">
+					<button type="button" class="pm3d-rating-toggle__btn is-active" role="tab" aria-selected="true" data-line-style="stepped">Stepwise</button>
+					<button type="button" class="pm3d-rating-toggle__btn" role="tab" aria-selected="false" data-line-style="smooth">Connected</button>
+				</div>
 			</div>
 		</div>
 		<p class="player-rating-chart-status pm3d-chart__status k2-chart-panel__status">Loading rating history…</p>

@@ -11,6 +11,17 @@
     var PEAK_LINE_ID = 'k2PlayerPeakLine';
     var GAME_PAGE_ANCHOR = '#k2-game'; /* keep in sync with k2_game_page_anchor_hash() */
 
+    function ratingSeriesInk(realm) {
+        if (realm === 'amiga') {
+            return T.pitch();
+        }
+        return T.amber();
+    }
+
+    function ratingSeriesStroke(realm) {
+        return T.lineStroke(ratingSeriesInk(realm), 0.15);
+    }
+
     function parseGameDate(dateStr) {
         if (!dateStr) {
             return null;
@@ -252,7 +263,7 @@
         summary.hidden = false;
     }
 
-    function peakLinePlugin(peakValue) {
+    function peakLinePlugin(peakValue, realm) {
         return {
             id: PEAK_LINE_ID,
             afterDatasetsDraw: function (chart) {
@@ -269,7 +280,7 @@
                 ctx.save();
                 ctx.setLineDash([6, 5]);
                 ctx.lineWidth = 1;
-                ctx.strokeStyle = T ? T.holo() : '#b388ff';
+                ctx.strokeStyle = T ? ratingSeriesInk(realm) : '#9ccc65';
                 ctx.globalAlpha = 0.85;
                 ctx.beginPath();
                 ctx.moveTo(area.left, y);
@@ -329,9 +340,9 @@
                     tension: stepped ? 0 : 0.1,
                     pointRadius: 0,
                     pointHoverRadius: 4
-                }, T.lineStroke(T.amber(), 0.15))]
+                }, ratingSeriesStroke(realm))]
             },
-            plugins: [peakLinePlugin(peakValue)],
+            plugins: [peakLinePlugin(peakValue, realm)],
             options: withCareerPlotGutter({
                 interaction: { mode: 'nearest', axis: 'x', intersect: false },
                 plugins: {
@@ -393,7 +404,7 @@
         }, 'line');
     }
 
-    function createGameChart(canvas, chartData, peakValue, eventMode, lineStyle) {
+    function createGameChart(canvas, chartData, peakValue, eventMode, lineStyle, realm) {
         var stepped = lineStyle === 'stepped';
         var xTitle = eventMode ? 'Tournament number' : 'Rated game number';
         var datasetLabel = eventMode ? 'ELO rating (after tournament)' : 'ELO rating (after game)';
@@ -412,9 +423,9 @@
                     tension: stepped ? 0 : 0.1,
                     pointRadius: 0,
                     pointHoverRadius: 4
-                }, T.lineStroke(T.amber(), 0.15))]
+                }, ratingSeriesStroke(realm))]
             },
-            plugins: [peakLinePlugin(peakValue)],
+            plugins: [peakLinePlugin(peakValue, realm)],
             options: withCareerPlotGutter({
                 parsing: false,
                 interaction: { mode: 'nearest', axis: 'x', intersect: false },
@@ -609,7 +620,8 @@
                     state.gameChartData,
                     state.peakValue,
                     state.eventMode,
-                    state.lineStyle
+                    state.lineStyle,
+                    state.realm
                 );
             }
         }

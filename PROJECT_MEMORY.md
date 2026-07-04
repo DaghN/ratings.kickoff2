@@ -136,6 +136,11 @@
 
 | When | Note |
 |------|------|
+| 2026-07-04 | **H2H rating compare toolbar** — view + line-style toggles stacked in two rows (Amiga/online Opponents H2H; matches profile rank chart layout). |
+| 2026-07-04 | **Amiga profile chart headings** — `Elo rating` / `Elo rank` panel titles use chart pitch / chart chrome ink (online rating heading stays chart amber). |
+| 2026-07-04 | **Amiga profile rating chart toolbar** — view + line-style toggles stacked in two rows (matches rank chart toolbar layout). |
+| 2026-07-04 | **Amiga profile chart ink (swap)** — solo rating → chart pitch (line, peak dash, toggles, peak links); solo rank → chart chrome; online rating stays chart amber; rating peak dash matches series ink (not holo). |
+| 2026-07-04 | **Amiga profile chart ink** — solo rating chart → chart chrome (`T.chrome()` + chrome peak/toggle CSS); solo rank chart → chart pitch (`T.pitch()` + pitch peak/toggle CSS); online profile rating chart stays chart amber. |
 | 2026-07-04 | **Player feast hero inset** — `--k2-player-hero-glow-inset` (14px) left margin on `body.k2-player-wing` feast hero so panel glow is not clipped at the content edge; vertical chrome stays 24px. |
 | 2026-07-04 | **Online Peak rating LB context tooltip polish** — games list uses shared parent grid (dash-aligned scores); removed peak-game row highlight; game rows in idA/idB order; cursor-aware placement (prefer right of pointer); **newest game first** — `lb_peak_rating_lib.php`, `theme.css`, `lb-peak-rating-tooltip.js`. |
 | 2026-07-04 | **TT chrome dock (CD track)** — policy + **implementation plan** (slices 0–6): ribbon→stamp, default scroll-linked dock, pushpin opt-out — [`amiga-tt-chrome-dock-policy.md`](docs/amiga-tt-chrome-dock-policy.md) · [`amiga-tt-chrome-dock-implementation-plan.md`](docs/amiga-tt-chrome-dock-implementation-plan.md). |

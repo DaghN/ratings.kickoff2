@@ -558,27 +558,71 @@ body.k2-site .pm3d-section--moments .pm3-moment__score a:focus-visible {
 	font-size: 0.92em;
 }
 
-/* Fixed chart-amber peak ink (matches rating line / picker — not UI tint link-star) */
-.player-rating-chart .pm3-chart-peak-value,
-.player-rank-chart .pm3-chart-peak-value {
+/* Solo chart panel headings — fixed chart ink (matches line) */
+.player-rating-chart:not([data-realm="amiga"]) > .k2-panel-heading {
+	color: color-mix(in srgb, var(--k2-pure-amber) 85%, var(--k2-text-primary));
+}
+
+.player-rating-chart[data-realm="amiga"] > .k2-panel-heading {
+	color: color-mix(in srgb, var(--k2-pure-pitch) 85%, var(--k2-text-primary));
+}
+
+.player-rank-chart > .k2-panel-heading {
+	color: color-mix(in srgb, var(--k2-pure-chrome) 85%, var(--k2-text-primary));
+}
+
+/* Online solo rating chart — fixed chart amber (matches rating line — not UI tint link-star) */
+.player-rating-chart:not([data-realm="amiga"]) .pm3-chart-peak-value {
 	color: color-mix(in srgb, var(--k2-pure-amber) 85%, var(--k2-text-primary));
 	font-weight: 600;
 }
 
-.player-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link,
-.player-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link,
-.player-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link:visited,
-.player-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link:visited {
+.player-rating-chart:not([data-realm="amiga"]) .pm3d-chart__summary-note a.pm3-chart-peak-link,
+.player-rating-chart:not([data-realm="amiga"]) .pm3d-chart__summary-note a.pm3-chart-peak-link:visited {
 	color: color-mix(in srgb, var(--k2-pure-amber) 85%, var(--k2-text-primary));
 	font-weight: 600;
 	text-decoration: none;
 }
 
-.player-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link:hover,
-.player-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link:hover,
-.player-rating-chart .pm3d-chart__summary-note a.pm3-chart-peak-link:focus-visible,
-.player-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link:focus-visible {
+.player-rating-chart:not([data-realm="amiga"]) .pm3d-chart__summary-note a.pm3-chart-peak-link:hover,
+.player-rating-chart:not([data-realm="amiga"]) .pm3d-chart__summary-note a.pm3-chart-peak-link:focus-visible {
 	color: color-mix(in srgb, var(--k2-pure-amber) 95%, var(--k2-text-primary));
+}
+
+/* Amiga solo rating chart — chart pitch (matches rating line — not UI tint link-star) */
+.player-rating-chart[data-realm="amiga"] .pm3-chart-peak-value {
+	color: color-mix(in srgb, var(--k2-pure-pitch) 85%, var(--k2-text-primary));
+	font-weight: 600;
+}
+
+.player-rating-chart[data-realm="amiga"] .pm3d-chart__summary-note a.pm3-chart-peak-link,
+.player-rating-chart[data-realm="amiga"] .pm3d-chart__summary-note a.pm3-chart-peak-link:visited {
+	color: color-mix(in srgb, var(--k2-pure-pitch) 85%, var(--k2-text-primary));
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.player-rating-chart[data-realm="amiga"] .pm3d-chart__summary-note a.pm3-chart-peak-link:hover,
+.player-rating-chart[data-realm="amiga"] .pm3d-chart__summary-note a.pm3-chart-peak-link:focus-visible {
+	color: color-mix(in srgb, var(--k2-pure-pitch) 95%, var(--k2-text-primary));
+}
+
+/* Amiga solo rank chart — chart chrome (matches rank line — not UI tint link-star) */
+.player-rank-chart .pm3-chart-peak-value {
+	color: color-mix(in srgb, var(--k2-pure-chrome) 85%, var(--k2-text-primary));
+	font-weight: 600;
+}
+
+.player-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link,
+.player-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link:visited {
+	color: color-mix(in srgb, var(--k2-pure-chrome) 85%, var(--k2-text-primary));
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.player-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link:hover,
+.player-rank-chart .pm3d-chart__summary-note a.pm3-chart-peak-link:focus-visible {
+	color: color-mix(in srgb, var(--k2-pure-chrome) 95%, var(--k2-text-primary));
 }
 
 .player-compare-rank-chart .pm3-chart-peak-value--subject {
@@ -742,7 +786,7 @@ body.k2-site .k2-chart-html-tooltip .pm3-chart-tooltip-rating--opponent {
 	border-color: var(--k2-segment-active-ring);
 }
 
-/* ELO rating + rank chart toggles — fixed chart amber (matches rating line), not UI tint */
+/* ELO rating + rank chart toggles — fixed chart ink (matches line), not UI tint */
 body.k2-site .k2-chart-panel > .k2-panel-heading.k2-table-helped {
 	cursor: help;
 	width: fit-content;
@@ -754,11 +798,26 @@ body.k2-site .k2-chart-panel > .k2-panel-heading.k2-table-helped:focus-visible {
 	outline: none;
 }
 
-.player-rating-chart .pm3d-rating-toggle__btn.is-active,
-.player-rank-chart .pm3d-rating-toggle__btn.is-active {
+.player-rating-chart:not([data-realm="amiga"]) .pm3d-rating-toggle__btn.is-active {
 	color: color-mix(in srgb, var(--k2-pure-amber) 72%, var(--k2-text-secondary));
 	background: color-mix(in srgb, var(--k2-pure-amber) 14%, var(--k2-bg-elevated));
 	border-color: color-mix(in srgb, var(--k2-pure-amber) 42%, transparent);
+	box-shadow: none;
+	font-weight: 600;
+}
+
+.player-rating-chart[data-realm="amiga"] .pm3d-rating-toggle__btn.is-active {
+	color: color-mix(in srgb, var(--k2-pure-pitch) 72%, var(--k2-text-secondary));
+	background: color-mix(in srgb, var(--k2-pure-pitch) 14%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-pure-pitch) 42%, transparent);
+	box-shadow: none;
+	font-weight: 600;
+}
+
+.player-rank-chart .pm3d-rating-toggle__btn.is-active {
+	color: color-mix(in srgb, var(--k2-pure-chrome) 72%, var(--k2-text-secondary));
+	background: color-mix(in srgb, var(--k2-pure-chrome) 14%, var(--k2-bg-elevated));
+	border-color: color-mix(in srgb, var(--k2-pure-chrome) 42%, transparent);
 	box-shadow: none;
 	font-weight: 600;
 }
@@ -779,6 +838,8 @@ body.k2-site .k2-chart-panel > .k2-panel-heading.k2-table-helped:focus-visible {
 	margin: 0;
 }
 
+body.k2-site .player-rating-chart__toolbar,
+body.k2-site .player-compare-rating-chart__toolbar,
 body.k2-site .player-rank-chart__toolbar,
 body.k2-site .player-compare-rank-chart__toolbar {
 	flex-direction: column;
@@ -786,6 +847,8 @@ body.k2-site .player-compare-rank-chart__toolbar {
 	gap: 8px;
 }
 
+body.k2-site .player-rating-chart__toolbar-row,
+body.k2-site .player-compare-rating-chart__toolbar-row,
 body.k2-site .player-rank-chart__toolbar-row,
 body.k2-site .player-compare-rank-chart__toolbar-row {
 	display: flex;

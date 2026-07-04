@@ -26,7 +26,7 @@
             tension: 0,
             pointRadius: 0,
             pointHoverRadius: 4
-        }, T.lineStroke(T.amber(), 0.15));
+        }, T.lineStroke(T.chrome(), 0.15));
 
         return Core.createChart(canvas, {
             type: 'line',

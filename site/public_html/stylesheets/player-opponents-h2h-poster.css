@@ -700,6 +700,20 @@ body.k2-site .k2-h2h2-charts .pm3d-chart-toolbar {
 	margin: 0 0 10px;
 }
 
+/* Rating compare: column stack (profile + H2H rating chart parity; not generic toolbar row). */
+body.k2-site .k2-h2h2-charts .player-compare-rating-chart__toolbar {
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+body.k2-site .k2-h2h2-charts .player-compare-rating-chart__toolbar-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px 16px;
+}
+
 /* Rank compare: column stack + left edge (profile rank chart parity; not rating toolbar row). */
 body.k2-site .k2-h2h2-charts .player-compare-rank-chart__toolbar {
 	flex-direction: column;

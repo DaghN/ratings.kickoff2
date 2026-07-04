@@ -228,7 +228,7 @@ Required per point:
 - **Rating snapshot link:** always append second sentence — `Click here to see the time travel snapshot of the rating list at this time.` — with **here** as `pm3-chart-peak-link` → `peak.ratingSnapshotHref` (`amiga_lb_peak_rating_peak_rank_href()`).
 - **Ties:** first attainment enforced at finalize (not recomputed client-side).
 - Updates when scale toggles; independent of Y-window band (Top 20 etc.).
-- Styled with `pm3d-chart__summary` + `pm3-chart-peak-value` (amber peak ink).
+- Styled with `pm3d-chart__summary` + `pm3-chart-peak-value` (chart chrome peak ink).
 
 **Not in v1:** dashed horizontal peak reference line on the plot (rating chart draws one; rank chart does **not** — see R18).
 
