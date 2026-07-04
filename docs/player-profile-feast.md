@@ -117,7 +117,7 @@ Profile does **not** duplicate those tables.
 
 | Zone | Job | Blocks (human question) |
 |------|-----|-------------------------|
-| **A — Identity** | Who · ladder position · major actor? | **Hero** — rank, rating, games; milestone **tier counts** (all four tiers incl. zero) when `NumberGames ≥ 1` |
+| **A — Identity** | Who · ladder position · major actor? | **Hero** — rank, rating, games; milestone **tier counts** (all four tiers incl. zero; lobby unlocks e.g. `entered_arena` count even before first rated game) |
 | **B — Celebrate** | Still around? Who *is* he? What’s worth remembering? | **Presence** (current relevance) · **Career** (personality in KO2 terms) · **Bursts of activity** · **Moments** · *planned snippets:* participation line, milestone beat, league beat |
 | **C — Understand** | Patterns over time · rivals · analyst depth | **Heatmaps** (habit / texture) · **Charts** (rating arc, activity, matchups) |
 

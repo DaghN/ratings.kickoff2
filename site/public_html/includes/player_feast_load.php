@@ -191,7 +191,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
         'initial' => strtoupper(substr((string) $row['Name'], 0, 1)),
         'rating_raw' => (float) $row['Rating'],
         'peak_raw' => (float) $row['PeakRating'],
-    ] + player_feast_load_glance_honours($con, $id, $games);
+    ] + player_feast_load_glance_honours($con, $id);
 
     $pm['story'] = player_feast_load_story_extras($con, $id);
 
@@ -276,10 +276,11 @@ function player_feast_load_busiest_from_ratedresults(mysqli $con, int $id): arra
 
 /**
  * Milestone tier counts + career league medals for the at-a-glance band.
+ * Milestones include lobby unlocks (e.g. entered_arena) — not gated on rated games.
  *
  * @return array{milestone_counts: ?array, milestone_catalog_total: int, league_gold: int, league_silver: int, league_bronze: int}
  */
-function player_feast_load_glance_honours(mysqli $con, int $playerId, int $games): array
+function player_feast_load_glance_honours(mysqli $con, int $playerId): array
 {
     $out = [
         'milestone_counts' => null,
@@ -289,12 +290,10 @@ function player_feast_load_glance_honours(mysqli $con, int $playerId, int $games
         'league_bronze' => 0,
     ];
 
-    if ($games >= 1) {
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.php';
-        if (k2_milestone_tables_ready($con)) {
-            $out['milestone_catalog_total'] = k2_milestone_catalog_total($con);
-            $out['milestone_counts'] = k2_milestone_player_counts($con, $playerId);
-        }
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.php';
+    if (k2_milestone_tables_ready($con)) {
+        $out['milestone_catalog_total'] = k2_milestone_catalog_total($con);
+        $out['milestone_counts'] = k2_milestone_player_counts($con, $playerId);
     }
 
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
