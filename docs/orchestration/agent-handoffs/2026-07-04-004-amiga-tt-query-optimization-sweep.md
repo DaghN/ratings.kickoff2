@@ -77,6 +77,7 @@ Known suspects going in (playbook §4):
 | `/amiga/player/games.php?id=382` | **1.3–1.5 s** | **~1.4 s** | DB path **15 ms** (player-scoped inner scan); curl still HTML-bound (~1500 `<tr>`) — not a query vanish |
 | `/amiga/country/rivals/*` | **1.0–2.3 s** | unchanged | **F20 handoff** — out of scope this slice |
 | Rating LB + other LB wings | already ≤0.7 s | unchanged | prior 3d-b work |
+| `/amiga/leaderboards/performance-rating/best.php` | lib **171-284 ms** TT (wide dual windows) | lib **62-111 ms** TT | A — `amiga_lb_snapshot_from_sql` + `amiga_lb_best_perf_event_join_sql`; parity green |
 
 Probe: `scripts/oneoff/amiga_games_all_tt_probe.php` — blocking lib calls at `year:2024` **~235 ms** (was ~1800 ms).
 
@@ -87,9 +88,17 @@ Probe: `scripts/oneoff/amiga_games_all_tt_probe.php` — blocking lib calls at `
 - **Games All** — player-scoped / lean game scans; catalog-stats count/years/host at TT; combined score-line facet pass; hub count dedupe.
 - **Games Recent** — lean tournament-indexed fetch in `amiga_realm_games_hub_lib.php`.
 - **Player games** — `amiga_rated_games_from_sql($playerId)` pushes hero filter into indexed inner scan.
+- **Perf. rating LB** — `amiga_lb_best_perf_event_join_sql()` narrow best-event window + `amiga_lb_snapshot_from_sql('s')` on Best/Top/Perfect TT paths; present Best uses same best-event helper.
 
 ### Remaining (next slice if needed)
 
 - **Player games curl > 0.8 s** — query fixed; page time = rendering ~1500-row table + filter chrome (no product change allowed).
 - **F20 country rivals** — **done** — [`2026-07-04-002`](2026-07-04-002-f20-country-rivals-h2h-audit.md) query slice.
-- **Present-mode `/amiga/games/all.php`** — ~0.6–0.9 s (score-line game scan); TT cutoffs now fast.
+- **Present-mode `/amiga/games/all.php`** — score-line lean scan ~170 ms remains; count/years/host now catalog @ present (**slice 2**); lib probe **~203 ms** blocking.
+
+### Shipped code (slice 2 — Track C Games hub)
+
+- **Games All present** — `amiga_realm_games_all_catalog_eligible()` extends catalog count/years/host-country to present when no hero player; score-line stays single-pass lean scan.
+- **Games Recent** — `amiga_realm_games_hub_fetch_games_by_tournaments()` batch replaces five per-tournament queries; request cache on `recent_tournaments`; present recent count from catalog `game_count` sum.
+- **Games Highlights** — direct lean `g/gr/t` ORDER BY … LIMIT; parity `scripts/oneoff/amiga_games_highlights_parity_probe.php` green ×5 boards ×3 cutoffs.
+- Probes: `scripts/oneoff/amiga_games_hub_tt_probe.php`.

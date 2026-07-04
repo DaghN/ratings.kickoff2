@@ -93,35 +93,6 @@ function amiga_realm_games_hub_fetch_tournament_games(
 }
 
 /**
- * Lean rated-game subquery aliased as `r` — drop-in for amiga_rated_games_from_sql() on hub paths.
- *
- * @param-out string $types
- * @param-out list<int|string> $params
- */
-function amiga_realm_games_hub_lean_rated_from_sql(
-    AmigaSnapshotContext $ctx,
-    string &$types,
-    array &$params,
-): string {
-    $types = '';
-    $params = [];
-    $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql(
-        $ctx,
-        $types,
-        $params,
-        't.event_date',
-        't.chrono',
-        't.id',
-    );
-
-    return 'FROM ('
-        . amiga_realm_games_hub_lean_select_sql()
-        . amiga_realm_games_hub_lean_from_sql()
-        . 'WHERE 1=1' . $cutoffSql
-        . ') AS r';
-}
-
-/**
  * @param list<int> $tournamentIds
  * @return array<int, list<array<string, mixed>>>
  */

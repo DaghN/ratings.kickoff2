@@ -83,13 +83,18 @@ Numbers: old window 1.7-3.4 s; narrow+join-back (pattern A) still 0.9-2.3 s beca
 | Site | Table / shape | Likely severity |
 |------|---------------|-----------------|
 | `amiga_community_histogram_lib.php` | `raw_world_cups_played` still uses inline slice window join | Low unless Activity histogram API flagged |
-| `amiga_matchup_snapshot_lib.php`, `amiga_player_snapshot_lib.php`, `amiga_player_rank_history_lib.php`, `amiga_elo_rank_lib.php`, `amiga_player_h2h_pair_lib.php` | windows filtered by `player_id = ?` (single player / pair) | Cheap; leave unless probed slow |
+| `amiga_player_snapshot_lib.php`, `amiga_player_rank_history_lib.php`, `amiga_elo_rank_lib.php`, `amiga_player_h2h_pair_lib.php` | windows filtered by `player_id = ?` (single player / pair) | Cheap; leave unless probed slow |
+| **`amiga_matchup_snapshot_lib.php` (player Opponents + country roll-up)** | ~~`SELECT m.*` at-event window~~ | **Fixed 2026-07-04** — narrow window + PK join-back |
 | **F20 Countries rivals H2H + wdl/goals/dds** | ~~double `rivals_rows` + wide matchup window + perf batch on all table wings~~ | **Fixed 2026-07-04** — cache + narrow window + scoped perf; Goals/DDs skip perf batch; H2H pair games memo shared with perf + chart payloads |
+| **Player vs country opponents (`player/opponents/country/*`)** | ~~always perf batch + triple `country_rows` on H2H~~ | **Fixed 2026-07-04** — request cache; W/D/L `withPerf` only; H2H scoped perf + game-row memo |
 | **`amiga/player/games.php` (busy player)** | DB **~15 ms** after player-scoped scan; curl **~1.4 s** = ~1500-row HTML + filter chrome, not query vanish | Do not re-window; next lever is render/pagination (product) |
-| **`amiga/games/all.php` present-only** | score-line facets still one game scan (~190 ms) when no TT cutoff | TT cutoffs use catalog path (~235 ms total probe) |
+| **`amiga/games/all.php` present-only** | score-line facets one lean game scan (~170 ms); count/years/host use catalog when no hero player | **Slice 2:** present catalog path; blocking probe **~203 ms** (was ~615 ms) |
+| **`amiga/games/recent.php` @ late TT** | five per-tournament fetches + duplicate recent list query | **Slice 2:** batch fetch + request cache; DB **~40–60 ms** @ `year:2024` |
+| **`amiga/games/highlights.php`** | wide `amiga_rated_games_from_sql()` subquery before LIMIT | **Slice 2:** lean metric-first ORDER BY; parity probe green |
+| **Tournament entity + catalog (Track D)** | ~~O(players) facet loop + eager WC bracket + duplicate catalog/count~~ | **Fixed 2026-07-04** — at-cutoff catalog request cache; batch player facet `GROUP BY`; lazy bracket on non-stages views; scoped read caches |
 | `peak_month_leaderboard_query.php`, `lb_activity_lib.php`, `league_standings.php`, `player_milestones_helpers.php` | **online realm** | Out of Amiga TT scope |
 
-**Fixed this sweep (do not redo):** WC player/country slice narrow window + cache; countries `attach_elo_ranks` dense equality; games all/recent lean paths; player games inner scan; **F20 country rivals** (narrow matchup window, request cache, H2H dedupe, TT perf batch country-col fix).
+**Fixed this sweep (do not redo):** WC player/country slice narrow window + cache; countries `attach_elo_ranks` dense equality; games all/recent lean paths; player games inner scan; **F20 country rivals** + **player vs country opponents**; **Track D tournament entity + catalog**; **perf. rating LB** (Best/Top/Perfect — snapshot helper + best-event narrow window). Probes `amiga_tournament_tt_probe.php` · `amiga_tournament_*_parity_probe.php` · `amiga_lb_perf_rating_best_*_probe.php`.
 
 ---
 
@@ -123,3 +128,10 @@ Numbers: old window 1.7-3.4 s; narrow+join-back (pattern A) still 0.9-2.3 s beca
 | Games All curl @ `year:2024` | ~2.0 s | ~0.08 s | above |
 | Games Recent curl @ `year:2024` | ~1.0 s | ~0.6 s | lean tournament fetch |
 | Player games query (id=382) | full-realm subquery scan | ~15 ms | player-scoped inner scan |
+| Player vs country opponents curl (id=382, worst census) | h2h **0.49 s** · wdl **0.23 s** | h2h **0.34 s** · wdl **0.30 s** · goals/dds **~0.15 s** | A + D + scoped perf |
+| Country rivals H2H panel (England/Italy) | 1272-3727 ms sequential | 438-1087 ms | A + D + scoped perf |
+| Tournament entity bootstrap (589 event-stats, lib) | ~350 ms (player facet loop) | ~40-51 ms | D + batch facet + lazy bracket |
+| Tournament stages WC 603 (lib, cold bracket) | ~340 ms bracket always | ~170 ms (bracket deferred off stages) | D + lazy load |
+| Track D curl (5 URLs, worst cutoff) | 0.49-0.72 s census | **≤0.78 s** (stages 603 worst) | D |
+| Perf. rating LB Best (lib, worst TT) | 171-284 ms | 62-111 ms | A (snapshot + best-event narrow windows) |
+| Perf. rating LB Best (present lib) | 107 ms | 64 ms | A |

@@ -354,5 +354,6 @@ Ship and proof after each slice. Update this doc session log + `PROJECT_MEMORY.m
 |------|------|
 | Jun 2026 | Policy locked — folder `opponents/country/` grain, horizontal dual segment nav, read-time roll-up + country TPR, H2H minus rating/rank compare. |
 | Jun 2026 | Implementation plan — slices OCG-1–OCG-7. |
-| Jun 2026 | **OCG-1–7 shipped** — country W/D/L · Goals · DDs · H2H (moments + charts, no rating/rank). |
+| Jul 2026 | **OCG-1–7 shipped** — country W/D/L · Goals · DDs · H2H (moments + charts, no rating/rank). |
+| Jul 2026 | **TT perf (Track B)** — `amiga_player_opponents_country_load.php` request cache + scoped perf; narrow at-event matchup window; H2H panel single pass; memoized country game rows. Parity `scripts/oneoff/amiga_player_opponents_country_parity_probe.php`. |
 | Jun 2026 | Docs — three-grain cross-ref with country Rivals (player vs country vs country vs country). |

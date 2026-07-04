@@ -57,20 +57,76 @@ const AMIGA_GAMES_HIGHLIGHT_BOARDS = [
 /** Decisive games where the winner had the lower pre-game rating (excludes flat early-era ties). */
 function amiga_games_highlights_underdog_win_sql(): string
 {
-    return ' AND ABS(r.ActualScore - 0.5) >= 0.001'
+    return amiga_games_highlights_underdog_win_predicate_sql('r.ActualScore', 'r.RatingA', 'r.RatingB');
+}
+
+function amiga_games_highlights_lean_underdog_win_sql(): string
+{
+    return amiga_games_highlights_underdog_win_predicate_sql('gr.actual_score', 'gr.rating_a', 'gr.rating_b');
+}
+
+function amiga_games_highlights_underdog_win_predicate_sql(
+    string $actualScoreColumn,
+    string $ratingAColumn,
+    string $ratingBColumn,
+): string {
+    return ' AND ABS(' . $actualScoreColumn . ' - 0.5) >= 0.001'
         . ' AND ('
-        . '(ABS(r.ActualScore - 1.0) < 0.001 AND r.RatingA < r.RatingB)'
-        . ' OR (ABS(r.ActualScore - 0.0) < 0.001 AND r.RatingB < r.RatingA)'
+        . '(ABS(' . $actualScoreColumn . ' - 1.0) < 0.001 AND ' . $ratingAColumn . ' < ' . $ratingBColumn . ')'
+        . ' OR (ABS(' . $actualScoreColumn . ' - 0.0) < 0.001 AND ' . $ratingBColumn . ' < ' . $ratingAColumn . ')'
         . ')';
 }
 
 function amiga_games_highlights_winner_adjustment_sql(): string
 {
+    return amiga_games_highlights_winner_adjustment_expr_sql('r.ActualScore', 'r.AdjustmentA', 'r.AdjustmentB');
+}
+
+function amiga_games_highlights_lean_winner_adjustment_sql(): string
+{
+    return amiga_games_highlights_winner_adjustment_expr_sql('gr.actual_score', 'gr.adjustment_a', 'gr.adjustment_b');
+}
+
+function amiga_games_highlights_winner_adjustment_expr_sql(
+    string $actualScoreColumn,
+    string $adjustmentAColumn,
+    string $adjustmentBColumn,
+): string {
     return 'CASE'
-        . ' WHEN ABS(r.ActualScore - 1.0) < 0.001 THEN r.AdjustmentA'
-        . ' WHEN ABS(r.ActualScore - 0.0) < 0.001 THEN r.AdjustmentB'
+        . ' WHEN ABS(' . $actualScoreColumn . ' - 1.0) < 0.001 THEN ' . $adjustmentAColumn
+        . ' WHEN ABS(' . $actualScoreColumn . ' - 0.0) < 0.001 THEN ' . $adjustmentBColumn
         . ' ELSE 0'
         . ' END';
+}
+
+/**
+ * @param-out string $types
+ * @param-out list<int|string> $params
+ */
+function amiga_games_highlights_lean_base_sql(
+    AmigaSnapshotContext $ctx,
+    string $scope,
+    string &$types,
+    array &$params,
+): string {
+    $types = '';
+    $params = [];
+    $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql(
+        $ctx,
+        $types,
+        $params,
+        't.event_date',
+        't.chrono',
+        't.id',
+    );
+    $where = '1=1' . $cutoffSql;
+    if (amiga_games_highlights_valid_scope($scope) === 'world-cup') {
+        $where .= ' AND ' . amiga_games_world_cup_name_sql('t.name');
+    }
+
+    return amiga_realm_games_hub_lean_select_sql()
+        . amiga_realm_games_hub_lean_from_sql()
+        . 'WHERE ' . $where;
 }
 
 /** @param array{label: string, heading: string, default_sort_key: string, help?: string} $meta */
@@ -127,33 +183,27 @@ function amiga_games_highlights_fetch(
 
     $types = '';
     $params = [];
-    $fromSql = amiga_realm_games_hub_lean_rated_from_sql($ctx, $types, $params);
-    $where = '1=1';
-    if ($scope === 'world-cup') {
-        $where .= ' AND ' . amiga_games_world_cup_name_sql('r.tournament_name');
-    }
-
-    $select = amiga_realm_games_hub_select_sql() . $fromSql . ' WHERE ' . $where;
+    $baseSql = amiga_games_highlights_lean_base_sql($ctx, $scope, $types, $params);
 
     switch ($board) {
         case 'biggest_draws':
-            $sql = $select . ' AND ABS(r.ActualScore - 0.5) < 0.001'
-                . ' ORDER BY r.SumOfGoals DESC, r.id ASC LIMIT ' . (int) $limit;
+            $sql = $baseSql . ' AND ABS(gr.actual_score - 0.5) < 0.001'
+                . ' ORDER BY gr.sum_of_goals DESC, g.id ASC LIMIT ' . (int) $limit;
             break;
         case 'top_score':
-            $sql = $select . ' ORDER BY GREATEST(r.GoalsA, r.GoalsB) DESC, r.SumOfGoals DESC, r.id ASC LIMIT ' . (int) $limit;
+            $sql = $baseSql . ' ORDER BY GREATEST(g.goals_a, g.goals_b) DESC, gr.sum_of_goals DESC, g.id ASC LIMIT ' . (int) $limit;
             break;
         case 'biggest_wins':
-            $sql = $select . ' AND ABS(r.ActualScore - 0.5) >= 0.001'
-                . ' ORDER BY r.GoalDifference DESC, r.id ASC LIMIT ' . (int) $limit;
+            $sql = $baseSql . ' AND ABS(gr.actual_score - 0.5) >= 0.001'
+                . ' ORDER BY gr.goal_difference DESC, g.id ASC LIMIT ' . (int) $limit;
             break;
         case 'biggest_upsets':
-            $sql = $select . amiga_games_highlights_underdog_win_sql()
-                . ' ORDER BY ' . amiga_games_highlights_winner_adjustment_sql() . ' DESC, r.id ASC LIMIT ' . (int) $limit;
+            $sql = $baseSql . amiga_games_highlights_lean_underdog_win_sql()
+                . ' ORDER BY ' . amiga_games_highlights_lean_winner_adjustment_sql() . ' DESC, g.id ASC LIMIT ' . (int) $limit;
             break;
         case 'most_goals':
         default:
-            $sql = $select . ' ORDER BY r.SumOfGoals DESC, r.id ASC LIMIT ' . (int) $limit;
+            $sql = $baseSql . ' ORDER BY gr.sum_of_goals DESC, g.id ASC LIMIT ' . (int) $limit;
             break;
     }
 
