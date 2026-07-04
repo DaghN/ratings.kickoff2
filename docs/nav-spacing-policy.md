@@ -74,7 +74,7 @@ Spacing migration must sweep **margin-bottom** on every block that separates nav
 | Sub-nav chrome (activity, games hub, ms hub, WC, player opponents/milestones) | mixed 12/16px + `margin-top` lists | `margin-bottom: var(--k2-nav-gap)` or N6 exception; **`margin-top: 0`** |
 | `.k2-lb-league-honours` panel | bespoke `margin-top` + subnav `margin-bottom` | drop panel `margin-top`; subnav `margin-bottom: var(--k2-nav-gap)` |
 | `.k2-player-nav-bar` | **20px** default; **12px** on `body.k2-player-wing` | **20->12px** or documented exception (N10) |
-| `.k2-player-hero` | **`var(--k2-player-hero-chrome-gap)`** (24px) on `body.k2-player-wing` only | Feast hero — extra air before/after in chrome stack (glow panel); hub bar bottom uses same token |
+| `.k2-player-hero` | **`var(--k2-player-hero-chrome-gap)`** (24px) bottom on `body.k2-player-wing`; **`var(--k2-player-hero-glow-inset)`** (14px) left | Feast hero — vertical air in chrome stack; left inset for panel glow; hub bar bottom uses chrome-gap token |
 | `.k2-amiga-tournament-hero` | tournament **16px** → **`var(--k2-nav-gap)`** | Entity hero in chrome stack (quiet surface) |
 | Amiga tournament detail nav | reuses `.k2-player-nav-bar` on `tournament.php` | **12px** via shared `.k2-player-nav-bar` rule (N10) |
 | Amiga tournaments index filter | `.k2-chrome-tabs` in `.k2-amiga-tournament-index-segment-filters` | **Superseded for vertical rhythm (Jul 2026):** [`filter-stack-spacing-policy.md`](filter-stack-spacing-policy.md) — bottom-only `--k2-nav-gap`, no wrapper `gap`; horizontal picker rows stay local |
@@ -102,7 +102,7 @@ Grep pass on nav-like blocks in `theme.css`. **Token-only** swaps (12px → `var
 | Item | Value | Why |
 |------|-------|-----|
 | `.k2-player-opponents:has(.k2-player-opponents-h2h) .k2-player-opponents__nav` | `margin-bottom: 20px` | H2H picker block needs more air than table wing |
-| `.k2-player-hero` | `var(--k2-player-hero-chrome-gap)` on `body.k2-player-wing` | Feast hero hub→hero and hero→player nav; token in `:root` |
+| `.k2-player-hero` | `var(--k2-player-hero-chrome-gap)` bottom + `var(--k2-player-hero-glow-inset)` left on `body.k2-player-wing` | Feast hero hub→hero, hero→player nav, and left glow inset; tokens in `:root` |
 | `.k2-player-opponents__nav-row` (shipped Jun 2026) | flex row; `gap: calc(var(--k2-nav-gap) * 2)` between wing + grain segments | Amiga Opponents **vs Player · vs Country** beside wing tabs — [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md) §6 |
 | `.k2-hub-bar` top margin | `16px` | Header-to-hub rhythm, not `--k2-nav-gap` |
 | `.k2-hub-chapter-to-content-gap` | `22px` | HoF-only editorial gap; out of nav stack v1 |

@@ -61,6 +61,7 @@
 	--k2-nav-gap: 12px;
 	/* Feast player hero in player wing -- glow panel air above/below in chrome stack */
 	--k2-player-hero-chrome-gap: 24px;
+	--k2-player-hero-glow-inset: 14px;
 	/* Hub chapter intro → first body block (HoF table, etc.) */
 	--k2-hub-chapter-to-content-gap: 22px;
 	/* Shared by .k2-table-tooltip and Chart.js (chart-theme.js) */
@@ -4330,6 +4331,7 @@ body.k2-site.k2-player-wing .k2-hub-bar {
 }
 
 body.k2-site.k2-player-wing .k2-player-hero {
+	margin-left: var(--k2-player-hero-glow-inset);
 	margin-bottom: var(--k2-player-hero-chrome-gap);
 }
 
