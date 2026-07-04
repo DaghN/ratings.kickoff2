@@ -1,26 +1,32 @@
 # Amiga time travel — chrome dock policy (CD track)
 
-**Status:** **Approved** Jul 2026 — product + technical direction locked; **not yet implemented**. Supersedes parts of C02 and §5.0 placement when shipped.
+**Status:** **Approved** Jul 2026 — product + technical direction locked; **not yet implemented**. **Baseline phase (Jul 2026):** C02 pin **removed from code** — in-flow ribbon only until nav stability + CD track.
 
 **Parent:** [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`design-direction.md`](design-direction.md)
 
 **Related:** [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) (C02 optional pin — evolved here) · [`with-player-stepper-policy.md`](with-player-stepper-policy.md) · [`hub-ia-agreement.md`](hub-ia-agreement.md) · [`nav-spacing-policy.md`](nav-spacing-policy.md)
 
-**Implementation plan:** [`amiga-tt-chrome-dock-implementation-plan.md`](amiga-tt-chrome-dock-implementation-plan.md) (slices 0–6).
+**Implementation plan:** deferred — rewrite when implementation starts.
+
+**Invariants (failures register):** [`amiga-tt-chrome-sticky-invariants.md`](amiga-tt-chrome-sticky-invariants.md) — **observed symptoms only** (no causes/solutions); read before editing carry-scroll, head boot, pin JS, chrome PHP, or TT sticky CSS. Update when a **new failure** is observed; document fixes in slice handoffs.
 
 ---
 
 ## 1. Executive summary
 
-When `as=` is active, the **snapshot ribbon** becomes the primary, always-available navigator; the **temporal stamp** becomes a **derived readout** of the current cutoff choice — a receipt stamped onto the environment, not a master clock above the controls.
+When `as=` is active, the **snapshot ribbon** becomes the primary navigator once the user scrolls; the **temporal stamp** remains a **derived readout** of the current cutoff choice — a receipt stamped onto the environment, not a master clock above the controls.
 
-**Ribbon dock (default on):** scroll-linked sticky behaviour — ribbon sits **below the site header** at scroll top; once the header scrolls away, ribbon docks to **viewport top** (`top: 0`). Reclaims vertical space while keeping the header reachable and clickable.
+**Ribbon sticky (default on):** when `as=` is active (including **Present → Time travel** toggle entry), sticky is **on** without user action. The ribbon starts **in document flow** (not fixed). The **site header is in flow too** (shipped: `position: relative` on `.k2-site-header` — it scrolls away). As the user scrolls down, header and stamp leave the viewport first; when the ribbon would scroll past the **top of the viewport**, it **sticks** at **`top: 0`**. Scroll back to top → ribbon unsticks; header is reachable again in flow.
 
-**Chrome order:** site header → **ribbon** → **stamp** → hub chapter / page body.
+**Chrome order (sticky on, in flow):** site header → **stamp** → **ribbon** → hub chapter / page body. Same as shipped today while the ribbon has not yet **stuck**.
 
-**Pushpin:** inverts C02 — dock is **default**; pushpin **opts out** (ribbon scrolls with the page like today unpinned).
+**Chrome order (sticky on, stuck):** ribbon fixed at **`top: 0`**; site header and stamp have scrolled off above (in flow — not pinned under a visible header).
 
-**Nav stability:** full-page loads (Turbo removed Jun 2026) require a **TT chrome coordinator** — wrapper markup, pre-paint boot, carry-scroll readiness — so ribbon dock and stamp do not flash, pop in, or “disappear” on chevron/hub navigation.
+**Pushpin:** inverts C02 — **sticky on** is default; pushpin sets **sticky off (opted out)** — ribbon stays **in flow** and scrolls away. Opt-out **persists** across `as=` navigation until the user turns sticky on again — **except** **Present → Time travel** toggle entry always resets to **sticky on** (CD2).
+
+**Nav stability:** full-page loads (Turbo removed Jun 2026) require a **TT chrome coordinator** — wrapper markup, pre-paint boot, carry-scroll readiness — so ribbon sticky and stamp do not flash, pop in, or “disappear” on chevron/hub navigation.
+
+**Terminology:** see **§2.4** — use **sticky on/off**, **in flow**, and **stuck** only; do not use *docked*, *pre-sticky*, or *pinned* for this track (except C02 legacy until migration).
 
 ---
 
@@ -30,23 +36,52 @@ When `as=` is active, the **snapshot ribbon** becomes the primary, always-availa
 
 | Layer | Role | User mental model |
 |-------|------|-------------------|
-| **Site header** | Realm, mode toggle, search | Global chrome — always reachable at scroll top |
-| **Snapshot ribbon** | Event · Month · Year + stepper + picker (+ with-player on Event) | **Vehicle** — how you move through time; always visible under dock |
-| **Temporal stamp** | LED kicker + DSEG7 date + cursor | **Receipt** — where you landed after ribbon/picker choices |
+| **Site header** | Realm, mode toggle, search | Global chrome — **in flow**; scroll to top to reach it |
+| **Snapshot ribbon** | Event · Month · Year + stepper + picker (+ with-player on Event) | **Vehicle** — how you move through time; sticks once you scroll down to it |
+| **Temporal stamp** | LED kicker + DSEG7 date + cursor | **Receipt** — where you landed after ribbon/picker choices; **above** ribbon while ribbon is **in flow** |
 | **Hub chapter / body** | Section title + content at cutoff | The **environment** the stamp labels |
 
 **Rejected framing:** stamp above ribbon (“LED master, now enter my vehicle”). Stamp content rules (kicker, LED formats, toggle/wing motion) stay per [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §5.0 unless amended below.
 
-### 2.2 Why default dock
+### 2.2 Why default sticky
 
 - Long player/tournament/LB pages lose TT controls without sticky chrome (C02 motivation).
 - Optional pin (C02) under-used the feature; users forget time travel mid-scroll.
-- Scroll-linked dock preserves screen real estate after header scrolls off (see §4).
-- Header + ribbon overlap bug (pinned bar at `top: 0` over header) is avoided by construction.
+- Scroll-to-stick (not fixed on entry) keeps stamp → ribbon order at page top without wasting viewport on an always-fixed bar.
+- **In-flow site header** (shipped) scrolls away before the ribbon latches — **stuck** ribbon uses **`top: 0` only**; no header-height offset phase (see §4.1).
+- C02’s fixed pin-at-load could overlap header; CD4 avoids that by **in flow until latch**.
 
 ### 2.3 Present mode
 
-Unchanged: no stamp, no ribbon, no dock. Header **Present day | Time travel** only.
+Unchanged: no stamp, no ribbon, no sticky chrome. Header **Present day | Time travel** only.
+
+### 2.4 Terminology (locked)
+
+Two layers: **feature setting** (`sticky on` / `sticky off`) and **scroll phase** (`in flow` / `stuck` — only when sticky is on).
+
+| State | Feature | Scroll phase | Meaning |
+|-------|---------|--------------|---------|
+| **1** | **Sticky on** (default) | **In flow** | Ribbon in document order (stamp → ribbon); scrolls with the page until the latch threshold (CD4). |
+| **2** | **Sticky on** | **Stuck** | User scrolled until the ribbon would leave the viewport; ribbon fixed at **`top: 0`**. Site header (in flow) has already scrolled off above. |
+| **3** | **Sticky off** (pushpin **opted out**) | **In flow** (always) | No latch; ribbon scrolls away — same as C02 unpinned. |
+
+**Use in docs and code comments**
+
+| Term | Meaning |
+|------|---------|
+| **Sticky on / sticky off** | User feature toggle (CD2, CD3). Prefer **opted out** when describing pushpin disabling sticky. |
+| **In flow** | Normal document flow; ribbon not fixed to the viewport. Applies to state 1 always and state 3 always. |
+| **Stuck** | Ribbon latched to the viewport edge (matches CSS `position: sticky` / MDN “stuck” state). State 2 only. |
+
+**Do not use for this feature**
+
+| Term | Why |
+|------|-----|
+| **Dock / docked** | Ambiguous (OS dock, old CD draft, unrelated UI patterns). |
+| **Pinned** | Retired with C02 removal (Jul 2026 baseline); do not reintroduce `--pinned` until CD track |
+| **Pre-sticky / sticky active** | Non-standard; agents invent meanings. Use the table above. |
+
+**Filename note:** this doc id is **CD track** / `amiga-tt-chrome-dock-policy.md` — historical label only; feature vocabulary is **sticky on/off**, **in flow**, **stuck**.
 
 ---
 
@@ -54,52 +89,63 @@ Unchanged: no stamp, no ribbon, no dock. Header **Present day | Time travel** on
 
 | # | Decision | Rule |
 |---|----------|------|
-| **CD1** | **Ribbon before stamp** | In `.k2-page-nav`, snapshot ribbon markup **precedes** temporal stamp in DOM and visual order |
-| **CD2** | **Default dock** | When `as=` active, ribbon dock is **on** without user action |
-| **CD3** | **Pushpin = opt out** | Pushpin **disables** dock; ribbon returns to in-flow scroll (C02 unpinned behaviour). Preference persisted (see §6) |
-| **CD4** | **Scroll-linked top** | Docked ribbon `top` = header height while header intersects viewport; `top: 0` once header has scrolled away |
-| **CD5** | **Header always reachable** | At `scrollY ≈ 0`, ribbon must not paint over or block site header (wordmark, realm switcher, mode toggle, search) |
-| **CD6** | **Stamp scrolls** | Temporal stamp is **not** docked; it scrolls with page content below the ribbon reserve |
+| **CD1** | **Stamp before ribbon (in flow)** | In `.k2-page-nav`, temporal stamp markup **precedes** snapshot ribbon in DOM and visual order while ribbon is **in flow** (sticky on before latch, or sticky off). Matches shipped order today. |
+| **CD2** | **Sticky on (default)** | When `as=` active, ribbon sticky is **on** without user action. **Present → Time travel** toggle entry (`k2_tt_entry=1`) **always** sets **sticky on**, clearing a prior pushpin opt-out (fresh entry). Direct URL / chevron / wing tab with `as=` **honours** saved opt-out (CD3). |
+| **CD3** | **Pushpin → sticky off** | Pushpin sets **sticky off (opted out)**; ribbon stays **in flow** and scrolls away (C02 unpinned behaviour). Preference **persisted** until user re-enables sticky on pushpin **or** enters time travel via **mode toggle** (CD2). |
+| **CD4** | **In flow → stuck at viewport top** | **Sticky on:** ribbon **in flow** at load (`scrollY ≈ 0`). Becomes **stuck** when scroll would take the ribbon past the **viewport top**. While **stuck:** **`top: 0` only** (site header is in flow and is already off-screen when latch occurs — §4.1) |
+| **CD5** | **Header reachable at scroll top** | Site header stays **in flow** (shipped). At **`scrollY ≈ 0`**, ribbon is **in flow** (not **stuck**); header, stamp, and ribbon stack normally — no overlap. User reaches header by scrolling to top. |
+| **CD6** | **Stamp scrolls** | Temporal stamp is **never** sticky; it scrolls with page content above the ribbon until the ribbon becomes **stuck** |
 | **CD7** | **Stamp motion on nav** | **Chevrons, picker, hub tabs, direct URL** (no `k2_tt_entry`): stamp updates **in place** — no LED fade, no kicker typewriter, no panel arrival. **Wing tab** (`k2_tt_entry=wing`): keep LED fade + kicker typewriter. **Toggle entry** (`k2_tt_entry=1`): keep full arrival. |
-| **CD8** | **Carry-scroll preserved** | Ribbon stepper/wing tabs/picker forms keep `data-k2-carry-scroll`; dock must not fight carry-scroll restore |
+| **CD8** | **Carry-scroll preserved** | Ribbon stepper/wing tabs/picker forms keep `data-k2-carry-scroll`; sticky coordinator must not fight carry-scroll restore |
 | **CD9** | **Surfaces** | Same as snapshot chrome today — all Amiga pages with active `as=`; ops/import excluded (T10) |
-| **CD10** | **Event wing wrap** | Docked ribbon may wrap (`flex-wrap`) on Event wing — same as C02 pinned |
+| **CD10** | **Event wing wrap** | Sticky ribbon may wrap (`flex-wrap`) on Event wing — same as C02 pinned |
 
 ---
 
-## 4. Scroll-linked dock (CD4 detail)
+## 4. Sticky ribbon — in flow → stuck (CD4 detail)
 
 ### 4.1 Behaviour
 
+See **§2.4** for state names. Three user-visible modes: **sticky on + in flow**, **sticky on + stuck**, **sticky off + in flow**.
+
+**Site header (shipped, locked assumption):** `.k2-site-header` is **`position: relative`** — **in flow**, not fixed or sticky. It is **above** stamp and ribbon in the document. When the user scrolls, the header leaves the viewport **before** the ribbon reaches the latch point. Therefore **stuck** ribbon does **not** sit under a visible header; **`top: 0`** is the only sticky offset.
+
 ```
-scroll top (header visible):
-  ┌─ site header (z-index 1300, in flow) ─────────────┐
-  ├─ ribbon bar (fixed, top = headerHeight) ────────────┤  ← dock under header
-  ├─ stamp (in flow, below ribbon reserve) ─────────────┤
+scroll top — sticky on, in flow:
+  ┌─ site header (in flow) ─────────────────────────────┐
+  ├─ stamp (in flow) ──────────────────────────────────┤
+  ├─ ribbon bar (in flow, below stamp) ─────────────────┤
   └─ page body ─────────────────────────────────────────┘
 
-scrolled (header gone):
-  ┌─ ribbon bar (fixed, top = 0) ───────────────────────┐  ← claims viewport top
+scrolled — sticky on, stuck:
+  ┌─ ribbon bar (stuck, top: 0) ────────────────────────┐  ← header + stamp scrolled off above
   │  page content scrolls beneath ─────────────────────  │
   └─────────────────────────────────────────────────────┘
+
+scroll back to top — sticky on, in flow again:
+  header → stamp → ribbon → body (same as first diagram)
+
+sticky off (opted out) — always in flow:
+  stamp → ribbon → body scroll together; ribbon never becomes stuck
 ```
 
-- Measure `--k2-site-header-height` from `.k2-site-header` (resize + wrap).
-- Set `--k2-tt-dock-top` = header height or `0` on scroll (passive listener) + resize.
-- Prefer **instant** snap at threshold; optional ≤120ms transition only if visual testing demands it.
+- **Latch trigger (sticky on only):** user scrolls until the ribbon’s in-flow position would cross the **viewport top**; only then apply sticky/fixed geometry (**not** fixed on first paint).
+- While **stuck:** **`top: 0`** (standard `position: sticky` / equivalent fixed bar at viewport top).
+- Prefer **instant** latch; optional ≤120ms transition only if visual testing demands it.
+- **Not in scope:** header-height sticky offset, scroll-linked `top` changes, or fixed site header — unless site header behaviour changes in a separate track.
 
 ### 4.2 Z-index ladder (unchanged intent)
 
 | Layer | z-index | Notes |
 |-------|---------|-------|
 | Hub bar | 1210 | |
-| Snapshot ribbon (in flow) | 1220 | picker below header when not docked |
-| Site header | 1300 | search dropdown |
-| Docked ribbon context | 1390 | same as C02 pinned section |
+| Snapshot ribbon (in flow) | 1220 | picker stacks below in-flow header when at scroll top |
+| Site header | 1300 | in flow; search dropdown |
+| Sticky ribbon (stuck) | 1390 | same z-index band as C02 `--pinned` section |
 | Jukebox FAB | 1400 | |
 | Tooltips | 1500 | |
 
-When docked under header, ribbon is **physically below** header — picker panels stay below header z-index without covering it.
+Picker panels while ribbon is **stuck** must not cover content incorrectly; z-index unchanged from C02 pinned intent.
 
 ---
 
@@ -110,8 +156,8 @@ When docked under header, ribbon is **physically below** header — picker panel
 Inside `.k2-page-nav`, top to bottom:
 
 1. **`.k2-amiga-tt-chrome`** wrapper (new — §7)
-   - **Ribbon** `<section class="k2-amiga-time-travel …">`
    - **Stamp** `<aside class="k2-amiga-tt-stamp">`
+   - **Ribbon** `<section class="k2-amiga-time-travel …">`
 2. Hub chapter (`k2-hub-chapter`) where applicable
 3. Hub bar / wing sub-nav / page body
 
@@ -119,92 +165,48 @@ Site header remains **outside** `.k2-page-nav` in `site_header.php`.
 
 ### 5.2 Amends parent policy §5.0
 
-When this track ships, replace:
+When this track ships:
 
-- “Temporal stamp … **above** snapshot ribbon” → **below** snapshot ribbon (CD1).
-- Table row “stamp above ribbon” in §5.0 layer diagram → ribbon then stamp.
-
-Stamp **content** rules (kicker strings, LED formats, DSEG7, a11y, cursor blink) remain unless CD7 narrows motion.
+- **Placement:** stamp **above** ribbon while ribbon is **in flow** — **keep** shipped §5.0 order (CD1); do not flip to ribbon-first at page top.
+- **Add** sticky ribbon behaviour (CD2–CD4) and pushpin **sticky off** (CD3) to §5.0 layer table.
+- Stamp **content** rules (kicker strings, LED formats, DSEG7, a11y, cursor blink) remain unless CD7 narrows motion.
 
 ---
 
-## 6. Pushpin opt-out (CD3)
+## 6. Pushpin — sticky off (CD3)
 
 | State | Behaviour | Storage |
 |-------|-----------|---------|
-| **Default (dock on)** | Scroll-linked dock active | `localStorage` absent or `k2-amiga-tt-ribbon-docked=1` (exact key TBD at implement — may migrate C02 key) |
-| **Opt out (pushpin)** | No fixed positioning; ribbon in document flow | User toggles pushpin; persisted until re-enabled |
+| **Sticky on** (default) | In flow at page top → **stuck** on scroll (CD4) | Default when no opt-out saved; **restored on toggle entry** (CD2) |
+| **Sticky off (opted out)** | Ribbon stays **in flow** always; scrolls away with page | Pushpin toggle; **persists** on chevron, wing tab, direct URL, reload — **cleared** on Present → Time travel toggle entry |
 
-**UI copy (draft):** pushpin **pressed** = “Float time travel controls with the page” / **unpressed** = “Keep time travel controls docked while scrolling” (invert today’s C02 labels).
+**Toggle entry rule (CD2):** `k2_tt_entry=1` (Present → Time travel) **must** apply **sticky on** and clear opt-out for that entry — even if `localStorage` had sticky off. In-lens stepping (chevrons, picker, hub tabs) **does not** reset opt-out.
 
-**Migration:** C02 `k2-amiga-tt-ribbon-pinned=1` maps to **dock on**; absent = dock on (new default). Users who never pinned get dock for free. Document mapping in slice 2.
+**UI copy (draft):** pushpin **pressed** = “Float time travel controls with the page” / **unpressed** = “Keep time travel controls sticky while scrolling” (invert today’s C02 labels).
 
----
-
-## 7. Nav stability — no idiotic blinks
-
-Full-page navigation destroys TT chrome every time. Jul 2026 order-swap experiment showed **naive reorder alone** causes stamp pop-in and carry-scroll uncloak before stamp exists. Dock-default will worsen flashes unless boot is coordinated.
-
-### 7.1 Root causes (diagnosis)
-
-| Symptom | Cause |
-|---------|--------|
-| Stamp pop-in after ribbon | Stamp parsed late; browser paints ribbon first |
-| Stamp blink on every chevron | Carry-scroll reveals when stepper nav exists but stamp not yet in DOM |
-| Ribbon “disappears” on nav | Body cloak (`k2-carry-cloak`) + dock class applied only after deferred JS |
-| Pin flash | `k2-amiga-time-travel--pinned` / dock class not present on first paint |
-
-### 7.2 Architecture — TT chrome wrapper
-
-Introduce **`.k2-amiga-tt-chrome`** wrapping ribbon + stamp:
-
-- Single render unit in `amiga_snapshot_chrome.php`.
-- **Stable internal order:** ribbon HTML first, stamp second (CD1).
-- **Script contract:** stamp sync JS (`k2-amiga-tt-stamp.js`) immediately after stamp markup inside wrapper; dock boot script early (head or inline after ribbon bar) — see §7.3.
-- Carry-scroll anchor (`aria-label="Time travel snapshot"`) stays on ribbon stepper — unchanged.
-
-**Do not** reorder by CSS `flex-order` on `.k2-page-nav` alone — too many sibling side effects.
-
-### 7.3 Boot coordinator (target)
-
-One coordinator (extend `k2-amiga-time-travel-pin.js` or rename to `k2-amiga-tt-chrome-dock.js`) owns:
-
-| Responsibility | Detail |
-|----------------|--------|
-| Dock geometry | Header height, `--k2-tt-dock-top`, bar `left`/`width` sync (reuse C02 geometry) |
-| Pre-paint dock | Inline `<head>` or first-body script: read `localStorage`, set `html.k2-amiga-tt-dock-active` / opt-out class **before first paint** when possible |
-| Carry-scroll gate | Extend readiness: do not `reveal()` carry-cloak until **stamp root** exists when `as=` page (extend `k2_carry_scroll_restore.php` or coordinator hook) |
-| Opt-out pin | Pushpin toggles dock off; geometry cleared |
-| Scroll link | CD4 threshold |
-
-### 7.4 Stamp script placement (hard requirement)
-
-`amiga_time_travel_stamp_js_enqueue(false)` — **non-deferred** — must run **immediately after stamp markup** inside wrapper, regardless of ribbon-first order. Toggle entry head cloak (`html.k2-tt-arrival-pending` in `k2_head.php`) depends on early release.
-
-### 7.5 Motion vs accidental blink (CD7)
-
-| Navigation | `k2_tt_entry` | Stamp motion |
-|------------|---------------|--------------|
-| Present → Time travel toggle | `1` | Full arrival (cloak + fade + typewriter) |
-| Wing tab change | `wing` | LED fade + kicker typewriter |
-| Chevrons, picker, hub tabs, sort links | — | **None** — update text/LED in PHP; cursor CSS blink may restart on full reload (acceptable once pop-in fixed) |
-| Browser back | — | Prefer restored scroll; no forced arrival |
+**Migration:** C02 `k2-amiga-tt-ribbon-pinned=1` maps to **sticky on**; absent = sticky on (new default). Users who never pinned get sticky for free.
 
 ---
 
-## 8. Implementation slices (suggested order)
+## 7. Nav stability
 
-| Slice | Scope | Exit criteria |
-|-------|--------|---------------|
-| **0** | Wrapper `.k2-amiga-tt-chrome` + CD1 render order (ribbon → stamp); no dock yet | Order visible; stamp sync JS placement verified; carry-scroll still works |
-| **1** | Carry-scroll gate: reveal only when stamp + ribbon parsed | No stamp pop-in on chevron nav in manual smoke |
-| **2** | Scroll-linked dock default-on; CD4–CD5; migrate C02 CSS/JS | Header clickable at scroll top; ribbon at viewport top after header scrolls away |
-| **3** | Pushpin opt-out (CD3); invert labels/tooltip; storage migration | Toggle persists; opt-out matches C02 unpinned scroll |
-| **4** | CD7 motion policy in stamp JS/PHP | Chevrons/picker: no LED fade/typewriter |
-| **5** | Pre-paint dock boot + polish | No ribbon vanish on chevron with dock on; mobile header wrap |
-| **6** | Docs sweep: §5.0, design-direction, hub-ia, C02 note, AGENTS trap | Policy matches shipped behaviour |
+Full-page navigation must not produce visible TT chrome defects (stamp pop-in, ribbon jump, cloak glitches, wrong sticky state on first paint). **Product requirement only** — no implementation diagnosis in this section.
 
-**Audit:** manual smoke on rating LB chevrons, wing tabs, hub pill carry-scroll, Event wing wrap + picker, pinned-opt-out, toggle entry arrival, mobile narrow width.
+**Observed symptoms (Jul 2026 reverted attempt):** [`amiga-tt-chrome-sticky-invariants.md`](amiga-tt-chrome-sticky-invariants.md) — failures **F1–F17**, reproduction **S1–S8**, integration tensions watchlist.
+
+**Causes and fixes:** recorded **after verification** in TT sticky **slice handoffs** (see failures register § “Where causes and fixes are documented”). Not in this policy until a slice proves them and the track closure updates status.
+
+Stamp motion on navigation: **CD7** (§3). Stamp sync script load order: existing [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §5.0 (shipped contract).
+
+---
+
+## 8. Implementation
+
+**Baseline phase (current):** TT chrome **in flow only** — C02 pin/sticky **removed** Jul 2026. Goal: nav stability (failures register F1–F8, S1–S2, S5–S6, S8) before any CD2–CD4 sticky work.
+
+**Deferred** — CD sticky implementation after baseline handoff. Policy CD1–CD10 above is the source of truth for the **future** sticky track. New plan **§0** links [`amiga-tt-chrome-sticky-invariants.md`](amiga-tt-chrome-sticky-invariants.md). See failures register § **Where causes and fixes are documented**.
+
+**Smoke targets (when implementing):** rating LB chevrons, wing tabs, hub pill carry-scroll, Event wing wrap + picker, pushpin **sticky off**, toggle entry arrival, mobile narrow width; verify three states from §2.4 (**sticky on + in flow**, **sticky on + stuck**, **sticky off + in flow**).
 
 ---
 
@@ -212,14 +214,13 @@ One coordinator (extend `k2-amiga-time-travel-pin.js` or rename to `k2-amiga-tt-
 
 | File | Role |
 |------|------|
-| `includes/amiga_snapshot_chrome.php` | Wrapper render; ribbon → stamp order |
+| `includes/amiga_snapshot_chrome.php` | Wrapper render; stamp → ribbon order (CD1) |
 | `includes/amiga_time_travel_stamp.php` | Stamp markup + sync JS enqueue |
-| `includes/k2_head.php` | Toggle arrival cloak; optional dock boot snippet |
+| `includes/k2_head.php` | Toggle arrival cloak; optional sticky opt-out boot snippet |
 | `includes/k2_carry_scroll_restore.php` | Stamp-aware carry reveal |
-| `js/k2-amiga-time-travel-pin.js` | Evolve → dock coordinator (or rename) |
 | `js/k2-amiga-tt-stamp.js` | CD7 motion gating |
-| `stylesheets/theme.css` | Dock top var, wrapper spacing, C02 class rename/alias |
-| `includes/site_header.php` | Unchanged structurally; header height source for CD4 |
+| `stylesheets/theme.css` | Wrapper spacing (future sticky CSS when CD ships) |
+| `includes/site_header.php` | Unchanged; site header remains **in flow** |
 
 ---
 
@@ -227,20 +228,20 @@ One coordinator (extend `k2-amiga-time-travel-pin.js` or rename to `k2-amiga-tt-
 
 | Prior | Change |
 |-------|--------|
-| **C02** (optional pin, default off, `top: 0`) | **Superseded** by default dock + scroll-linked top + opt-out pushpin when shipped |
-| **`amiga-time-travel-policy.md` §5.0 placement** | Stamp **below** ribbon when shipped |
-| **`amiga-time-travel-policy.md` §5.1 ribbon placement** | “Below temporal stamp” → **above** stamp |
-| **WP12** (with-player + optional sticky) | Dock default satisfies long-page `as_with=` scrubbing; update cross-ref when shipped |
+| **C02** (optional pin, Jun 2026) | **Retired from code** Jul 2026 baseline — superseded by CD track when shipped |
+| **`amiga-time-travel-policy.md` §5.0 placement** | Add sticky ribbon row; **keep** stamp above ribbon while **in flow** (CD1) |
+| **`amiga-time-travel-policy.md` §5.1 ribbon placement** | Add sticky behaviour note; “below temporal stamp” unchanged while **in flow** |
+| **WP12** (with-player + optional sticky) | Sticky default satisfies long-page `as_with=` scrubbing; update cross-ref when shipped |
 
-Until slice 6 ships, **implemented behaviour remains C02 + stamp-above-ribbon**.
+Until CD track ships, **implemented behaviour** = stamp → ribbon **in flow** only (no pin, no sticky).
 
 ---
 
 ## 11. Open questions (non-blocking)
 
-- **Storage key:** new `k2-amiga-tt-ribbon-docked` vs migrate `k2-amiga-tt-ribbon-pinned` — decide in slice 2.
-- **Mobile:** dock under header may stack ~130px chrome at scroll top — acceptable per product; revisit only if user testing complains.
-- **Reduced motion:** dock snap stays instant; stamp arrival respects `prefers-reduced-motion` (existing).
+- **Storage key:** new sticky-on key vs migrate `k2-amiga-tt-ribbon-pinned` — decide at implement.
+- **Mobile:** **stuck** ribbon at `top: 0` only — acceptable per product; revisit only if user testing complains.
+- **Reduced motion:** **stuck** snap stays instant; stamp arrival respects `prefers-reduced-motion` (existing).
 
 ---
 
@@ -248,4 +249,12 @@ Until slice 6 ships, **implemented behaviour remains C02 + stamp-above-ribbon**.
 
 | Date | Note |
 |------|------|
-| 2026-07-04 | Policy drafted from product discussion — ribbon-first, default scroll-linked dock, pushpin opt-out, nav stability architecture |
+| 2026-07-04 | Policy drafted — ribbon-first, default scroll-linked dock, pushpin opt-out, nav stability architecture |
+| 2026-07-04 | **Revised after revert** — stamp→ribbon in flow (CD1); in flow→stuck latch (CD4); implementation plan deferred |
+| 2026-07-04 | **Terminology locked (§2.4)** — **sticky on/off**, **in flow**, **stuck**; retired *docked*, *pre-sticky*, *pinned* for this track |
+| 2026-07-04 | **Invariants register** — [`amiga-tt-chrome-sticky-invariants.md`](amiga-tt-chrome-sticky-invariants.md) failures F1–F17 + smoke S1–S8 from reverted slice history |
+| 2026-07-04 | Failures register **stripped** to symptoms + tensions only; causes/fixes deferred to slice handoffs |
+| 2026-07-04 | Policy §7 **stripped** — removed cause/architecture tables; symptoms → failures register only |
+| 2026-07-04 | **CD4 simplified** — in-flow site header; ribbon **stuck** at **`top: 0` only**; toggle entry **sticky on** (CD2) |
+| 2026-07-04 | **CD2/CD3** — toggle entry **clears** sticky opt-out; in-lens nav **honours** opt-out |
+| 2026-07-04 | **C02 removed (baseline)** — pin JS/CSS/control deleted; in-flow ribbon only until nav stable |

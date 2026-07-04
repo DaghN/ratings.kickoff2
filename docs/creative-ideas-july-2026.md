@@ -148,7 +148,7 @@ LANDING             Status default                   News tab ◻ (placeholder)
 | **With player stepper filter** | TT Event (`as_with=`), tournament (`id_with=` + `id_country=`), league (`start_with=`) + filter auto-snap | [`with-player-stepper-policy.md`](with-player-stepper-policy.md) §10 |
 | **Highlights: biggest upsets (C15)** | `/amiga/games/highlights.php?board=biggest_upsets` | [`amiga_games_highlights_helpers.php`](../site/public_html/includes/amiga_games_highlights_helpers.php) · underdog-wins only — §6.5 |
 | **On this day last year (C07)** | Status arc panel → Points day league | [`status_queries.php`](../site/public_html/includes/status_queries.php) · §6.3 |
-| **Sticky TT ribbon pin (C02)** | Amiga time-travel ribbon | [`k2-amiga-time-travel-pin.js`](../site/public_html/js/k2-amiga-time-travel-pin.js) · §6.1 |
+| **Sticky TT ribbon pin (C02)** | Amiga time-travel ribbon | **Retired** Jul 2026 — was [`k2-amiga-time-travel-pin.js`](../site/public_html/js/k2-amiga-time-travel-pin.js) · §6.1 |
 | **Chronology video glyph (C06)** | Tournaments catalog + WC chronology — dedicated Videos column before Players | [`amiga_tournament_videos_lib.php`](../site/public_html/includes/amiga_tournament_videos_lib.php) `amiga_tournament_video_column_cell()` · §6.2 |
 | Milestones v0, Time travel, Jukebox, Video embed, Fight poster, Countries/Rivals | (see origin stories) | respective policy docs |
 
@@ -156,21 +156,13 @@ LANDING             Status default                   News tab ◻ (placeholder)
 
 ## 6. Design notes (approved sparks)
 
-### 6.1 Optional sticky time-travel ribbon (C02) — shipped
+### 6.1 Optional sticky time-travel ribbon (C02) — retired Jul 2026
 
-**Status:** **Shipped** Jun 2026. **Evolution:** default scroll-linked dock + ribbon-before-stamp — approved CD track [`amiga-tt-chrome-dock-policy.md`](amiga-tt-chrome-dock-policy.md) (Jul 2026, not yet implemented); supersedes C02 when shipped.
+**Status:** **Shipped** Jun 2026 · **Retired from code** Jul 2026 (baseline phase). Pin JS, pushpin control, and `--pinned` CSS removed. **Future:** CD track [`amiga-tt-chrome-dock-policy.md`](amiga-tt-chrome-dock-policy.md) §2.4 · CD4 (not yet implemented).
 
 **Problem:** TT chevrons at top of page; long profile/tournament scroll loses the navigator. Always-on sticky felt too intrusive.
 
-**Solution:** Pushpin icon at the trailing end of the ribbon bar. **Default unpinned.** When pinned:
-
-- Class `k2-amiga-time-travel--pinned` on the ribbon section
-- **`position: fixed; top: 0`** on **`k2-amiga-time-travel__bar`**; **`z-index: 1390`** on **`.k2-amiga-time-travel--pinned`** (beats header 1300; bar z-index alone cannot escape ancestor 1220); opaque `k2-bg-surface` panel
-- TT stamp and “unwired” note scroll away
-- Preference in **`localStorage`** (`k2-amiga-tt-ribbon-pinned`) until unpinned
-- **`k2-amiga-time-travel-pin.js`** + pin tooltip via `data-k2-help`
-
-**Event wing:** pinned bar may wrap (`flex-wrap`) so wide picker + `as_with` rows stay usable.
+**Historical solution (Jun 2026, code removed Jul 2026):** pushpin at end of ribbon bar; default unpinned; `k2-amiga-time-travel--pinned` + fixed bar when pinned. See git commit `3567037` for the removed implementation.
 
 ### 6.2 Chronology video glyph (C06) — shipped
 
