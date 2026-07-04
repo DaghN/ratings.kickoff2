@@ -10,9 +10,16 @@
  *
  * Normal navigations (no pending restore) are never cloaked and behave exactly as default.
  *
- * Scroll top (y=0): stored scroll is already at top — restore is a no-op. Destination
- * clears the payload and skips cloak + tick (normal full-page load). Sources still store
- * y (realm pills, TT ribbon, pickers); mid-scroll (y>0) keeps full cloak + restore (F6 iter 3).
+ * Scroll top (y=0): stored scroll is already at top — restore is a no-op. On non-TT
+ * destinations the payload is cleared and the page loads normally. On TIME TRAVEL
+ * destinations (?as= in URL) a full-body chrome gate cloak engages instead (F6 iter 3d-c):
+ * the page emits no contentful paint until the sub-ribbon chrome (.k2-hub-chapter) is
+ * parsed, so the browser's paint holding keeps the OLD page on screen — navigation reads
+ * as an in-place update instead of old -> ribbon+void -> new. No scroll ops in this mode.
+ * (Iter 2's narrow cloak failed because the ribbon painted immediately, ending paint
+ * holding at TTFB and exposing the void below for the whole DB block.)
+ * Sources still store y (realm pills, TT ribbon, pickers); mid-scroll (y>0) keeps full
+ * cloak + restore (F6 iter 3).
  *
  * URL hash landing: do not add page-local hash scroll scripts — extend this file instead.
  *
@@ -182,16 +189,23 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 	}
 	var payload = hashId ? null : (backPayload || readPayload());
 
-	/* y=0: scroll restore is a no-op — normal full-page load at top (F6 iter 3). */
+	/* y=0: scroll restore is a no-op. Non-TT destination: normal full-page load at top
+	   (F6 iter 3a). TT destination (?as=): full-body chrome gate until sub-ribbon chrome
+	   is parsed — paint holding keeps the old page visible, so nav updates in place
+	   (F6 iter 3d-c). */
+	var chromeGate = false;
 	if (payload && payload.y === 0 && !hashId) {
 		clearKey();
 		if (backPayload) {
 			clearBackScroll();
 		}
 		payload = null;
+		if (/[?&]as=/.test(window.location.search)) {
+			chromeGate = true;
+		}
 	}
 
-	var hasPending = !!hashId || !!payload;
+	var hasPending = !!hashId || !!payload || chromeGate;
 
 	/* ---------- cloak ---------- */
 
@@ -224,7 +238,9 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 	}
 
 	if (hasPending) {
-		setManualScrollRestoration();
+		if (!chromeGate) {
+			setManualScrollRestoration();
+		}
 		cloak();
 		if (payload) {
 			clearKey();
@@ -415,6 +431,12 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 		scheduleReassert(function () { scrollToHashTarget(); });
 	}
 
+	/* Chrome gate (TT y=0): sub-ribbon chrome parsed — hub pages emit .k2-hub-chapter
+	   right after the blocking queries; non-hub TT pages fall back to domReady. */
+	function chromeGateReady() {
+		return !!(document.body && document.querySelector('.k2-hub-chapter'));
+	}
+
 	function tick() {
 		try {
 			var domReady = document.readyState !== 'loading';
@@ -426,6 +448,11 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 				/* Full DOM parsed and target still absent — nothing to land on. */
 				if (domReady) {
 					clearPendingHash();
+					reveal();
+					return;
+				}
+			} else if (chromeGate) {
+				if (chromeGateReady() || domReady) {
 					reveal();
 					return;
 				}

@@ -105,14 +105,12 @@ function amiga_rating_history_baseline_rating_before_tournament(mysqli $con, arr
         return [];
     }
 
-    $ladder = amiga_rating_history_ladder_at_cutoff(
+    return amiga_rating_history_rating_map_at_cutoff(
         $con,
         $prev['event_date'],
         $prev['chrono'],
         $prev['id']
     );
-
-    return amiga_rating_history_ladder_rating_map($ladder);
 }
 
 /**
@@ -502,6 +500,53 @@ function amiga_rating_history_ladder_at_cutoff(
     $stmt->close();
 
     return $rows;
+}
+
+/**
+ * player_id => rating_after at cutoff — narrow window scan, no players join.
+ *
+ * Delta-map fast path (F6 Phase 0): same rows as
+ * {@see amiga_rating_history_ladder_at_cutoff()} rating map without
+ * materializing name/country/rank.
+ *
+ * @return array<int, float>
+ */
+function amiga_rating_history_rating_map_at_cutoff(
+    mysqli $con,
+    ?string $cutoffEventDate,
+    ?float $cutoffChrono,
+    ?int $cutoffTournamentId
+): array {
+    if ($cutoffEventDate === null || $cutoffChrono === null || $cutoffTournamentId === null) {
+        return [];
+    }
+
+    $sql = 'SELECT player_id, rating_after FROM ('
+        . 'SELECT s.player_id, s.rating_after, '
+        . 'ROW_NUMBER() OVER ('
+        . 'PARTITION BY s.player_id '
+        . 'ORDER BY s.event_date DESC, s.event_chrono DESC, s.tournament_id DESC'
+        . ') AS rn '
+        . 'FROM amiga_player_event_snapshots s '
+        . 'WHERE s.rating_after IS NOT NULL '
+        . 'AND (s.event_date, s.event_chrono, s.tournament_id) <= (?, ?, ?)'
+        . ') ranked WHERE rn = 1';
+
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        throw new RuntimeException('Failed to prepare historical rating map query.');
+    }
+    $stmt->bind_param('sdi', $cutoffEventDate, $cutoffChrono, $cutoffTournamentId);
+    $stmt->execute();
+    $res = $stmt->get_result();
+
+    $map = [];
+    while ($row = $res->fetch_assoc()) {
+        $map[(int) $row['player_id']] = (float) $row['rating_after'];
+    }
+    $stmt->close();
+
+    return $map;
 }
 
 /**

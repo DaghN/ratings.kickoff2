@@ -249,6 +249,8 @@ Rating LB uses one primary snapshot query — usually **faster** than Countries�
 | 2026-07-04 | **Iter 3b reverted** — PHP flush failed F6 smokes; present LB slower feel; deleted flush helpers |
 | 2026-07-04 | **F6 rating LB handoff** — iter 3d+ audit-first, flawless nav bar — [`2026-07-04-003`](docs/orchestration/agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md) |
 | 2026-07-04 | **Iter 3b hotfix** — `k2_page_stream_flush()` used `ob_flush()` in while loop (infinite hang); fixed to `ob_end_flush()` |
+| 2026-07-04 | **F6 Phase 0 audit** — 174-col `snap.*` window scan = root cost (500–2,000 ms; narrow+join-back ~50 ms, parity OK); Δ map duplicate ladder scan; double games count; classification matrix — § F6 Phase 0 |
+| 2026-07-04 | **Iter 3d-b shipped** — narrow snapshot join + slim Δ map + games-count cache; TT block ~165–230 ms (was 710–906); parity probes green; browser S1 sign-off pending — § Attempt 4 |
 
 ---
 
@@ -406,3 +408,93 @@ Roster query fix does **not** cover rivals H2H — panel sequential total **2.2�
 | Charts after paint | **Type C** | API-loaded chart shells only |
 
 **Next slice:** query dedupe in panel, then PHP flush after hub nav (3b); optional carry gate on `.k2-country-hero` (3d).
+
+---
+
+## F6 Phase 0 — Rating LB TT query audit (2026-07-04)
+
+**Probes:** `scripts/oneoff/amiga_rating_lb_tt_audit_probe.php` (per-phase timings) · `scripts/oneoff/amiga_rating_lb_sql_variant_probe.php` (wide vs narrow window scan, with parity check). Local `ko2amiga_db`.
+
+### Root cause found — 174-column window scan
+
+`amiga_player_event_snapshots` has **174 columns**. `amiga_lb_snapshot_from_sql()` runs `ROW_NUMBER()` over **`snap.*`** — MariaDB materializes the whole wide table (4,535 rows × 174 cols, incl. long text-ish cols) into a temp table before filtering `rn = 1`. That one shape costs **500–2,000 ms**. A **narrow window scan** (`player_id`, `tournament_id` + tuple only) followed by a **join back** to the wide row via PRIMARY key returns byte-identical rows in **~45–70 ms** (10–30×):
+
+| Cutoff | A — wide `snap.*` (today) | B — narrow + join-back | Parity |
+|--------|---------------------------|------------------------|--------|
+| `month:2014-07` | 2,020 / 1,522 ms | **69 / 45 ms** | OK |
+| `event:589` | 607 / 576 ms | **44 / 48 ms** | OK |
+| `month:2025-09` | 718 / 739 ms | **69 / 54 ms** | OK |
+
+`amiga_lb_snapshot_from_sql()` is shared by **all LB wings, Countries, histograms, realm snapshot reads** — one fix, whole TT read family.
+
+### Per-phase timings — rating.php blocking segment (hub nav → wing nav)
+
+Everything below runs **between** hub nav emit and hub chapter / wing tabs emit (PHP page order step 4):
+
+| Scenario | ctx build (header) | career query | games count | Δ map | lede games count | lede tourn. count | **block total** |
+|----------|-------------------|--------------|-------------|-------|------------------|-------------------|-----------------|
+| present | 1 ms | 71 ms | 27 ms | **183 ms** (WC-start) | 21 ms | 3 ms | **~304 ms** |
+| `month:2014-07` | 21 ms | **650 ms** | 48 ms | 176 ms | 29 ms | 4 ms | **~906 ms** |
+| `event:22` *(= Athens XCI 2025 — actually **late**)* | 23 ms | 516 ms | 33 ms | 178 ms | 33 ms | 2 ms | ~762 ms |
+| `event:589` | 24 ms | 503 ms | 29 ms | 209 ms | 40 ms | 3 ms | ~783 ms |
+| `month:2025-09` | 25 ms | 542 ms | 32 ms | 168 ms | 34 ms | 2 ms | ~779 ms |
+| `year:2014` | 15 ms | 463 ms | 29 ms | 177 ms | 39 ms | 2 ms | ~710 ms |
+| `month:2002-06` (true early, 67 rows) | — | 324 ms | — | — | — | — | — |
+
+Curl full page: TTFB **~50–90 ms** (header + ribbon emit immediately), total **1.2–1.75 s** TT vs 0.7 s present. The gap between TTFB and hub-chapter bytes **is** the F6 void.
+
+Waste stacked on top of the slow scan:
+
+1. **Δ map duplicates the career scan** — `amiga_lb_rating_delta_map()` → `resolve_view` re-fetches the **current ladder** (~70–115 ms) that the career query just produced, plus prev ladder (~70–115 ms) + event participants (~1 ms).
+2. **Games count runs twice** — rating.php footer + hub chapter lede recompute the same count (~30 ms × 2).
+3. **Lede opens a 3rd DB connection** (chrome had one, page has one) — ~5 ms.
+4. Event-wing chrome eligible-players list ~11 ms (once, static-cached).
+
+**No wing asymmetry left** in the header (month catalog fixed earlier, ctx build 15–25 ms all wings). Remaining cost is cutoff-scaled (wide scan reads all rows ≤ cutoff), so late cutoffs are worst — matching Dagh's repro. **Note:** `event:22` in the handoff test set is Athens XCI (2025-04-05) — a *late* cutoff despite the low id (fractional-chrono import); use `month:2002-06` or similar for a genuine early cell.
+
+### Classification matrix (rating LB, code-backed)
+
+| Matrix cell | Type | Mechanism |
+|-------------|------|-----------|
+| TT `y=0`, ribbon chevron / wing tab / picker / hub bar | **B** | Ribbon streams at ~60 ms TTFB; hub chapter blocked ~700–900 ms behind queries → old → void-below-ribbon → new |
+| TT `y>0`, same-page ribbon nav | **A→(B)** | Full carry cloak; `carryReady()` needs `scrollHeight ≥ Y` which the block delays → **700 ms timeout** fires while block still running → reveal + `scrollTo(Y)` onto short document → empty band below ribbon |
+| TT `y>0`, hub hop (Countries F18) | **A** | Same timeout race on a destination that blocks after hub nav (~137 ms post-fix, was ~515 ms) |
+| Table swap after chrome painted | **C** | `$k2RankedCloak` — allowed by success bar |
+| Present `y=0` | mild **B** | ~304 ms block — **183 ms is the present WC-start Δ map**; usually under perception threshold but explains "present feels slower" sensitivity in 3b test |
+| Early vs late cutoff | scales B and the A-timeout race | Block ~400 ms (2002) → ~900 ms (2014-07) → ~800 ms (late) |
+
+**Key insight:** both the y=0 void (Type B) and the y>0 "whole page blank" (Type A reveal race) share the same clock — the ~700–900 ms blocking segment vs the 700 ms `MAX_CLOAK_MS`. Shrink the block under ~150–200 ms and both symptoms collapse without touching carry-scroll.
+
+---
+
+## Attempt 4 — iter 3d-b query slices (2026-07-04, shipped)
+
+| | |
+|--|--|
+| **Hypothesis** | F6/F18 clock is the DB block between hub nav and hub chapter; fix the query shapes, not the chrome. |
+| **Changes** | **b1:** `amiga_lb_snapshot_from_sql()` narrow window scan (`player_id`+`tournament_id`) + PRIMARY-key join-back to wide row. **b2:** `amiga_lb_rating_delta_map()` slim — narrow `amiga_rating_history_rating_map_at_cutoff()` at current + prev wing cutoff (unfiltered catalog position, as_with-safe) + participants; no full `resolve_view` ladder; present WC-start baseline uses the same narrow map. **b3:** `amiga_lb_games_count()` request-scoped static cache (footer + lede shared). |
+| **Parity** | SQL variant probe 3 cutoffs OK · delta map old-vs-new 7 scenarios (all wings, early+late, incl. `year:2001` no-prev) OK · Countries index parity probe OK · curl sweep rating/goals/peak/countries/roster/HoF TT — 200, no PHP errors. |
+| **Result (local)** | Blocking segment: present ~304 → **~131 ms**; TT ~710–906 → **~165–230 ms** (career query 503–650 → **34–49 ms**). Curl total rating TT 1.2–1.75 s → **~0.6–0.7 s** (≈ present). All well under the 700 ms cloak timeout. |
+| **Worked?** | Timings yes — **browser S1/S1b matrix = Dagh sign-off pending.** |
+| **Left on the block** | Δ map ~100–140 ms (two narrow window scans) — next candidate if browser feel still short of flawless. |
+| **Follow-up (out of scope)** | **Peak-rating wing** own query still **~3.3 s** at TT cutoff — `amiga_player_elo_rank_at_event` window subquery needs the same narrow+join-back treatment when wings roll out. |
+
+---
+
+## Attempt 5 — iter 3d-c y=0 chrome gate (2026-07-04, shipped)
+
+**Dagh feedback after Attempt 4:** y>0 fixed ("only the table waits"), but **y=0 still vanishes below the ribbon on every TT nav — near-insta on click, not a 0.7 s wait — and it is realm-wide, not LB-specific.**
+
+| | |
+|--|--|
+| **Corrected mechanism** | The y=0 vanish is **not** the cloak and not (only) slow PHP. With no cloak at y=0 (iter 3a), the browser **commits the navigation at TTFB (~60 ms)** and progressively renders: header+ribbon paint immediately, which **ends Chrome's paint holding** — the old page is discarded the instant the ribbon paints, leaving a void below until the chapter bytes arrive. Even a ~200 ms block reads as old → *(instant)* → ribbon+void → new. That is the "near-insta-vanish on click". Iter 2's narrow cloak failed the same way: it *let the ribbon paint*, which is precisely what kills paint holding. |
+| **Change** | `k2_carry_scroll_restore.php`: at `payload.y === 0` on a **TT destination** (`[?&]as=` in `location.search`), engage the **full-body cloak** as a chrome gate instead of skipping. No contentful paint → **Chrome paint holding keeps the OLD page on screen** through the block. Reveal when `.k2-hub-chapter` is parsed (hub pages emit it right after the blocking queries) or `domReady` fallback (non-hub TT pages), 700 ms timeout + load/setTimeout safety nets unchanged. No scroll ops, no `scrollRestoration` flip in this mode. Non-TT y=0 destinations unchanged (normal load). |
+| **Why it needs Attempt 4 first** | Paint holding lasts ~500 ms; the gate only reads as in-place if the chapter arrives inside that window — true now the block is ~165–230 ms, impossible at the old 700–900 ms. |
+| **Coverage** | All carry-scroll sources at y=0: hub tabs, wing tabs, realm pills, ribbon chevrons, pickers (form change). Direct URL loads / header search have no payload → stream as before. |
+| **Verified** | Browser (IDE): rating LB TT `month:2014-07` at y=0 → Goals wing tab: destination revealed, cloak class removed, payload consumed, y=0. Curl sweep 200s. **Visual in-place feel = Dagh sign-off pending.** |
+
+---
+
+## World Cups hub — TT read fix (2026-07-04, same session)
+
+Not an F6 chrome attempt but same clock family. All `/amiga/world-cups/*` pages multi-second in TT (`event:583` chronology ~5 s). **Cause:** `amiga_world_cup_stats_apply_share_of_year_games()` → `amiga_community_year_realm_games_at_cutoff()` — `amiga_community_stat_facts` has **446k rows** and only `tournament_id`-first indexes, so the latest-fact-per-year subquery (`tournament_id <= cutoff` + metric filters) full-scanned: **2,581 ms** at `event:583`. Fix: new index `idx_community_facts_metric_period` (`period_type, slice_type, slice_key, metric_key, count_basis, period_key, tournament_id`) → **48 ms** (54×); DDL in `scripts/amiga/sql/034_community_stats.sql` + `sql/derived/` mirror (staging picks it up on next export). Plus request cache on `amiga_world_cup_stats_rows()` (hub shell chapter count + page body each ran it, separate connections). Curl `event:583`: chronology 5+ s → **~0.5 s**; players/stats/countries wings 0.4–0.8 s.

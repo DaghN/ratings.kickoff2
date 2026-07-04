@@ -58,11 +58,35 @@ function amiga_world_cup_stats_apply_share_of_year_games(mysqli $con, array &$ro
 /**
  * Rows from amiga_world_cup_stats, filtered at snapshot cutoff when active.
  *
+ * Request-scoped cache keyed by cutoff tuple: hub shell (chapter counts) and page
+ * body both need these rows and use separate connections — compute once per request.
+ *
  * @return list<array<string, mixed>>
  */
 function amiga_world_cup_stats_rows(mysqli $con, ?AmigaSnapshotContext $ctx = null): array
 {
+    static $cache = [];
+
     $ctx ??= amiga_snapshot_context_peek();
+    $cacheKey = 'present';
+    if ($ctx instanceof AmigaSnapshotContext && $ctx->isActive()) {
+        $cutoffKey = $ctx->cutoff();
+        if ($cutoffKey !== null) {
+            $cacheKey = $cutoffKey['event_date'] . '|' . $cutoffKey['chrono'] . '|' . $cutoffKey['tournament_id'];
+        }
+    }
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
+    return $cache[$cacheKey] = amiga_world_cup_stats_rows_uncached($con, $ctx);
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function amiga_world_cup_stats_rows_uncached(mysqli $con, ?AmigaSnapshotContext $ctx): array
+{
     $types = '';
     $params = [];
     $cutoffSql = '';

@@ -12,12 +12,17 @@ require_once __DIR__ . '/amiga_lb_lib.php';
 
 /**
  * FROM + JOIN latest snapshot row per player on or before cutoff (alias ``s``).
+ *
+ * Window scan is narrow (id + chrono tuple only), then joins back to the wide
+ * snapshot row by PRIMARY KEY. ROW_NUMBER over ``snap.*`` materialized all 174
+ * snapshot columns into a temp table (~0.5–2 s); this shape is ~50 ms with
+ * byte-identical rows (F6 Phase 0 audit, 2026-07-04).
  */
 function amiga_lb_snapshot_from_sql(string $alias = 's'): string
 {
     return "FROM amiga_players p\nINNER JOIN (\n"
-        . "    SELECT x.* FROM (\n"
-        . "        SELECT snap.*,\n"
+        . "    SELECT x.player_id, x.tournament_id FROM (\n"
+        . "        SELECT snap.player_id, snap.tournament_id,\n"
         . "            ROW_NUMBER() OVER (\n"
         . "                PARTITION BY snap.player_id\n"
         . "                ORDER BY snap.event_date DESC, snap.event_chrono DESC, snap.tournament_id DESC\n"
@@ -26,7 +31,9 @@ function amiga_lb_snapshot_from_sql(string $alias = 's'): string
         . "        WHERE (snap.event_date, snap.event_chrono, snap.tournament_id) <= (?, ?, ?)\n"
         . "    ) x\n"
         . "    WHERE x.rn = 1\n"
-        . ") {$alias} ON {$alias}.player_id = p.id";
+        . ") {$alias}_latest ON {$alias}_latest.player_id = p.id\n"
+        . "INNER JOIN amiga_player_event_snapshots {$alias}\n"
+        . "    ON {$alias}.player_id = {$alias}_latest.player_id AND {$alias}.tournament_id = {$alias}_latest.tournament_id";
 }
 
 /**
@@ -75,6 +82,22 @@ function amiga_lb_query_career(
 }
 
 function amiga_lb_games_count(mysqli $con, AmigaSnapshotContext $ctx): int
+{
+    /* Request-scoped cache — rating.php footer and the hub chapter lede both
+       need this count (F6 Phase 0: was computed twice per request). */
+    static $cache = [];
+    $cutoffForKey = $ctx->isActive() ? $ctx->cutoff() : null;
+    $cacheKey = $cutoffForKey === null
+        ? 'present'
+        : $cutoffForKey['event_date'] . '|' . $cutoffForKey['chrono'] . '|' . $cutoffForKey['tournament_id'];
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
+    return $cache[$cacheKey] = amiga_lb_games_count_uncached($con, $ctx);
+}
+
+function amiga_lb_games_count_uncached(mysqli $con, AmigaSnapshotContext $ctx): int
 {
     if (!$ctx->isActive()) {
         $gcRes = mysqli_query($con, 'SELECT COUNT(*) AS n FROM amiga_games');
@@ -626,6 +649,10 @@ function amiga_lb_rating_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx):
 /**
  * Wing-step Elo change vs previous snapshot in the active wing (time travel rating LB).
  *
+ * Slim path (F6 Phase 0): narrow rating maps at current + previous cutoff, same
+ * delta rules as amiga_rating_history_ladder_with_deltas() — no full ladder
+ * resolve (name/country/rank) on the LB hot path.
+ *
  * @return array<int, float> player_id => rating_delta
  */
 function amiga_lb_rating_delta_map(mysqli $con, AmigaSnapshotContext $ctx): array
@@ -636,10 +663,54 @@ function amiga_lb_rating_delta_map(mysqli $con, AmigaSnapshotContext $ctx): arra
 
     require_once __DIR__ . '/amiga_rating_history_lib.php';
 
-    $view = amiga_rating_history_resolve_from_context($con, $ctx);
+    $entry = $ctx->entry();
+    $cutoff = $ctx->cutoff();
+    if ($entry === null || $cutoff === null) {
+        return [];
+    }
+
+    $currentRatingByPlayer = amiga_rating_history_rating_map_at_cutoff(
+        $con,
+        $cutoff['event_date'],
+        $cutoff['chrono'],
+        $cutoff['tournament_id']
+    );
+    if ($currentRatingByPlayer === []) {
+        return [];
+    }
+
+    /* Previous wing step from the UNFILTERED catalog — ctx prevKey() may be
+       participation-filtered under as_with, but Δ semantics are wing-step only. */
+    $position = amiga_rating_history_catalog_position($ctx->catalog(), $ctx->key());
+    $prevKey = $position['prev_key'];
+    $hasPrevWingSnapshot = $prevKey !== null && $prevKey !== '';
+    $prevRatingByPlayer = [];
+    if ($hasPrevWingSnapshot) {
+        $prevEntry = amiga_rating_history_catalog_entry_by_key($ctx->catalog(), $prevKey);
+        if ($prevEntry !== null && $prevEntry['cutoff_tournament_id'] !== null) {
+            $prevRatingByPlayer = amiga_rating_history_rating_map_at_cutoff(
+                $con,
+                (string) $prevEntry['cutoff_event_date'],
+                (float) $prevEntry['cutoff_chrono'],
+                (int) $prevEntry['cutoff_tournament_id']
+            );
+        }
+    }
+
+    $eventParticipantIds = null;
+    if ($ctx->wing() === 'event') {
+        $eventParticipantIds = amiga_rating_history_event_participant_ids($con, $cutoff['tournament_id']);
+    }
+
     $map = [];
-    foreach ($view['ladder'] as $row) {
-        $map[(int) $row['player_id']] = (float) $row['rating_delta'];
+    foreach ($currentRatingByPlayer as $playerId => $ratingAfter) {
+        $map[$playerId] = amiga_rating_history_compute_rating_delta(
+            $playerId,
+            $ratingAfter,
+            $hasPrevWingSnapshot,
+            $prevRatingByPlayer,
+            $eventParticipantIds
+        );
     }
 
     return $map;

@@ -76,6 +76,17 @@ CREATE TABLE IF NOT EXISTS `amiga_community_stat_facts` (
     `slice_type`,
     `slice_key`
   ),
+  -- Metric-first lookup for latest-fact-at-cutoff reads (share_of_year_games):
+  -- range scan per period_key with tournament_id <= cutoff, no full-table scan.
+  KEY `idx_community_facts_metric_period` (
+    `period_type`,
+    `slice_type`,
+    `slice_key`,
+    `metric_key`,
+    `count_basis`,
+    `period_key`,
+    `tournament_id`
+  ),
   CONSTRAINT `fk_community_stat_facts_tournament`
     FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
