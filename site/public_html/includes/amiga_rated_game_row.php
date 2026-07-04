@@ -239,6 +239,7 @@ function amiga_rated_game_highlights_row_html(array $row, array $options = []): 
         . '<td class="' . k2_games_highlights_col_classes('rank') . '"></td>'
         . '<td class="' . k2_games_highlights_col_classes('id', 'k2-games-highlights-table__id') . '" data-k2-sort-value="' . $gameId . '">' . amiga_rated_game_id_html($gameId, $idMode) . '</td>'
         . '<td class="' . k2_games_highlights_col_classes('date', 'k2-table-cell--left k2-table-cell--pad-left-xs k2-amiga-player-games-date') . '" data-k2-sort-value="' . $dateSortValue . '">' . amiga_player_game_date_html((string) $game['Date']) . '</td>'
+        . '<td class="' . k2_games_highlights_col_classes('tournament', 'k2-table-cell--left k2-amiga-tgame-team') . '">' . amiga_rated_game_tournament_cell($row) . '</td>'
         . '<td class="' . k2_games_highlights_col_classes('team-a', $teamAClass) . '">' . $teamA . '</td>'
         . '<td class="' . k2_games_highlights_col_classes('goals-a') . '" data-k2-sort-value="' . $goalsA . '">' . $goalsACell . '</td>'
         . '<td class="' . k2_games_highlights_col_classes('goals-b', 'k2-table-cell--left') . '" data-k2-sort-value="' . $goalsB . '">' . $goalsBCell . '</td>'

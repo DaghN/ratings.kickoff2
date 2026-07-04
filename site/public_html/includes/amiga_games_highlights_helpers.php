@@ -20,36 +20,39 @@ const AMIGA_GAMES_HIGHLIGHTS_ANCHOR = 'k2-amiga-games-highlights';
 
 /** @var array<string, array{label: string, heading: string, default_sort_key: string, default_sort_col: int, help?: string}> */
 const AMIGA_GAMES_HIGHLIGHT_BOARDS = [
+    // default_sort_col is the 0-based column index in the fixed full layout:
+    // 0 # · 1 ID · 2 Date · 3 Tournament · 4 Player A · 5 A · 6 B · 7 Player B · 8 GD · 9 Sum · 10 TS ·
+    // 11 Rating A · 12 Rating B · 13 Elo Diff · 14 Fav ES · 15 Adjustment · 16 Adjustment lost.
     'most_goals' => [
         'label' => 'Most goals',
         'heading' => 'Most total goals',
         'default_sort_key' => 'sum',
-        'default_sort_col' => 8,
+        'default_sort_col' => 9,
     ],
     'biggest_draws' => [
         'label' => 'Biggest draws',
         'heading' => 'Biggest draws',
         'default_sort_key' => 'sum',
-        'default_sort_col' => 8,
+        'default_sort_col' => 9,
     ],
     'biggest_wins' => [
         'label' => 'Biggest wins',
         'heading' => 'Biggest wins',
         'default_sort_key' => 'gd',
-        'default_sort_col' => 7,
+        'default_sort_col' => 8,
     ],
     'top_score' => [
         'label' => 'Top scores',
         'heading' => 'Top score',
         'default_sort_key' => 'top_score',
-        'default_sort_col' => 9,
+        'default_sort_col' => 10,
         'help' => 'The highest goals one player scored in a single game — e.g. 10 in a 10–2.',
     ],
     'biggest_upsets' => [
         'label' => 'Biggest upsets',
         'heading' => 'Biggest upsets',
         'default_sort_key' => 'adjustment',
-        'default_sort_col' => 14,
+        'default_sort_col' => 15,
         'help' => 'The biggest rating gaps overcome by the underdog.',
     ],
 ];
@@ -327,6 +330,7 @@ function amiga_games_render_highlights_table(array $rows, string $board, string 
 		<th class="<?php echo k2_games_highlights_col_classes('rank'); ?>" data-k2-sort="number" data-k2-help="Rank in this board. Equal scores tie-break to lower game ID.">#</th>
 		<th class="<?php echo k2_games_highlights_col_classes('id'); ?>" data-k2-sort="number" data-k2-help="Rated game ID. Opens the single-game detail page.">ID</th>
 		<th class="<?php echo k2_games_highlights_col_classes('date', 'k2-table-cell--left k2-table-cell--pad-left-xs'); ?>" data-k2-sort="number">Date</th>
+		<th class="<?php echo k2_games_highlights_col_classes('tournament', 'k2-table-cell--left'); ?>" data-k2-sort="text" data-k2-help="Official KOA tournament that hosted this game.">Tournament</th>
 		<th class="<?php echo k2_games_highlights_col_classes('team-a', 'k2-table-cell--right'); ?>" data-k2-sort="text" data-k2-help="Player listed as Team A in the result row.">Player A</th>
 		<th class="<?php echo k2_games_highlights_col_classes('goals-a'); ?>" data-k2-sort="number" data-k2-tooltip-label="Goals A" data-k2-help="Goals scored by Team A.">A</th>
 		<th class="<?php echo k2_games_highlights_col_classes('goals-b', 'k2-table-cell--left'); ?>" data-k2-sort="number" data-k2-tooltip-label="Goals B" data-k2-help="Goals scored by Team B.">B</th>
@@ -345,7 +349,7 @@ function amiga_games_render_highlights_table(array $rows, string $board, string 
 <tbody class="black">
 <?php if ($rows === []) { ?>
 	<tr>
-		<td colspan="16" class="k2-games-day__empty k2-table-cell--left"><?php echo amiga_realm_games_all_h($emptyMessage); ?></td>
+		<td colspan="17" class="k2-games-day__empty k2-table-cell--left"><?php echo amiga_realm_games_all_h($emptyMessage); ?></td>
 	</tr>
 <?php } else { ?>
 <?php foreach ($rows as $row) { ?>
