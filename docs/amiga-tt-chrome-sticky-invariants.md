@@ -240,6 +240,16 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Reported** | 2026-07-04 — slice 0 feedback (Dagh); may share F6 carry-cloak timing |
 | **Note** | Scroll-top **narrow cloak** (`k2-carry-cloak-top`) keeps stamp visible while waiting; wing-tab entry (`k2_tt_entry=wing`) still intentionally fades LED |
 
+### F20 — TT country flag / roster link — header flash before hero (y ≠ 0)
+
+| | |
+|--|--|
+| **What you see** | In TT, mid-scroll (`y > 0`), clicking a **country flag** or roster link (e.g. from Countries index or LB flag column) often **flashes the site header** (or header + hub bar only) before the country roster hero/table appear. Present-day same link feels instant. Worse at **late cutoffs** (e.g. `as=month:2025-09`). |
+| **Try to reproduce** | Countries or rating LB with `?as=month:{late}` — scroll mid-page → click Greece flag → `/amiga/country/roster.php?country=Greece&as=…#k2-country-roster`. Compare Present (no `as=`). Also after hub-pill carry at `y > 0`. |
+| **Touchpoints** | `amiga_country_page.php` (query block after hub nav), `k2_carry_scroll_restore.php` (hash `#k2-country-roster` cloak + 700 ms reveal; optional carried `y > 0`), `k2_amiga_country_roster_href()` hash anchor, `amiga_countries_player_rows()` global fetch |
+| **Reported** | 2026-07-04 — Dagh; same overfetch class as pre-fix Countries index (audit: roster still loads **all** rated players + global elo attach for **one** country) |
+| **Note** | Flag links always append `#k2-country-roster` → hash landing engages body cloak even when scroll carry payload was cleared. Slow roster TT query lengthens header-only void. |
+
 ---
 
 ## Reproduction recipes (smoke)
@@ -260,6 +270,7 @@ Minimum manual pass after touching § Integration touchpoints. Maps to failures 
 | **S9** | Countries `?as=event:{late}` vs Present — hub bar view switch | F18 |
 | **S9b** | Countries early vs late `as=` — same hub bar nav | F18 cutoff sensitivity |
 | **S10** | WC chronology `?as=event:585` — hub tab vs Present | F18 |
+| **S11** | Countries or LB TT mid-scroll → country flag → roster `#k2-country-roster` | F20 |
 
 **Local base URL:** `http://ratingskickoff.test/amiga/leaderboards/rating.php?as=event:589` (adjust event id).
 
@@ -297,3 +308,4 @@ When a failure is **solved and verified**, add one line under the row: **Resolve
 | 2026-07-04 | **F6 attempt log** — informal iter 0–3 notebook — [`tt-chrome-baseline-f6-attempt-log.md`](orchestration/tt-chrome-baseline-f6-attempt-log.md) |
 | 2026-07-04 | **Iter 3a result logged** — Type A/B/C blank framework; Countries + PHP stream order — [`tt-chrome-baseline-f6-attempt-log.md`](orchestration/tt-chrome-baseline-f6-attempt-log.md) |
 | 2026-07-04 | Baseline: removed pin touchpoint row; sticky-only tensions marked deferred |
+| 2026-07-04 | **F20 added** — TT flag/roster link header flash (y≠0, hash anchor); smoke S11; roster query audit in attempt log |

@@ -306,3 +306,62 @@ That runs in **`site_header` before hub nav or page body** — explains month wi
 
 - **Countries hub** — snappy in browser after index SQL path.
 - **Month wing** — no longer exhibits abnormal TT nav behavior (header catalog no longer blocks).
+
+---
+
+## Country roster audit — `amiga/country/roster.php` (2026-07-04)
+
+**Probe:** `scripts/oneoff/amiga_country_roster_audit_probe.php` · example: `?country=Greece&as=month:2025-09`
+
+### Page load order
+
+```
+1. <head> + carry-scroll (hash #k2-country-roster and/or y>0 → body cloak)
+2. site_header → TT snapshot chrome (catalog + ribbon DB)
+3. amiga_hub_nav.php
+4. ── BLOCK ── amiga_country_page.php queries (lines 79–87)
+5. #k2-country-roster anchor + hero + roster table
+```
+
+**`#k2-country-roster` anchor is emitted only after step 4** — hash landing / cloak reveal can show header + hub bar while step 4 runs.
+
+### What step 4 does today (`amiga_country_page.php`)
+
+```82:87:site/public_html/includes/amiga_country_page.php
+$playerRows = amiga_countries_player_rows($con, $ctx);
+$indexRows = amiga_countries_index_rows($playerRows);
+$summaryRow = amiga_countries_index_row_for_token($indexRows, $countryToken);
+$rosterRows = $k2AmigaCountryView === 'roster'
+    ? amiga_countries_roster_rows($playerRows, $countryToken)
+    : [];
+```
+
+| Step | Work | Needed for Greece roster? |
+|------|------|---------------------------|
+| `player_rows` | **All** rated players at cutoff + snapshot join + WC slice + **global** `elo_attach` | **No** — only ~36 Greek players |
+| `index_rows` | PHP roll-up **all countries** | **No** — hero needs **one** country summary row |
+| `roster_rows` | PHP filter one token | Yes — but should be SQL `WHERE country = ?` |
+
+**Same anti-pattern as pre-fix Countries index** — roster path was never split after index SQL slice.
+
+### Timings (local `ko2amiga_db`, Greece)
+
+| `as=` | `player_rows` (all) | Greece roster rows | Greece-only SQL count (sanity) |
+|-------|---------------------|--------------------|--------------------------------|
+| Present | **~25 ms** | 36 | **~2 ms** |
+| `month:2002-01` (early) | **~205 ms** | 6 | **~77 ms** |
+| `month:2025-09` (late) | **~845 ms** | 36 | **~210 ms** |
+| `event:589` (late) | **~968 ms** | 35 | **~267 ms** |
+
+Late TT cutoffs scan more snapshot / elo history → cost grows even though **displayed roster size is unchanged (~35 players)**.
+
+### F20 — two coupled causes
+
+1. **Overfetch (primary slowness):** step 4 global player + elo pipeline (~0.8–1 s late TT).
+2. **Hash + carry chrome (header flash):** flag links use `k2_amiga_country_roster_href()` → `#k2-country-roster` → `k2_carry_scroll_restore.php` hash cloak; if user arrived with `y > 0` from prior hub/ribbon carry, same Type A void. PHP streams header + hub nav before step 4 → user sees header-only gap.
+
+### Likely fix slice (not implemented)
+
+1. `amiga_countries_query_roster_rows($con, $ctx, $countryToken)` — SQL filtered + elo attach **for roster player ids only**
+2. Hero summary: one row from `amiga_countries_query_index_rows` filtered by token, or single-country aggregate
+3. Optional: F20 chrome — flush hero shell before query, or hash scroll after content (separate from query perf)
