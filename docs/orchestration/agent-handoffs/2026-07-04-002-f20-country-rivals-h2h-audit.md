@@ -105,8 +105,8 @@ Roster-path overfetch is fixed; **rivals path is a separate debt class** (matchu
 ### Recommended next slice (priority)
 
 1. **Query dedupe (first)** — single `rivals_rows` pass in panel; index row / summary for rival player count; memoize pair game rows for moments (chart APIs stay async).
-2. **PHP `flush()` after hub nav (3b)** — emit hero + country/rivals nav shell before heavy rivals queries; fixes Type B at `y=0` without touching carry-scroll.
-3. **Carry reveal gate (3d, optional)** — on country entity pages, defer reveal until `.k2-country-hero` exists when `y > 0`.
+2. ~~**PHP `flush()` after hub nav (3b)**~~ — **Failed/reverted**; query speed + y=0 chrome gate (3d) instead.
+3. **Carry reveal gate (3d-c)** — TT y=0 chrome gate shipped in `k2_carry_scroll_restore.php`.
 4. **Hash (optional)** — omit roster anchor on non-roster views, or defer hash scroll until hero parsed.
 
 **Do not** remove realm/hub carry-scroll.

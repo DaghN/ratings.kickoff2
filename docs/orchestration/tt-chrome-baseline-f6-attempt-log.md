@@ -124,10 +124,11 @@ Iter 3a fixed non-TT / realm as predicted. **TT blanking is not one bug** — it
 | Type | When | Mechanism | What user sees |
 |------|------|-----------|----------------|
 | **A — Carry cloak** | TT (and any carry nav) when **`y > 0`** stored | `html.k2-carry-cloak body { visibility: hidden }` in `k2_carry_scroll_restore.php` until reveal (~700ms or `carryReady`) | **Whole viewport** empty (theme fill) — includes header, ribbon, hub nav — then content appears (often at carried scroll Y) |
-| **B — PHP streaming gap** | **`y = 0`** (iter 3a: no carry cloak) + TT pages | Server emits HTML **top-down**, then **blocks on DB** before hub chapter / table. No `flush()` on normal Amiga pages. | **Ribbon stable** (+ hub tabs if already sent); **everything below** empty until query finishes — old → gap → new |
-| **C — Table-only** | Pages with `$k2RankedCloak` | `ranked-table-pending` hides table until `k2-table.js` | **Only table** vanishes; chrome stays — “mostly good” mid-scroll |
+| **B — PHP streaming gap** | **`y = 0`** non-TT, or TT **before 3d-c** | Server emits ribbon at TTFB; paint holding ends → old page discarded → void below ribbon until hub chapter | Ribbon stable; void below until query finishes |
+| **B′ — y=0 paint-holding break (fixed 3d-c)** | TT **`y = 0`** carry nav **before 3d-c** | First contentful paint (ribbon) ended paint holding instantly — "near-insta vanish" even with fast queries | **Fixed:** TT y=0 chrome gate (full cloak, no contentful paint until `.k2-hub-chapter`) |
+| **C — Table-only** | Pages with `$k2RankedCloak` | `ranked-table-pending` hides table until `k2-table.js` | **Only table** vanishes; chrome stays — success bar target |
 
-**Iter 3 split:** Non-TT mid-scroll = Type A only when needed. TT y=0 = Type B only (carry disengaged). TT y>0 = Type A on nav, then often Type C on table — **unless** reveal fires while body below viewport still missing (looks like Type A again).
+**Post-3d (2026-07-04):** TT y>0 fixed by query speed under 700 ms cloak. TT y=0 fixed by chrome gate + query speed. Residual vanish on any page = query still > ~700 ms (see playbook) or HTML render bound (player games 1500 rows).
 
 ---
 
@@ -153,9 +154,9 @@ Typical TT hub page (e.g. `rating.php`, `countries.php`):
 
 **Present / non-TT:** step 2 has no snapshot chrome DB pass. **TT adds a second catalog/context load in header before step 5.**
 
-At **y=0**, carry does not cloak — browser may paint 1–3 as they arrive, then **gap at 4** (hub chapter + wing nav after query). That matches “everything under ribbon” blanking.
+At **y=0** on TT destinations (after **3d-c**): full-body **chrome gate** — old page held until `.k2-hub-chapter` parsed (~165–230 ms block after 3d-b). Non-TT y=0 unchanged (normal load).
 
-At **y>0**, step 1 cloaks **entire body** until reveal — **whole-page blank** even if 2–3 are already buffered.
+At **y>0**, step 1 cloaks **entire body** until reveal — fixed when block ≪ 700 ms (3d-b).
 
 ---
 
@@ -230,8 +231,9 @@ Rating LB uses one primary snapshot query — usually **faster** than Countries�
 |--------|------|-------|
 | **3b — PHP flush** | ~~After hub nav, flush before heavy query~~ | **Failed — reverted.** Did not pass TT smokes; perceptual present slowdown. |
 | **3c — Countries query slice** | Stored/prewarm or slimmer TT read for countries index | F18-adjacent; separate from carry |
-| **3d — Carry reveal gate + query audit (recommended)** | No `reveal()` until `.k2-hub-chapter` (+ wing tabs) exist when `y > 0`; audit rating LB TT queries; narrow URL `?as=month:2014-07` | Handoff [`2026-07-04-003`](agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md) — success = only table may vanish |
-| **Month catalog perf** | Cache or batch month catalog cutoff lookups | Header perf; not F6 per se but explains month wing pain |
+| **3d — Carry reveal gate + query audit** | Shipped as **3d-b** (query) + **3d-c** (y=0 gate) | [`2026-07-04-003`](agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md) — Dagh y>0 sign-off; realm S1 recommended |
+| **Realm query sweep** | Tracks A–I + census + playbook | [`2026-07-04-004`](agent-handoffs/2026-07-04-004-amiga-tt-query-optimization-sweep.md) · [`amiga-tt-query-optimization-playbook.md`](../amiga-tt-query-optimization-playbook.md) |
+| **Month catalog perf** | **Done** — in-memory from tournament list | — |
 
 **Still rejected:** removing carry-scroll on realm or hub pills.
 
@@ -250,7 +252,7 @@ Rating LB uses one primary snapshot query — usually **faster** than Countries�
 | 2026-07-04 | **F6 rating LB handoff** — iter 3d+ audit-first, flawless nav bar — [`2026-07-04-003`](docs/orchestration/agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md) |
 | 2026-07-04 | **Iter 3b hotfix** — `k2_page_stream_flush()` used `ob_flush()` in while loop (infinite hang); fixed to `ob_end_flush()` |
 | 2026-07-04 | **F6 Phase 0 audit** — 174-col `snap.*` window scan = root cost (500–2,000 ms; narrow+join-back ~50 ms, parity OK); Δ map duplicate ladder scan; double games count; classification matrix — § F6 Phase 0 |
-| 2026-07-04 | **Iter 3d-b shipped** — narrow snapshot join + slim Δ map + games-count cache; TT block ~165–230 ms (was 710–906); parity probes green; browser S1 sign-off pending — § Attempt 4 |
+| 2026-07-04 | **Iter 3d-b shipped** — narrow snapshot join + slim Δ map + games-count cache; TT block ~165–230 ms (was 710–906); parity probes green; **Dagh S1/S1b sign-off 2026-07-04** — § Attempt 4 |
 
 ---
 
@@ -475,7 +477,7 @@ Waste stacked on top of the slow scan:
 | **Changes** | **b1:** `amiga_lb_snapshot_from_sql()` narrow window scan (`player_id`+`tournament_id`) + PRIMARY-key join-back to wide row. **b2:** `amiga_lb_rating_delta_map()` slim — narrow `amiga_rating_history_rating_map_at_cutoff()` at current + prev wing cutoff (unfiltered catalog position, as_with-safe) + participants; no full `resolve_view` ladder; present WC-start baseline uses the same narrow map. **b3:** `amiga_lb_games_count()` request-scoped static cache (footer + lede shared). |
 | **Parity** | SQL variant probe 3 cutoffs OK · delta map old-vs-new 7 scenarios (all wings, early+late, incl. `year:2001` no-prev) OK · Countries index parity probe OK · curl sweep rating/goals/peak/countries/roster/HoF TT — 200, no PHP errors. |
 | **Result (local)** | Blocking segment: present ~304 → **~131 ms**; TT ~710–906 → **~165–230 ms** (career query 503–650 → **34–49 ms**). Curl total rating TT 1.2–1.75 s → **~0.6–0.7 s** (≈ present). All well under the 700 ms cloak timeout. |
-| **Worked?** | Timings yes — **browser S1/S1b matrix = Dagh sign-off pending.** |
+| **Worked?** | **Yes — Dagh sign-off 2026-07-04 (S1/S1b).** Timings + browser matrix pass. |
 | **Left on the block** | Δ map ~100–140 ms (two narrow window scans) — next candidate if browser feel still short of flawless. |
 | **Follow-up (out of scope)** | **Peak-rating wing** own query still **~3.3 s** at TT cutoff — `amiga_player_elo_rank_at_event` window subquery needs the same narrow+join-back treatment when wings roll out. |
 
@@ -491,7 +493,7 @@ Waste stacked on top of the slow scan:
 | **Change** | `k2_carry_scroll_restore.php`: at `payload.y === 0` on a **TT destination** (`[?&]as=` in `location.search`), engage the **full-body cloak** as a chrome gate instead of skipping. No contentful paint → **Chrome paint holding keeps the OLD page on screen** through the block. Reveal when `.k2-hub-chapter` is parsed (hub pages emit it right after the blocking queries) or `domReady` fallback (non-hub TT pages), 700 ms timeout + load/setTimeout safety nets unchanged. No scroll ops, no `scrollRestoration` flip in this mode. Non-TT y=0 destinations unchanged (normal load). |
 | **Why it needs Attempt 4 first** | Paint holding lasts ~500 ms; the gate only reads as in-place if the chapter arrives inside that window — true now the block is ~165–230 ms, impossible at the old 700–900 ms. |
 | **Coverage** | All carry-scroll sources at y=0: hub tabs, wing tabs, realm pills, ribbon chevrons, pickers (form change). Direct URL loads / header search have no payload → stream as before. |
-| **Verified** | Browser (IDE): rating LB TT `month:2014-07` at y=0 → Goals wing tab: destination revealed, cloak class removed, payload consumed, y=0. Curl sweep 200s. **Visual in-place feel = Dagh sign-off pending.** |
+| **Verified** | Browser (IDE): rating LB TT `month:2014-07` at y=0 → Goals wing tab: destination revealed, cloak class removed, payload consumed, y=0. **Dagh S1/S1b sign-off 2026-07-04** — only table swaps; chrome stable. |
 
 ---
 
@@ -516,3 +518,34 @@ Not an F6 chrome attempt but same clock family. All `/amiga/world-cups/*` pages 
 **Pattern note for future wings:** any remaining `SELECT snap.*` + ROW_NUMBER copies are the same bug — one is left in `amiga_player_snapshot_lib.php` (`amiga_player_snapshot_row_at_cutoff`, single-player `player_id = ?` filter so cheap, fine as is). Dense-event equality is preferable to narrow+join-back wherever the table writes one row per player per finalize (er table: narrow+join-back still cost 0.9–2.3 s; dense equality 10–15 ms).
 
 **Method generalized:** the full playbook for carrying these optimizations to the rest of the realm (patterns, probe/parity templates, budgets, remaining-suspects inventory) is [`docs/amiga-tt-query-optimization-playbook.md`](../amiga-tt-query-optimization-playbook.md).
+
+---
+
+## Issue closure summary (2026-07-04 evening)
+
+Consolidated status after F6 track + realm query sweep. Symptom register updated in [`amiga-tt-chrome-sticky-invariants.md`](../amiga-tt-chrome-sticky-invariants.md).
+
+| Failure | Status | Primary fix | Handoff / doc |
+|---------|--------|-------------|---------------|
+| **F6** sub-ribbon blank at y=0 | **Signed off 2026-07-04** | 3d-b query (~165–230 ms block) + 3d-c TT y=0 chrome gate | [`2026-07-04-003`](agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md) — Dagh S1/S1b pass |
+| **F18** hub-tab whole-page blank | **Resolved (code)** | Countries index + WC facts index + stats cache + sweep | [`2026-07-04-004`](agent-handoffs/2026-07-04-004-amiga-tt-query-optimization-sweep.md) |
+| **F19** LED co-waits with table | **Resolved** | Stamp `initStamp()` at script eval | TT policy §5.0 Motion |
+| **F20** flag/roster header flash | **Query resolved** | Roster + rivals Track A query slices | [`2026-07-04-002`](agent-handoffs/2026-07-04-002-f20-country-rivals-h2h-audit.md) — optional chrome follow-up |
+
+**Still open (not F6-class):** F1–F17 sticky/pin symptoms from reverted CD track; player games curl >0.8 s (HTML render, query fixed); F20 optional hash/reveal chrome.
+
+**Recommended Dagh pass:** ~~S1/S1b on rating LB~~ — **passed 2026-07-04** (only table swaps; chrome stable).
+
+---
+
+## Changelog (this file) — continued
+
+| Date | Entry |
+|------|--------|
+| 2026-07-04 | **Attempt 4 shipped** — 3d-b narrow snapshot + slim Δ + games-count cache |
+| 2026-07-04 | **Attempt 5 shipped** — 3d-c TT y=0 chrome gate |
+| 2026-07-04 | **WC hub TT fix** — `idx_community_facts_metric_period` + stats rows cache |
+| 2026-07-04 | **Three slow LB wings** — honours, calendar-geo, peak-rating |
+| 2026-07-04 | **Realm query sweep** — tracks A–I, census, playbook — handoff 004 |
+| 2026-07-04 | **Issue closure summary** — F6/F18/F19 resolved; F20 query resolved |
+| 2026-07-04 | **F6 Dagh sign-off** — S1/S1b pass on rating LB (only table swaps) |

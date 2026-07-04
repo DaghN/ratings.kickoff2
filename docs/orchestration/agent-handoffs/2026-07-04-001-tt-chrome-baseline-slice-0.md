@@ -3,67 +3,19 @@
 **Date:** 2026-07-04  
 **Track:** Amiga TT chrome baseline (in-flow)  
 **Failure targeted:** **F6** — sub-ribbon content blanks on TT ribbon nav at scroll top  
-**Status:** Iteration 3a — Dagh retest pending (iter 2 reverted)  
+**Status:** **Superseded** — iter 1–2 history only; verified fix is in [`2026-07-04-003`](2026-07-04-003-f6-rating-lb-tt-nav-flawless.md) (3d-b/c) + [attempt log](../tt-chrome-baseline-f6-attempt-log.md)
+
+> **Archive note:** Iter 2 (`k2-carry-cloak-top`) was **reverted**. Do not re-apply guardrails below — they describe the failed iter 2 path.
 
 ---
 
-## Goal
+## Goal (historical)
 
-Eliminate **old content → blank → new content** blink below the TT ribbon when navigating at **`scrollY ≈ 0`** via wings, chevrons, or dropdown pickers — without regressing mid-scroll carry-scroll.
-
----
-
-## Verified cause
-
-Carry-scroll **body cloak** (`html.k2-carry-cloak`) runs on every ribbon nav because `k2-carry-scroll.js` stores a payload. At **scroll top**:
-
-1. **`carryReady()`** passed immediately — `maxScrollTop() >= 0` is true as soon as `<body>` exists.
-2. **`reveal()`** ran before **hub chapter** (and other sub-ribbon chrome) was parsed.
-3. User saw ribbon stack stable (parsed early in `<body>`) + **empty region** where hub chapter/table would appear → perceived as blanking below ribbon.
-
-Mid-scroll worked because `carryReady()` waited until the document was **tall enough** for the stored Y (and/or anchor nav existed), so more sub-ribbon DOM was present before reveal.
-
-Chevron clicks previously stored `{ y: 0 }` **without** a nav anchor, hitting the fastest early-reveal path. Wing tabs stored an anchor but anchor wait only guaranteed **TT ribbon nav** parsed — not **`.k2-hub-chapter`**.
+Eliminate **old content → blank → new content** blink below the TT ribbon when navigating at **`scrollY ≈ 0`**.
 
 ---
 
-## Verified fix
-
-### 1. `k2_carry_scroll_restore.php`
-
-| Change | Why |
-|--------|-----|
-| **Skip cloak** when payload is `{ y: 0 }` with **no anchor** (after read, before `hasPending`) | Scroll restore is a no-op at top; cloak only caused harm (dropdown pickers). |
-| **`carrySubRibbonReady()`** — require `.k2-hub-chapter` or feast player hero (or `domReady` fallback) when **`resolveTargetY(payload) <= 0`** before `carryReady()` passes | Keeps cloak for anchored top nav (wings, chevrons) but delays reveal until hub chapter / hero exists. |
-
-### 2. `k2-carry-scroll.js`
-
-| Change | Why |
-|--------|-----|
-| Chevron / stepper links inside `nav[data-k2-carry-scroll]` now store **nav anchor** (same as hub pills) | Consistent payload; pairs with `carrySubRibbonReady()` for TT stepper at scroll top. |
-
----
-
-## Files changed
-
-- `site/public_html/includes/k2_carry_scroll_restore.php`
-- `site/public_html/js/k2-carry-scroll.js`
-
----
-
-## Verification (agent)
-
-| Smoke | Result |
-|-------|--------|
-| **S1** — rating LB `?as=event:589` at top, simulated carry payload `y:0` + TT stepper anchor → navigate | `k2:carryScrollY` cleared; no stuck cloak; `.k2-hub-chapter` present at reveal |
-| **S1b** — contrast | Mid-scroll carry path unchanged (still stores Y; cloak when Y > 0) |
-| PHP lint `k2_carry_scroll_restore.php` | Pass |
-
-**Dagh manual (required):** S1 on local — scroll to top → chevron ×3, wing Event→Month→Year, picker change — confirm no sub-ribbon blank. S2 mid-scroll chevron ×2 — scroll position still carries.
-
----
-
-## Verified cause (iteration 2 — after Dagh feedback)
+## Verified cause (iteration 2 — after Dagh feedback; reverted)
 
 Iteration 1 **regressed pickers** and **month wing**:
 
@@ -117,4 +69,4 @@ Iteration 1 **regressed pickers** and **month wing**:
 
 ## STOP gate
 
-**Waiting for Dagh:** manual S1 pass on `ratingskickoff.test` before calling baseline slice 0 closed.
+**Closed 2026-07-04** — superseded by handoff 003 (3d-b/c). Optional Dagh S1 pass for final sign-off.

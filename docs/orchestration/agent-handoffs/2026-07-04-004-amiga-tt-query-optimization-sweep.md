@@ -1,6 +1,6 @@
 # Handoff 2026-07-04-004 — Amiga realm TT query optimization sweep
 
-**Status:** Done (slice 1) · **Owner:** agent 2026-07-04 · **Method doc (read first):** [`docs/amiga-tt-query-optimization-playbook.md`](../../amiga-tt-query-optimization-playbook.md)
+**Status:** Done (slices 1–2) · **Owner:** agent 2026-07-04 · **Method doc (read first):** [`docs/amiga-tt-query-optimization-playbook.md`](../../amiga-tt-query-optimization-playbook.md)
 **Predecessor evidence:** [`2026-07-04-003`](2026-07-04-003-f6-rating-lb-tt-nav-flawless.md) + [`tt-chrome-baseline-f6-attempt-log.md`](../tt-chrome-baseline-f6-attempt-log.md) (Attempts 4-5, Three slow LB wings, World Cups hub).
 
 ---

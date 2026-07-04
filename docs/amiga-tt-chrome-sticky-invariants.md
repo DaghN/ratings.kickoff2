@@ -130,7 +130,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Try to reproduce** | Rating LB `?as=event:{id}` — scroll to **top** → chevron, wing tab, or picker step → watch from hub chapter downward. Repeat with one wheel-tick of scroll for contrast. |
 | **Touchpoints** | `k2_carry_scroll_restore.php`, cloak CSS, `js/k2-carry-scroll.js` (TT ribbon `data-k2-carry-scroll`) |
 | **Reported** | 2026-07-04 — baseline explore (Dagh); mapped before slice 0 |
-| **Resolved** | *Pending Dagh sign-off* — [slice 0 handoff](orchestration/agent-handoffs/2026-07-04-001-tt-chrome-baseline-slice-0.md) · [attempt log](../orchestration/tt-chrome-baseline-f6-attempt-log.md) (iter 2 regressed) |
+| **Resolved** | **Signed off 2026-07-04 (Dagh S1/S1b)** — iter **3d-b** (narrow snapshot join + slim Δ map + games-count cache) + iter **3d-c** (TT y=0 chrome gate). Only table swaps; chrome stable — [`2026-07-04-003`](orchestration/agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md) · [attempt log § Attempts 4–5](../orchestration/tt-chrome-baseline-f6-attempt-log.md) |
 
 ### F7 — Ribbon vertical jump during nav while **stuck**
 
@@ -229,8 +229,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Try to reproduce** | `countries.php?as=event:{late}` — hub bar between views at scroll top and mid-scroll; compare `countries.php` Present (no `as=`). Repeat with an **early** `as=event:{id}` vs **late** id. WC: `world-cups/chronology.php?as=event:585` — hub tab vs Present same tab. |
 | **Touchpoints** | Hub `data-k2-carry-scroll` nav, `k2_carry_scroll_restore.php`, ranked table cloak (`$k2RankedCloak`), TT snapshot chrome render path, Countries / World Cups hub shell |
 | **Reported** | 2026-07-04 — baseline explore (Dagh); separate thread from F6 though both use carry-scroll |
-
-### F19 — TT stamp LED hidden until sub-ribbon / table ready
+| **Resolved** | **Code shipped 2026-07-04** — same clock family as F6: Countries index SQL GROUP BY + dense elo attach; WC chronology `idx_community_facts_metric_period` + `amiga_world_cup_stats_rows` cache (5+ s → ~0.5 s); realm query sweep — [`2026-07-04-004`](orchestration/agent-handoffs/2026-07-04-004-amiga-tt-query-optimization-sweep.md) · [attempt log § World Cups hub](../orchestration/tt-chrome-baseline-f6-attempt-log.md) |
 
 | | |
 |--|--|
@@ -239,8 +238,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Touchpoints** | `k2_carry_scroll_restore.php` body cloak, `amiga_time_travel_stamp.php`, `k2-amiga-tt-stamp.js` (`led-fade-pending` on wing entry only) |
 | **Reported** | 2026-07-04 — slice 0 feedback (Dagh); may share F6 carry-cloak timing |
 | **Note** | Scroll-top **narrow cloak** (`k2-carry-cloak-top`) keeps stamp visible while waiting; wing-tab entry (`k2_tt_entry=wing`) still intentionally fades LED |
-
-### F20 — TT country flag / roster link — header flash before hero (y ≠ 0)
+| **Resolved** | **2026-07-04** — `k2-amiga-tt-stamp.js` runs `initStamp()` at script eval (stamp markup + script emit together in ribbon), not on `k2OnPageReady` / `DOMContentLoaded` — [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) §5.0 Motion |
 
 | | |
 |--|--|
@@ -248,7 +246,8 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Try to reproduce** | Countries or rating LB with `?as=month:{late}` — scroll mid-page → click Greece flag → `/amiga/country/roster.php?country=Greece&as=…#k2-country-roster`. Compare Present (no `as=`). Also after hub-pill carry at `y > 0`. |
 | **Touchpoints** | `amiga_country_page.php` (query block after hub nav), `k2_carry_scroll_restore.php` (hash `#k2-country-roster` cloak + 700 ms reveal; optional carried `y > 0`), `k2_amiga_country_roster_href()` hash anchor, `amiga_countries_player_rows()` global fetch |
 | **Reported** | 2026-07-04 — Dagh; same overfetch class as pre-fix Countries index (audit: roster still loads **all** rated players + global elo attach for **one** country) |
-| **Note** | Flag links always append `#k2-country-roster` → hash landing engages body cloak even when scroll carry payload was cleared. Slow roster TT query lengthens header-only void. **Query slice 2026-07-04:** country-filtered roster fetch + scoped elo attach (~4× faster late TT; roster snappy). **Rivals H2H audit 2026-07-04:** separate debt — double `rivals_rows` + ~2–5 s Type B at `y=0` / Type A at `y>0` on `/country/rivals/h2h.php`; see handoff `2026-07-04-002`. |
+| **Note** | Flag links always append `#k2-country-roster` → hash landing engages body cloak even when scroll carry payload was cleared. **Query slices 2026-07-04:** roster country-filtered fetch (~845 ms → ~208 ms); rivals Track A (~2–3 s → ~0.7–1.1 s panel). Optional chrome follow-up: hash deferral / hero reveal gate — [`2026-07-04-002`](orchestration/agent-handoffs/2026-07-04-002-f20-country-rivals-h2h-audit.md) |
+| **Resolved** | **Query debt closed 2026-07-04** — roster + rivals H2H query slices shipped; chrome-only flash at y>0 may remain (hash `#k2-country-roster`, carry timing) — same handoff |
 
 ---
 
@@ -309,3 +308,5 @@ When a failure is **solved and verified**, add one line under the row: **Resolve
 | 2026-07-04 | **Iter 3a result logged** — Type A/B/C blank framework; Countries + PHP stream order — [`tt-chrome-baseline-f6-attempt-log.md`](orchestration/tt-chrome-baseline-f6-attempt-log.md) |
 | 2026-07-04 | Baseline: removed pin touchpoint row; sticky-only tensions marked deferred |
 | 2026-07-04 | **F20 added** — TT flag/roster link header flash (y≠0, hash anchor); smoke S11; roster query audit in attempt log |
+| 2026-07-04 | **F6 signed off** — Dagh S1/S1b pass (only table swaps; chrome stable) |
+| 2026-07-04 | **Issue closure pass** — F6/F18/F19 resolved in invariants; F20 query slice resolved; links to handoffs 003/004/002 |
