@@ -18,7 +18,7 @@
 | **Default** | **Present** — no `as` query param; reads `amiga_player_current`, `amiga_player_matchup_summary`, `amiga_generalstats` |
 | **Time travel on** | URL carries `as=`; one shared cutoff drives all wired read paths |
 | **UI name** | **Time travel** — header **Present day | Time travel**; snapshot label in stepper between chevrons |
-| **Granularity** | **Year · Month · Event** — tab order in chrome (coarse → fine) |
+| **Granularity** | **Event · Month · Year** — tab order in chrome (fine → coarse) |
 | **Rollout** | **Incremental** — each surface opts in; **editorial / live-ops hub tabs** hidden under time travel (T13); snapshot-worthy tabs keep present order (T13b) |
 
 There is **no** per-page “Current | Historical” split. One chrome control, one cutoff, navigation preserves context.
@@ -36,14 +36,14 @@ There is **no** per-page “Current | Historical” split. One chrome control, o
 | **T5** | **Incremental surfaces** | Player/archive pages wire cutoff reads in slices. **Transitional:** unwired player blocks may show present data with an optional note until wired — **not** for present-only hub tabs (T13) |
 | **T6** | **No new routes fork** | Same PHP paths (`/amiga/leaderboards/rating.php`, `/amiga/player/profile.php`, …) — not a parallel `/amiga/history/…` tree |
 | **T7** | **Commit boundary** | Cutoffs align with **tournament finalize** semantics (same as rating history V1). Month/year = last finalize on or before period end; empty periods repeat prior state |
-| **T8** | **Wing tab order** | Chrome tabs: **Year · Month · Event** (coarse-to-fine browsing) |
+| **T8** | **Wing tab order** | Chrome tabs: **Event · Month · Year** (fine-to-coarse browsing) |
 | **T9** | **History tab removed** | **Jun 2026:** dedicated History hub tab and ladder page retired. Rating at cutoff lives on `/amiga/leaderboards/rating.php?as=`. Legacy `/amiga/history.php` 301 → rating LB (preserves `as=` / `wing`+`at`). |
 | **T10** | **Excluded realms** | Online hub, Amiga **ops**, import tooling — **ignore** `as`; never enter time travel chrome |
 | **T11** | **Streaks** | No time-travel surfaces for match streaks (Amiga product policy — non-authoritative columns) |
 | **T12** | **Profile blocks deferred** | Hero rank/rating/games at cutoff **shipped** (`amiga_player_snapshot_lib.php`). Remaining profile career blocks — phase 2+ |
 | **T13** | **Present-only hub tabs** | **News** (present realm landing), **Live tournaments** (last tab in present order), and future editorial hubs (e.g. **Misc**) appear **only** in Present day hub nav. When `as=` is active, **omit** them from the hub bar. Direct requests to those paths **drop `as=`** (302 to present URL). |
 | **T14** | **Mode toggle — asymmetric homes (T19)** | Header **Time travel** from present → **`/amiga/leaderboards/rating.php?as=event:{first}`** always (first ladder event — Event wing). Header **Present day** from time travel → **same page without `as=`** (stable query params kept). Header **Present day** when already present → **`/amiga/news.php`**. |
-| **T19** | **Toggle vs ribbon** | **Present day \| Time travel** = mode boundary (T14). **Time travel** entry from present = fixed rating LB + first event; **Present day** exit from lens = contextual same-page present URL. **Year · Month · Event ribbon** = move through time **inside** the lens while keeping the current view (except event wing on `tournament.php` — §5.1.1). |
+| **T19** | **Toggle vs ribbon** | **Present day \| Time travel** = mode boundary (T14). **Time travel** entry from present = fixed rating LB + first event; **Present day** exit from lens = contextual same-page present URL. **Event · Month · Year ribbon** = move through time **inside** the lens while keeping the current view (except event wing on `tournament.php` — §5.1.1). |
 | ~~**T14b**~~ | *(superseded by T19)* | ~~Player-wing contextual toggle entry~~ — ribbon remains; player Event stepping → [`with-player-stepper-policy.md`](with-player-stepper-policy.md). |
 | ~~**T14c**~~ | *(superseded by T19)* | ~~Tournament-page contextual toggle entry~~ — event ribbon on `tournament.php` (§5.1.1) remains. |
 | **T15** | **Uniform lens** | **Hub (time travel):** only snapshot-worthy tabs (T13b); all derived stats at cutoff. **Player wings:** hero, games, tournaments, opponents, profile — everything at cutoff when wired; preserve `as=` on links. No silent present-day numbers on wired surfaces. |
@@ -191,7 +191,7 @@ Phase 1 proved the **data lens**: one `as=` cutoff, correct snapshot reads, link
 |-------|------|--------|
 | **Entry warning** | Present-mode hover on header **Time travel** | Playful side-effects copy (`amiga_time_mode_nav_time_travel_help_text()`) — sets tone *before* the lens activates; honest about outdated stats without blocking exploration |
 | **Temporal stamp** | LED date banner above the ribbon | Persistent **when** cue — “you are here in time” separate from navigation controls; sci-fi terminal mood (mono kicker + DSEG7 segments + blinking `_`) |
-| **Snapshot ribbon** | Year · Month · Event stepper + picker | Functional **how you move** through time — unchanged phase-1 contract (§5.1) |
+| **Snapshot ribbon** | Event · Month · Year stepper + picker | Functional **how you move** through time — unchanged phase-1 contract (§5.1) |
 | **Hub section chapter** | `k2-hub-chapter` title + lede on hub tabs | **Always shown** in present day and under `as=` — stamp answers **when**; chapter answers **what section** you are in; lede counts follow cutoff when snapshot-aware |
 | **Rating LB Δ column** | Wing-step Elo change after Elo when `as=` active | Data companion to the stamp — “what moved since the previous step in this mode” |
 
@@ -363,7 +363,7 @@ Time travel does **not** add tables or writers. It only changes **read paths** a
 | Event picker layout | Catalog-fixed width; closed date right-aligned; open panel = trigger width |
 | Temporal stamp | Visible on hub + player wings + tournament detail with `as=`; kicker matches wing; LED date matches picker (year/month period end; event cutoff date) |
 | Stamp toggle arrival | One-shot `k2_tt_entry=1` from present → time travel; panel fade + 32 cps kicker typewriter; param stripped from URL |
-| Stamp wing arrival | Year · Month · Event tabs append one-shot `k2_tt_entry=wing`; 32 cps kicker + 1100ms LED opacity fade (no panel rise); stepper/picker do not trigger |
+| Stamp wing arrival | Event · Month · Year tabs append one-shot `k2_tt_entry=wing`; 32 cps kicker + 1100ms LED opacity fade (no panel rise); stepper/picker do not trigger |
 | Hub chapters under `as=` | Hub chapters stay visible; lede counts snapshot-aware where applicable |
 | Rating LB Δ under `as=` | Column after Elo; wing-step delta; tooltip title **Rating change (time travel mode)** |
 | Hub nav under `as=` | Leaderboards · World Cups · Tournaments · Countries · Games · Activity · HoF (T13b) |

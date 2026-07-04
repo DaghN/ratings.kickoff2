@@ -1,6 +1,6 @@
 <?php
 /**
- * Amiga time travel — ribbon above hub/player nav (Year · Month · Event + stepper + picker).
+ * Amiga time travel — ribbon above hub/player nav (Event · Month · Year + stepper + picker).
  *
  * Include via site_header.php (top of k2-page-nav on Amiga pages).
  * Present | Time travel mode lives in header (amiga_time_mode_nav.php).
@@ -247,7 +247,7 @@ function amiga_snapshot_chrome_render_wing_tabs(
 function amiga_snapshot_chrome_render_pin_control(): void
 {
     ?>
-<button type="button" class="k2-amiga-time-travel__pin" aria-pressed="false" aria-label="Pin time travel controls" data-k2-help="Keep Year, Month, Event, and snapshot controls visible while you scroll." data-k2-tooltip-hide-title="1">
+<button type="button" class="k2-amiga-time-travel__pin" aria-pressed="false" aria-label="Pin time travel controls" data-k2-help="Keep Event, Month, Year, and snapshot controls visible while you scroll." data-k2-tooltip-hide-title="1">
 	<svg class="k2-amiga-time-travel__pin-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
 		<path class="k2-amiga-time-travel__pin-body" d="M12 21.5c0-5.4-.5-6.2-1.6-7.2a4.4 4.4 0 1 1 3.2 0c-1.1 1-1.6 1.8-1.6 7.2z" />
 		<circle class="k2-amiga-time-travel__pin-dot" cx="12" cy="9.5" r="1.4" />
@@ -301,9 +301,9 @@ function amiga_snapshot_chrome_render_active(mysqli $con, AmigaSnapshotContext $
     }
 
     $wings = [
-        ['wing' => 'year', 'label' => 'Year'],
-        ['wing' => 'month', 'label' => 'Month'],
         ['wing' => 'event', 'label' => 'Event'],
+        ['wing' => 'month', 'label' => 'Month'],
+        ['wing' => 'year', 'label' => 'Year'],
     ];
     $sectionClass = 'k2-amiga-time-travel k2-amiga-time-travel--active';
     $sectionStyle = '';
