@@ -79,15 +79,15 @@ function amiga_lb_wc_slice_order_sql(string $view, string $alias = 'wcs'): strin
 /**
  * Present-day WC slice stats for LB wings (eligibility: tournaments_played > 0).
  *
- * Sub-wing tables use k2-table client sort (skip-initial-sort); SQL order is stable only.
+ * Sub-wing tables use k2-table client sort (skip-initial-sort); SQL order must match each wing default.
  *
  * @return list<array<string, mixed>>
  */
 function amiga_lb_wc_slice_rows_present(mysqli $con, string $view = 'honours'): array
 {
-    static $cache = null;
-    if ($cache !== null) {
-        return $cache;
+    static $cache = [];
+    if (isset($cache[$view])) {
+        return $cache[$view];
     }
 
     $sliceKey = amiga_slice_key_world_cup();
@@ -108,7 +108,7 @@ function amiga_lb_wc_slice_rows_present(mysqli $con, string $view = 'honours'): 
             FROM amiga_player_slice_totals wcs
             WHERE wcs.slice_key = ?
               AND wcs.tournaments_played > 0
-            ORDER BY wcs.player_id ASC
+            ORDER BY ' . amiga_lb_wc_slice_order_sql($view, 'wcs') . '
 ';
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
@@ -130,13 +130,13 @@ function amiga_lb_wc_slice_rows_present(mysqli $con, string $view = 'honours'): 
     }
     $stmt->close();
 
-    return $cache = $rows;
+    return $cache[$view] = $rows;
 }
 
 /**
  * WC slice stats at cutoff — latest at_event row per player with tournaments_played > 0.
  *
- * Request-scoped cache is keyed by cutoff only (sub-wing sort is client-side).
+ * Request-scoped cache is keyed by cutoff + sub-wing (sort order is wing-specific).
  *
  * @return list<array<string, mixed>>
  */
@@ -152,7 +152,7 @@ function amiga_lb_wc_slice_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx
     }
 
     static $cache = [];
-    $cacheKey = $cutoff['event_date'] . '|' . $cutoff['chrono'] . '|' . $cutoff['tournament_id'];
+    $cacheKey = $cutoff['event_date'] . '|' . $cutoff['chrono'] . '|' . $cutoff['tournament_id'] . '|' . $view;
     if (isset($cache[$cacheKey])) {
         return $cache[$cacheKey];
     }
@@ -174,7 +174,7 @@ function amiga_lb_wc_slice_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx
                    ' . amiga_lb_wc_slice_v2_select_sql('wcs') . '
             ' . amiga_lb_wc_player_slice_from_sql('wcs') . '
             WHERE wcs.tournaments_played > 0
-            ORDER BY wcs.player_id ASC
+            ORDER BY ' . amiga_lb_wc_slice_order_sql($view, 'wcs') . '
 ';
 
     $stmt = $con->prepare($sql);

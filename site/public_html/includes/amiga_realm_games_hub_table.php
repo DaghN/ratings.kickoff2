@@ -167,7 +167,7 @@ function amiga_realm_games_hub_render_table(array $rows, array $opts = []): void
 }
 
 /**
- * Recent hub — one sortable table, multiple tbody sections (one thead).
+ * Recent hub — one table per tournament section (heading outside table; online Recent parity).
  *
  * @param list<array{heading: string, rows: list<array<string, mixed>>}> $sections
  * @param array{
@@ -180,126 +180,20 @@ function amiga_realm_games_hub_render_table(array $rows, array $opts = []): void
  */
 function amiga_realm_games_hub_render_sectioned_table(array $sections, array $opts = []): void
 {
-    $showRank = (bool) ($opts['show_rank'] ?? false);
-    $defaultSortCol = (int) ($opts['default_sort_col'] ?? ($showRank ? AMIGA_REALM_GAMES_HUB_DATE_SORT_COL_RANKED : AMIGA_REALM_GAMES_HUB_DATE_SORT_COL));
-    $defaultSortDir = (string) ($opts['default_sort_dir'] ?? 'desc');
     $emptyMessage = (string) ($opts['empty_message'] ?? 'No rated games in this tournament.');
-    $skipInitialSort = (bool) ($opts['skip_initial_sort'] ?? false);
 
-    $defaultSortCol = k2_table_default_sort_col_from_request($defaultSortCol);
-    $defaultSortDir = k2_table_default_sort_dir_from_request($defaultSortDir);
-    if (!$skipInitialSort) {
-        $skipInitialSort = $defaultSortCol === ($showRank ? AMIGA_REALM_GAMES_HUB_DATE_SORT_COL_RANKED : AMIGA_REALM_GAMES_HUB_DATE_SORT_COL)
-            && $defaultSortDir === 'desc'
-            && k2_table_sort_query_params() === [];
-    }
-
-    $allRows = [];
     foreach ($sections as $section) {
-        foreach ($section['rows'] as $row) {
-            $allRows[] = $row;
-        }
+        ?>
+	<div class="k2-games-day">
+		<h2 class="k2-panel-heading k2-games-day__heading"><?php echo $section['heading']; ?></h2>
+        <?php
+        amiga_realm_games_hub_render_table($section['rows'], array_merge($opts, [
+            'empty_message' => $emptyMessage,
+        ]));
+        ?>
+	</div>
+        <?php
     }
-    $showFlags = amiga_tournament_games_show_flags($allRows);
-
-    $col = 0;
-    $rankCol = $showRank ? $col++ : -1;
-    $idCol = $col++;
-    $dateCol = $col++;
-    $tournamentCol = $col++;
-    $phaseCol = $col++;
-    $teamACol = $col++;
-    $goalsACol = $col++;
-    $goalsBCol = $col++;
-    $teamBCol = $col++;
-    $gdCol = $col++;
-    $sumCol = $col++;
-    $tsCol = $col++;
-    $ratingACol = $col++;
-    $ratingBCol = $col++;
-    $eloDiffCol = $col++;
-    $favEsCol = $col++;
-    $adjWinCol = $col++;
-    $adjLoseCol = $col++;
-    $colCount = $col;
-
-    $anchorCol = $idCol;
-    $sortedColIndex = $defaultSortCol;
-    $tableClass = k2_table_ranked_sortable_class('k2-table--tournament-games', $showRank);
-    ?>
-<?php k2_table_wrap_open(true); ?>
-<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>"<?php echo $showRank ? ' data-k2-autorank="true"' : ''; ?><?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
-	<thead>
-		<tr>
-			<?php if ($showRank) { ?>
-			<th class="k2-table-cell--left" data-k2-sort="number" data-k2-help="Rank in this board. Equal scores tie-break to lower game ID.">#</th>
-			<?php } ?>
-			<th<?php echo k2_table_sortable_th_attr($idCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="number" data-k2-help="Rated game ID. Opens the single-game detail page.">ID</th>
-			<th<?php echo k2_table_sortable_th_attr($dateCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left k2-table-cell--pad-left-xs'); ?> data-k2-sort="number">Date</th>
-			<th<?php echo k2_table_sortable_th_attr($tournamentCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Tournament</th>
-			<th<?php echo k2_table_sortable_th_attr($phaseCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text" data-k2-help="Bracket phase when recorded (group, final, etc.).">Phase</th>
-			<th<?php echo k2_table_sortable_th_attr($teamACol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--right'); ?> data-k2-sort="text">Player A</th>
-			<th<?php echo k2_table_sortable_th_attr($goalsACol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">A</th>
-			<th<?php echo k2_table_sortable_th_attr($goalsBCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="number">B</th>
-			<th<?php echo k2_table_sortable_th_attr($teamBCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Player B</th>
-			<th<?php echo k2_table_sortable_th_attr($gdCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--pad-left-md'); ?> data-k2-sort="number" data-k2-tooltip-label="Goal difference" data-k2-help="Absolute goal margin in the game. A 7-4 result has GD 3.">GD</th>
-			<th<?php echo k2_table_sortable_th_attr($sumCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-tooltip-label="Goal sum" data-k2-help="Total goals scored by both players. A 7-4 result has Sum 11.">Sum</th>
-			<th<?php echo k2_table_sortable_th_attr($tsCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-tooltip-label="Top score" data-k2-help="Top score — the most goals either player scored in this game (e.g. 10 in 10–2).">TS</th>
-			<th<?php echo k2_table_sortable_th_attr($ratingACol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--pad-left-md'); ?> data-k2-sort="number" data-k2-help="Player A's Elo rating before this game.">Rating A</th>
-			<th<?php echo k2_table_sortable_th_attr($ratingBCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Player B's Elo rating before this game.">Rating B</th>
-			<th<?php echo k2_table_sortable_th_attr($eloDiffCol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Absolute pre-game Elo rating difference between the two players. Larger gaps mean a stronger favorite.">Elo Diff</th>
-			<th<?php echo k2_table_sortable_th_attr($favEsCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--pad-right-xs'); ?> data-k2-sort="number" data-k2-tooltip-label="Favorite expected score" data-k2-help="Elo maps the rating difference to an expected score for the favorite.">Fav ES</th>
-			<th<?php echo k2_table_sortable_th_attr($adjWinCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="number" data-k2-tooltip-label="Adjustment" data-k2-help="Rating change from expected vs actual score.">Adjustment</th>
-			<th class="k2-table-cell--left"><span class="visually-hidden">Adjustment lost</span></th>
-		</tr>
-	</thead>
-<?php foreach ($sections as $section) {
-    $sectionRows = $section['rows'];
-    ?>
-	<tbody class="black k2-games-day">
-	<tr class="k2-games-day__section">
-		<td colspan="<?php echo (int) $colCount; ?>" class="k2-table-cell--left">
-			<h2 class="k2-panel-heading k2-games-day__heading"><?php echo $section['heading']; ?></h2>
-		</td>
-	</tr>
-<?php if ($sectionRows === []) { ?>
-	<tr>
-		<td colspan="<?php echo (int) $colCount; ?>" class="k2-table-cell--left" style="color:var(--k2-text-secondary)"><?php echo k2_h($emptyMessage); ?></td>
-	</tr>
-<?php } else {
-    foreach ($sectionRows as $row) {
-        amiga_realm_games_hub_render_row(
-            $row,
-            $showRank,
-            $showFlags,
-            $rankCol,
-            $idCol,
-            $dateCol,
-            $tournamentCol,
-            $phaseCol,
-            $teamACol,
-            $goalsACol,
-            $goalsBCol,
-            $teamBCol,
-            $gdCol,
-            $sumCol,
-            $tsCol,
-            $ratingACol,
-            $ratingBCol,
-            $eloDiffCol,
-            $favEsCol,
-            $adjWinCol,
-            $adjLoseCol,
-            $anchorCol,
-            $sortedColIndex,
-        );
-    }
-} ?>
-	</tbody>
-<?php } ?>
-</table>
-<?php k2_table_wrap_close(); ?>
-    <?php
 }
 
 /**

@@ -8,8 +8,12 @@
     var T = window.K2ChartTheme;
     var DR = window.K2ChartDateRange;
     var History = window.K2PlayerRatingHistory;
+    var DayTip = window.K2PlayerCalendarDayTooltip;
     var PEAK_LINE_ID = 'k2PlayerPeakLine';
+    var RATING_DAY_TIP_ID = 'k2-player-rating-day-tooltip';
+    var RATING_GAME_TIP_ID = 'k2-player-rating-game-tooltip';
     var GAME_PAGE_ANCHOR = '#k2-game'; /* keep in sync with k2_game_page_anchor_hash() */
+    var ratingDayTipKey = null;
 
     function ratingSeriesInk(realm) {
         if (realm === 'amiga') {
@@ -36,6 +40,18 @@
         var m = d.getMonth() + 1;
         var day = d.getDate();
         return y + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
+    }
+
+    function utcDayKeyForDate(d) {
+        if (DayTip && DayTip.utcCalendarDayKey) {
+            return DayTip.utcCalendarDayKey(d);
+        }
+        if (!d || isNaN(d.getTime())) {
+            return '';
+        }
+        var m = d.getUTCMonth() + 1;
+        var day = d.getUTCDate();
+        return d.getUTCFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
     }
 
     function buildPerGameDateValues(points) {
@@ -70,12 +86,14 @@
                 lastOfDay = {
                     x: x,
                     y: points[i].rating,
-                    gamesOnDay: 1
+                    gamesOnDay: 1,
+                    utcDayKey: utcDayKeyForDate(x)
                 };
             } else {
                 lastOfDay.x = x;
                 lastOfDay.y = points[i].rating;
                 lastOfDay.gamesOnDay += 1;
+                lastOfDay.utcDayKey = utcDayKeyForDate(x);
             }
         }
         if (lastOfDay) {
@@ -157,6 +175,13 @@
                 y: points[i].rating,
                 date: points[i].date,
                 gameId: points[i].gameId,
+                gameNumber: n,
+                name_a: points[i].name_a,
+                name_b: points[i].name_b,
+                rating_a: points[i].rating_a,
+                rating_b: points[i].rating_b,
+                goals_a: points[i].goals_a,
+                goals_b: points[i].goals_b,
                 tournamentId: points[i].tournamentId,
                 tournamentName: points[i].tournamentName,
                 gamesInEvent: points[i].gamesInEvent,
@@ -217,18 +242,48 @@
         return out;
     }
 
-    function peakAfterClause(tournamentName) {
-        var Core = window.K2PlayerRankChartCore;
-        if (Core && Core.peakAfterClause) {
-            return Core.peakAfterClause(tournamentName);
-        }
-        if (!tournamentName) {
-            return '';
-        }
-        return ', after ' + String(tournamentName)
+    function escapeHtml(text) {
+        return String(text)
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    /** Per-game career peak may exceed end-of-day chart points — keep dashed line inside the plot. */
+    function ratingYScaleWithPeak(chartData, peakValue, extra) {
+        var scaleExtra = Object.assign({}, extra || {});
+        var dataMax = 0;
+        for (var i = 0; i < chartData.length; i++) {
+            if (chartData[i].y > dataMax) {
+                dataMax = chartData[i].y;
+            }
+        }
+        if (typeof peakValue === 'number' && isFinite(peakValue) && peakValue > dataMax) {
+            scaleExtra.suggestedMax = peakValue + Math.max(10, Math.round((peakValue - dataMax) * 0.1));
+        }
+        return careerYScale(scaleExtra);
+    }
+
+    function peakAfterClause(tournament, options) {
+        var Core = window.K2PlayerRankChartCore;
+        if (Core && Core.peakAfterClause) {
+            return Core.peakAfterClause(tournament, options);
+        }
+        if (!tournament) {
+            return '';
+        }
+        if (typeof tournament === 'string') {
+            if (!tournament) {
+                return '';
+            }
+            return ', after ' + escapeHtml(tournament);
+        }
+        var name = tournament.tournamentName ? String(tournament.tournamentName) : '';
+        if (!name) {
+            return '';
+        }
+        return ', after ' + escapeHtml(name);
     }
 
     function renderDateSummary(summary, stats) {
@@ -267,6 +322,9 @@
         return {
             id: PEAK_LINE_ID,
             afterDatasetsDraw: function (chart) {
+                if (typeof peakValue !== 'number' || !isFinite(peakValue)) {
+                    return;
+                }
                 var yScale = chart.scales && chart.scales.y;
                 var area = chart.chartArea;
                 var ctx = chart.ctx;
@@ -316,8 +374,217 @@
         };
     }
 
-    function createDateChart(canvas, chartData, peakValue, realm, timelineStart, cutoffActive, lineStyle) {
+    function getRatingDayTooltipEl() {
+        var el = document.getElementById(RATING_DAY_TIP_ID);
+        if (el) {
+            return el;
+        }
+        el = document.createElement('div');
+        el.id = RATING_DAY_TIP_ID;
+        el.className = 'k2-table-tooltip k2-table-tooltip--player-cal k2-table-tooltip--rating-day';
+        el.setAttribute('role', 'tooltip');
+        el.setAttribute('aria-hidden', 'true');
+        el.innerHTML = '<div class="k2-table-tooltip__title"></div>'
+            + '<div class="k2-table-tooltip__body"></div>';
+        el.hidden = true;
+        document.body.appendChild(el);
+        return el;
+    }
+
+    function hideRatingDayTooltip() {
+        ratingDayTipKey = null;
+        var tip = document.getElementById(RATING_DAY_TIP_ID);
+        if (tip) {
+            tip.hidden = true;
+            tip.setAttribute('aria-hidden', 'true');
+        }
+    }
+
+    function hideRatingGameTooltip() {
+        var tip = document.getElementById(RATING_GAME_TIP_ID);
+        if (tip) {
+            tip.hidden = true;
+            tip.setAttribute('aria-hidden', 'true');
+        }
+    }
+
+    function hideRatingChartTooltips() {
+        hideRatingDayTooltip();
+        hideRatingGameTooltip();
+    }
+
+    function showRatingDayTooltipShell(title, bodyHtml, anchorX, anchorY) {
+        var tip = getRatingDayTooltipEl();
+        var titleEl = tip.querySelector('.k2-table-tooltip__title');
+        var bodyEl = tip.querySelector('.k2-table-tooltip__body');
+        if (titleEl) {
+            titleEl.textContent = title;
+        }
+        if (bodyEl) {
+            bodyEl.innerHTML = bodyHtml;
+        }
+        tip.setAttribute('aria-hidden', 'false');
+        if (DayTip && DayTip.positionTooltipNearPoint) {
+            DayTip.positionTooltipNearPoint(tip, anchorX, anchorY);
+        } else {
+            tip.style.left = Math.round(anchorX) + 'px';
+            tip.style.top = Math.round(anchorY) + 'px';
+            tip.hidden = false;
+        }
+    }
+
+    function bindRatingDateExternalTooltip(dayTooltipCtx) {
+        return function (context) {
+            if (!DayTip || !dayTooltipCtx || !dayTooltipCtx.playerId) {
+                hideRatingDayTooltip();
+                return;
+            }
+            hideRatingGameTooltip();
+            var tooltip = context.tooltip;
+            var chart = context.chart;
+            if (!tooltip || tooltip.opacity === 0) {
+                hideRatingDayTooltip();
+                return;
+            }
+            var points = tooltip.dataPoints || [];
+            if (!points.length) {
+                hideRatingDayTooltip();
+                return;
+            }
+            var raw = points[0].raw || {};
+            var dayEndRating = points[0].parsed.y;
+            var dayKey = raw.utcDayKey;
+            if (!dayKey && raw.x) {
+                dayKey = utcDayKeyForDate(new Date(raw.x));
+            }
+            if (!dayKey) {
+                hideRatingDayTooltip();
+                return;
+            }
+            var cacheKey = dayKey;
+            ratingDayTipKey = cacheKey;
+            var canvas = chart.canvas;
+            var rect = canvas.getBoundingClientRect();
+            var anchorX = rect.left + tooltip.caretX;
+            var anchorY = rect.top + tooltip.caretY;
+            var title = DayTip.formatDayTitle(dayKey);
+            var gamesHint = raw.gamesOnDay > 0 ? raw.gamesOnDay : null;
+
+            showRatingDayTooltipShell(
+                title,
+                '<p class="pm3-cal__tip-summary">' + DayTip.dayTooltipSummary(gamesHint || 1, dayEndRating)
+                    + '</p><p class="pm3-cal__tip-loading">Loading games\u2026</p>',
+                anchorX,
+                anchorY
+            );
+
+            DayTip.fetchDayGames(dayKey, dayTooltipCtx.playerId, dayTooltipCtx.cache)
+                .then(function (payload) {
+                    if (ratingDayTipKey !== cacheKey) {
+                        return;
+                    }
+                    var list = payload.games.slice(0, DayTip.MAX_TOOLTIP_GAMES);
+                    showRatingDayTooltipShell(
+                        title,
+                        DayTip.renderDayGamesBody(payload.total, list, dayEndRating),
+                        anchorX,
+                        anchorY
+                    );
+                })
+                .catch(function () {
+                    if (ratingDayTipKey !== cacheKey) {
+                        return;
+                    }
+                    showRatingDayTooltipShell(
+                        title,
+                        'Could not load games for this day.',
+                        anchorX,
+                        anchorY
+                    );
+                });
+        };
+    }
+
+    function getRatingGameTooltipEl() {
+        var el = document.getElementById(RATING_GAME_TIP_ID);
+        if (el) {
+            return el;
+        }
+        el = document.createElement('div');
+        el.id = RATING_GAME_TIP_ID;
+        el.className = 'k2-table-tooltip k2-table-tooltip--player-cal';
+        el.setAttribute('role', 'tooltip');
+        el.setAttribute('aria-hidden', 'true');
+        el.innerHTML = '<div class="k2-table-tooltip__title"></div>'
+            + '<div class="k2-table-tooltip__body"></div>';
+        el.hidden = true;
+        document.body.appendChild(el);
+        return el;
+    }
+
+    function showRatingGameTooltipShell(title, bodyHtml, anchorX, anchorY) {
+        var tip = getRatingGameTooltipEl();
+        var titleEl = tip.querySelector('.k2-table-tooltip__title');
+        var bodyEl = tip.querySelector('.k2-table-tooltip__body');
+        if (titleEl) {
+            titleEl.textContent = title;
+        }
+        if (bodyEl) {
+            bodyEl.innerHTML = bodyHtml;
+        }
+        tip.setAttribute('aria-hidden', 'false');
+        if (DayTip && DayTip.positionTooltipNearPoint) {
+            DayTip.positionTooltipNearPoint(tip, anchorX, anchorY);
+        } else {
+            tip.style.left = Math.round(anchorX) + 'px';
+            tip.style.top = Math.round(anchorY) + 'px';
+            tip.hidden = false;
+        }
+    }
+
+    function bindRatingGameExternalTooltip(gameTooltipCtx) {
+        return function (context) {
+            if (!DayTip || !gameTooltipCtx) {
+                hideRatingGameTooltip();
+                return;
+            }
+            hideRatingDayTooltip();
+            var tooltip = context.tooltip;
+            var chart = context.chart;
+            if (!tooltip || tooltip.opacity === 0) {
+                hideRatingGameTooltip();
+                return;
+            }
+            var points = tooltip.dataPoints || [];
+            if (!points.length) {
+                hideRatingGameTooltip();
+                return;
+            }
+            var item = points[0];
+            var raw = item.raw || {};
+            var pt = Object.assign({}, raw, {
+                x: item.parsed.x,
+                y: item.parsed.y,
+                rating: item.parsed.y,
+                gameNumber: raw.gameNumber != null ? raw.gameNumber : item.parsed.x
+            });
+            var canvas = chart.canvas;
+            var rect = canvas.getBoundingClientRect();
+            var anchorX = rect.left + tooltip.caretX;
+            var anchorY = rect.top + tooltip.caretY;
+            var title = DayTip.renderRatingGameTooltipTitle(pt, gameTooltipCtx.eventMode);
+            var body = DayTip.renderRatingGameTooltipBody(pt, {
+                realm: gameTooltipCtx.realm,
+                eventMode: gameTooltipCtx.eventMode,
+                startRating: START_RATING
+            });
+            showRatingGameTooltipShell(title, body, anchorX, anchorY);
+        };
+    }
+
+    function createDateChart(canvas, chartData, peakValue, realm, timelineStart, cutoffActive, lineStyle, dayTooltipCtx) {
         var stepped = lineStyle === 'stepped';
+        var useDayGamesTooltip = realm === 'online' && dayTooltipCtx && dayTooltipCtx.playerId && DayTip;
         var timeRange;
         if (realm === 'online' && DR && DR.profileCareerTimeRange) {
             timeRange = DR.profileCareerTimeRange();
@@ -348,7 +615,9 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: T.mergeTooltip({
-                        callbacks: {
+                        enabled: !useDayGamesTooltip,
+                        external: useDayGamesTooltip ? bindRatingDateExternalTooltip(dayTooltipCtx) : undefined,
+                        callbacks: useDayGamesTooltip ? {} : {
                             title: function (items) {
                                 if (!items.length) {
                                     return '';
@@ -363,13 +632,16 @@
                                     day: 'numeric'
                                 });
                             },
+                            label: function (item) {
+                                return 'Rating at day end: ' + item.formattedValue;
+                            },
                             afterBody: function (items) {
                                 if (!items.length) {
                                     return '';
                                 }
                                 var raw = items[0].raw;
                                 if (raw && raw.gamesOnDay > 1) {
-                                    return 'End-of-day rating (' + raw.gamesOnDay + ' games that day)';
+                                    return raw.gamesOnDay + ' rated games that day';
                                 }
                                 return '';
                             }
@@ -398,13 +670,13 @@
                         },
                         grid: { color: T.softGrid ? T.softGrid() : T.grid() }
                     },
-                    y: careerYScale()
+                    y: ratingYScaleWithPeak(chartData, peakValue)
                 }
             }, 'line')
         }, 'line');
     }
 
-    function createGameChart(canvas, chartData, peakValue, eventMode, lineStyle, realm) {
+    function createGameChart(canvas, chartData, peakValue, eventMode, lineStyle, realm, gameTooltipCtx) {
         var stepped = lineStyle === 'stepped';
         var xTitle = eventMode ? 'Tournament number' : 'Rated game number';
         var datasetLabel = eventMode ? 'ELO rating (after tournament)' : 'ELO rating (after game)';
@@ -412,6 +684,7 @@
         var xMin = 0;
         var seriesData = withGameChartOrigin(chartData);
         var tickValues = buildNiceAxisTickValues(xMax, eventMode);
+        var useGameHtmlTooltip = gameTooltipCtx && DayTip;
         return createChart(canvas, {
             type: 'line',
             data: {
@@ -432,7 +705,9 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: T.mergeTooltip({
-                        callbacks: {
+                        enabled: !useGameHtmlTooltip,
+                        external: useGameHtmlTooltip ? bindRatingGameExternalTooltip(gameTooltipCtx) : undefined,
+                        callbacks: useGameHtmlTooltip ? {} : {
                             title: function (items) {
                                 if (!items.length) {
                                     return '';
@@ -444,48 +719,10 @@
                                         : 'Game #0 — starting rating');
                                 }
                                 var prefix = eventMode ? 'Tournament #' : 'Game #';
-                                var title = prefix + items[0].parsed.x;
-                                if (eventMode && pt && pt.tournamentName) {
-                                    title += ' — ' + pt.tournamentName;
-                                }
-                                if (pt && pt.date) {
-                                    var d = parseGameDate(pt.date);
-                                    if (d) {
-                                        title += ' — ' + d.toLocaleDateString(undefined, {
-                                            year: 'numeric',
-                                            month: 'short',
-                                            day: 'numeric'
-                                        });
-                                    }
-                                }
-                                return title;
+                                return prefix + items[0].parsed.x;
                             },
-                            afterBody: function (items) {
-                                if (!items.length) {
-                                    return '';
-                                }
-                                var pt = items[0].raw;
-                                if (pt && pt.isOrigin) {
-                                    var beforeLabel = eventMode
-                                        ? 'before the first tournament'
-                                        : 'before the first rated game';
-                                    return String(START_RATING) + ' Elo ' + beforeLabel;
-                                }
-                                if (eventMode && pt && pt.tournamentId) {
-                                    var lines = ['/amiga/tournament/event-stats.php?id=' + pt.tournamentId];
-                                    if (pt.gamesInEvent > 1) {
-                                        lines.push(pt.gamesInEvent + ' games in event');
-                                    }
-                                    if (typeof pt.ratingDelta === 'number') {
-                                        var sign = pt.ratingDelta > 0 ? '+' : '';
-                                        lines.push('Event delta: ' + sign + pt.ratingDelta);
-                                    }
-                                    return lines;
-                                }
-                                if (pt && pt.gameId) {
-                                    return '/game.php?id=' + pt.gameId + GAME_PAGE_ANCHOR;
-                                }
-                                return '';
+                            label: function (item) {
+                                return 'Rating after: ' + item.formattedValue;
                             }
                         }
                     })
@@ -587,7 +824,8 @@
                 state.realm,
                 state.timelineStart,
                 state.cutoffActive,
-                state.lineStyle
+                state.lineStyle,
+                state.dayTooltipCtx
             );
         }
         setActiveView(root, state.activeView, state);
@@ -611,6 +849,12 @@
         if (gameView) {
             gameView.hidden = view !== 'game';
         }
+        if (view !== 'date') {
+            hideRatingDayTooltip();
+        }
+        if (view !== 'game') {
+            hideRatingGameTooltip();
+        }
 
         if (view === 'game' && !state.gameChart && state.gameChartData.length) {
             var gameCanvas = root.querySelector('.player-rating-canvas--game');
@@ -621,7 +865,8 @@
                     state.peakValue,
                     state.eventMode,
                     state.lineStyle,
-                    state.realm
+                    state.realm,
+                    state.gameTooltipCtx
                 );
             }
         }
@@ -681,8 +926,27 @@
             lineStyle: readInitialLineStyle(root),
             realm: 'online',
             cutoffActive: false,
-            eventMode: false
+            eventMode: false,
+            dayTooltipCtx: null,
+            gameTooltipCtx: null
         };
+
+        if (DayTip && DayTip.createFetchCache) {
+            var dayTipCache = DayTip.createFetchCache();
+            state.dayTooltipCtx = {
+                playerId: parseInt(playerId, 10),
+                cache: dayTipCache
+            };
+            if (!state.dayTooltipCtx.playerId) {
+                state.dayTooltipCtx = null;
+            }
+        }
+        if (DayTip) {
+            state.gameTooltipCtx = {
+                realm: 'online',
+                eventMode: false
+            };
+        }
 
         if (toggle) {
             toggle.addEventListener('click', function (evt) {
@@ -719,6 +983,9 @@
             || (document.documentElement && document.documentElement.getAttribute('data-realm'))
             || 'online';
         state.realm = realm;
+        if (state.gameTooltipCtx) {
+            state.gameTooltipCtx.realm = realm;
+        }
 
         var asParam = root.getAttribute('data-as') || '';
         if (!asParam && typeof URLSearchParams !== 'undefined') {
@@ -730,6 +997,10 @@
             .then(function (data) {
                 state.timelineStart = data.timelineStart || null;
                 state.eventMode = historyIsEventGranularity(data, realm);
+                if (state.gameTooltipCtx) {
+                    state.gameTooltipCtx.eventMode = state.eventMode;
+                    state.gameTooltipCtx.realm = realm;
+                }
                 var cutoffActive = !!(data.meta && data.meta.cutoffActive);
                 state.cutoffActive = cutoffActive;
 
@@ -815,7 +1086,8 @@
                     realm,
                     state.timelineStart,
                     cutoffActive,
-                    state.lineStyle
+                    state.lineStyle,
+                    state.dayTooltipCtx
                 );
                 setActiveView(root, state.activeView, state);
             })
@@ -826,7 +1098,18 @@
             });
     }
 
+    var ratingDayTipDismissInstalled = false;
+
+    function installRatingChartTipDismiss() {
+        if (ratingDayTipDismissInstalled) {
+            return;
+        }
+        ratingDayTipDismissInstalled = true;
+        window.addEventListener('scroll', hideRatingChartTooltips, { passive: true, capture: true });
+    }
+
     function boot() {
+        installRatingChartTipDismiss();
         var roots = document.querySelectorAll('.player-rating-chart');
         for (var i = 0; i < roots.length; i++) {
             initRoot(roots[i]);

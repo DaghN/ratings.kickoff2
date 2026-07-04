@@ -11,6 +11,7 @@
 	var TIP_ID = 'k2-player-calendar-tooltip';
 	var WEEK_GAMES_API = '/api/player_feast/player_calendar_week_games.php';
 	var MAX_TOOLTIP_GAMES = 8;
+	var DayTip = window.K2PlayerCalendarDayTooltip;
 	var tipDismissInstalled = false;
 	var hideTipTimer = null;
 	var activeTipKey = null;
@@ -145,8 +146,11 @@
 	}
 
 	function renderPlayerSide(name, rating) {
-		return '<span class="k2-link-star">' + escapeHtml(name) + '</span>'
-			+ ' <span class="pm3-cal__tip-rating k2-link-star">(' + escapeHtml(formatRating(rating)) + ')</span>';
+		if (DayTip && DayTip.renderPlayerSide) {
+			return DayTip.renderPlayerSide(name, rating);
+		}
+		return '<span class="k2-link-star--chart-amber">' + escapeHtml(name) + '</span>'
+			+ ' <span class="pm3-cal__tip-rating k2-link-star--chart-amber">(' + escapeHtml(formatRating(rating)) + ')</span>';
 	}
 
 	function formatWinningGoalCell(goals, opponentGoals) {
@@ -185,11 +189,14 @@
 	}
 
 	function gamesTooltipSummary(games) {
+		if (DayTip && DayTip.dayTooltipSummary) {
+			return DayTip.dayTooltipSummary(games);
+		}
 		if (games === 0) {
-			return '<span class="pm3-cal__tip-count">0</span> rated games';
+			return '<span class="pm3-cal__tip-count k2-link-star--chart-amber">0</span> rated games';
 		}
 		var word = games === 1 ? 'rated game' : 'rated games';
-		return '<span class="pm3-cal__tip-count">' + games + '</span> ' + word;
+		return '<span class="pm3-cal__tip-count k2-link-star--chart-amber">' + games + '</span> ' + word;
 	}
 
 	function renderGamesBody(totalGames, games) {

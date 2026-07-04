@@ -8,6 +8,10 @@
 	--pm3-ember-glow: rgba(255, 183, 77, 0.42);
 }
 
+body.k2-site.k2-player-wing.player-feast-body .k2-player-hero {
+	margin-left: calc(var(--k2-player-hero-glow-inset) + 10px);
+}
+
 /* Content column — max-width/padding on .k2-player-wing in theme.css */
 
 /* ── Section: title/hint at column edge, content below ── */
@@ -211,8 +215,31 @@
 .pm3d-section--played-weeks .pm3-cal__status-count,
 .pm3d-section--played-weeks .pm3-cal__status-name,
 body.k2-site .k2-table-tooltip .pm3-cal__tip-count {
-	color: var(--k2-link-star);
+	color: color-mix(in srgb, var(--k2-pure-amber) 85%, var(--k2-text-primary));
 	font-weight: 600;
+}
+
+/* Profile calendar + rating chart day tooltips — fixed chart amber (not UI tint link-star) */
+body.k2-site .k2-link-star--chart-amber,
+body.k2-site span.k2-link-star--chart-amber {
+	color: color-mix(in srgb, var(--k2-pure-amber) 85%, var(--k2-text-primary));
+	font-weight: 600;
+}
+
+body.k2-site .k2-link-star--chart-pitch,
+body.k2-site span.k2-link-star--chart-pitch {
+	color: color-mix(in srgb, var(--k2-pure-pitch) 85%, var(--k2-text-primary));
+	font-weight: 600;
+}
+
+body.k2-site .k2-table-tooltip--player-cal .k2-link-star--chart-amber:hover,
+body.k2-site .k2-table-tooltip--player-cal .k2-link-star--chart-amber:focus-visible {
+	color: color-mix(in srgb, var(--k2-pure-amber) 95%, var(--k2-text-primary));
+}
+
+body.k2-site .k2-table-tooltip--player-cal .k2-link-star--chart-pitch:hover,
+body.k2-site .k2-table-tooltip--player-cal .k2-link-star--chart-pitch:focus-visible {
+	color: color-mix(in srgb, var(--k2-pure-pitch) 95%, var(--k2-text-primary));
 }
 
 body.k2-site .k2-table-tooltip.k2-table-tooltip--player-cal {
@@ -321,6 +348,17 @@ body.k2-site .k2-table-tooltip--player-cal .pm3-cal-day-games-list > li:last-chi
 	margin: 6px 0 0;
 	color: var(--k2-text-muted);
 	font-size: 11px;
+}
+
+#k2-player-rating-game-tooltip .k2-table-tooltip__title {
+	margin-bottom: 8px;
+}
+
+.pm3-cal__tip-game-num {
+	margin: 0 0 10px;
+	font-size: 12px;
+	line-height: 1.45;
+	color: var(--k2-tooltip-body);
 }
 
 .pm3d-section__content > .pm3-cal--hero.pm3-cal--year-pick .pm3-cal__months {

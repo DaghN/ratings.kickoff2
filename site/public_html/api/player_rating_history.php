@@ -122,7 +122,10 @@ if ($nameRow === null) {
 $playerName = $nameRow['Name'];
 $currentRating = (int) round((float) $nameRow['Rating']);
 
-$sql = 'SELECT id, Date, idA, idB, NewRatingA, NewRatingB '
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_display_names.php';
+
+$sql = 'SELECT id, Date, idA, idB, NameA, NameB, GoalsA, GoalsB, '
+    . 'RatingA, RatingB, NewRatingA, NewRatingB, AdjustmentA, AdjustmentB '
     . 'FROM ratedresults WHERE NewRatingA IS NOT NULL AND (idA = ? OR idB = ?) '
     . 'ORDER BY Date ASC, id ASC';
 
@@ -138,9 +141,16 @@ $stmt->bind_param('ii', $playerId, $playerId);
 $stmt->execute();
 $res = $stmt->get_result();
 
+$rawRows = [];
+while ($row = $res->fetch_assoc()) {
+    $rawRows[] = $row;
+}
+$stmt->close();
+$nameMap = k2_player_display_names_for_rated_rows($con, $rawRows);
+
 $points = [];
 $eventNumber = 0;
-while ($row = $res->fetch_assoc()) {
+foreach (k2_rated_games_apply_display_names($rawRows, $nameMap) as $row) {
     $eventNumber++;
     $isA = ((int) $row['idA'] === $playerId);
     $ratingAfter = $isA ? (float) $row['NewRatingA'] : (float) $row['NewRatingB'];
@@ -149,10 +159,14 @@ while ($row = $res->fetch_assoc()) {
         'gameNumber' => $eventNumber,
         'date' => $row['Date'],
         'rating' => (int) round($ratingAfter),
+        'name_a' => (string) $row['NameA'],
+        'name_b' => (string) $row['NameB'],
+        'rating_a' => (int) round((float) $row['RatingA']),
+        'rating_b' => (int) round((float) $row['RatingB']),
+        'goals_a' => (int) $row['GoalsA'],
+        'goals_b' => (int) $row['GoalsB'],
     ];
 }
-
-$stmt->close();
 
 mysqli_close($con);
 

@@ -7,14 +7,20 @@
 
 	var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 	var WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-	var WEEKDAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 	var SERVER_START = '2017-06-09';
 	var TIP_ID = 'k2-player-calendar-tooltip';
-	var DAY_GAMES_API = '/api/player_feast/player_calendar_day_games.php';
 	var MAX_TOOLTIP_GAMES = 8;
+	var DayTip = window.K2PlayerCalendarDayTooltip;
 	var tipDismissInstalled = false;
 	var hideTipTimer = null;
 	var activeTipKey = null;
+
+	function dayTipFn(name) {
+		if (!DayTip || typeof DayTip[name] !== 'function') {
+			return null;
+		}
+		return DayTip[name];
+	}
 
 	function mondayOffset(year, monthIndex) {
 		var d = new Date(year, monthIndex, 1);
@@ -31,34 +37,27 @@
 	}
 
 	function escapeHtml(text) {
-		return String(text)
-			.replace(/&/g, '&amp;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;')
-			.replace(/"/g, '&quot;');
+		return dayTipFn('escapeHtml') ? DayTip.escapeHtml(text) : String(text);
 	}
 
 	function formatDayTitle(ymd) {
-		var d = new Date(ymd + 'T00:00:00Z');
-		return WEEKDAYS[d.getUTCDay()] + ', ' + MONTHS[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear();
+		return dayTipFn('formatDayTitle') ? DayTip.formatDayTitle(ymd) : ymd;
 	}
 
-	function formatGameTime(at) {
-		var normalized = String(at).replace(' ', 'T');
-		if (!/Z$/i.test(normalized)) {
-			normalized += 'Z';
-		}
-		var d = new Date(normalized);
-		if (isNaN(d.getTime())) {
-			return '—';
-		}
-		var h = d.getUTCHours();
-		var m = d.getUTCMinutes();
-		return WEEKDAYS_SHORT[d.getUTCDay()] + ' ' + String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+	function renderDayGamesBody(totalGames, games) {
+		return dayTipFn('renderDayGamesBody')
+			? DayTip.renderDayGamesBody(totalGames, games)
+			: '';
 	}
 
-	function formatRating(value) {
-		return value === null || value === undefined ? '—' : String(value);
+	function dayTooltipSummary(games) {
+		return dayTipFn('dayTooltipSummary')
+			? DayTip.dayTooltipSummary(games)
+			: String(games) + ' rated games';
+	}
+
+	function fetchDayGames(ymd, ctx) {
+		return DayTip.fetchDayGames(ymd, ctx.playerId, ctx);
 	}
 
 	function gamesTabDayUrl(playerId, ymd) {
@@ -92,6 +91,11 @@
 	}
 
 	function positionCalendarTooltip(anchor, tip) {
+		if (dayTipFn('positionTooltipNearPoint')) {
+			var rect = anchor.getBoundingClientRect();
+			DayTip.positionTooltipNearPoint(tip, rect.left + rect.width / 2, rect.top);
+			return;
+		}
 		var rect = anchor.getBoundingClientRect();
 		var tipRect;
 		var margin = 6;
@@ -120,55 +124,6 @@
 		tip.style.top = Math.round(top) + 'px';
 	}
 
-	function renderPlayerSide(name, rating) {
-		return '<span class="k2-link-star">' + escapeHtml(name) + '</span>'
-			+ ' <span class="pm3-cal__tip-rating k2-link-star">(' + escapeHtml(formatRating(rating)) + ')</span>';
-	}
-
-	function formatWinningGoalCell(goals, opponentGoals) {
-		goals = parseInt(goals, 10);
-		opponentGoals = parseInt(opponentGoals, 10);
-		return goals > opponentGoals
-			? '<strong class="blue">' + goals + '</strong>'
-			: String(goals);
-	}
-
-	function renderDayGamesList(games) {
-		if (!games.length) {
-			return '<p class="pm3-cal__tip-empty">No rated games</p>';
-		}
-		var html = '<ul class="pm3-cal-day-games-list">';
-		var i;
-		for (i = 0; i < games.length; i++) {
-			var g = games[i];
-			html += '<li>';
-			html += '<span class="pm3-cal-day-games-list__cell pm3-cal-day-games-list__when">' + escapeHtml(formatGameTime(g.at)) + '</span>';
-			html += '<span class="pm3-cal-day-games-list__cell pm3-cal-day-games-list__side pm3-cal-day-games-list__side--a">';
-			html += renderPlayerSide(g.name_a, g.rating_a);
-			html += '</span>';
-			html += '<span class="pm3-cal-day-games-list__cell pm3-cal-day-games-list__goals pm3-cal-day-games-list__goals--a">'
-				+ formatWinningGoalCell(g.goals_a, g.goals_b) + '</span>';
-			html += '<span class="pm3-cal-day-games-list__cell pm3-cal-day-games-list__score-sep" aria-hidden="true">–</span>';
-			html += '<span class="pm3-cal-day-games-list__cell pm3-cal-day-games-list__goals pm3-cal-day-games-list__goals--b">'
-				+ formatWinningGoalCell(g.goals_b, g.goals_a) + '</span>';
-			html += '<span class="pm3-cal-day-games-list__cell pm3-cal-day-games-list__side pm3-cal-day-games-list__side--b">';
-			html += renderPlayerSide(g.name_b, g.rating_b);
-			html += '</span>';
-			html += '</li>';
-		}
-		html += '</ul>';
-		return html;
-	}
-
-	function renderDayGamesBody(totalGames, games) {
-		var html = '<p class="pm3-cal__tip-summary">' + dayTooltipSummary(totalGames) + '</p>';
-		html += renderDayGamesList(games);
-		if (totalGames > MAX_TOOLTIP_GAMES) {
-			html += '<p class="pm3-cal__tip-truncated">Showing ' + MAX_TOOLTIP_GAMES + ' of ' + totalGames + '</p>';
-		}
-		return html;
-	}
-
 	function coarseHintHtml(pinned) {
 		if (!pinned) {
 			return '';
@@ -190,46 +145,6 @@
 		}
 		tip.setAttribute('aria-hidden', 'false');
 		positionCalendarTooltip(cell, tip);
-	}
-
-	function dayTooltipSummary(games) {
-		if (games === 0) {
-			return '<span class="pm3-cal__tip-count">0</span> rated games';
-		}
-		var word = games === 1 ? 'rated game' : 'rated games';
-		return '<span class="pm3-cal__tip-count">' + games + '</span> ' + word;
-	}
-
-	function fetchDayGames(ymd, ctx) {
-		var cacheKey = ctx.playerId + ':' + ymd;
-		if (ctx.dayGamesCache.has(cacheKey)) {
-			return Promise.resolve(ctx.dayGamesCache.get(cacheKey));
-		}
-		if (ctx.dayGamesPending.has(cacheKey)) {
-			return ctx.dayGamesPending.get(cacheKey);
-		}
-		var promise = fetch(DAY_GAMES_API + '?id=' + ctx.playerId + '&day=' + encodeURIComponent(ymd))
-			.then(function (r) {
-				if (!r.ok) {
-					throw new Error('fetch_failed');
-				}
-				return r.json();
-			})
-			.then(function (data) {
-				var payload = {
-					games: data.games || [],
-					total: (data.games || []).length
-				};
-				ctx.dayGamesCache.set(cacheKey, payload);
-				ctx.dayGamesPending.delete(cacheKey);
-				return payload;
-			})
-			.catch(function (err) {
-				ctx.dayGamesPending.delete(cacheKey);
-				throw err;
-			});
-		ctx.dayGamesPending.set(cacheKey, promise);
-		return promise;
 	}
 
 	function showDayTooltip(cell, ymd, games, ctx, pinned) {
@@ -255,7 +170,7 @@
 				if (activeTipKey !== ymd) {
 					return;
 				}
-				var list = payload.games.slice(0, MAX_TOOLTIP_GAMES);
+				var list = payload.games.slice(0, DayTip ? DayTip.MAX_TOOLTIP_GAMES : MAX_TOOLTIP_GAMES);
 				showTooltipShell(cell, ymd, renderDayGamesBody(payload.total, list), pinned);
 			})
 			.catch(function () {
@@ -546,6 +461,11 @@
 			dayGamesCache: new Map(),
 			dayGamesPending: new Map()
 		};
+		if (DayTip && DayTip.createFetchCache) {
+			var fetchCache = DayTip.createFetchCache();
+			ctx.dayGamesCache = fetchCache.dayGamesCache;
+			ctx.dayGamesPending = fetchCache.dayGamesPending;
+		}
 
 		installTipDismiss();
 

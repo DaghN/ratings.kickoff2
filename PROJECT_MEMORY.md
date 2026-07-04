@@ -134,6 +134,7 @@
 
 ## Recent log
 
+| 2026-07-04 | **Amiga Games Recent — section headings** — tournament labels moved outside table (online Recent parity); removed in-table colspan row that looked like a stray header row. |
 | 2026-07-04 | **Profile played-weeks heatmap** — 30/70 left/right spare-space grid (was centred 50/50); `player-feast-sections.css`. |
 | 2026-07-04 | **Amiga Games Highlights — Tournament column** — Date → Tournament → Player A (parity with Recent); `default_sort_col` +1 on all five boards (× two scopes); join-back already had tournament cols — no SQL change; parity + TT probe green. |
 | 2026-07-04 | **Online Track O5-lite — Status year defer + first_games memo** — defer current-year league bundle to client prewarm; request memo on `k2_league_load_first_games`. `build_period_competitions` **~530→~98 ms**; curl `/status.php` **~0.40→~0.15 s**. Handoff [`2026-07-04-017`](docs/orchestration/agent-handoffs/2026-07-04-017-online-track-o5-status-year-defer-memo.md). |
@@ -192,6 +193,9 @@
 | 2026-07-04 | **TT baseline failures logged** — **F6** (sub-ribbon blank at scroll top, ribbon stable, old→blank→new) + **F18** (Countries/WC hub tab TT late-cutoff whole-page blank; Present OK) — smokes S1/S1b/S9–S10 — [`amiga-tt-chrome-sticky-invariants.md`](docs/amiga-tt-chrome-sticky-invariants.md). |
 | 2026-07-04 | **C02 TT ribbon pin removed** — surgical revert of `3567037` pin slice; in-flow baseline only — `amiga_snapshot_chrome.php`, `theme.css`; deleted `k2-amiga-time-travel-pin.js`. |
 | 2026-07-04 | **TT chrome policy §7 trimmed** — cause/architecture tables removed; symptoms → failures register only. |
+| 2026-07-04 | **WC Player stats — default sort regression** — `amiga_lb_wc_slice_rows_*` again use `amiga_lb_wc_slice_order_sql()` per sub-wing (was `player_id ASC` with skip-initial-sort); cache keyed by view. |
+| 2026-07-04 | **Online profile rating chart — day hover tooltip** — By date hover reuses played-days game list (`player-calendar-day-tooltip.js` + `player_calendar_day_games.php`); summary adds “Rating at day end” in fixed chart amber; heatmap tooltips switched from tint link-star to `k2-link-star--chart-amber`. |
+| 2026-07-04 | **Online profile rating chart peak** — fixed `[object Object]` in date peak summary (`peakAfterClause` object fallback); dashed peak line uses per-game career peak (not end-of-day) with y-axis headroom when intraday peak exceeds day-close plot points. |
 | 2026-07-04 | **TT chrome sticky invariants** — first register from reverted attempt — [`amiga-tt-chrome-sticky-invariants.md`](docs/amiga-tt-chrome-sticky-invariants.md). |
 | 2026-07-04 | **TT chrome sticky (CD track) — terminology locked** — §2.4: **sticky on/off**, **in flow**, **stuck** (three states); cross-refs swept — [`amiga-tt-chrome-dock-policy.md`](docs/amiga-tt-chrome-dock-policy.md). |
 | 2026-07-04 | **TT chrome sticky (CD track) — policy revised** — reverted slice 0–6 code; stamp→ribbon in flow, in flow→stuck latch, pushpin sticky off; implementation plan retired — [`amiga-tt-chrome-dock-policy.md`](docs/amiga-tt-chrome-dock-policy.md). |
