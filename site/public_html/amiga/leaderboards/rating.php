@@ -33,8 +33,6 @@ $result = amiga_lb_query_career(
     . 's.WinRatio, s.DrawRatio, s.LossRatio, s.AverageOpponentRating, p.country AS Country ',
     'ORDER BY s.Rating DESC'
 );
-$gameCount = amiga_lb_games_count($con, $ctx);
-
 $showRatingDelta = $ctx->isActive();
 $showWcStartDelta = !$showRatingDelta;
 $lastWcForDeltaHelp = null;
@@ -84,6 +82,7 @@ $k2AmigaLbWingActive = 'rating';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 ?>
 
+<section class="k2-amiga-table-scroll-view">
 <?php k2_table_wrap_open(true); ?>
 
 <?php $lbSort = k2_lb_table_sort_state($colElo); ?>
@@ -142,7 +141,8 @@ while ($row = mysqli_fetch_assoc($result)) {
 
 </div>
 
-<p style="padding:0 1.25rem 2rem;color:var(--k2-text-secondary)"><?php echo number_format($gameCount); ?> rated games in database.</p>
+<div class="k2-amiga-table-scroll-pad" aria-hidden="true"></div>
+</section>
 
 </div><!-- .k2-page-nav -->
 

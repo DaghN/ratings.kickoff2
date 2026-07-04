@@ -243,6 +243,7 @@ function amiga_world_cup_stats_render_view(string $view, array $rows, array $nam
     $viewSlug = preg_replace('/[^a-z0-9-]/', '', $view);
     $tableClass = k2_table_ranked_sortable_class('k2-table--world-cup-stats k2-table--world-cup-stats-' . $viewSlug);
     ?>
+<section class="k2-amiga-table-scroll-view">
 <?php k2_table_wrap_open(true); ?>
 <table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo AMIGA_WC_STATS_ANCHOR_COL; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>" data-k2-skip-initial-sort="1">
 	<thead>
@@ -290,6 +291,8 @@ function amiga_world_cup_stats_render_view(string $view, array $rows, array $nam
 	</tbody>
 </table>
 <?php k2_table_wrap_close(); ?>
+<div class="k2-amiga-table-scroll-pad" aria-hidden="true"></div>
+</section>
     <?php
 }
 

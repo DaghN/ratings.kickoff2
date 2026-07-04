@@ -67,6 +67,7 @@ function amiga_world_cups_events_render_table(array $rows, array $nameMap, array
     $tableClass = k2_table_ranked_sortable_class('k2-table--tournament-index k2-table--world-cups-events');
     $skipInitialSort = $defaultSortCol === AMIGA_WORLD_CUPS_EVENTS_DEFAULT_SORT_COL && $defaultSortDir === 'desc';
     ?>
+<section class="k2-amiga-table-scroll-view">
 <div class="k2-table--world-cups-events-wrap">
 <?php k2_table_wrap_open(true); ?>
 <table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>"<?php echo k2_table_quiet_default_sort_col_attr([AMIGA_WORLD_CUPS_EVENTS_QUIET_DATE_COL]); ?><?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
@@ -121,5 +122,7 @@ function amiga_world_cups_events_render_table(array $rows, array $nameMap, array
 </table>
 <?php k2_table_wrap_close(); ?>
 </div>
+<div class="k2-amiga-table-scroll-pad" aria-hidden="true"></div>
+</section>
     <?php
 }

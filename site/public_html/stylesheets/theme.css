@@ -2456,6 +2456,19 @@ body.k2-site .k2-player-tournaments-table-scroll-pad {
 	pointer-events: none;
 }
 
+/* Amiga table pages — scroll room below short TT-filtered tables (sticky ribbon) */
+body.k2-site .k2-page-nav:has(.k2-amiga-time-travel--active) .k2-amiga-table-scroll-view {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+body.k2-site .k2-amiga-table-scroll-pad {
+	flex: 1 1 auto;
+	min-height: 0;
+	pointer-events: none;
+}
+
 body.k2-site .k2-player-games-filter-view {
 	display: flex;
 	flex-direction: column;
@@ -2769,6 +2782,19 @@ body.k2-site .k2-amiga-time-travel--active {
 body.k2-site .k2-amiga-time-travel--active.k2-amiga-time-travel--event-wing .k2-amiga-time-travel__bar {
 	flex-wrap: wrap;
 	row-gap: 0.65rem;
+}
+
+/* TT hash landings — 12px present-day gap + 55px stuck ribbon (carry-scroll restore reads this) */
+body.k2-site:has(.k2-amiga-time-travel--active) :is(
+	.k2-amiga-tournament-page-anchor,
+	.k2-countries-scroll-anchor,
+	.k2-lb-player-row-anchor,
+	.k2-player-page-anchor,
+	.k2-game-page-anchor,
+	.k2-player-games-filters-anchor,
+	.k2-player-tournaments-table-anchor
+) {
+	scroll-margin-top: 67px;
 }
 
 body.k2-site .k2-amiga-time-travel__bar {
