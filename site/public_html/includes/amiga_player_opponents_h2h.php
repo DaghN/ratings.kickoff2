@@ -33,17 +33,8 @@ function amiga_player_opponents_h2h_parse_pick_source(mixed $raw): ?string
 /**
  * @return list<array{opponent_id: int, opponent_name: string, games: int}>
  */
-function amiga_player_opponents_h2h_played_opponents(
-    mysqli $con,
-    int $playerId,
-    ?AmigaSnapshotContext $ctx = null
-): array {
-    $playerId = max(0, $playerId);
-    if ($playerId <= 0) {
-        return [];
-    }
-
-    $rows = amiga_player_opponents_matchup_rows($con, $playerId, $ctx);
+function amiga_player_opponents_h2h_played_opponents_from_rows(array $rows): array
+{
     $out = [];
     foreach ($rows as $row) {
         $out[] = [
@@ -57,6 +48,53 @@ function amiga_player_opponents_h2h_played_opponents(
 }
 
 /**
+ * @return list<array{opponent_id: int, opponent_name: string, games: int}>
+ */
+function amiga_player_opponents_h2h_played_opponents(
+    mysqli $con,
+    int $playerId,
+    ?AmigaSnapshotContext $ctx = null
+): array {
+    return amiga_player_opponents_h2h_played_opponents_from_rows(
+        amiga_player_opponents_matchup_rows($con, $playerId, $ctx)
+    );
+}
+
+/**
+ * @return array{opponent_id: int, opponent_name: string, games: int}|null
+ */
+function amiga_player_opponents_h2h_resolve_opponent_from_rows(
+    mysqli $con,
+    int $playerId,
+    int $opponentId,
+    array $matchupRows
+): ?array {
+    if ($opponentId <= 0 || $opponentId === $playerId) {
+        return null;
+    }
+
+    $row = amiga_player_opponents_matchup_row_from_rows($matchupRows, $opponentId);
+    if ($row !== null) {
+        return [
+            'opponent_id' => $opponentId,
+            'opponent_name' => (string) $row['opponent_name'],
+            'games' => (int) $row['games'],
+        ];
+    }
+
+    $identity = amiga_player_identity_row($con, $opponentId);
+    if ($identity === null) {
+        return null;
+    }
+
+    return [
+        'opponent_id' => $opponentId,
+        'opponent_name' => (string) $identity['name'],
+        'games' => 0,
+    ];
+}
+
+/**
  * @return array{opponent_id: int, opponent_name: string, games: int}|null
  */
 function amiga_player_opponents_h2h_resolve_opponent(
@@ -65,23 +103,12 @@ function amiga_player_opponents_h2h_resolve_opponent(
     int $opponentId,
     ?AmigaSnapshotContext $ctx = null
 ): ?array {
-    if ($opponentId <= 0 || $opponentId === $playerId) {
-        return null;
-    }
-
-    $identity = amiga_player_identity_row($con, $opponentId);
-    if ($identity === null) {
-        return null;
-    }
-
-    $directed = amiga_player_opponents_h2h_directed_row($con, $playerId, $opponentId, $ctx);
-    $games = $directed !== null ? (int) $directed['games'] : 0;
-
-    return [
-        'opponent_id' => $opponentId,
-        'opponent_name' => (string) $identity['name'],
-        'games' => $games,
-    ];
+    return amiga_player_opponents_h2h_resolve_opponent_from_rows(
+        $con,
+        $playerId,
+        $opponentId,
+        amiga_player_opponents_matchup_rows($con, $playerId, $ctx)
+    );
 }
 
 /**
@@ -104,13 +131,8 @@ function amiga_player_opponents_h2h_directed_row(
 /**
  * @return array{games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int}|null
  */
-function amiga_player_opponents_h2h_pair_record(
-    mysqli $con,
-    int $playerId,
-    int $opponentId,
-    ?AmigaSnapshotContext $ctx = null
-): ?array {
-    $row = amiga_player_opponents_h2h_directed_row($con, $playerId, $opponentId, $ctx);
+function amiga_player_opponents_h2h_pair_record_from_row(?array $row): ?array
+{
     if ($row === null || (int) $row['games'] <= 0) {
         return null;
     }
@@ -123,6 +145,20 @@ function amiga_player_opponents_h2h_pair_record(
         'goals_for' => (int) $row['goals_for'],
         'goals_against' => (int) $row['goals_against'],
     ];
+}
+
+/**
+ * @return array{games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int}|null
+ */
+function amiga_player_opponents_h2h_pair_record(
+    mysqli $con,
+    int $playerId,
+    int $opponentId,
+    ?AmigaSnapshotContext $ctx = null
+): ?array {
+    return amiga_player_opponents_h2h_pair_record_from_row(
+        amiga_player_opponents_h2h_directed_row($con, $playerId, $opponentId, $ctx)
+    );
 }
 
 /**
@@ -180,14 +216,14 @@ function amiga_player_opponents_h2h_load_player_card(
 /**
  * @return array<string, mixed>|null
  */
-function amiga_player_opponents_h2h_pair_detail_load(
+function amiga_player_opponents_h2h_pair_detail_from_row(
     mysqli $con,
+    array $row,
     int $playerId,
     int $opponentId,
     ?AmigaSnapshotContext $ctx = null
 ): ?array {
-    $row = amiga_player_opponents_h2h_directed_row($con, $playerId, $opponentId, $ctx);
-    if ($row === null || (int) $row['games'] <= 0) {
+    if ((int) $row['games'] <= 0) {
         return null;
     }
 
@@ -199,8 +235,6 @@ function amiga_player_opponents_h2h_pair_detail_load(
         return $detail;
     }
 
-    // Stored directed pair TPR (holy ops finalize) — subject is the player→opponent
-    // row; opponent is the reverse directed row. No on-the-fly solve.
     $detail['perf_rating_subject'] = isset($row['performance_rating']) && $row['performance_rating'] !== null
         ? (int) round((float) $row['performance_rating'])
         : null;
@@ -211,6 +245,23 @@ function amiga_player_opponents_h2h_pair_detail_load(
         : null;
 
     return $detail;
+}
+
+/**
+ * @return array<string, mixed>|null
+ */
+function amiga_player_opponents_h2h_pair_detail_load(
+    mysqli $con,
+    int $playerId,
+    int $opponentId,
+    ?AmigaSnapshotContext $ctx = null
+): ?array {
+    $row = amiga_player_opponents_h2h_directed_row($con, $playerId, $opponentId, $ctx);
+    if ($row === null || (int) $row['games'] <= 0) {
+        return null;
+    }
+
+    return amiga_player_opponents_h2h_pair_detail_from_row($con, $row, $playerId, $opponentId, $ctx);
 }
 
 function amiga_player_opponents_render_h2h_panel(
@@ -229,7 +280,8 @@ function amiga_player_opponents_render_h2h_panel(
     }
 
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
-    $played = amiga_player_opponents_h2h_played_opponents($con, $playerId, $ctx);
+    $matchupRows = amiga_player_opponents_matchup_rows($con, $playerId, $ctx);
+    $played = amiga_player_opponents_h2h_played_opponents_from_rows($matchupRows);
     if ($defaultToTopOpponent && $selectedOpponentId <= 0 && $played !== []) {
         $selectedOpponentId = (int) $played[0]['opponent_id'];
     }
@@ -243,7 +295,10 @@ function amiga_player_opponents_render_h2h_panel(
     );
 
     $pair = $selectedOpponentId > 0
-        ? amiga_player_opponents_h2h_resolve_opponent($con, $playerId, $selectedOpponentId, $ctx)
+        ? amiga_player_opponents_h2h_resolve_opponent_from_rows($con, $playerId, $selectedOpponentId, $matchupRows)
+        : null;
+    $pairRow = ($pair !== null && (int) $pair['games'] > 0)
+        ? amiga_player_opponents_matchup_row_from_rows($matchupRows, $selectedOpponentId)
         : null;
 
     $gamesShowName = $pickSource === 'games' || $pickSource === 'search';
@@ -316,13 +371,19 @@ function amiga_player_opponents_render_h2h_panel(
             $subjectCard = amiga_player_opponents_h2h_load_player_card($con, $playerId, $ctx);
             $opponentCard = amiga_player_opponents_h2h_load_player_card($con, $pair['opponent_id'], $ctx);
             if ($subjectCard !== null && $opponentCard !== null) {
-                $record = $pair['games'] > 0
-                    ? amiga_player_opponents_h2h_pair_record($con, $playerId, $pair['opponent_id'], $ctx)
+                $record = $pairRow !== null
+                    ? amiga_player_opponents_h2h_pair_record_from_row($pairRow)
                     : null;
                 $games = (int) $pair['games'];
                 player_opponents_render_h2h_poster($subjectCard, $opponentCard, $record, $games);
-                if ($games > 0) {
-                    $detail = amiga_player_opponents_h2h_pair_detail_load($con, $playerId, $pair['opponent_id'], $ctx);
+                if ($games > 0 && $pairRow !== null) {
+                    $detail = amiga_player_opponents_h2h_pair_detail_from_row(
+                        $con,
+                        $pairRow,
+                        $playerId,
+                        $pair['opponent_id'],
+                        $ctx
+                    );
                     if ($detail !== null) {
                         player_opponents_render_h2h_pair_detail($subjectCard, $opponentCard, $detail);
                     }

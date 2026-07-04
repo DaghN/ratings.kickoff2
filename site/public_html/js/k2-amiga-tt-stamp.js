@@ -402,8 +402,10 @@
         clearArrivalPending(stamp);
     }
 
-    // Turbo Drive re-evaluates this body script on every in-page navigation. Register the
-    // global listeners + page-ready hook only ONCE per document so they cannot stack.
+    // Stamp markup + this script are emitted together in amiga_time_travel_stamp_render()
+    // (ribbon chrome, before hub chapter / table). Init immediately — do not wait for
+    // k2:page-ready / DOMContentLoaded or the LED stays hidden until the full page
+    // (incl. slow table HTML) has parsed.
     if (!global.__k2TtStampBound) {
         global.__k2TtStampBound = true;
 
@@ -414,17 +416,7 @@
         // Settle transient arrival classes before Turbo snapshots the page, so a cached
         // snapshot never freezes the stamp in its hidden (cloaked) state.
         document.addEventListener('turbo:before-cache', settleStampForCache);
-
-        (global.k2OnPageReady || function (fn) {
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', fn);
-            } else {
-                fn();
-            }
-        })(initStamp);
-    } else {
-        // Re-evaluated under Turbo: init the freshly swapped stamp for this visit. The
-        // once-registered k2:page-ready hook also runs initStamp (idempotent).
-        initStamp();
     }
+
+    initStamp();
 }(window));

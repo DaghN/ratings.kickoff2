@@ -3,7 +3,7 @@
 **Date:** 2026-07-04  
 **Track:** Amiga TT chrome baseline · carry-scroll / hash landing  
 **Failure targeted:** **F20** — TT flag / roster / entity nav header flash before content (y ≠ 0)  
-**Status:** **Query slice shipped 2026-07-04** — patterns D + A + scoped perf; parity green; panel ~0.7–1.1 s TT (was 2.2–3.7 s). Chrome flush (3b) still optional follow-up.  
+**Status:** **Signed off 2026-07-04 (Dagh, query slice)** — Track A rivals query fixes shipped; optional hash/reveal chrome deferred  
 **Dagh note:** May refer to this as **T20 audit** — same as **F20** in [`amiga-tt-chrome-sticky-invariants.md`](../amiga-tt-chrome-sticky-invariants.md).
 
 ---

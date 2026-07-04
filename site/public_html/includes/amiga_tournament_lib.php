@@ -127,14 +127,12 @@ function amiga_tournament_videos_apply_mode_redirect_from_db(
     if (!amiga_tournament_has_videos($id)) {
         return;
     }
-    $rows = amiga_tournament_videos_for_id($id);
-    [$matchRows, $extrasRows] = amiga_tournament_videos_partition($rows);
-    $gameEntries = amiga_tournament_videos_wc_game_index($con, $id, $matchRows);
+    $wings = amiga_tournament_videos_wings_for_id($con, $id);
     amiga_tournament_videos_apply_mode_redirect(
         $id,
         $requestedMode,
-        $extrasRows !== [],
-        $gameEntries !== [],
+        $wings['has_atmosphere_wing'],
+        $wings['has_games_wing'],
         $query,
     );
 }
@@ -697,6 +695,71 @@ function amiga_tournament_load(mysqli $con, int $tournamentId, bool $publicOnly 
     $cache[$cacheKey] = $row ?: null;
 
     return $cache[$cacheKey];
+}
+
+/** Whether the event has any public participation rows (Event stats tab). */
+function amiga_tournament_has_participation(mysqli $con, int $tournamentId): bool
+{
+    static $cache = [];
+    if ($tournamentId < 1) {
+        return false;
+    }
+    if (isset($cache[$tournamentId])) {
+        return $cache[$tournamentId];
+    }
+    $sql = 'SELECT 1
+            FROM amiga_player_event_snapshots s
+            INNER JOIN tournaments t ON t.id = s.tournament_id
+            WHERE s.tournament_id = ?
+              AND ' . amiga_tournament_public_visibility_where('t') . '
+            LIMIT 1';
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        return false;
+    }
+    mysqli_stmt_bind_param($stmt, 'i', $tournamentId);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $has = $res !== false && mysqli_fetch_assoc($res) !== null;
+    if ($res) {
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+    $cache[$tournamentId] = $has;
+
+    return $has;
+}
+
+/** Whether implicit league table rows exist (scope_key = ''). */
+function amiga_tournament_has_implicit_league_table(mysqli $con, int $tournamentId): bool
+{
+    static $cache = [];
+    if ($tournamentId < 1) {
+        return false;
+    }
+    if (isset($cache[$tournamentId])) {
+        return $cache[$tournamentId];
+    }
+    $stmt = mysqli_prepare(
+        $con,
+        'SELECT 1 FROM amiga_tournament_standings
+         WHERE tournament_id = ? AND scope_type = \'league\' AND scope_key = \'\'
+         LIMIT 1',
+    );
+    if ($stmt === false) {
+        return false;
+    }
+    mysqli_stmt_bind_param($stmt, 'i', $tournamentId);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $has = $res !== false && mysqli_fetch_assoc($res) !== null;
+    if ($res) {
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+    $cache[$tournamentId] = $has;
+
+    return $has;
 }
 
 /**

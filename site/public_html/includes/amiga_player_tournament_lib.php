@@ -43,6 +43,12 @@ function amiga_player_tournament_participation_rows(
 ): array {
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
 
+    static $cache = [];
+    $cacheKey = $playerId . '|' . amiga_tournament_index_cutoff_cache_key($ctx) . '|' . ($limit ?? 'all');
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $types = 'i';
     $params = [$playerId];
     $cutoffSql = '';
@@ -84,12 +90,10 @@ function amiga_player_tournament_participation_rows(
                    p.performance_rating,
                    p.is_winner,
                    p.is_perfect_event,
-                   (SELECT COUNT(DISTINCT sk.scope_key)
-                    FROM amiga_tournament_standings sk
-                    WHERE sk.tournament_id = p.tournament_id
-                      AND sk.scope_type = \'knockout\') AS knockout_ties
+                   COALESCE(cs.knockout_ties, 0) AS knockout_ties
             FROM amiga_player_event_snapshots p
             INNER JOIN tournaments t ON t.id = p.tournament_id
+            LEFT JOIN amiga_tournament_catalog_stats cs ON cs.tournament_id = p.tournament_id
             WHERE p.player_id = ?
               AND ' . amiga_tournament_public_visibility_where('t') . $cutoffSql . '
             ORDER BY COALESCE(p.event_chrono, 999999) DESC,
@@ -118,6 +122,8 @@ function amiga_player_tournament_participation_rows(
         mysqli_free_result($res);
     }
     mysqli_stmt_close($stmt);
+
+    $cache[$cacheKey] = $rows;
 
     return $rows;
 }

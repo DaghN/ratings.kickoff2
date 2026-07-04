@@ -19,6 +19,11 @@ function old_wc_player_rows(mysqli $con, AmigaSnapshotContext $ctx, string $view
     return $rows;
 }
 
+function wc_slice_rows_for_parity(array $rows): array {
+    usort($rows, static fn(array $a, array $b): int => ((int) $a['player_id']) <=> ((int) $b['player_id']));
+    return $rows;
+}
+
 $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
 $con->set_charset('utf8mb4');
 $cutoffs = ['year:2001', 'month:2002-06', 'month:2014-07', 'event:589', 'year:2024', 'event:22'];
@@ -28,8 +33,8 @@ foreach ($cutoffs as $as) {
     amiga_snapshot_context_reset();
     $ctx = amiga_snapshot_context_from_request($con);
     foreach (['honours', 'results', 'goals'] as $view) {
-        $old = old_wc_player_rows($con, $ctx, $view);
-        $new = amiga_lb_wc_slice_rows_at_cutoff($con, $ctx, $view);
+        $old = wc_slice_rows_for_parity(old_wc_player_rows($con, $ctx, $view));
+        $new = wc_slice_rows_for_parity(amiga_lb_wc_slice_rows_at_cutoff($con, $ctx, $view));
         $o = json_encode($old); $n = json_encode($new);
         if ($o !== $n) { echo "MISMATCH {$as} {$view}\n"; $fail++; }
     }

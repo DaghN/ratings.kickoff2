@@ -528,11 +528,11 @@ Consolidated status after F6 track + realm query sweep. Symptom register updated
 | Failure | Status | Primary fix | Handoff / doc |
 |---------|--------|-------------|---------------|
 | **F6** sub-ribbon blank at y=0 | **Signed off 2026-07-04** | 3d-b query (~165–230 ms block) + 3d-c TT y=0 chrome gate | [`2026-07-04-003`](agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md) — Dagh S1/S1b pass |
-| **F18** hub-tab whole-page blank | **Resolved (code)** | Countries index + WC facts index + stats cache + sweep | [`2026-07-04-004`](agent-handoffs/2026-07-04-004-amiga-tt-query-optimization-sweep.md) |
-| **F19** LED co-waits with table | **Resolved** | Stamp `initStamp()` at script eval | TT policy §5.0 Motion |
-| **F20** flag/roster header flash | **Query resolved** | Roster + rivals Track A query slices | [`2026-07-04-002`](agent-handoffs/2026-07-04-002-f20-country-rivals-h2h-audit.md) — optional chrome follow-up |
+| **F18** hub-tab whole-page blank | **Signed off 2026-07-04** | Countries index + WC facts index + realm sweep | handoff 004 |
+| **F19** LED co-waits with table | **Signed off 2026-07-04** | Stamp `initStamp()` at script eval | TT policy §5.0 |
+| **F20** flag/roster header flash | **Signed off 2026-07-04 (query)** | Roster + rivals Track A | handoff 002 — optional hash chrome deferred |
 
-**Still open (not F6-class):** F1–F17 sticky/pin symptoms from reverted CD track; player games curl >0.8 s (HTML render, query fixed); F20 optional hash/reveal chrome.
+**Still open (not F6-class):** F1–F17 sticky/pin symptoms from reverted CD track; player games curl >0.8 s (HTML render, query fixed); F20 optional hash/reveal chrome (deferred).
 
 **Recommended Dagh pass:** ~~S1/S1b on rating LB~~ — **passed 2026-07-04** (only table swaps; chrome stable).
 

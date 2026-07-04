@@ -134,7 +134,7 @@
 
 ## Recent log
 
-| 2026-07-04 | **TT F6 signed off** — Dagh S1/S1b pass on rating LB (only table swaps; chrome stable) |
+| 2026-07-04 | **TT F18/F19/F20 signed off** — Dagh approval; F20 hash chrome deferred |
 | 2026-07-04 | **TT F6 track closure (docs)** — F6/F18/F19 resolved in invariants; F20 query resolved; attempt log issue-closure summary |
 | 2026-07-04 | **TT Track H — tournament tail + entities** — videos/stages defer standings+participation on non-content views; shared `amiga_tournament_videos_wings_for_id` + wc_game_index cache; `amiga_rated_games_from_sql` tournament/game inner scan; player tournaments catalog-stats knockout_ties + request cache. Parity green (`amiga_track_h_parity_probe.php`). Curl worst: videos **0.43 s**, stages@589 **0.46 s**, player/tournaments **0.39 s** (was ~0.5-1.0 s). Handoff [`2026-07-04-006`](docs/orchestration/agent-handoffs/2026-07-04-006-track-h-tournament-tail-tt-perf.md). |
 *Older rows (before 2026-07-01): [docs/archive/session-log-2026-jun-prune.md](docs/archive/session-log-2026-jun-prune.md).*

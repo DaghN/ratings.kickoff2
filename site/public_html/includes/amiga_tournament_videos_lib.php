@@ -316,6 +316,47 @@ function amiga_tournament_videos_partition(array $rows): array
     return [$match, $extras];
 }
 
+/**
+ * Request-scoped manifest + DB wing resolution (redirect + page body share one wc_game_index).
+ *
+ * @return array{
+ *   match_rows: list<array<string, mixed>>,
+ *   extras_rows: list<array<string, mixed>>,
+ *   game_entries: list<array{game_id: int, youtube_id: string, video: array<string, mixed>, game: array<string, mixed>, sort_bucket: int}>,
+ *   has_games_wing: bool,
+ *   has_atmosphere_wing: bool
+ * }
+ */
+function amiga_tournament_videos_wings_for_id(mysqli $con, int $tournamentId): array
+{
+    static $cache = [];
+    if ($tournamentId < 1) {
+        return [
+            'match_rows' => [],
+            'extras_rows' => [],
+            'game_entries' => [],
+            'has_games_wing' => false,
+            'has_atmosphere_wing' => false,
+        ];
+    }
+    if (isset($cache[$tournamentId])) {
+        return $cache[$tournamentId];
+    }
+
+    $rows = amiga_tournament_videos_for_id($tournamentId);
+    [$matchRows, $extrasRows] = amiga_tournament_videos_partition($rows);
+    $gameEntries = amiga_tournament_videos_wc_game_index($con, $tournamentId, $matchRows);
+    $cache[$tournamentId] = [
+        'match_rows' => $matchRows,
+        'extras_rows' => $extrasRows,
+        'game_entries' => $gameEntries,
+        'has_games_wing' => $gameEntries !== [],
+        'has_atmosphere_wing' => $extrasRows !== [],
+    ];
+
+    return $cache[$tournamentId];
+}
+
 /** WC Games tab — explicit catalog slot when set; else stage/title heuristics. */
 function amiga_tournament_videos_wc_sort_bucket(array $video): int
 {
@@ -377,7 +418,7 @@ function amiga_tournament_videos_games_by_ids(mysqli $con, int $tournamentId, ar
                    r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB,
                    r.NewRatingA, r.NewRatingB, r.SumOfGoals, r.GoalDifference,
                    r.country_a, r.country_b '
-        . amiga_rated_games_from_sql()
+        . amiga_rated_games_from_sql(null, $tournamentId)
         . ' WHERE r.tournament_id = ? AND r.id IN (' . $placeholders . ')';
 
     $types = 'i' . str_repeat('i', count($gameIds));
@@ -410,6 +451,14 @@ function amiga_tournament_videos_games_by_ids(mysqli $con, int $tournamentId, ar
  */
 function amiga_tournament_videos_wc_game_index(mysqli $con, int $tournamentId, array $matchVideos): array
 {
+    static $cache = [];
+    if ($tournamentId < 1) {
+        return [];
+    }
+    if (isset($cache[$tournamentId])) {
+        return $cache[$tournamentId];
+    }
+
     $pending = [];
     foreach ($matchVideos as $video) {
         $yt = (string) ($video['youtube_id'] ?? '');
@@ -460,6 +509,8 @@ function amiga_tournament_videos_wc_game_index(mysqli $con, int $tournamentId, a
         $entries,
         static fn (array $a, array $b): int => $b['game_id'] <=> $a['game_id'],
     );
+
+    $cache[$tournamentId] = $entries;
 
     return $entries;
 }

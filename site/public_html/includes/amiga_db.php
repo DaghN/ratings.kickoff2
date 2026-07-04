@@ -17,16 +17,28 @@ function amiga_game_chronology_order_sql(string $direction = 'ASC'): string
 /**
  * Subquery alias `r` with column names compatible with legacy ratedresults consumers.
  *
- * When $scopePlayerId is set, the player predicate is pushed into the inner scan so
- * idx_amiga_games_player_a / player_b are used instead of materializing all ~27k games.
+ * Push predicates into the inner scan when possible:
+ * - $scopePlayerId → idx_amiga_games_player_a / player_b
+ * - $scopeTournamentId → idx_amiga_games_tournament
+ * - $scopeGameId → primary key on amiga_games
  */
-function amiga_rated_games_from_sql(?int $scopePlayerId = null): string
-{
-    $playerWhere = '';
+function amiga_rated_games_from_sql(
+    ?int $scopePlayerId = null,
+    ?int $scopeTournamentId = null,
+    ?int $scopeGameId = null,
+): string {
+    $whereParts = [];
     if ($scopePlayerId !== null && $scopePlayerId > 0) {
         $pid = (int) $scopePlayerId;
-        $playerWhere = "\n    WHERE g.player_a_id = {$pid} OR g.player_b_id = {$pid}";
+        $whereParts[] = "(g.player_a_id = {$pid} OR g.player_b_id = {$pid})";
     }
+    if ($scopeTournamentId !== null && $scopeTournamentId > 0) {
+        $whereParts[] = 'g.tournament_id = ' . (int) $scopeTournamentId;
+    }
+    if ($scopeGameId !== null && $scopeGameId > 0) {
+        $whereParts[] = 'g.id = ' . (int) $scopeGameId;
+    }
+    $playerWhere = $whereParts !== [] ? "\n    WHERE " . implode(' AND ', $whereParts) : '';
 
     return <<<SQL
 FROM (
@@ -91,7 +103,7 @@ function amiga_rated_game_load(mysqli $con, int $gameId): ?array
         . 'r.GoalsA, r.GoalsB, r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB, '
         . 'r.SumOfGoals, r.GoalDifference, r.phase, r.tournament_id, r.tournament_name, '
         . 'r.country_a, r.country_b, r.tournament_country '
-        . amiga_rated_games_from_sql()
+        . amiga_rated_games_from_sql(null, null, $gameId)
         . ' WHERE r.id = ? LIMIT 1';
     $stmt = $con->prepare($sql);
     if (!$stmt) {

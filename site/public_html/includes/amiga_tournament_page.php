@@ -174,25 +174,48 @@ $leagueLabeledScopes = amiga_tournament_list_league_labeled_scopes($con, $id);
 
 $knockoutScopes = amiga_tournament_list_scopes($con, $id, 'knockout');
 
-$implicitLeagueRows = amiga_tournament_standings_rows($con, $id, 'league', '');
+$needsStandingsRows = $pageView === 'stages' || $pageView === 'standings';
 
-$rows = amiga_tournament_standings_rows($con, $id, $scopeType, $scopeKey);
+$needsParticipationRows = $pageView === 'event-stats';
 
+$hasImplicitLeagueTable = amiga_tournament_has_implicit_league_table($con, $id);
 
+$hasEventStatsTab = $needsParticipationRows
+    ? true
+    : amiga_tournament_has_participation($con, $id);
 
-if ($scopeType === 'league' && $scopeKey === '' && $rows === [] && $leagueLabeledScopes !== []) {
+$implicitLeagueRows = [];
 
-    $scopeKey = $leagueLabeledScopes[0];
+$rows = [];
 
-    $rows = amiga_tournament_standings_rows($con, $id, 'league', $scopeKey);
+if ($needsStandingsRows) {
 
-} elseif ($scopeType === 'league' && $scopeKey === '' && $rows === [] && $knockoutScopes !== []) {
-
-    $scopeType = 'knockout';
-
-    $scopeKey = $knockoutScopes[0];
+    $implicitLeagueRows = $hasImplicitLeagueTable
+        ? amiga_tournament_standings_rows($con, $id, 'league', '')
+        : [];
 
     $rows = amiga_tournament_standings_rows($con, $id, $scopeType, $scopeKey);
+
+}
+
+
+if ($needsStandingsRows) {
+
+    if ($scopeType === 'league' && $scopeKey === '' && $rows === [] && $leagueLabeledScopes !== []) {
+
+        $scopeKey = $leagueLabeledScopes[0];
+
+        $rows = amiga_tournament_standings_rows($con, $id, 'league', $scopeKey);
+
+    } elseif ($scopeType === 'league' && $scopeKey === '' && $rows === [] && $knockoutScopes !== []) {
+
+        $scopeType = 'knockout';
+
+        $scopeKey = $knockoutScopes[0];
+
+        $rows = amiga_tournament_standings_rows($con, $id, $scopeType, $scopeKey);
+
+    }
 
 }
 
@@ -209,18 +232,18 @@ $isKnockoutView = $scopeType === 'knockout';
 $formatKind = amiga_tournament_format_kind($tournament, $leagueLabeledScopes, $knockoutScopes);
 $hasBracket = $knockoutScopes !== [];
 // Show when implicit league+'' rows exist — mixed events use this as aggregate tab; pure single-table events need it for active nav.
-$showLeagueTableTab = $implicitLeagueRows !== [];
-$hasLeagueStandingsNav = $implicitLeagueRows !== [] || $leagueLabeledScopes !== [];
+$showLeagueTableTab = $needsStandingsRows ? $implicitLeagueRows !== [] : $hasImplicitLeagueTable;
+$hasLeagueStandingsNav = $showLeagueTableTab || $leagueLabeledScopes !== [];
 
 $knockoutFixture = [];
 $knockoutWinner = null;
-if ($isKnockoutView && $scopeKey !== '') {
+if ($needsStandingsRows && $isKnockoutView && $scopeKey !== '') {
     $knockoutFixture = amiga_tournament_knockout_fixture_games($con, $id, $scopeKey);
     $knockoutWinner = amiga_tournament_knockout_resolve_winner($knockoutFixture, $rows);
 }
 
 
-$eventStatsRows = amiga_tournament_participation_rows($con, $id);
+$eventStatsRows = $needsParticipationRows ? amiga_tournament_participation_rows($con, $id) : [];
 
 $tournamentGameCount = amiga_tournament_game_count($con, $id);
 
@@ -292,13 +315,14 @@ $tournamentVideosIndexUrl = '';
 
 if ($hasVideosTab) {
 
-    $tournamentVideosRows = amiga_tournament_videos_for_id($id);
-
     if ($pageView === 'videos') {
-        [$tournamentVideosMatchRows, $tournamentVideosExtrasRows] = amiga_tournament_videos_partition($tournamentVideosRows);
-        $tournamentVideosGameEntries = amiga_tournament_videos_wc_game_index($con, $id, $tournamentVideosMatchRows);
-        $tournamentVideosHasGamesWing = $tournamentVideosGameEntries !== [];
-        $tournamentVideosHasExtrasWing = $tournamentVideosExtrasRows !== [];
+        $videoWings = amiga_tournament_videos_wings_for_id($con, $id);
+        $tournamentVideosRows = amiga_tournament_videos_for_id($id);
+        $tournamentVideosMatchRows = $videoWings['match_rows'];
+        $tournamentVideosExtrasRows = $videoWings['extras_rows'];
+        $tournamentVideosGameEntries = $videoWings['game_entries'];
+        $tournamentVideosHasGamesWing = $videoWings['has_games_wing'];
+        $tournamentVideosHasExtrasWing = $videoWings['has_atmosphere_wing'];
         $requestedVideosMode = isset($k2AmigaTournamentVideosMode) && is_string($k2AmigaTournamentVideosMode)
             ? $k2AmigaTournamentVideosMode
             : amiga_tournament_videos_mode_from_request();
@@ -334,6 +358,8 @@ if ($hasVideosTab) {
             $tournamentVideosSpotlightStartSec = $extrasSpotlight['start_sec'];
             $tournamentVideosHighlightRow = $extrasSpotlight['highlight_row'];
         }
+    } else {
+        $tournamentVideosRows = amiga_tournament_videos_for_id($id);
     }
 
 }
@@ -387,7 +413,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_hero.php';
 
 
 
-<?php if ($hasLeagueStandingsNav || $hasBracket || $hasGamesTab || $hasVideosTab || $eventStatsRows !== []) {
+<?php if ($hasLeagueStandingsNav || $hasBracket || $hasGamesTab || $hasVideosTab || $hasEventStatsTab) {
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.php';
 
@@ -401,8 +427,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
 
       <?php
       $eventStatsActive = $pageView === 'event-stats';
-      $eventStatsNav = static function () use ($id, $eventStatsActive, $eventStatsRows): void {
-          if ($eventStatsRows === []) {
+      $eventStatsNav = static function () use ($id, $eventStatsActive, $hasEventStatsTab): void {
+          if (!$hasEventStatsTab) {
               return;
           }
           ?>

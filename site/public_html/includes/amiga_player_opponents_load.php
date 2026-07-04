@@ -5,6 +5,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_matchup_snapshot_lib.php';
+require_once __DIR__ . '/amiga_snapshot_context.php';
 
 function amiga_player_opponents_matchup_ratio(int $part, int $games): float
 {
@@ -54,16 +55,61 @@ function amiga_player_opponents_normalize_matchup_row(array $row): array
     ];
 }
 
+function amiga_player_opponents_matchup_rows_cache_key(int $playerId, AmigaSnapshotContext $ctx): string
+{
+    if (!$ctx->isActive()) {
+        return $playerId . '|present';
+    }
+    $cutoff = $ctx->cutoff();
+
+    return $playerId . '|at:'
+        . (int) ($cutoff['tournament_id'] ?? 0) . ':'
+        . (string) ($cutoff['event_date'] ?? '') . ':'
+        . (string) ($cutoff['chrono'] ?? '');
+}
+
+/**
+ * @param list<array<string, mixed>> $rows
+ * @return array<string, mixed>|null
+ */
+function amiga_player_opponents_matchup_row_from_rows(array $rows, int $opponentId): ?array
+{
+    if ($opponentId < 1) {
+        return null;
+    }
+
+    foreach ($rows as $row) {
+        if ((int) $row['opponent_id'] === $opponentId) {
+            return $row;
+        }
+    }
+
+    return null;
+}
+
 /**
  * @return list<array<string, mixed>>
  */
 function amiga_player_opponents_matchup_rows(mysqli $con, int $playerId, ?AmigaSnapshotContext $ctx = null): array
 {
-    $raw = amiga_player_matchup_opponent_rows($con, $playerId, $ctx);
+    static $cache = [];
+
+    if ($playerId < 1) {
+        return [];
+    }
+
+    $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+    $cacheKey = amiga_player_opponents_matchup_rows_cache_key($playerId, $ctx);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $rows = [];
-    foreach ($raw as $row) {
+    foreach (amiga_player_matchup_opponent_rows($con, $playerId, $ctx) as $row) {
         $rows[] = amiga_player_opponents_normalize_matchup_row($row);
     }
+
+    $cache[$cacheKey] = $rows;
 
     return $rows;
 }

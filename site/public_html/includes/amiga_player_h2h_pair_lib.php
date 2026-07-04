@@ -48,6 +48,22 @@ function amiga_player_h2h_pair_where_sql(
     );
 }
 
+function amiga_player_h2h_pair_game_rows_cache_key(
+    int $playerId,
+    int $opponentId,
+    AmigaSnapshotContext $ctx
+): string {
+    if (!$ctx->isActive()) {
+        return $playerId . '|' . $opponentId . '|present';
+    }
+    $cutoff = $ctx->cutoff();
+
+    return $playerId . '|' . $opponentId . '|at:'
+        . (int) ($cutoff['tournament_id'] ?? 0) . ':'
+        . (string) ($cutoff['event_date'] ?? '') . ':'
+        . (string) ($cutoff['chrono'] ?? '');
+}
+
 /**
  * @return list<array<string, mixed>>
  */
@@ -58,6 +74,8 @@ function amiga_player_h2h_pair_game_rows_raw(
     ?AmigaSnapshotContext $ctx = null,
     string $select = 'r.id, r.`Date`, r.idA, r.idB, r.NameA, r.NameB, r.GoalsA, r.GoalsB, r.ActualScore, r.WinnerID, r.SumOfGoals'
 ): array {
+    static $cache = [];
+
     $playerId = max(0, $playerId);
     $opponentId = max(0, $opponentId);
     if ($playerId < 1 || $opponentId < 1 || $playerId === $opponentId) {
@@ -65,6 +83,11 @@ function amiga_player_h2h_pair_game_rows_raw(
     }
 
     $ctx = amiga_player_h2h_ctx($ctx);
+    $cacheKey = amiga_player_h2h_pair_game_rows_cache_key($playerId, $opponentId, $ctx) . '|' . md5($select);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $types = '';
     $params = [];
     $whereSql = amiga_player_h2h_pair_where_sql($playerId, $opponentId, $ctx, $types, $params);
@@ -72,7 +95,9 @@ function amiga_player_h2h_pair_game_rows_raw(
         . ' WHERE ' . $whereSql
         . ' ORDER BY r.`Date` ASC, r.id ASC';
 
-    return amiga_games_query_all($con, $sql, $types, $params);
+    $cache[$cacheKey] = amiga_games_query_all($con, $sql, $types, $params);
+
+    return $cache[$cacheKey];
 }
 
 /**
