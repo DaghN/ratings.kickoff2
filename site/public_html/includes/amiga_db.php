@@ -26,6 +26,7 @@ function amiga_rated_games_from_sql(
     ?int $scopePlayerId = null,
     ?int $scopeTournamentId = null,
     ?int $scopeGameId = null,
+    string $extraInnerWhereSql = '',
 ): string {
     $whereParts = [];
     if ($scopePlayerId !== null && $scopePlayerId > 0) {
@@ -37,6 +38,10 @@ function amiga_rated_games_from_sql(
     }
     if ($scopeGameId !== null && $scopeGameId > 0) {
         $whereParts[] = 'g.id = ' . (int) $scopeGameId;
+    }
+    $extraInnerWhereSql = trim($extraInnerWhereSql);
+    if ($extraInnerWhereSql !== '') {
+        $whereParts[] = '(' . $extraInnerWhereSql . ')';
     }
     $playerWhere = $whereParts !== [] ? "\n    WHERE " . implode(' AND ', $whereParts) : '';
 

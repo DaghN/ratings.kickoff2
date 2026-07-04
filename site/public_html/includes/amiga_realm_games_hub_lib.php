@@ -29,8 +29,12 @@ function amiga_realm_games_hub_lean_select_sql(): string
 
 function amiga_realm_games_hub_lean_from_sql(): string
 {
-    return 'FROM amiga_games g '
-        . 'INNER JOIN amiga_game_ratings gr ON gr.game_id = g.id '
+    return 'FROM amiga_games g ' . amiga_realm_games_hub_lean_join_sql();
+}
+
+function amiga_realm_games_hub_lean_join_sql(): string
+{
+    return 'INNER JOIN amiga_game_ratings gr ON gr.game_id = g.id '
         . 'INNER JOIN amiga_players pa ON pa.id = g.player_a_id '
         . 'INNER JOIN amiga_players pb ON pb.id = g.player_b_id '
         . 'LEFT JOIN tournaments t ON t.id = g.tournament_id ';
@@ -109,6 +113,16 @@ function amiga_realm_games_hub_fetch_games_by_tournaments(
         return [];
     }
 
+    static $cache = [];
+    $cutoffForKey = $ctx->isActive() ? $ctx->cutoff() : null;
+    $cacheKey = implode(',', $ids) . '|'
+        . ($cutoffForKey === null
+            ? 'present'
+            : $cutoffForKey['event_date'] . '|' . $cutoffForKey['chrono'] . '|' . $cutoffForKey['tournament_id']);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $placeholders = implode(', ', array_fill(0, count($ids), '?'));
     $types = str_repeat('i', count($ids));
     $params = $ids;
@@ -141,5 +155,5 @@ function amiga_realm_games_hub_fetch_games_by_tournaments(
         }
     }
 
-    return $byTournament;
+    return $cache[$cacheKey] = $byTournament;
 }

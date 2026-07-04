@@ -295,6 +295,32 @@ function amiga_games_event_filter_url(array $state, string $eventFilter): string
     return amiga_games_build_url($params);
 }
 
+function amiga_games_render_page_nav(int $offset, int $limit, int $totalMatches, array $pagerParams): void
+{
+    echo '<nav class="k2-player-games-day-steps k2-realm-games-all__status-nav" aria-label="Page">';
+    if ($offset > 0) {
+        $prevParams = $pagerParams + ['offset' => max(0, $offset - $limit)];
+        echo '<a class="k2-player-games-day-step k2-player-games-day-step--prev" href="'
+            . amiga_games_h(amiga_games_build_url($prevParams))
+            . '" aria-label="Previous page">';
+        echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></a>';
+    } else {
+        echo '<span class="k2-player-games-day-step k2-player-games-day-step--prev is-disabled" aria-disabled="true" aria-label="Previous page">';
+        echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></span>';
+    }
+    if ($offset + $limit < $totalMatches) {
+        $nextParams = $pagerParams + ['offset' => $offset + $limit];
+        echo '<a class="k2-player-games-day-step k2-player-games-day-step--next" href="'
+            . amiga_games_h(amiga_games_build_url($nextParams))
+            . '" aria-label="Next page">';
+        echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></a>';
+    } else {
+        echo '<span class="k2-player-games-day-step k2-player-games-day-step--next is-disabled" aria-disabled="true" aria-label="Next page">';
+        echo '<span class="k2-player-games-day-step__chevron" aria-hidden="true"></span></span>';
+    }
+    echo '</nav>';
+}
+
 function amiga_games_where_clause(
     int $playerId,
     string $resultFilter,
@@ -467,6 +493,7 @@ function amiga_games_sort_header(string $key, string $label, string $align, arra
     $params = amiga_games_active_url_params($state);
     $params['sort'] = $key;
     $params['dir'] = $nextDir;
+    unset($params['offset']);
 
     $aria = $isActive ? ($state['dir'] === 'desc' ? 'descending' : 'ascending') : 'none';
     $attrs = [

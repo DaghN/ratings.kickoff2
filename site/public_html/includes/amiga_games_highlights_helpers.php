@@ -103,7 +103,7 @@ function amiga_games_highlights_winner_adjustment_expr_sql(
  * @param-out string $types
  * @param-out list<int|string> $params
  */
-function amiga_games_highlights_lean_base_sql(
+function amiga_games_highlights_lean_scope_where_sql(
     AmigaSnapshotContext $ctx,
     string $scope,
     string &$types,
@@ -124,9 +124,67 @@ function amiga_games_highlights_lean_base_sql(
         $where .= ' AND ' . amiga_games_world_cup_name_sql('t.name');
     }
 
-    return amiga_realm_games_hub_lean_select_sql()
-        . amiga_realm_games_hub_lean_from_sql()
-        . 'WHERE ' . $where;
+    return $where;
+}
+
+/**
+ * Narrow g/gr/t scan for LIMIT — metric-first index use, then join-back for display cols.
+ *
+ * @return array{filter: string, order: string}
+ */
+function amiga_games_highlights_board_limit_scan(string $board): array
+{
+    switch (amiga_games_highlights_valid_board($board)) {
+        case 'biggest_draws':
+            return [
+                'filter' => ' AND ABS(gr.actual_score - 0.5) < 0.001',
+                'order' => 'gr.sum_of_goals DESC, g.id ASC',
+            ];
+        case 'top_score':
+            return [
+                'filter' => '',
+                'order' => 'GREATEST(g.goals_a, g.goals_b) DESC, gr.sum_of_goals DESC, g.id ASC',
+            ];
+        case 'biggest_wins':
+            return [
+                'filter' => ' AND ABS(gr.actual_score - 0.5) >= 0.001',
+                'order' => 'gr.goal_difference DESC, g.id ASC',
+            ];
+        case 'biggest_upsets':
+            return [
+                'filter' => amiga_games_highlights_lean_underdog_win_sql(),
+                'order' => amiga_games_highlights_lean_winner_adjustment_sql() . ' DESC, g.id ASC',
+            ];
+        case 'most_goals':
+        default:
+            return [
+                'filter' => '',
+                'order' => 'gr.sum_of_goals DESC, g.id ASC',
+            ];
+    }
+}
+
+/**
+ * @param-out string $types
+ * @param-out list<int|string> $params
+ */
+function amiga_games_highlights_lean_limit_subquery_sql(
+    string $board,
+    AmigaSnapshotContext $ctx,
+    string $scope,
+    int $limit,
+    string &$types,
+    array &$params,
+): string {
+    $where = amiga_games_highlights_lean_scope_where_sql($ctx, $scope, $types, $params);
+    $scan = amiga_games_highlights_board_limit_scan($board);
+
+    return 'FROM amiga_game_ratings gr '
+        . 'INNER JOIN amiga_games g ON g.id = gr.game_id '
+        . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
+        . 'WHERE ' . $where . $scan['filter']
+        . ' ORDER BY ' . $scan['order']
+        . ' LIMIT ' . (int) $limit;
 }
 
 /** @param array{label: string, heading: string, default_sort_key: string, help?: string} $meta */
@@ -181,33 +239,27 @@ function amiga_games_highlights_fetch(
     $scope = amiga_games_highlights_valid_scope($scope);
     $limit = max(1, min(200, $limit));
 
-    $types = '';
-    $params = [];
-    $baseSql = amiga_games_highlights_lean_base_sql($ctx, $scope, $types, $params);
-
-    switch ($board) {
-        case 'biggest_draws':
-            $sql = $baseSql . ' AND ABS(gr.actual_score - 0.5) < 0.001'
-                . ' ORDER BY gr.sum_of_goals DESC, g.id ASC LIMIT ' . (int) $limit;
-            break;
-        case 'top_score':
-            $sql = $baseSql . ' ORDER BY GREATEST(g.goals_a, g.goals_b) DESC, gr.sum_of_goals DESC, g.id ASC LIMIT ' . (int) $limit;
-            break;
-        case 'biggest_wins':
-            $sql = $baseSql . ' AND ABS(gr.actual_score - 0.5) >= 0.001'
-                . ' ORDER BY gr.goal_difference DESC, g.id ASC LIMIT ' . (int) $limit;
-            break;
-        case 'biggest_upsets':
-            $sql = $baseSql . amiga_games_highlights_lean_underdog_win_sql()
-                . ' ORDER BY ' . amiga_games_highlights_lean_winner_adjustment_sql() . ' DESC, g.id ASC LIMIT ' . (int) $limit;
-            break;
-        case 'most_goals':
-        default:
-            $sql = $baseSql . ' ORDER BY gr.sum_of_goals DESC, g.id ASC LIMIT ' . (int) $limit;
-            break;
+    static $cache = [];
+    $cutoffForKey = $ctx->isActive() ? $ctx->cutoff() : null;
+    $cacheKey = $board . '|' . $scope . '|' . $limit . '|'
+        . ($cutoffForKey === null
+            ? 'present'
+            : $cutoffForKey['event_date'] . '|' . $cutoffForKey['chrono'] . '|' . $cutoffForKey['tournament_id']);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
     }
 
-    return amiga_realm_games_hub_query_all($con, $sql, $types, $params);
+    $types = '';
+    $params = [];
+    $limitScan = amiga_games_highlights_lean_limit_subquery_sql($board, $ctx, $scope, $limit, $types, $params);
+    $scan = amiga_games_highlights_board_limit_scan($board);
+    $sql = amiga_realm_games_hub_lean_select_sql()
+        . 'FROM (SELECT g.id AS id ' . $limitScan . ') top_g '
+        . 'INNER JOIN amiga_games g ON g.id = top_g.id '
+        . amiga_realm_games_hub_lean_join_sql()
+        . ' ORDER BY ' . $scan['order'];
+
+    return $cache[$cacheKey] = amiga_realm_games_hub_query_all($con, $sql, $types, $params);
 }
 
 function amiga_games_render_highlights_board_filter(string $activeBoard, string $activeScope = 'all'): void

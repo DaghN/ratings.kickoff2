@@ -188,20 +188,21 @@ function amiga_country_rivals_perf_ratings_batch(
     if (isset($cache[$cacheKey])) {
         return $cache[$cacheKey];
     }
-    $tokenA = amiga_country_rivals_games_token_sql('r.country_a');
-    $tokenB = amiga_country_rivals_games_token_sql('r.country_b');
-    $types = 'ss';
-    $params = [$heroCountry, $heroCountry];
+    $types = '';
+    $params = [];
     $cutoffTypes = '';
     $cutoffParams = [];
     $cutoffSql = amiga_snapshot_rated_game_cutoff_and_sql($ctx, $cutoffTypes, $cutoffParams, 'r');
     $types .= $cutoffTypes;
     $params = array_merge($params, $cutoffParams);
 
+    $heroPlayerIds = amiga_country_rivals_player_ids($con, $heroCountry, $ctx);
+    $innerScopeSql = amiga_country_rivals_games_inner_scope_sql($heroPlayerIds);
+
+    $crossBorderSql = amiga_country_rivals_cross_border_games_where_sql($heroCountry, $types, $params);
     $sql = 'SELECT r.idA, r.idB, r.ActualScore, r.RatingA, r.RatingB, r.country_a, r.country_b '
-        . amiga_rated_games_from_sql()
-        . ' WHERE (' . $tokenA . ' = ? OR ' . $tokenB . ' = ?)'
-        . $cutoffSql;
+        . amiga_rated_games_from_sql(null, null, null, $innerScopeSql)
+        . ' WHERE 1=1' . $cutoffSql . $crossBorderSql;
 
     $rows = amiga_games_query_all($con, $sql, $types, $params);
 

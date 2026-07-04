@@ -215,15 +215,32 @@ function amiga_realm_games_load_score_line_filter_facets(
     array $state,
     AmigaSnapshotContext $ctx,
 ): array {
+    static $cache = [];
+    $cutoffForKey = $ctx->isActive() ? $ctx->cutoff() : null;
+    $cacheKey = ($cutoffForKey === null ? 'present' : $cutoffForKey['event_date'] . '|' . $cutoffForKey['chrono'] . '|' . $cutoffForKey['tournament_id'])
+        . '|p' . (int) ($state['player'] ?? 0)
+        . '|c' . (string) ($state['country'] ?? '')
+        . '|r' . (string) ($state['rival'] ?? '')
+        . '|h' . (string) ($state['host'] ?? '')
+        . '|e' . (string) ($state['event'] ?? 'all')
+        . '|v' . (string) ($state['videos'] ?? '')
+        . '|o' . (int) ($state['opponent'] ?? 0)
+        . '|gd' . (int) ($state['gd'] ?? -1)
+        . '|gs' . (int) ($state['gs'] ?? -1)
+        . '|ts' . (int) ($state['ts'] ?? -1);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $gdActive = (int) ($state['gd'] ?? -1) >= 0;
     $gsActive = (int) ($state['gs'] ?? -1) >= 0;
     $tsActive = (int) ($state['ts'] ?? -1) >= 0;
 
     if (!$gdActive && !$gsActive && !$tsActive) {
-        return amiga_realm_games_facet_score_line_counts_single_pass($con, $state, $ctx);
+        return $cache[$cacheKey] = amiga_realm_games_facet_score_line_counts_single_pass($con, $state, $ctx);
     }
 
-    return [
+    return $cache[$cacheKey] = [
         'gd' => amiga_realm_games_facet_numeric_counts($con, $state, $ctx, 'gd', 'r.GoalDifference', 'v DESC'),
         'gs' => amiga_realm_games_facet_numeric_counts($con, $state, $ctx, 'gs', 'r.SumOfGoals', 'v ASC'),
         'ts' => amiga_realm_games_facet_numeric_counts($con, $state, $ctx, 'ts', 'GREATEST(r.GoalsA, r.GoalsB)', 'v ASC'),

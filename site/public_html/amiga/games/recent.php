@@ -14,11 +14,11 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 $ctx = amiga_lb_context($con);
 
 $recentTournaments = amiga_games_hub_recent_tournaments($con, $ctx);
-$hubCounts = amiga_games_hub_status_counts($con, $ctx);
+$gamesByTournament = amiga_games_hub_recent_games_by_tournament($con, $recentTournaments, $ctx);
+$hubCounts = amiga_games_hub_status_counts($con, $ctx, null, $gamesByTournament);
 $k2AmigaGamesHubTotal = $hubCounts['total'];
 $k2AmigaGamesRecentCount = $hubCounts['recent'];
 
-$gamesByTournament = amiga_games_hub_recent_games_by_tournament($con, $recentTournaments, $ctx);
 $recentSections = [];
 foreach ($recentTournaments as $tournamentRow) {
     $tournamentId = (int) ($tournamentRow['id'] ?? 0);
@@ -36,19 +36,15 @@ mysqli_close($con);
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_games_hub_shell_start.inc.php';
 ?>
 	<div class="k2-games-list">
-<?php foreach ($recentSections as $section) { ?>
-	<div class="k2-games-day">
-		<h2 class="k2-panel-heading k2-games-day__heading"><?php echo $section['heading']; ?></h2>
-		<?php amiga_realm_games_hub_render_table($section['rows'], [
-            'default_sort_col' => AMIGA_REALM_GAMES_HUB_ID_SORT_COL,
-            'default_sort_dir' => 'desc',
-            'skip_initial_sort' => true,
-            'empty_message' => 'No rated games in this tournament.',
-        ]); ?>
-	</div>
-<?php } ?>
 <?php if ($recentSections === []) { ?>
 	<p class="k2-games-day__empty">No recent tournaments to show.</p>
-<?php } ?>
+<?php } else {
+    amiga_realm_games_hub_render_sectioned_table($recentSections, [
+        'default_sort_col' => AMIGA_REALM_GAMES_HUB_ID_SORT_COL,
+        'default_sort_dir' => 'desc',
+        'skip_initial_sort' => true,
+        'empty_message' => 'No rated games in this tournament.',
+    ]);
+} ?>
 	</div>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_games_hub_shell_end.inc.php'; ?>

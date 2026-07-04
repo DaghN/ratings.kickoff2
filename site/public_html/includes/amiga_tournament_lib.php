@@ -2080,7 +2080,42 @@ function amiga_tournament_index_count(mysqli $con, ?AmigaSnapshotContext $ctx = 
 
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
 
-    return count(amiga_tournament_index_cached_all_rows($con, $ctx));
+    static $cache = [];
+    $cacheKey = amiga_tournament_index_cutoff_cache_key($ctx);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
+    $types = '';
+    $params = [];
+    $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $types, $params);
+    $sql = 'SELECT COUNT(*) AS n FROM tournaments t WHERE '
+        . amiga_tournament_public_visibility_where('t') . $cutoffSql;
+    if ($types === '') {
+        $res = mysqli_query($con, $sql);
+        if ($res === false) {
+            return $cache[$cacheKey] = 0;
+        }
+        $row = mysqli_fetch_assoc($res);
+        mysqli_free_result($res);
+
+        return $cache[$cacheKey] = (int) ($row['n'] ?? 0);
+    }
+
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        return $cache[$cacheKey] = 0;
+    }
+    mysqli_stmt_bind_param($stmt, $types, ...$params);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $row = $res ? mysqli_fetch_assoc($res) : false;
+    if ($res) {
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+
+    return $cache[$cacheKey] = $row !== false ? (int) ($row['n'] ?? 0) : 0;
 }
 
 /**

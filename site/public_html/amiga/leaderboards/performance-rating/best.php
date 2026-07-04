@@ -18,6 +18,7 @@ $k2AmigaLbPerfRatingLedeHtml = 'Best single-event performance rating per player.
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $ctx = amiga_lb_context($con);
 $rows = amiga_lb_performance_rating_rows($con, $ctx);
+amiga_lb_chapter_lede_html_for_request($con, $ctx);
 mysqli_close($con);
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_performance_rating_shell_start.inc.php';

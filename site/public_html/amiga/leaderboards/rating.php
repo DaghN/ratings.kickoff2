@@ -66,6 +66,8 @@ $deltaColumnHelpAttrs = $showRatingDelta
     ? k2_lb_amiga_rating_delta_column_help_attrs()
     : k2_lb_amiga_wc_start_rating_delta_column_help_attrs($lastWcForDeltaHelp);
 
+amiga_lb_chapter_lede_html_for_request($con, $ctx);
+
 mysqli_close($con);
 
 $colElo = 2;

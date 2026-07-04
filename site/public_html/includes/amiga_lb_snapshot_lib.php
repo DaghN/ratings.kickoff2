@@ -146,22 +146,28 @@ function amiga_lb_games_count_uncached(mysqli $con, AmigaSnapshotContext $ctx): 
         return (int) ($gcRow['n'] ?? 0);
     }
 
-    $cutoff = $ctx->cutoff();
-    if ($cutoff === null) {
-        return 0;
+    $types = '';
+    $params = [];
+    $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $types, $params, 't.event_date', 't.chrono', 't.id');
+    $sql = 'SELECT COALESCE(SUM(c.game_count), 0) AS n FROM tournaments t '
+        . 'LEFT JOIN amiga_tournament_catalog_stats c ON c.tournament_id = t.id '
+        . 'WHERE ' . amiga_tournament_public_visibility_where('t') . $cutoffSql;
+    if ($types === '') {
+        $res = mysqli_query($con, $sql);
+        if ($res === false) {
+            return 0;
+        }
+        $row = mysqli_fetch_assoc($res);
+        mysqli_free_result($res);
+
+        return (int) ($row['n'] ?? 0);
     }
 
-    $sql = 'SELECT COUNT(*) AS n FROM amiga_games g '
-        . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
-        . 'WHERE (t.event_date, t.chrono, t.id) <= (?, ?, ?)';
     $stmt = $con->prepare($sql);
     if (!$stmt) {
         return 0;
     }
-    $eventDate = $cutoff['event_date'];
-    $chrono = $cutoff['chrono'];
-    $tournamentId = $cutoff['tournament_id'];
-    $stmt->bind_param('sdi', $eventDate, $chrono, $tournamentId);
+    $stmt->bind_param($types, ...$params);
     $stmt->execute();
     $res = $stmt->get_result();
     $row = $res ? $res->fetch_assoc() : false;

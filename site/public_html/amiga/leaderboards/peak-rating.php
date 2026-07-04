@@ -28,6 +28,7 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 $ctx = amiga_lb_context($con);
 
 $result = amiga_lb_query_peak_rating($con, $ctx);
+amiga_lb_chapter_lede_html_for_request($con, $ctx);
 
 mysqli_close($con);
 

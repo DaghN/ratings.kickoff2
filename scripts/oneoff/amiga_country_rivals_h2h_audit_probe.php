@@ -22,7 +22,7 @@ $con->query("SET time_zone = '+00:00'");
 
 $hero = 'England';
 $rival = 'Italy';
-$cutoffs = ['present' => '', 'event:22' => 'event:22', 'event:589' => 'event:589', 'month:2025-09' => 'month:2025-09'];
+$cutoffs = ['present' => '', 'event:22' => 'event:22', 'event:589' => 'event:589', 'month:2025-09' => 'month:2025-09', 'year:2024' => 'year:2024'];
 
 foreach ($cutoffs as $label => $as) {
     echo "\n=== Cutoff: $label ===\n";

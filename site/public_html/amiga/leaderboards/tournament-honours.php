@@ -32,6 +32,7 @@ $ctx = amiga_lb_context($con);
 
 $honoursRows = amiga_tournament_honours_leaderboard_rows($con, $ctx);
 $playerCount = amiga_lb_honours_player_count($con, $ctx);
+amiga_lb_chapter_lede_html_for_request($con, $ctx);
 
 mysqli_close($con);
 

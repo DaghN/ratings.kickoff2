@@ -12,6 +12,7 @@ declare(strict_types=1);
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_countries_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_country_rivals_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_country_rivals_load.php';
 
 $k2AmigaCountryView = ($k2AmigaCountryView ?? 'roster') === 'rivals' ? 'rivals' : 'roster';
 $k2AmigaCountryRivalsView = amiga_country_rivals_parse_view($k2AmigaCountryRivalsView ?? null);
@@ -28,14 +29,22 @@ if ($countryToken === '') {
 }
 
 if ($k2AmigaCountryRivalsH2h) {
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_lib.php';
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_country_rivals_h2h.php';
-    include __DIR__ . '/../../config/ko2amiga_config.php';
-    $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
-    $con->query("SET time_zone = '+00:00'");
-    $ctx = amiga_lb_context($con);
-    amiga_country_rivals_h2h_redirect_default_rival_if_needed($con, $countryToken, $ctx);
-    mysqli_close($con);
+    $heroForRedirect = amiga_country_rivals_normalize_token($countryToken);
+    $requestedRivalForRedirect = array_key_exists('rival', $_GET)
+        ? amiga_country_rivals_normalize_token((string) ($_GET['rival'] ?? ''))
+        : '';
+    $needsRivalRedirect = $requestedRivalForRedirect === ''
+        || amiga_country_rivals_is_domestic_rival($heroForRedirect, $requestedRivalForRedirect);
+    if ($needsRivalRedirect) {
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_lib.php';
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_country_rivals_h2h.php';
+        include __DIR__ . '/../../config/ko2amiga_config.php';
+        $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
+        $con->query("SET time_zone = '+00:00'");
+        $ctx = amiga_lb_context($con);
+        amiga_country_rivals_h2h_redirect_default_rival_if_needed($con, $countryToken, $ctx);
+        mysqli_close($con);
+    }
 }
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

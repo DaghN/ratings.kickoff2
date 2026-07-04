@@ -65,6 +65,8 @@ if ($sortKey === 'for') {
     $sortKey = 'goals_for';
 }
 $sortDirection = amiga_games_valid_direction((string) ($_GET['dir'] ?? AMIGA_PLAYER_GAMES_DEFAULT_DIR));
+$limit = K2_PLAYER_GAMES_PAGE_SIZE;
+$offset = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
 $playerIdSql = (int) $playerId;
 
 $sortMap = [
@@ -120,6 +122,9 @@ $countRows = amiga_games_query_all(
     $whereParams
 );
 $totalMatches = (int) ($countRows[0]['c'] ?? 0);
+if ($offset >= $totalMatches) {
+    $offset = 0;
+}
 
 $games = amiga_games_query_all(
     $con,
@@ -127,7 +132,8 @@ $games = amiga_games_query_all(
         . 'r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB, r.SumOfGoals, r.GoalDifference, '
         . 'r.phase, r.tournament_id, r.tournament_name, r.country_a, r.country_b, r.tournament_country '
         . $fromSql . ' WHERE ' . $whereSql
-        . ' ORDER BY ' . $sortMap[$sortKey] . ' ' . strtoupper($sortDirection) . ', r.id DESC',
+        . ' ORDER BY ' . $sortMap[$sortKey] . ' ' . strtoupper($sortDirection) . ', r.id DESC'
+        . ' LIMIT ' . $limit . ' OFFSET ' . $offset,
     $whereTypes,
     $whereParams
 );
@@ -178,6 +184,10 @@ $sortState = [
     'gd' => $heroGoalDiffFilter,
 ];
 $gamesUrlState = $sortState;
+$shownCount = count($games);
+$firstShown = $totalMatches > 0 ? $offset + 1 : 0;
+$lastShown = $offset + $shownCount;
+$pagerParams = amiga_games_active_url_params($sortState);
 $sortedColIndex = amiga_player_game_sort_col_index($sortKey);
 
 $resultChoices = $filterChoices['result'];
@@ -302,12 +312,16 @@ $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : 
         || $goalsConcededFilter >= 0
         || $goalsSumFilter >= 0
         || $heroGoalDiffFilter !== null;
-    if ($gamesListFiltered) {
-        echo (int) $totalMatches . ' matching game' . ($totalMatches === 1 ? '' : 's');
-    } else {
-        echo (int) $totalMatches . ' official game' . ($totalMatches === 1 ? '' : 's');
-    }
+    $gamesCountWord = $gamesListFiltered
+        ? ('matching game' . ($totalMatches === 1 ? '' : 's'))
+        : ('official game' . ($totalMatches === 1 ? '' : 's'));
     ?>
+    <div class="k2-realm-games-all__status-range">
+        <span class="k2-realm-games-all__status-text">
+            Showing <?php echo (int) $firstShown; ?>–<?php echo (int) $lastShown; ?> of <?php echo number_format($totalMatches); ?> <?php echo $gamesCountWord; ?>.
+        </span>
+        <?php amiga_games_render_page_nav($offset, $limit, $totalMatches, $pagerParams); ?>
+    </div>
     <span class="k2-player-games-status__perf" data-k2-help="<?php echo amiga_games_h(amiga_perf_rating_games_list_help()); ?>" data-k2-tooltip-label="<?php echo amiga_games_h(amiga_perf_rating_column_label()); ?>" tabindex="0">· Performance rating <span class="k2-player-games-status__perf-value">…</span></span><span class="k2-player-games-status__reset-sep" aria-hidden="true"> · </span><a class="k2-player-games-reset" href="<?php echo amiga_games_h(k2_amiga_route('amiga-player-games', ['id' => $playerId])); ?>">Reset filters</a>
 </div>
 

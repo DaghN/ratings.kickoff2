@@ -310,14 +310,7 @@ function amiga_country_rivals_render_h2h_panel(
             );
             amiga_country_rivals_render_h2h_pair_detail($heroCountry, $rivalCountry, $bucket);
             amiga_country_rivals_render_h2h_all_games_link($heroCountry, $rivalCountry, $games);
-            $momentGames = amiga_country_rivals_h2h_games_rows($con, $heroCountry, $rivalCountry, $ctx);
-            $rivalLabel = $rivalCountry === AMIGA_COUNTRIES_UNKNOWN_TOKEN ? 'Unknown' : $rivalCountry;
-            $momentSlots = player_opponents_h2h_moments_slots(
-                $momentGames,
-                amiga_country_rivals_nation_label($heroCountry),
-                amiga_country_rivals_nation_label($rivalCountry),
-                $rivalLabel
-            );
+            $momentSlots = amiga_country_rivals_h2h_moments_slots($con, $heroCountry, $rivalCountry, $ctx);
             player_opponents_render_h2h_moments_grid($momentSlots);
         } ?>
     </div>

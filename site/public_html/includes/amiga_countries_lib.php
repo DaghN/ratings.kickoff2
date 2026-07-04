@@ -252,9 +252,22 @@ function amiga_countries_query_country_summary(
     AmigaSnapshotContext $ctx,
     string $countryToken
 ): ?array {
+    static $cache = [];
+
     $countryToken = amiga_countries_normalize_country_param($countryToken);
     if ($countryToken === '') {
         return null;
+    }
+
+    if (!$ctx->isActive()) {
+        $cacheKey = $countryToken . '|present';
+    } else {
+        $cutoff = $ctx->cutoff();
+        $cacheKey = $countryToken . '|at:'
+            . (int) ($cutoff['tournament_id'] ?? 0) . ':' . (string) ($cutoff['event_date'] ?? '') . ':' . (string) ($cutoff['chrono'] ?? '');
+    }
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
     }
 
     if (!$ctx->isActive()) {
@@ -263,7 +276,9 @@ function amiga_countries_query_country_summary(
         $rows = amiga_countries_query_index_rows_at_cutoff_for_country($con, $ctx, $countryToken);
     }
 
-    return $rows[0] ?? null;
+    $cache[$cacheKey] = $rows[0] ?? null;
+
+    return $cache[$cacheKey];
 }
 
 /**

@@ -90,32 +90,47 @@ function amiga_lb_chapter_lede_html(int $gameCount, int $tournamentCount): strin
         . ' official KOA tournaments. Elo ratings and tournament honours, goals, double digits and clean sheets, victims and culprits, peak and performance ratings — sort any column to see who leads a different way.';
 }
 
-function amiga_lb_chapter_lede_html_for_request(): string
+function amiga_lb_chapter_lede_html_for_request(?mysqli $con = null, ?AmigaSnapshotContext $ctx = null): string
 {
-    static $cached = null;
-    if ($cached !== null) {
-        return $cached;
+    require_once __DIR__ . '/amiga_snapshot_context.php';
+
+    $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+    $cutoffForKey = $ctx->isActive() ? $ctx->cutoff() : null;
+    $cacheKey = $cutoffForKey === null
+        ? 'present'
+        : $cutoffForKey['event_date'] . '|' . $cutoffForKey['chrono'] . '|' . $cutoffForKey['tournament_id'];
+
+    static $cache = [];
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
     }
 
     require_once __DIR__ . '/k2_safety.php';
     require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
     require_once __DIR__ . '/amiga_tournament_lib.php';
 
-    $configPath = __DIR__ . '/../../config/ko2amiga_config.php';
-    if (!is_file($configPath)) {
-        $cached = amiga_lb_chapter_lede_html(0, 0);
-
-        return $cached;
+    $ownedConnection = false;
+    if ($con === null) {
+        $configPath = __DIR__ . '/../../config/ko2amiga_config.php';
+        if (!is_file($configPath)) {
+            return $cache[$cacheKey] = amiga_lb_chapter_lede_html(0, 0);
+        }
+        include $configPath;
+        $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
+        $ownedConnection = true;
+        $peeked = amiga_snapshot_context_peek();
+        if ($peeked !== null) {
+            $ctx = $peeked;
+        } else {
+            $ctx = amiga_lb_context($con);
+        }
     }
-    include $configPath;
 
-    $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
-    $ctx = amiga_lb_context($con);
     $gameCount = amiga_lb_games_count($con, $ctx);
     $tournamentCount = amiga_tournament_index_count($con, $ctx);
-    mysqli_close($con);
+    if ($ownedConnection) {
+        mysqli_close($con);
+    }
 
-    $cached = amiga_lb_chapter_lede_html($gameCount, $tournamentCount);
-
-    return $cached;
+    return $cache[$cacheKey] = amiga_lb_chapter_lede_html($gameCount, $tournamentCount);
 }

@@ -34,6 +34,32 @@ function amiga_country_rivals_games_token_sql(string $col): string
         . 'THEN \'' . AMIGA_COUNTRIES_UNKNOWN_TOKEN . '\' ELSE TRIM(' . $col . ') END';
 }
 
+/**
+ * Push hero (and optional rival) player-id scope into the inner amiga_games scan.
+ *
+ * @param list<int> $heroPlayerIds
+ * @param list<int>|null $rivalPlayerIds
+ */
+function amiga_country_rivals_games_inner_scope_sql(array $heroPlayerIds, ?array $rivalPlayerIds = null): string
+{
+    $heroIn = amiga_country_rivals_sql_int_in_list($heroPlayerIds);
+    if ($heroIn === '') {
+        return '1 = 0';
+    }
+
+    if ($rivalPlayerIds === null) {
+        return "(g.player_a_id IN ({$heroIn}) OR g.player_b_id IN ({$heroIn}))";
+    }
+
+    $rivalIn = amiga_country_rivals_sql_int_in_list($rivalPlayerIds);
+    if ($rivalIn === '') {
+        return '1 = 0';
+    }
+
+    return "((g.player_a_id IN ({$heroIn}) AND g.player_b_id IN ({$rivalIn}))"
+        . " OR (g.player_a_id IN ({$rivalIn}) AND g.player_b_id IN ({$heroIn})))";
+}
+
 function amiga_country_rivals_games_where_sql(
     string $heroCountry,
     string $rivalCountry,
@@ -78,8 +104,11 @@ function amiga_country_rivals_h2h_game_rows_raw(
 
     $types = '';
     $params = [];
+    $heroPlayerIds = amiga_country_rivals_player_ids($con, $heroCountry, $ctx);
+    $rivalPlayerIds = amiga_country_rivals_player_ids($con, $rivalCountry, $ctx);
+    $innerScopeSql = amiga_country_rivals_games_inner_scope_sql($heroPlayerIds, $rivalPlayerIds);
     $whereSql = amiga_country_rivals_games_where_sql($heroCountry, $rivalCountry, $ctx, $types, $params);
-    $sql = 'SELECT ' . amiga_country_rivals_h2h_game_select_sql() . ' ' . amiga_rated_games_from_sql()
+    $sql = 'SELECT ' . amiga_country_rivals_h2h_game_select_sql() . ' ' . amiga_rated_games_from_sql(null, null, null, $innerScopeSql)
         . ' WHERE ' . $whereSql
         . ' ORDER BY r.`Date` ASC, r.id ASC';
 
@@ -100,17 +129,200 @@ function amiga_country_rivals_h2h_games_rows(
     $heroCountry = amiga_country_rivals_normalize_token($heroCountry);
     $rows = [];
     foreach (amiga_country_rivals_h2h_game_rows_raw($con, $heroCountry, $rivalCountry, $ctx) as $row) {
-        $tokenA = amiga_country_rivals_normalize_token($row['country_a'] ?? '');
-        $subjectId = $tokenA === $heroCountry ? (int) ($row['idA'] ?? 0) : (int) ($row['idB'] ?? 0);
-        if ($subjectId < 1) {
-            continue;
-        }
-        $norm = player_opponents_h2h_normalize_game_row($row, $subjectId);
-        $norm['href'] = k2_amiga_game_page_url((int) $norm['game_id']);
-        $rows[] = $norm;
+        $rows[] = amiga_country_rivals_h2h_normalize_game_row($row, $heroCountry);
     }
 
     return $rows;
+}
+
+/**
+ * Subject-side metrics from one raw nation-pair game row (moments scan only).
+ *
+ * @return array{
+ *     subject_id: int,
+ *     total_goals: int,
+ *     subject_gf: int,
+ *     subject_ga: int,
+ *     draw: bool,
+ *     subject_win: bool,
+ *     subject_loss: bool,
+ *     win_margin_subject: int,
+ *     win_margin_opponent: int
+ * }
+ */
+function amiga_country_rivals_h2h_raw_row_moment_metrics(array $row, string $heroCountry): array
+{
+    $heroCountry = amiga_country_rivals_normalize_token($heroCountry);
+    $tokenA = amiga_country_rivals_normalize_token($row['country_a'] ?? '');
+    $heroOnA = $tokenA === $heroCountry;
+    $idA = (int) ($row['idA'] ?? 0);
+    $idB = (int) ($row['idB'] ?? 0);
+    $goalsA = (int) ($row['GoalsA'] ?? 0);
+    $goalsB = (int) ($row['GoalsB'] ?? 0);
+    $subjectId = $heroOnA ? $idA : $idB;
+    $subjectGf = $heroOnA ? $goalsA : $goalsB;
+    $subjectGa = $heroOnA ? $goalsB : $goalsA;
+
+    if ($goalsA > $goalsB) {
+        $winner = 'a';
+    } elseif ($goalsB > $goalsA) {
+        $winner = 'b';
+    } else {
+        $winner = 'draw';
+    }
+
+    $subjectWin = ($heroOnA && $winner === 'a') || (!$heroOnA && $winner === 'b');
+    $subjectLoss = ($heroOnA && $winner === 'b') || (!$heroOnA && $winner === 'a');
+    $draw = $winner === 'draw';
+
+    return [
+        'subject_id' => $subjectId,
+        'total_goals' => $goalsA + $goalsB,
+        'subject_gf' => $subjectGf,
+        'subject_ga' => $subjectGa,
+        'draw' => $draw,
+        'subject_win' => $subjectWin,
+        'subject_loss' => $subjectLoss,
+        'win_margin_subject' => $subjectWin ? $subjectGf - $subjectGa : 0,
+        'win_margin_opponent' => $subjectLoss ? $subjectGa - $subjectGf : 0,
+    ];
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function amiga_country_rivals_h2h_normalize_game_row(array $row, string $heroCountry): array
+{
+    $heroCountry = amiga_country_rivals_normalize_token($heroCountry);
+    $metrics = amiga_country_rivals_h2h_raw_row_moment_metrics($row, $heroCountry);
+    $norm = player_opponents_h2h_normalize_game_row($row, (int) $metrics['subject_id']);
+    $norm['href'] = k2_amiga_game_page_url((int) $norm['game_id']);
+
+    return $norm;
+}
+
+/**
+ * Moments grid without normalizing every pair game (hot path for large nation pairs).
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_country_rivals_h2h_moments_slots(
+    mysqli $con,
+    string $heroCountry,
+    string $rivalCountry,
+    ?AmigaSnapshotContext $ctx = null
+): array {
+    $heroCountry = amiga_country_rivals_normalize_token($heroCountry);
+    $rivalCountry = amiga_country_rivals_normalize_token($rivalCountry);
+    $rivalLabel = $rivalCountry === AMIGA_COUNTRIES_UNKNOWN_TOKEN ? 'Unknown' : $rivalCountry;
+    $rawRows = amiga_country_rivals_h2h_game_rows_raw($con, $heroCountry, $rivalCountry, $ctx);
+    if ($rawRows === []) {
+        return player_opponents_h2h_moments_slots(
+            [],
+            amiga_country_rivals_nation_label($heroCountry),
+            amiga_country_rivals_nation_label($rivalCountry),
+            $rivalLabel
+        );
+    }
+
+    $firstRaw = $rawRows[0];
+    $lastRaw = $rawRows[count($rawRows) - 1];
+    $mostTotalRaw = null;
+    $fewestTotalRaw = null;
+    $mostSubjectRaw = null;
+    $mostOpponentRaw = null;
+    $biggestDrawRaw = null;
+    $subjectBestWinRaw = null;
+    $opponentBestWinRaw = null;
+    $mostTotal = null;
+    $fewestTotal = null;
+    $mostSubject = null;
+    $mostOpponent = null;
+    $biggestDraw = null;
+    $subjectBestWin = null;
+    $opponentBestWin = null;
+
+    foreach ($rawRows as $row) {
+        $metrics = amiga_country_rivals_h2h_raw_row_moment_metrics($row, $heroCountry);
+        $total = (int) $metrics['total_goals'];
+        if ($mostTotal === null || $total > (int) $mostTotal['total_goals']) {
+            $mostTotal = $metrics;
+            $mostTotalRaw = $row;
+        }
+        if ($fewestTotal === null || $total < (int) $fewestTotal['total_goals']) {
+            $fewestTotal = $metrics;
+            $fewestTotalRaw = $row;
+        }
+
+        $subjectGf = (int) $metrics['subject_gf'];
+        if ($mostSubject === null || $subjectGf > (int) $mostSubject['subject_gf']) {
+            $mostSubject = $metrics;
+            $mostSubjectRaw = $row;
+        }
+
+        $subjectGa = (int) $metrics['subject_ga'];
+        if ($mostOpponent === null || $subjectGa > (int) $mostOpponent['subject_ga']) {
+            $mostOpponent = $metrics;
+            $mostOpponentRaw = $row;
+        }
+
+        if (!empty($metrics['draw'])) {
+            if ($biggestDraw === null || $subjectGf > (int) $biggestDraw['subject_gf']) {
+                $biggestDraw = $metrics;
+                $biggestDrawRaw = $row;
+            }
+        }
+
+        if (!empty($metrics['subject_win'])) {
+            $margin = (int) $metrics['win_margin_subject'];
+            if ($subjectBestWin === null || $margin > (int) $subjectBestWin['win_margin_subject']) {
+                $subjectBestWin = $metrics;
+                $subjectBestWinRaw = $row;
+            }
+        }
+
+        if (!empty($metrics['subject_loss'])) {
+            $margin = (int) $metrics['win_margin_opponent'];
+            if ($opponentBestWin === null || $margin > (int) $opponentBestWin['win_margin_opponent']) {
+                $opponentBestWin = $metrics;
+                $opponentBestWinRaw = $row;
+            }
+        }
+    }
+
+    $normalizePick = static function (?array $rawRow) use ($heroCountry): ?array {
+        if ($rawRow === null) {
+            return null;
+        }
+
+        return amiga_country_rivals_h2h_normalize_game_row($rawRow, $heroCountry);
+    };
+
+    $byKey = [
+        'first_game' => ['active' => true, 'game' => $normalizePick($firstRaw)],
+        'last_game' => ['active' => true, 'game' => $normalizePick($lastRaw)],
+        'most_goals_in_game' => ['active' => true, 'game' => $normalizePick($mostTotalRaw)],
+        'most_scored_subject' => ['active' => true, 'game' => $normalizePick($mostSubjectRaw)],
+        'most_scored_opponent' => ['active' => true, 'game' => $normalizePick($mostOpponentRaw)],
+        'fewest_goals_in_game' => ['active' => true, 'game' => $normalizePick($fewestTotalRaw)],
+        'biggest_draw' => ['active' => $biggestDrawRaw !== null, 'game' => $normalizePick($biggestDrawRaw)],
+        'subject_biggest_win' => ['active' => $subjectBestWinRaw !== null, 'game' => $normalizePick($subjectBestWinRaw)],
+        'opponent_biggest_win' => ['active' => $opponentBestWinRaw !== null, 'game' => $normalizePick($opponentBestWinRaw)],
+    ];
+
+    $subjectShort = k2_h2h_moment_short_name(amiga_country_rivals_nation_label($heroCountry));
+    $opponentShort = k2_h2h_moment_short_name(amiga_country_rivals_nation_label($rivalCountry));
+    $defs = player_opponents_h2h_moment_slot_defs($subjectShort, $opponentShort);
+    $slots = [];
+    foreach ($defs as $def) {
+        $key = $def['key'];
+        $slots[] = array_merge($def, [
+            'active' => (bool) $byKey[$key]['active'],
+            'game' => $byKey[$key]['game'],
+        ]);
+    }
+
+    return $slots;
 }
 
 /**

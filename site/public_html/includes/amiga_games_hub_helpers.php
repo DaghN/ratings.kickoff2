@@ -19,12 +19,27 @@ function amiga_games_hub_h(string $value): string
 
 /**
  * @return array{total: int, recent: int}
+ * @param array<int, list<array<string, mixed>>>|null $gamesByTournament
  */
-function amiga_games_hub_status_counts(mysqli $con, AmigaSnapshotContext $ctx, ?int $totalOverride = null): array
-{
+function amiga_games_hub_status_counts(
+    mysqli $con,
+    AmigaSnapshotContext $ctx,
+    ?int $totalOverride = null,
+    ?array $gamesByTournament = null,
+): array {
     $total = $totalOverride ?? amiga_lb_games_count($con, $ctx);
     $recentTournaments = amiga_games_hub_recent_tournaments($con, $ctx);
-    $recent = amiga_games_hub_recent_game_count($con, $recentTournaments, $ctx);
+    if ($gamesByTournament !== null) {
+        $recent = 0;
+        foreach ($recentTournaments as $row) {
+            $tournamentId = (int) ($row['id'] ?? 0);
+            if ($tournamentId > 0) {
+                $recent += count($gamesByTournament[$tournamentId] ?? []);
+            }
+        }
+    } else {
+        $recent = amiga_games_hub_recent_game_count($con, $recentTournaments, $ctx);
+    }
 
     return ['total' => $total, 'recent' => $recent];
 }

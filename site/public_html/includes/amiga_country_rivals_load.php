@@ -10,6 +10,7 @@ require_once __DIR__ . '/amiga_countries_lib.php';
 require_once __DIR__ . '/amiga_player_opponents_load.php';
 require_once __DIR__ . '/amiga_player_opponents_country_load.php';
 require_once __DIR__ . '/amiga_matchup_snapshot_lib.php';
+require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
 require_once __DIR__ . '/amiga_snapshot_context.php';
 
 function amiga_country_rivals_normalize_token(?string $country): string
@@ -159,11 +160,148 @@ function amiga_country_rivals_pair_select_columns(): array
 }
 
 /**
- * Latest at-event pair rows for one hero country — hero filter inside the window (pattern A).
+ * @param list<int> $playerIds
  */
-function amiga_country_rivals_matchup_at_event_latest_from_sql(string $alias = 'm'): string
+function amiga_country_rivals_sql_int_in_list(array $playerIds): string
 {
-    $heroTokenSql = amiga_countries_token_sql('h');
+    if ($playerIds === []) {
+        return '';
+    }
+
+    return implode(',', array_map(static fn (int $id): string => (string) $id, $playerIds));
+}
+
+function amiga_country_rivals_player_ids_cache_key(string $heroCountry, AmigaSnapshotContext $ctx): string
+{
+    if (!$ctx->isActive()) {
+        return $heroCountry . '|present';
+    }
+    $cutoff = $ctx->cutoff();
+
+    return $heroCountry . '|at:'
+        . (int) ($cutoff['tournament_id'] ?? 0) . ':' . (string) ($cutoff['event_date'] ?? '') . ':' . (string) ($cutoff['chrono'] ?? '');
+}
+
+/**
+ * Rated nationals for one country at cutoff — request cache (game + matchup scoping).
+ *
+ * @return list<int>
+ */
+function amiga_country_rivals_player_ids(
+    mysqli $con,
+    string $heroCountry,
+    ?AmigaSnapshotContext $ctx = null
+): array {
+    static $cache = [];
+
+    $heroCountry = amiga_country_rivals_normalize_token($heroCountry);
+    if ($heroCountry === '') {
+        return [];
+    }
+
+    $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+    $cacheKey = amiga_country_rivals_player_ids_cache_key($heroCountry, $ctx);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
+    $tokenSql = amiga_countries_token_sql('p');
+    if (!$ctx->isActive()) {
+        $sql = 'SELECT p.id AS player_id'
+            . ' FROM amiga_players p'
+            . ' INNER JOIN amiga_player_current s ON s.player_id = p.id'
+            . ' WHERE ' . $tokenSql . ' = ? AND s.NumberGames > 0';
+        $stmt = $con->prepare($sql);
+        if (!$stmt) {
+            $cache[$cacheKey] = [];
+
+            return [];
+        }
+        $stmt->bind_param('s', $heroCountry);
+    } else {
+        $cutoff = $ctx->cutoff();
+        if ($cutoff === null) {
+            $cache[$cacheKey] = [];
+
+            return [];
+        }
+        $sql = 'SELECT p.id AS player_id'
+            . ' ' . amiga_lb_snapshot_from_sql('s')
+            . ' WHERE s.NumberGames > 0 AND ' . $tokenSql . ' = ?';
+        $stmt = $con->prepare($sql);
+        if (!$stmt) {
+            $cache[$cacheKey] = [];
+
+            return [];
+        }
+        $eventDate = $cutoff['event_date'];
+        $chrono = $cutoff['chrono'];
+        $tournamentId = $cutoff['tournament_id'];
+        $stmt->bind_param('sdis', $eventDate, $chrono, $tournamentId, $heroCountry);
+    }
+
+    if (!$stmt->execute()) {
+        $stmt->close();
+        $cache[$cacheKey] = [];
+
+        return [];
+    }
+
+    $ids = [];
+    $res = $stmt->get_result();
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $playerId = (int) ($row['player_id'] ?? 0);
+            if ($playerId > 0) {
+                $ids[] = $playerId;
+            }
+        }
+        $res->free();
+    }
+    $stmt->close();
+
+    $cache[$cacheKey] = $ids;
+
+    return $ids;
+}
+
+/**
+ * SQL fragment: hero on one side, opponent nation token on the other (excludes domestic).
+ */
+function amiga_country_rivals_cross_border_games_where_sql(
+    string $heroCountry,
+    string &$types,
+    array &$params,
+    string $countryACol = 'r.country_a',
+    string $countryBCol = 'r.country_b'
+): string {
+    $heroCountry = amiga_country_rivals_normalize_token($heroCountry);
+    $tokenA = amiga_country_rivals_games_token_sql($countryACol);
+    $tokenB = amiga_country_rivals_games_token_sql($countryBCol);
+    $types .= 'ssss';
+    array_push($params, $heroCountry, $heroCountry, $heroCountry, $heroCountry);
+
+    return ' AND ((' . $tokenA . ' = ? AND ' . $tokenB . ' != ?)'
+        . ' OR (' . $tokenB . ' = ? AND ' . $tokenA . ' != ?))';
+}
+
+/**
+ * Latest at-event pair rows for one hero country — player_id IN scope inside window (pattern A).
+ * When $heroCountry is set, domestic opponent pairs are excluded inside the window scan.
+ */
+function amiga_country_rivals_matchup_at_event_latest_from_sql(
+    string $alias = 'm',
+    string $playerIdInSql = '',
+    string $heroCountry = ''
+): string {
+    $playerFilterSql = $playerIdInSql !== '' ? "\n          AND m.player_id IN ({$playerIdInSql})" : '';
+    $crossBorderJoinSql = '';
+    $crossBorderFilterSql = '';
+    if ($heroCountry !== '') {
+        $oppTokenSql = amiga_countries_token_sql('p_opp_cb');
+        $crossBorderJoinSql = "\n        INNER JOIN amiga_players p_opp_cb ON p_opp_cb.id = m.opponent_id";
+        $crossBorderFilterSql = "\n          AND {$oppTokenSql} != ?";
+    }
 
     return 'FROM amiga_player_matchup_at_event ' . $alias . "\n"
         . 'INNER JOIN (' . "\n"
@@ -173,9 +311,8 @@ function amiga_country_rivals_matchup_at_event_latest_from_sql(string $alias = '
         . '                PARTITION BY m.player_id, m.opponent_id' . "\n"
         . '                ORDER BY m.event_date DESC, m.event_chrono DESC, m.as_of_tournament_id DESC' . "\n"
         . '            ) AS rn' . "\n"
-        . '        FROM amiga_player_matchup_at_event m' . "\n"
-        . '        INNER JOIN amiga_players h ON h.id = m.player_id AND ' . $heroTokenSql . ' = ?' . "\n"
-        . '        WHERE (m.event_date, m.event_chrono, m.as_of_tournament_id) <= (?, ?, ?)' . "\n"
+        . '        FROM amiga_player_matchup_at_event m' . $crossBorderJoinSql . "\n"
+        . '        WHERE (m.event_date, m.event_chrono, m.as_of_tournament_id) <= (?, ?, ?)' . $playerFilterSql . $crossBorderFilterSql . "\n"
         . '    ) x WHERE x.rn = 1 AND x.games > 0' . "\n"
         . ') ' . $alias . '_latest ON ' . $alias . '.player_id = ' . $alias . '_latest.player_id'
         . ' AND ' . $alias . '.opponent_id = ' . $alias . '_latest.opponent_id'
@@ -201,21 +338,34 @@ function amiga_country_rivals_rows_cache_key(string $heroCountry, AmigaSnapshotC
  */
 function amiga_country_rivals_pair_rows_raw(mysqli $con, string $heroCountry, ?AmigaSnapshotContext $ctx = null): array
 {
+    static $cache = [];
+
     $heroCountry = amiga_country_rivals_normalize_token($heroCountry);
     if ($heroCountry === '') {
         return [];
     }
 
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
-    $heroTokenSql = amiga_countries_token_sql('h');
+    $cacheKey = amiga_country_rivals_player_ids_cache_key($heroCountry, $ctx) . '|pair_raw';
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
     $selectCols = amiga_country_rivals_pair_select_columns();
+    $playerIds = amiga_country_rivals_player_ids($con, $heroCountry, $ctx);
+    $playerIdInSql = amiga_country_rivals_sql_int_in_list($playerIds);
+    if ($playerIdInSql === '') {
+        return [];
+    }
+
+    $oppTokenSql = amiga_countries_token_sql('p');
 
     if (!$ctx->isActive()) {
         $sql = 'SELECT ' . implode(', ', $selectCols)
             . ' FROM amiga_player_matchup_summary m'
-            . ' INNER JOIN amiga_players h ON h.id = m.player_id'
             . ' LEFT JOIN amiga_players p ON p.id = m.opponent_id'
-            . ' WHERE ' . $heroTokenSql . ' = ? AND m.games > 0';
+            . ' WHERE m.player_id IN (' . $playerIdInSql . ') AND m.games > 0'
+            . ' AND ' . $oppTokenSql . ' != ?';
         $stmt = $con->prepare($sql);
         if (!$stmt) {
             return [];
@@ -227,7 +377,7 @@ function amiga_country_rivals_pair_rows_raw(mysqli $con, string $heroCountry, ?A
             return [];
         }
         $sql = 'SELECT ' . implode(', ', $selectCols)
-            . ' ' . amiga_country_rivals_matchup_at_event_latest_from_sql('m')
+            . ' ' . amiga_country_rivals_matchup_at_event_latest_from_sql('m', $playerIdInSql, $heroCountry)
             . ' LEFT JOIN amiga_players p ON p.id = m.opponent_id';
         $stmt = $con->prepare($sql);
         if (!$stmt) {
@@ -236,7 +386,7 @@ function amiga_country_rivals_pair_rows_raw(mysqli $con, string $heroCountry, ?A
         $eventDate = $cutoff['event_date'];
         $chrono = $cutoff['chrono'];
         $tournamentId = $cutoff['tournament_id'];
-        $stmt->bind_param('ssdi', $heroCountry, $eventDate, $chrono, $tournamentId);
+        $stmt->bind_param('sdis', $eventDate, $chrono, $tournamentId, $heroCountry);
     }
 
     if (!$stmt->execute()) {
@@ -254,6 +404,8 @@ function amiga_country_rivals_pair_rows_raw(mysqli $con, string $heroCountry, ?A
         $res->free();
     }
     $stmt->close();
+
+    $cache[$cacheKey] = $rawRows;
 
     return $rawRows;
 }
@@ -288,36 +440,48 @@ function amiga_country_rivals_rows(
     }
 
     $ctx ??= amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+    $baseCacheKey = amiga_country_rivals_rows_cache_key($heroCountry, $ctx, false);
     $cacheKey = amiga_country_rivals_rows_cache_key($heroCountry, $ctx, $withPerf);
     if (isset($cache[$cacheKey])) {
         return $cache[$cacheKey];
     }
 
-    $pairRows = amiga_country_rivals_pair_rows($con, $heroCountry, $ctx);
-    $rows = amiga_country_rivals_filter_cross_border_rows(
-        amiga_country_rivals_rollup_from_pair_rows($pairRows),
-        $heroCountry
-    );
+    if (isset($cache[$baseCacheKey])) {
+        $rows = $cache[$baseCacheKey];
+    } else {
+        $pairRows = amiga_country_rivals_pair_rows($con, $heroCountry, $ctx);
+        $rows = amiga_country_rivals_filter_cross_border_rows(
+            amiga_country_rivals_rollup_from_pair_rows($pairRows),
+            $heroCountry
+        );
+        $cache[$baseCacheKey] = $rows;
+    }
+
     if ($rows === []) {
         $cache[$cacheKey] = [];
 
         return [];
     }
 
-    if ($withPerf) {
-        require_once __DIR__ . '/amiga_country_rivals_perf_lib.php';
-        $perfByRival = amiga_country_rivals_perf_ratings_batch($con, $heroCountry, $ctx);
-        foreach ($rows as $index => $row) {
-            $token = (string) $row['rival_token'];
-            $perf = $perfByRival[$token] ?? null;
-            $rows[$index]['performance_rating'] = is_array($perf) ? ($perf['performance_rating'] ?? null) : null;
-            $rows[$index]['performance_rating_vs_hero'] = is_array($perf) ? ($perf['performance_rating_vs_hero'] ?? null) : null;
-        }
+    if (!$withPerf) {
+        return $rows;
     }
 
-    $cache[$cacheKey] = $rows;
+    require_once __DIR__ . '/amiga_country_rivals_perf_lib.php';
+    $perfByRival = amiga_country_rivals_perf_ratings_batch($con, $heroCountry, $ctx);
+    $rowsWithPerf = [];
+    foreach ($rows as $row) {
+        $rowWithPerf = $row;
+        $token = (string) $row['rival_token'];
+        $perf = $perfByRival[$token] ?? null;
+        $rowWithPerf['performance_rating'] = is_array($perf) ? ($perf['performance_rating'] ?? null) : null;
+        $rowWithPerf['performance_rating_vs_hero'] = is_array($perf) ? ($perf['performance_rating_vs_hero'] ?? null) : null;
+        $rowsWithPerf[] = $rowWithPerf;
+    }
 
-    return $rows;
+    $cache[$cacheKey] = $rowsWithPerf;
+
+    return $rowsWithPerf;
 }
 
 /**
