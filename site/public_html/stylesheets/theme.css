@@ -140,7 +140,8 @@ html {
 	background-color: var(--k2-bg-page);
 	color-scheme: dark;
 	scrollbar-gutter: stable;
-	overflow-x: hidden;
+	/* clip (not hidden) — hidden forces overflow-y:auto on body and breaks TT ribbon sticky */
+	overflow-x: clip;
 	max-width: 100%;
 }
 
@@ -157,7 +158,7 @@ body.k2-site {
 	line-height: 1.5;
 	color: var(--k2-text-primary);
 	background-color: var(--k2-bg-page);
-	overflow-x: hidden;
+	overflow-x: clip;
 	max-width: 100%;
 	min-width: 0;
 }
@@ -631,7 +632,8 @@ body.k2-site .player-h2h-opponent-search .player-h2h-search-option:focus-visible
 	max-width: 1200px;
 	margin: 0 auto;
 	min-width: 0;
-	overflow-x: hidden;
+	/* clip (not hidden) so TT ribbon position:sticky can latch to the viewport */
+	overflow-x: clip;
 }
 
 body.k2-site.k2-player-wing .k2-page-nav {
@@ -2753,7 +2755,20 @@ body.k2-site .k2-amiga-time-travel {
 	padding: 0.65rem 0.85rem;
 	border: 1px solid color-mix(in srgb, var(--k2-border-subtle) 80%, transparent);
 	border-radius: 0.5rem;
-	background: color-mix(in srgb, var(--k2-surface-raised) 92%, transparent);
+	background: var(--k2-bg-page);
+}
+
+/* TT ribbon sticky v1 — sticky on for all active as= pages (CD4); CSS position:sticky, top: 0 */
+body.k2-site .k2-amiga-time-travel--active {
+	position: sticky;
+	top: 0;
+	/* Stuck band (CD §4.2): header (1300) is off-screen when latch occurs */
+	z-index: 1390;
+}
+
+body.k2-site .k2-amiga-time-travel--active.k2-amiga-time-travel--event-wing .k2-amiga-time-travel__bar {
+	flex-wrap: wrap;
+	row-gap: 0.65rem;
 }
 
 body.k2-site .k2-amiga-time-travel__bar {

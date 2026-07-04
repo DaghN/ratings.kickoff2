@@ -1,6 +1,6 @@
 # Amiga time travel — chrome dock policy (CD track)
 
-**Status:** **Approved** Jul 2026 — product + technical direction locked; **not yet implemented**. **Baseline phase (Jul 2026):** C02 pin **removed from code** — in-flow ribbon only until nav stability + CD track.
+**Status:** **Approved** Jul 2026 — product + technical direction locked. **Sticky v1 (Jul 2026):** CSS `position:sticky` shipped — sticky on only, no pushpin; see §8. **Baseline phase (Jul 2026):** C02 pin **removed from code** Jun 2026 — F6 nav stability signed off before sticky v1.
 
 **Parent:** [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`design-direction.md`](design-direction.md)
 
@@ -131,6 +131,7 @@ sticky off (opted out) — always in flow:
 
 - **Latch trigger (sticky on only):** user scrolls until the ribbon’s in-flow position would cross the **viewport top**; only then apply sticky/fixed geometry (**not** fixed on first paint).
 - While **stuck:** **`top: 0`** (standard `position: sticky` / equivalent fixed bar at viewport top).
+- **Ribbon cosmetics (v1):** opaque **`var(--k2-bg-page)`** background + hairline border in both **in flow** and **stuck** (matches site page background).
 - Prefer **instant** latch; optional ≤120ms transition only if visual testing demands it.
 - **Not in scope:** header-height sticky offset, scroll-linked `top` changes, or fixed site header — unless site header behaviour changes in a separate track.
 
@@ -202,11 +203,13 @@ Stamp motion on navigation: **CD7** (§3). Stamp sync script load order: existin
 
 ## 8. Implementation
 
-**Baseline phase (current):** TT chrome **in flow only** — C02 pin/sticky **removed** Jul 2026. Goal: nav stability before any CD2–CD4 sticky work. **F6 slice 0 shipped** (carry-scroll scroll-top) — manual S1 sign-off pending — [`2026-07-04-001-tt-chrome-baseline-slice-0.md`](orchestration/agent-handoffs/2026-07-04-001-tt-chrome-baseline-slice-0.md). **Next baseline:** **F18** — smokes **S9–S10**.
+**Sticky v1 (Jul 2026):** CSS-first slice shipped — `.k2-amiga-time-travel--active` gets `position: sticky; top: 0; z-index: 1390` in `theme.css`. Ribbon background **`var(--k2-bg-page)`** (opaque site page dark). **Sticky on only** (no pushpin, no `localStorage`). `overflow-x: clip` on `html`, `body.k2-site`, and `.k2-page-nav` (replacing `hidden`, which forced `overflow-y: auto` on body and broke viewport sticky). Event wing bar may wrap when active. Handoff [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md). **Failures F1–F17** from JS pin attempt **closed** in [`amiga-tt-chrome-sticky-invariants.md`](amiga-tt-chrome-sticky-invariants.md).
 
-**Deferred** — CD sticky implementation after baseline handoff. Policy CD1–CD10 above is the source of truth for the **future** sticky track. New plan **§0** links [`amiga-tt-chrome-sticky-invariants.md`](amiga-tt-chrome-sticky-invariants.md). See failures register § **Where causes and fixes are documented**.
+**Baseline phase (done Jul 2026):** TT chrome **in flow** + F6 nav stability before sticky — [`2026-07-04-001`](orchestration/agent-handoffs/2026-07-04-001-tt-chrome-baseline-slice-0.md) · F6 signed off [`2026-07-04-003`](orchestration/agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md).
 
-**Smoke targets (when implementing):** rating LB chevrons, wing tabs, hub pill carry-scroll, Event wing wrap + picker, pushpin **sticky off**, toggle entry arrival, mobile narrow width; verify three states from §2.4 (**sticky on + in flow**, **sticky on + stuck**, **sticky off + in flow**).
+**Still deferred:** pushpin **sticky off** (CD3), toggle-entry opt-out clear without pin UI (CD2 partial), TT chrome coordinator wrapper (§7). Re-run smokes **S1–S4** after manual pass on staging.
+
+**Invariants:** [`amiga-tt-chrome-sticky-invariants.md`](amiga-tt-chrome-sticky-invariants.md) — watch F3/F4/F7/F8/F9 on manual smoke.
 
 ---
 
@@ -233,7 +236,7 @@ Stamp motion on navigation: **CD7** (§3). Stamp sync script load order: existin
 | **`amiga-time-travel-policy.md` §5.1 ribbon placement** | Add sticky behaviour note; “below temporal stamp” unchanged while **in flow** |
 | **WP12** (with-player + optional sticky) | Sticky default satisfies long-page `as_with=` scrubbing; update cross-ref when shipped |
 
-Until CD track ships, **implemented behaviour** = stamp → ribbon **in flow** only (no pin, no sticky).
+Until pushpin ships, **implemented behaviour** = stamp → ribbon with **sticky on** CSS v1 when `as=` active (pushpin **sticky off** still deferred).
 
 ---
 
@@ -249,6 +252,7 @@ Until CD track ships, **implemented behaviour** = stamp → ribbon **in flow** o
 
 | Date | Note |
 |------|------|
+| 2026-07-04 | **Sticky v1 shipped** — CSS `position:sticky` on `--active` ribbon; `overflow-x:clip` on html/body/page-nav — handoff [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
 | 2026-07-04 | Policy drafted — ribbon-first, default scroll-linked dock, pushpin opt-out, nav stability architecture |
 | 2026-07-04 | **Revised after revert** — stamp→ribbon in flow (CD1); in flow→stuck latch (CD4); implementation plan deferred |
 | 2026-07-04 | **Terminology locked (§2.4)** — **sticky on/off**, **in flow**, **stuck**; retired *docked*, *pre-sticky*, *pinned* for this track |

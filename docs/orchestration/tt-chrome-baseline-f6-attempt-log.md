@@ -532,7 +532,7 @@ Consolidated status after F6 track + realm query sweep. Symptom register updated
 | **F19** LED co-waits with table | **Signed off 2026-07-04** | Stamp `initStamp()` at script eval | TT policy §5.0 |
 | **F20** flag/roster header flash | **Signed off 2026-07-04 (query)** | Roster + rivals Track A | handoff 002 — optional hash chrome deferred |
 
-**Still open (not F6-class):** F1–F17 sticky/pin symptoms from reverted CD track; player games curl >0.8 s (HTML render, query fixed); F20 optional hash/reveal chrome (deferred).
+**Still open (not F6-class):** player games curl >0.8 s (HTML render, query fixed); F20 optional hash/reveal chrome (deferred). **F1–F17 sticky/pin symptoms closed** — CSS sticky v1 [`2026-07-04-018`](agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md).
 
 **Recommended Dagh pass:** ~~S1/S1b on rating LB~~ — **passed 2026-07-04** (only table swaps; chrome stable).
 

@@ -38,7 +38,7 @@
 
 - **Change style:** small, reversible slices.
 
-- **Amiga time travel (Jul 2026):** **F6 nav track signed off** — narrow snapshot reads + y=0 chrome gate + realm query sweep; Dagh S1/S1b pass (only table swaps) — [`tt-chrome-baseline-f6-attempt-log.md`](docs/orchestration/tt-chrome-baseline-f6-attempt-log.md) · [`2026-07-04-003`](docs/orchestration/agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md).
+- **Amiga time travel (Jul 2026):** **TT ribbon sticky v1** — CSS `position:sticky` on all `as=` pages (sticky on only; no pushpin). **F6 nav track signed off** — narrow snapshot reads + y=0 chrome gate + realm query sweep; Dagh S1/S1b pass — [`tt-chrome-baseline-f6-attempt-log.md`](docs/orchestration/tt-chrome-baseline-f6-attempt-log.md) · [`2026-07-04-003`](docs/orchestration/agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md) · sticky slice [`2026-07-04-018`](docs/orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md).
 
 - **Amiga realm (Jun 2026):** **Games hub shipped** — `/amiga/games/{recent,highlights,all}.php`; TT-sensitive; filters on All games deferred. **Disposition review** — register **605/605**; **44** `pending_review`; [`disposition-REVIEW-STARTER`](docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md).
 
@@ -134,6 +134,7 @@
 
 ## Recent log
 
+| 2026-07-04 | **TT ribbon sticky v1** — CSS `position:sticky; top:0` on `.k2-amiga-time-travel--active` (all `as=` pages; sticky on only; no pin JS). Opaque `var(--k2-bg-page)` ribbon bg + hairline border. `overflow-x:clip` on `html`/`body`/`.k2-page-nav`. F1–F17 closed in invariants. Handoff [`2026-07-04-018`](docs/orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md). |
 | 2026-07-04 | **Amiga Games Recent — section headings** — tournament labels moved outside table (online Recent parity); removed in-table colspan row that looked like a stray header row. |
 | 2026-07-04 | **Profile played-weeks heatmap** — 30/70 left/right spare-space grid (was centred 50/50); `player-feast-sections.css`. |
 | 2026-07-04 | **Amiga Games Highlights — Tournament column** — Date → Tournament → Player A (parity with Recent); `default_sort_col` +1 on all five boards (× two scopes); join-back already had tournament cols — no SQL change; parity + TT probe green. |

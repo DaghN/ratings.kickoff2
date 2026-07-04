@@ -5,7 +5,7 @@
 
 **Parent:** [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) · [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) · [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md)
 
-**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`hub-ia-agreement.md`](hub-ia-agreement.md) · [`amiga-profile-v0.md`](amiga-profile-v0.md) · [`amiga-tt-chrome-dock-policy.md`](amiga-tt-chrome-dock-policy.md) · [`amiga-tt-chrome-sticky-invariants.md`](amiga-tt-chrome-sticky-invariants.md) (CD track — approved Jul 2026, not yet implemented)
+**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`hub-ia-agreement.md`](hub-ia-agreement.md) · [`amiga-profile-v0.md`](amiga-profile-v0.md) · [`amiga-tt-chrome-dock-policy.md`](amiga-tt-chrome-dock-policy.md) · [`amiga-tt-chrome-sticky-invariants.md`](amiga-tt-chrome-sticky-invariants.md) (CD track — **sticky v1 shipped** Jul 2026)
 
 ---
 
@@ -185,7 +185,7 @@ Player pills stay visible under time travel. Target **T15** + **T16**:
 
 ### 5.0 Chrome — product intent (Jun 2026)
 
-> **CD track (Jul 2026, approved, not shipped):** [`amiga-tt-chrome-dock-policy.md`](amiga-tt-chrome-dock-policy.md) — future **sticky on** / **`top: 0`** latch. **Shipped today:** stamp → ribbon **in flow only** (C02 pin removed Jul 2026 baseline).
+> **CD track (Jul 2026, sticky v1 shipped):** [`amiga-tt-chrome-dock-policy.md`](amiga-tt-chrome-dock-policy.md) — **sticky on** via CSS `position:sticky` / **`top: 0`** latch on all `as=` pages; opaque **`var(--k2-bg-page)`** ribbon background. Pushpin **sticky off** deferred. Handoff [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md).
 
 Phase 1 proved the **data lens**: one `as=` cutoff, correct snapshot reads, link propagation. Browsing still felt like *the same page with different numbers* — correct but not *felt*. The **atmospheric chrome stack** records what we shipped to fix that.
 
