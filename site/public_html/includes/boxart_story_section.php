@@ -12,20 +12,20 @@ $img = static function (string $file): string {
     return '/images/boxart/' . $file;
 };
 ?>
-<article class="k2-boxart" aria-labelledby="k2-boxart-title">
+<article class="k2-boxart" id="k2-boxart-story" aria-labelledby="k2-boxart-title">
 
 	<header class="k2-boxart__hero">
 		<p class="k2-boxart__kicker">Anco · Amiga · 1990 · The cover that started it all</p>
 		<h1 id="k2-boxart-title" class="k2-boxart__title">The Kick Off 2 Box Art Mystery</h1>
 		<p class="k2-boxart__lede">
-			Two footballers frozen mid-collision, a wildly over-excited coach in the corner, and a single
+			Two footballers frozen in full flight, a wildly over-excited coach in the corner, and a single
 			pencil drawing that&rsquo;s been staring back at us from the shelf for 35 years. We always knew the
 			cover. We just never knew <em>who</em> was on it. On 6 June 2026, a WhatsApp group of grown adults
 			decided that simply would not do any longer.
 		</p>
 
 		<figure class="k2-boxart__figure k2-boxart__figure--hero">
-			<img src="<?php echo $img('ko2-box-front.png'); ?>" alt="The Kick Off 2 Amiga box art: a white-shirted player falling backwards, a second player behind him with arms raised, and a coach pointing." loading="eager" decoding="async" />
+			<img src="<?php echo $img('ko2-box-front.png'); ?>" alt="The Kick Off 2 Amiga box art: a white-shirted player about to shoot, a second player kneeling behind him with arms raised in celebration, and a coach pointing." loading="eager" decoding="async" />
 			<figcaption>The icon itself. Painted by Cameron Buxton, published by Anco in 1990. Look at it. <em>Really</em> look at it.</figcaption>
 		</figure>
 	</header>
@@ -36,8 +36,8 @@ $img = static function (string $file): string {
 			The cover has three characters, and for decades each one was a little question mark:
 		</p>
 		<ul class="k2-boxart__cast">
-			<li><strong>The man falling backwards</strong> in white &mdash; the hero of the composition, leg cocked, about to unleash a shot.</li>
-			<li><strong>The man rising behind him</strong> in a darker shirt, arms thrown skyward.</li>
+			<li><strong>The shooter in white</strong> &mdash; the hero of the composition, one foot planted, the other leg cocked back, about to unleash a shot.</li>
+			<li><strong>The man behind him</strong>, sitting back on his shins with arms thrown skyward, celebrating a goal.</li>
 			<li><strong>The coach</strong> in the bottom corner, pointing and &mdash; let&rsquo;s be honest &mdash; looking <em>far</em> too thrilled about it all.</li>
 		</ul>
 		<p class="k2-boxart__prose">
@@ -87,11 +87,6 @@ $img = static function (string $file): string {
 			<cite>&mdash; Cameron Buxton, settling the great leg debate forever</cite>
 		</blockquote>
 
-		<figure class="k2-boxart__figure k2-boxart__figure--portrait">
-			<img src="<?php echo $img('original-illustration.png'); ?>" alt="The original Kick Off 2 cover illustration, signed in the lower-left corner." loading="lazy" decoding="async" />
-			<figcaption>The original artwork, signature and all. Then came the punchline&hellip;</figcaption>
-		</figure>
-
 		<p class="k2-boxart__prose">
 			&hellip;the thread sat quiet. And then, <strong>six years later</strong>, in walked our own
 			<strong>Stainy</strong> with the immortal words:
@@ -105,41 +100,72 @@ $img = static function (string $file): string {
 		<p class="k2-boxart__prose">
 			Stainy bought the original drawing straight from the artist. As he relayed it: Buxton did
 			<em>all</em> of Anco&rsquo;s games, and only kept the Kick Off 2 piece &ldquo;because it was such a huge
-			game.&rdquo; You can browse Buxton&rsquo;s full back catalogue of game illustrations in
+			game.&rdquo; He still owns it today. The forum thread has carried that genuine artwork ever since:
+		</p>
+
+		<figure class="k2-boxart__figure k2-boxart__figure--portrait">
+			<img src="<?php echo $img('KO2_original_illustration.jpg'); ?>" alt="The genuine original Kick Off 2 cover illustration, framed and signed by Cameron Buxton, photographed in Stainy&#39;s possession." loading="lazy" decoding="async" />
+			<figcaption>
+				The real original &mdash; Cameron Buxton&rsquo;s signed drawing, framed. No game title, no box stamp:
+				just the players, the crowd, and that glorious pencil work.
+			</figcaption>
+		</figure>
+
+		<p class="k2-boxart__prose">
+			You can browse Buxton&rsquo;s full back catalogue of game illustrations in
 			<a href="https://vgdensetsu.net/cbuxton/" rel="noopener noreferrer">this lovely gallery</a>. There were
 			also earlier forum threads chewing on the same mystery in
 			<a href="https://ko-gathering.com/forum/viewtopic.php?t=11377" rel="noopener noreferrer">2005</a> and
 			<a href="https://ko-gathering.com/forum/viewtopic.php?t=13567" rel="noopener noreferrer">2007</a>.
 		</p>
+
+		<p class="k2-boxart__prose">
+			And then there is another scan that turns up from time to time &mdash; honestly, we do not know where
+			it came from &mdash; but it opens a lovely question:
+		</p>
+
+		<figure class="k2-boxart__figure k2-boxart__figure--portrait">
+			<img src="<?php echo $img('original-illustration.png'); ?>" alt="A scan of Kick Off 2 cover artwork with game title lettering and a signature in the lower-left corner." loading="lazy" decoding="async" />
+			<figcaption>
+				The box prototype? The signature in the bottom-left corner really looks like
+				<strong>Dino Dini&rsquo;s</strong> artful hand &mdash; the game&rsquo;s creator, not the illustrator.
+				Plausible as a production-ready comp before the Anco stamp and the last small tweaks hit the box?
+			</figcaption>
+		</figure>
 	</section>
 
 	<section class="k2-boxart__section">
 		<h2 class="k2-boxart__h2">The man in the background: Hugo Sánchez</h2>
 		<p class="k2-boxart__prose">
-			Now to the players. The figure rising behind the hero &mdash; arms up, dark shirt &mdash; was the easy one.
-			It&rsquo;s <a href="https://en.wikipedia.org/wiki/Hugo_S%C3%A1nchez" rel="noopener noreferrer">Hugo
-			Sánchez</a>, the legendary Mexican striker, lifted almost pose-for-pose from a 1986 World Cup photograph.
+			Now to the players &mdash; and this is where the goosebumps start. The figure behind the shooter,
+			sitting back on his shins with both arms reaching for the sky, is
+			<a href="https://en.wikipedia.org/wiki/Hugo_S%C3%A1nchez" rel="noopener noreferrer">Hugo
+			Sánchez</a>, the legendary Mexican striker. If you grew up with this box on the shelf, finding the
+			source photograph for the first time is one of those small earthquakes: a World Cup moment you may never
+			have seen, suddenly welded to a painting you&rsquo;ve known since childhood.
 		</p>
 
 		<figure class="k2-boxart__figure">
 			<img src="<?php echo $img('hugo-sanchez-1986.png'); ?>" alt="Hugo Sánchez of Mexico on his knees with arms raised during the 1986 World Cup." loading="lazy" decoding="async" />
 			<figcaption>
 				The source: Hugo Sánchez, Mexico v Paraguay, 1986 FIFA World Cup, Aztec Stadium, 7 June 1986.
-				Same raised arms. Same skyward gaze. (Photo: Allsport/Hulton Archive/Getty Images.)
+				Same raised arms. Same skyward gaze. Same celebration on his shins. (Photo: Allsport/Hulton Archive/Getty Images.)
 			</figcaption>
 		</figure>
 
 		<p class="k2-boxart__prose">
-			Match the arms to the cover and there&rsquo;s no doubt. One down, one to go &mdash; and the second one
-			would not come quietly.
+			Match the arms to the cover and there&rsquo;s no doubt &mdash; it&rsquo;s him, lifted almost pose-for-pose
+			from Mexico at the &rsquo;86 World Cup. One of the most iconic covers in Amiga history, and here is Hugo
+			Sánchez in the flesh, frozen in the exact moment Buxton borrowed. If that doesn&rsquo;t make you grin,
+			we honestly don&rsquo;t know what will.
 		</p>
 	</section>
 
 	<section class="k2-boxart__section">
 		<h2 class="k2-boxart__h2">The man in the foreground: the long hunt</h2>
 		<p class="k2-boxart__prose">
-			The hero &mdash; the falling man in white &mdash; was clearly wearing a <strong>Crystal Palace</strong> kit.
-			But <em>which</em> Palace player? This is where the WhatsApp group went full true-crime corkboard,
+			The hero in white &mdash; the Palace-sashed striker about to let fly &mdash; was clearly wearing a
+			<strong>Crystal Palace</strong> kit. But <em>which</em> Palace player? This is where the WhatsApp group went full true-crime corkboard,
 			red string and all.
 		</p>
 
@@ -276,16 +302,53 @@ $img = static function (string $file): string {
 		</figure>
 	</section>
 
-	<footer class="k2-boxart__outro">
+	<section class="k2-boxart__section">
+		<h2 class="k2-boxart__h2">After the dust settled</h2>
 		<p class="k2-boxart__prose">
-			All of this &mdash; the artist, the players, the mislabelled press photo, the Reddit cavalry, the word
+			6 June answered the <em>who</em>. In the weeks that followed, two quieter beats reminded us this story
+			is bigger than a box &mdash; it&rsquo;s people, fans, and a community that looks after its treasures.
+		</p>
+		<p class="k2-boxart__prose">
+			First: the photograph of Stainy&rsquo;s original had genuinely slipped out of public view. Stainy lives
+			in the US now; the drawing is still on his wall, but the picture the forum once had was gone &mdash; out of
+			sight until someone went looking. <strong>Alkis</strong> reached out across the Atlantic, Stainy replied
+			straight away, and Alkis restored the artwork photograph to the
+			<a href="https://ko-gathering.com/forum/viewtopic.php?t=12246" rel="noopener noreferrer">forum thread</a>
+			&mdash; preserved for everyone again before it could stay lost. As Steve B put it: &ldquo;Ok Alkis messaged
+			Stainy, and Stainy replied quickly.. and Alkis restored the art work picture on the forum!&rdquo; A small
+			act of care, and suddenly a piece of KO2 history was back where it belongs.
+		</p>
+		<p class="k2-boxart__prose">
+			Second: Steve B hadn&rsquo;t finished with that press photo. He wrote to the eBay seller &mdash; a lifelong
+			Crystal Palace collector called <strong>John</strong> &mdash; to ask where the picture had come from, and
+			floated the same theory the group had landed on: might this &ldquo;Ian Wright&rdquo; label be wrong, and
+			might this very shot have inspired the cover?
+		</p>
+		<figure class="k2-boxart__figure k2-boxart__figure--chat">
+			<img src="<?php echo $img('photo_owner.jpg'); ?>" alt="eBay messages between Steve B and seller John about the Crystal Palace press photo, including John&#39;s family history at the club." loading="lazy" decoding="async" />
+			<figcaption>
+				John&rsquo;s reply is a little treasure in its own right: lifelong Palace, father who played for the club
+				in the late fifties, grandfather who worked on the Arthur Waite stand, and a collection built from programme
+				fairs plus a bulk buy of some six thousand football press photos &mdash; about two hundred of them Palace.
+				He&rsquo;d wondered about Andy Gray too; Google kept insisting Ian Wright.
+			</figcaption>
+		</figure>
+		<p class="k2-boxart__prose">
+			That&rsquo;s the thing about this cover &mdash; it keeps opening doors. A mislabelled press photo, a forum
+			thread from 2006, a drawing on a wall in America. None of it was ever just box art.
+		</p>
+		<p class="k2-boxart__prose">
+			The player hunt &mdash; the mislabelled press photo, the WhatsApp theories, the Reddit cavalry, the word
 			from a Kick Off 2 co-creator &mdash; came together in a single glorious flurry on <strong>6 June
 			2026</strong>. Not bad for a 35-year-old pencil drawing.
 		</p>
+	</section>
+
+	<footer class="k2-boxart__outro">
 		<p class="k2-boxart__credits">
 			Sleuthing by the KO2 Online WhatsApp crew &mdash; Steve B, Mike C, Jorn &amp; co. With thanks to
 			r/crystalpalace, the <a href="https://ko-gathering.com/forum/viewtopic.php?t=12246" rel="noopener noreferrer">KOA forum</a>,
-			Cameron Buxton, and Steve Screech.
+			Cameron Buxton, Stainy, Alkis, and Steve Screech.
 		</p>
 		<p class="k2-boxart__back"><a class="k2-link-star" href="/status.php">&larr; Back to the status room</a></p>
 	</footer>

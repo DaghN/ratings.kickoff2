@@ -13,6 +13,10 @@
 	padding: 8px 16px 56px;
 }
 
+#k2-boxart-story {
+	scroll-margin-top: 67px;
+}
+
 /* ── Hero ── */
 .k2-boxart__hero {
 	max-width: var(--k2-boxart-read);
@@ -265,6 +269,24 @@
 	margin: 0;
 	font-size: 14px;
 	font-weight: 600;
+}
+
+/* Lab draft banner (boxart-lab.php) */
+.k2-boxart__lab-banner {
+	max-width: var(--k2-boxart-read);
+	margin: 0 auto 18px;
+	padding: 10px 14px;
+	border: 1px dashed color-mix(in srgb, var(--k2-accent) 55%, var(--k2-border-strong));
+	border-radius: var(--k2-radius-md);
+	background: color-mix(in srgb, var(--k2-accent) 8%, var(--k2-bg-surface));
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--k2-text-secondary);
+	text-align: center;
+}
+
+.k2-boxart__lab-banner strong {
+	color: var(--k2-text-primary);
 }
 
 @media (max-width: 480px) {

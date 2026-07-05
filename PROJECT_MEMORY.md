@@ -135,6 +135,7 @@
 
 ## Recent log
 
+| 2026-07-05 | **Box art story promoted** — lab draft shipped to `boxart.php` / `boxart_story_section.php` (Jul 2026 revision); Status heritage inset → `#k2-boxart-story`; `boxart-lab.php` 301 redirect; images `KO2_original_illustration.jpg`, `photo_owner.jpg`. |
 | 2026-07-05 | **Amiga live ops platform policy** — locked three lanes (A canon local / B ladder staged / C editorial staged), staging as community ground authority, timeline vs present anchored repair, ground packs, media DB writes, bidirectional flow — [`amiga-live-ops-platform.md`](docs/amiga-live-ops-platform.md) (ALO1–ALO10). |
 | 2026-07-05 | **Site footer + About stub** — `includes/site_footer.php` on `body.k2-site` pages: © year, Dagh Nielsen, About, `daghnielsen@gmail.com`; `/about.php` leaf (maintainer + contact); `k2_site_end.inc.php`; PL13 trimmed to provenance-only (no editorial links). |
 | 2026-07-04 | **Amiga Games Recent — section headings** — tournament labels moved outside table (online Recent parity); removed in-table colspan row that looked like a stray header row. |

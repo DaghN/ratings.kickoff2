@@ -87,7 +87,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Games Highlights (spectacle boards) | L0 | — | — | — | — | — | `games/highlights.php` |
 | Games All games browse | L0 | — | — | — | — | — | `games/all.php` — filters, server sort, chevron pager, Reset filters pill; hub tab Jun 2026; **Jul 2026 O1** score-line facet single-pass dedupe (~3.9→~1.3 s census curl) |
 | Play & Setup page | L0 | — | — | — | — | — | `join.php` |
-| Box art story page | — | — | — | — | — | — | `boxart.php` (+ `boxart_story_section.php`, `boxart-story.css`, `images/boxart/`); KO2 cover history; Status heritage box links to it; PHP/CSS/content only |
+| Box art story page | — | — | — | — | — | — | `boxart.php` (+ `boxart_story_section.php`, `boxart-story.css`, `images/boxart/`); KO2 cover history (Jul 2026 revision: genuine original, box-prototype question, coda); Status heritage box links to it; PHP/CSS/content only |
 | Hub / Status cosmetics | — | — | — | — | — | — | PHP only; **Jun 2026** — C07 **On this day last year →** on arc panel |
 | Milestones hub tab (stub) | L0 | — | — | — | — | — | `milestones.php` v0 hub |
 | Hub IA — Games tab | — | — | — | — | — | — | **Jun 2026** — `games/recent.php` hub tab after Milestones; Status **Games →** retained |
