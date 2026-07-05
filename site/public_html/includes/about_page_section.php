@@ -15,7 +15,7 @@ $mailto = htmlspecialchars('mailto:' . rawurlencode($email), ENT_QUOTES, 'UTF-8'
 	<header class="k2-about-page__hero">
 		<h1 id="k2-about-title" class="k2-about-page__title">About</h1>
 		<p class="k2-about-page__prose">
-			Kick Off 2 ratings is a community statistics site for online ladder play and Amiga tournament &mdash; built and maintained by fans who play the game.
+			Kick Off 2 ratings is a community statistics site for online ladder play and Amiga tournaments &mdash; built and maintained by fans who play the game.
 		</p>
 	</header>
 

@@ -13,8 +13,9 @@
 	padding: 8px 16px 56px;
 }
 
-#k2-boxart-story {
-	scroll-margin-top: 67px;
+body.k2-site .k2-boxart-page-anchor {
+	height: 0;
+	scroll-margin-top: 12px;
 }
 
 /* ── Hero ── */

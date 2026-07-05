@@ -12,7 +12,9 @@ $img = static function (string $file): string {
     return '/images/boxart/' . $file;
 };
 ?>
-<article class="k2-boxart" id="k2-boxart-story" aria-labelledby="k2-boxart-title">
+<article class="k2-boxart" aria-labelledby="k2-boxart-title">
+
+	<div id="k2-boxart-story" class="k2-boxart-page-anchor" tabindex="-1"></div>
 
 	<header class="k2-boxart__hero">
 		<p class="k2-boxart__kicker">Anco · Amiga · 1990 · The cover that started it all</p>
@@ -346,7 +348,7 @@ $img = static function (string $file): string {
 
 	<footer class="k2-boxart__outro">
 		<p class="k2-boxart__credits">
-			Sleuthing by the KO2 Online WhatsApp crew &mdash; Steve B, Mike C, Jorn &amp; co. With thanks to
+			Sleuthing by the KO2 Online WhatsApp crew &mdash; Steve B, Mike C, Jorn, Steve C &amp; co. With thanks to
 			r/crystalpalace, the <a href="https://ko-gathering.com/forum/viewtopic.php?t=12246" rel="noopener noreferrer">KOA forum</a>,
 			Cameron Buxton, Stainy, Alkis, and Steve Screech.
 		</p>
