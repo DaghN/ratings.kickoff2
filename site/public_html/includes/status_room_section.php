@@ -32,14 +32,26 @@ $liveGames = $room['live_games'];
 $logins = $room['logins'];
 $registrations = $room['registrations'];
 $recentGames = $room['recent_games'];
+$pulseState = is_array($room['pulse'] ?? null) ? $room['pulse'] : [];
+$pulseRevision = (string) ($pulseState['revision'] ?? '');
+$pulseSignals = is_array($pulseState['signals'] ?? null) ? $pulseState['signals'] : [];
+$pulseSignalsJson = htmlspecialchars(json_encode($pulseSignals, JSON_UNESCAPED_UNICODE), ENT_COMPAT, 'UTF-8');
 
 $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 ?>
-<section class="k2-status-room" aria-label="Online status room">
+<section
+	class="k2-status-room"
+	aria-label="Online status room"
+	data-k2-status-room-live
+	data-pulse-revision="<?php echo k2_status_h($pulseRevision); ?>"
+	data-pulse-signals="<?php echo $pulseSignalsJson; ?>"
+	data-pulse-sync-epoch="<?php echo (int) $serverNowEpoch; ?>"
+>
 
 	<div class="k2-status-room__layout">
-		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-online" aria-labelledby="k2-status-online-title">
+		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-online" aria-labelledby="k2-status-online-title" data-k2-status-panel="online">
 			<h2 id="k2-status-online-title" class="k2-panel-heading">Online</h2>
+			<div class="k2-status-room-live__slot" data-k2-status-live-slot="online">
 <?php if ($online === []) { ?>
 			<p class="k2-status-panel__empty">Nobody flagged online — see recent logins below.</p>
 <?php } else { ?>
@@ -49,16 +61,18 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 <?php } ?>
 			</ul>
 <?php } ?>
+			</div>
 		</section>
 
-		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-live" aria-labelledby="k2-status-live-title">
+		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-live" aria-labelledby="k2-status-live-title" data-k2-status-panel="live">
 			<h2 id="k2-status-live-title" class="k2-panel-heading">Live games</h2>
+			<div class="k2-status-room-live__slot" data-k2-status-live-slot="live">
 <?php if ($liveGames === []) { ?>
 			<p class="k2-status-panel__empty">No live games in progress.</p>
 <?php } else { ?>
 			<ul class="k2-status-live-list">
 <?php foreach ($liveGames as $g) { ?>
-				<li>
+				<li data-game-id="<?php echo (int) $g['game_id']; ?>">
 					<?php echo k2_status_day_clock_html($g['start'], 'k2-status-live-list__time'); ?>
 					<span class="k2-status-match">
 						<span class="k2-status-match__side"><?php echo k2_status_player_link_or_name($g['id_a'], $g['name_a']); ?></span>
@@ -66,19 +80,20 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 						<span class="k2-status-match__side"><?php echo k2_status_player_link_or_name($g['id_b'], $g['name_b']); ?></span>
 					</span>
 					<span class="k2-status-live-list__meta">
-						<span class="k2-status-live-list__clock"><?php echo k2_status_h(k2_status_format_half_countdown((int) $g['half_countdown'])); ?></span>
+						<span class="k2-status-live-list__clock" data-half-countdown="<?php echo (int) $g['half_countdown']; ?>"><?php echo k2_status_h(k2_status_format_half_countdown((int) $g['half_countdown'])); ?></span>
 						<span class="k2-status-live-list__period"><?php echo k2_status_h(k2_status_format_game_period((int) $g['period'])); ?></span>
 					</span>
 				</li>
 <?php } ?>
 			</ul>
 <?php } ?>
+			</div>
 		</section>
 
-		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-arc" aria-label="Rated games summary">
+		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-arc" aria-label="Rated games summary" data-k2-status-panel="arc">
 			<p class="k2-status-room__arc">
-				<span class="blue"><?php echo number_format((int) ($arc['players'] ?? 0)); ?></span> players played
-				<span class="blue"><?php echo number_format((int) $arc['games']); ?></span> online Kick Off 2 games since <?php echo k2_status_h($arc['since_label']); ?>
+				<span class="blue" data-k2-status-arc-players=""><?php echo number_format((int) ($arc['players'] ?? 0)); ?></span> players played
+				<span class="blue" data-k2-status-arc-games=""><?php echo number_format((int) $arc['games']); ?></span> online Kick Off 2 games since <?php echo k2_status_h($arc['since_label']); ?>
 			</p>
 			<a class="k2-link-star k2-status-room__arc-link" href="<?php echo k2_status_h(k2_status_on_this_day_last_year_href($serverClock)); ?>">On this day last year &rarr;</a>
 		</section>
@@ -90,9 +105,9 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 			</a>
 		</section>
 
-		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--compact k2-status-room__panel-leaderboard" aria-labelledby="k2-status-active-title">
+		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--compact k2-status-room__panel-leaderboard" aria-labelledby="k2-status-active-title" data-k2-status-panel="ratings">
 			<div class="k2-status-panel__head">
-				<h2 id="k2-status-active-title" class="k2-panel-heading">Leaderboard <span class="k2-panel-heading__sep" aria-hidden="true">·</span> <span class="blue"><?php echo number_format($activePlayerCount); ?></span> active online players in the past year</h2>
+				<h2 id="k2-status-active-title" class="k2-panel-heading">Leaderboard <span class="k2-panel-heading__sep" aria-hidden="true">·</span> <span class="blue" data-k2-status-rating-count=""><?php echo number_format($activePlayerCount); ?></span> active online players in the past year</h2>
 				<p class="k2-status-panel__meta"><a class="k2-link-star k2-status-panel__more" href="/leaderboards/rating.php">Leaderboards &rarr;</a></p>
 			</div>
 <?php if (!empty($room['active_top_error'])) { ?>
@@ -110,7 +125,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 							<th class="k2-status-table__num" data-k2-sort="number" data-k2-help="Games played (career).">Games</th>
 						</tr>
 					</thead>
-					<tbody class="black">
+					<tbody class="black" data-k2-status-live-slot="ratings">
 <?php
     $rank = 1;
     foreach ($activeTop as $row) {
@@ -132,8 +147,9 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 		</section>
 
 		<div class="k2-status-room__west">
-		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--mini k2-status-room__panel-logins" aria-labelledby="k2-status-logins-title">
+		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--mini k2-status-room__panel-logins" aria-labelledby="k2-status-logins-title" data-k2-status-panel="logins">
 			<h2 id="k2-status-logins-title" class="k2-panel-heading">Recent logins</h2>
+			<div class="k2-status-room-live__slot" data-k2-status-live-slot="logins">
 <?php if ($logins === []) { ?>
 			<p class="k2-status-panel__empty">—</p>
 <?php } else { ?>
@@ -146,13 +162,15 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 <?php } ?>
 			</ul>
 <?php } ?>
+			</div>
 		</section>
 
-		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--mini k2-status-room__panel-games" aria-labelledby="k2-status-games-title">
+		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--mini k2-status-room__panel-games" aria-labelledby="k2-status-games-title" data-k2-status-panel="recent_games">
 			<div class="k2-status-panel__heading-row">
 				<h2 id="k2-status-games-title" class="k2-panel-heading">Recent games</h2>
 				<a class="k2-link-star k2-status-panel__more" href="<?php echo htmlspecialchars(k2_route('games-recent'), ENT_QUOTES, 'UTF-8'); ?>">Games &rarr;</a>
 			</div>
+			<div class="k2-status-room-live__slot" data-k2-status-live-slot="recent_games">
 <?php if ($recentGames === []) { ?>
 			<p class="k2-status-panel__empty">—</p>
 <?php } else { ?>
@@ -169,10 +187,12 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 <?php } ?>
 			</ul>
 <?php } ?>
+			</div>
 		</section>
 
-		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--mini k2-status-room__panel-new" aria-labelledby="k2-status-reg-title">
+		<section class="k2-status-panel k2-status-panel--tight k2-status-panel--mini k2-status-room__panel-new" aria-labelledby="k2-status-reg-title" data-k2-status-panel="registrations">
 			<h2 id="k2-status-reg-title" class="k2-panel-heading">New players</h2>
+			<div class="k2-status-room-live__slot" data-k2-status-live-slot="registrations">
 <?php if ($registrations === []) { ?>
 			<p class="k2-status-panel__empty">—</p>
 <?php } else { ?>
@@ -185,6 +205,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 <?php } ?>
 			</ul>
 <?php } ?>
+			</div>
 		</section>
 
 		<div class="k2-status-room__leagues">

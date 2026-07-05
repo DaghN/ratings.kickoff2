@@ -69,7 +69,7 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 | **Recent rated games** | `ratedresults` · `Date DESC` | ~10; show player names and score only, no rating deltas; header link `Games →` opens full Games list |
 | **Heritage box** | static image | Box art only; **Play & Setup** is a hub tab. Inset links to **`boxart.php#k2-boxart-story`** (illustrated box-art history) |
 
-**Not in v1:** games-played-by-period triple tables (preview includes removed Jun 2026 — data now in `player_period_games` + LB UI when placed); legacy Steve **`PlayerRank`** top 10; AWOL wall; ops metrics; polling (v1.5).
+**Not in v1:** games-played-by-period triple tables (preview includes removed Jun 2026 — data now in `player_period_games` + LB UI when placed); legacy Steve **`PlayerRank`** top 10; AWOL wall; ops metrics. **Live polling (v1.5)** shipped — [`status-room-live-policy.md`](status-room-live-policy.md).
 
 **Display:** Active top 20 may use slightly smaller type if needed for density.
 
@@ -117,12 +117,16 @@ Local dump: same. Do not label staging or local as live prod. Production read = 
 | Performance pass | **Local + work/staging proof done** — `idx_ratedresults_date`, `idx_resulttable_live_status`, `player_period_league`; Status loader ~6.6s → ~51ms locally (Jun 2026). **Jul 2026:** current **year** bundle deferred to client prewarm + `k2_league_load_first_games` request memo — first paint ~0.15 s curl (`2026-07-04-017`). Legacy `player_monthly_league` dropped SCH-017 (Jun 2026) |
 | Period activity prep | **Repo + `kooldb1` proof done** — `player_period_games` / peaks via ops simul; historical May **`kooldb`** batch in [`archive/replay-register-2026-05.md`](archive/replay-register-2026-05.md) |
 | **Leagues (period competitions)** | **Shipped** — paired Activity + Points, tab nav, prewarm, Daily games list — [`docs/status-period-competitions.md`](status-period-competitions.md) |
-| v1.5+ | Polling, kickoff2 embed, joshua redirect |
+| **v1.5 live room** | **Shipped (Jul 2026)** — 1 s heartbeat, cascade on rated finish, client live clocks, glow — [`status-room-live-policy.md`](status-room-live-policy.md) |
+| v1.5+ (other) | kickoff2 embed, joshua redirect |
 
 ---
 
 ## Related docs
 
+- `docs/status-room-live-policy.md` — live polling contract (v1.5)
+- `docs/status-room-live-implementation-plan.md` — execution slices
+- `docs/status-room-live-sim-spec.md` — local lobby sim for pulse testing (work DB); harness: `work.ratingskickoff.test/status-room-live-sim.php`
 - `docs/hub-ia-agreement.md`
 - `docs/LOCAL_DEV.md`
 - `docs/playertable-schema.md`, `docs/ratedresults-schema.md`

@@ -6927,3 +6927,46 @@ body.k2-site a.k2-lb-filter.is-on:visited {
 		border-top: 1px solid var(--k2-border-subtle);
 	}
 }
+
+/* Status room live — glow (jukebox bloom reused) */
+.k2-live-glow {
+	animation: k2-live-glow-bloom 2.6s ease-out;
+	border-radius: 4px;
+}
+
+@keyframes k2-live-glow-bloom {
+	0% {
+		box-shadow:
+			0 0 0 0 color-mix(in srgb, var(--k2-accent-glow) 0%, transparent),
+			inset 0 0 0 0 color-mix(in srgb, var(--k2-accent) 0%, transparent);
+	}
+	38% {
+		box-shadow:
+			0 0 calc(var(--k2-accent-glow-blur) * 1.2 * var(--k2-glow-strength)) color-mix(in srgb, white 18%, var(--k2-accent-glow)),
+			inset 0 0 0 1px color-mix(in srgb, white 12%, var(--k2-accent));
+	}
+	100% {
+		box-shadow:
+			0 0 0 0 color-mix(in srgb, var(--k2-accent-glow) 0%, transparent),
+			inset 0 0 0 0 color-mix(in srgb, var(--k2-accent) 0%, transparent);
+	}
+}
+
+.k2-live-score-pulse {
+	animation: k2-live-score-pulse 0.55s ease-out;
+}
+
+@keyframes k2-live-score-pulse {
+	0%, 100% { transform: scale(1); }
+	45% { transform: scale(1.12); color: var(--k2-accent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.k2-live-glow {
+		animation: none;
+		box-shadow: 0 0 0 1px color-mix(in srgb, var(--k2-accent) 35%, transparent);
+	}
+	.k2-live-score-pulse {
+		animation: none;
+	}
+}

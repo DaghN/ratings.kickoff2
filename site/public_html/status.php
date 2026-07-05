@@ -19,6 +19,8 @@ k2_table_js_enqueue();
 <script type="text/javascript" src="js/player-search.js" defer="defer"></script>
 <script type="text/javascript" src="js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
 <script type="text/javascript" src="js/status-period-competitions.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/status-period-competitions.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="js/k2-live-glow.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-live-glow.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="js/status-room-live.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/status-room-live.js'); ?>" defer="defer"></script>
 
 </head>
 

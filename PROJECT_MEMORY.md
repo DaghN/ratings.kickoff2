@@ -24,7 +24,7 @@
 
 - **Profile (online):** **Complete** — production feast on **`player/profile.php`**; no active build track; spec [`player-profile-feast.md`](docs/player-profile-feast.md). **Amiga profile:** gradual polish only — [`amiga-profile-v0.md`](docs/amiga-profile-v0.md). Multi-agent lab sandboxes removed Jun 2026 (handoff archived).
 
-- **Design / Status hub:** Phase B v1.2 room grid shipped. Prod live DB read + joshua redirect = **deferred** ([`STATUS_PAGE_DATA.md`](docs/STATUS_PAGE_DATA.md)).
+- **Design / Status hub:** Phase B v1.2 room grid shipped. **Live room (v1.5) shipped** — [`status-room-live-policy.md`](docs/status-room-live-policy.md). Prod live DB read + joshua redirect = **deferred** ([`STATUS_PAGE_DATA.md`](docs/STATUS_PAGE_DATA.md)).
 
 - **Activity (`activity.php`):** Charts v2 shipped **local + staging** — `activity-charts-v2.js` + `server_activity_chart_panels.php` ([`activity-charts.md`](docs/activity-charts.md)). Optional L4 polish in feature doc only.
 
@@ -135,6 +135,10 @@
 
 ## Recent log
 
+| 2026-07-06 | **Status room live sim harness** — one-click ~20-game sequence on `work.ratingskickoff.test/status-room-live-sim.php`; ticks via pulse + control page — [`status-room-live-sim-spec.md`](docs/status-room-live-sim-spec.md) Tier B. |
+| 2026-07-06 | **Status room live sim spec** — work DB + `work.ratingskickoff.test`, Tier A–C lobby sim for pulse testing — [`status-room-live-sim-spec.md`](docs/status-room-live-sim-spec.md). |
+| 2026-07-06 | **Status room live — shipped** — 1 s pulse (`api/status_room_pulse.php`), DOM patches + client half clocks, cascade on rated finish, jukebox-style glow — [`status-room-live-policy.md`](docs/status-room-live-policy.md). |
+| 2026-07-06 | **Status room live — spec + plan** — heartbeat polling, `last_rated_id` cascade, client half clocks, jukebox-style glow choreography — [`status-room-live-policy.md`](docs/status-room-live-policy.md) · [`status-room-live-implementation-plan.md`](docs/status-room-live-implementation-plan.md). |
 | 2026-07-05 | **About hero copy** — “Amiga tournament” → “Amiga tournaments” (plural). |
 | 2026-07-05 | **Box art story hash landing** — `#k2-boxart-story` moved to zero-height anchor just above hero panel (12px scroll-margin); Status link unchanged. |
 | 2026-07-05 | **Amiga live ops platform policy** — locked three lanes (A canon local / B ladder staged / C editorial staged), staging as community ground authority, timeline vs present anchored repair, ground packs, media DB writes, bidirectional flow — [`amiga-live-ops-platform.md`](docs/amiga-live-ops-platform.md) (ALO1–ALO10). |

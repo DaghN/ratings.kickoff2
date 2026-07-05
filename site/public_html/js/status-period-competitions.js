@@ -1829,10 +1829,73 @@
         for (var i = 0; i < roots.length; i++) {
             initRoot(roots[i]);
         }
-        if (roots.length && metaRefreshInterval == null) {
+        if (roots.length && metaRefreshInterval == null && !document.querySelector('[data-k2-status-room-live]')) {
             metaRefreshInterval = window.setInterval(refreshMeta, 30000);
         }
     }
+
+    function applyLeaguePulse(leagueData) {
+        if (!leagueData || !leagueData.points) {
+            return;
+        }
+        var roots = document.querySelectorAll('[data-k2-status-period-competitions]');
+        for (var i = 0; i < roots.length; i++) {
+            var root = roots[i];
+            var period = activePeriod(root);
+            var key = root._periodKeys && root._periodKeys[period];
+            if (leagueData.period !== period || leagueData.key !== key) {
+                continue;
+            }
+            var showMedals = !!leagueData.points.show_medals;
+            var entries = leagueData.activity ? leagueData.activity.entries : [];
+            var snap = renderPeriodSnapshot(root, entries, leagueData.points, showMedals);
+            setPeriodCache(root, period, key, snap);
+            if (isViewingPeriodKey(root, period, key)) {
+                applyPeriodCacheToSlots(root, snap);
+            }
+        }
+    }
+
+    function syncServerClock(epoch) {
+        var roots = document.querySelectorAll('[data-k2-status-period-competitions]');
+        for (var i = 0; i < roots.length; i++) {
+            roots[i].setAttribute('data-server-now-epoch', String(epoch));
+            updateMeta(roots[i]);
+        }
+    }
+
+    function onPeriodKeysChange(periodKeys) {
+        if (!periodKeys) {
+            return;
+        }
+        var roots = document.querySelectorAll('[data-k2-status-period-competitions]');
+        for (var i = 0; i < roots.length; i++) {
+            var root = roots[i];
+            root.setAttribute('data-current-keys', JSON.stringify(periodKeys));
+            ensurePeriodCache(root);
+            if (!root._periodKeys) {
+                root._periodKeys = {};
+            }
+            for (var p in periodKeys) {
+                if (Object.prototype.hasOwnProperty.call(periodKeys, p)) {
+                    root._periodKeys[p] = periodKeys[p];
+                }
+            }
+            var active = activePeriod(root);
+            var key = root._periodKeys[active];
+            if (key) {
+                delete root._periodCache[periodCacheId(active, key)];
+                fetchPeriod(root, active, key, {});
+            }
+        }
+    }
+
+    window.k2StatusCompetitions = {
+        applyLeaguePulse: applyLeaguePulse,
+        syncServerClock: syncServerClock,
+        onPeriodKeysChange: onPeriodKeysChange,
+        updateMetaForAll: refreshMeta,
+    };
 
     function boot() {
         init();

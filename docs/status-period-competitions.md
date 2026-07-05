@@ -4,7 +4,7 @@ UI heading: **Leagues** (paired Activity + Points tables on `status.php`).
 
 **Status:** **Shipped** (May–Jun 2026) — paired Activity + Points, period nav, Daily games list. No open polish track.
 
-**Pointers:** [`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md) · [`hub-ia-agreement.md`](hub-ia-agreement.md) · medals/rules [`leagues-rules-spec.md`](leagues-rules-spec.md)
+**Pointers:** [`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md) · [`hub-ia-agreement.md`](hub-ia-agreement.md) · medals/rules [`leagues-rules-spec.md`](leagues-rules-spec.md) · **Live room (future):** [`status-room-live-policy.md`](status-room-live-policy.md)
 
 ---
 
@@ -81,6 +81,7 @@ Mobile: single column, **Activity first**, then Points.
 
 | Date | Note |
 |------|------|
+| 2026-07-06 | **Live room spec** — heartbeat will own league meta refresh + cascade; 30 s meta interval to retire when shipped — [`status-room-live-policy.md`](status-room-live-policy.md). |
 | 2026-06-18 | **Closed** — Phase 1.5 / editorial polish track removed from backlog; WIP diary archived. |
 | 2026-06-05 | **Doc closed** — polish track retired; live spec is this file; history in `docs/archive/`. |
 | 2026-06 | **Daily games list** shipped under league tables when Daily tab active. |

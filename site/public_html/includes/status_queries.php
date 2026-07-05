@@ -1438,6 +1438,13 @@ function k2_status_load_room(mysqli $con, ?string &$error = null): ?array
     $panelErr = null;
     $recentGames = k2_status_recent_rated_games($con, 10, $panelErr) ?? [];
 
+    require_once __DIR__ . '/status_room_pulse.php';
+    $weekKey = '';
+    if (is_array($periodCompetitions['current_keys'] ?? null)) {
+        $weekKey = (string) ($periodCompetitions['current_keys']['week'] ?? '');
+    }
+    $pulse = k2_status_pulse_signals_for_page($con, 'week', $weekKey);
+
     return [
         'server_clock' => [
             'now_sql' => $serverClock['now_sql'],
@@ -1459,5 +1466,6 @@ function k2_status_load_room(mysqli $con, ?string &$error = null): ?array
         'logins' => $logins,
         'registrations' => $registrations,
         'recent_games' => $recentGames,
+        'pulse' => $pulse,
     ];
 }
