@@ -14,6 +14,7 @@ const K2_ROUTES = [
 	'games-highlights' => 'games/highlights.php',
 	'games-all' => 'games/all.php',
 	'join' => 'join.php',
+	'about' => 'about.php',
 	'milestones' => 'milestones/recent.php',
 	'milestones-recent' => 'milestones/recent.php',
 	'milestones-catalog' => 'milestones/catalog.php',

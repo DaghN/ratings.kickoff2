@@ -98,5 +98,10 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 
 <script type="text/javascript" src="/js/lb-rating-page.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/lb-rating-page.js'); ?>" defer="defer"></script>
 
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/site_footer.php';
+k2_site_footer_render();
+?>
+
 </body>
 </html>

@@ -752,7 +752,7 @@ $k2HofSyncWidths = records_hof_sync_compute_widths($k2HofRecordLabels);
 
 
 
-</div><!-- .k2-page-nav -->
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>
 </html>
 

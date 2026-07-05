@@ -79,7 +79,6 @@ foreach ($leaderRows as $row) {
 <?php k2_table_wrap_close(); ?><!-- .k2-table-wrap -->
 
 
-</div><!-- .k2-page-nav -->
-
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>
 </html>

@@ -95,6 +95,6 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 
 <?php mysqli_close($con); ?>
 
-</div><!-- .k2-page-nav -->
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>
 </html>

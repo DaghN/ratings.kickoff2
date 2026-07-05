@@ -122,7 +122,6 @@ while ($row = mysqli_fetch_assoc($result)) {
 
 <p style="padding:0 1.25rem 2rem;color:var(--k2-text-secondary)">Max draw = biggest draw scoreline (equal goals each side). Max sum = most total goals in one game (both sides combined).</p>
 
-</div><!-- .k2-page-nav -->
-
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>
 </html>

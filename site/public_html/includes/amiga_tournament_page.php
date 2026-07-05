@@ -832,8 +832,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
 
 </div><!-- .k2-amiga-tournament-body -->
 
-</div><!-- .k2-page-nav -->
-
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>
 
 </html>

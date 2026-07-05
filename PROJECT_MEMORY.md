@@ -109,6 +109,7 @@
 | `player_milestones` row-count timeline | `docs/archive/replay-register-2026-05.md` § Milestone unlock row counts |
 | Prod cutover | `docs/prod-coordination.md`, `site/public_html/ops/docs/post-dagh-live-story.md` |
 | Ladder ops platform (Steve, `ops/`, sim) | `docs/ladder-ops-platform.md` |
+| Amiga live ops (staging authority, repair, media) | [`amiga-live-ops-platform.md`](docs/amiga-live-ops-platform.md) |
 | DB copies (local + staging names) | `docs/coordination/database-copies-2026-06.md` |
 | Work DB prepare / simul | `docs/work-db-prepare.md` |
 | Ground vs derived columns | `docs/replay-v1-scope-and-reset.md`, `docs/ground-truth-manifest.md` (online) · **`docs/amiga-data-contract.md`** (Amiga) |
@@ -134,7 +135,8 @@
 
 ## Recent log
 
-| 2026-07-04 | **TT ribbon sticky v1** — CSS `position:sticky; top:0` on `.k2-amiga-time-travel--active` (all `as=` pages; sticky on only; no pin JS). Opaque `var(--k2-bg-page)` ribbon bg + hairline border. `overflow-x:clip` on `html`/`body`/`.k2-page-nav`. F1–F17 closed in invariants. Handoff [`2026-07-04-018`](docs/orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md). |
+| 2026-07-05 | **Amiga live ops platform policy** — locked three lanes (A canon local / B ladder staged / C editorial staged), staging as community ground authority, timeline vs present anchored repair, ground packs, media DB writes, bidirectional flow — [`amiga-live-ops-platform.md`](docs/amiga-live-ops-platform.md) (ALO1–ALO10). |
+| 2026-07-05 | **Site footer + About stub** — `includes/site_footer.php` on `body.k2-site` pages: © year, Dagh Nielsen, About, `daghnielsen@gmail.com`; `/about.php` leaf (maintainer + contact); `k2_site_end.inc.php`; PL13 trimmed to provenance-only (no editorial links). |
 | 2026-07-04 | **Amiga Games Recent — section headings** — tournament labels moved outside table (online Recent parity); removed in-table colspan row that looked like a stray header row. |
 | 2026-07-04 | **Profile played-weeks heatmap** — 30/70 left/right spare-space grid (was centred 50/50); `player-feast-sections.css`. |
 | 2026-07-04 | **Amiga Games Highlights — Tournament column** — Date → Tournament → Player A (parity with Recent); `default_sort_col` +1 on all five boards (× two scopes); join-back already had tournament cols — no SQL change; parity + TT probe green. |

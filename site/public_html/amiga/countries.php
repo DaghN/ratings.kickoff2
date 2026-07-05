@@ -34,7 +34,6 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 
 <?php amiga_countries_render_index_table($indexRows); ?>
 
-</div><!-- .k2-page-nav -->
-
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>
 </html>

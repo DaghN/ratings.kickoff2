@@ -74,7 +74,7 @@ player_feast_render_moments($pm);
 player_feast_render_charts($playerId, (string) $pm['name']);
 ?>
 
-</div><!-- .k2-page-nav -->
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 
 <?php mysqli_close($con); ?>
 </body>

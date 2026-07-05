@@ -93,7 +93,6 @@ while ($row = mysqli_fetch_assoc($result)) {
 
 </div>
 
-</div><!-- .k2-page-nav -->
-
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>
 </html>

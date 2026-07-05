@@ -184,6 +184,67 @@ body.k2-site a:hover {
 	text-decoration: underline;
 }
 
+/* Global site footer — provenance + contact (not editorial discovery) */
+.k2-site-footer {
+	margin: 28px 0 0;
+	padding: 0 0 28px;
+	text-align: center;
+}
+
+.k2-site-footer__line {
+	margin: 0;
+	font-family: var(--k2-font-body);
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.5;
+	color: var(--k2-text-muted);
+}
+
+.k2-site-footer a {
+	color: var(--k2-link);
+	font-weight: 400;
+}
+
+.k2-site-footer__sep {
+	margin: 0 0.35em;
+	opacity: 0.55;
+}
+
+/* About leaf page */
+.k2-about-page {
+	max-width: 44rem;
+	margin: 0 auto;
+	padding: 0 0 8px;
+}
+
+.k2-about-page__hero {
+	margin-bottom: 22px;
+}
+
+.k2-about-page__title {
+	margin: 0 0 10px;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: var(--k2-text-primary);
+}
+
+.k2-about-page__prose {
+	margin: 0 0 14px;
+	font-family: var(--k2-font-body);
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.55;
+	color: var(--k2-text-secondary);
+}
+
+.k2-about-page__prose:last-child {
+	margin-bottom: 0;
+}
+
+.k2-about-page__card {
+	margin-bottom: 18px;
+}
+
 body.k2-site h1 {
 	color: var(--k2-text-primary);
 }

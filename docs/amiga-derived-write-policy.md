@@ -1,7 +1,7 @@
 # Amiga derived write policy
 
 **Status:** **Locked** (Jun 2026)  
-**Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (G12 strict chain)
+**Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (G12 strict chain) · **Live ops boundary (staging vs prove):** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md)
 
 ---
 

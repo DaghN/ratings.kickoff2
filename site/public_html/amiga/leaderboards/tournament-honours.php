@@ -94,7 +94,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_routes.php';
 echo number_format($playerCount);
 ?> players with at least one tournament. World Cup honours: <a class="k2-link-star" href="<?php echo htmlspecialchars(k2_amiga_route('amiga-world-cups-players-honours'), ENT_QUOTES, 'UTF-8'); ?>">World Cups → Player stats</a>.</p>
 
-</div><!-- .k2-page-nav -->
-
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>
 </html>

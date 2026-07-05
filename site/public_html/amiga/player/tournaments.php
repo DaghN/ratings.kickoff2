@@ -182,7 +182,6 @@ if ($tournaments !== []) {
 <div class="k2-player-tournaments-table-scroll-pad" aria-hidden="true"></div>
 </section>
 
-</div><!-- .k2-page-nav -->
-
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>
 </html>

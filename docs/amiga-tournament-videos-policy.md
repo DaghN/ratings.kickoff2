@@ -4,7 +4,7 @@
 
 **Parent:** [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) · [`url-routes.md`](url-routes.md) · [`design-direction.md`](design-direction.md) · [`join-play-setup.md`](join-play-setup.md)
 
-**Related:** [`amiga-tournament-videos-game-links-policy.md`](amiga-tournament-videos-game-links-policy.md) (match facts, sync/remap, verify — **Jul 2026**) · [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) (WC Games/Atmosphere URL, Back, share links) · [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) · [`self-hosted-assets.md`](self-hosted-assets.md) (YouTube embed precedent) · [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md)
+**Related:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) §8 (Lane C — live community writes → staged DB; JSON manifest = canon archive) · [`amiga-tournament-videos-game-links-policy.md`](amiga-tournament-videos-game-links-policy.md) (match facts, sync/remap, verify — **Jul 2026**) · [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) (WC Games/Atmosphere URL, Back, share links) · [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) · [`self-hosted-assets.md`](self-hosted-assets.md) (YouTube embed precedent) · [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md)
 
 **Authority:** Dagh’s exploration chats (Jun 2026). **Implementation plan:** [`amiga-tournament-videos-implementation-plan.md`](amiga-tournament-videos-implementation-plan.md) — slices TV-0–TV-6.
 

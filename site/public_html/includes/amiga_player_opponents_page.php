@@ -157,7 +157,6 @@ mysqli_close($con);
 
 </div><!-- .k2-chrome-tabs.k2-player-opponents -->
 
-</div><!-- .k2-page-nav -->
-
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>
 </html>

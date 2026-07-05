@@ -41,7 +41,6 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
   <?php echo (int) $orphanCount; ?> unassigned · <?php echo count($excluded); ?> excluded · dev review page (not linked from hub).
 </p>
 
-</div><!-- .k2-page-nav -->
-
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>
 </html>

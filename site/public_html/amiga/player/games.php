@@ -366,7 +366,7 @@ $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : 
 
 <?php k2_table_wrap_close(); ?><!-- .k2-table-wrap -->
 
-</div><!-- .k2-page-nav -->
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 <?php mysqli_close($con); ?>
 <script type="text/javascript" src="/js/amiga-player-games-perf.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/amiga-player-games-perf.js'); ?>"></script>
 </body>

@@ -124,6 +124,6 @@ Max sum = most total goals in one game (both sides combined)<br />
 
 
 
-</div><!-- .k2-page-nav -->
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>
 </html>

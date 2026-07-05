@@ -103,7 +103,8 @@ if ($summaryRow === null) {
     $k2HubChapterLede = 'No rated players from this country at the active cutoff.';
     include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
     echo '<p style="padding:0 1.25rem 2rem;"><a href="' . k2_h(k2_amiga_route('amiga-countries')) . '">Back to Countries</a></p>';
-    echo '</div><!-- .k2-page-nav --></body></html>';
+    include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php';
+    echo '</body></html>';
     exit;
 }
 

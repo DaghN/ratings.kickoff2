@@ -7,24 +7,16 @@ header('Expires: 0');
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" data-realm="online">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Kick Off 2 — The Box Art Mystery</title>
-
+<title>Kick Off 2 — About</title>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
-<link href="/stylesheets/boxart-story.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/boxart-story.css'); ?>" rel="stylesheet" type="text/css" />
-
 </head>
-
 <body class="k2-site">
-
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
-
 <?php
-$k2HubTabActive = 'status';
+$k2HubTabActive = '';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php';
 ?>
-
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/boxart_story_section.php'; ?>
-
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/about_page_section.php'; ?>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>
 </html>

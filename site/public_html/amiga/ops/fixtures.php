@@ -62,7 +62,8 @@ function amiga_fixture_render_chrome_start(string $pageTitle, bool $withDayPicke
 
 function amiga_fixture_render_chrome_end(): void
 {
-    echo "</div><!-- .k2-page-nav -->\n</body>\n</html>";
+    include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php';
+    echo "</body>\n</html>";
 }
 
 if (!$pwdOk) {

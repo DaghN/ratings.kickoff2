@@ -76,7 +76,6 @@ amiga_profile_render_rating_chart($playerId);
 amiga_profile_render_rank_chart($playerId);
 ?>
 
-</div><!-- .k2-page-nav -->
-
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>
 </html>

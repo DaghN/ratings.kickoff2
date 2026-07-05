@@ -21,7 +21,7 @@ powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
 
 `prove` = L1 `import-pristine` → L2 `import-prune` → L3 `import-witness` → L4 `apply-structure` → L5 `replay` → **tournament-video DB anchor sync** → verify suite (strict stack, slices 1–11 complete). Includes `verify-tournament-videos` — see [`tournament_videos/README.md`](tournament_videos/README.md).
 
-**Strict stack policy:** [`docs/amiga-ground-stack.md`](../../docs/amiga-ground-stack.md) · [`docs/amiga-ground-layers-policy.md`](../../docs/amiga-ground-layers-policy.md) (v3).
+**Strict stack policy:** [`docs/amiga-ground-stack.md`](../../docs/amiga-ground-stack.md) · [`docs/amiga-ground-layers-policy.md`](../../docs/amiga-ground-layers-policy.md) (v3). **Live ops (staging vs prove):** [`docs/amiga-live-ops-platform.md`](../../docs/amiga-live-ops-platform.md).
 
 **Modular pipeline (L0–L5):** DDL bundles `sql/ground|structure|derived` = L3|L4|L5. L1/L2 = SQL dumps under `data/amiga/exports/`.
 

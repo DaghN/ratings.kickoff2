@@ -84,7 +84,6 @@ $leagueCon = isset($con) && $con instanceof mysqli ? $con : null;
     mysqli_close($leagueCon);
 } ?>
 
-</div><!-- .k2-page-nav -->
-
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>
 </html>

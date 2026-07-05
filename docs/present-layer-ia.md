@@ -1,6 +1,6 @@
 # Present layer & site completion — editorial IA and shippable intent
 
-**Status:** Intent / policy (Jul 2026). **No present-layer implementation slices shipped yet** — captures how we intend to **finish the shippable site**: realm front doors, News, pulse rail, **Misc shelf**, **leaf pages**, **site chrome** (footer, about), and cross-realm onboarding. Room for post-ship additions is explicit.
+**Status:** Intent / policy (Jul 2026). **Site chrome slice shipped (Jul 2026):** global footer (`includes/site_footer.php`) + `/about.php` stub — see PL12–PL13. Remaining completion track: News roll, pulse rail, Misc shelf.
 
 **Authority:** Dagh's latest chat wins. This doc sits **below** [`hub-ia-agreement.md`](hub-ia-agreement.md) (hub tab contracts) and [`navigation-model.md`](navigation-model.md) (NM1–NM7 invariants). URL shape defers to [`k2-page-structure-checklist.md`](k2-page-structure-checklist.md) and [`url-routes.md`](url-routes.md).
 
@@ -73,7 +73,7 @@ Global `index.php` → **Status** today. Default-realm options: §8 (open).
 | **PL10** | **Global default realm — open** | `index.php` heuristic / Amiga default — not locked |
 | **PL11** | **Stale-news fallback — soft** | Pulse + optional “today” strip; prefer over silent redirect (PL10) |
 | **PL12** | **About = leaf page, not hub tab** | `/about.php` — story, acknowledgements, data honesty; discover via footer + Misc **Site** + News optional link |
-| **PL13** | **Global minimal footer** | One quiet strip on `body.k2-site` pages — copyright, About, Contact, 1–2 editorial links; **not** a second nav bar |
+| **PL13** | **Global minimal footer** | One quiet strip on `body.k2-site` pages — copyright, maintainer name, About, contact email; **not** a second nav bar and **not** editorial discovery links |
 | **PL14** | **Leaf pages — NM2** | Hub bar always present; **no active pill**; same as `boxart.php`, future `/misc/*`, `/about.php` |
 | **PL15** | **Contact split** | **Community / play** → Discord (Play & Setup, News CTA). **Site / data issues** → maintainer email on About (+ optional `mailto:` in footer) |
 | **PL16** | **Post-ship growth** | News posts and Misc leaves may be added anytime without IA churn — catalog and footer link out, not new hub tabs per article |
@@ -230,7 +230,7 @@ Site metadata **does not belong in the hub bar** — it belongs in **Tier 3 + gl
 One **minimal** strip on themed pages (`includes/site_footer.php`), included from shell `_end` includes over time:
 
 ```text
-© {year} {maintainer} · About · Contact · Box art story
+© {year} Dagh Nielsen · About · daghnielsen@gmail.com
 ```
 
 | Property | Rule |
