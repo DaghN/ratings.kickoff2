@@ -135,7 +135,10 @@
 
 ## Recent log
 
-| 2026-07-06 | **Status room live sim harness** — one-click ~20-game sequence on `work.ratingskickoff.test/status-room-live-sim.php`; ticks via pulse + control page — [`status-room-live-sim-spec.md`](docs/status-room-live-sim-spec.md) Tier B. |
+| 2026-07-06 | **Login/register integrity** — no bootstrap batch; one lobby event/tick; register without LastLogin/online; login-only sets IsOnline+LastLogin |
+| 2026-07-06 | **Live sim guard tightened** — requires `ko2unity_work` + `work.ratingskickoff.test` (staging/prod safe after sync). |
+| 2026-07-06 | **Live environment sim spec** — comprehensive platform doc (L1 login, L2 register planned, L3 games; dispatcher boundary) — [`status-room-live-sim-spec.md`](docs/status-room-live-sim-spec.md). |
+| 2026-07-06 | **Status room live sim harness** — one-click ~20-game sequence + lobby login/logout on `work.ratingskickoff.test/status-room-live-sim.php`; post-game ops on finish; Stop = halt ticks only — [`status-room-live-sim-spec.md`](docs/status-room-live-sim-spec.md) Tier B. |
 | 2026-07-06 | **Status room live sim spec** — work DB + `work.ratingskickoff.test`, Tier A–C lobby sim for pulse testing — [`status-room-live-sim-spec.md`](docs/status-room-live-sim-spec.md). |
 | 2026-07-06 | **Status room live — shipped** — 1 s pulse (`api/status_room_pulse.php`), DOM patches + client half clocks, cascade on rated finish, jukebox-style glow — [`status-room-live-policy.md`](docs/status-room-live-policy.md). |
 | 2026-07-06 | **Status room live — spec + plan** — heartbeat polling, `last_rated_id` cascade, client half clocks, jukebox-style glow choreography — [`status-room-live-policy.md`](docs/status-room-live-policy.md) · [`status-room-live-implementation-plan.md`](docs/status-room-live-implementation-plan.md). |

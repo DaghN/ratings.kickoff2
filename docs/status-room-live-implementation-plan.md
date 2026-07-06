@@ -1,8 +1,8 @@
 # Status room live — implementation plan
 
-**Status:** **Shipped in repo (Jul 2026)** — heartbeat + cascade + glow. Prod smoke on live DB recommended.
+**Status:** **Pulse shipped (Jul 2026)** · **Live sim harness shipped (work only)** · **Next:** SIM-R1 registration + sign-off testing on work.
 
-**Policy:** [`status-room-live-policy.md`](status-room-live-policy.md) · **Local sim:** [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md)
+**Policy:** [`status-room-live-policy.md`](status-room-live-policy.md) · **Live sim:** [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md)
 
 **Parent:** [`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md) · [`status-period-competitions.md`](status-period-competitions.md) · [`hub-ia-agreement.md`](hub-ia-agreement.md)
 
@@ -77,7 +77,27 @@ See policy **SRL-1…SRL-16**. Implementer essentials:
 | **SRL-5** | Rated-finish cascade — recent games, ratings, arc, league (active tab) | **Done** Jul 2026 |
 | **SRL-6** | Glow utility CSS/JS + staggered cascade choreography | **Done** Jul 2026 |
 | **SRL-7** | Period rollover via `period_keys` + retire duplicate 30 s league meta poll | **Done** Jul 2026 |
-| **SRL-8** | Wire into `status.php`, docs, polish | **Done** Jul 2026 — prod smoke on live DB |
+| **SRL-8** | Wire into `status.php`, docs, polish | **Done** Jul 2026 |
+
+---
+
+## Phase 2 — Live environment sim + testing (Jul 2026)
+
+**Spec:** [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md). **Not** a new SRL slice — separate SIM-R* roadmap.
+
+| Item | Status |
+|------|--------|
+| Web harness (`status-room-live-sim.php`) | **Shipped** |
+| L2 registration + sim page options | **Shipped** |
+| L1 login/logout + L3 games + ops on finish | **Shipped** |
+| Realistic pacing (one match, staggered kickoff, timed goals) | **Shipped** |
+| Online/match integrity + rare crash | **Shipped** |
+| Stop cleanup (logout all, cancel live, clear queue) | **Shipped** |
+| Guard: `ko2unity_work` + `work.ratingskickoff.test` | **Shipped** |
+| Pulse tick hook | **Shipped** |
+| L2 registration (`ProcessPlayerRegistered`) | **Planned** — SIM-R1 |
+
+**Before more pulse/sim code:** run § Verification (work harness) and SIM-T1…T12 in sim spec.
 
 ---
 
@@ -94,6 +114,11 @@ See policy **SRL-1…SRL-16**. Implementer essentials:
 | Markup hooks | `includes/status_room_section.php` — `data-k2-status-live-*` roots |
 | Page enqueue | `status.php` — script tag + defer |
 | Leagues integration | `js/status-period-competitions.js` — gate/remove 30 s meta interval (SRL-7) |
+| **Live sim control page** | `status-room-live-sim.php` (work host only) |
+| **Live sim API** | `api/status_room_live_sim.php` |
+| **Live sim engine** | `includes/status_room_live_sim.php` |
+| **Live sim client** | `js/status-room-live-sim.js` |
+| Pulse → sim tick | `api/status_room_pulse.php` → `k2_status_room_sim_tick_if_due()` when allowed |
 
 ---
 
@@ -205,27 +230,42 @@ Use `k2TriggerLiveGlow(panelEl)` per step. Score-only changes skip stagger — i
 
 ## Verification
 
-### Local / staging
+### Primary — local work + live sim (recommended)
+
+See **Quick start** in [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md).
 
 ```powershell
-# Pulse responds
-curl.exe -s "http://ratingskickoff.test/api/status_room_pulse.php"
+# Sim API allowed on work host only
+curl.exe -s -H "Host: work.ratingskickoff.test" "http://127.0.0.1/api/status_room_live_sim.php?action=status"
 
-# Cache hit (same revision within 1s)
-curl.exe -s "http://ratingskickoff.test/api/status_room_pulse.php"; curl.exe -s "http://ratingskickoff.test/api/status_room_pulse.php"
+# Sim blocked on dev host
+curl.exe -s -H "Host: ratingskickoff.test" "http://127.0.0.1/api/status_room_live_sim.php?action=status"
+
+# Pulse responds on work
+curl.exe -s -H "Host: work.ratingskickoff.test" "http://127.0.0.1/api/status_room_pulse.php"
 ```
 
-Browser (prod for true live):
+Browser on **`work.ratingskickoff.test`**:
 
-1. Open `status.php` — SSR paint unchanged.
-2. Live game running — clock ticks every second; score updates within ~1 s of goal.
-3. Game finishes — cascade ripple; recent games head glows; rating row updates.
-4. Player logs in — online list updates without reload.
-5. Leagues meta countdown still correct; no double-firing from old 30 s interval.
+1. Sim page → **Start** → Status tab open.
+2. SIM-T1…T7, T9–T12 from sim spec checklist (T8 when L2 ships).
+3. Confirm `{ changed: false }` on quiet seconds; cascade on game finish.
+
+### Secondary — dev / staging (pulse only, no sim)
+
+```powershell
+curl.exe -s "http://ratingskickoff.test/api/status_room_pulse.php"
+```
+
+Staging/prod: pulse works; **no moving lobby** without real game server or work sim.
+
+### Optional — prod smoke
+
+When prod is live: open `status.php` during real play — clock, scores, cascade. Not a substitute for work sim during development.
 
 ### Probe (optional)
 
-Add `scripts/oneoff/status_room_pulse_probe.php` — prints signal bundle + timing ms (mirror `status_load_breakdown_probe.php`).
+Add `scripts/oneoff/status_room_pulse_probe.php` — prints signal bundle + timing ms (SIM-R5).
 
 ---
 
@@ -235,7 +275,7 @@ Add `scripts/oneoff/status_room_pulse_probe.php` — prints signal bundle + timi
 |------|------------|
 | 1 s × N viewers DB load | Server 1 s shared cache (SRL-1) |
 | Rating table sortable break after tbody swap | Re-init k2-table or document “resets to default sort on cascade” for v1 |
-| Staging looks “broken” | Document in UI? **No** — same as today; staging is snapshot |
+| Staging looks “broken” | Document in UI? **No** — use **work live sim** for moving lobby; staging is snapshot |
 | Half clock drift | Resync every pulse; server wins on conflict |
 | `last_rated_id` alone misses unrated finish | Rare for Status story; live_fp drop still catches live panel |
 
@@ -245,4 +285,5 @@ Add `scripts/oneoff/status_room_pulse_probe.php` — prints signal bundle + timi
 
 | Date | Change |
 |------|--------|
+| 2026-07-06 | Phase 2 — live sim file map, work-first verification, SIM roadmap pointer |
 | 2026-07-06 | Initial plan — slices SRL-0…SRL-8 |

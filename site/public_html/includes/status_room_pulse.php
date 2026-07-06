@@ -29,7 +29,6 @@ function k2_status_pulse_live_fingerprint(?array $games): string
             (int) ($g['score_a'] ?? 0),
             (int) ($g['score_b'] ?? 0),
             (int) ($g['period'] ?? 0),
-            (int) ($g['half_countdown'] ?? 0),
         ];
     }
 

@@ -16,6 +16,7 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 | **Production / joshua** | Steve live DB | **Live writes** — legacy C++ **today**; **PHP ops** (`ops/dispatch.php`) at cutover |
 | **Staging work** | **`kooldb1`** (pristine clone **`kooldb2`**) | **Same schema family, no live game writes** — forward proof via ops prepare/simul ([`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)). Legacy May DB **`kooldb`** = frozen historical log only. WinSCP syncs PHP only. |
 | **Local Laragon** | `ko2unity_db` | HeidiSQL export from **`ts-joshua`**, May 2026; no live writes |
+| **Local work (sim)** | **`ko2unity_work`** | Ops simul + **live environment sim** — [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md); URL **`work.ratingskickoff.test`** only |
 
 **No separate “status.php API”** — PHP + SQL against these tables (same pattern as `activity.php`, ranked pages).
 
@@ -101,7 +102,11 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 
 **Staging has no live game feed** (confirmed May 2026) — same staleness pattern as a local dump: `IsOnline`, live `resulttable` rows, and “online now” counts reflect **last import or last manual update**, not tonight’s play.
 
-Local dump: same. Do not label staging or local as live prod. Production read = truth for “tonight.”
+**Local dev (`ratingskickoff.test` / `ko2unity_db`):** same snapshot behaviour.
+
+**Local work (`work.ratingskickoff.test` / `ko2unity_work`):** **exception** — the **live environment sim** ([`status-room-live-sim-spec.md`](status-room-live-sim-spec.md)) writes prod-shaped ground telemetry (login/logout, games; registration planned) so Status v1.5 pulse can be tested without prod. Guard: **`ko2unity_work` + work hostname only** — synced code on staging/prod cannot activate sim.
+
+**Production** = truth for “tonight.” Do not label staging or local dev as live prod.
 
 ---
 
@@ -118,17 +123,21 @@ Local dump: same. Do not label staging or local as live prod. Production read = 
 | Period activity prep | **Repo + `kooldb1` proof done** — `player_period_games` / peaks via ops simul; historical May **`kooldb`** batch in [`archive/replay-register-2026-05.md`](archive/replay-register-2026-05.md) |
 | **Leagues (period competitions)** | **Shipped** — paired Activity + Points, tab nav, prewarm, Daily games list — [`docs/status-period-competitions.md`](status-period-competitions.md) |
 | **v1.5 live room** | **Shipped (Jul 2026)** — 1 s heartbeat, cascade on rated finish, client live clocks, glow — [`status-room-live-policy.md`](status-room-live-policy.md) |
+| **v1.5 live testing** | **Work sim harness shipped** — L1 login/logout + L3 games; L2 registration planned — [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md) |
 | v1.5+ (other) | kickoff2 embed, joshua redirect |
 
 ---
 
 ## Related docs
 
-- `docs/status-room-live-policy.md` — live polling contract (v1.5)
-- `docs/status-room-live-implementation-plan.md` — execution slices
-- `docs/status-room-live-sim-spec.md` — local lobby sim for pulse testing (work DB); harness: `work.ratingskickoff.test/status-room-live-sim.php`
-- `docs/hub-ia-agreement.md`
-- `docs/LOCAL_DEV.md`
+| Doc | Role |
+|-----|------|
+| [`status-room-live-policy.md`](status-room-live-policy.md) | Live polling contract (SRL-1…SRL-17), environments, file map |
+| [`status-room-live-implementation-plan.md`](status-room-live-implementation-plan.md) | SRL slices (shipped) + work verification workflow |
+| [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md) | **Live environment sim** — L1–L3, guard, harness, test checklist |
+| [`status-period-competitions.md`](status-period-competitions.md) | Leagues block (integrates with pulse) |
+| [`hub-ia-agreement.md`](hub-ia-agreement.md) | Status hub IA |
+| [`LOCAL_DEV.md`](LOCAL_DEV.md) | Hostnames, work DB setup |
 - `docs/playertable-schema.md`, `docs/ratedresults-schema.md`
 - `docs/website-data-contract.md` (league aggregates, UTC)
 - `PROJECT_MEMORY.md`

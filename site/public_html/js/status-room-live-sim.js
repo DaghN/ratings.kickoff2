@@ -1,8 +1,16 @@
 (function () {
   'use strict';
 
-  function apiUrl(action) {
-    return '/api/status_room_live_sim.php?action=' + encodeURIComponent(action);
+  function apiUrl(action, params) {
+    var qs = 'action=' + encodeURIComponent(action);
+    if (params) {
+      Object.keys(params).forEach(function (key) {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+          qs += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(String(params[key]));
+        }
+      });
+    }
+    return '/api/status_room_live_sim.php?' + qs;
   }
 
   function setMessage(text) {
@@ -22,6 +30,8 @@
     }
     var activeEl = root.querySelector('[data-k2-sim-field="active"]');
     var progressEl = root.querySelector('[data-k2-sim-field="progress"]');
+    var regEl = root.querySelector('[data-k2-sim-field="registrations"]');
+    var onlineEl = root.querySelector('[data-k2-sim-field="online_count"]');
     var liveEl = root.querySelector('[data-k2-sim-field="live_count"]');
     var queuedEl = root.querySelector('[data-k2-sim-field="queued_count"]');
     var eventEl = root.querySelector('[data-k2-sim-field="last_event"]');
@@ -30,6 +40,12 @@
     }
     if (progressEl) {
       progressEl.textContent = String(st.completed_count || 0) + ' / ' + String(st.game_count || 0);
+    }
+    if (regEl) {
+      regEl.textContent = String(st.registration_count || 0) + ' / ' + String(st.registration_limit || 0);
+    }
+    if (onlineEl) {
+      onlineEl.textContent = String(st.online_count || 0);
     }
     if (liveEl) {
       liveEl.textContent = String(st.live_count || 0);
@@ -40,6 +56,23 @@
     if (eventEl) {
       eventEl.textContent = st.last_event || '—';
     }
+  }
+
+  function readStartParams() {
+    var gamesEl = document.getElementById('k2-sim-games');
+    var regEl = document.getElementById('k2-sim-registrations');
+    var crashEl = document.getElementById('k2-sim-crash');
+    var l1El = document.getElementById('k2-sim-l1');
+    var l2El = document.getElementById('k2-sim-l2');
+    var l3El = document.getElementById('k2-sim-l3');
+    return {
+      games: gamesEl ? gamesEl.value : '20',
+      registrations: regEl ? regEl.value : '3',
+      crash: crashEl ? crashEl.value : '5',
+      l1: l1El && l1El.checked ? '1' : '0',
+      l2: l2El && l2El.checked ? '1' : '0',
+      l3: l3El && l3El.checked ? '1' : '0'
+    };
   }
 
   function fetchJson(url) {
@@ -66,7 +99,7 @@
       startBtn.addEventListener('click', function () {
         startBtn.disabled = true;
         setMessage('Starting…');
-        fetchJson(apiUrl('start'))
+        fetchJson(apiUrl('start', readStartParams()))
           .then(function (data) {
             if (data && data.ok) {
               setMessage(data.message || 'Started — open Status or stay here to keep ticks running.');

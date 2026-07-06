@@ -162,8 +162,20 @@
 		}
 	}
 
+	function formatLiveScoreHtml(scoreA, scoreB) {
+		function cell(goals, opp) {
+			if (goals > opp) {
+				return '<strong class="blue">' + goals + '</strong>';
+			}
+			return String(goals);
+		}
+		return cell(scoreA, scoreB)
+			+ '<span class="k2-scoreline-sep" aria-hidden="true">\u2013</span>'
+			+ cell(scoreB, scoreA);
+	}
+
 	function patchLiveScores(root, games) {
-		if (!games || !window.k2LiveGlow) {
+		if (!games) {
 			return;
 		}
 		for (var i = 0; i < games.length; i++) {
@@ -178,20 +190,72 @@
 			}
 			var prev = scoreEl.getAttribute('data-score-key') || '';
 			var next = g.score_a + '-' + g.score_b;
-			if (prev && prev !== next) {
-				window.k2LiveGlow.scorePulse(scoreEl);
+			if (prev !== next) {
+				scoreEl.innerHTML = formatLiveScoreHtml(g.score_a, g.score_b);
+				if (prev && window.k2LiveGlow) {
+					window.k2LiveGlow.scorePulse(scoreEl);
+				}
 			}
 			scoreEl.setAttribute('data-score-key', next);
 		}
 	}
 
+	function liveIdSet(games) {
+		var ids = {};
+		if (games) {
+			for (var i = 0; i < games.length; i++) {
+				ids[games[i].game_id] = true;
+			}
+		}
+		return ids;
+	}
+
+	function sameLiveIdSet(prev, next) {
+		var pk = Object.keys(prev);
+		var nk = Object.keys(next);
+		if (pk.length !== nk.length) {
+			return false;
+		}
+		for (var i = 0; i < pk.length; i++) {
+			if (!next[pk[i]]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	function livePeriodByGame(games) {
+		var map = {};
+		if (!games) {
+			return map;
+		}
+		for (var i = 0; i < games.length; i++) {
+			map[games[i].game_id] = games[i].period || 0;
+		}
+		return map;
+	}
+
+	function livePeriodChanged(games) {
+		var next = livePeriodByGame(games);
+		for (var i = 0; i < state.liveClocks.length; i++) {
+			var item = state.liveClocks[i];
+			if (next[item.game_id] != null && next[item.game_id] !== item.period) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	function patchLive(root, section, syncEpoch) {
 		var prevIds = state.liveGameIds || {};
-		var nextIds = {};
-		if (section && section.games) {
-			for (var i = 0; i < section.games.length; i++) {
-				nextIds[section.games[i].game_id] = true;
+		var nextIds = liveIdSet(section && section.games);
+		if (section && section.games && sameLiveIdSet(prevIds, nextIds) && !section.empty) {
+			patchLiveScores(root, section.games);
+			if (livePeriodChanged(section.games)) {
+				syncLiveGameClocks(root, section.games, syncEpoch);
 			}
+			state.liveGameIds = nextIds;
+			return;
 		}
 		replaceListSlot(root, 'live', section, 'No live games in progress.', 'li[data-game-id]');
 		if (section && section.games) {

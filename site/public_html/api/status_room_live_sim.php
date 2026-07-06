@@ -41,8 +41,7 @@ $action = isset($_REQUEST['action']) ? (string) $_REQUEST['action'] : 'status';
 $result = ['ok' => false, 'error' => 'unknown_action'];
 
 if ($action === 'start') {
-    $games = isset($_REQUEST['games']) ? (int) $_REQUEST['games'] : K2_STATUS_ROOM_SIM_DEFAULT_GAMES;
-    $result = k2_status_room_sim_start($con, $games);
+    $result = k2_status_room_sim_start($con, $_REQUEST);
 } elseif ($action === 'stop') {
     $result = k2_status_room_sim_stop($con);
 } elseif ($action === 'status') {
@@ -50,7 +49,7 @@ if ($action === 'start') {
     $state = k2_status_room_sim_load_state();
     $result = [
         'ok' => true,
-        'status' => k2_status_room_sim_public_status($state),
+        'status' => k2_status_room_sim_public_status($state, $con),
     ];
 }
 

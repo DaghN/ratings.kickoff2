@@ -17,23 +17,46 @@ header('Expires: 0');
 $k2HubTabActive = 'status';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_room_live_sim.php';
+include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 $simAllowed = k2_status_room_sim_is_allowed();
 ?>
 <main class="k2-page-main" id="k2-status-room-live-sim" data-k2-sim-allowed="<?php echo $simAllowed ? '1' : '0'; ?>">
   <h1 class="k2-page-title">Status live sim</h1>
-  <p class="k2-lead">Work DB only — schedules ~20 games (1–3 live at a time, 5–15 goals each). Open Status to watch the pulse.</p>
+  <p class="k2-lead">Work DB only — realistic lobby activity for Status live pulse. Open Status in another tab so pulse ticks drive the sim.</p>
 <?php if (!$simAllowed): ?>
   <p class="k2-notice k2-notice--warn">Not available on this host. Use <strong>work.ratingskickoff.test</strong>.</p>
 <?php else: ?>
+  <fieldset class="k2-sim-options" id="k2-sim-options">
+    <legend class="k2-sim-options__legend">Run options</legend>
+    <p class="k2-sim-options__row">
+      <label for="k2-sim-games">Games (L3)</label>
+      <input type="number" id="k2-sim-games" min="0" max="40" value="20" />
+    </p>
+    <p class="k2-sim-options__row">
+      <label for="k2-sim-registrations">Registrations (L2)</label>
+      <input type="number" id="k2-sim-registrations" min="0" max="10" value="3" />
+    </p>
+    <p class="k2-sim-options__row">
+      <label for="k2-sim-crash">Game crash %</label>
+      <input type="number" id="k2-sim-crash" min="0" max="20" value="5" />
+    </p>
+    <p class="k2-sim-options__row k2-sim-options__checks">
+      <label><input type="checkbox" id="k2-sim-l1" checked="checked" /> L1 lobby (login/logout)</label>
+      <label><input type="checkbox" id="k2-sim-l2" checked="checked" /> L2 registration</label>
+      <label><input type="checkbox" id="k2-sim-l3" checked="checked" /> L3 games</label>
+    </p>
+  </fieldset>
   <div class="k2-sim-controls">
-    <button type="button" class="k2-btn k2-btn--primary" id="k2-sim-start">Start 20-game sequence</button>
-    <button type="button" class="k2-btn" id="k2-sim-stop">Stop &amp; clean up</button>
+    <button type="button" class="k2-btn k2-btn--primary" id="k2-sim-start">Start sim</button>
+    <button type="button" class="k2-btn" id="k2-sim-stop">Stop</button>
     <a class="k2-btn k2-btn--link" href="/status.php">Open Status &rarr;</a>
   </div>
   <p id="k2-sim-message" class="k2-sim-message" aria-live="polite"></p>
   <dl class="k2-sim-status" id="k2-sim-status">
     <dt>State</dt><dd data-k2-sim-field="active">idle</dd>
     <dt>Progress</dt><dd data-k2-sim-field="progress">0 / 0</dd>
+    <dt>Registrations</dt><dd data-k2-sim-field="registrations">0 / 0</dd>
+    <dt>Online</dt><dd data-k2-sim-field="online_count">0</dd>
     <dt>Live now</dt><dd data-k2-sim-field="live_count">0</dd>
     <dt>Queued</dt><dd data-k2-sim-field="queued_count">0</dd>
     <dt>Last event</dt><dd data-k2-sim-field="last_event">—</dd>

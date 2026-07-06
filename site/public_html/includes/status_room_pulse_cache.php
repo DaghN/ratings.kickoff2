@@ -9,6 +9,14 @@ function k2_status_pulse_cache_key(string $name): string
     return 'status_room_pulse:' . $name . ':v1:' . (string) (int) floor(time());
 }
 
+/** @return array<string, mixed> */
+function &k2_status_pulse_request_cache(): array
+{
+    static $requestCache = [];
+
+    return $requestCache;
+}
+
 /** @template T */
 function k2_status_pulse_cache_remember(string $name, callable $builder): mixed
 {
@@ -26,7 +34,7 @@ function k2_status_pulse_cache_remember(string $name, callable $builder): mixed
         return $value;
     }
 
-    static $requestCache = [];
+    $requestCache = &k2_status_pulse_request_cache();
     if (array_key_exists($key, $requestCache)) {
         return $requestCache[$key];
     }
@@ -56,4 +64,28 @@ function k2_status_pulse_cache_remember(string $name, callable $builder): mixed
     ], JSON_UNESCAPED_UNICODE));
 
     return $value;
+}
+
+/** Drop cached pulse signals so the next Status poll sees fresh lobby/live rows. */
+function k2_status_pulse_cache_invalidate(string $name = 'signals'): void
+{
+    $prefix = 'status_room_pulse:' . $name . ':v1:';
+    for ($t = time() - 1; $t <= time() + 1; $t++) {
+        $key = $prefix . (string) (int) floor($t);
+        if (function_exists('apcu_delete')) {
+            @apcu_delete($key);
+        }
+        $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'k2_status_pulse_cache';
+        $file = $dir . DIRECTORY_SEPARATOR . hash('sha256', $key) . '.json';
+        if (is_file($file)) {
+            @unlink($file);
+        }
+    }
+
+    $requestCache = &k2_status_pulse_request_cache();
+    foreach (array_keys($requestCache) as $key) {
+        if (str_starts_with($key, $prefix)) {
+            unset($requestCache[$key]);
+        }
+    }
 }

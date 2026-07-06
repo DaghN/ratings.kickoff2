@@ -6,7 +6,7 @@
 
 **For agents:** read this before adding Status live polling, pulse APIs, or lobby glow. Implementation slices: [`status-room-live-implementation-plan.md`](status-room-live-implementation-plan.md).
 
-**Pointers:** [`status-period-competitions.md`](status-period-competitions.md) · [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md) (local lobby sim testing) · [`k2-jukebox-popup.md`](k2-jukebox-popup.md) (glow reference) · [`k2-page-boot.js`](../site/public_html/js/k2-page-boot.js) (`k2OnPageReady`)
+**Pointers:** [`status-period-competitions.md`](status-period-competitions.md) · [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md) (**live environment simulation** — login, register, games; work harness) · [`k2-jukebox-popup.md`](k2-jukebox-popup.md) (glow reference) · [`k2-page-boot.js`](../site/public_html/js/k2-page-boot.js) (`k2OnPageReady`)
 
 ---
 
@@ -22,7 +22,9 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 - **Live-game half clock** runs down **client-side** between heartbeats (smooth, no extra DB reads).
 - **Glow feedback** — reuse jukebox track-change bloom for new rows and cascade moments; shorter pulse for score digits.
 
-**Not a separate live feed from Steve.** Same KOOL Unity MySQL family as today ([`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md) § Finding). Staging/local remain **snapshot stale** — polling refreshes faster but cannot invent live prod writes.
+**Not a separate live feed from Steve.** Same KOOL Unity MySQL family as today ([`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md) § Finding). Staging and local **dev** remain **snapshot stale** unless you run the **live environment sim** on work (below).
+
+**Testing without prod:** [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md) — do not wait for tonight's play to exercise pulse, cascade, and glow.
 
 ---
 
@@ -46,6 +48,7 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 | SRL-14 | **Revision / fingerprint** — when no signals changed, API returns `{ changed: false, revision }` (tiny body). |
 | SRL-15 | **Period rollover:** heartbeat includes `period_keys` (day/week/month/year). Key change → league reload + meta glow (midnight/week boundaries). |
 | SRL-16 | **Sortable rating table:** after cascade DOM replace, re-init or patch via `k2-table.js` conventions — preserve user sort if feasible; default re-sort by Elo acceptable for v1. |
+| SRL-17 | **Live sim hook:** `api/status_room_pulse.php` may call `k2_status_room_sim_tick_if_due()` when [`k2_status_room_sim_is_allowed()`](../../site/public_html/includes/status_room_live_sim.php) — **work host + `ko2unity_work` only**; never prod/staging. Sim UI at `/status-room-live-sim.php`, not on `status.php`. |
 
 ---
 
@@ -55,7 +58,7 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 
 | Signal | Source | Client action |
 |--------|--------|---------------|
-| `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, period, half_countdown) | Patch live list; score pulse; add/remove rows + row glow |
+| `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, `GamePeriod`) — **not** `half_countdown`; client ticks clock locally | Patch live list; score pulse; add/remove rows + row glow; resync clock anchor on fp change |
 | `online_fp` | Hash of online player ids | Patch Online list; glow new names |
 | `last_login_epoch` | Head of `playertable.LastLogin` | Refresh recent logins; glow head row |
 | `last_join_epoch` | Head of `playertable.JoinDate` | Refresh new players; glow head row |
@@ -132,7 +135,7 @@ Clamp at 0 → display `—`. Resync every heartbeat; on `period` change, take s
 
 **Diff rules:**
 
-- Same `game_id`, score/period/countdown changed → update in place; pulse score if goals changed.
+- Same `game_id`, score/period changed → update scores in place (no list HTML replace); pulse score if goals changed; resync clock anchor from payload
 - New `game_id` → prepend row + **row glow**.
 - Missing `game_id` → remove row (optional fade); if cascade also refreshed recent games, glow recent head.
 
@@ -197,10 +200,28 @@ Client sends optional `?revision=` to allow 304-style short responses.
 
 | Environment | Behaviour |
 |-------------|-----------|
-| **Production** | Heartbeat reads live DB; room feels truly live. |
-| **Staging / local** | Heartbeat works but data is **import snapshot** — same staleness caveat as SSR today. |
+| **Production** | Heartbeat reads live DB; room feels truly live. **No sim harness** (guard blocks). |
+| **Staging (`kooldb1`)** | Heartbeat works; data is import snapshot. Synced sim **code** is inert — wrong host + DB. |
+| **Local dev (`ratingskickoff.test` → `ko2unity_db`)** | Snapshot stale; sim **disabled**. |
+| **Local work (`work.ratingskickoff.test` → `ko2unity_work`)** | **Live environment sim** — harness + pulse-driven ticks. Primary test bed for v1.5. |
 
-No Steve agreement required to **build**; prod read authority unchanged from [`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md).
+No Steve agreement required to **build** or **test on work**; prod read authority unchanged from [`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md).
+
+---
+
+## Shipped implementation (file map)
+
+| Piece | Path |
+|-------|------|
+| Pulse API | `site/public_html/api/status_room_pulse.php` |
+| Signal helpers | `site/public_html/includes/status_room_pulse.php` |
+| 1 s cache | `site/public_html/includes/status_room_pulse_cache.php` |
+| Client engine | `site/public_html/js/status-room-live.js` |
+| Glow | `site/public_html/js/k2-live-glow.js` + `theme.css` |
+| Markup hooks | `site/public_html/includes/status_room_section.php` |
+| Page enqueue | `site/public_html/status.php` |
+| Leagues integration | `site/public_html/js/status-period-competitions.js` |
+| **Live sim (work only)** | `status-room-live-sim.php`, `api/status_room_live_sim.php`, `includes/status_room_live_sim.php`, `js/status-room-live-sim.js` — see [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md) |
 
 ---
 
@@ -219,4 +240,5 @@ No Steve agreement required to **build**; prod read authority unchanged from [`S
 
 | Date | Change |
 |------|--------|
+| 2026-07-06 | **Live clock on goal** — `live_fp` excludes `half_countdown`; score-only patch in place (no clock reset) |
 | 2026-07-06 | **Shipped** — `api/status_room_pulse.php`, `status-room-live.js`, `k2-live-glow.js`, cascade on `last_rated_id` |
