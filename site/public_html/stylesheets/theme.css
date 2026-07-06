@@ -6452,6 +6452,10 @@ body.k2-site .k2-status-day-picker .k2-status-day-picker__fp-anchor {
 	font-variant-numeric: tabular-nums;
 }
 
+.k2-status-score__goal {
+	display: inline-block;
+}
+
 .k2-status-score .k2-scoreline-sep {
 	padding: 0 0.2em;
 }

@@ -135,6 +135,8 @@
 
 ## Recent log
 
+| 2026-07-06 | **Status room visibility catch-up** — immediate pulse on tab focus / pageshow after Stop (or any DB change) while Status was backgrounded; Stop + cache invalidate confirmed OK |
+| 2026-07-06 | **Status room glow fixes** — recency lists glow by id diff (each new login/reg/game row, including same-second batch); SSR `data-player-id` on rows; live score pulse on scoring side only |
 | 2026-07-06 | **Login/register integrity** — no bootstrap batch; one lobby event/tick; register without LastLogin/online; login-only sets IsOnline+LastLogin |
 | 2026-07-06 | **Live sim guard tightened** — requires `ko2unity_work` + `work.ratingskickoff.test` (staging/prod safe after sync). |
 | 2026-07-06 | **Live environment sim spec** — comprehensive platform doc (L1 login, L2 register planned, L3 games; dispatcher boundary) — [`status-room-live-sim-spec.md`](docs/status-room-live-sim-spec.md). |

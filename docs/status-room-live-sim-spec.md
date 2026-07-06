@@ -354,7 +354,7 @@ On **`work.ratingskickoff.test/status.php`**, DevTools → Network → `status_r
 | SIM-T5 | Unchanged second → `{ changed: false }` | |
 | SIM-T6 | Rated finish → cascade stagger (recent → ratings → league → arc) | |
 | SIM-T7 | Login/logout → Online + Recent logins patch | |
-| SIM-T8 | New registration → New players head + glow + `entered_arena` | |
+| SIM-T8 | New registration → New players row glow (each new id) + `entered_arena` | |
 | SIM-T9 | Stop → everyone offline, live games gone, queue empty; no new rated rows from cancelled games | |
 | **SIM-T10** | Both match players appear in Online before live row; never live game with empty Online | |
 | **SIM-T11** | Goal scored → client half clock **does not** jump reset (score-only pulse patch) | |

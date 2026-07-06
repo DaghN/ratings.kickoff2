@@ -110,13 +110,14 @@
 		if (section.html) {
 			slot.innerHTML = section.html;
 		}
-		if (window.k2LiveGlow && glowSelector) {
-			var nodes = slot.querySelectorAll(glowSelector);
-			for (var j = 0; j < nodes.length; j++) {
-				var id = nodes[j].getAttribute('data-player-id') || nodes[j].getAttribute('data-game-id');
-				if (id && !prevIds[id]) {
-					window.k2LiveGlow.trigger(nodes[j]);
-				}
+		if (!window.k2LiveGlow || !glowSelector) {
+			return;
+		}
+		var nodes = slot.querySelectorAll(glowSelector);
+		for (var j = 0; j < nodes.length; j++) {
+			var id = nodes[j].getAttribute('data-player-id') || nodes[j].getAttribute('data-game-id');
+			if (id && !prevIds[id]) {
+				window.k2LiveGlow.trigger(nodes[j]);
 			}
 		}
 	}
@@ -169,9 +170,31 @@
 			}
 			return String(goals);
 		}
-		return cell(scoreA, scoreB)
+		return '<span class="k2-status-score__goal" data-side="a">' + cell(scoreA, scoreB) + '</span>'
 			+ '<span class="k2-scoreline-sep" aria-hidden="true">\u2013</span>'
-			+ cell(scoreB, scoreA);
+			+ '<span class="k2-status-score__goal" data-side="b">' + cell(scoreB, scoreA) + '</span>';
+	}
+
+	function readScoreSide(scoreEl, side) {
+		var goal = scoreEl.querySelector('.k2-status-score__goal[data-side="' + side + '"]');
+		if (!goal) {
+			return null;
+		}
+		var n = parseInt(goal.textContent.replace(/\D/g, ''), 10);
+		return Number.isFinite(n) ? n : 0;
+	}
+
+	function pulseScoreSide(scoreEl, side) {
+		var goal = scoreEl.querySelector('.k2-status-score__goal[data-side="' + side + '"]');
+		if (goal && window.k2LiveGlow) {
+			window.k2LiveGlow.scorePulse(goal);
+		}
+	}
+
+	function syncScoreState(scoreEl, scoreA, scoreB) {
+		scoreEl.setAttribute('data-score-a', String(scoreA));
+		scoreEl.setAttribute('data-score-b', String(scoreB));
+		scoreEl.setAttribute('data-score-key', scoreA + '-' + scoreB);
 	}
 
 	function patchLiveScores(root, games) {
@@ -188,15 +211,32 @@
 			if (!scoreEl) {
 				continue;
 			}
-			var prev = scoreEl.getAttribute('data-score-key') || '';
-			var next = g.score_a + '-' + g.score_b;
-			if (prev !== next) {
-				scoreEl.innerHTML = formatLiveScoreHtml(g.score_a, g.score_b);
-				if (prev && window.k2LiveGlow) {
-					window.k2LiveGlow.scorePulse(scoreEl);
+			var prevKey = scoreEl.getAttribute('data-score-key') || '';
+			var prevA = scoreEl.hasAttribute('data-score-a')
+				? parseInt(scoreEl.getAttribute('data-score-a'), 10)
+				: readScoreSide(scoreEl, 'a');
+			var prevB = scoreEl.hasAttribute('data-score-b')
+				? parseInt(scoreEl.getAttribute('data-score-b'), 10)
+				: readScoreSide(scoreEl, 'b');
+			if (prevA == null || prevB == null) {
+				prevA = 0;
+				prevB = 0;
+			}
+			var nextA = g.score_a;
+			var nextB = g.score_b;
+			var nextKey = nextA + '-' + nextB;
+			if (prevKey !== nextKey) {
+				scoreEl.innerHTML = formatLiveScoreHtml(nextA, nextB);
+				if (prevKey) {
+					if (nextA > prevA) {
+						pulseScoreSide(scoreEl, 'a');
+					}
+					if (nextB > prevB) {
+						pulseScoreSide(scoreEl, 'b');
+					}
 				}
 			}
-			scoreEl.setAttribute('data-score-key', next);
+			syncScoreState(scoreEl, nextA, nextB);
 		}
 	}
 
@@ -258,9 +298,11 @@
 			return;
 		}
 		replaceListSlot(root, 'live', section, 'No live games in progress.', 'li[data-game-id]');
-		if (section && section.games) {
+		if (section && section.games && section.games.length) {
 			patchLiveScores(root, section.games);
 			syncLiveGameClocks(root, section.games, syncEpoch);
+		} else {
+			state.liveClocks = [];
 		}
 		state.liveGameIds = nextIds;
 	}
@@ -440,6 +482,31 @@
 			});
 	}
 
+	/** Poll immediately when tab/window returns — background tabs throttle setInterval. */
+	function catchUpOnVisible(root) {
+		if (document.visibilityState && document.visibilityState !== 'visible') {
+			return;
+		}
+		pollOnce(root);
+		tickLiveClocks(root);
+	}
+
+	function bindVisibilityCatchUp(root) {
+		document.addEventListener('visibilitychange', function () {
+			if (document.visibilityState === 'visible') {
+				catchUpOnVisible(root);
+			}
+		});
+		window.addEventListener('pageshow', function (ev) {
+			if (ev.persisted) {
+				catchUpOnVisible(root);
+			}
+		});
+		window.addEventListener('focus', function () {
+			catchUpOnVisible(root);
+		});
+	}
+
 	function seedLiveIds(root) {
 		state.liveGameIds = {};
 		var nodes = root.querySelectorAll('[data-k2-status-live-slot="live"] li[data-game-id]');
@@ -450,7 +517,13 @@
 			}
 			var scoreEl = nodes[i].querySelector('.k2-status-score');
 			if (scoreEl) {
-				scoreEl.setAttribute('data-score-key', scoreEl.textContent.replace(/\s+/g, ''));
+				var scoreA = readScoreSide(scoreEl, 'a');
+				var scoreB = readScoreSide(scoreEl, 'b');
+				if (scoreA != null && scoreB != null) {
+					syncScoreState(scoreEl, scoreA, scoreB);
+				} else {
+					scoreEl.setAttribute('data-score-key', scoreEl.textContent.replace(/\s+/g, ''));
+				}
 			}
 		}
 		var syncEpoch = parseInt(root.getAttribute('data-pulse-sync-epoch'), 10) || Math.floor(Date.now() / 1000);
@@ -489,6 +562,7 @@
 		state.clockTimer = setInterval(function () {
 			tickLiveClocks(root);
 		}, POLL_MS);
+		bindVisibilityCatchUp(root);
 	}
 
 	function boot() {

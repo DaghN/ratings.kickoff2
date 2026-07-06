@@ -33,7 +33,7 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 | ID | Decision |
 |----|----------|
 | SRL-1 | **Polling, not push** — no WebSockets/SSE for v1. Game server already writes MySQL; web reads it. |
-| SRL-2 | **One heartbeat endpoint** — `api/status_room_pulse.php` (name locked in plan). Client polls **every 1 s**. **Do not** pause on `document.hidden` (multi-monitor / tiled layouts). |
+| SRL-2 | **One heartbeat endpoint** — `api/status_room_pulse.php` (name locked in plan). Client polls **every 1 s** while the page is loaded. **Do not** voluntarily pause on `document.hidden` (multi-monitor / tiled layouts). **Browser note:** background tabs may throttle timers; **catch-up poll** on `visibilitychange` / `pageshow` (bfcache) / `focus` so returning to Status reflects current DB immediately. |
 | SRL-3 | **Server-side 1 s shared cache** on the pulse bundle — all viewers share one compute tick per second. |
 | SRL-4 | **Two change kinds:** **lobby tick** (presence, live state) vs **rated finish cascade** (`last_rated_id` change). |
 | SRL-5 | **`last_rated_id`** = `MAX(id) FROM ratedresults` — primary cascade trigger. When it changes, refresh cascade sections (below). |
@@ -60,8 +60,8 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 |--------|--------|---------------|
 | `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, `GamePeriod`) — **not** `half_countdown`; client ticks clock locally | Patch live list; score pulse; add/remove rows + row glow; resync clock anchor on fp change |
 | `online_fp` | Hash of online player ids | Patch Online list; glow new names |
-| `last_login_epoch` | Head of `playertable.LastLogin` | Refresh recent logins; glow head row |
-| `last_join_epoch` | Head of `playertable.JoinDate` | Refresh new players; glow head row |
+| `last_login_epoch` | Head of `playertable.LastLogin` | Refresh recent logins; **row glow for each player id newly in the list** (may be several in one second) |
+| `last_join_epoch` | Head of `playertable.JoinDate` | Refresh new players; **row glow for each new registration id** |
 | Local 1 s timer | Client math on last live payload | Tick half clocks (`half_countdown` at 50 ticks/s) |
 
 ### Rated finish cascade (rare, coordinated refresh)
@@ -71,7 +71,7 @@ When **`last_rated_id`** (or confirming **`games_played`**) changes:
 | Section | Action |
 |---------|--------|
 | Live games | Patch (finished game should drop off) |
-| Recent games | Full list refresh; **glow head row** |
+| Recent games | Full list refresh; **row glow for each new game id** in the list |
 | Rating table + heading count | **Full table reload** (one payload) |
 | League Activity + Points | Full reload for **active tab** period key |
 | League meta | Refresh `total_games`, period label |
@@ -135,9 +135,11 @@ Clamp at 0 → display `—`. Resync every heartbeat; on `period` change, take s
 
 **Diff rules:**
 
-- Same `game_id`, score/period changed → update scores in place (no list HTML replace); pulse score if goals changed; resync clock anchor from payload
+- Same `game_id`, score/period changed → update scores in place (no list HTML replace); pulse **only the goal cell(s) that increased**; resync clock anchor from payload
 - New `game_id` → prepend row + **row glow**.
-- Missing `game_id` → remove row (optional fade); if cascade also refreshed recent games, glow recent head.
+- Missing `game_id` → remove row (optional fade); if cascade also refreshed recent games, glow each **new** game row (id diff).
+
+**Recency list glow (logins, registrations, recent games, online):** before replacing list HTML, snapshot existing `data-player-id` / `data-game-id` on rows; after replace, glow **every row whose id was not in the snapshot**. Existing rows that merely reorder do not glow. SSR and pulse HTML must both set ids on `<li>` — otherwise the first patch treats every row as new.
 
 ---
 
@@ -145,8 +147,8 @@ Clamp at 0 → display `—`. Resync every heartbeat; on `period` change, take s
 
 | Event | Effect |
 |-------|--------|
-| New online player / new live game / new login / new registration | **Row glow** (`k2-live-glow`) — jukebox bloom keyframes |
-| Goal / score change | **Score pulse** only |
+| New online player / new live game / new login / new registration / new recent game | **Row glow** on each **new** row (`k2-live-glow`) — id diff vs list before HTML replace; multiple new ids in one heartbeat all glow |
+| Goal / score change | **Score pulse on the side that scored** — `.k2-status-score__goal[data-side=a|b]` only; equalizer (e.g. 1–0 → 1–1) pulses the trailing goal digit, not the whole scoreline |
 | Arc or league meta number change | Glow the **`.blue` span** |
 | Rated finish cascade | **Staggered panel glow** (~150 ms): recent games → ratings → league → arc |
 
@@ -240,5 +242,6 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 
 | Date | Change |
 |------|--------|
+| 2026-07-06 | **Visibility catch-up** — `status-room-live.js` polls immediately when tab/window visible again (background timer throttle) |
 | 2026-07-06 | **Live clock on goal** — `live_fp` excludes `half_countdown`; score-only patch in place (no clock reset) |
 | 2026-07-06 | **Shipped** — `api/status_room_pulse.php`, `status-room-live.js`, `k2-live-glow.js`, cascade on `last_rated_id` |

@@ -430,12 +430,18 @@ function k2_status_registration_date(?string $datetime): string
     return date('M ', $ts) . sprintf('%2d', (int) date('j', $ts)) . date(', Y', $ts);
 }
 
-/** Scoreline for status recency lists — winning side blue + bold. */
+/** Scoreline for status lists — side wrappers enable per-goal live pulse in JS. */
 function k2_status_score_html(int $goalsA, int $goalsB): string
 {
     require_once __DIR__ . '/k2_rated_game_row.php';
 
-    return k2_rated_game_scoreline_html($goalsA, $goalsB);
+    return '<span class="k2-status-score__goal" data-side="a">'
+        . k2_rated_game_goal_cell_html($goalsA, $goalsB)
+        . '</span>'
+        . '<span class="k2-scoreline-sep" aria-hidden="true">–</span>'
+        . '<span class="k2-status-score__goal" data-side="b">'
+        . k2_rated_game_goal_cell_html($goalsB, $goalsA)
+        . '</span>';
 }
 
 /** Time remaining in the current half (HalfCountdown ticks; 50 ticks per second; 5:00 per half). */

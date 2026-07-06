@@ -57,7 +57,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 <?php } else { ?>
 			<ul class="k2-status-name-list">
 <?php foreach ($online as $row) { ?>
-				<li><?php echo k2_status_player_link($row['id'], $row['name']); ?></li>
+				<li data-player-id="<?php echo (int) $row['id']; ?>"><?php echo k2_status_player_link($row['id'], $row['name']); ?></li>
 <?php } ?>
 			</ul>
 <?php } ?>
@@ -155,7 +155,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 <?php } else { ?>
 			<ul class="k2-status-recency-list">
 <?php foreach ($logins as $row) { ?>
-				<li>
+				<li data-player-id="<?php echo (int) $row['id']; ?>">
 					<?php echo k2_status_day_clock_html($row['at']); ?>
 					<?php echo k2_status_player_link($row['id'], $row['name']); ?>
 				</li>
@@ -176,7 +176,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 <?php } else { ?>
 			<ul class="k2-status-recency-list">
 <?php foreach ($recentGames as $g) { ?>
-				<li>
+				<li data-game-id="<?php echo (int) $g['id']; ?>">
 					<?php echo k2_status_day_clock_html($g['at']); ?>
 					<span class="k2-status-match">
 						<span class="k2-status-match__side"><?php echo k2_status_player_link($g['id_a'], $g['name_a']); ?></span>
@@ -198,7 +198,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 <?php } else { ?>
 			<ul class="k2-status-recency-list">
 <?php foreach ($registrations as $row) { ?>
-				<li>
+				<li data-player-id="<?php echo (int) $row['id']; ?>">
 					<span class="k2-status-recency-list__when"><?php echo k2_status_h(k2_status_registration_date($row['joined'])); ?></span>
 					<?php echo k2_status_player_link($row['id'], $row['name']); ?>
 				</li>
