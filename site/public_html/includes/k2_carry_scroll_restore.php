@@ -288,7 +288,9 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 		return null;
 	}
 
-	/* Keep the carried nav at the same viewport offset; fall back to raw stored Y. */
+	/* Keep the carried nav at the same viewport offset; fall back to raw stored Y.
+	   TT ribbon anchors inside position:sticky can store stuck-phase offsets — prefer
+	   stored Y when anchor math collapses toward the sticky latch (belt-and-suspenders). */
 	function resolveTargetY(p) {
 		if (p.anchor && typeof p.anchor.viewportOffset === 'number') {
 			var nav = findAnchorNav(p.anchor);
@@ -296,6 +298,9 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 				var docTop = nav.getBoundingClientRect().top + window.scrollY;
 				var t = docTop - p.anchor.viewportOffset;
 				if (t >= 0) {
+					if (nav.closest && nav.closest('.k2-amiga-time-travel--active') && p.y - t > 40) {
+						return p.y;
+					}
 					return t;
 				}
 			}

@@ -96,7 +96,7 @@ Two layers: **feature setting** (`sticky on` / `sticky off`) and **scroll phase*
 | **CD5** | **Header reachable at scroll top** | Site header stays **in flow** (shipped). At **`scrollY ≈ 0`**, ribbon is **in flow** (not **stuck**); header, stamp, and ribbon stack normally — no overlap. User reaches header by scrolling to top. |
 | **CD6** | **Stamp scrolls** | Temporal stamp is **never** sticky; it scrolls with page content above the ribbon until the ribbon becomes **stuck** |
 | **CD7** | **Stamp motion on nav** | **Chevrons, picker, hub tabs, direct URL** (no `k2_tt_entry`): stamp updates **in place** — no LED fade, no kicker typewriter, no panel arrival. **Wing tab** (`k2_tt_entry=wing`): keep LED fade + kicker typewriter. **Toggle entry** (`k2_tt_entry=1`): keep full arrival. |
-| **CD8** | **Carry-scroll preserved** | Ribbon stepper/wing tabs/picker forms keep `data-k2-carry-scroll`; sticky coordinator must not fight carry-scroll restore |
+| **CD8** | **Carry-scroll preserved** | Ribbon stepper/wing tabs/picker forms keep `data-k2-carry-scroll`; sticky coordinator must not fight carry-scroll restore. **Jul 2026:** when ribbon is **stuck**, store `{ y }` only (no anchor — sticky geometry breaks `viewportOffset`); restore keeps TT ribbon safety net in `k2_carry_scroll_restore.php`. Tab nav below ribbon unchanged. |
 | **CD9** | **Surfaces** | Same as snapshot chrome today — all Amiga pages with active `as=`; ops/import excluded (T10) |
 | **CD10** | **Event wing wrap** | Sticky ribbon may wrap (`flex-wrap`) on Event wing — same as C02 pinned |
 

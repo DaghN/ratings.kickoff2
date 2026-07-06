@@ -60,7 +60,33 @@
 
 	}
 
+	/* Sticky TT ribbon (CSS position:sticky): when stuck, nav rect.top is pinned near
+	   viewport top so anchor viewportOffset no longer encodes scroll depth. */
+	var TT_RIBBON_STUCK_TOP_PX = 15;
 
+	function ttRibbonSectionFromNav(nav) {
+
+		if (!nav || !nav.closest) {
+
+			return null;
+
+		}
+
+		return nav.closest('.k2-amiga-time-travel--active');
+
+	}
+
+	function ttRibbonIsStuck(section) {
+
+		if (!section) {
+
+			return false;
+
+		}
+
+		return section.getBoundingClientRect().top <= TT_RIBBON_STUCK_TOP_PX;
+
+	}
 
 	function carryAnchorFromNav(nav) {
 
@@ -73,6 +99,12 @@
 		var label = nav.getAttribute('aria-label');
 
 		if (!label) {
+
+			return null;
+
+		}
+
+		if (ttRibbonIsStuck(ttRibbonSectionFromNav(nav))) {
 
 			return null;
 

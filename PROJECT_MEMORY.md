@@ -135,6 +135,7 @@
 
 ## Recent log
 
+| 2026-07-06 | **TT ribbon carry-scroll (stuck)** — anchor `viewportOffset` inside CSS-sticky ribbon lied when stuck → restore jumped to latch (~181px); store skips anchor when ribbon stuck + restore safety net — `k2-carry-scroll.js`, `k2_carry_scroll_restore.php` |
 | 2026-07-06 | **Cascade fatal fix** — pulse missing `lb_player_filters.php` broke rated-finish cascade (500 response); live→recent + scores now apply |
 | 2026-07-06 | **League cascade glow** — Activity Games + Points Pts on rated finish |
 | 2026-07-06 | **LB cascade glow** — finishing-game rating gainers: **Elo only** (white) in active leaderboard |

@@ -69,6 +69,7 @@ When you change the left column, **re-run reproduction** for the listed failures
 | When you change… | Re-run failures… |
 |------------------|------------------|
 | Carry-scroll cloak / reveal / payload | F1, F6, F7, F8, F18 |
+| TT sticky + carry-scroll anchor (ribbon nav when **stuck**) | **S3** — mid-scroll Y preserved on chevron / wing / picker |
 | Head inline boot or early `<html>` classes | F3, F12 |
 | Chrome render order or wrapper markup | F1, F2, F13 |
 | Stamp script load order | F13, F14 |
@@ -329,3 +330,4 @@ When a failure is **solved and verified**, add one line under the row: **Resolve
 | 2026-07-04 | **Sticky v1 shipped** — CSS sticky on ``--active``; overflow-x clip on html/body/page-nav — handoff [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
 | 2026-07-04 | **F1–F17 closure** — JS pin attempt symptoms closed/superseded by CSS sticky v1; register status → closed |
 | 2026-07-04 | **Issue closure pass** — F6/F18/F19 resolved in invariants; F20 query slice resolved; links to handoffs 003/004/002 |
+| 2026-07-06 | Integration tensions — TT sticky + carry-scroll anchor when ribbon **stuck** (S3 smoke); fix in `k2-carry-scroll.js` + `k2_carry_scroll_restore.php` |
