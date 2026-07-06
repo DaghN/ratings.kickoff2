@@ -35,6 +35,33 @@ function k2_status_pulse_live_fingerprint(?array $games): string
     return k2_status_pulse_fingerprint($rows);
 }
 
+/**
+ * Minimal live rows for client half-clock resync every heartbeat (SRL-9).
+ *
+ * @param list<array<string, mixed>>|null $games
+ * @return list<array{game_id: int, half_countdown: int, period: int}>
+ */
+function k2_status_pulse_live_clock_payload(?array $games): array
+{
+    if ($games === null || $games === []) {
+        return [];
+    }
+    $out = [];
+    foreach ($games as $g) {
+        $gameId = (int) ($g['game_id'] ?? 0);
+        if ($gameId < 1) {
+            continue;
+        }
+        $out[] = [
+            'game_id' => $gameId,
+            'half_countdown' => (int) ($g['half_countdown'] ?? 0),
+            'period' => (int) ($g['period'] ?? 0),
+        ];
+    }
+
+    return $out;
+}
+
 /** @param list<array{id: int, name: string}> $online */
 function k2_status_pulse_online_fingerprint(array $online): string
 {

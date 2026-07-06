@@ -73,6 +73,9 @@ $bundle = k2_status_pulse_collect_signals($con, $leaguePeriod, $leagueKey);
 $signals = is_array($bundle['signals'] ?? null) ? $bundle['signals'] : [];
 $revision = (string) ($bundle['revision'] ?? '');
 $serverNowEpoch = (int) ($bundle['server_now_epoch'] ?? time());
+$liveClocks = k2_status_pulse_live_clock_payload(
+    is_array($bundle['_live_games'] ?? null) ? $bundle['_live_games'] : null
+);
 
 if ($leagueKey === '' && is_array($signals['period_keys'] ?? null)) {
     $leagueKey = (string) ($signals['period_keys'][$leaguePeriod] ?? '');
@@ -86,6 +89,7 @@ if ($unchanged) {
         'changed' => false,
         'revision' => $revision,
         'server_now_epoch' => $serverNowEpoch,
+        'live_clocks' => $liveClocks,
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -116,6 +120,7 @@ $payload = [
     'server_now_epoch' => $serverNowEpoch,
     'signals' => $signals,
     'cascade' => $cascade,
+    'live_clocks' => $liveClocks,
 ];
 if ($sections !== []) {
     $payload['sections'] = $sections;

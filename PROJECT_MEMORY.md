@@ -135,6 +135,8 @@
 
 ## Recent log
 
+| 2026-07-06 | **SRL-9 live_clocks** — pulse sends half-clock anchor every beat; client resyncs on `changed: false` too |
+| 2026-07-06 | **Sim wall-clock catch-up** — missed seconds replay on status load + pulse + sim control (cap 600 s/call) for realistic off-page sim |
 | 2026-07-06 | **TT ribbon carry-scroll (stuck)** — anchor `viewportOffset` inside CSS-sticky ribbon lied when stuck → restore jumped to latch (~181px); store skips anchor when ribbon stuck + restore safety net — `k2-carry-scroll.js`, `k2_carry_scroll_restore.php` |
 | 2026-07-06 | **Cascade fatal fix** — pulse missing `lb_player_filters.php` broke rated-finish cascade (500 response); live→recent + scores now apply |
 | 2026-07-06 | **League cascade glow** — Activity Games + Points Pts on rated finish |

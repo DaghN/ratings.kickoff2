@@ -717,11 +717,24 @@
 		return allApplied;
 	}
 
+	function resyncLiveClocksFromPulse(root, body) {
+		if (!body || !Object.prototype.hasOwnProperty.call(body, 'live_clocks')) {
+			return;
+		}
+		var syncEpoch = body.server_now_epoch || Math.floor(Date.now() / 1000);
+		syncLiveGameClocks(root, body.live_clocks || [], syncEpoch);
+	}
+
 	function onPulseBody(root, body) {
-		if (!body || body.changed === false) {
-			if (body && body.server_now_epoch) {
-				syncCompetitionsClock(body.server_now_epoch);
-			}
+		if (!body) {
+			return;
+		}
+		if (body.server_now_epoch) {
+			syncCompetitionsClock(body.server_now_epoch);
+			root.setAttribute('data-pulse-sync-epoch', String(body.server_now_epoch));
+		}
+		resyncLiveClocksFromPulse(root, body);
+		if (body.changed === false) {
 			return;
 		}
 		var prevPeriodKeys = JSON.stringify((state.signals && state.signals.period_keys) || {});

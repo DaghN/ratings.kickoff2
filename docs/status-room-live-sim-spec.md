@@ -187,7 +187,9 @@ Reference: [`ops-dispatch.md`](../site/public_html/ops/docs/ops-dispatch.md) · 
 ## End-to-end flow (target)
 
 ```text
-[Sim tick ~1 s — Status pulse and/or sim control page poll]
+[Sim tick — wall clock; catch-up when idle up to 600 s per call]
+
+  Triggers: status.php load · status_room_pulse.php · status_room_live_sim.php status poll
 
   idle (no live, no pending):
     ~18% → one login OR one logout (lobby pool only; never match players)
@@ -205,9 +207,19 @@ Reference: [`ops-dispatch.md`](../site/public_html/ops/docs/ops-dispatch.md) · 
   Stop → all offline, cancel live, clear queue (rated finishes kept)
 ```
 
-**Browser:** `work.ratingskickoff.test/status.php` polls `status_room_pulse.php` (~1 s).
+**Browser:** `work.ratingskickoff.test/status.php` polls `status_room_pulse.php` (~1 s). **Returning to Status** runs sim catch-up **before SSR** so live clocks reflect elapsed wall time while you were away.
 
-**Full DB reset:** refresh work from baseline ([`work-db-prepare.md`](work-db-prepare.md) §3.1) — not what **Stop** does.
+### Wall-clock catch-up (Jul 2026)
+
+When no tick ran for *N* seconds (navigated away, closed tab, etc.), the next tick call replays **one sim second per missed wall second** (cap **`K2_STATUS_ROOM_SIM_MAX_CATCHUP_SECONDS` = 600** per call; further catch-up on the next trigger). Pending kickoffs, goals, finishes, and lobby events use the **simulated second** timestamp — not “one tick only.”
+
+| Trigger | When |
+|---------|------|
+| `status.php` | Before `k2_status_load_room()` — fixes SSR live clocks on return |
+| `api/status_room_pulse.php` | Each poll while Status is open |
+| `api/status_room_live_sim.php?action=status` | Sim control page 1 s poll |
+
+**Prod:** guard is no-op; catch-up does not run on prod. refresh work from baseline ([`work-db-prepare.md`](work-db-prepare.md) §3.1) — not what **Stop** does.
 
 ---
 
@@ -360,6 +372,7 @@ On **`work.ratingskickoff.test/status.php`**, DevTools → Network → `status_r
 | **SIM-T10** | Both match players appear in Online before live row; never live game with empty Online | |
 | **SIM-T11** | Goal scored → client half clock **does not** jump reset (score-only pulse patch) | |
 | **SIM-T12** | Crash (wait or tune `K2_STATUS_ROOM_SIM_CRASH_CHANCE_PERCENT`) → live gone, no rated row | |
+| **SIM-T13** | Leave Status mid-game → browse 2+ min → return: live clock advanced (or game finished), not frozen at leave time | |
 
 ---
 
@@ -391,6 +404,7 @@ On **`work.ratingskickoff.test/status.php`**, DevTools → Network → `status_r
 
 | Date | Change |
 |------|--------|
+| 2026-07-06 | **Sim wall-clock catch-up** — replay missed seconds on status load / pulse / sim control (cap 600 s); realistic time while off Status |
 | 2026-07-06 | **Whistle-only finish** — goals spread during play but match ends only at 4:00 left; no goal quota / early rated finish |
 | 2026-07-06 | **Goals spread again** — goals at random wall seconds while clock runs (not one blob at whistle) |
 | 2026-07-06 | **L2 registration shipped** — `Sim_XXXX` players + `ProcessPlayerRegistered`; sim page options (games, L1/L2/L3, reg limit, crash %) |

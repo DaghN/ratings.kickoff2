@@ -102,7 +102,7 @@
         fetchJson(apiUrl('start', readStartParams()))
           .then(function (data) {
             if (data && data.ok) {
-              setMessage(data.message || 'Started — open Status or stay here to keep ticks running.');
+              setMessage(data.message || 'Started — open Status or keep this page open for ticks.');
               return pollStatus();
             }
             setMessage((data && data.error) ? data.error : 'Start failed.');

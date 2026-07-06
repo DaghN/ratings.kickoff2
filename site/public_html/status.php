@@ -37,11 +37,15 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/hub_nav.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_room_live_sim.php';
 
 $k2StatusRoom = null;
 $k2StatusRoomError = null;
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
+if (k2_status_room_sim_is_allowed()) {
+    k2_status_room_sim_tick_if_due($con);
+}
 $k2StatusRoom = k2_status_load_room($con, $k2StatusRoomError);
 mysqli_close($con);
 unset($con);

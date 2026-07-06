@@ -45,7 +45,7 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 | SRL-11 | **Glow — score change:** **`k2-live-glow-bloom-white`** on the scoring digit (inner `.blue` when leading, else plain cell) — bright white ink, not accent or stat-green bloom |
 | SRL-12 | **Retired — cascade glow sequence:** no post-cascade glow choreography. Glow only from **SRL-10/11** lobby rules. |
 | SRL-13 | **First paint stays SSR** — `status.php` + `k2_status_load_room()` unchanged for no-JS and fast paint; heartbeat **enhances**. |
-| SRL-14 | **Revision / fingerprint** — when no signals changed, API returns `{ changed: false, revision }` (tiny body). |
+| SRL-14 | **Revision / fingerprint** — when no signals changed, API returns `{ changed: false, revision, server_now_epoch, live_clocks }` (tiny body; **`live_clocks` always** for SRL-9). |
 | SRL-15 | **Period rollover:** heartbeat includes `period_keys` (day/week/month/year). Key change → league reload — **no meta glow**. |
 | SRL-16 | **Sortable rating table:** after cascade DOM replace, call **`k2TableRefreshSortableBody(table)`** — preserves user sort when `_k2SortUserChosen`; else default Elo desc + autorank refresh |
 | SRL-17 | **Live sim hook:** `api/status_room_pulse.php` may call `k2_status_room_sim_tick_if_due()` when [`k2_status_room_sim_is_allowed()`](../../site/public_html/includes/status_room_live_sim.php) — **work host + `ko2unity_work` only**; never prod/staging. Sim UI at `/status-room-live-sim.php`, not on `status.php`. |
@@ -60,7 +60,7 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 
 | Signal | Source | Client action |
 |--------|--------|---------------|
-| `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, `GamePeriod`) — **not** `half_countdown`; client ticks clock locally between polls | Patch live list on fp change; **goal glow** on score increase; **player name glow** on new live game row only; resync clock anchor |
+| `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, `GamePeriod`) — **not** `half_countdown`; client ticks clock locally between polls | Patch live list on fp change; **goal glow** on score increase; **player name glow** on new live game row only; **`live_clocks` every heartbeat** resyncs anchor (SRL-9) |
 | `online_fp` | Ordered online player ids (login-first sort) | Patch Online list + heading count (**count: no glow**); **name glow** for each **new** online id only |
 | `last_login_epoch` | Head of `playertable.LastLogin` | Refresh recent logins — **no glow** |
 | `last_join_epoch` | Head of `playertable.JoinDate` | Refresh new players — **no glow** |
@@ -172,10 +172,17 @@ Reference: [`k2-jukebox.css`](../site/public_html/stylesheets/k2-jukebox.css) `@
 **Unchanged:**
 
 ```json
-{ "changed": false, "revision": "a1b2c3", "server_now_epoch": 1751756400 }
+{
+  "changed": false,
+  "revision": "a1b2c3",
+  "server_now_epoch": 1751756400,
+  "live_clocks": [
+    { "game_id": 990001, "half_countdown": 14250, "period": 1 }
+  ]
+}
 ```
 
-**Changed (partial or cascade):**
+**Changed (partial or cascade):** same top-level fields plus `signals`, optional `sections`; **`live_clocks` always present**.
 
 ```json
 {
@@ -288,6 +295,7 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 
 | Date | Change |
 |------|--------|
+| 2026-07-06 | **SRL-9 wired** — `live_clocks` on every pulse; client resyncs half anchor when `changed: false` |
 | 2026-07-06 | **League cascade glow** — Activity Games (both finishers); Points Pts (winner or both on draw) |
 | 2026-07-06 | **LB cascade glow** — rating gainers: **Elo only** (white bloom); name no longer glows |
 | 2026-07-06 | **Production readiness audit** — pulse signals/sections = DB reads only; sim hook guarded no-op on prod |
