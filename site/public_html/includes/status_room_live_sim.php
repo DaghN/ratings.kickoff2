@@ -873,9 +873,10 @@ function k2_status_room_sim_kickoff_live_match(mysqli $con, array &$state, array
         'score_b' => 0,
         'half_countdown' => K2_STATUS_ROOM_SIM_HALF_START_TICKS,
         'period' => 1,
+        'next_goal_at' => $now + random_int(5, 12),
         'host_scores_next' => (bool) random_int(0, 1),
         'crash_scheduled' => $crashPct > 0 && random_int(1, 100) <= $crashPct,
-        'crash_at' => $now + random_int(30, 240),
+        'crash_at' => $now + random_int(15, 50),
     ];
     if (k2_status_room_sim_insert_live_row($con, $live)) {
         if (!is_array($state['live'] ?? null)) {
@@ -1058,20 +1059,53 @@ function k2_status_room_sim_tick_lobby_presence(mysqli $con, array &$state): boo
 }
 
 /** @param array<string, mixed> $live */
-function k2_status_room_sim_tick_live_match(mysqli $con, array &$state, array &$live): ?array
+function k2_status_room_sim_ensure_live_goal_schedule(array &$live, int $now): void
 {
+    if (!isset($live['next_goal_at']) || (int) $live['next_goal_at'] <= 0) {
+        $live['next_goal_at'] = $now + random_int(5, 12);
+    }
+    if (!isset($live['host_scores_next'])) {
+        $live['host_scores_next'] = (bool) random_int(0, 1);
+    }
+}
+
+/**
+ * At most one goal per tick when wall clock reaches next_goal_at.
+ *
+ * @param array<string, mixed> $state
+ * @param array<string, mixed> $live
+ */
+function k2_status_room_sim_maybe_score_goal(mysqli $con, array &$state, array &$live, int $now): void
+{
+    k2_status_room_sim_ensure_live_goal_schedule($live, $now);
+    if ($now < (int) ($live['next_goal_at'] ?? 0)) {
+        return;
+    }
+    if ((int) ($live['half_countdown'] ?? 0) <= K2_STATUS_ROOM_SIM_FINISH_AT_TICKS) {
+        return;
+    }
+
+    if (!empty($live['host_scores_next'])) {
+        $live['score_a'] = (int) ($live['score_a'] ?? 0) + 1;
+        $live['host_scores_next'] = false;
+    } else {
+        $live['score_b'] = (int) ($live['score_b'] ?? 0) + 1;
+        $live['host_scores_next'] = true;
+    }
+    $live['next_goal_at'] = $now + random_int(5, 15);
+    $state['last_event'] = 'goal:' . (int) $live['game_id'] . ':' . (int) $live['score_a'] . '-' . (int) $live['score_b'];
+    k2_status_room_sim_update_live_row($con, $live);
+}
+
+/** @param array<string, mixed> $live */
+function k2_status_room_sim_tick_live_match(mysqli $con, array &$state, array &$live, int $now): ?array
+{
+    k2_status_room_sim_ensure_live_goal_schedule($live, $now);
     $live['half_countdown'] = max(0, (int) $live['half_countdown'] - 50);
+    k2_status_room_sim_maybe_score_goal($con, $state, $live, $now);
     k2_status_room_sim_update_live_row($con, $live);
 
     if ((int) $live['period'] === 1 && (int) $live['half_countdown'] <= K2_STATUS_ROOM_SIM_FINISH_AT_TICKS) {
-        if ((int) $live['score_a'] + (int) $live['score_b'] === 0) {
-            if (!empty($live['host_scores_next'])) {
-                $live['score_a'] = 1;
-            } else {
-                $live['score_b'] = 1;
-            }
-            k2_status_room_sim_update_live_row($con, $live);
-        }
         $state['last_event'] = 'whistle:' . $live['game_id'] . ':' . (int) $live['score_a'] . '-' . (int) $live['score_b'];
 
         return $live;
@@ -1099,7 +1133,7 @@ function k2_status_room_sim_tick_all_live(mysqli $con, array &$state, int $now):
         if (k2_status_room_sim_maybe_crash($con, $live, $state, $now)) {
             continue;
         }
-        $finished = k2_status_room_sim_tick_live_match($con, $state, $live);
+        $finished = k2_status_room_sim_tick_live_match($con, $state, $live, $now);
         if ($finished !== null) {
             $finish = k2_status_room_sim_finish_live_row($con, $finished);
             $state['completed_count'] = (int) ($state['completed_count'] ?? 0) + 1;

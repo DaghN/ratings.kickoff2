@@ -1219,7 +1219,7 @@ function k2_status_live_games(mysqli $con, int $limit = 10, ?string &$error = nu
     $limit = max(1, min(30, $limit));
     $sql = 'SELECT GameID, HostID, SlaveID, NameA, NameB, ScoreA, ScoreB, GamePeriod, HalfCountdown, StartTime FROM resulttable '
         . 'WHERE HasStarted = 1 AND HasFinished = 0 AND Shelved = 0 '
-        . 'ORDER BY StartTime DESC LIMIT ' . $limit;
+        . 'ORDER BY StartTime ASC LIMIT ' . $limit;
     $r = mysqli_query($con, $sql);
     if ($r === false) {
         $error = mysqli_error($con);

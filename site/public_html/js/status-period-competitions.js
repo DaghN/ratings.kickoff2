@@ -1310,7 +1310,7 @@
         for (var i = 0; i < entries.length; i++) {
             var e = entries[i];
             var rank = e.rank;
-            html += '<tr>';
+            html += '<tr data-player-id="' + e.player_id + '">';
             html += '<td class="k2-status-table__num">' + rank + '</td>';
             html += '<td class="k2-status-table__player"><a class="k2-link-star" data-k2-player-glance="' + e.player_id + '" href="/player/profile.php?id=' + e.player_id + PLAYER_PROFILE_ANCHOR + '">'
                 + escapeHtml(e.player_name) + '</a></td>';
@@ -1352,7 +1352,7 @@
             var row = rows[r];
             var rank = r + 1;
             var gd = row.gd;
-            html += '<tr>';
+            html += '<tr data-player-id="' + row.id + '">';
             html += '<td class="k2-status-table__num">' + rank + '</td>';
             html += '<td class="k2-status-table__player"><a class="k2-link-star" data-k2-player-glance="' + row.id + '" href="/player/profile.php?id=' + row.id + PLAYER_PROFILE_ANCHOR + '">'
                 + escapeHtml(row.name) + '</a></td>';
@@ -1834,6 +1834,45 @@
         }
     }
 
+    function glowLeagueCascadeCells(root, glow) {
+        if (!glow || !window.k2LiveGlow) {
+            return;
+        }
+        var activityIds = glow.activity || [];
+        var ptsIds = glow.pts || [];
+        var slots = competitionSlots(root);
+        if (activityIds.length && slots.activity) {
+            var actBody = slots.activity.querySelector('table tbody');
+            if (actBody) {
+                for (var a = 0; a < activityIds.length; a++) {
+                    var actRow = actBody.querySelector('tr[data-player-id="' + activityIds[a] + '"]');
+                    if (!actRow) {
+                        continue;
+                    }
+                    var gamesEl = actRow.querySelector('td.k2-status-table__num .k2-status-table__hero-stat');
+                    if (gamesEl) {
+                        window.k2LiveGlow.triggerWhite(gamesEl);
+                    }
+                }
+            }
+        }
+        if (ptsIds.length && slots.points) {
+            var ptsBody = slots.points.querySelector('table tbody');
+            if (ptsBody) {
+                for (var p = 0; p < ptsIds.length; p++) {
+                    var ptsRow = ptsBody.querySelector('tr[data-player-id="' + ptsIds[p] + '"]');
+                    if (!ptsRow) {
+                        continue;
+                    }
+                    var ptsEl = ptsRow.querySelector('td.k2-status-table__num .k2-status-table__hero-stat');
+                    if (ptsEl) {
+                        window.k2LiveGlow.triggerWhite(ptsEl);
+                    }
+                }
+            }
+        }
+    }
+
     function applyLeaguePulse(leagueData) {
         if (!leagueData || !leagueData.points) {
             return;
@@ -1852,6 +1891,7 @@
             setPeriodCache(root, period, key, snap);
             if (isViewingPeriodKey(root, period, key)) {
                 applyPeriodCacheToSlots(root, snap);
+                glowLeagueCascadeCells(root, leagueData.glow);
             }
         }
     }

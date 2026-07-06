@@ -40,12 +40,13 @@ See policy **SRL-1…SRL-16**. Implementer essentials:
 | # | Rule |
 |---|------|
 | Endpoint | `api/status_room_pulse.php` |
-| Interval | 1 s client poll; 1 s server shared cache |
+| Interval | 1 s client poll; **fresh DB signal read** each pulse (no server signal cache on read path) |
 | Cascade trigger | `last_rated_id` change |
 | League | Active tab only; Activity + Points |
 | Clock | Client ticks `half_countdown` at 50/s; resync on pulse |
-| Glow | Shared `k2-live-glow` text ink @ 2.6 s; cascade stagger ~150 ms; `glowRatingsPlayer()` on cascade |
+| Glow | Minimal set — Online new player; live + recent new game (names + recent score digits); live goals (`k2-live-glow-bloom-white` @ 2.6 s) |
 | Tab hidden | **Keep polling**; **catch-up poll** on visible (`visibilitychange` / `pageshow` / `focus`) |
+| Prod | Pulse = DB reads only; sim tick hook **guarded no-op** off work — see policy § Production readiness |
 
 ---
 
@@ -75,7 +76,7 @@ See policy **SRL-1…SRL-16**. Implementer essentials:
 | **SRL-3** | Live games panel — patch DOM + client half clock + score pulse | **Done** Jul 2026 |
 | **SRL-4** | Online + recent logins + new players patches | **Done** Jul 2026 |
 | **SRL-5** | Rated-finish cascade — recent games, ratings, arc, league (active tab) | **Done** Jul 2026 |
-| **SRL-6** | Glow utility CSS/JS + staggered cascade choreography | **Done** Jul 2026 |
+| **SRL-6** | Glow utility CSS/JS (lobby tick) | **Done** Jul 2026; cascade sequence **retired** (SRL-12) |
 | **SRL-7** | Period rollover via `period_keys` + retire duplicate 30 s league meta poll | **Done** Jul 2026 |
 | **SRL-8** | Wire into `status.php`, docs, polish | **Done** Jul 2026 |
 | **SRL-16** | Rating table re-sort after cascade tbody swap (`k2TableRefreshSortableBody`) | **Done** Jul 2026 |
@@ -110,7 +111,7 @@ See policy **SRL-1…SRL-16**. Implementer essentials:
 | Server 1 s cache | `includes/status_room_pulse_cache.php` (new) — APCu if available, else request-static + `microtime` bucket |
 | Client engine | `site/public_html/js/status-room-live.js` |
 | Glow CSS | `stylesheets/theme.css` — `k2-live-glow-bloom` (text-shadow; no box/pill) |
-| Glow JS helper | `site/public_html/js/k2-live-glow.js` — `trigger`, `glowRatingsPlayer`, `stagger` |
+| Glow JS helper | `site/public_html/js/k2-live-glow.js` — `trigger`, `scorePulse` |
 | Visibility catch-up | `js/status-room-live.js` — `catchUpOnVisible` / `bindVisibilityCatchUp` |
 | Markup hooks | `includes/status_room_section.php` — `data-k2-status-live-*` roots |
 | Page enqueue | `status.php` — script tag + defer |
@@ -141,7 +142,7 @@ SELECT GamesPlayed AS v FROM generalstatstable WHERE id = 1 LIMIT 1;
 SELECT GameID, HostID, SlaveID, NameA, NameB, ScoreA, ScoreB, GamePeriod, HalfCountdown, StartTime
 FROM resulttable
 WHERE HasStarted = 1 AND HasFinished = 0 AND Shelved = 0
-ORDER BY StartTime DESC LIMIT 10;
+ORDER BY StartTime ASC LIMIT 10;
 
 -- online ids
 SELECT ID FROM playertable WHERE COALESCE(IsOnline, 0) <> 0 ORDER BY ID;
@@ -180,7 +181,7 @@ Query params:
 onPulse(response):
   if !response.changed → return
 
-  if response.cascade → runCascade(response.sections) with staggered glow
+  if response.cascade → applyCascadeSections(response.sections)  /* data refresh only; no glow sequence */
 
   if live_fp changed → patchLive(response.sections.live)
   if online_fp changed → patchOnline(...)
@@ -213,20 +214,13 @@ On `last_rated_id` change, pulse returns `cascade: true` and sections:
 
 Prefer **internal PHP calls** over HTTP loopback to league APIs.
 
-Rating table DOM: replace `<tbody>`; call **`k2TableRefreshSortableBody(table)`** (preserves user sort when chosen, else default Elo desc + autorank). Cascade payload includes **`highlight_player_ids`** (`idA` / `idB` from `last_rated_id`) for ink glow via **`k2LiveGlow.glowRatingsPlayer()`**.
+Rating table DOM: replace `<tbody>`; call **`k2TableRefreshSortableBody(table)`** (preserves user sort when chosen, else default Elo desc + autorank).
 
 ---
 
-## SRL-6 detail — glow stagger
+## SRL-12 — cascade glow sequence (retired Jul 2026)
 
-Cascade order (150 ms steps) — **text ink only**:
-
-1. Recent games — both player names on head row
-2. Active leaderboard — finished-game player A (name + Elo), then player B (if listed in full active roster)
-3. Leagues meta — `.blue` count in `[data-competition-meta]`
-4. Arc — `[data-k2-status-arc-games]` count
-
-Use **`k2LiveGlow.trigger(inkEl)`** or **`glowRatingsPlayer(root, id)`**. Goal/score lobby ticks use the same 2.6 s bloom. **No** row/panel box glow; **no** heading-count glow on cascade.
+**Removed.** Cascade applies DOM patches only. Glow follows lobby rules (SRL-10/11): new list row ids, score deltas, arc count change. No `runCascadeGlow`, `highlight_player_ids`, or `glowRatingsPlayer`.
 
 ---
 
@@ -251,7 +245,7 @@ Browser on **`work.ratingskickoff.test`**:
 
 1. Sim page → **Start** → Status tab open.
 2. SIM-T1…T12 from sim spec checklist.
-3. Confirm `{ changed: false }` on quiet seconds; cascade on game finish (SIM-T6: ink glow order above).
+3. Confirm `{ changed: false }` on quiet seconds; cascade on game finish (SIM-T6: data refresh + new recent row glow if id diff).
 4. Tab away during sim → Stop → tab back: Status catches up without manual refresh (visibility catch-up).
 
 ### Secondary — dev / staging (pulse only, no sim)

@@ -9,6 +9,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/status_queries.php';
 require_once __DIR__ . '/k2_league_table_render.php';
 require_once __DIR__ . '/lb_column_help.php';
+require_once __DIR__ . '/lb_player_filters.php';
 require_once __DIR__ . '/period_activity_leaderboard_query.php';
 
 function k2_status_pulse_fingerprint(array $parts): string
@@ -190,33 +191,13 @@ function k2_status_pulse_client_signals_stale(array $prevSignals, array $serverS
         }
     }
 
+    $prevKeys = is_array($prevSignals['period_keys'] ?? null) ? $prevSignals['period_keys'] : [];
+    $curKeys = is_array($serverSignals['period_keys'] ?? null) ? $serverSignals['period_keys'] : [];
+    if ($prevKeys !== $curKeys) {
+        return true;
+    }
+
     return false;
-}
-
-/** Player ids from the rated game that triggered a cascade (for rating-table ink glow). */
-function k2_status_pulse_finished_game_player_ids(mysqli $con, int $ratedGameId): array
-{
-    if ($ratedGameId < 1) {
-        return [];
-    }
-    $r = mysqli_query($con, 'SELECT idA, idB FROM ratedresults WHERE id = ' . $ratedGameId . ' LIMIT 1');
-    if ($r === false) {
-        return [];
-    }
-    $row = mysqli_fetch_assoc($r);
-    mysqli_free_result($r);
-    if ($row === null) {
-        return [];
-    }
-    $ids = [];
-    foreach (['idA', 'idB'] as $col) {
-        $id = (int) ($row[$col] ?? 0);
-        if ($id > 0) {
-            $ids[] = $id;
-        }
-    }
-
-    return $ids;
 }
 
 /**
@@ -368,6 +349,94 @@ function k2_status_pulse_render_recent_games_list(array $recentGames): string
     return (string) ob_get_clean();
 }
 
+/** Player ids with positive rating adjustment on a finished rated row. */
+function k2_status_pulse_rating_gainer_ids(mysqli $con, int $ratedId): array
+{
+    if ($ratedId < 1) {
+        return [];
+    }
+    $stmt = mysqli_prepare(
+        $con,
+        'SELECT idA, idB, AdjustmentA, AdjustmentB FROM ratedresults WHERE id = ? LIMIT 1'
+    );
+    if ($stmt === false) {
+        return [];
+    }
+    mysqli_stmt_bind_param($stmt, 'i', $ratedId);
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+
+        return [];
+    }
+    $res = mysqli_stmt_get_result($stmt);
+    $row = $res ? mysqli_fetch_assoc($res) : false;
+    if ($res) {
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+    if (!$row) {
+        return [];
+    }
+    $gainers = [];
+    if ((float) ($row['AdjustmentA'] ?? 0) > 0) {
+        $gainers[] = (int) ($row['idA'] ?? 0);
+    }
+    if ((float) ($row['AdjustmentB'] ?? 0) > 0) {
+        $gainers[] = (int) ($row['idB'] ?? 0);
+    }
+
+    return array_values(array_filter($gainers, static fn(int $id): bool => $id > 0));
+}
+
+/**
+ * League cascade glow: activity = both finishers; pts = winner only, or both on draw.
+ *
+ * @return array{activity: list<int>, pts: list<int>}
+ */
+function k2_status_pulse_league_glow_ids(mysqli $con, int $ratedId): array
+{
+    $empty = ['activity' => [], 'pts' => []];
+    if ($ratedId < 1) {
+        return $empty;
+    }
+    $stmt = mysqli_prepare(
+        $con,
+        'SELECT idA, idB, GoalsA, GoalsB FROM ratedresults WHERE id = ? LIMIT 1'
+    );
+    if ($stmt === false) {
+        return $empty;
+    }
+    mysqli_stmt_bind_param($stmt, 'i', $ratedId);
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+
+        return $empty;
+    }
+    $res = mysqli_stmt_get_result($stmt);
+    $row = $res ? mysqli_fetch_assoc($res) : false;
+    if ($res) {
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+    if (!$row) {
+        return $empty;
+    }
+    $idA = (int) ($row['idA'] ?? 0);
+    $idB = (int) ($row['idB'] ?? 0);
+    $goalsA = (int) ($row['GoalsA'] ?? 0);
+    $goalsB = (int) ($row['GoalsB'] ?? 0);
+    $activity = array_values(array_filter([$idA, $idB], static fn(int $id): bool => $id > 0));
+    if ($goalsA > $goalsB) {
+        $pts = $idA > 0 ? [$idA] : [];
+    } elseif ($goalsB > $goalsA) {
+        $pts = $idB > 0 ? [$idB] : [];
+    } else {
+        $pts = $activity;
+    }
+
+    return ['activity' => $activity, 'pts' => $pts];
+}
+
 /** @param list<array{id: int, name: string, rating: int, games: int}> $rows */
 function k2_status_pulse_render_ratings_tbody(array $rows): string
 {
@@ -462,18 +531,12 @@ function k2_status_pulse_build_sections(
     if (in_array('ratings', $want, true)) {
         $err = null;
         $rows = k2_status_active_top_rated($con, $err) ?? [];
-        $highlightPlayerIds = [];
-        if ($needCascade) {
-            $highlightPlayerIds = k2_status_pulse_finished_game_player_ids(
-                $con,
-                (int) ($signalBundle['signals']['last_rated_id'] ?? 0)
-            );
-        }
+        $ratedId = (int) ($signalBundle['signals']['last_rated_id'] ?? 0);
         $sections['ratings'] = [
             'count' => count($rows),
             'tbody_html' => k2_status_pulse_render_ratings_tbody($rows),
             'empty' => $rows === [],
-            'highlight_player_ids' => $highlightPlayerIds,
+            'rating_gainers' => $needCascade ? k2_status_pulse_rating_gainer_ids($con, $ratedId) : [],
         ];
     }
 
@@ -503,10 +566,12 @@ function k2_status_pulse_build_sections(
             'server_now_epoch' => $serverNowEpoch,
             'show_medals' => false,
         ];
+        $ratedId = (int) ($signalBundle['signals']['last_rated_id'] ?? 0);
         $sections['league'] = [
             'period' => $leaguePeriod,
             'key' => $leagueKey,
             'total_games' => $totalGames,
+            'glow' => $needCascade ? k2_status_pulse_league_glow_ids($con, $ratedId) : ['activity' => [], 'pts' => []],
             'activity' => [
                 'entries' => $entries,
                 'total_games' => $totalGames,

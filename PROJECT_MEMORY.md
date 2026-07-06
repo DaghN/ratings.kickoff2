@@ -135,8 +135,14 @@
 
 ## Recent log
 
+| 2026-07-06 | **Cascade fatal fix** — pulse missing `lb_player_filters.php` broke rated-finish cascade (500 response); live→recent + scores now apply |
+| 2026-07-06 | **League cascade glow** — Activity Games + Points Pts on rated finish |
+| 2026-07-06 | **LB cascade glow** — finishing-game rating gainers: **Elo only** (white) in active leaderboard |
+| 2026-07-06 | **Live games order** — newest kickoff at bottom (`StartTime ASC`) |
+| 2026-07-06 | **Login recency glow fix** — recent logins glows returning players promoted to head, not only brand-new list ids |
+| 2026-07-06 | **Status live client fix** — signal cursor commits after DOM apply (cascade/recent no longer skipped on next poll) |
 | 2026-07-06 | **Writer-agnostic pulse** — Status live reads fresh DB signals each poll; no sim/prod branching; finish cascade driven by `last_rated_id` diff only |
-| 2026-07-06 | **Sim L3 simplified** — 1 min wall clock per match (5:00→4:00 1st half); cascade + live prune fix so finished games leave list without refresh |
+| 2026-07-06 | **Cascade glow stagger off** — superseded by SRL-12 retirement (sequence removed entirely) |
 | 2026-07-06 | **Status online panel** — heading `<count> online` (`.blue`); list sorted `LastLogin ASC` (first logged in on top); glow bloom strengthened |
 | 2026-07-06 | **Live sim L2→L3** — synthetic registrations queue a match with a veteran so `Sim_*` players can finish rated games |
 | 2026-07-06 | **Cascade rating glow** — finished-game players only: name + Elo ink in active LB (not count or whole row) |

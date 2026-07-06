@@ -41,12 +41,12 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 | SRL-7 | **League refresh:** **active period tab only** (Day / Week / Month / Year). No adjacent-tab prewarm in v1 — keep simple. |
 | SRL-8 | **Both** Activity + Points league tables in cascade (same period key as active tab). Reuse existing league query/API helpers where possible. |
 | SRL-9 | **Live half clock:** client ticks from server `half_countdown` (50 ticks/s) + `sync_epoch`; resync every heartbeat. Display `M:SS`. |
-| SRL-10 | **Glow — text ink only:** shared **`k2-live-glow`** on player names, score digits, and blue counts — **text-shadow bloom**, never box/pill chrome. **2.6 s**. List patches **reuse row nodes**; while a slot has an active glow, only **append-new-at-end** patches apply — full reorder waits for `k2-live-glow-idle`. |
-| SRL-11 | **Glow — score change:** same **`k2-live-glow`** on the scoring side’s goal cell (`.k2-status-score__goal`) — not a faster pulse. |
-| SRL-12 | **Cascade glow choreography:** stagger affected panels **~150 ms** apart (recent games → rating table → league → arc count). Fun, not chaotic. |
+| SRL-10 | **Glow — minimal set + cascade:** (1) **Online** — new player name. (2) **Live** — new game player names. (3) **Recent** — names + score digits (white). (4) **Goals** — scoring digit (white). (5) **Active LB** — rating gainers: **Elo only** (white). (6) **League Activity** — **Games** cell (white) for both finishers. (7) **League Points** — **Pts** cell (white) for winner, or **both** on draw. **2.6 s**. |
+| SRL-11 | **Glow — score change:** **`k2-live-glow-bloom-white`** on the scoring digit (inner `.blue` when leading, else plain cell) — bright white ink, not accent or stat-green bloom |
+| SRL-12 | **Retired — cascade glow sequence:** no post-cascade glow choreography. Glow only from **SRL-10/11** lobby rules. |
 | SRL-13 | **First paint stays SSR** — `status.php` + `k2_status_load_room()` unchanged for no-JS and fast paint; heartbeat **enhances**. |
 | SRL-14 | **Revision / fingerprint** — when no signals changed, API returns `{ changed: false, revision }` (tiny body). |
-| SRL-15 | **Period rollover:** heartbeat includes `period_keys` (day/week/month/year). Key change → league reload + meta glow (midnight/week boundaries). |
+| SRL-15 | **Period rollover:** heartbeat includes `period_keys` (day/week/month/year). Key change → league reload — **no meta glow**. |
 | SRL-16 | **Sortable rating table:** after cascade DOM replace, call **`k2TableRefreshSortableBody(table)`** — preserves user sort when `_k2SortUserChosen`; else default Elo desc + autorank refresh |
 | SRL-17 | **Live sim hook:** `api/status_room_pulse.php` may call `k2_status_room_sim_tick_if_due()` when [`k2_status_room_sim_is_allowed()`](../../site/public_html/includes/status_room_live_sim.php) — **work host + `ko2unity_work` only**; never prod/staging. Sim UI at `/status-room-live-sim.php`, not on `status.php`. |
 
@@ -60,10 +60,10 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 
 | Signal | Source | Client action |
 |--------|--------|---------------|
-| `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, `GamePeriod`) — **not** `half_countdown`; client ticks clock locally between polls | Patch live list on fp change; score pulse; add/remove rows + row glow; resync clock anchor when live section arrives |
-| `online_fp` | Ordered online player ids (login-first sort) | Patch Online list + heading count; glow new names; reorder when login order changes |
-| `last_login_epoch` | Head of `playertable.LastLogin` | Refresh recent logins; **row glow for each player id newly in the list** (may be several in one second) |
-| `last_join_epoch` | Head of `playertable.JoinDate` | Refresh new players; **row glow for each new registration id** |
+| `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, `GamePeriod`) — **not** `half_countdown`; client ticks clock locally between polls | Patch live list on fp change; **goal glow** on score increase; **player name glow** on new live game row only; resync clock anchor |
+| `online_fp` | Ordered online player ids (login-first sort) | Patch Online list + heading count (**count: no glow**); **name glow** for each **new** online id only |
+| `last_login_epoch` | Head of `playertable.LastLogin` | Refresh recent logins — **no glow** |
+| `last_join_epoch` | Head of `playertable.JoinDate` | Refresh new players — **no glow** |
 | Local 1 s timer | Client math on last live payload | Tick half clocks (`half_countdown` at 50 ticks/s) |
 
 ### Rated finish cascade (rare, coordinated refresh)
@@ -73,13 +73,13 @@ When **`last_rated_id`** (or confirming **`games_played`**) changes:
 | Section | Action |
 |---------|--------|
 | Live games | Patch (finished game should drop off) |
-| Recent games | Full list refresh; **name ink glow** for each new game row (id diff) |
-| Rating table + heading count | **Full tbody reload** (full **active** list — 12‑month window, not capped); `highlight_player_ids` from finished game; cascade glow = **name + Elo ink** for those players only |
-| League Activity + Points | Full reload for **active tab** period key |
+| Recent games | Full list refresh; **player names + score digits glow** for each **new game id** |
+| Rating table + heading count | **Full tbody reload**; **glow** each **rating gainer** on the finishing game (`AdjustmentA/B > 0`) — **Elo only** when row present |
+| League Activity + Points | Full reload for **active tab** period key; **Activity Games** white bloom for both finishers; **Points Pts** white bloom for winner (both on draw) |
 | League meta | Refresh `total_games`, period label |
-| Arc ticker | Refresh game count (`generalstatstable` / fallback); **glow blue number** |
+| Arc ticker | Refresh game count — **no glow** |
 
-**Staggered glow** across these panels (~150 ms steps) per SRL-12.
+**No cascade-only glow pass** — finished-game panels do not get an extra choreographed glow sequence (SRL-12 retired).
 
 **Do not cascade-refresh:** Online (unless `online_fp` also changed), New players (unless join signal), heritage box, arc “since DATE” label, arc player count (changes rarely — optional daily refresh on period key change).
 
@@ -139,24 +139,31 @@ Clamp at 0 → display `—`. Resync every heartbeat; on `period` change, take s
 
 - Same `game_id`, score/period changed → update scores in place (no list HTML replace); pulse **only the goal cell(s) that increased**; resync clock anchor from payload
 - New `game_id` → list replace; **player name ink glow** on new live row(s).
-- Missing `game_id` → remove row (optional fade); if cascade also refreshed recent games, glow each **new** game row (id diff).
+- Missing `game_id` → remove row (no glow)
 
-**Recency list glow (logins, registrations, recent games, online):** before replacing list HTML, snapshot existing `data-player-id` / `data-game-id` on rows; after replace, glow **every row whose id was not in the snapshot**. Existing rows that merely reorder do not glow. SSR and pulse HTML must both set ids on `<li>` — otherwise the first patch treats every row as new.
+**List patch glow:** **`online`** (new player id), **`live`** (new game row), **`recent_games`** (new game id → both player names). All other lists patch silently.
 
 ---
 
 ## Glow contract
 
+**Glow events:**
+
 | Event | Effect |
 |-------|--------|
-| New online player / new login / new registration / new live game / new recent game | **Name ink glow** — `k2-live-glow` resolves list rows to player links (both sides on live/recent game rows) |
-| Goal / score change | **Goal digit ink glow** — same 2.6 s bloom on `.k2-status-score__goal` for the side that scored |
-| Arc or league meta number change | Glow the **`.blue` count span** |
-| Rated finish cascade | **Staggered ink glow** (~150 ms): recent game player names → each finished-game player’s **name + Elo** in active leaderboard (if listed) → league meta count → arc games count |
+| Player enters Online panel | **Name** — `k2-link-star` accent bloom |
+| New live game row | **Both player names** — accent bloom |
+| New recent game row | **Names** accent + **score digits** white |
+| Goal scored (live) | **Scoring digit** — white bloom |
+| Rated finish — rating gainer in active LB | **Elo link** white bloom only (`rating_gainers` from `ratedresults.Adjustment* > 0`) |
+| Rated finish — league Activity | **Games** cell white bloom for both finishers (`league.glow.activity`) |
+| Rated finish — league Points | **Pts** cell white bloom — winner only if decisive, both on draw (`league.glow.pts`) |
 
-Reference: [`k2-jukebox.css`](../site/public_html/stylesheets/k2-jukebox.css) `@keyframes k2-jukebox-track-glow`, [`k2-jukebox-launcher.js`](../site/public_html/js/k2-jukebox-launcher.js) `is-track-change` pattern.
+**Palettes:** **`triggerWhite`** → `k2-live-glow-bloom-white` (bright white). Accent bloom on names via **`triggerStar`** where noted above.
 
-Extract shared trigger: **`k2TriggerLiveGlow(el)`** — add class, remove on `animationend`.
+**No glow:** recent logins, new players, online count, arc counts, league meta, non-gainer LB rows, league rows not in the finishing game.
+
+Reference: [`k2-jukebox.css`](../site/public_html/stylesheets/k2-jukebox.css) `@keyframes k2-jukebox-track-glow` (timing reference only).
 
 ---
 
@@ -183,8 +190,7 @@ Extract shared trigger: **`k2TriggerLiveGlow(el)`** — add class, remove on `an
     "recent_games": { "html": "…" },
     "ratings": {
       "count": 68,
-      "tbody_html": "…",
-      "highlight_player_ids": [260, 537]
+      "tbody_html": "…"
     },
     "league": { "activity": …, "points": …, "meta": … },
     "arc": { "players": 264, "games": 75684, "since_label": "…" }
@@ -219,13 +225,43 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 
 ---
 
+## Production readiness (pulse vs sim)
+
+**Audited Jul 2026.** Status live **can ship to prod** as read-only polling over the same MySQL tables prod already uses — **no dependency on sim JSON state** for signal collection or section payloads.
+
+### What prod pulse does (every request)
+
+| Step | Source | Sim-dependent? |
+|------|--------|----------------|
+| Optional pre-hook | `k2_status_room_sim_tick_if_due()` | **Only when** `k2_status_room_sim_is_allowed()` — requires **`ko2unity_work`** + host **`work.ratingskickoff.test`**. On prod/staging: **never runs**. |
+| Signal bundle | `k2_status_pulse_collect_signals()` — `ratedresults`, `generalstatstable`, `resulttable`, `playertable`, league totals | **No** — fresh SQL each call (no `status_room_pulse_cache` on read path) |
+| Section HTML | `k2_status_pulse_build_sections()` — same query helpers as SSR (`status_queries.php`) | **No** |
+| Client patch | `status-room-live.js` + `k2-live-glow.js` | **No** — no sim/host/DB branches |
+
+### Sim is a work-only **writer**, not a pulse **reader**
+
+- Sim state lives in temp JSON (`k2_status_room_live_sim_*.json`); pulse **never reads** it.
+- Sim ticks (when allowed) **write ground truth** (`playertable`, `resulttable`, `ratedresults` via ops) — same shape as prod game-server writes. Pulse then observes those rows like any other writer.
+- `status_room_pulse_cache.php` is **sim-side invalidation only** (legacy helper); pulse API does **not** cache signals.
+
+### Synced code on prod
+
+- `api/status_room_pulse.php` **includes** `status_room_live_sim.php` but the tick hook is a **guarded no-op** outside work — safe to deploy with WinSCP.
+- **Prod requirement:** live game-server (or ops) continues writing `resulttable` / `playertable` / `ratedresults`; pulse only **reads**.
+
+### Client contract (prod-safe)
+
+- Poll `GET /api/status_room_pulse.php` with previous `signals` query params; apply `sections` patches; no sim URLs or flags.
+
+---
+
 ## Shipped implementation (file map)
 
 | Piece | Path |
 |-------|------|
 | Pulse API | `site/public_html/api/status_room_pulse.php` |
 | Signal helpers | `site/public_html/includes/status_room_pulse.php` |
-| 1 s cache | `site/public_html/includes/status_room_pulse_cache.php` |
+| Pulse cache (sim invalidation only) | `site/public_html/includes/status_room_pulse_cache.php` — **not** used on pulse read path |
 | Client engine | `site/public_html/js/status-room-live.js` |
 | Glow | `site/public_html/js/k2-live-glow.js` + `theme.css` (`k2-live-glow-bloom` text-shadow @ 2.6 s) |
 | Rating cascade re-sort | `k2TableRefreshSortableBody()` in `js/k2-table.js` |
@@ -252,7 +288,18 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 
 | Date | Change |
 |------|--------|
-| 2026-07-06 | **Writer-agnostic pulse** — removed sim/prod branches and 1 s signal cache; `changed: false` only when client GET signals match fresh DB read; `live_fp` unchanged (no clock in fp; client ticks locally) |
+| 2026-07-06 | **League cascade glow** — Activity Games (both finishers); Points Pts (winner or both on draw) |
+| 2026-07-06 | **LB cascade glow** — rating gainers: **Elo only** (white bloom); name no longer glows |
+| 2026-07-06 | **Production readiness audit** — pulse signals/sections = DB reads only; sim hook guarded no-op on prod |
+| 2026-07-06 | **Live games order** — `StartTime ASC`; newest kickoff at bottom of Live panel |
+| 2026-07-06 | **Glow minimal set** — Online new player, live/recent new game (names + recent scores), live goals (white bloom); no count/arc/reg/logins glow |
+| 2026-07-06 | **Recent logins — no glow** — login ink feedback Online panel only; recent logins still patch/reorder |
+| 2026-07-06 | **Blue stat glow parity** — score pulse on inner `.blue` digit; online heading count glows on change |
+| 2026-07-06 | **Login list glow** — recent logins / new players glow new head row (returning players), not only brand-new ids; head patch not deferred by sibling row glow |
+| 2026-07-06 | **SRL-12 retired** — removed cascade glow sequence (`runCascadeGlow`, `highlight_player_ids`, `glowRatingsPlayer`); glow only via lobby patch rules |
+| 2026-07-06 | **Cascade PHP fatal fix** — pulse include `lb_player_filters.php` for `k2_lb_rating_cell_link()`; cascade was 500/HTML, client fetch silently dropped |
+| 2026-07-06 | **Client signal commit** — advance `state.signals` only after DOM patches apply; cascade list slots `forceApply` |
+| 2026-07-06 | **Writer-agnostic pulse** — removed sim/prod branches and 1 s signal cache; `changed: false` only when client GET signals match fresh DB read |
 | 2026-07-06 | **Cascade rating glow** — only finished-game players’ name + Elo ink in active LB (`highlight_player_ids` from `last_rated_id`) |
 | 2026-07-06 | **Online panel** — `<count> online` heading; login-first sort (`LastLogin ASC`); `online_fp` = ordered ids |
 | 2026-07-06 | **Cascade trigger fix** — any new `last_rated_id` (not only when prev > 0) → recent games + live removal on finish |

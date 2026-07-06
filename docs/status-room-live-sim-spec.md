@@ -79,7 +79,7 @@ Optional later: **L4 midnight UTC** via `FinalizeUtcDay` (league close, day mile
 
 - **Up to four live matches** concurrently; lobby targets **3–8 online** via staggered logins.
 - **Kickoff sequence:** host login → wait 2–6 s → slave login → wait 3–8 s → live row at 0–0 (each login is its own tick/event).
-- **Match length:** **1 wall minute** — kickoff at **5:00** 1st half; final whistle at **4:00** left (clock ticks down 1 s per pulse tick). Score settles **1–0** if still 0–0.
+- **Match length:** **1 wall minute** — kickoff at **5:00** 1st half; **final whistle only at 4:00** left (clock ticks down 1 s per pulse tick). Goals at random seconds while the clock runs (first **5–12 s** after kickoff, then **5–15 s** apart); **no early finish** — rated insert only on the whistle.
 - **Finish:** whistle → `ratedresults` + ops → live row removed; cascade refreshes **Recent games**.
 - **Crash:** **per-game** % at kickoff (default **5**), not per-second — scheduled disconnect mid-match.
 - Queue ~20 matches by default.
@@ -91,7 +91,7 @@ Each tick: **one** pending step (if due) → tick all live → maybe start one p
 | Priority | Action |
 |----------|--------|
 | 1 | Advance **one** due pending kickoff step (login_host / login_slave / kickoff) |
-| 2 | Tick every live match (clock countdown, 1 min finish, scheduled crash) |
+| 2 | Tick every live match (clock countdown, scheduled goals while clock runs, whistle at 4:00 left, scheduled crash) |
 | 3 | Start **one** new pending match if under cap |
 | 4 | **One** L2 register **or** L1 login/logout (skipped if step 1 already logged someone in) |
 
@@ -129,7 +129,7 @@ Halt ticks · **logout all online** · **delete in-progress sim live rows** (`Ga
 When exercising sim on **`work.ratingskickoff.test/status.php`**:
 
 - Goals change `live_fp` (scores) → score pulse; **half clock keeps ticking** (no list HTML replace on score-only — see [`status-room-live-policy.md`](status-room-live-policy.md)).
-- Rated finish → `last_rated_id` cascade → Recent games updates **immediately** on last goal (no artificial delay).
+- Rated finish → `last_rated_id` cascade → Recent games updates on **whistle** (4:00 left), not when a goal is scored.
 - Cancel/crash/Stop → live row vanishes; no cascade unless a rated row was already written.
 
 ---
@@ -198,8 +198,8 @@ Reference: [`ops-dispatch.md`](../site/public_html/ops/docs/ops-dispatch.md) · 
 
   live match:
     ~2% crash → logout one player, cancel live
-    else clock −50/tick, goal every 10–40s (one per tick max)
-    last goal → ratedresults + ProcessCompletedGame → Recent games cascade
+    else clock −50/tick, goals at 5–15 s intervals while clock runs (one per tick max)
+    whistle at 4:00 left → ratedresults + ProcessCompletedGame → Recent games cascade
     wait 10–30s → next match
 
   Stop → all offline, cancel live, clear queue (rated finishes kept)
@@ -237,7 +237,7 @@ Future staging smoke (if ever wanted) = **new explicit opt-in**, not loosening t
 
 **Pulse API:** `http://work.ratingskickoff.test/api/status_room_pulse.php`
 
----
+**Pulse contract (prod-safe):** the pulse endpoint **never reads sim JSON**. After the optional tick hook (work only), **`k2_status_pulse_collect_signals()`** and section builders query MySQL only — same code path on prod. See [`status-room-live-policy.md`](status-room-live-policy.md) § Production readiness.
 
 ## Ground vs derived (what sim touches)
 
@@ -281,7 +281,7 @@ Future staging smoke (if ever wanted) = **new explicit opt-in**, not loosening t
 
 - **Start:** queue ~20 games; **one live at a time**; staggered kickoff; 5–15 goals each. Does **not** reset lobby or cancel prior sim live rows — use **Stop** or refresh work DB first.
 - **Tick:** ~1 s when Status or sim page polls.
-- **Finish:** last goal → `ratedresults` + ops same tick; live row deleted; Recent games updates on cascade.
+- **Finish:** whistle at **4:00** left → `ratedresults` + ops same tick; live row deleted; Recent games updates on cascade.
 - **Stop:** all online players logged out; live sim games cancelled; queue cleared; rated results from finished games kept.
 
 ---
@@ -351,11 +351,11 @@ On **`work.ratingskickoff.test/status.php`**, DevTools → Network → `status_r
 | SIM-T1 | Online + live appear without reload | |
 | SIM-T2 | Half clock ticks every second between pulses | |
 | SIM-T3 | Score change → pulse within ~1 s + **goal digit ink glow** (scoring side only) | |
-| SIM-T4 | New live row → **player name ink glow** | |
+| SIM-T4 | New live row → **both player names ink glow** | |
 | SIM-T5 | Unchanged second → `{ changed: false }` | |
-| SIM-T6 | Rated finish → cascade ink stagger: recent names → LB finishers (name+Elo each) → league meta → arc games | |
-| SIM-T7 | Login/logout → Online + Recent logins patch | |
-| SIM-T8 | New registration → New players row glow (each new id) + `entered_arena` | |
+| SIM-T6 | Rated finish → cascade refresh; recent games glow; active LB Elo glow; **league Activity Games + Points Pts glow** | |
+| SIM-T7 | Login/logout → Online name glow for **new** online id; Recent logins patch without glow | |
+| SIM-T8 | New registration → New players patch **without glow** + `entered_arena` | |
 | SIM-T9 | Stop → everyone offline, live games gone, queue empty; Status catches up when tab refocused (no manual refresh required) | |
 | **SIM-T10** | Both match players appear in Online before live row; never live game with empty Online | |
 | **SIM-T11** | Goal scored → client half clock **does not** jump reset (score-only pulse patch) | |
@@ -391,6 +391,8 @@ On **`work.ratingskickoff.test/status.php`**, DevTools → Network → `status_r
 
 | Date | Change |
 |------|--------|
+| 2026-07-06 | **Whistle-only finish** — goals spread during play but match ends only at 4:00 left; no goal quota / early rated finish |
+| 2026-07-06 | **Goals spread again** — goals at random wall seconds while clock runs (not one blob at whistle) |
 | 2026-07-06 | **L2 registration shipped** — `Sim_XXXX` players + `ProcessPlayerRegistered`; sim page options (games, L1/L2/L3, reg limit, crash %) |
 | 2026-07-06 | **Rare crash sim** — ~2%/tick mid-match disconnect cancels live game |
 | 2026-07-06 | **Online/match integrity** — kickoff requires both online; no lobby logout during pending/live; re-queue on abort |

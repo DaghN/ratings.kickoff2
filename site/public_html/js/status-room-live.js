@@ -15,6 +15,7 @@
 		liveClocks: [],
 		inflight: false,
 		pendingListSections: {},
+		pendingSignalsCommit: null,
 	};
 
 	function parseJsonAttr(el, name, fallback) {
@@ -47,6 +48,13 @@
 
 	function formatNumber(n) {
 		return Number(n).toLocaleString('en-US');
+	}
+
+	function patchStatCount(el, nextValue) {
+		if (!el || nextValue == null) {
+			return;
+		}
+		el.textContent = formatNumber(nextValue);
 	}
 
 	function leagueContext(root) {
@@ -154,6 +162,25 @@
 		return true;
 	}
 
+	/** Ids to ink-glow after a list patch — Online (new player), Live (new game), Recent games (new row). */
+	function listPatchGlowKeys(slotName, currentKeys, desiredKeys) {
+		if (slotName !== 'online' && slotName !== 'live' && slotName !== 'recent_games') {
+			return [];
+		}
+		var prevSet = {};
+		for (var i = 0; i < currentKeys.length; i++) {
+			prevSet[currentKeys[i]] = true;
+		}
+		var glow = [];
+		for (var j = 0; j < desiredKeys.length; j++) {
+			var key = desiredKeys[j];
+			if (!prevSet[key]) {
+				glow.push(key);
+			}
+		}
+		return glow;
+	}
+
 	function removeStaleListRows(ul, nextKeys, forceRemove) {
 		var stale = Array.prototype.slice.call(ul.children);
 		for (var k = 0; k < stale.length; k++) {
@@ -184,25 +211,33 @@
 			return;
 		}
 		state.pendingListSections = {};
+		var allApplied = true;
 		for (var i = 0; i < names.length; i++) {
 			var p = pending[names[i]];
 			if (p) {
-				patchListSlot(root, names[i], p.section, p.emptyMessage, p.glowSelector);
+				if (patchListSlot(root, names[i], p.section, p.emptyMessage, p.glowSelector, { forceApply: true }) === false) {
+					allApplied = false;
+				}
 			}
+		}
+		if (allApplied && state.pendingSignalsCommit) {
+			commitPulseSignals(root, state.pendingSignalsCommit);
 		}
 	}
 
-	function patchListSlot(root, slotName, section, emptyMessage, glowSelector) {
+	function patchListSlot(root, slotName, section, emptyMessage, glowSelector, options) {
+		options = options || {};
+		var forceApply = !!options.forceApply;
 		var slot = root.querySelector('[data-k2-status-live-slot="' + slotName + '"]');
 		if (!slot || !section) {
-			return;
+			return true;
 		}
 		if (section.empty) {
 			slot.innerHTML = '<p class="k2-status-panel__empty">' + emptyMessage + '</p>';
-			return;
+			return true;
 		}
 		if (!section.html) {
-			return;
+			return true;
 		}
 
 		var incoming = parseListSectionHtml(section.html);
@@ -210,13 +245,13 @@
 		if (!existingUl) {
 			slot.innerHTML = section.html;
 			if (!window.k2LiveGlow || !glowSelector) {
-				return;
+				return true;
 			}
 			var freshNodes = slot.querySelectorAll(glowSelector);
 			for (var f = 0; f < freshNodes.length; f++) {
 				window.k2LiveGlow.trigger(freshNodes[f]);
 			}
-			return;
+			return true;
 		}
 
 		var existingByKey = {};
@@ -254,6 +289,7 @@
 
 		var slotHasGlow = !!existingUl.querySelector('.k2-live-glow');
 		var currentKeys = currentListKeys(existingUl);
+		var allowDuringGlow = forceApply || slotName === 'live';
 
 		if (listKeysEqual(currentKeys, desiredKeys)) {
 			if (!slotHasGlow) {
@@ -264,15 +300,15 @@
 					}
 				}
 			}
-			return;
+			return true;
 		}
 
-		if (slotHasGlow && !isAppendOnlyListPatch(currentKeys, desiredKeys)) {
+		if (slotHasGlow && !isAppendOnlyListPatch(currentKeys, desiredKeys) && !allowDuringGlow) {
 			queuePendingListSection(slotName, section, emptyMessage, glowSelector);
-			return;
+			return false;
 		}
 
-		var newKeys = [];
+		var glowKeys = listPatchGlowKeys(slotName, currentKeys, desiredKeys);
 		for (var d = 0; d < desiredKeys.length; d++) {
 			var dKey = desiredKeys[d];
 			var tpl = templateByKey[dKey];
@@ -282,10 +318,10 @@
 				}
 			} else {
 				existingByKey[dKey] = tpl.cloneNode(true);
-				newKeys.push(dKey);
 			}
 		}
 
+		var deferred = false;
 		if (slotHasGlow) {
 			for (var a = currentKeys.length; a < desiredKeys.length; a++) {
 				var appendKey = desiredKeys[a];
@@ -304,8 +340,9 @@
 				if (existingUl.children[r] === node) {
 					continue;
 				}
-				if (nodeHasActiveGlow(node)) {
+				if (!allowDuringGlow && nodeHasActiveGlow(node)) {
 					queuePendingListSection(slotName, section, emptyMessage, glowSelector);
+					deferred = true;
 					continue;
 				}
 				existingUl.insertBefore(node, existingUl.children[r] || null);
@@ -313,10 +350,14 @@
 		}
 
 		if (window.k2LiveGlow && glowSelector) {
-			for (var g = 0; g < newKeys.length; g++) {
-				window.k2LiveGlow.trigger(existingByKey[newKeys[g]]);
+			for (var g = 0; g < glowKeys.length; g++) {
+				var glowNode = existingByKey[glowKeys[g]];
+				if (glowNode) {
+					window.k2LiveGlow.trigger(glowNode);
+				}
 			}
 		}
+		return !deferred;
 	}
 
 	function syncLiveGameClocks(root, games, syncEpoch) {
@@ -528,15 +569,32 @@
 		state.liveGameIds = nextIds;
 	}
 
-	function patchOnline(root, section) {
+	function patchOnline(root, section, options) {
 		if (!section) {
-			return;
+			return true;
 		}
 		var countEl = root.querySelector('[data-k2-status-online-count]');
 		if (countEl && section.count != null) {
-			countEl.textContent = formatNumber(section.count);
+			patchStatCount(countEl, section.count);
 		}
-		patchListSlot(root, 'online', section, 'Nobody flagged online \u2014 see recent logins below.', 'li[data-player-id]');
+		return patchListSlot(root, 'online', section, 'Nobody flagged online \u2014 see recent logins below.', 'li[data-player-id]', options);
+	}
+
+	function glowRatingGainers(tbody, gainerIds) {
+		if (!tbody || !window.k2LiveGlow || !gainerIds || !gainerIds.length) {
+			return;
+		}
+		for (var i = 0; i < gainerIds.length; i++) {
+			var pid = String(gainerIds[i]);
+			var row = tbody.querySelector('tr[data-player-id="' + pid + '"]');
+			if (!row) {
+				continue;
+			}
+			var ratingLink = row.querySelector('td.k2-status-table__num a.k2-link-star, td.k2-status-table__num a[data-k2-player-glance-rating]');
+			if (ratingLink) {
+				window.k2LiveGlow.triggerWhite(ratingLink);
+			}
+		}
 	}
 
 	function patchRatings(root, section) {
@@ -564,6 +622,7 @@
 			if (table && typeof window.k2TableRefreshSortableBody === 'function') {
 				window.k2TableRefreshSortableBody(table);
 			}
+			glowRatingGainers(tbody, section.rating_gainers);
 		}
 		if (typeof window.k2TableInitHelpTooltips === 'function') {
 			window.k2TableInitHelpTooltips(tbody.closest('table') || root);
@@ -576,90 +635,49 @@
 		}
 		var gamesEl = root.querySelector('[data-k2-status-arc-games]');
 		if (gamesEl && section.games != null) {
-			var prevG = gamesEl.textContent.replace(/,/g, '');
-			var nextG = String(section.games);
-			gamesEl.textContent = formatNumber(section.games);
-			if (prevG && prevG !== nextG && window.k2LiveGlow) {
-				window.k2LiveGlow.trigger(gamesEl);
-			}
+			patchStatCount(gamesEl, section.games);
 		}
 		var playersEl = root.querySelector('[data-k2-status-arc-players]');
 		if (playersEl && section.players != null) {
-			var prevP = playersEl.textContent.replace(/,/g, '');
-			var nextP = String(section.players);
-			playersEl.textContent = formatNumber(section.players);
-			if (prevP && prevP !== nextP && window.k2LiveGlow) {
-				window.k2LiveGlow.trigger(playersEl);
-			}
+			patchStatCount(playersEl, section.players);
 		}
 	}
 
-	function runCascadeGlow(root, sections) {
-		if (!window.k2LiveGlow) {
-			return;
+	function commitPulseSignals(root, body) {
+		if (body.signals) {
+			state.signals = body.signals;
 		}
-		sections = sections || {};
-		var delayMs = 150;
-		var step = 0;
-		function schedule(fn) {
-			if (!fn) {
-				return;
-			}
-			setTimeout(fn, step * delayMs);
-			step += 1;
+		if (body.revision) {
+			state.revision = body.revision;
+			root.setAttribute('data-pulse-revision', body.revision);
 		}
-		var recentSlot = root.querySelector('[data-k2-status-live-slot="recent_games"]');
-		var recentLinks = recentSlot
-			? recentSlot.querySelectorAll('li:first-child .k2-status-match a.k2-link-star, li:first-child .k2-status-match a[href*="/player/"]')
-			: [];
-		if (recentLinks.length) {
-			schedule(function () {
-				for (var r = 0; r < recentLinks.length; r++) {
-					window.k2LiveGlow.trigger(recentLinks[r]);
-				}
-			});
-		}
-		var ratingIds = sections.ratings && sections.ratings.highlight_player_ids;
-		if (ratingIds && ratingIds.length && window.k2LiveGlow.glowRatingsPlayer) {
-			for (var i = 0; i < ratingIds.length; i++) {
-				(function (playerId) {
-					schedule(function () {
-						window.k2LiveGlow.glowRatingsPlayer(root, playerId);
-					});
-				})(ratingIds[i]);
-			}
-		}
-		var leagueMeta = document.querySelector('[data-competition-meta] .blue');
-		schedule(function () {
-			if (leagueMeta) {
-				window.k2LiveGlow.trigger(leagueMeta);
-			}
-		});
-		schedule(function () {
-			var arcGames = root.querySelector('[data-k2-status-arc-games]');
-			if (arcGames) {
-				window.k2LiveGlow.trigger(arcGames);
-			}
-		});
+		state.pendingSignalsCommit = null;
 	}
 
 	function applySections(root, body, syncEpoch) {
 		var sections = body.sections || {};
+		var cascadeOpts = { forceApply: true };
+		var allApplied = true;
+		function track(ok) {
+			if (ok === false) {
+				allApplied = false;
+			}
+		}
 		if (body.cascade) {
 			if (sections.live) {
 				patchLive(root, sections.live, syncEpoch);
 			}
 			if (sections.online) {
-				patchOnline(root, sections.online);
+				track(patchOnline(root, sections.online, cascadeOpts));
 			}
 			if (sections.logins) {
-				patchListSlot(root, 'logins', sections.logins, '\u2014', 'li[data-player-id]');
+				track(patchListSlot(root, 'logins', sections.logins, '\u2014', null, cascadeOpts));
 			}
 			if (sections.registrations) {
-				patchListSlot(root, 'registrations', sections.registrations, '\u2014', 'li[data-player-id]');
+				track(patchListSlot(root, 'registrations', sections.registrations, '\u2014', null, cascadeOpts));
 			}
 			if (sections.recent_games) {
-				patchListSlot(root, 'recent_games', sections.recent_games, '\u2014', 'li[data-game-id]');
+				track(patchListSlot(root, 'recent_games', sections.recent_games, '\u2014', 'li[data-game-id]', cascadeOpts));
 			}
 			if (sections.ratings) {
 				patchRatings(root, sections.ratings);
@@ -670,23 +688,22 @@
 			if (sections.league && window.k2StatusCompetitions && window.k2StatusCompetitions.applyLeaguePulse) {
 				window.k2StatusCompetitions.applyLeaguePulse(sections.league);
 			}
-			runCascadeGlow(root, sections);
-			return;
+			return allApplied;
 		}
 		if (sections.live) {
 			patchLive(root, sections.live, syncEpoch);
 		}
 		if (sections.online) {
-			patchOnline(root, sections.online);
+			track(patchOnline(root, sections.online));
 		}
 		if (sections.logins) {
-			patchListSlot(root, 'logins', sections.logins, '\u2014', 'li[data-player-id]');
+			track(patchListSlot(root, 'logins', sections.logins, '\u2014', null));
 		}
 		if (sections.registrations) {
-			patchListSlot(root, 'registrations', sections.registrations, '\u2014', 'li[data-player-id]');
+			track(patchListSlot(root, 'registrations', sections.registrations, '\u2014', null));
 		}
 		if (sections.recent_games) {
-			patchListSlot(root, 'recent_games', sections.recent_games, '\u2014', 'li[data-game-id]');
+			track(patchListSlot(root, 'recent_games', sections.recent_games, '\u2014', 'li[data-game-id]'));
 		}
 		if (sections.ratings) {
 			patchRatings(root, sections.ratings);
@@ -697,6 +714,7 @@
 		if (sections.league && window.k2StatusCompetitions && window.k2StatusCompetitions.applyLeaguePulse) {
 			window.k2StatusCompetitions.applyLeaguePulse(sections.league);
 		}
+		return allApplied;
 	}
 
 	function onPulseBody(root, body) {
@@ -716,14 +734,17 @@
 				&& typeof window.k2StatusCompetitions.onPeriodKeysChange === 'function') {
 				window.k2StatusCompetitions.onPeriodKeysChange(body.signals.period_keys);
 			}
-			state.signals = body.signals;
-		}
-		if (body.revision) {
-			state.revision = body.revision;
-			root.setAttribute('data-pulse-revision', body.revision);
 		}
 		syncCompetitionsClock(syncEpoch);
-		applySections(root, body, syncEpoch);
+		var applied = applySections(root, body, syncEpoch);
+		if (applied) {
+			commitPulseSignals(root, body);
+		} else {
+			state.pendingSignalsCommit = {
+				signals: body.signals || null,
+				revision: body.revision || '',
+			};
+		}
 	}
 
 	function pollOnce(root) {

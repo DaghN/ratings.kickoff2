@@ -95,6 +95,7 @@ html {
 	--k2-link-star: color-mix(in srgb, var(--k2-accent) 85%, var(--k2-text-primary));
 	--k2-link-star-hover: color-mix(in srgb, var(--k2-accent) 94%, var(--k2-text-primary));
 	--k2-table-positive: color-mix(in srgb, var(--k2-stat-positive-base) 78%, var(--k2-text-primary));
+	--k2-table-positive-glow: color-mix(in srgb, var(--k2-stat-positive-base) 38%, transparent);
 	--k2-table-negative: color-mix(in srgb, var(--k2-stat-negative-base) 78%, var(--k2-text-primary));
 	/* Drag-select highlight â€” overrides OS/browser default (e.g. Windows blue) */
 	--k2-text-selection-bg: color-mix(in srgb, var(--k2-accent) 42%, var(--k2-bg-elevated));
@@ -6937,6 +6938,22 @@ body.k2-site .k2-live-glow {
 	animation: k2-live-glow-bloom 2.6s ease-out;
 }
 
+/* .blue counts — stat green ink, not UI accent */
+body.k2-site .blue.k2-live-glow {
+	animation-name: k2-live-glow-bloom-blue;
+}
+
+/* Live score digits — bright white bloom (plain grey + leading .blue) */
+body.k2-site .k2-status-score__goal.k2-live-glow,
+body.k2-site .k2-status-score__goal .blue.k2-live-glow {
+	animation-name: k2-live-glow-bloom-white;
+}
+
+/* Explicit white bloom (status LB Elo cell, etc.) */
+body.k2-site .k2-live-glow.k2-live-glow--white {
+	animation-name: k2-live-glow-bloom-white;
+}
+
 @keyframes k2-live-glow-bloom {
 	0% {
 		text-shadow: none;
@@ -6958,11 +6975,70 @@ body.k2-site .k2-live-glow {
 	}
 }
 
+@keyframes k2-live-glow-bloom-blue {
+	0% {
+		text-shadow: none;
+		animation-timing-function: cubic-bezier(0.45, 0, 0.35, 1);
+	}
+	38% {
+		text-shadow:
+			0 0 4px color-mix(in srgb, white 42%, var(--k2-stat-positive-base)),
+			0 0 12px color-mix(in srgb, white 38%, var(--k2-table-positive-glow)),
+			0 0 24px color-mix(in srgb, var(--k2-table-positive-glow) 92%, transparent),
+			0 0 40px color-mix(in srgb, var(--k2-stat-positive-base) 72%, transparent),
+			0 0 56px color-mix(in srgb, var(--k2-table-positive-glow) 48%, transparent);
+		color: color-mix(in srgb, white 32%, var(--k2-table-positive));
+		animation-timing-function: cubic-bezier(0.25, 0, 0.45, 1);
+	}
+	100% {
+		text-shadow: none;
+	}
+}
+
+@keyframes k2-live-glow-bloom-white {
+	0% {
+		text-shadow: none;
+		animation-timing-function: cubic-bezier(0.45, 0, 0.35, 1);
+	}
+	38% {
+		text-shadow:
+			0 0 4px color-mix(in srgb, white 88%, transparent),
+			0 0 12px color-mix(in srgb, white 72%, transparent),
+			0 0 24px color-mix(in srgb, white 52%, transparent),
+			0 0 40px color-mix(in srgb, white 36%, transparent),
+			0 0 56px color-mix(in srgb, white 22%, transparent);
+		color: #fff;
+		animation-timing-function: cubic-bezier(0.25, 0, 0.45, 1);
+	}
+	100% {
+		text-shadow: none;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	body.k2-site .k2-live-glow {
 		animation: none;
 		text-shadow:
 			0 0 8px color-mix(in srgb, white 30%, var(--k2-accent-glow)),
 			0 0 20px color-mix(in srgb, var(--k2-accent-glow) 80%, transparent);
+	}
+
+	body.k2-site .blue.k2-live-glow {
+		text-shadow:
+			0 0 8px color-mix(in srgb, white 30%, var(--k2-table-positive-glow)),
+			0 0 20px color-mix(in srgb, var(--k2-table-positive-glow) 80%, transparent);
+	}
+
+	body.k2-site .k2-status-score__goal.k2-live-glow,
+	body.k2-site .k2-status-score__goal .blue.k2-live-glow {
+		text-shadow:
+			0 0 8px color-mix(in srgb, white 70%, transparent),
+			0 0 20px color-mix(in srgb, white 45%, transparent);
+	}
+
+	body.k2-site .k2-live-glow.k2-live-glow--white {
+		text-shadow:
+			0 0 8px color-mix(in srgb, white 70%, transparent),
+			0 0 20px color-mix(in srgb, white 45%, transparent);
 	}
 }

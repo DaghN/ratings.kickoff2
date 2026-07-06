@@ -3,13 +3,15 @@
 
 	var GLOW_MS = 2600;
 	var GLOW_CLASS = 'k2-live-glow';
-	var GLOW_ANIM = 'k2-live-glow-bloom';
+	var GLOW_WHITE_CLASS = 'k2-live-glow--white';
+	var GLOW_ANIMS = ['k2-live-glow-bloom', 'k2-live-glow-bloom-blue', 'k2-live-glow-bloom-white'];
 
 	function clearGlow(el) {
 		if (!el) {
 			return;
 		}
 		el.classList.remove(GLOW_CLASS);
+		el.classList.remove(GLOW_WHITE_CLASS);
 		if (el.__k2LiveGlowTimer) {
 			clearTimeout(el.__k2LiveGlowTimer);
 			el.__k2LiveGlowTimer = null;
@@ -21,11 +23,22 @@
 		notifyGlowIdleIfClear();
 	}
 
+	function resolveScoreGoalGlowTarget(goalEl) {
+		if (!goalEl) {
+			return null;
+		}
+		var scoreInk = goalEl.querySelector('.blue');
+		return scoreInk || goalEl;
+	}
+
 	function collectGlowTargets(el) {
 		if (!el || el.nodeType !== 1) {
 			return [];
 		}
-		if (el.matches('.k2-status-score__goal, .blue, .k2-link-star, [data-k2-status-rating-count], [data-k2-status-arc-games], [data-k2-status-arc-players]')) {
+		if (el.matches('.k2-status-score__goal')) {
+			return [resolveScoreGoalGlowTarget(el)];
+		}
+		if (el.matches('.blue, .k2-link-star, [data-k2-status-rating-count], [data-k2-status-online-count], [data-k2-status-arc-games], [data-k2-status-arc-players]')) {
 			return [el];
 		}
 		if (el.matches('a[href*="/player/"], a[href*="/game/"]')) {
@@ -36,12 +49,29 @@
 			return playerLink ? [playerLink] : [];
 		}
 		if (el.matches('li[data-game-id]')) {
+			var targets = [];
 			var matchLinks = el.querySelectorAll('.k2-status-match a.k2-link-star, .k2-status-match a[href*="/player/"]');
 			if (matchLinks.length) {
-				return Array.prototype.slice.call(matchLinks);
+				for (var m = 0; m < matchLinks.length; m++) {
+					targets.push(matchLinks[m]);
+				}
+			} else {
+				var gameLink = el.querySelector('a.k2-status-day-games-list__game');
+				if (gameLink) {
+					targets.push(gameLink);
+				}
 			}
-			var gameLink = el.querySelector('a.k2-status-day-games-list__game');
-			return gameLink ? [gameLink] : [];
+			// Recent games (finished rows) — score digits too; live rows glow goals on each score tick only.
+			if (!el.querySelector('.k2-status-live-list__meta')) {
+				var goalCells = el.querySelectorAll('.k2-status-score .k2-status-score__goal');
+				for (var g = 0; g < goalCells.length; g++) {
+					var goalInk = resolveScoreGoalGlowTarget(goalCells[g]);
+					if (goalInk) {
+						targets.push(goalInk);
+					}
+				}
+			}
+			return targets;
 		}
 		if (el.matches('section, .k2-status-panel, ul')) {
 			var ink = el.querySelector('.k2-link-star, .blue, .k2-status-score__goal, a[href*="/player/"], a[href*="/game/"]');
@@ -50,15 +80,19 @@
 		return [el];
 	}
 
-	function applyGlowToTarget(el) {
+	function applyGlowToTarget(el, options) {
+		options = options || {};
 		if (!el) {
 			return;
 		}
 		clearGlow(el);
 		void el.offsetWidth;
 		el.classList.add(GLOW_CLASS);
+		if (options.white) {
+			el.classList.add(GLOW_WHITE_CLASS);
+		}
 		el.__k2LiveGlowEnd = function (ev) {
-			if (ev.animationName === GLOW_ANIM) {
+			if (GLOW_ANIMS.indexOf(ev.animationName) !== -1) {
 				clearGlow(el);
 			}
 		};
@@ -83,46 +117,14 @@
 		}
 	}
 
-	function staggerGlow(elements, delayMs) {
-		delayMs = delayMs || 150;
-		for (var i = 0; i < elements.length; i++) {
-			(function (el, step) {
-				if (!el) {
-					return;
-				}
-				setTimeout(function () {
-					triggerLiveGlow(el);
-				}, step * delayMs);
-			})(elements[i], i);
-		}
-	}
-
-	function glowRatingsPlayer(root, playerId) {
-		if (!root || !playerId) {
-			return;
-		}
-		var tbody = root.querySelector('[data-k2-status-live-slot="ratings"]');
-		if (!tbody) {
-			return;
-		}
-		var row = tbody.querySelector('tr[data-player-id="' + playerId + '"]');
-		if (!row) {
-			return;
-		}
-		var nameLink = row.querySelector('.k2-status-table__player a.k2-link-star, .k2-status-table__player a[href*="/player/"]');
-		var ratingLink = row.querySelector('td:nth-child(3) a.k2-link-star, td:nth-child(3) a[href]');
-		if (nameLink) {
-			applyGlowToTarget(nameLink);
-		}
-		if (ratingLink) {
-			applyGlowToTarget(ratingLink);
-		}
-	}
-
 	window.k2LiveGlow = {
 		trigger: triggerLiveGlow,
 		scorePulse: triggerLiveGlow,
-		stagger: staggerGlow,
-		glowRatingsPlayer: glowRatingsPlayer,
+		triggerStar: function (el) {
+			applyGlowToTarget(el);
+		},
+		triggerWhite: function (el) {
+			applyGlowToTarget(el, { white: true });
+		},
 	};
 })();
