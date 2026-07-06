@@ -41,7 +41,7 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 | SRL-7 | **League refresh:** **active period tab only** (Day / Week / Month / Year). No adjacent-tab prewarm in v1 — keep simple. |
 | SRL-8 | **Both** Activity + Points league tables in cascade (same period key as active tab). Reuse existing league query/API helpers where possible. |
 | SRL-9 | **Live half clock:** client ticks from server `half_countdown` (50 ticks/s) + `sync_epoch`; resync every heartbeat. Display `M:SS`. |
-| SRL-10 | **Glow — minimal set + cascade:** (1) **Online** — new player name (white bloom). (2) **Live** — new game **score digits** (0–0 kickoff, white bloom). (3) **Recent** — names + score digits (white). (4) **Goals** — scoring digit (white). (5) **Active LB** — rating gainers: **Elo only** (white). (6) **League Activity** — **Games** cell (white) for both finishers. (7) **League Points** — **Pts** cell (white) for winner, or **both** on draw. **2.6 s**. All Status room ink glow = **`k2-live-glow-bloom-white`**. |
+| SRL-10 | **Glow — minimal set + cascade:** (1) **Online** — name when **`LastLogin` epoch increased** (just logged in; two same-second logins both glow). (2) **Live** — new game **score digits** (0–0 kickoff, white bloom). (3) **Recent** — names + score digits (white). (4) **Goals** — scoring digit (white). (5) **Active LB** — rating gainers: **Elo only** (white). (6) **League Activity** — **Games** cell (white) for both finishers. (7) **League Points** — **Pts** cell (white) for winner, or **both** on draw. **2.6 s**. All Status room ink glow = **`k2-live-glow-bloom-white`**. |
 | SRL-11 | **Glow — score change:** **`k2-live-glow-bloom-white`** on the scoring digit (inner `.blue` when leading, else plain cell) — bright white ink, not accent or stat-green bloom |
 | SRL-12 | **Retired — cascade glow sequence:** no post-cascade glow choreography. Glow only from **SRL-10/11** lobby rules. |
 | SRL-13 | **First paint stays SSR** — `status.php` + `k2_status_load_room()` unchanged for no-JS and fast paint; heartbeat **enhances**. |
@@ -61,7 +61,7 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 | Signal | Source | Client action |
 |--------|--------|---------------|
 | `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, `GamePeriod`) — **not** `half_countdown`; client ticks clock locally between polls | Patch live list on fp change; **goal glow** on score increase; **score digit glow** (0–0 white bloom) on new live game row only; **`live_clocks` every heartbeat** resyncs anchor (SRL-9) |
-| `online_fp` | Ordered online player ids (login-first sort) | Patch Online list + heading count (**count: no glow**); **name glow** for each **new** online id only |
+| `online_fp` | Ordered online player ids (login-first sort) | Patch Online list + heading count (**count: no glow**); **name glow** when row `data-last-login-epoch` increased vs session memory (just logged in; both same-second logins glow) |
 | `last_login_epoch` | Head of `playertable.LastLogin` | Refresh recent logins — **no glow** |
 | `last_join_epoch` | Head of `playertable.JoinDate` | Refresh new players — **no glow** |
 | Local 1 s timer | Client math on last live payload | Tick half clocks (`half_countdown` at 50 ticks/s) |
@@ -141,7 +141,7 @@ Clamp at 0 → display `—`. Resync every heartbeat; on `period` change, take s
 - New `game_id` → list replace; **kickoff score digit glow** on new live row(s).
 - Missing `game_id` → remove row (no glow)
 
-**List patch glow:** **`online`** (new player id), **`live`** (new game row), **`recent_games`** (new game id → both player names). All other lists patch silently.
+**List patch glow:** **`recent_games`** (new game id → both player names). **Online** glow via **`LastLogin` epoch** after patch (not DOM-id diff). Live kickoff glow in `patchLive`.
 
 ---
 
@@ -151,7 +151,7 @@ Clamp at 0 → display `—`. Resync every heartbeat; on `period` change, take s
 
 | Event | Effect |
 |-------|--------|
-| Player enters Online panel | **Name** — white bloom (same as scores) |
+| Player enters Online panel | **Name** — white bloom when **`LastLogin` advanced** (session epoch memory) |
 | New live game row | **Score digits** — white bloom (0–0 kickoff) |
 | New recent game row | **Names + score digits** — white bloom |
 | Goal scored (live) | **Scoring digit** — white bloom |

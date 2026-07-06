@@ -299,7 +299,7 @@ function k2_status_pulse_render_live_list(array $games): string
     return (string) ob_get_clean();
 }
 
-/** @param list<array{id: int, name: string}> $online */
+/** @param list<array{id: int, name: string, last_login_epoch?: int}> $online */
 function k2_status_pulse_render_online_list(array $online): string
 {
     if ($online === []) {
@@ -308,7 +308,9 @@ function k2_status_pulse_render_online_list(array $online): string
     ob_start();
     echo '<ul class="k2-status-name-list">';
     foreach ($online as $row) {
-        echo '<li data-player-id="' . (int) $row['id'] . '">' . k2_status_player_link((int) $row['id'], (string) $row['name']) . '</li>';
+        $epoch = (int) ($row['last_login_epoch'] ?? 0);
+        echo '<li data-player-id="' . (int) $row['id'] . '" data-last-login-epoch="' . $epoch . '">'
+            . k2_status_player_link((int) $row['id'], (string) $row['name']) . '</li>';
     }
     echo '</ul>';
 

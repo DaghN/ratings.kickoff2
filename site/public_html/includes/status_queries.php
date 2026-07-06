@@ -1190,13 +1190,13 @@ function k2_status_build_period_competitions(mysqli $con, DateTimeImmutable $ser
     ];
 }
 
-/** @return list<array{id: int, name: string}>|null */
+/** @return list<array{id: int, name: string, last_login_epoch: int}>|null */
 function k2_status_online_players(mysqli $con, ?string &$error = null): ?array
 {
     $error = null;
     $r = mysqli_query(
         $con,
-        'SELECT ID, Name FROM playertable WHERE COALESCE(IsOnline, 0) <> 0 ORDER BY LastLogin ASC, ID ASC'
+        'SELECT ID, Name, LastLogin FROM playertable WHERE COALESCE(IsOnline, 0) <> 0 ORDER BY LastLogin ASC, ID ASC'
     );
     if ($r === false) {
         $error = mysqli_error($con);
@@ -1205,7 +1205,13 @@ function k2_status_online_players(mysqli $con, ?string &$error = null): ?array
     }
     $out = [];
     while ($row = mysqli_fetch_assoc($r)) {
-        $out[] = ['id' => (int) $row['ID'], 'name' => (string) $row['Name']];
+        $lastLogin = (string) ($row['LastLogin'] ?? '');
+        $ts = $lastLogin !== '' ? strtotime($lastLogin) : false;
+        $out[] = [
+            'id' => (int) $row['ID'],
+            'name' => (string) $row['Name'],
+            'last_login_epoch' => $ts === false ? 0 : (int) $ts,
+        ];
     }
     mysqli_free_result($r);
 

@@ -16,6 +16,7 @@
 		inflight: false,
 		pendingListSections: {},
 		pendingSignalsCommit: null,
+		onlineLoginEpochById: {},
 	};
 
 	function parseJsonAttr(el, name, fallback) {
@@ -162,9 +163,9 @@
 		return true;
 	}
 
-	/** Ids to ink-glow after a list patch — Online (new player), Recent games (new row). Live kickoff glow is in patchLive. */
+	/** Ids to ink-glow after a list patch — Recent games (new row). Online uses LastLogin epoch (applyOnlineLoginGlow). */
 	function listPatchGlowKeys(slotName, currentKeys, desiredKeys) {
-		if (slotName !== 'online' && slotName !== 'recent_games') {
+		if (slotName !== 'recent_games') {
 			return [];
 		}
 		var prevSet = {};
@@ -215,7 +216,11 @@
 		for (var i = 0; i < names.length; i++) {
 			var p = pending[names[i]];
 			if (p) {
-				if (patchListSlot(root, names[i], p.section, p.emptyMessage, p.glowSelector, { forceApply: true }) === false) {
+				if (names[i] === 'online') {
+					if (patchOnline(root, p.section, { forceApply: true }) === false) {
+						allApplied = false;
+					}
+				} else if (patchListSlot(root, names[i], p.section, p.emptyMessage, p.glowSelector, { forceApply: true }) === false) {
 					allApplied = false;
 				}
 			}
@@ -284,8 +289,8 @@
 			nextKeys[desiredKeys[nk]] = true;
 		}
 
-		// Removals always apply (live games must drop finished rows even during score glow).
-		removeStaleListRows(existingUl, nextKeys, slotName === 'live');
+		// Removals always apply (live + online: drop logouts even during row glow).
+		removeStaleListRows(existingUl, nextKeys, slotName === 'live' || slotName === 'online');
 
 		var slotHasGlow = !!existingUl.querySelector('.k2-live-glow');
 		var currentKeys = currentListKeys(existingUl);
@@ -594,6 +599,53 @@
 		state.liveGameIds = nextIds;
 	}
 
+	function parseOnlineLoginEpoch(li) {
+		if (!li) {
+			return 0;
+		}
+		var n = parseInt(li.getAttribute('data-last-login-epoch'), 10);
+		return Number.isFinite(n) ? n : 0;
+	}
+
+	/**
+	 * Glow when LastLogin advanced (just logged in). Keeps epoch memory for the session so
+	 * DOM reappear without a new login does not glow; two same-second logins both glow once.
+	 */
+	function applyOnlineLoginGlow(root, templateItems) {
+		if (!window.k2LiveGlow) {
+			return;
+		}
+		var slot = root.querySelector('[data-k2-status-live-slot="online"]');
+		if (!slot) {
+			return;
+		}
+		if (!templateItems || !templateItems.length) {
+			return;
+		}
+		var glowIds = [];
+		for (var i = 0; i < templateItems.length; i++) {
+			var tpl = templateItems[i];
+			var id = tpl.getAttribute('data-player-id');
+			if (!id) {
+				continue;
+			}
+			var epoch = parseOnlineLoginEpoch(tpl);
+			var prev = state.onlineLoginEpochById[id];
+			if (prev === undefined) {
+				glowIds.push(id);
+			} else if (epoch > prev) {
+				glowIds.push(id);
+			}
+			state.onlineLoginEpochById[id] = epoch;
+		}
+		for (var g = 0; g < glowIds.length; g++) {
+			var li = slot.querySelector('li[data-player-id="' + glowIds[g] + '"]');
+			if (li) {
+				window.k2LiveGlow.trigger(li);
+			}
+		}
+	}
+
 	function patchOnline(root, section, options) {
 		if (!section) {
 			return true;
@@ -602,7 +654,22 @@
 		if (countEl && section.count != null) {
 			patchStatCount(countEl, section.count);
 		}
-		return patchListSlot(root, 'online', section, 'Nobody flagged online \u2014 see recent logins below.', 'li[data-player-id]', options);
+		var templateItems = null;
+		if (section.html) {
+			templateItems = parseListSectionHtml(section.html).items;
+		}
+		var applied = patchListSlot(
+			root,
+			'online',
+			section,
+			'Nobody flagged online \u2014 see recent logins below.',
+			null,
+			options
+		);
+		if (applied && templateItems && templateItems.length) {
+			applyOnlineLoginGlow(root, templateItems);
+		}
+		return applied;
 	}
 
 	function glowRatingGainers(tbody, gainerIds) {
@@ -830,6 +897,18 @@
 		});
 	}
 
+	function seedOnlineLoginEpochs(root) {
+		state.onlineLoginEpochById = {};
+		var nodes = root.querySelectorAll('[data-k2-status-live-slot="online"] li[data-player-id]');
+		for (var i = 0; i < nodes.length; i++) {
+			var id = nodes[i].getAttribute('data-player-id');
+			if (!id) {
+				continue;
+			}
+			state.onlineLoginEpochById[id] = parseOnlineLoginEpoch(nodes[i]);
+		}
+	}
+
 	function seedLiveIds(root) {
 		state.liveGameIds = {};
 		var nodes = root.querySelectorAll('[data-k2-status-live-slot="live"] li[data-game-id]');
@@ -880,6 +959,7 @@
 		state.root = root;
 		state.revision = root.getAttribute('data-pulse-revision') || '';
 		state.signals = parseJsonAttr(root, 'data-pulse-signals', {});
+		seedOnlineLoginEpochs(root);
 		seedLiveIds(root);
 		tickLiveClocks(root);
 		pollOnce(root);

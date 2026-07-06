@@ -58,7 +58,7 @@ $onlinePlayerCount = is_array($online) ? count($online) : 0;
 <?php } else { ?>
 			<ul class="k2-status-name-list">
 <?php foreach ($online as $row) { ?>
-				<li data-player-id="<?php echo (int) $row['id']; ?>"><?php echo k2_status_player_link($row['id'], $row['name']); ?></li>
+				<li data-player-id="<?php echo (int) $row['id']; ?>" data-last-login-epoch="<?php echo (int) ($row['last_login_epoch'] ?? 0); ?>"><?php echo k2_status_player_link($row['id'], $row['name']); ?></li>
 <?php } ?>
 			</ul>
 <?php } ?>
