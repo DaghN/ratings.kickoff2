@@ -4,7 +4,7 @@
 	var GLOW_MS = 2600;
 	var GLOW_CLASS = 'k2-live-glow';
 	var GLOW_WHITE_CLASS = 'k2-live-glow--white';
-	var GLOW_ANIMS = ['k2-live-glow-bloom', 'k2-live-glow-bloom-blue', 'k2-live-glow-bloom-white'];
+	var GLOW_ANIMS = ['k2-live-glow-bloom', 'k2-live-glow-bloom-blue', 'k2-live-glow-bloom-white', 'k2-live-glow-bloom-warm'];
 
 	function clearGlow(el) {
 		if (!el) {

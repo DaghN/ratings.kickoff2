@@ -41,7 +41,7 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 | SRL-7 | **League refresh:** **active period tab only** (Day / Week / Month / Year). No adjacent-tab prewarm in v1 — keep simple. |
 | SRL-8 | **Both** Activity + Points league tables in cascade (same period key as active tab). Reuse existing league query/API helpers where possible. |
 | SRL-9 | **Live half clock:** client ticks from server `half_countdown` (50 ticks/s) + `sync_epoch`; resync every heartbeat. Display `M:SS`. |
-| SRL-10 | **Glow — minimal set + cascade:** (1) **Online** — name when **`LastLogin` epoch increased** (just logged in; two same-second logins both glow). (2) **Live** — new game **score digits** (0–0 kickoff, white bloom). (3) **Recent** — names + score digits (white). (4) **Goals** — scoring digit (white). (5) **Active LB** — rating gainers: **Elo only** (white). (6) **League Activity** — **Games** cell (white) for both finishers. (7) **League Points** — **Pts** cell (white) for winner, or **both** on draw. **2.6 s**. All Status room ink glow = **`k2-live-glow-bloom-white`**. |
+| SRL-10 | **Glow — minimal set + cascade:** (1) **Online** — name when **`LastLogin` epoch increased** (warm bloom). (2) **Live** — new game **score digits** (0–0, white). (3) **Recent** — names (warm) + score digits (white). (4) **Goals** — scoring digit (white). (5) **Active LB** — **Elo** (warm). (6) **League Activity** — **Games** (warm). (7) **League Points** — **Pts** (warm). **2.6 s**. Scores / `.blue` = white; accent ink = warm. |
 | SRL-11 | **Glow — score change:** **`k2-live-glow-bloom-white`** on the scoring digit (inner `.blue` when leading, else plain cell) — bright white ink, not accent or stat-green bloom |
 | SRL-12 | **Retired — cascade glow sequence:** no post-cascade glow choreography. Glow only from **SRL-10/11** lobby rules. |
 | SRL-13 | **First paint stays SSR** — `status.php` + `k2_status_load_room()` unchanged for no-JS and fast paint; heartbeat **enhances**. |
@@ -151,15 +151,15 @@ Clamp at 0 → display `—`. Resync every heartbeat; on `period` change, take s
 
 | Event | Effect |
 |-------|--------|
-| Player enters Online panel | **Name** — white bloom when **`LastLogin` advanced** (session epoch memory) |
+| Player enters Online panel | **Name** — warm bloom when **`LastLogin` advanced** |
 | New live game row | **Score digits** — white bloom (0–0 kickoff) |
-| New recent game row | **Names + score digits** — white bloom |
+| New recent game row | **Names** warm + **score digits** white |
 | Goal scored (live) | **Scoring digit** — white bloom |
-| Rated finish — rating gainer in active LB | **Elo link** white bloom only (`rating_gainers` from `ratedresults.Adjustment* > 0`) |
-| Rated finish — league Activity | **Games** cell white bloom for both finishers (`league.glow.activity`) |
-| Rated finish — league Points | **Pts** cell white bloom — winner only if decisive, both on draw (`league.glow.pts`) |
+| Rated finish — rating gainer in active LB | **Elo link** — warm bloom |
+| Rated finish — league Activity | **Games** cell — warm bloom |
+| Rated finish — league Points | **Pts** cell — warm bloom |
 
-**Palettes:** Status room lobby/cascade ink glow = **`k2-live-glow-bloom-white`** only (player links scoped in `theme.css` under `.k2-status-room`; scores via `.k2-status-score__goal`; LB/league via **`triggerWhite`**).
+**Palettes:** **Warm bloom** (`k2-live-glow-bloom-warm`) — player names, Elo, league cascade cells. **White bloom** — `.blue` stat digits + live/recent **score** digits. Default accent bloom elsewhere unchanged.
 
 **No glow:** recent logins, new players, online count, arc counts, league meta, non-gainer LB rows, league rows not in the finishing game.
 

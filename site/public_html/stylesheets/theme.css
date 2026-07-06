@@ -6938,9 +6938,9 @@ body.k2-site .k2-live-glow {
 	animation: k2-live-glow-bloom 2.6s ease-out;
 }
 
-/* .blue counts — stat green ink, not UI accent */
+/* .blue counts — white bloom on stat digits when they glow */
 body.k2-site .blue.k2-live-glow {
-	animation-name: k2-live-glow-bloom-blue;
+	animation-name: k2-live-glow-bloom-white;
 }
 
 /* Live score digits — bright white bloom (plain grey + leading .blue) */
@@ -6949,15 +6949,15 @@ body.k2-site .k2-status-score__goal .blue.k2-live-glow {
 	animation-name: k2-live-glow-bloom-white;
 }
 
-/* Status room player names — same white ink as score digits */
+/* Status room accent ink — warm bloom between accent and score white */
 body.k2-site .k2-status-room .k2-link-star.k2-live-glow,
 body.k2-site .k2-status-room a[href*="/player/"].k2-live-glow {
-	animation-name: k2-live-glow-bloom-white;
+	animation-name: k2-live-glow-bloom-warm;
 }
 
-/* Explicit white bloom (status LB Elo cell, etc.) */
+/* Elo / league cascade cells — warm; .blue and score digits stay white above */
 body.k2-site .k2-live-glow.k2-live-glow--white {
-	animation-name: k2-live-glow-bloom-white;
+	animation-name: k2-live-glow-bloom-warm;
 }
 
 @keyframes k2-live-glow-bloom {
@@ -7021,6 +7021,27 @@ body.k2-site .k2-live-glow.k2-live-glow--white {
 	}
 }
 
+/* Player names + accent ink — between accent bloom and score white */
+@keyframes k2-live-glow-bloom-warm {
+	0% {
+		text-shadow: none;
+		animation-timing-function: cubic-bezier(0.45, 0, 0.35, 1);
+	}
+	38% {
+		text-shadow:
+			0 0 4px color-mix(in srgb, white 62%, var(--k2-accent)),
+			0 0 12px color-mix(in srgb, white 52%, var(--k2-accent-glow)),
+			0 0 24px color-mix(in srgb, white 38%, var(--k2-accent-glow)),
+			0 0 40px color-mix(in srgb, white 24%, var(--k2-accent)),
+			0 0 56px color-mix(in srgb, white 14%, var(--k2-accent-glow));
+		color: color-mix(in srgb, white 58%, var(--k2-accent));
+		animation-timing-function: cubic-bezier(0.25, 0, 0.45, 1);
+	}
+	100% {
+		text-shadow: none;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	body.k2-site .k2-live-glow {
 		animation: none;
@@ -7031,8 +7052,8 @@ body.k2-site .k2-live-glow.k2-live-glow--white {
 
 	body.k2-site .blue.k2-live-glow {
 		text-shadow:
-			0 0 8px color-mix(in srgb, white 30%, var(--k2-table-positive-glow)),
-			0 0 20px color-mix(in srgb, var(--k2-table-positive-glow) 80%, transparent);
+			0 0 8px color-mix(in srgb, white 70%, transparent),
+			0 0 20px color-mix(in srgb, white 45%, transparent);
 	}
 
 	body.k2-site .k2-status-score__goal.k2-live-glow,
@@ -7045,13 +7066,13 @@ body.k2-site .k2-live-glow.k2-live-glow--white {
 	body.k2-site .k2-status-room .k2-link-star.k2-live-glow,
 	body.k2-site .k2-status-room a[href*="/player/"].k2-live-glow {
 		text-shadow:
-			0 0 8px color-mix(in srgb, white 70%, transparent),
-			0 0 20px color-mix(in srgb, white 45%, transparent);
+			0 0 8px color-mix(in srgb, white 42%, var(--k2-accent-glow)),
+			0 0 20px color-mix(in srgb, white 28%, var(--k2-accent-glow));
 	}
 
 	body.k2-site .k2-live-glow.k2-live-glow--white {
 		text-shadow:
-			0 0 8px color-mix(in srgb, white 70%, transparent),
-			0 0 20px color-mix(in srgb, white 45%, transparent);
+			0 0 8px color-mix(in srgb, white 42%, var(--k2-accent-glow)),
+			0 0 20px color-mix(in srgb, white 28%, var(--k2-accent-glow));
 	}
 }
