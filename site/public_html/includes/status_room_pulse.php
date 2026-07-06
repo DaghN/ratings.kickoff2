@@ -7,7 +7,6 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/status_queries.php';
-require_once __DIR__ . '/status_room_pulse_cache.php';
 require_once __DIR__ . '/k2_league_table_render.php';
 require_once __DIR__ . '/lb_column_help.php';
 require_once __DIR__ . '/period_activity_leaderboard_query.php';
@@ -75,97 +74,123 @@ function k2_status_pulse_period_keys(DateTimeImmutable $serverNow): array
 }
 
 /**
- * @return array{signals: array<string, mixed>, server_now_epoch: int}
+ * Read lobby signals from the database (fresh each call — no cross-request cache).
+ *
+ * @return array{signals: array<string, mixed>, revision: string, server_now_epoch: int, _live_games?: array, _online?: array}
  */
 function k2_status_pulse_collect_signals(mysqli $con, string $leaguePeriod, string $leagueKey): array
 {
-    return k2_status_pulse_cache_remember('signals', static function () use ($con, $leaguePeriod, $leagueKey): array {
-        $serverClock = k2_status_server_clock($con);
-        $serverNow = $serverClock['now'];
-        $serverNowEpoch = $serverNow->getTimestamp();
+    $serverClock = k2_status_server_clock($con);
+    $serverNow = $serverClock['now'];
+    $serverNowEpoch = $serverNow->getTimestamp();
 
-        $lastRatedId = 0;
-        $r = mysqli_query($con, 'SELECT MAX(id) AS v FROM ratedresults');
-        if ($r !== false) {
-            $row = mysqli_fetch_assoc($r);
-            mysqli_free_result($r);
-            $lastRatedId = (int) ($row['v'] ?? 0);
+    $lastRatedId = 0;
+    $r = mysqli_query($con, 'SELECT MAX(id) AS v FROM ratedresults');
+    if ($r !== false) {
+        $row = mysqli_fetch_assoc($r);
+        mysqli_free_result($r);
+        $lastRatedId = (int) ($row['v'] ?? 0);
+    }
+
+    $gamesPlayed = 0;
+    $r = mysqli_query($con, 'SELECT GamesPlayed AS v FROM generalstatstable WHERE id = 1 LIMIT 1');
+    if ($r !== false) {
+        $row = mysqli_fetch_assoc($r);
+        mysqli_free_result($r);
+        if ($row && $row['v'] !== null) {
+            $gamesPlayed = (int) $row['v'];
         }
+    }
 
-        $gamesPlayed = 0;
-        $r = mysqli_query($con, 'SELECT GamesPlayed AS v FROM generalstatstable WHERE id = 1 LIMIT 1');
-        if ($r !== false) {
-            $row = mysqli_fetch_assoc($r);
-            mysqli_free_result($r);
-            if ($row && $row['v'] !== null) {
-                $gamesPlayed = (int) $row['v'];
-            }
+    $liveErr = null;
+    $liveGames = k2_status_live_games($con, 10, $liveErr) ?? [];
+
+    $onlineErr = null;
+    $online = k2_status_online_players($con, $onlineErr) ?? [];
+
+    $lastLoginEpoch = 0;
+    $lastLoginId = 0;
+    $r = mysqli_query($con, 'SELECT ID, LastLogin FROM playertable ORDER BY LastLogin DESC LIMIT 1');
+    if ($r !== false) {
+        $row = mysqli_fetch_assoc($r);
+        mysqli_free_result($r);
+        if ($row) {
+            $lastLoginId = (int) ($row['ID'] ?? 0);
+            $ts = strtotime((string) ($row['LastLogin'] ?? ''));
+            $lastLoginEpoch = $ts === false ? 0 : (int) $ts;
         }
+    }
 
-        $liveErr = null;
-        $liveGames = k2_status_live_games($con, 10, $liveErr) ?? [];
-
-        $onlineErr = null;
-        $online = k2_status_online_players($con, $onlineErr) ?? [];
-
-        $lastLoginEpoch = 0;
-        $lastLoginId = 0;
-        $r = mysqli_query($con, 'SELECT ID, LastLogin FROM playertable ORDER BY LastLogin DESC LIMIT 1');
-        if ($r !== false) {
-            $row = mysqli_fetch_assoc($r);
-            mysqli_free_result($r);
-            if ($row) {
-                $lastLoginId = (int) ($row['ID'] ?? 0);
-                $ts = strtotime((string) ($row['LastLogin'] ?? ''));
-                $lastLoginEpoch = $ts === false ? 0 : (int) $ts;
-            }
+    $lastJoinEpoch = 0;
+    $lastJoinId = 0;
+    $r = mysqli_query($con, 'SELECT ID, JoinDate FROM playertable ORDER BY JoinDate DESC LIMIT 1');
+    if ($r !== false) {
+        $row = mysqli_fetch_assoc($r);
+        mysqli_free_result($r);
+        if ($row) {
+            $lastJoinId = (int) ($row['ID'] ?? 0);
+            $ts = strtotime((string) ($row['JoinDate'] ?? ''));
+            $lastJoinEpoch = $ts === false ? 0 : (int) $ts;
         }
+    }
 
-        $lastJoinEpoch = 0;
-        $lastJoinId = 0;
-        $r = mysqli_query($con, 'SELECT ID, JoinDate FROM playertable ORDER BY JoinDate DESC LIMIT 1');
-        if ($r !== false) {
-            $row = mysqli_fetch_assoc($r);
-            mysqli_free_result($r);
-            if ($row) {
-                $lastJoinId = (int) ($row['ID'] ?? 0);
-                $ts = strtotime((string) ($row['JoinDate'] ?? ''));
-                $lastJoinEpoch = $ts === false ? 0 : (int) $ts;
-            }
+    $periodKeys = k2_status_pulse_period_keys($serverNow);
+
+    $leaguePeriod = in_array($leaguePeriod, ['day', 'week', 'month', 'year'], true) ? $leaguePeriod : 'week';
+    $leagueKey = $leagueKey !== '' ? $leagueKey : (string) ($periodKeys[$leaguePeriod] ?? '');
+    $leagueTotalGames = k2_status_pulse_league_total_games($con, $leaguePeriod, $leagueKey);
+
+    $signals = [
+        'last_rated_id' => $lastRatedId,
+        'games_played' => $gamesPlayed,
+        'live_fp' => k2_status_pulse_live_fingerprint($liveGames),
+        'online_fp' => k2_status_pulse_online_fingerprint($online),
+        'last_login_epoch' => $lastLoginEpoch,
+        'last_login_id' => $lastLoginId,
+        'last_join_epoch' => $lastJoinEpoch,
+        'last_join_id' => $lastJoinId,
+        'league_fp' => k2_status_pulse_fingerprint([
+            $leaguePeriod,
+            $leagueKey,
+            $leagueTotalGames,
+        ]),
+        'period_keys' => $periodKeys,
+    ];
+    $revision = k2_status_pulse_fingerprint($signals);
+
+    return [
+        'signals' => $signals,
+        'revision' => $revision,
+        'server_now_epoch' => $serverNowEpoch,
+        '_live_games' => $liveGames,
+        '_online' => $online,
+    ];
+}
+
+/** Client GET params vs fresh server signals — sole gate for `changed: false`. */
+function k2_status_pulse_client_signals_stale(array $prevSignals, array $serverSignals): bool
+{
+    $keys = [
+        'last_rated_id',
+        'games_played',
+        'live_fp',
+        'online_fp',
+        'last_login_epoch',
+        'last_login_id',
+        'last_join_epoch',
+        'last_join_id',
+        'league_fp',
+    ];
+    foreach ($keys as $key) {
+        $isStr = in_array($key, ['live_fp', 'online_fp', 'league_fp'], true);
+        $prev = $isStr ? (string) ($prevSignals[$key] ?? '') : (int) ($prevSignals[$key] ?? 0);
+        $cur = $isStr ? (string) ($serverSignals[$key] ?? '') : (int) ($serverSignals[$key] ?? 0);
+        if ($prev !== $cur) {
+            return true;
         }
+    }
 
-        $periodKeys = k2_status_pulse_period_keys($serverNow);
-
-        $leaguePeriod = in_array($leaguePeriod, ['day', 'week', 'month', 'year'], true) ? $leaguePeriod : 'week';
-        $leagueKey = $leagueKey !== '' ? $leagueKey : (string) ($periodKeys[$leaguePeriod] ?? '');
-        $leagueTotalGames = k2_status_pulse_league_total_games($con, $leaguePeriod, $leagueKey);
-
-        $signals = [
-            'last_rated_id' => $lastRatedId,
-            'games_played' => $gamesPlayed,
-            'live_fp' => k2_status_pulse_live_fingerprint($liveGames),
-            'online_fp' => k2_status_pulse_online_fingerprint($online),
-            'last_login_epoch' => $lastLoginEpoch,
-            'last_login_id' => $lastLoginId,
-            'last_join_epoch' => $lastJoinEpoch,
-            'last_join_id' => $lastJoinId,
-            'league_fp' => k2_status_pulse_fingerprint([
-                $leaguePeriod,
-                $leagueKey,
-                $leagueTotalGames,
-            ]),
-            'period_keys' => $periodKeys,
-        ];
-        $revision = k2_status_pulse_fingerprint($signals);
-
-        return [
-            'signals' => $signals,
-            'revision' => $revision,
-            'server_now_epoch' => $serverNowEpoch,
-            '_live_games' => $liveGames,
-            '_online' => $online,
-        ];
-    });
+    return false;
 }
 
 /** Player ids from the rated game that triggered a cascade (for rating-table ink glow). */

@@ -54,11 +54,13 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 
 ## Change model
 
+**Writer-agnostic:** Pulse reads **current DB state** only. It does not know whether a row changed from prod post-game, manual ops, or the work-host live sim — only that signals differ from what the client last reported. **`changed: false`** when and only when every tracked signal in the client’s GET params matches a **fresh** server read (not a revision hash alone). Live sim may hook the pulse endpoint to advance test ticks (SRL-17); that hook is guarded inside the sim module and does not alter pulse signal rules.
+
 ### Lobby tick (frequent, small patches)
 
 | Signal | Source | Client action |
 |--------|--------|---------------|
-| `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, `GamePeriod`) — **not** `half_countdown`; client ticks clock locally | Patch live list; score pulse; add/remove rows + row glow; resync clock anchor on fp change |
+| `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, `GamePeriod`) — **not** `half_countdown`; client ticks clock locally between polls | Patch live list on fp change; score pulse; add/remove rows + row glow; resync clock anchor when live section arrives |
 | `online_fp` | Ordered online player ids (login-first sort) | Patch Online list + heading count; glow new names; reorder when login order changes |
 | `last_login_epoch` | Head of `playertable.LastLogin` | Refresh recent logins; **row glow for each player id newly in the list** (may be several in one second) |
 | `last_join_epoch` | Head of `playertable.JoinDate` | Refresh new players; **row glow for each new registration id** |
@@ -85,7 +87,7 @@ When **`last_rated_id`** (or confirming **`games_played`**) changes:
 
 ## Heartbeat signal bundle
 
-Computed once per second (cached server-side). Minimal SQL — **not** a full `k2_status_load_room()`.
+Computed **fresh on each poll** (minimal SQL — **not** a full `k2_status_load_room()`). No cross-request signal cache; stale cached bundles must not suppress updates after a rated finish or lobby change.
 
 | Signal | SQL sketch | Notes |
 |--------|------------|-------|
@@ -250,6 +252,7 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 
 | Date | Change |
 |------|--------|
+| 2026-07-06 | **Writer-agnostic pulse** — removed sim/prod branches and 1 s signal cache; `changed: false` only when client GET signals match fresh DB read; `live_fp` unchanged (no clock in fp; client ticks locally) |
 | 2026-07-06 | **Cascade rating glow** — only finished-game players’ name + Elo ink in active LB (`highlight_player_ids` from `last_rated_id`) |
 | 2026-07-06 | **Online panel** — `<count> online` heading; login-first sort (`LastLogin ASC`); `online_fp` = ordered ids |
 | 2026-07-06 | **Cascade trigger fix** — any new `last_rated_id` (not only when prev > 0) → recent games + live removal on finish |

@@ -79,7 +79,8 @@ if ($leagueKey === '' && is_array($signals['period_keys'] ?? null)) {
 }
 
 $firstPoll = $prevRevision === '';
-if (!$firstPoll && $prevRevision === $revision) {
+$unchanged = !$firstPoll && !k2_status_pulse_client_signals_stale($prevSignals, $signals);
+if ($unchanged) {
     mysqli_close($con);
     echo json_encode([
         'changed' => false,

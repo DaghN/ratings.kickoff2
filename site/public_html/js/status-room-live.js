@@ -518,9 +518,7 @@
 
 		if (sameLiveIdSet(prevIds, nextIds)) {
 			patchLiveScores(root, games);
-			if (livePeriodChanged(games)) {
-				syncLiveGameClocks(root, games, syncEpoch);
-			}
+			syncLiveGameClocks(root, games, syncEpoch);
 			state.liveGameIds = nextIds;
 			return;
 		}
