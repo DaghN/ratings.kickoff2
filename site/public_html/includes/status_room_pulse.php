@@ -42,9 +42,8 @@ function k2_status_pulse_online_fingerprint(array $online): string
         return 'empty';
     }
     $ids = array_map(static fn(array $r): int => (int) $r['id'], $online);
-    sort($ids);
 
-    return k2_status_pulse_fingerprint($ids);
+    return implode(',', $ids);
 }
 
 function k2_status_pulse_league_total_games(mysqli $con, string $period, string $key): int
@@ -169,6 +168,32 @@ function k2_status_pulse_collect_signals(mysqli $con, string $leaguePeriod, stri
     });
 }
 
+/** Player ids from the rated game that triggered a cascade (for rating-table ink glow). */
+function k2_status_pulse_finished_game_player_ids(mysqli $con, int $ratedGameId): array
+{
+    if ($ratedGameId < 1) {
+        return [];
+    }
+    $r = mysqli_query($con, 'SELECT idA, idB FROM ratedresults WHERE id = ' . $ratedGameId . ' LIMIT 1');
+    if ($r === false) {
+        return [];
+    }
+    $row = mysqli_fetch_assoc($r);
+    mysqli_free_result($r);
+    if ($row === null) {
+        return [];
+    }
+    $ids = [];
+    foreach (['idA', 'idB'] as $col) {
+        $id = (int) ($row[$col] ?? 0);
+        if ($id > 0) {
+            $ids[] = $id;
+        }
+    }
+
+    return $ids;
+}
+
 /**
  * @param array<string, mixed> $prevSignals
  * @return list<string>
@@ -195,7 +220,7 @@ function k2_status_pulse_changed_sections(array $prevSignals, array $newSignals,
     }
 
     if (($prevSignals['last_rated_id'] ?? 0) !== ($newSignals['last_rated_id'] ?? 0)
-        && (int) ($prevSignals['last_rated_id'] ?? 0) > 0) {
+        && (int) ($newSignals['last_rated_id'] ?? 0) > 0) {
         return ['cascade'];
     }
 
@@ -361,7 +386,10 @@ function k2_status_pulse_build_sections(
 
     if (in_array('live', $want, true)) {
         $liveErr = null;
-        $live = k2_status_live_games($con, 10, $liveErr) ?? $signalBundle['_live_games'] ?? [];
+        $live = k2_status_live_games($con, 10, $liveErr);
+        if ($live === null) {
+            $live = [];
+        }
         $sections['live'] = [
             'games' => $live,
             'html' => k2_status_pulse_render_live_list($live),
@@ -375,6 +403,7 @@ function k2_status_pulse_build_sections(
         $sections['online'] = [
             'html' => k2_status_pulse_render_online_list($online),
             'empty' => $online === [],
+            'count' => count($online),
         ];
     }
 
@@ -408,10 +437,18 @@ function k2_status_pulse_build_sections(
     if (in_array('ratings', $want, true)) {
         $err = null;
         $rows = k2_status_active_top_rated($con, $err) ?? [];
+        $highlightPlayerIds = [];
+        if ($needCascade) {
+            $highlightPlayerIds = k2_status_pulse_finished_game_player_ids(
+                $con,
+                (int) ($signalBundle['signals']['last_rated_id'] ?? 0)
+            );
+        }
         $sections['ratings'] = [
             'count' => count($rows),
             'tbody_html' => k2_status_pulse_render_ratings_tbody($rows),
             'empty' => $rows === [],
+            'highlight_player_ids' => $highlightPlayerIds,
         ];
     }
 

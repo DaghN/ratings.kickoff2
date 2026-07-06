@@ -35,7 +35,7 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 | 1 (narrow) | Ticker (players/games counts, blue numbers) | New players |
 | 2 (narrow) | Online | Recent logins |
 | 3 (widest) | Live games | Recent games |
-| 4 (moderate) | Heritage box (dark inset well, clipped warm tint halo/rays behind box art + caption); **whole inset is a link to `boxart.php#k2-boxart-story`** (box art story) — hover: image lift + moment-card border/glow (2px accent + `--k2-accent-glow`); no visible link text | Leaderboard (active Elo top 20) |
+| 4 (moderate) | Heritage box (dark inset well, clipped warm tint halo/rays behind box art + caption); **whole inset is a link to `boxart.php#k2-boxart-story`** (box art story) — hover: image lift + moment-card border/glow (2px accent + `--k2-accent-glow`); no visible link text | Leaderboard (full active rated list — 12‑month window) |
 
 Below west: **Leagues** (shipped) spans cols 1–3 — paired **Activity** + **Points**, day/week/month/year tabs. **Daily tab only:** compact **Games this day** list below the league tables (recent-games style + `game.php` link column); updates with day picker / step nav via `api/status_period_day_games.php`. Spec: [`docs/status-period-competitions.md`](status-period-competitions.md).
 
@@ -63,7 +63,7 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 | **Rated-games arc** | `generalstatstable` + `ratedresults` + `playertable` | Compact all-time sentence (`players`, `online Kick Off 2 games`, first rated date); no hub link (Activity tab is separate) |
 | **Active rated leaderboard** | `playertable` | Full active list, not capped: `ORDER BY Rating DESC`; **`LastGame` ≥ now − 12 months**; **`NumberGames` ≥ 1**; rating shown **0 decimals**; names → profiles; **Elo** → rating LB row (`k2_lb_rating_cell_link()`); heading count is exact active row count; sortable `#`/Player/Elo/Games headers with compact help — **Elo** help notes 12‑month active window + complete leaderboards live in the Leaderboards hub section; **Games** = career `NumberGames` (“Games played (career).”); link `Leaderboards →` opens broad Leaderboards section |
 | **League stack** | **`player_period_league`** when present; else `ratedresults` scan | **Calendar day**, **Monday-start calendar week**, **calendar month**, **calendar year**; UI current/previous boundaries use server `NOW()`; **stored `period_start` keys are UTC** per [`website-data-contract.md`](website-data-contract.md); **3 / 1 / 0** pts from `ActualScore`; aggregate per player: Pld, W, D, L, GF, GA, GD, Pts; sort Pts ↓, GD ↓, GF ↓; **all players with ≥1 game in period**; reader: `status_queries.php` |
-| **Online now** | `playertable` · nonzero `IsOnline` | Do not gate by `Display`; this is lobby presence, not ladder eligibility |
+| **Online now** | `playertable` · nonzero `IsOnline` | Do not gate by `Display`; this is lobby presence, not ladder eligibility. **Heading:** `<count> online` (`.blue` count, lowercase label — same stat treatment as active LB count). **Order:** `LastLogin ASC` (logged-in-first at top; newest login at bottom). |
 | **Live games** | `resulttable` | Started, not finished, not shelved (match legacy filter when verified) |
 | **Recent logins** | `playertable` · `LastLogin DESC` | ~10; **do not gate by `Display`** (lobby signal, like Online now) |
 | **Recent registrations** | `playertable` · `JoinDate DESC` | ~10; important community signal; **do not gate by `Display`** (includes registrants before first rated game) |
@@ -72,7 +72,7 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 
 **Not in v1:** games-played-by-period triple tables (preview includes removed Jun 2026 — data now in `player_period_games` + LB UI when placed); legacy Steve **`PlayerRank`** top 10; AWOL wall; ops metrics. **Live polling (v1.5)** shipped — [`status-room-live-policy.md`](status-room-live-policy.md).
 
-**Display:** Active top 20 may use slightly smaller type if needed for density.
+**Display:** Full active list may use slightly smaller type if needed for density.
 
 ---
 
@@ -122,8 +122,8 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 | Performance pass | **Local + work/staging proof done** — `idx_ratedresults_date`, `idx_resulttable_live_status`, `player_period_league`; Status loader ~6.6s → ~51ms locally (Jun 2026). **Jul 2026:** current **year** bundle deferred to client prewarm + `k2_league_load_first_games` request memo — first paint ~0.15 s curl (`2026-07-04-017`). Legacy `player_monthly_league` dropped SCH-017 (Jun 2026) |
 | Period activity prep | **Repo + `kooldb1` proof done** — `player_period_games` / peaks via ops simul; historical May **`kooldb`** batch in [`archive/replay-register-2026-05.md`](archive/replay-register-2026-05.md) |
 | **Leagues (period competitions)** | **Shipped** — paired Activity + Points, tab nav, prewarm, Daily games list — [`docs/status-period-competitions.md`](status-period-competitions.md) |
-| **v1.5 live room** | **Shipped (Jul 2026)** — 1 s heartbeat, cascade on rated finish, client live clocks, glow — [`status-room-live-policy.md`](status-room-live-policy.md) |
-| **v1.5 live testing** | **Work sim harness shipped** — L1 login/logout + L3 games; L2 registration planned — [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md) |
+| **v1.5 live room** | **Shipped (Jul 2026)** — 1 s pulse, cascade on rated finish, client half clocks, **text-ink glow @ 2.6 s** (names / goal digits / counts; cascade highlights finished-game players in active LB), visibility catch-up, SRL-16 rating re-sort — [`status-room-live-policy.md`](status-room-live-policy.md) |
+| **v1.5 live testing** | **Work sim harness shipped** — L1–L3 + L2 registration on work — [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md) |
 | v1.5+ (other) | kickoff2 embed, joshua redirect |
 
 ---

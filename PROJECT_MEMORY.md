@@ -135,14 +135,20 @@
 
 ## Recent log
 
+| 2026-07-06 | **Sim L3 simplified** — 1 min wall clock per match (5:00→4:00 1st half); cascade + live prune fix so finished games leave list without refresh |
+| 2026-07-06 | **Status online panel** — heading `<count> online` (`.blue`); list sorted `LastLogin ASC` (first logged in on top); glow bloom strengthened |
+| 2026-07-06 | **Live sim L2→L3** — synthetic registrations queue a match with a veteran so `Sim_*` players can finish rated games |
+| 2026-07-06 | **Cascade rating glow** — finished-game players only: name + Elo ink in active LB (not count or whole row) |
+| 2026-07-06 | **Glow — text ink only** — unified 2.6 s jukebox bloom on names/digits/counts; stronger multi-layer text-shadow (Jul 6 tune) |
+| 2026-07-06 | **SRL-16** — Status cascade rating tbody swap → `k2TableRefreshSortableBody()` (user sort preserved) |
 | 2026-07-06 | **Status room visibility catch-up** — immediate pulse on tab focus / pageshow after Stop (or any DB change) while Status was backgrounded; Stop + cache invalidate confirmed OK |
 | 2026-07-06 | **Status room glow fixes** — recency lists glow by id diff (each new login/reg/game row, including same-second batch); SSR `data-player-id` on rows; live score pulse on scoring side only |
 | 2026-07-06 | **Login/register integrity** — no bootstrap batch; one lobby event/tick; register without LastLogin/online; login-only sets IsOnline+LastLogin |
 | 2026-07-06 | **Live sim guard tightened** — requires `ko2unity_work` + `work.ratingskickoff.test` (staging/prod safe after sync). |
-| 2026-07-06 | **Live environment sim spec** — comprehensive platform doc (L1 login, L2 register planned, L3 games; dispatcher boundary) — [`status-room-live-sim-spec.md`](docs/status-room-live-sim-spec.md). |
+| 2026-07-06 | **Live environment sim spec** — comprehensive platform doc (L1–L3 + L2 registration; dispatcher boundary) — [`status-room-live-sim-spec.md`](docs/status-room-live-sim-spec.md). |
 | 2026-07-06 | **Status room live sim harness** — one-click ~20-game sequence + lobby login/logout on `work.ratingskickoff.test/status-room-live-sim.php`; post-game ops on finish; Stop = halt ticks only — [`status-room-live-sim-spec.md`](docs/status-room-live-sim-spec.md) Tier B. |
 | 2026-07-06 | **Status room live sim spec** — work DB + `work.ratingskickoff.test`, Tier A–C lobby sim for pulse testing — [`status-room-live-sim-spec.md`](docs/status-room-live-sim-spec.md). |
-| 2026-07-06 | **Status room live — shipped** — 1 s pulse (`api/status_room_pulse.php`), DOM patches + client half clocks, cascade on rated finish, jukebox-style glow — [`status-room-live-policy.md`](docs/status-room-live-policy.md). |
+| 2026-07-06 | **Status room live — shipped** — 1 s pulse (`api/status_room_pulse.php`), DOM patches + client half clocks, cascade on rated finish, text-ink glow @ 2.6 s — [`status-room-live-policy.md`](docs/status-room-live-policy.md). |
 | 2026-07-06 | **Status room live — spec + plan** — heartbeat polling, `last_rated_id` cascade, client half clocks, jukebox-style glow choreography — [`status-room-live-policy.md`](docs/status-room-live-policy.md) · [`status-room-live-implementation-plan.md`](docs/status-room-live-implementation-plan.md). |
 | 2026-07-05 | **About hero copy** — “Amiga tournament” → “Amiga tournaments” (plural). |
 | 2026-07-05 | **Box art story hash landing** — `#k2-boxart-story` moved to zero-height anchor just above hero panel (12px scroll-margin); Status link unchanged. |

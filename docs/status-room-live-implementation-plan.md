@@ -1,6 +1,6 @@
 # Status room live — implementation plan
 
-**Status:** **Pulse shipped (Jul 2026)** · **Live sim harness shipped (work only)** · **Next:** SIM-R1 registration + sign-off testing on work.
+**Status:** **Pulse shipped (Jul 2026)** · **Live sim harness shipped (work only)** · **SRL-16 rating re-sort shipped** · **Next:** SIM-R3 / SIM-R5 optional.
 
 **Policy:** [`status-room-live-policy.md`](status-room-live-policy.md) · **Live sim:** [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md)
 
@@ -44,8 +44,8 @@ See policy **SRL-1…SRL-16**. Implementer essentials:
 | Cascade trigger | `last_rated_id` change |
 | League | Active tab only; Activity + Points |
 | Clock | Client ticks `half_countdown` at 50/s; resync on pulse |
-| Glow | Shared `k2-live-glow` + `k2-live-score-pulse`; cascade stagger ~150 ms |
-| Tab hidden | **Keep polling** |
+| Glow | Shared `k2-live-glow` text ink @ 2.6 s; cascade stagger ~150 ms; `glowRatingsPlayer()` on cascade |
+| Tab hidden | **Keep polling**; **catch-up poll** on visible (`visibilitychange` / `pageshow` / `focus`) |
 
 ---
 
@@ -78,6 +78,7 @@ See policy **SRL-1…SRL-16**. Implementer essentials:
 | **SRL-6** | Glow utility CSS/JS + staggered cascade choreography | **Done** Jul 2026 |
 | **SRL-7** | Period rollover via `period_keys` + retire duplicate 30 s league meta poll | **Done** Jul 2026 |
 | **SRL-8** | Wire into `status.php`, docs, polish | **Done** Jul 2026 |
+| **SRL-16** | Rating table re-sort after cascade tbody swap (`k2TableRefreshSortableBody`) | **Done** Jul 2026 |
 
 ---
 
@@ -90,12 +91,11 @@ See policy **SRL-1…SRL-16**. Implementer essentials:
 | Web harness (`status-room-live-sim.php`) | **Shipped** |
 | L2 registration + sim page options | **Shipped** |
 | L1 login/logout + L3 games + ops on finish | **Shipped** |
-| Realistic pacing (one match, staggered kickoff, timed goals) | **Shipped** |
-| Online/match integrity + rare crash | **Shipped** |
+| Realistic pacing (concurrent matches, staggered kickoff, timed goals) | **Shipped** |
+| Online/match integrity + per-game crash | **Shipped** |
 | Stop cleanup (logout all, cancel live, clear queue) | **Shipped** |
 | Guard: `ko2unity_work` + `work.ratingskickoff.test` | **Shipped** |
 | Pulse tick hook | **Shipped** |
-| L2 registration (`ProcessPlayerRegistered`) | **Planned** — SIM-R1 |
 
 **Before more pulse/sim code:** run § Verification (work harness) and SIM-T1…T12 in sim spec.
 
@@ -109,11 +109,13 @@ See policy **SRL-1…SRL-16**. Implementer essentials:
 | Signal helpers | `includes/status_room_pulse.php` (new) or extend `status_queries.php` |
 | Server 1 s cache | `includes/status_room_pulse_cache.php` (new) — APCu if available, else request-static + `microtime` bucket |
 | Client engine | `site/public_html/js/status-room-live.js` |
-| Glow CSS | `stylesheets/theme.css` or `stylesheets/k2-live-glow.css` |
-| Glow JS helper | `site/public_html/js/k2-live-glow.js` (small) |
+| Glow CSS | `stylesheets/theme.css` — `k2-live-glow-bloom` (text-shadow; no box/pill) |
+| Glow JS helper | `site/public_html/js/k2-live-glow.js` — `trigger`, `glowRatingsPlayer`, `stagger` |
+| Visibility catch-up | `js/status-room-live.js` — `catchUpOnVisible` / `bindVisibilityCatchUp` |
 | Markup hooks | `includes/status_room_section.php` — `data-k2-status-live-*` roots |
 | Page enqueue | `status.php` — script tag + defer |
 | Leagues integration | `js/status-period-competitions.js` — gate/remove 30 s meta interval (SRL-7) |
+| Rating cascade re-sort | `js/k2-table.js` — `k2TableRefreshSortableBody()`; `status-room-live.js` `patchRatings()` |
 | **Live sim control page** | `status-room-live-sim.php` (work host only) |
 | **Live sim API** | `api/status_room_live_sim.php` |
 | **Live sim engine** | `includes/status_room_live_sim.php` |
@@ -211,20 +213,20 @@ On `last_rated_id` change, pulse returns `cascade: true` and sections:
 
 Prefer **internal PHP calls** over HTTP loopback to league APIs.
 
-Rating table DOM: replace `<tbody>`; call `k2TableInit` / sortable rebind if project helper exists (grep `k2Table` after patch).
+Rating table DOM: replace `<tbody>`; call **`k2TableRefreshSortableBody(table)`** (preserves user sort when chosen, else default Elo desc + autorank). Cascade payload includes **`highlight_player_ids`** (`idA` / `idB` from `last_rated_id`) for ink glow via **`k2LiveGlow.glowRatingsPlayer()`**.
 
 ---
 
 ## SRL-6 detail — glow stagger
 
-Cascade order (150 ms steps):
+Cascade order (150 ms steps) — **text ink only**:
 
-1. Recent games panel
-2. Rating table panel
-3. Leagues block (both columns)
-4. Arc game count span
+1. Recent games — both player names on head row
+2. Active leaderboard — finished-game player A (name + Elo), then player B (if listed in full active roster)
+3. Leagues meta — `.blue` count in `[data-competition-meta]`
+4. Arc — `[data-k2-status-arc-games]` count
 
-Use `k2TriggerLiveGlow(panelEl)` per step. Score-only changes skip stagger — instant pulse on score node.
+Use **`k2LiveGlow.trigger(inkEl)`** or **`glowRatingsPlayer(root, id)`**. Goal/score lobby ticks use the same 2.6 s bloom. **No** row/panel box glow; **no** heading-count glow on cascade.
 
 ---
 
@@ -248,8 +250,9 @@ curl.exe -s -H "Host: work.ratingskickoff.test" "http://127.0.0.1/api/status_roo
 Browser on **`work.ratingskickoff.test`**:
 
 1. Sim page → **Start** → Status tab open.
-2. SIM-T1…T7, T9–T12 from sim spec checklist (T8 when L2 ships).
-3. Confirm `{ changed: false }` on quiet seconds; cascade on game finish.
+2. SIM-T1…T12 from sim spec checklist.
+3. Confirm `{ changed: false }` on quiet seconds; cascade on game finish (SIM-T6: ink glow order above).
+4. Tab away during sim → Stop → tab back: Status catches up without manual refresh (visibility catch-up).
 
 ### Secondary — dev / staging (pulse only, no sim)
 
@@ -274,7 +277,7 @@ Add `scripts/oneoff/status_room_pulse_probe.php` — prints signal bundle + timi
 | Risk | Mitigation |
 |------|------------|
 | 1 s × N viewers DB load | Server 1 s shared cache (SRL-1) |
-| Rating table sortable break after tbody swap | Re-init k2-table or document “resets to default sort on cascade” for v1 |
+| Rating table sortable break after tbody swap | **`k2TableRefreshSortableBody()`** after cascade — preserves user sort or defaults to Elo desc |
 | Staging looks “broken” | Document in UI? **No** — use **work live sim** for moving lobby; staging is snapshot |
 | Half clock drift | Resync every pulse; server wins on conflict |
 | `last_rated_id` alone misses unrated finish | Rare for Status story; live_fp drop still catches live panel |
@@ -285,5 +288,7 @@ Add `scripts/oneoff/status_room_pulse_probe.php` — prints signal bundle + timi
 
 | Date | Change |
 |------|--------|
+| 2026-07-06 | **Doc sync** — glow contract (text ink, cascade player ids, visibility catch-up, SRL-16, full active LB) across policy + plan + STATUS_PAGE_DATA + sim checklist |
+| 2026-07-06 | **SRL-16** — rating table re-sort after cascade (`k2TableRefreshSortableBody`) |
 | 2026-07-06 | Phase 2 — live sim file map, work-first verification, SIM roadmap pointer |
 | 2026-07-06 | Initial plan — slices SRL-0…SRL-8 |

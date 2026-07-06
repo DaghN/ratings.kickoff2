@@ -6932,45 +6932,37 @@ body.k2-site a.k2-lb-filter.is-on:visited {
 	}
 }
 
-/* Status room live — glow (jukebox bloom reused) */
-.k2-live-glow {
+/* Status room live — text ink glow (jukebox timing, no box/pill chrome) */
+body.k2-site .k2-live-glow {
 	animation: k2-live-glow-bloom 2.6s ease-out;
-	border-radius: 4px;
 }
 
 @keyframes k2-live-glow-bloom {
 	0% {
-		box-shadow:
-			0 0 0 0 color-mix(in srgb, var(--k2-accent-glow) 0%, transparent),
-			inset 0 0 0 0 color-mix(in srgb, var(--k2-accent) 0%, transparent);
+		text-shadow: none;
+		animation-timing-function: cubic-bezier(0.45, 0, 0.35, 1);
 	}
 	38% {
-		box-shadow:
-			0 0 calc(var(--k2-accent-glow-blur) * 1.2 * var(--k2-glow-strength)) color-mix(in srgb, white 18%, var(--k2-accent-glow)),
-			inset 0 0 0 1px color-mix(in srgb, white 12%, var(--k2-accent));
+		/* text-shadow: offset-x offset-y blur color only (no spread — unlike box-shadow) */
+		text-shadow:
+			0 0 4px color-mix(in srgb, white 42%, var(--k2-accent)),
+			0 0 12px color-mix(in srgb, white 38%, var(--k2-accent-glow)),
+			0 0 24px color-mix(in srgb, var(--k2-accent-glow) 92%, transparent),
+			0 0 40px color-mix(in srgb, var(--k2-accent) 72%, transparent),
+			0 0 56px color-mix(in srgb, var(--k2-accent-glow) 48%, transparent);
+		color: color-mix(in srgb, white 32%, var(--k2-accent));
+		animation-timing-function: cubic-bezier(0.25, 0, 0.45, 1);
 	}
 	100% {
-		box-shadow:
-			0 0 0 0 color-mix(in srgb, var(--k2-accent-glow) 0%, transparent),
-			inset 0 0 0 0 color-mix(in srgb, var(--k2-accent) 0%, transparent);
+		text-shadow: none;
 	}
-}
-
-.k2-live-score-pulse {
-	animation: k2-live-score-pulse 0.55s ease-out;
-}
-
-@keyframes k2-live-score-pulse {
-	0%, 100% { transform: scale(1); }
-	45% { transform: scale(1.12); color: var(--k2-accent); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.k2-live-glow {
+	body.k2-site .k2-live-glow {
 		animation: none;
-		box-shadow: 0 0 0 1px color-mix(in srgb, var(--k2-accent) 35%, transparent);
-	}
-	.k2-live-score-pulse {
-		animation: none;
+		text-shadow:
+			0 0 8px color-mix(in srgb, white 30%, var(--k2-accent-glow)),
+			0 0 20px color-mix(in srgb, var(--k2-accent-glow) 80%, transparent);
 	}
 }

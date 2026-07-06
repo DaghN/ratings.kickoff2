@@ -1078,6 +1078,30 @@
 
 	window.k2TableInitHelpTooltips = initHelpTooltipsInRoot;
 
+	/** Re-sort tbody after DOM replace (e.g. Status room cascade). Preserves user-chosen sort when set. */
+	window.k2TableRefreshSortableBody = function (table) {
+		var index;
+		var direction;
+
+		if (!table || table.getAttribute('data-k2-table-init') !== '1') {
+			return false;
+		}
+
+		index = table._k2SortIndex;
+		direction = table._k2SortDirection;
+		if (table._k2SortUserChosen && typeof index === 'number' && !isNaN(index)
+			&& (direction === 'asc' || direction === 'desc')) {
+			if (!sortTableByIndex(table, index, direction)) {
+				applyDefaultSortState(table);
+			}
+		} else {
+			applyDefaultSortState(table);
+		}
+		refreshSortedColumnEmphasis(table);
+
+		return true;
+	};
+
 	window.k2TableApplyAnchors = function (root) {
 		var tables;
 		var i;

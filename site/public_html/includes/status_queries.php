@@ -1196,7 +1196,7 @@ function k2_status_online_players(mysqli $con, ?string &$error = null): ?array
     $error = null;
     $r = mysqli_query(
         $con,
-        'SELECT ID, Name FROM playertable WHERE COALESCE(IsOnline, 0) <> 0 ORDER BY Name ASC'
+        'SELECT ID, Name FROM playertable WHERE COALESCE(IsOnline, 0) <> 0 ORDER BY LastLogin ASC, ID ASC'
     );
     if ($r === false) {
         $error = mysqli_error($con);

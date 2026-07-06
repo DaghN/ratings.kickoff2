@@ -14,6 +14,7 @@
 		clockTimer: null,
 		liveClocks: [],
 		inflight: false,
+		pendingListSections: {},
 	};
 
 	function parseJsonAttr(el, name, fallback) {
@@ -90,34 +91,230 @@
 		}
 	}
 
-	function replaceListSlot(root, slotName, section, emptyMessage, glowSelector) {
+	function nodeHasActiveGlow(el) {
+		if (!el) {
+			return false;
+		}
+		if (el.classList && el.classList.contains('k2-live-glow')) {
+			return true;
+		}
+		return !!el.querySelector('.k2-live-glow');
+	}
+
+	function parseListSectionHtml(html) {
+		var wrap = document.createElement('div');
+		wrap.innerHTML = (html || '').trim();
+		var ul = wrap.querySelector('ul');
+		if (!ul) {
+			return { ulClass: '', items: [] };
+		}
+		return {
+			ulClass: ul.className || '',
+			items: Array.prototype.slice.call(ul.querySelectorAll(':scope > li')),
+		};
+	}
+
+	function rowKey(li) {
+		return li.getAttribute('data-player-id') || li.getAttribute('data-game-id') || '';
+	}
+
+	function currentListKeys(ul) {
+		var keys = [];
+		for (var c = 0; c < ul.children.length; c++) {
+			var k = rowKey(ul.children[c]);
+			if (k) {
+				keys.push(k);
+			}
+		}
+		return keys;
+	}
+
+	/** True when desired = current prefix + optional new rows appended at end (no reorder / mid insert). */
+	function isAppendOnlyListPatch(currentKeys, desiredKeys) {
+		if (desiredKeys.length < currentKeys.length) {
+			return false;
+		}
+		for (var i = 0; i < currentKeys.length; i++) {
+			if (desiredKeys[i] !== currentKeys[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	function listKeysEqual(a, b) {
+		if (a.length !== b.length) {
+			return false;
+		}
+		for (var i = 0; i < a.length; i++) {
+			if (a[i] !== b[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	function removeStaleListRows(ul, nextKeys, forceRemove) {
+		var stale = Array.prototype.slice.call(ul.children);
+		for (var k = 0; k < stale.length; k++) {
+			var staleKey = rowKey(stale[k]);
+			if (!staleKey || !nextKeys[staleKey]) {
+				if (forceRemove || !nodeHasActiveGlow(stale[k])) {
+					ul.removeChild(stale[k]);
+				}
+			}
+		}
+	}
+
+	function queuePendingListSection(slotName, section, emptyMessage, glowSelector) {
+		state.pendingListSections[slotName] = {
+			section: section,
+			emptyMessage: emptyMessage,
+			glowSelector: glowSelector,
+		};
+	}
+
+	function flushPendingListSections(root) {
+		if (!root) {
+			return;
+		}
+		var pending = state.pendingListSections;
+		var names = Object.keys(pending);
+		if (!names.length) {
+			return;
+		}
+		state.pendingListSections = {};
+		for (var i = 0; i < names.length; i++) {
+			var p = pending[names[i]];
+			if (p) {
+				patchListSlot(root, names[i], p.section, p.emptyMessage, p.glowSelector);
+			}
+		}
+	}
+
+	function patchListSlot(root, slotName, section, emptyMessage, glowSelector) {
 		var slot = root.querySelector('[data-k2-status-live-slot="' + slotName + '"]');
 		if (!slot || !section) {
 			return;
-		}
-		var prevIds = {};
-		var prevNodes = slot.querySelectorAll('[data-player-id], [data-game-id]');
-		for (var i = 0; i < prevNodes.length; i++) {
-			var pid = prevNodes[i].getAttribute('data-player-id') || prevNodes[i].getAttribute('data-game-id');
-			if (pid) {
-				prevIds[pid] = true;
-			}
 		}
 		if (section.empty) {
 			slot.innerHTML = '<p class="k2-status-panel__empty">' + emptyMessage + '</p>';
 			return;
 		}
-		if (section.html) {
-			slot.innerHTML = section.html;
-		}
-		if (!window.k2LiveGlow || !glowSelector) {
+		if (!section.html) {
 			return;
 		}
-		var nodes = slot.querySelectorAll(glowSelector);
-		for (var j = 0; j < nodes.length; j++) {
-			var id = nodes[j].getAttribute('data-player-id') || nodes[j].getAttribute('data-game-id');
-			if (id && !prevIds[id]) {
-				window.k2LiveGlow.trigger(nodes[j]);
+
+		var incoming = parseListSectionHtml(section.html);
+		var existingUl = slot.querySelector('ul');
+		if (!existingUl) {
+			slot.innerHTML = section.html;
+			if (!window.k2LiveGlow || !glowSelector) {
+				return;
+			}
+			var freshNodes = slot.querySelectorAll(glowSelector);
+			for (var f = 0; f < freshNodes.length; f++) {
+				window.k2LiveGlow.trigger(freshNodes[f]);
+			}
+			return;
+		}
+
+		var existingByKey = {};
+		var currentItems = existingUl.querySelectorAll(':scope > li');
+		for (var i = 0; i < currentItems.length; i++) {
+			var prevKey = rowKey(currentItems[i]);
+			if (prevKey) {
+				existingByKey[prevKey] = currentItems[i];
+			}
+		}
+
+		if (incoming.ulClass && existingUl.className !== incoming.ulClass) {
+			existingUl.className = incoming.ulClass;
+		}
+
+		var desiredKeys = [];
+		var templateByKey = {};
+		for (var j = 0; j < incoming.items.length; j++) {
+			var templateLi = incoming.items[j];
+			var key = rowKey(templateLi);
+			if (!key) {
+				continue;
+			}
+			desiredKeys.push(key);
+			templateByKey[key] = templateLi;
+		}
+
+		var nextKeys = {};
+		for (var nk = 0; nk < desiredKeys.length; nk++) {
+			nextKeys[desiredKeys[nk]] = true;
+		}
+
+		// Removals always apply (live games must drop finished rows even during score glow).
+		removeStaleListRows(existingUl, nextKeys, slotName === 'live');
+
+		var slotHasGlow = !!existingUl.querySelector('.k2-live-glow');
+		var currentKeys = currentListKeys(existingUl);
+
+		if (listKeysEqual(currentKeys, desiredKeys)) {
+			if (!slotHasGlow) {
+				for (var sk = 0; sk < desiredKeys.length; sk++) {
+					var syncKey = desiredKeys[sk];
+					if (existingByKey[syncKey] && templateByKey[syncKey]) {
+						existingByKey[syncKey].innerHTML = templateByKey[syncKey].innerHTML;
+					}
+				}
+			}
+			return;
+		}
+
+		if (slotHasGlow && !isAppendOnlyListPatch(currentKeys, desiredKeys)) {
+			queuePendingListSection(slotName, section, emptyMessage, glowSelector);
+			return;
+		}
+
+		var newKeys = [];
+		for (var d = 0; d < desiredKeys.length; d++) {
+			var dKey = desiredKeys[d];
+			var tpl = templateByKey[dKey];
+			if (existingByKey[dKey]) {
+				if (!slotHasGlow && !nodeHasActiveGlow(existingByKey[dKey])) {
+					existingByKey[dKey].innerHTML = tpl.innerHTML;
+				}
+			} else {
+				existingByKey[dKey] = tpl.cloneNode(true);
+				newKeys.push(dKey);
+			}
+		}
+
+		if (slotHasGlow) {
+			for (var a = currentKeys.length; a < desiredKeys.length; a++) {
+				var appendKey = desiredKeys[a];
+				var appendNode = existingByKey[appendKey];
+				if (appendNode && !appendNode.parentNode) {
+					existingUl.appendChild(appendNode);
+				}
+			}
+		} else {
+			for (var r = 0; r < desiredKeys.length; r++) {
+				var rKey = desiredKeys[r];
+				var node = existingByKey[rKey];
+				if (!node) {
+					continue;
+				}
+				if (existingUl.children[r] === node) {
+					continue;
+				}
+				if (nodeHasActiveGlow(node)) {
+					queuePendingListSection(slotName, section, emptyMessage, glowSelector);
+					continue;
+				}
+				existingUl.insertBefore(node, existingUl.children[r] || null);
+			}
+		}
+
+		if (window.k2LiveGlow && glowSelector) {
+			for (var g = 0; g < newKeys.length; g++) {
+				window.k2LiveGlow.trigger(existingByKey[newKeys[g]]);
 			}
 		}
 	}
@@ -286,25 +483,62 @@
 		return false;
 	}
 
+	function pruneLiveRows(root, games) {
+		var nextIds = liveIdSet(games);
+		var slot = root.querySelector('[data-k2-status-live-slot="live"]');
+		if (!slot) {
+			return;
+		}
+		var rows = slot.querySelectorAll('li[data-game-id]');
+		for (var i = 0; i < rows.length; i++) {
+			var gid = rows[i].getAttribute('data-game-id');
+			if (gid && !nextIds[gid]) {
+				rows[i].parentNode.removeChild(rows[i]);
+			}
+		}
+	}
+
 	function patchLive(root, section, syncEpoch) {
+		if (!section) {
+			return;
+		}
+		var games = section.games || [];
 		var prevIds = state.liveGameIds || {};
-		var nextIds = liveIdSet(section && section.games);
-		if (section && section.games && sameLiveIdSet(prevIds, nextIds) && !section.empty) {
-			patchLiveScores(root, section.games);
-			if (livePeriodChanged(section.games)) {
-				syncLiveGameClocks(root, section.games, syncEpoch);
+		var nextIds = liveIdSet(games);
+
+		if (section.empty || games.length === 0) {
+			pruneLiveRows(root, []);
+			patchListSlot(root, 'live', section, 'No live games in progress.', 'li[data-game-id]');
+			state.liveClocks = [];
+			state.liveGameIds = {};
+			return;
+		}
+
+		pruneLiveRows(root, games);
+
+		if (sameLiveIdSet(prevIds, nextIds)) {
+			patchLiveScores(root, games);
+			if (livePeriodChanged(games)) {
+				syncLiveGameClocks(root, games, syncEpoch);
 			}
 			state.liveGameIds = nextIds;
 			return;
 		}
-		replaceListSlot(root, 'live', section, 'No live games in progress.', 'li[data-game-id]');
-		if (section && section.games && section.games.length) {
-			patchLiveScores(root, section.games);
-			syncLiveGameClocks(root, section.games, syncEpoch);
-		} else {
-			state.liveClocks = [];
-		}
+		patchListSlot(root, 'live', section, 'No live games in progress.', 'li[data-game-id]');
+		patchLiveScores(root, games);
+		syncLiveGameClocks(root, games, syncEpoch);
 		state.liveGameIds = nextIds;
+	}
+
+	function patchOnline(root, section) {
+		if (!section) {
+			return;
+		}
+		var countEl = root.querySelector('[data-k2-status-online-count]');
+		if (countEl && section.count != null) {
+			countEl.textContent = formatNumber(section.count);
+		}
+		patchListSlot(root, 'online', section, 'Nobody flagged online \u2014 see recent logins below.', 'li[data-player-id]');
 	}
 
 	function patchRatings(root, section) {
@@ -313,15 +547,9 @@
 		}
 		var countEl = root.querySelector('[data-k2-status-rating-count]');
 		if (countEl && section.count != null) {
-			var prev = countEl.textContent.replace(/,/g, '');
-			var next = String(section.count);
 			countEl.textContent = formatNumber(section.count);
-			if (prev && prev !== next && window.k2LiveGlow) {
-				window.k2LiveGlow.trigger(countEl);
-			}
 		}
 		var tbody = root.querySelector('[data-k2-status-live-slot="ratings"]');
-		var panel = root.querySelector('[data-k2-status-panel="ratings"]');
 		if (!tbody) {
 			return;
 		}
@@ -334,9 +562,10 @@
 		}
 		if (section.tbody_html) {
 			tbody.innerHTML = section.tbody_html;
-		}
-		if (window.k2LiveGlow && panel) {
-			window.k2LiveGlow.trigger(panel);
+			var table = tbody.closest('table');
+			if (table && typeof window.k2TableRefreshSortableBody === 'function') {
+				window.k2TableRefreshSortableBody(table);
+			}
 		}
 		if (typeof window.k2TableInitHelpTooltips === 'function') {
 			window.k2TableInitHelpTooltips(tbody.closest('table') || root);
@@ -367,16 +596,53 @@
 		}
 	}
 
-	function runCascadeGlow(root) {
+	function runCascadeGlow(root, sections) {
 		if (!window.k2LiveGlow) {
 			return;
 		}
-		window.k2LiveGlow.stagger([
-			root.querySelector('[data-k2-status-panel="recent_games"]'),
-			root.querySelector('[data-k2-status-panel="ratings"]'),
-			document.querySelector('[data-k2-status-period-competitions]'),
-			root.querySelector('[data-k2-status-panel="arc"]'),
-		], 150);
+		sections = sections || {};
+		var delayMs = 150;
+		var step = 0;
+		function schedule(fn) {
+			if (!fn) {
+				return;
+			}
+			setTimeout(fn, step * delayMs);
+			step += 1;
+		}
+		var recentSlot = root.querySelector('[data-k2-status-live-slot="recent_games"]');
+		var recentLinks = recentSlot
+			? recentSlot.querySelectorAll('li:first-child .k2-status-match a.k2-link-star, li:first-child .k2-status-match a[href*="/player/"]')
+			: [];
+		if (recentLinks.length) {
+			schedule(function () {
+				for (var r = 0; r < recentLinks.length; r++) {
+					window.k2LiveGlow.trigger(recentLinks[r]);
+				}
+			});
+		}
+		var ratingIds = sections.ratings && sections.ratings.highlight_player_ids;
+		if (ratingIds && ratingIds.length && window.k2LiveGlow.glowRatingsPlayer) {
+			for (var i = 0; i < ratingIds.length; i++) {
+				(function (playerId) {
+					schedule(function () {
+						window.k2LiveGlow.glowRatingsPlayer(root, playerId);
+					});
+				})(ratingIds[i]);
+			}
+		}
+		var leagueMeta = document.querySelector('[data-competition-meta] .blue');
+		schedule(function () {
+			if (leagueMeta) {
+				window.k2LiveGlow.trigger(leagueMeta);
+			}
+		});
+		schedule(function () {
+			var arcGames = root.querySelector('[data-k2-status-arc-games]');
+			if (arcGames) {
+				window.k2LiveGlow.trigger(arcGames);
+			}
+		});
 	}
 
 	function applySections(root, body, syncEpoch) {
@@ -386,16 +652,16 @@
 				patchLive(root, sections.live, syncEpoch);
 			}
 			if (sections.online) {
-				replaceListSlot(root, 'online', sections.online, 'Nobody flagged online \u2014 see recent logins below.', 'li[data-player-id]');
+				patchOnline(root, sections.online);
 			}
 			if (sections.logins) {
-				replaceListSlot(root, 'logins', sections.logins, '\u2014', 'li[data-player-id]');
+				patchListSlot(root, 'logins', sections.logins, '\u2014', 'li[data-player-id]');
 			}
 			if (sections.registrations) {
-				replaceListSlot(root, 'registrations', sections.registrations, '\u2014', 'li[data-player-id]');
+				patchListSlot(root, 'registrations', sections.registrations, '\u2014', 'li[data-player-id]');
 			}
 			if (sections.recent_games) {
-				replaceListSlot(root, 'recent_games', sections.recent_games, '\u2014', 'li[data-game-id]');
+				patchListSlot(root, 'recent_games', sections.recent_games, '\u2014', 'li[data-game-id]');
 			}
 			if (sections.ratings) {
 				patchRatings(root, sections.ratings);
@@ -406,23 +672,23 @@
 			if (sections.league && window.k2StatusCompetitions && window.k2StatusCompetitions.applyLeaguePulse) {
 				window.k2StatusCompetitions.applyLeaguePulse(sections.league);
 			}
-			runCascadeGlow(root);
+			runCascadeGlow(root, sections);
 			return;
 		}
 		if (sections.live) {
 			patchLive(root, sections.live, syncEpoch);
 		}
 		if (sections.online) {
-			replaceListSlot(root, 'online', sections.online, 'Nobody flagged online \u2014 see recent logins below.', 'li[data-player-id]');
+			patchOnline(root, sections.online);
 		}
 		if (sections.logins) {
-			replaceListSlot(root, 'logins', sections.logins, '\u2014', 'li[data-player-id]');
+			patchListSlot(root, 'logins', sections.logins, '\u2014', 'li[data-player-id]');
 		}
 		if (sections.registrations) {
-			replaceListSlot(root, 'registrations', sections.registrations, '\u2014', 'li[data-player-id]');
+			patchListSlot(root, 'registrations', sections.registrations, '\u2014', 'li[data-player-id]');
 		}
 		if (sections.recent_games) {
-			replaceListSlot(root, 'recent_games', sections.recent_games, '\u2014', 'li[data-game-id]');
+			patchListSlot(root, 'recent_games', sections.recent_games, '\u2014', 'li[data-game-id]');
 		}
 		if (sections.ratings) {
 			patchRatings(root, sections.ratings);
@@ -543,6 +809,16 @@
 		state.liveClocks = clocks;
 	}
 
+	function bindGlowIdleFlush(root) {
+		if (bindGlowIdleFlush.bound) {
+			return;
+		}
+		bindGlowIdleFlush.bound = true;
+		document.addEventListener('k2-live-glow-idle', function () {
+			flushPendingListSections(state.root || root);
+		});
+	}
+
 	function initRoot(root) {
 		state.root = root;
 		state.revision = root.getAttribute('data-pulse-revision') || '';
@@ -563,6 +839,7 @@
 			tickLiveClocks(root);
 		}, POLL_MS);
 		bindVisibilityCatchUp(root);
+		bindGlowIdleFlush(root);
 	}
 
 	function boot() {

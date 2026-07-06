@@ -73,13 +73,14 @@ Optional later: **L4 midnight UTC** via `FinalizeUtcDay` (league close, day mile
 - **`Sim_XXXX`** insert: `JoinDate = NOW()`, `LastLogin = 1970-01-01`, `IsOnline = 0` → `ProcessPlayerRegistered`.
 - Shows in **New players** only until a separate login event; **never** Recent logins on register alone.
 - Added to lobby pool; may log in later via L1 or match kickoff.
+- When **L3** enabled, each registration also **queues one match** pairing the new player with a lobby veteran (kickoff login sequence → live game → rated finish).
 
 ### L3 — Playing games (shipped)
 
 - **Up to four live matches** concurrently; lobby targets **3–8 online** via staggered logins.
 - **Kickoff sequence:** host login → wait 2–6 s → slave login → wait 3–8 s → live row at 0–0 (each login is its own tick/event).
-- **Goals:** 3–8 total per match; first goal ~5–12 s; then every 5–15 s (one per tick max).
-- **Finish:** last goal → `ratedresults` + ops; players get **8–25 s grace** before random logout.
+- **Match length:** **1 wall minute** — kickoff at **5:00** 1st half; final whistle at **4:00** left (clock ticks down 1 s per pulse tick). Score settles **1–0** if still 0–0.
+- **Finish:** whistle → `ratedresults` + ops → live row removed; cascade refreshes **Recent games**.
 - **Crash:** **per-game** % at kickoff (default **5**), not per-second — scheduled disconnect mid-match.
 - Queue ~20 matches by default.
 
@@ -90,7 +91,7 @@ Each tick: **one** pending step (if due) → tick all live → maybe start one p
 | Priority | Action |
 |----------|--------|
 | 1 | Advance **one** due pending kickoff step (login_host / login_slave / kickoff) |
-| 2 | Tick every live match (clock, goals, finish, scheduled crash) |
+| 2 | Tick every live match (clock countdown, 1 min finish, scheduled crash) |
 | 3 | Start **one** new pending match if under cap |
 | 4 | **One** L2 register **or** L1 login/logout (skipped if step 1 already logged someone in) |
 
@@ -295,7 +296,7 @@ Still valid for debugging one signal. Templates below (§ SQL). Use when harness
 
 **URL:** `http://work.ratingskickoff.test/status-room-live-sim.php`
 
-Click **Start 20-game sequence** → open **Status** → watch L1 + L3 (L2 when shipped).
+Click **Start 20-game sequence** → open **Status** → watch L1 + L2 + L3 (presence, registrations, live shell, rated finishes).
 
 ### Tier C — Cascade correctness
 
@@ -349,13 +350,13 @@ On **`work.ratingskickoff.test/status.php`**, DevTools → Network → `status_r
 |---|------|------|
 | SIM-T1 | Online + live appear without reload | |
 | SIM-T2 | Half clock ticks every second between pulses | |
-| SIM-T3 | Score change → pulse within ~1 s + score animation | |
-| SIM-T4 | New live row → row glow | |
+| SIM-T3 | Score change → pulse within ~1 s + **goal digit ink glow** (scoring side only) | |
+| SIM-T4 | New live row → **player name ink glow** | |
 | SIM-T5 | Unchanged second → `{ changed: false }` | |
-| SIM-T6 | Rated finish → cascade stagger (recent → ratings → league → arc) | |
+| SIM-T6 | Rated finish → cascade ink stagger: recent names → LB finishers (name+Elo each) → league meta → arc games | |
 | SIM-T7 | Login/logout → Online + Recent logins patch | |
 | SIM-T8 | New registration → New players row glow (each new id) + `entered_arena` | |
-| SIM-T9 | Stop → everyone offline, live games gone, queue empty; no new rated rows from cancelled games | |
+| SIM-T9 | Stop → everyone offline, live games gone, queue empty; Status catches up when tab refocused (no manual refresh required) | |
 | **SIM-T10** | Both match players appear in Online before live row; never live game with empty Online | |
 | **SIM-T11** | Goal scored → client half clock **does not** jump reset (score-only pulse patch) | |
 | **SIM-T12** | Crash (wait or tune `K2_STATUS_ROOM_SIM_CRASH_CHANCE_PERCENT`) → live gone, no rated row | |

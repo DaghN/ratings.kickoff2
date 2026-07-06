@@ -38,6 +38,7 @@ $pulseSignals = is_array($pulseState['signals'] ?? null) ? $pulseState['signals'
 $pulseSignalsJson = htmlspecialchars(json_encode($pulseSignals, JSON_UNESCAPED_UNICODE), ENT_COMPAT, 'UTF-8');
 
 $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
+$onlinePlayerCount = is_array($online) ? count($online) : 0;
 ?>
 <section
 	class="k2-status-room"
@@ -50,7 +51,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 
 	<div class="k2-status-room__layout">
 		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-online" aria-labelledby="k2-status-online-title" data-k2-status-panel="online">
-			<h2 id="k2-status-online-title" class="k2-panel-heading">Online</h2>
+			<h2 id="k2-status-online-title" class="k2-panel-heading"><span class="blue" data-k2-status-online-count=""><?php echo number_format($onlinePlayerCount); ?></span> online</h2>
 			<div class="k2-status-room-live__slot" data-k2-status-live-slot="online">
 <?php if ($online === []) { ?>
 			<p class="k2-status-panel__empty">Nobody flagged online — see recent logins below.</p>
@@ -130,7 +131,7 @@ $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
     $rank = 1;
     foreach ($activeTop as $row) {
         ?>
-						<tr>
+						<tr data-player-id="<?php echo (int) $row['id']; ?>">
 							<td class="k2-status-table__num"><?php echo $rank; ?></td>
 							<td class="k2-status-table__player"><?php echo k2_status_player_link($row['id'], $row['name']); ?></td>
 							<td class="k2-status-table__num"><?php echo k2_lb_rating_cell_link((int) $row['id'], $row['rating'], (string) $row['name']); ?></td>

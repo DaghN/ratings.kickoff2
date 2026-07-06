@@ -18,6 +18,10 @@ const K2_STATUS_ROOM_SIM_ONLINE_TARGET_MAX = 8;
 /** Default synthetic registrations per run when L2 enabled. */
 const K2_STATUS_ROOM_SIM_DEFAULT_REGISTRATIONS = 3;
 const K2_STATUS_ROOM_SIM_MAX_REGISTRATIONS = 10;
+/** Live clock at kickoff — 5:00 in the 1st half (50 ticks/s). */
+const K2_STATUS_ROOM_SIM_HALF_START_TICKS = 15000;
+/** Finish after 1 wall minute — clock reads 4:00 left in the 1st half. */
+const K2_STATUS_ROOM_SIM_FINISH_AT_TICKS = 12000;
 
 function k2_status_room_sim_state_path(): string
 {
@@ -217,6 +221,10 @@ function k2_status_room_sim_register_player(mysqli $con, array &$state): bool
     $state['lobby_pool'] = array_values(array_unique(array_map('intval', $pool)));
     $state['registration_count'] = (int) ($state['registration_count'] ?? 0) + 1;
 
+    if (!empty($state['enable_l3'])) {
+        k2_status_room_sim_append_registration_match($con, $state, $playerId);
+    }
+
     return true;
 }
 
@@ -265,7 +273,101 @@ function k2_status_room_sim_next_game_id(mysqli $con): int
     return max(K2_STATUS_ROOM_SIM_GAME_ID_BASE + 1, (int) ($row['n'] ?? K2_STATUS_ROOM_SIM_GAME_ID_BASE + 1));
 }
 
-/** @return list<array{host: int, slave: int, name_a: string, name_b: string, goal_target: int}> */
+function k2_status_room_sim_player_name(mysqli $con, int $playerId): string
+{
+    if ($playerId <= 0) {
+        return '';
+    }
+    $r = mysqli_query($con, 'SELECT Name FROM playertable WHERE ID = ' . $playerId . ' LIMIT 1');
+    if ($r === false) {
+        return '';
+    }
+    $row = mysqli_fetch_assoc($r);
+    mysqli_free_result($r);
+
+    return $row !== null ? (string) $row['Name'] : '';
+}
+
+/** @param array<string, mixed> $state */
+function k2_status_room_sim_pick_queue_partner(mysqli $con, array $state, int $excludeId): ?int
+{
+    $now = time();
+    $busy = array_fill_keys(k2_status_room_sim_match_player_ids($state), true);
+    $pool = is_array($state['lobby_pool'] ?? null) ? $state['lobby_pool'] : [];
+    $candidates = [];
+    foreach ($pool as $rawId) {
+        $pid = (int) $rawId;
+        if ($pid <= 0 || $pid === $excludeId) {
+            continue;
+        }
+        if (isset($busy[$pid])) {
+            continue;
+        }
+        if (k2_status_room_sim_player_in_grace($state, $pid, $now)) {
+            continue;
+        }
+        $candidates[] = $pid;
+    }
+    if ($candidates === []) {
+        $r = mysqli_query(
+            $con,
+            'SELECT ID FROM playertable WHERE ID <> ' . $excludeId
+                . ' AND NumberGames >= 1 AND ID > 0 ORDER BY RAND() LIMIT 12'
+        );
+        if ($r !== false) {
+            while ($row = mysqli_fetch_assoc($r)) {
+                $pid = (int) $row['ID'];
+                if (!isset($busy[$pid]) && !k2_status_room_sim_player_in_grace($state, $pid, $now)) {
+                    $candidates[] = $pid;
+                }
+            }
+            mysqli_free_result($r);
+        }
+    }
+    if ($candidates === []) {
+        return null;
+    }
+
+    return $candidates[random_int(0, count($candidates) - 1)];
+}
+
+/** @param array<string, mixed> $state */
+function k2_status_room_sim_append_registration_match(mysqli $con, array &$state, int $playerId): bool
+{
+    if ($playerId <= 0 || empty($state['active']) || empty($state['enable_l3'])) {
+        return false;
+    }
+    $partnerId = k2_status_room_sim_pick_queue_partner($con, $state, $playerId);
+    if ($partnerId === null) {
+        return false;
+    }
+    $hostId = $playerId;
+    $slaveId = $partnerId;
+    if (random_int(0, 1) === 1) {
+        $hostId = $partnerId;
+        $slaveId = $playerId;
+    }
+    $nameA = k2_status_room_sim_player_name($con, $hostId);
+    $nameB = k2_status_room_sim_player_name($con, $slaveId);
+    if ($nameA === '' || $nameB === '') {
+        return false;
+    }
+    if (!is_array($state['queue'] ?? null)) {
+        $state['queue'] = [];
+    }
+    $state['queue'][] = [
+        'host' => $hostId,
+        'slave' => $slaveId,
+        'name_a' => $nameA,
+        'name_b' => $nameB,
+    ];
+    $state['game_count'] = (int) ($state['game_count'] ?? 0) + 1;
+    $state['last_event'] = 'queued_reg_match:' . $playerId . ':' . $partnerId;
+
+    return true;
+}
+
+/** @return list<array{host: int, slave: int, name_a: string, name_b: string}> */
 function k2_status_room_sim_build_queue(mysqli $con, int $gameCount): array
 {
     $gameCount = max(1, min(40, $gameCount));
@@ -300,7 +402,6 @@ function k2_status_room_sim_build_queue(mysqli $con, int $gameCount): array
             'slave' => $b['id'],
             'name_a' => $a['name'],
             'name_b' => $b['name'],
-            'goal_target' => random_int(3, 8),
         ];
     }
 
@@ -611,6 +712,9 @@ function k2_status_room_sim_finish_live_row(mysqli $con, array $live): array
 
     mysqli_query($con, 'DELETE FROM resulttable WHERE GameID = ' . $gameId);
 
+    require_once __DIR__ . '/status_room_pulse_cache.php';
+    k2_status_pulse_cache_invalidate('signals');
+
     return ['rated_id' => $ratedId, 'ops' => $opsTag];
 }
 
@@ -765,13 +869,11 @@ function k2_status_room_sim_kickoff_live_match(mysqli $con, array &$state, array
         'slave' => (int) $spec['slave'],
         'name_a' => (string) $spec['name_a'],
         'name_b' => (string) $spec['name_b'],
-        'goal_target' => (int) $spec['goal_target'],
         'score_a' => 0,
         'score_b' => 0,
-        'half_countdown' => 15000,
+        'half_countdown' => K2_STATUS_ROOM_SIM_HALF_START_TICKS,
         'period' => 1,
         'host_scores_next' => (bool) random_int(0, 1),
-        'next_goal_at' => $now + random_int(5, 12),
         'crash_scheduled' => $crashPct > 0 && random_int(1, 100) <= $crashPct,
         'crash_at' => $now + random_int(30, 240),
     ];
@@ -956,44 +1058,22 @@ function k2_status_room_sim_tick_lobby_presence(mysqli $con, array &$state): boo
 }
 
 /** @param array<string, mixed> $live */
-function k2_status_room_sim_maybe_score(array &$live, int $now): bool
-{
-    $total = (int) $live['score_a'] + (int) $live['score_b'];
-    if ($total >= (int) $live['goal_target']) {
-        return false;
-    }
-    if ($now < (int) ($live['next_goal_at'] ?? 0)) {
-        return false;
-    }
-    if (!empty($live['host_scores_next'])) {
-        $live['score_a'] = (int) $live['score_a'] + 1;
-    } else {
-        $live['score_b'] = (int) $live['score_b'] + 1;
-    }
-    $live['host_scores_next'] = !$live['host_scores_next'];
-    $live['next_goal_at'] = $now + random_int(5, 15);
-
-    return true;
-}
-
-/** @param array<string, mixed> $live */
 function k2_status_room_sim_tick_live_match(mysqli $con, array &$state, array &$live): ?array
 {
-    $now = time();
     $live['half_countdown'] = max(0, (int) $live['half_countdown'] - 50);
-    if ($live['half_countdown'] <= 7500 && (int) $live['period'] === 1) {
-        $live['period'] = 2;
-        $live['half_countdown'] = max($live['half_countdown'], 7500);
-    }
-
-    $scored = k2_status_room_sim_maybe_score($live, $now);
     k2_status_room_sim_update_live_row($con, $live);
-    if ($scored) {
-        $state['last_event'] = 'goal:' . $live['game_id'] . ':' . (int) $live['score_a'] . '-' . (int) $live['score_b'];
-    }
 
-    $total = (int) $live['score_a'] + (int) $live['score_b'];
-    if ($total >= (int) $live['goal_target']) {
+    if ((int) $live['period'] === 1 && (int) $live['half_countdown'] <= K2_STATUS_ROOM_SIM_FINISH_AT_TICKS) {
+        if ((int) $live['score_a'] + (int) $live['score_b'] === 0) {
+            if (!empty($live['host_scores_next'])) {
+                $live['score_a'] = 1;
+            } else {
+                $live['score_b'] = 1;
+            }
+            k2_status_room_sim_update_live_row($con, $live);
+        }
+        $state['last_event'] = 'whistle:' . $live['game_id'] . ':' . (int) $live['score_a'] . '-' . (int) $live['score_b'];
+
         return $live;
     }
 
