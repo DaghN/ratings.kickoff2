@@ -25,7 +25,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/online_player_glance_lib.php
 
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
-$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+$con = new mysqli($dbhost, $username, $password, $database, (int) $dbportnum);
 if ($con->connect_errno) {
     http_response_code(500);
     echo json_encode(['error' => 'db_connect_failed']);

@@ -28,7 +28,7 @@ if (!k2_status_room_sim_is_allowed()) {
 }
 
 k2_site_ensure_utc();
-$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+$con = new mysqli($dbhost, $username, $password, $database, (int) $dbportnum);
 if ($con->connect_errno) {
     http_response_code(500);
     echo json_encode(['ok' => false, 'error' => 'db_connect_failed']);

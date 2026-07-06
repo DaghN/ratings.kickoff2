@@ -210,31 +210,11 @@ body.k2-site.k2-player-wing.player-feast-body .k2-player-hero {
 	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k2-border-subtle) 38%, transparent);
 }
 
-.pm3d-section--played-days .pm3-cal__status-count,
-.pm3d-section--played-days .pm3-cal__status-name,
-.pm3d-section--played-weeks .pm3-cal__status-count,
-.pm3d-section--played-weeks .pm3-cal__status-name,
-body.k2-site .k2-table-tooltip .pm3-cal__tip-count {
-	color: color-mix(in srgb, var(--k2-pure-amber) 85%, var(--k2-text-primary));
-	font-weight: 600;
-}
-
-/* Profile calendar + rating chart day tooltips — fixed chart amber (not UI tint link-star) */
-body.k2-site .k2-link-star--chart-amber,
-body.k2-site span.k2-link-star--chart-amber {
-	color: color-mix(in srgb, var(--k2-pure-amber) 85%, var(--k2-text-primary));
-	font-weight: 600;
-}
-
+/* Profile calendar + rating chart day tooltips — Amiga realm uses chart pitch on rating line */
 body.k2-site .k2-link-star--chart-pitch,
 body.k2-site span.k2-link-star--chart-pitch {
 	color: color-mix(in srgb, var(--k2-pure-pitch) 85%, var(--k2-text-primary));
 	font-weight: 600;
-}
-
-body.k2-site .k2-table-tooltip--player-cal .k2-link-star--chart-amber:hover,
-body.k2-site .k2-table-tooltip--player-cal .k2-link-star--chart-amber:focus-visible {
-	color: color-mix(in srgb, var(--k2-pure-amber) 95%, var(--k2-text-primary));
 }
 
 body.k2-site .k2-table-tooltip--player-cal .k2-link-star--chart-pitch:hover,

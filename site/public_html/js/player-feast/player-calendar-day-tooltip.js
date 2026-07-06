@@ -6,7 +6,7 @@
 
 	var DAY_GAMES_API = '/api/player_feast/player_calendar_day_games.php';
 	var MAX_TOOLTIP_GAMES = 8;
-	var STAR_CLASS = 'k2-link-star--chart-amber';
+	var STAR_CLASS = 'k2-link-star';
 	var WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 	var WEEKDAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 	var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

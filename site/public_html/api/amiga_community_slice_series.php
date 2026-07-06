@@ -41,7 +41,7 @@ if (!in_array($metric, K2_ACT_SLICE_SERIES_SLICES[$slice], true)) {
 
 include __DIR__ . '/../../config/ko2amiga_config.php';
 
-$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+$con = new mysqli($dbhost, $username, $password, $database, (int) $dbportnum);
 if ($con->connect_errno) {
     http_response_code(500);
     echo json_encode(['error' => 'db_connect_failed']);

@@ -389,7 +389,7 @@
 		var dayWord = count === 1 ? 'day' : 'days';
 		var safeName = escapeHtml(playerName || 'This player');
 		status.innerHTML = 'In ' + year + ', <span class="k2-link-star pm3-cal__status-name">' + safeName + '</span> '
-			+ 'enjoyed <span class="pm3-cal__status-count">' + count + '</span> ' + dayWord + ' of online Kick Off 2...';
+			+ 'enjoyed <span class="k2-link-star pm3-cal__status-count">' + count + '</span> ' + dayWord + ' of online Kick Off 2...';
 	}
 
 	function renderYear(section, year, playedMap, ctx) {

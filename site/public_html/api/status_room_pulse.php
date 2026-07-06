@@ -25,7 +25,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_room_live_sim.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
 k2_site_ensure_utc();
-$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+$con = new mysqli($dbhost, $username, $password, $database, (int) $dbportnum);
 if ($con->connect_errno) {
     http_response_code(500);
     echo json_encode(['error' => 'db_connect_failed']);

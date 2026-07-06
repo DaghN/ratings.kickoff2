@@ -426,6 +426,7 @@
 | 2026-07-02 | **Amiga Activity hub chapter lede** — question-led invite under *N years of the KOA*; headline numbers stay in summary panel above stat cards. |
 | 2026-07-02 | **Amiga Activity hub lede** — tournament count copy: *…605 official Amiga tournaments.* |
 | 2026-07-02 | **Amiga Activity hub intro** — chapter title = *N years of the KOA* (N = calendar year − 2001); lede opens *Since 2001, …*; full summary panel above wing tabs on all Activity wings. |
+| 2026-07-06 | **Profile played-days/weeks** — narrative counts + calendar/rating-chart day tooltips use `k2-link-star` (not chart amber); Amiga rating tooltips keep chart pitch. |
 | 2026-07-01 | **Amiga Activity summary — player averages** — removed Games per player card; prose below cards matches online (`Players average … rated games and … different opponents.`). |
 | 2026-07-01 | **Perf-rating LB W/L color** — Best · Top 100 · Perfect tables: W/L cells use `.blue` / `.red` via `amiga_profile_tournament_wdl_cell()`. |
 | 2026-07-01 | **Rating LB W/L color** — Wins/Losses cells on online + Amiga `/leaderboards/rating.php` use `.blue` / `.red` (via `k2_fmt_wdl_count()`); zero stays plain. |

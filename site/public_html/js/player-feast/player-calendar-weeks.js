@@ -149,8 +149,8 @@
 		if (DayTip && DayTip.renderPlayerSide) {
 			return DayTip.renderPlayerSide(name, rating);
 		}
-		return '<span class="k2-link-star--chart-amber">' + escapeHtml(name) + '</span>'
-			+ ' <span class="pm3-cal__tip-rating k2-link-star--chart-amber">(' + escapeHtml(formatRating(rating)) + ')</span>';
+		return '<span class="k2-link-star">' + escapeHtml(name) + '</span>'
+			+ ' <span class="pm3-cal__tip-rating k2-link-star">(' + escapeHtml(formatRating(rating)) + ')</span>';
 	}
 
 	function formatWinningGoalCell(goals, opponentGoals) {
@@ -193,10 +193,10 @@
 			return DayTip.dayTooltipSummary(games);
 		}
 		if (games === 0) {
-			return '<span class="pm3-cal__tip-count k2-link-star--chart-amber">0</span> rated games';
+			return '<span class="pm3-cal__tip-count k2-link-star">0</span> rated games';
 		}
 		var word = games === 1 ? 'rated game' : 'rated games';
-		return '<span class="pm3-cal__tip-count k2-link-star--chart-amber">' + games + '</span> ' + word;
+		return '<span class="pm3-cal__tip-count k2-link-star">' + games + '</span> ' + word;
 	}
 
 	function renderGamesBody(totalGames, games) {
@@ -444,7 +444,7 @@
 		var safeName = escapeHtml(playerName || 'This player');
 		status.innerHTML = '... and since ' + escapeHtml(formatSinceDate(firstGameDateYmd)) + ', '
 			+ '<span class="k2-link-star pm3-cal__status-name">' + safeName + '</span> '
-			+ 'has played in no less than <span class="pm3-cal__status-count">' + count + '</span> different ' + weekWord + '...';
+			+ 'has played in no less than <span class="k2-link-star pm3-cal__status-count">' + count + '</span> different ' + weekWord + '...';
 	}
 
 	function initSection(section) {

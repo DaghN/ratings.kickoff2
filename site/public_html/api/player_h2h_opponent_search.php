@@ -81,7 +81,7 @@ if ($realm === 'amiga') {
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_context.php';
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_opponents_h2h.php';
 
-    $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+    $con = new mysqli($dbhost, $username, $password, $database, (int) $dbportnum);
     if ($con->connect_errno) {
         http_response_code(500);
         echo json_encode(['error' => 'db']);
@@ -151,7 +151,7 @@ if ($realm === 'amiga') {
 
 include $_SERVER['DOCUMENT_ROOT'] . '/../config/ko2unitydb_config.php';
 
-$con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+$con = new mysqli($dbhost, $username, $password, $database, (int) $dbportnum);
 if ($con->connect_errno) {
     http_response_code(500);
     echo json_encode(['error' => 'db']);
