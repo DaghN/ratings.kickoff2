@@ -152,6 +152,9 @@
 | 2026-07-06 | **Cascade rating glow** — finished-game players only: name + Elo ink in active LB (not count or whole row) |
 | 2026-07-06 | **Glow — text ink only** — unified 2.6 s jukebox bloom on names/digits/counts; stronger multi-layer text-shadow (Jul 6 tune) |
 | 2026-07-06 | **SRL-16** — Status cascade rating tbody swap → `k2TableRefreshSortableBody()` (user sort preserved) |
+| 2026-07-06 | **Live sim 10 min wall cap** — auto Stop cleanup at 600 s from `started_at` (before catch-up); stalled idle halt when L3 queue exhausted — [`status-room-live-sim-spec.md`](docs/status-room-live-sim-spec.md). |
+| 2026-07-06 | **Status live kickoff glow fix** — glow 0–0 after score sync (patchLiveScores no longer replaces fresh row HTML); explicit kickoff pulse in `patchLive`. |
+| 2026-07-06 | **Status live new-game glow** — kickoff rows glow 0–0 score digits (white bloom), not player names — SRL-10 tweak in `k2-live-glow.js`. |
 | 2026-07-06 | **Status room visibility catch-up** — immediate pulse on tab focus / pageshow after Stop (or any DB change) while Status was backgrounded; Stop + cache invalidate confirmed OK |
 | 2026-07-06 | **Status room glow fixes** — recency lists glow by id diff (each new login/reg/game row, including same-second batch); SSR `data-player-id` on rows; live score pulse on scoring side only |
 | 2026-07-06 | **Login/register integrity** — no bootstrap batch; one lobby event/tick; register without LastLogin/online; login-only sets IsOnline+LastLogin |

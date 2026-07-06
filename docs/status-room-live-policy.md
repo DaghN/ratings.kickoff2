@@ -41,7 +41,7 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 | SRL-7 | **League refresh:** **active period tab only** (Day / Week / Month / Year). No adjacent-tab prewarm in v1 — keep simple. |
 | SRL-8 | **Both** Activity + Points league tables in cascade (same period key as active tab). Reuse existing league query/API helpers where possible. |
 | SRL-9 | **Live half clock:** client ticks from server `half_countdown` (50 ticks/s) + `sync_epoch`; resync every heartbeat. Display `M:SS`. |
-| SRL-10 | **Glow — minimal set + cascade:** (1) **Online** — new player name. (2) **Live** — new game player names. (3) **Recent** — names + score digits (white). (4) **Goals** — scoring digit (white). (5) **Active LB** — rating gainers: **Elo only** (white). (6) **League Activity** — **Games** cell (white) for both finishers. (7) **League Points** — **Pts** cell (white) for winner, or **both** on draw. **2.6 s**. |
+| SRL-10 | **Glow — minimal set + cascade:** (1) **Online** — new player name. (2) **Live** — new game **score digits** (0–0 kickoff, white bloom). (3) **Recent** — names + score digits (white). (4) **Goals** — scoring digit (white). (5) **Active LB** — rating gainers: **Elo only** (white). (6) **League Activity** — **Games** cell (white) for both finishers. (7) **League Points** — **Pts** cell (white) for winner, or **both** on draw. **2.6 s**. |
 | SRL-11 | **Glow — score change:** **`k2-live-glow-bloom-white`** on the scoring digit (inner `.blue` when leading, else plain cell) — bright white ink, not accent or stat-green bloom |
 | SRL-12 | **Retired — cascade glow sequence:** no post-cascade glow choreography. Glow only from **SRL-10/11** lobby rules. |
 | SRL-13 | **First paint stays SSR** — `status.php` + `k2_status_load_room()` unchanged for no-JS and fast paint; heartbeat **enhances**. |
@@ -60,7 +60,7 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 
 | Signal | Source | Client action |
 |--------|--------|---------------|
-| `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, `GamePeriod`) — **not** `half_countdown`; client ticks clock locally between polls | Patch live list on fp change; **goal glow** on score increase; **player name glow** on new live game row only; **`live_clocks` every heartbeat** resyncs anchor (SRL-9) |
+| `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, `GamePeriod`) — **not** `half_countdown`; client ticks clock locally between polls | Patch live list on fp change; **goal glow** on score increase; **score digit glow** (0–0 white bloom) on new live game row only; **`live_clocks` every heartbeat** resyncs anchor (SRL-9) |
 | `online_fp` | Ordered online player ids (login-first sort) | Patch Online list + heading count (**count: no glow**); **name glow** for each **new** online id only |
 | `last_login_epoch` | Head of `playertable.LastLogin` | Refresh recent logins — **no glow** |
 | `last_join_epoch` | Head of `playertable.JoinDate` | Refresh new players — **no glow** |

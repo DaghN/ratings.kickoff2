@@ -124,6 +124,12 @@ Each tick: **one** pending step (if due) → tick all live → maybe start one p
 
 Halt ticks · **logout all online** · **delete in-progress sim live rows** (`GameID >= 990000`, unfinished) · clear queue + pending. **Finished** `ratedresults` + derived ops from the run **remain**.
 
+### Wall-clock cap (locked)
+
+**10 minutes** (`K2_STATUS_ROOM_SIM_MAX_WALL_SECONDS = 600`) from `started_at` — checked **before** catch-up ticks. On expiry: same cleanup as **Stop** (`last_event = time_limit`). Prevents forgotten sessions from running all day.
+
+**Stalled auto-stop:** when L3 queue + live + pending are all empty but `completed_count < game_count` (crashes/cancels), halt with `last_event = stalled` — same cleanup as Stop.
+
 ### Status pulse integration (testing)
 
 When exercising sim on **`work.ratingskickoff.test/status.php`**:

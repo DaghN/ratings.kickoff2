@@ -50,6 +50,17 @@
 		}
 		if (el.matches('li[data-game-id]')) {
 			var targets = [];
+			if (el.querySelector('.k2-status-live-list__meta')) {
+				// Live panel — new game row: kickoff scoreline (0–0), not player names.
+				var liveGoals = el.querySelectorAll('.k2-status-score .k2-status-score__goal');
+				for (var lg = 0; lg < liveGoals.length; lg++) {
+					var liveGoalInk = resolveScoreGoalGlowTarget(liveGoals[lg]);
+					if (liveGoalInk) {
+						targets.push(liveGoalInk);
+					}
+				}
+				return targets;
+			}
 			var matchLinks = el.querySelectorAll('.k2-status-match a.k2-link-star, .k2-status-match a[href*="/player/"]');
 			if (matchLinks.length) {
 				for (var m = 0; m < matchLinks.length; m++) {
@@ -61,14 +72,11 @@
 					targets.push(gameLink);
 				}
 			}
-			// Recent games (finished rows) — score digits too; live rows glow goals on each score tick only.
-			if (!el.querySelector('.k2-status-live-list__meta')) {
-				var goalCells = el.querySelectorAll('.k2-status-score .k2-status-score__goal');
-				for (var g = 0; g < goalCells.length; g++) {
-					var goalInk = resolveScoreGoalGlowTarget(goalCells[g]);
-					if (goalInk) {
-						targets.push(goalInk);
-					}
+			var goalCells = el.querySelectorAll('.k2-status-score .k2-status-score__goal');
+			for (var g = 0; g < goalCells.length; g++) {
+				var goalInk = resolveScoreGoalGlowTarget(goalCells[g]);
+				if (goalInk) {
+					targets.push(goalInk);
 				}
 			}
 			return targets;

@@ -162,9 +162,9 @@
 		return true;
 	}
 
-	/** Ids to ink-glow after a list patch — Online (new player), Live (new game), Recent games (new row). */
+	/** Ids to ink-glow after a list patch — Online (new player), Recent games (new row). Live kickoff glow is in patchLive. */
 	function listPatchGlowKeys(slotName, currentKeys, desiredKeys) {
-		if (slotName !== 'online' && slotName !== 'live' && slotName !== 'recent_games') {
+		if (slotName !== 'online' && slotName !== 'recent_games') {
 			return [];
 		}
 		var prevSet = {};
@@ -463,18 +463,42 @@
 			var nextA = g.score_a;
 			var nextB = g.score_b;
 			var nextKey = nextA + '-' + nextB;
-			if (prevKey !== nextKey) {
+			if (prevKey && prevKey !== nextKey) {
 				scoreEl.innerHTML = formatLiveScoreHtml(nextA, nextB);
-				if (prevKey) {
-					if (nextA > prevA) {
-						pulseScoreSide(scoreEl, 'a');
-					}
-					if (nextB > prevB) {
-						pulseScoreSide(scoreEl, 'b');
-					}
+				if (nextA > prevA) {
+					pulseScoreSide(scoreEl, 'a');
+				}
+				if (nextB > prevB) {
+					pulseScoreSide(scoreEl, 'b');
 				}
 			}
 			syncScoreState(scoreEl, nextA, nextB);
+		}
+	}
+
+	function newLiveGameIds(prevIds, nextIds) {
+		var ids = [];
+		for (var id in nextIds) {
+			if (Object.prototype.hasOwnProperty.call(nextIds, id) && !prevIds[id]) {
+				ids.push(id);
+			}
+		}
+		return ids;
+	}
+
+	function glowLiveKickoffScores(root, gameIds) {
+		if (!window.k2LiveGlow || !gameIds || !gameIds.length) {
+			return;
+		}
+		for (var i = 0; i < gameIds.length; i++) {
+			var li = root.querySelector('[data-k2-status-live-slot="live"] li[data-game-id="' + gameIds[i] + '"]');
+			if (!li) {
+				continue;
+			}
+			var goals = li.querySelectorAll('.k2-status-score .k2-status-score__goal');
+			for (var g = 0; g < goals.length; g++) {
+				window.k2LiveGlow.scorePulse(goals[g]);
+			}
 		}
 	}
 
@@ -565,6 +589,7 @@
 		}
 		patchListSlot(root, 'live', section, 'No live games in progress.', 'li[data-game-id]');
 		patchLiveScores(root, games);
+		glowLiveKickoffScores(root, newLiveGameIds(prevIds, nextIds));
 		syncLiveGameClocks(root, games, syncEpoch);
 		state.liveGameIds = nextIds;
 	}

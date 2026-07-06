@@ -20,6 +20,28 @@
     }
   }
 
+  function formatWallRemaining(seconds) {
+    if (seconds == null || seconds <= 0) {
+      return '—';
+    }
+    var mins = Math.floor(seconds / 60);
+    var secs = seconds % 60;
+    return mins + ':' + String(secs).padStart(2, '0') + ' left';
+  }
+
+  function haltEventMessage(event) {
+    if (event === 'time_limit') {
+      return 'Sim auto-stopped — 10 minute wall limit reached.';
+    }
+    if (event === 'stalled') {
+      return 'Sim auto-stopped — no games left in queue (crashes/cancels).';
+    }
+    if (event === 'complete') {
+      return 'Sim complete — all queued games finished.';
+    }
+    return '';
+  }
+
   function renderStatus(st) {
     if (!st) {
       return;
@@ -34,6 +56,7 @@
     var onlineEl = root.querySelector('[data-k2-sim-field="online_count"]');
     var liveEl = root.querySelector('[data-k2-sim-field="live_count"]');
     var queuedEl = root.querySelector('[data-k2-sim-field="queued_count"]');
+    var wallEl = root.querySelector('[data-k2-sim-field="wall_remaining"]');
     var eventEl = root.querySelector('[data-k2-sim-field="last_event"]');
     if (activeEl) {
       activeEl.textContent = st.active ? 'running' : 'idle';
@@ -53,8 +76,17 @@
     if (queuedEl) {
       queuedEl.textContent = String(st.queued_count || 0);
     }
+    if (wallEl) {
+      wallEl.textContent = st.active
+        ? formatWallRemaining(st.wall_seconds_remaining)
+        : '—';
+    }
     if (eventEl) {
       eventEl.textContent = st.last_event || '—';
+    }
+    var haltMsg = !st.active ? haltEventMessage(st.last_event) : '';
+    if (haltMsg) {
+      setMessage(haltMsg);
     }
   }
 

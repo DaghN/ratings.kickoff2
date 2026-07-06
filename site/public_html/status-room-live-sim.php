@@ -22,7 +22,7 @@ $simAllowed = k2_status_room_sim_is_allowed();
 ?>
 <main class="k2-page-main" id="k2-status-room-live-sim" data-k2-sim-allowed="<?php echo $simAllowed ? '1' : '0'; ?>">
   <h1 class="k2-page-title">Status live sim</h1>
-  <p class="k2-lead">Work DB only — realistic lobby activity for Status live pulse. Open Status in another tab so pulse ticks drive the sim.</p>
+  <p class="k2-lead">Work DB only — realistic lobby activity for Status live pulse. Auto-stops after <strong>10 minutes</strong>. Open Status in another tab so pulse ticks drive the sim.</p>
 <?php if (!$simAllowed): ?>
   <p class="k2-notice k2-notice--warn">Not available on this host. Use <strong>work.ratingskickoff.test</strong>.</p>
 <?php else: ?>
@@ -59,6 +59,7 @@ $simAllowed = k2_status_room_sim_is_allowed();
     <dt>Online</dt><dd data-k2-sim-field="online_count">0</dd>
     <dt>Live now</dt><dd data-k2-sim-field="live_count">0</dd>
     <dt>Queued</dt><dd data-k2-sim-field="queued_count">0</dd>
+    <dt>Auto-stop</dt><dd data-k2-sim-field="wall_remaining">—</dd>
     <dt>Last event</dt><dd data-k2-sim-field="last_event">—</dd>
   </dl>
 <?php endif; ?>
