@@ -184,10 +184,11 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 	var backPayload = isBackForwardNav() ? readBackScroll() : null;
 
 	var hashId = backPayload ? '' : hashTargetId();
-	if (!hashId && SERVER_TARGET && !backPayload) {
+	var payload = hashId ? null : (backPayload || readPayload());
+	/* Bare entry with no hash and no carry payload — server-declared target (e.g. game.php?id=). */
+	if (!hashId && !payload && SERVER_TARGET && !backPayload) {
 		hashId = SERVER_TARGET;
 	}
-	var payload = hashId ? null : (backPayload || readPayload());
 
 	/* y=0: scroll restore is a no-op. Non-TT destination: normal full-page load at top
 	   (F6 iter 3a). TT destination (?as=): full-body chrome gate until sub-ribbon chrome
@@ -513,6 +514,10 @@ html.k2-carry-cloak body { visibility: hidden !important; }
 			return;
 		}
 		if (link.getAttribute('data-k2-tv-inpage') === '1') {
+			return;
+		}
+		/* Peer pills use carry-scroll, not hash landing (see hub/player wing nav). */
+		if (link.closest && link.closest('nav[data-k2-carry-scroll]')) {
 			return;
 		}
 		try {

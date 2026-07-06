@@ -8,11 +8,8 @@ if ($milestoneKey === null) {
 }
 
 if (isset($_GET['sort'])) {
-	$params = ['key' => $milestoneKey];
-	if (isset($_GET['panel']) && strtolower(trim((string) $_GET['panel'])) === 'graphs') {
-		$params['panel'] = 'graphs';
-	}
-	header('Location: ' . k2_route('milestone', $params), true, 302);
+	$panel = isset($_GET['panel']) && strtolower(trim((string) $_GET['panel'])) === 'graphs' ? 'graphs' : 'unlockers';
+	header('Location: ' . k2_milestone_detail_href($milestoneKey, $panel, false), true, 302);
 	exit;
 }
 
@@ -39,6 +36,7 @@ $k2MilestoneChartIds = k2_milestone_detail_chart_ids($milestoneKey);
 $token = (string) $definition['chart_token'];
 $k2MsDetailPanel = k2_milestone_detail_panel_param();
 $k2HubTabActive = 'milestones';
+$k2ScrollTargetId = K2_MILESTONE_DETAIL_FRAGMENT;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" data-realm="online">
@@ -70,7 +68,11 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/milestones_hub_nav.php';
 ?>
 
 <main class="k2-ms-detail-page k2-ms-detail-page--<?php echo k2_h($token); ?>" id="main">
-	<?php k2_milestone_render_detail_spotlight($definition); ?>
+	<?php
+	k2_milestone_render_detail_spotlight($definition);
+	require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_hero_glow_session.php';
+	k2_ms_detail_spotlight_glow_session_mark();
+	?>
 
 	<?php k2_milestone_render_detail_panel_nav($milestoneKey, $k2MsDetailPanel); ?>
 

@@ -661,14 +661,24 @@ function k2_milestone_detail_panel_param(): string
     return $panel === 'graphs' ? 'graphs' : 'unlockers';
 }
 
-function k2_milestone_detail_href(string $milestoneKey, string $panel = 'unlockers'): string
+/** Scroll target on milestone.php — spotlight card at viewport top (hub chrome above). */
+const K2_MILESTONE_DETAIL_FRAGMENT = 'k2-ms-detail-spotlight';
+
+function k2_milestone_detail_anchor_hash(): string
+{
+    return '#' . K2_MILESTONE_DETAIL_FRAGMENT;
+}
+
+function k2_milestone_detail_href(string $milestoneKey, string $panel = 'unlockers', bool $withSpotlightAnchor = true): string
 {
     $params = ['key' => $milestoneKey];
     if ($panel === 'graphs') {
         $params['panel'] = 'graphs';
     }
 
-    return k2_route('milestone', $params);
+    $href = k2_route('milestone', $params);
+
+    return $withSpotlightAnchor ? $href . k2_milestone_detail_anchor_hash() : $href;
 }
 
 /** @deprecated Use k2_milestones_recent_href / k2_milestone_detail_href */
@@ -1476,7 +1486,7 @@ function k2_milestone_render_detail_panel_nav(string $milestoneKey, string $acti
         $isActive = $activePanel === $id;
         ?>
 		<a id="k2-ms-detail-tab-<?php echo k2_h($id); ?>"
-			href="<?php echo k2_h(k2_milestone_detail_href($milestoneKey, $id)); ?>"
+			href="<?php echo k2_h(k2_milestone_detail_href($milestoneKey, $id, false)); ?>"
 			class="k2-chrome-tabs__tab<?php echo $isActive ? ' is-active' : ''; ?>"
 			role="tab"
 			aria-controls="k2-ms-detail-panel-<?php echo k2_h($id); ?>"
@@ -1498,6 +1508,7 @@ function k2_milestone_render_detail_spotlight(array $definition): void
     $displayName = k2_h((string) $definition['display_name']);
     $ruleShort = k2_h((string) $definition['rule_short']);
     ?>
+<div id="<?php echo k2_h(K2_MILESTONE_DETAIL_FRAGMENT); ?>" class="k2-ms-detail-spotlight-anchor" tabindex="-1"></div>
 <header class="k2-ms-detail-spotlight" aria-labelledby="k2-ms-detail-spotlight-title">
 	<article class="k2-ms-card k2-ms-detail-spotlight-card is-unlocked k2-ms-card--<?php echo $token; ?>">
 		<h1 id="k2-ms-detail-spotlight-title" class="k2-ms-card__title k2-ms-detail-spotlight-card__title"><?php echo $displayName; ?></h1>

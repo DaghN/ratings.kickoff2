@@ -135,6 +135,10 @@
 
 ## Recent log
 
+| 2026-07-06 | **Milestone panel carry-scroll** — Made it/Graphs pills omit spotlight hash; carry payload beats `$k2ScrollTargetId`; hash handler skips carry-nav links |
+| 2026-07-06 | **Milestone spotlight glow fade** — 1.5s tier border glow-in on cold entry; warm chain skips on milestone→milestone (mirrors feast player hero) |
+| 2026-07-06 | **Milestone spotlight inset** — detail hero card `margin-left: calc(--k2-player-hero-glow-inset + 10px)` (feast player hero parity) |
+| 2026-07-06 | **Milestone detail hash landing** — catalog/recent/garden → `milestone.php` scroll to `#k2-ms-detail-spotlight` (spotlight card); `$k2ScrollTargetId` for bare key-only URLs |
 | 2026-07-06 | **Docs pass** — STATUS_PAGE_DATA, feature-log, implementation plan, prod-readiness nuance (deploy-safe vs behaviour-proven) |
 | 2026-07-06 | **SRL-9 live_clocks** — pulse sends half-clock anchor every beat; client resyncs on `changed: false` too |
 | 2026-07-06 | **Sim wall-clock catch-up** — missed seconds replay on status load + pulse + sim control (cap 600 s/call) for realistic off-page sim |

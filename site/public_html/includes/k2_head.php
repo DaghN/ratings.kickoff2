@@ -15,6 +15,7 @@ $k2DocRoot = $_SERVER['DOCUMENT_ROOT'];
 <?php
 require_once $k2DocRoot . '/includes/k2_player_hero_glow_session.php';
 k2_player_hero_glow_session_head();
+k2_ms_detail_spotlight_glow_session_head();
 ?>
 <?php include $k2DocRoot . '/includes/theme_boot_head.php'; ?>
 <?php include $k2DocRoot . '/includes/k2_carry_scroll_restore.php'; ?>
