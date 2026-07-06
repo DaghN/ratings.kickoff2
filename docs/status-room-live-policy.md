@@ -41,7 +41,7 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 | SRL-7 | **League refresh:** **active period tab only** (Day / Week / Month / Year). No adjacent-tab prewarm in v1 — keep simple. |
 | SRL-8 | **Both** Activity + Points league tables in cascade (same period key as active tab). Reuse existing league query/API helpers where possible. |
 | SRL-9 | **Live half clock:** client ticks from server `half_countdown` (50 ticks/s) + `sync_epoch`; resync every heartbeat. Display `M:SS`. |
-| SRL-10 | **Glow — minimal set + cascade:** (1) **Online** — new player name. (2) **Live** — new game **score digits** (0–0 kickoff, white bloom). (3) **Recent** — names + score digits (white). (4) **Goals** — scoring digit (white). (5) **Active LB** — rating gainers: **Elo only** (white). (6) **League Activity** — **Games** cell (white) for both finishers. (7) **League Points** — **Pts** cell (white) for winner, or **both** on draw. **2.6 s**. |
+| SRL-10 | **Glow — minimal set + cascade:** (1) **Online** — new player name (white bloom). (2) **Live** — new game **score digits** (0–0 kickoff, white bloom). (3) **Recent** — names + score digits (white). (4) **Goals** — scoring digit (white). (5) **Active LB** — rating gainers: **Elo only** (white). (6) **League Activity** — **Games** cell (white) for both finishers. (7) **League Points** — **Pts** cell (white) for winner, or **both** on draw. **2.6 s**. All Status room ink glow = **`k2-live-glow-bloom-white`**. |
 | SRL-11 | **Glow — score change:** **`k2-live-glow-bloom-white`** on the scoring digit (inner `.blue` when leading, else plain cell) — bright white ink, not accent or stat-green bloom |
 | SRL-12 | **Retired — cascade glow sequence:** no post-cascade glow choreography. Glow only from **SRL-10/11** lobby rules. |
 | SRL-13 | **First paint stays SSR** — `status.php` + `k2_status_load_room()` unchanged for no-JS and fast paint; heartbeat **enhances**. |
@@ -138,7 +138,7 @@ Clamp at 0 → display `—`. Resync every heartbeat; on `period` change, take s
 **Diff rules:**
 
 - Same `game_id`, score/period changed → update scores in place (no list HTML replace); pulse **only the goal cell(s) that increased**; resync clock anchor from payload
-- New `game_id` → list replace; **player name ink glow** on new live row(s).
+- New `game_id` → list replace; **kickoff score digit glow** on new live row(s).
 - Missing `game_id` → remove row (no glow)
 
 **List patch glow:** **`online`** (new player id), **`live`** (new game row), **`recent_games`** (new game id → both player names). All other lists patch silently.
@@ -151,15 +151,15 @@ Clamp at 0 → display `—`. Resync every heartbeat; on `period` change, take s
 
 | Event | Effect |
 |-------|--------|
-| Player enters Online panel | **Name** — `k2-link-star` accent bloom |
-| New live game row | **Both player names** — accent bloom |
-| New recent game row | **Names** accent + **score digits** white |
+| Player enters Online panel | **Name** — white bloom (same as scores) |
+| New live game row | **Score digits** — white bloom (0–0 kickoff) |
+| New recent game row | **Names + score digits** — white bloom |
 | Goal scored (live) | **Scoring digit** — white bloom |
 | Rated finish — rating gainer in active LB | **Elo link** white bloom only (`rating_gainers` from `ratedresults.Adjustment* > 0`) |
 | Rated finish — league Activity | **Games** cell white bloom for both finishers (`league.glow.activity`) |
 | Rated finish — league Points | **Pts** cell white bloom — winner only if decisive, both on draw (`league.glow.pts`) |
 
-**Palettes:** **`triggerWhite`** → `k2-live-glow-bloom-white` (bright white). Accent bloom on names via **`triggerStar`** where noted above.
+**Palettes:** Status room lobby/cascade ink glow = **`k2-live-glow-bloom-white`** only (player links scoped in `theme.css` under `.k2-status-room`; scores via `.k2-status-score__goal`; LB/league via **`triggerWhite`**).
 
 **No glow:** recent logins, new players, online count, arc counts, league meta, non-gainer LB rows, league rows not in the finishing game.
 

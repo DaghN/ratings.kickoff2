@@ -6949,6 +6949,12 @@ body.k2-site .k2-status-score__goal .blue.k2-live-glow {
 	animation-name: k2-live-glow-bloom-white;
 }
 
+/* Status room player names — same white ink as score digits */
+body.k2-site .k2-status-room .k2-link-star.k2-live-glow,
+body.k2-site .k2-status-room a[href*="/player/"].k2-live-glow {
+	animation-name: k2-live-glow-bloom-white;
+}
+
 /* Explicit white bloom (status LB Elo cell, etc.) */
 body.k2-site .k2-live-glow.k2-live-glow--white {
 	animation-name: k2-live-glow-bloom-white;
@@ -7031,6 +7037,13 @@ body.k2-site .k2-live-glow.k2-live-glow--white {
 
 	body.k2-site .k2-status-score__goal.k2-live-glow,
 	body.k2-site .k2-status-score__goal .blue.k2-live-glow {
+		text-shadow:
+			0 0 8px color-mix(in srgb, white 70%, transparent),
+			0 0 20px color-mix(in srgb, white 45%, transparent);
+	}
+
+	body.k2-site .k2-status-room .k2-link-star.k2-live-glow,
+	body.k2-site .k2-status-room a[href*="/player/"].k2-live-glow {
 		text-shadow:
 			0 0 8px color-mix(in srgb, white 70%, transparent),
 			0 0 20px color-mix(in srgb, white 45%, transparent);
