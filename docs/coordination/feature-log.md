@@ -77,7 +77,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | League honours leaderboard (v1) | L0 | — | — | **Proven** | **Not executed** | — | `leaderboards/league-honours.php`; **proven on `kooldb1`** after simul |
 | League period awards (medals DB) | L4 | SCH-009, SCH-010 | Yes | **Proven** | **Not executed** | PER-003 at cutover | Activity + points same orphan eligibility (`LEFT JOIN`); re-simul on work after rule change |
 | Status Leagues (Activity + Points) | L0 | — | — | **Proven** | **Not executed** | — | **Shipped**; spec [`status-period-competitions.md`](../status-period-competitions.md) |
-| Status room live (v1.5 pulse) | L0 | — | — | — | — | — | **Shipped Jul 2026** — 1 s heartbeat, lobby patches, cascade, **minimal glow** (Online / live / recent / white goal bloom), live **`StartTime ASC`**, prod-safe DB-only pulse; work sim harness; [`status-room-live-policy.md`](../status-room-live-policy.md) |
+| Status room live (v1.5 pulse) | L0 | — | — | — | — | — | **Shipped Jul 2026** — 1 s heartbeat, lobby patches, cascade, **`live_clocks` every beat** (SRL-9), cascade glow (LB Elo gainers; league Activity Games + Points Pts), minimal lobby glow, live **`StartTime ASC`**, deploy-safe DB-only pulse; work sim + wall-clock catch-up; [`status-room-live-policy.md`](../status-room-live-policy.md) |
 | Status league stack | L4 | SCH-008 | Yes | **Proven** | **Not executed** | — | `player_period_league`; PHP ops post-game at live cutover |
 | Player games server-side filters/sort | L0 | — | — | — | — | — | Read-time |
 | Hall of Fame aggregate read path | L0 | — | — | — | — | — | Peak/period cache + participation (Nth-period ties) + milestones/league read-time (Jun 2026) |

@@ -234,7 +234,16 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 
 ## Production readiness (pulse vs sim)
 
-**Audited Jul 2026.** Status live **can ship to prod** as read-only polling over the same MySQL tables prod already uses — **no dependency on sim JSON state** for signal collection or section payloads.
+**Audited Jul 2026 (updated post-SRL-9).** Status live **code is deploy-safe to prod** — read-only polling, sim hook guarded no-op off work. **End-to-end “live lobby on game night”** still depends on prod game-server write cadence (`HalfCountdown`, `IsOnline`, rated finish rows) — confirm with Steve before calling behaviour proven.
+
+### Deploy-safe vs behaviour-proven
+
+| Lens | Verdict |
+|------|---------|
+| **Sync PHP/JS to prod** | **Yes** — sim never runs outside `ko2unity_work` + `work.ratingskickoff.test` |
+| **Pulse reads only** | **Yes** — no sim JSON; no signal cache on read path |
+| **Clock accuracy on prod** | **Conditional** — needs continuous `resulttable.HalfCountdown` updates; **`live_clocks` every beat** corrects anchor when DB moves |
+| **Validated on prod-like traffic** | **Work sim + staging snapshot only** — soak on real server recommended |
 
 ### What prod pulse does (every request)
 
@@ -258,7 +267,9 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 
 ### Client contract (prod-safe)
 
-- Poll `GET /api/status_room_pulse.php` with previous `signals` query params; apply `sections` patches; no sim URLs or flags.
+- Poll `GET /api/status_room_pulse.php` with previous `signals` query params; apply `sections` patches when `changed: true`.
+- **`live_clocks`** on **every** response — client resyncs half-clock anchor even when `changed: false` (SRL-9).
+- No sim URLs or host branches in client JS.
 
 ---
 
@@ -273,7 +284,7 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 | Glow | `site/public_html/js/k2-live-glow.js` + `theme.css` (`k2-live-glow-bloom` text-shadow @ 2.6 s) |
 | Rating cascade re-sort | `k2TableRefreshSortableBody()` in `js/k2-table.js` |
 | Markup hooks | `site/public_html/includes/status_room_section.php` |
-| Page enqueue | `site/public_html/status.php` |
+| Page enqueue | `site/public_html/status.php` — sim tick before load when allowed (work only) |
 | Leagues integration | `site/public_html/js/status-period-competitions.js` |
 | Rating cascade re-sort | `site/public_html/js/k2-table.js` — `k2TableRefreshSortableBody()` |
 | **Live sim (work only)** | `status-room-live-sim.php`, `api/status_room_live_sim.php`, `includes/status_room_live_sim.php`, `js/status-room-live-sim.js` — see [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md) |
@@ -295,6 +306,7 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 
 | Date | Change |
 |------|--------|
+| 2026-07-06 | **Production readiness** — deploy-safe vs behaviour-proven table; Steve `HalfCountdown` cadence prerequisite |
 | 2026-07-06 | **SRL-9 wired** — `live_clocks` on every pulse; client resyncs half anchor when `changed: false` |
 | 2026-07-06 | **League cascade glow** — Activity Games (both finishers); Points Pts (winner or both on draw) |
 | 2026-07-06 | **LB cascade glow** — rating gainers: **Elo only** (white bloom); name no longer glows |

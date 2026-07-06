@@ -43,8 +43,8 @@ See policy **SRL-1…SRL-16**. Implementer essentials:
 | Interval | 1 s client poll; **fresh DB signal read** each pulse (no server signal cache on read path) |
 | Cascade trigger | `last_rated_id` change |
 | League | Active tab only; Activity + Points |
-| Clock | Client ticks `half_countdown` at 50/s; resync on pulse |
-| Glow | Minimal set — Online new player; live + recent new game (names + recent score digits); live goals (`k2-live-glow-bloom-white` @ 2.6 s) |
+| Clock | Client ticks `half_countdown` at 50/s; **`live_clocks` on every pulse** resyncs anchor (SRL-9) |
+| Glow | Minimal lobby set + **cascade:** active LB Elo (gainers); league Activity **Games** (both finishers); Points **Pts** (winner, or both on draw) — white bloom @ 2.6 s |
 | Tab hidden | **Keep polling**; **catch-up poll** on visible (`visibilitychange` / `pageshow` / `focus`) |
 | Prod | Pulse = DB reads only; sim tick hook **guarded no-op** off work — see policy § Production readiness |
 
@@ -97,8 +97,9 @@ See policy **SRL-1…SRL-16**. Implementer essentials:
 | Stop cleanup (logout all, cancel live, clear queue) | **Shipped** |
 | Guard: `ko2unity_work` + `work.ratingskickoff.test` | **Shipped** |
 | Pulse tick hook | **Shipped** |
+| Sim wall-clock catch-up (status load + pulse; cap 600 s) | **Shipped** Jul 2026 |
 
-**Before more pulse/sim code:** run § Verification (work harness) and SIM-T1…T12 in sim spec.
+**Before more pulse/sim code:** run § Verification (work harness) and SIM-T1…T13 in sim spec.
 
 ---
 
@@ -121,7 +122,7 @@ See policy **SRL-1…SRL-16**. Implementer essentials:
 | **Live sim API** | `api/status_room_live_sim.php` |
 | **Live sim engine** | `includes/status_room_live_sim.php` |
 | **Live sim client** | `js/status-room-live-sim.js` |
-| Pulse → sim tick | `api/status_room_pulse.php` → `k2_status_room_sim_tick_if_due()` when allowed |
+| Pulse → sim tick | `api/status_room_pulse.php` + `status.php` (before load) → `k2_status_room_sim_tick_if_due()` when allowed |
 
 ---
 
@@ -244,7 +245,7 @@ curl.exe -s -H "Host: work.ratingskickoff.test" "http://127.0.0.1/api/status_roo
 Browser on **`work.ratingskickoff.test`**:
 
 1. Sim page → **Start** → Status tab open.
-2. SIM-T1…T12 from sim spec checklist.
+2. SIM-T1…T13 from sim spec checklist (SIM-T13: leave Status mid-game 2+ min → clock advanced on return).
 3. Confirm `{ changed: false }` on quiet seconds; cascade on game finish (SIM-T6: data refresh + new recent row glow if id diff).
 4. Tab away during sim → Stop → tab back: Status catches up without manual refresh (visibility catch-up).
 
@@ -270,10 +271,10 @@ Add `scripts/oneoff/status_room_pulse_probe.php` — prints signal bundle + timi
 
 | Risk | Mitigation |
 |------|------------|
-| 1 s × N viewers DB load | Server 1 s shared cache (SRL-1) |
+| 1 s × N viewers DB load | Fresh signal SQL each poll; **`changed: false`** skips section HTML only; monitor on prod |
 | Rating table sortable break after tbody swap | **`k2TableRefreshSortableBody()`** after cascade — preserves user sort or defaults to Elo desc |
 | Staging looks “broken” | Document in UI? **No** — use **work live sim** for moving lobby; staging is snapshot |
-| Half clock drift | Resync every pulse; server wins on conflict |
+| Half clock drift | **`live_clocks` every heartbeat** (SRL-9); prod assumes game server keeps `HalfCountdown` current |
 | `last_rated_id` alone misses unrated finish | Rare for Status story; live_fp drop still catches live panel |
 
 ---
@@ -282,6 +283,7 @@ Add `scripts/oneoff/status_room_pulse_probe.php` — prints signal bundle + timi
 
 | Date | Change |
 |------|--------|
+| 2026-07-06 | **SRL-9 + sim catch-up** — `live_clocks` every pulse; sim wall-clock replay; cascade league/LB glow; prod-readiness nuance in policy |
 | 2026-07-06 | **Doc sync** — glow contract (text ink, cascade player ids, visibility catch-up, SRL-16, full active LB) across policy + plan + STATUS_PAGE_DATA + sim checklist |
 | 2026-07-06 | **SRL-16** — rating table re-sort after cascade (`k2TableRefreshSortableBody`) |
 | 2026-07-06 | Phase 2 — live sim file map, work-first verification, SIM roadmap pointer |

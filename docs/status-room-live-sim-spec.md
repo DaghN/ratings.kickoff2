@@ -219,7 +219,9 @@ When no tick ran for *N* seconds (navigated away, closed tab, etc.), the next ti
 | `api/status_room_pulse.php` | Each poll while Status is open |
 | `api/status_room_live_sim.php?action=status` | Sim control page 1 s poll |
 
-**Prod:** guard is no-op; catch-up does not run on prod. refresh work from baseline ([`work-db-prepare.md`](work-db-prepare.md) §3.1) — not what **Stop** does.
+**Prod:** sim guard is no-op on prod/staging — catch-up does not run there.
+
+**Full DB reset:** refresh work from baseline ([`work-db-prepare.md`](work-db-prepare.md) §3.1) — not what **Stop** does.
 
 ---
 

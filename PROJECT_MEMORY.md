@@ -24,7 +24,7 @@
 
 - **Profile (online):** **Complete** — production feast on **`player/profile.php`**; no active build track; spec [`player-profile-feast.md`](docs/player-profile-feast.md). **Amiga profile:** gradual polish only — [`amiga-profile-v0.md`](docs/amiga-profile-v0.md). Multi-agent lab sandboxes removed Jun 2026 (handoff archived).
 
-- **Design / Status hub:** Phase B v1.2 room grid shipped. **Live room (v1.5) shipped** — [`status-room-live-policy.md`](docs/status-room-live-policy.md). Prod live DB read + joshua redirect = **deferred** ([`STATUS_PAGE_DATA.md`](docs/STATUS_PAGE_DATA.md)).
+- **Design / Status hub:** Phase B v1.2 room grid shipped. **Live room (v1.5) shipped** — SRL-9 `live_clocks`, cascade glow (LB Elo + league Games/Pts), work sim wall-clock catch-up — [`status-room-live-policy.md`](docs/status-room-live-policy.md). Prod live DB read + joshua redirect = **deferred** ([`STATUS_PAGE_DATA.md`](docs/STATUS_PAGE_DATA.md)).
 
 - **Activity (`activity.php`):** Charts v2 shipped **local + staging** — `activity-charts-v2.js` + `server_activity_chart_panels.php` ([`activity-charts.md`](docs/activity-charts.md)). Optional L4 polish in feature doc only.
 
@@ -135,6 +135,7 @@
 
 ## Recent log
 
+| 2026-07-06 | **Docs pass** — STATUS_PAGE_DATA, feature-log, implementation plan, prod-readiness nuance (deploy-safe vs behaviour-proven) |
 | 2026-07-06 | **SRL-9 live_clocks** — pulse sends half-clock anchor every beat; client resyncs on `changed: false` too |
 | 2026-07-06 | **Sim wall-clock catch-up** — missed seconds replay on status load + pulse + sim control (cap 600 s/call) for realistic off-page sim |
 | 2026-07-06 | **TT ribbon carry-scroll (stuck)** — anchor `viewportOffset` inside CSS-sticky ribbon lied when stuck → restore jumped to latch (~181px); store skips anchor when ribbon stuck + restore safety net — `k2-carry-scroll.js`, `k2_carry_scroll_restore.php` |
