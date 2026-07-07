@@ -2,7 +2,7 @@
 
 **Purpose:** Define how **L2 pruned witness SQL** becomes canonical Amiga **ground truth** in `ko2amiga_db`. Import is the **only** place we normalize, correct, or reinterpret archival data before replay and the website see it.
 
-**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · [`amiga-ground-stack.md`](amiga-ground-stack.md) (strict chain) · [`scripts/amiga/README.md`](../scripts/amiga/README.md)
+**Related:** [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) (L3 country canonicalization + registry validation — policy locked Jul 2026) · [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · [`amiga-ground-stack.md`](amiga-ground-stack.md) (strict chain) · [`scripts/amiga/README.md`](../scripts/amiga/README.md)
 
 **Layer:** This doc owns **L3 witness ground** transforms and `import_manifest.json`. **L4** structure = [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md). **L5** derived = replay/finalize. **L0–L2** = `import-pristine`, `import-prune` — see policy §4–5 and stack doc §4.
 
@@ -114,6 +114,7 @@ Each import writes **`data/amiga/exports/import_manifest.json`** (gitignored; re
 | `transforms.name_merges` | Same detail as legacy `name_merges.json` |
 | `transforms.catalog_overrides` | Applied manual patches (access vs canonical + reason) |
 | `transforms.player_country_overrides` | Player nationality patches when L2 identity is missing/wrong |
+| `transforms.country_token_normalizations` | *(Planned — [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) CR14)* Legacy alias → registry `official_name` at L3 import |
 | `transforms.score_supplements` | Games appended from external evidence (tournament, count, reason) |
 | `transforms.structure_specs` | Registered structure specs applied (or skipped) during import |
 | `registry` | Module pointers for reviewers |
