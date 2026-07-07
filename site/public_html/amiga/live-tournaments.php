@@ -28,7 +28,6 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 $con->query("SET time_zone = '+00:00'");
 
 $liveRows = amiga_live_tournament_index_rows($con);
-$allowlistConfigured = amiga_live_tournament_allowlist_ids() !== [];
 mysqli_close($con);
 ?>
 
@@ -37,7 +36,7 @@ $k2HubChapterTitle = 'Live tournaments';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 ?>
 
-<?php amiga_live_tournament_index_render_table($liveRows, $allowlistConfigured); ?>
+<?php amiga_live_tournament_index_render_table($liveRows); ?>
 
 <p class="k2-amiga-live-view__ops-note k2-amiga-tournament-footnote" style="padding-bottom:1rem">
   Operators: fixture management and result entry use the internal

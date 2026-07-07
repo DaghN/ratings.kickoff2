@@ -352,6 +352,7 @@ Same **philosophy:** stored timeline truth where needed; present rows for hot re
 | **ALO8** | **Bidirectional flow** | Canon push remains; **pull** ground/media packs from staging is required for community era |
 | **ALO9** | **Lane B/C code in `amiga/ops/`** | Same deploy habit as online ops — WinSCP `public_html/`; not `scripts/` on server for daily paths |
 | **ALO10** | **Editorial ≠ L5** | Media uploads do not invoke finalize writers; optional link to `game_id` is editorial FK only |
+| **ALO11** | **Start = public live** | Generated fixture-backed tournaments with `lifecycle_status = running` appear on `/amiga/live-tournaments.php` automatically — **no config allowlist**. Setup stays private; **Make official** = finalize (N→N+1). No hide toggle in v1. |
 
 ---
 
@@ -405,7 +406,7 @@ Ship when §12.1 unlocks it. Technical exit criteria unchanged; **behavioural** 
 
 | Phase | Deliverable | Lane | Unlocks at | Technical exit |
 |-------|-------------|------|------------|----------------|
-| **0 — Doc** | This policy + practice track | — | Done | Agents cite ALO1–ALO10 + practice-first |
+| **0 — Doc** | This policy + practice track | — | Done | Agents cite ALO1–ALO11 + practice-first |
 | **1 — Verify-lite PHP** | `verify-derived` subset on staging | B | **L5+** (after first repair) | Present=timeline checks pass on staging |
 | **2 — Project present** | `project-present-at` + SQL helpers | B | **L5** (paired with delete) | Matches Python oracle on sample DB |
 | **3 — Delete last finalized** | Guarded delete + Case B pipeline | B | **L5** (first motivated infra) | Training tournament removed without `prove` |
@@ -439,6 +440,7 @@ Separate agent track. Does **not** gate Ref-League-A / Ref-Cup-A practice.
 - **Live ops implementation** → read [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) first (reference formats, pain log, slice queue); then **this doc** for lanes/repair boundaries.
 - **Community tournament / staging mistake / cancel / media upload** → this doc + [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) for what may write L5 today.
 - **Practice-first:** every Lane B/C slice must cite a **logged pain point** + **drill re-run** as smoke test (§12.1). Do not burn through §12.2 phases infra-blind.
+- **Live visibility (ALO11):** no config allowlist — `running` generated events are public on Live hub; finalize = **Make official** in organizer UX.
 - **Do not** instruct full `prove` as the first fix for staging-only ground errors.
 - **Do not** resurrect refinalize / batch `*-rebuild` CLIs — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md).
 - **Do not** add live community writes to git-tracked `tournament_videos.json` without an explicit migration slice.
@@ -474,5 +476,6 @@ Separate agent track. Does **not** gate Ref-League-A / Ref-Cup-A practice.
 
 | Date | Change |
 |------|--------|
+| 2026-07-07 | **Start=public live + Make official** — removed config allowlist; running generated events auto on Live hub; organizer **Make official** = finalize (ALO11). |
 | 2026-07-07 | **Practice-first sequencing** — §12 rewritten: Ref-League-A / Ref-Cup-A drill loop gates §12.2 infra; Track L vs Track C; [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) living log. |
 | 2026-07-05 | Initial policy — three lanes, staging authority, timeline/present repair, ground packs, Lane C media, bidirectional flow, phased roadmap (ALO1–ALO10). |

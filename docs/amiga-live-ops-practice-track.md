@@ -2,7 +2,7 @@
 
 **Status:** **Active** — Dagh runs reference tournaments on staging; pain points drive implementation slices.
 
-**Policy parent:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (lanes A/B/C, ALO1–ALO10, infra menu §12.2).
+**Policy parent:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (lanes A/B/C, ALO1–ALO11, infra menu §12.2).
 
 **Organizer UX reference:** [`archive/orchestration/browser-organizer-workflow-checkpoint.md`](archive/orchestration/browser-organizer-workflow-checkpoint.md).
 
@@ -59,10 +59,10 @@ Date:       ___
 Tournament id (after create): ___
 
 [ ] 1. CREATE — name, date, country; players by search (not raw ids)
-[ ] 2. START  — lifecycle to in-progress; results unlocked
+[ ] 2. START  — lifecycle to in-progress; **check Live hub** lists the league
 [ ] 3. PLAY    — all fixtures have scores
-[ ] 4. FINALIZE — amiga/ops/run_process_game.php finalize-tournament
-[ ] 5. WEBSITE — tournament page, table/standings, profile or rating LB spot-check
+[ ] 4. MAKE OFFICIAL — Table tab → **Make official** (finalize; N→N+1 ratings + chronology)
+[ ] 5. WEBSITE — running: `/amiga/live-tournament.php?id=N`; after complete: historical tournament page + rating LB spot-check
 [ ] 6. (Later) DELETE — training event removed without full prove
 
 Pain points this run (→ §4):
@@ -70,7 +70,7 @@ Pain points this run (→ §4):
 -
 ```
 
-**Finalize entry point:** [`site/public_html/amiga/ops/run_process_game.php`](../../site/public_html/amiga/ops/run_process_game.php) — same bootstrap habit as online ops.
+**Make official:** Table tab in organizer (or CLI `finalize-tournament`). Commits L5 derived truth.
 
 **WinSCP:** sync `site/public_html/amiga/ops/` before staging drills after local UX fixes.
 
@@ -82,7 +82,8 @@ Add a row **during or immediately after** each drill. This is the backlog input 
 
 | Date | Run # | Format | Step | Pain point (what hurt) | Slice / phase | Status |
 |------|-------|--------|------|------------------------|---------------|--------|
-| | | | | | | |
+| 2026-07-07 | — | League | website | Allowlist blocked public live page until manual config | Remove allowlist; start=public (ALO11) | shipped |
+| 2026-07-07 | — | — | enter ops | Staging `/amiga/ops/fixtures.php?once=…` → HTTP 500 before password gate | Fix `amiga_country_slice_game_stats_lib.php` require path | shipped (sync needed) |
 
 **Step** = create · start · play · finalize · website · delete · other
 
@@ -98,7 +99,8 @@ Work items land here when a pain point maps to a concrete deliverable. **Empty u
 
 | Id | Pain (from §4) | Deliverable | Platform phase | Drill smoke test |
 |----|----------------|-------------|----------------|------------------|
-| | | | | |
+| L0-002 | Allowlist blocked public live view | Auto public on `running`; **Make official** UX | ALO11 | Start league → visible on Live hub |
+| L0-001 | fixtures.php HTTP 500 on load (bad `post_game_outcome` path) | Fix require in `amiga_country_slice_game_stats_lib.php` | ad-hoc | Password gate loads on staging |
 
 ---
 
@@ -133,4 +135,5 @@ Current step: **L0** (start today).
 
 | Date | Change |
 |------|--------|
+| 2026-07-07 | Drill checklist + §4 — ALO11 start=public; Make official wording. |
 | 2026-07-07 | Initial practice track — Ref-League-A / Ref-Cup-A, drill loop, pain log, L0 start. |

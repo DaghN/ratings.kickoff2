@@ -88,7 +88,7 @@
 
 - **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~299** videos; unified embed UI; **C06** dedicated Videos column; **With videos** filter; **player profile Videos wing**. **Jul 2026:** **TV-2b DB anchor sync** — `sync_db_ids` + `verify-tournament-videos` in `prove` ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md) §12).
 
-- **Amiga live ops (Jul 2026):** **Practice-first track active** — Ref-League-A / Ref-Cup-A drills on staging gate Lane B/C infra; pain log drives slices — [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md) (L0 start). Policy: [`amiga-live-ops-platform.md`](docs/amiga-live-ops-platform.md) (ALO1–ALO10).
+- **Amiga live ops (Jul 2026):** **Practice-first track active** — Ref-League-A drills on staging; **ALO11:** start=public on Live hub (no allowlist); **Make official** = finalize. Policy: [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md) · [`amiga-live-ops-platform.md`](docs/amiga-live-ops-platform.md).
 
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
@@ -137,6 +137,8 @@
 
 ## Recent log
 
+| 2026-07-07 | **Live hub — start=public (ALO11)** — removed config allowlist; `running` generated leagues auto on `/amiga/live-tournaments.php`; organizer **Make official** = finalize UX; data contract + live-ops policy updated. |
+| 2026-07-07 | **Amiga fixture manager 500 fix** — `amiga_country_slice_game_stats_lib.php` wrong `post_game_outcome` require killed `fixtures.php` before password gate; practice track §4 L0-001. |
 | 2026-07-07 | **Amiga live ops — practice-first track** — §12 rewritten in platform doc; new [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md) (Ref-League-A / Ref-Cup-A drill loop, pain log, L0 start); AGENTS + MEMORY + staging handoff cross-links. |
 | 2026-07-06 | **Milestone panel carry-scroll** — Made it/Graphs pills omit spotlight hash; carry payload beats `$k2ScrollTargetId`; hash handler skips carry-nav links |
 | 2026-07-06 | **Milestone spotlight glow fade** — 1.5s tier border glow-in on cold entry; warm chain skips on milestone→milestone (mirrors feast player hero) |

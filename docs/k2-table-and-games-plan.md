@@ -32,7 +32,7 @@
 | `player/profile.php` | Profile/charts; no general data table behavior. |
 | **Amiga** `player/tournaments.php` | Full event history; cloak + SSR sort/anchor; filter pills carry `k2_sort`. |
 | **Amiga** `tournaments.php` | Catalog index; format filter pills; `amiga_tournament_index_render_table()`. |
-| **Amiga** `live-tournaments.php` | Live allowlist index; `amiga_live_tournament_index_render_table()`. |
+| **Amiga** `live-tournaments.php` | Live running-events index; `amiga_live_tournament_index_render_table()` (start=public, no allowlist). |
 | **Amiga** `tournament.php` | Event stats table: full Tier A stack. Games list + knockout standings: **partial** (see backlog). |
 | **Amiga** WC hub / stats | Shell includes + `amiga_world_cup_stats_table.php` / `amiga_wc_players_table.php`. |
 

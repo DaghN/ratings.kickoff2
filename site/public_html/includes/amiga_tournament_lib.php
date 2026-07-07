@@ -10,11 +10,10 @@ require_once __DIR__ . '/k2_safety.php';
 const AMIGA_TOURNAMENT_PUBLIC_LIFECYCLE_STATUSES = ['completed', 'archived'];
 
 /**
- * Tournament IDs intentionally published on the public live view.
- * Add ids here when an event should appear on /amiga/live-tournaments.php.
- * Local overrides: $amigaPublicLiveTournamentIds in ko2amiga_config.local.php (gitignored).
+ * Lifecycle for the public live hub (/amiga/live-tournaments.php) while a community event is in progress.
+ * Start tournament in ops ⇒ running ⇒ visible here until finalize + completed moves to historical catalog.
  */
-const AMIGA_PUBLIC_LIVE_TOURNAMENT_IDS = [];
+const AMIGA_LIVE_TOURNAMENT_PUBLIC_LIFECYCLE_STATUS = 'running';
 const AMIGA_LIVE_TOURNAMENT_INDEX_ANCHOR_COL = 0;
 const AMIGA_LIVE_TOURNAMENT_INDEX_DEFAULT_SORT_COL = 1;
 /** Date col — quiet body on default load only (no game ID). */
@@ -226,40 +225,8 @@ function amiga_tournament_is_publicly_visible_lifecycle(string $lifecycleStatus)
 }
 
 /**
- * @return list<int>
+ * SQL fragment: fixture-backed generated tournaments eligible for the public live hub.
  */
-function amiga_live_tournament_allowlist_ids(): array
-{
-    static $cached = null;
-    if ($cached !== null) {
-        return $cached;
-    }
-
-    $ids = array_values(array_filter(
-        array_map('intval', AMIGA_PUBLIC_LIVE_TOURNAMENT_IDS),
-        static fn (int $id): bool => $id > 0
-    ));
-
-    global $amigaPublicLiveTournamentIds;
-    if (isset($amigaPublicLiveTournamentIds) && is_array($amigaPublicLiveTournamentIds)) {
-        foreach ($amigaPublicLiveTournamentIds as $rawId) {
-            $id = (int) $rawId;
-            if ($id > 0) {
-                $ids[] = $id;
-            }
-        }
-    }
-
-    $cached = array_values(array_unique($ids));
-
-    return $cached;
-}
-
-function amiga_live_tournament_is_allowlisted(int $tournamentId): bool
-{
-    return in_array($tournamentId, amiga_live_tournament_allowlist_ids(), true);
-}
-
 function amiga_live_tournament_fixture_generated_where(string $tableAlias = 't'): string
 {
     $parts = [];
@@ -269,6 +236,17 @@ function amiga_live_tournament_fixture_generated_where(string $tableAlias = 't')
     }
 
     return $tableAlias . '.source_id IS NULL AND (' . implode(' OR ', $parts) . ')';
+}
+
+/**
+ * SQL fragment: public live hub eligibility (running generated fixture-backed events).
+ */
+function amiga_live_tournament_public_eligibility_where(string $tableAlias = 't'): string
+{
+    return $tableAlias . '.lifecycle_status = \''
+        . AMIGA_LIVE_TOURNAMENT_PUBLIC_LIFECYCLE_STATUS
+        . '\' AND '
+        . amiga_live_tournament_fixture_generated_where($tableAlias);
 }
 
 function amiga_live_tournament_url(int $tournamentId): string
@@ -285,19 +263,12 @@ function amiga_live_tournament_link(int $tournamentId, string $name): string
 }
 
 /**
- * Public live index: allowlisted, running, fixture-backed generated tournaments only.
+ * Public live index: running, fixture-backed generated tournaments (no config allowlist).
  *
  * @return list<array<string, mixed>>
  */
 function amiga_live_tournament_index_rows(mysqli $con): array
 {
-    $allowlist = amiga_live_tournament_allowlist_ids();
-    if ($allowlist === []) {
-        return [];
-    }
-
-    $placeholders = implode(',', array_fill(0, count($allowlist), '?'));
-    $types = str_repeat('i', count($allowlist));
     $sql = 'SELECT t.id, t.name, t.event_date, t.country, t.lifecycle_status, t.started_at,
                    COUNT(DISTINCT f.id) AS fixture_count,
                    SUM(CASE WHEN f.status = \'played\' THEN 1 ELSE 0 END) AS played_count,
@@ -305,27 +276,19 @@ function amiga_live_tournament_index_rows(mysqli $con): array
             FROM tournaments t
             INNER JOIN tournament_stages s ON s.tournament_id = t.id
             LEFT JOIN tournament_fixtures f ON f.stage_id = s.id
-            WHERE t.lifecycle_status = \'running\'
-              AND ' . amiga_live_tournament_fixture_generated_where('t') . '
-              AND t.id IN (' . $placeholders . ')
+            WHERE ' . amiga_live_tournament_public_eligibility_where('t') . '
             GROUP BY t.id, t.name, t.event_date, t.country, t.lifecycle_status, t.started_at
             ORDER BY COALESCE(t.started_at, t.event_date, \'1970-01-01\') DESC, t.id DESC';
 
-    $stmt = mysqli_prepare($con, $sql);
-    if ($stmt === false) {
+    $res = mysqli_query($con, $sql);
+    if ($res === false) {
         return [];
     }
-    mysqli_stmt_bind_param($stmt, $types, ...$allowlist);
-    mysqli_stmt_execute($stmt);
-    $res = mysqli_stmt_get_result($stmt);
     $rows = [];
-    if ($res) {
-        while ($row = mysqli_fetch_assoc($res)) {
-            $rows[] = $row;
-        }
-        mysqli_free_result($res);
+    while ($row = mysqli_fetch_assoc($res)) {
+        $rows[] = $row;
     }
-    mysqli_stmt_close($stmt);
+    mysqli_free_result($res);
 
     return $rows;
 }
@@ -346,7 +309,7 @@ function amiga_live_tournament_index_date_sort_value(array $row): string
  *
  * @param list<array<string, mixed>> $rows from amiga_live_tournament_index_rows()
  */
-function amiga_live_tournament_index_render_table(array $rows, bool $allowlistConfigured): void
+function amiga_live_tournament_index_render_table(array $rows): void
 {
     require_once __DIR__ . '/k2_table_helpers.php';
     $anchorCol = AMIGA_LIVE_TOURNAMENT_INDEX_ANCHOR_COL;
@@ -385,13 +348,7 @@ function amiga_live_tournament_index_render_table(array $rows, bool $allowlistCo
 <tbody>
 <?php if ($rows === []) { ?>
   <tr>
-    <td colspan="7" class="k2-table-cell--left" style="color:var(--k2-text-secondary)"><?php
-        if (!$allowlistConfigured) {
-            echo 'No live events are published for public viewing yet.';
-        } else {
-            echo 'No running live events match the current public allowlist.';
-        }
-    ?></td>
+    <td colspan="7" class="k2-table-cell--left" style="color:var(--k2-text-secondary)">No live tournaments in progress right now.</td>
   </tr>
 <?php } ?>
 <?php foreach ($rows as $row) { ?>
@@ -418,17 +375,12 @@ function amiga_live_tournament_index_render_table(array $rows, bool $allowlistCo
  */
 function amiga_live_tournament_load(mysqli $con, int $tournamentId): ?array
 {
-    if (!amiga_live_tournament_is_allowlisted($tournamentId)) {
-        return null;
-    }
-
     $sql = 'SELECT t.id, t.name, t.event_date, t.country, t.lifecycle_status, t.started_at, t.completed_at,
                    t.player_count, t.has_league, t.has_cup
             FROM tournaments t
             INNER JOIN tournament_stages s ON s.tournament_id = t.id
             WHERE t.id = ?
-              AND t.lifecycle_status = \'running\'
-              AND ' . amiga_live_tournament_fixture_generated_where('t') . '
+              AND ' . amiga_live_tournament_public_eligibility_where('t') . '
             GROUP BY t.id, t.name, t.event_date, t.country, t.lifecycle_status, t.started_at, t.completed_at,
                      t.player_count, t.has_league, t.has_cup
             LIMIT 1';

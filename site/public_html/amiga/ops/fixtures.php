@@ -3,11 +3,13 @@
  * Internal fixture browser/result entry for fixture-backed Amiga tournaments.
  *
  * Usage:
- *   /amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee&tournament_id=N
+ *   /amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee
+ *   /amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee&tournament_id=N  (optional deep link)
  */
 declare(strict_types=1);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 require_once __DIR__ . '/modules/process_completed_game.php';
 require_once __DIR__ . '/modules/finalize_tournament.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
@@ -2596,6 +2598,8 @@ $generatedTournaments = [];
 $entrants = [];
 $entrantOpsEligible = false;
 $tournamentUnratedGameCount = 0;
+$tournamentGameCount = 0;
+$tournamentCanMakeOfficial = false;
 $tournamentRatingFinalized = false;
 /** @var array<int, bool> */
 $fixtureResultRated = [];
@@ -2720,7 +2724,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 amiga_fixture_ops_flash_set(
                     'Recorded fixture result as game #' . $gameId
-                    . '. Standings updated; global ratings commit on tournament finalize.'
+                    . '. Standings updated; use Make official on the Table tab when the league is finished.'
                 );
             }
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'results', $postStatus);
@@ -2731,19 +2735,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $summary = amiga_fixture_reprocess_tournament_derived($con, $tournamentId);
             if ($summary['skip_reason'] === 'already_finalized') {
-                amiga_fixture_ops_flash_set('This league is already rating-finalized.');
+                amiga_fixture_ops_flash_set('This league is already official — ratings were committed earlier.');
             } elseif ($summary['processed'] === 0 && $summary['failed_game_id'] === null) {
-                amiga_fixture_ops_flash_set('Table is already up to date — no unprocessed results for this league.');
+                amiga_fixture_ops_flash_set('Nothing new to make official — league table is already up to date.');
             } elseif ($summary['failed_game_id'] !== null) {
                 amiga_fixture_ops_flash_set(
-                    'Processed ' . $summary['processed'] . ' game(s), then stopped at game #'
+                    'Make official stopped after ' . $summary['processed'] . ' match(es) at game #'
                     . $summary['failed_game_id'] . ': ' . (string) $summary['skip_reason']
                     . '. Try `python -m scripts.amiga replay` if this persists.',
                     true
                 );
             } else {
                 amiga_fixture_ops_flash_set(
-                    'Finalized league from ' . $summary['processed'] . ' match result(s) — global ratings committed.'
+                    'League is official — ' . $summary['processed'] . ' match result(s) committed to ratings and site chronology.'
                 );
             }
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
@@ -3035,6 +3039,12 @@ if ($tournamentId > 0) {
     }
 
     $tournamentUnratedGameCount = count(amiga_fixture_list_tournament_unrated_game_ids($con, $tournamentId));
+    $tournamentGameCount = amiga_fixture_count_tournament_games($con, $tournamentId);
+    $tournamentCanMakeOfficial = $entrantOpsEligible
+        && !$tournamentRatingFinalized
+        && $lifecycle !== null
+        && $lifecycle['lifecycle_status'] === 'running'
+        && $tournamentGameCount > 0;
     $tournamentRatingFinalized = amiga_ops_tournament_rating_finalized($con, $tournamentId);
     $stmt = $con->prepare(
         'SELECT g.fixture_id, (r.game_id IS NOT NULL) AS rated '
@@ -3197,6 +3207,10 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
       <p class="k2-amiga-organizer-lifecycle__summary">
         <span class="k2-amiga-tournament-badge k2-amiga-tournament-badge--lifecycle k2-amiga-tournament-badge--<?php echo k2_h($organizerLifecycleUi['badge_modifier']); ?>"><?php echo k2_h($organizerLifecycleUi['label']); ?></span>
       </p>
+      <?php if ($organizerLifecycleUi['raw_status'] === 'running') { ?>
+        <p class="k2-amiga-live-ops__muted">This league is <strong>public on the Live hub</strong> while in progress —
+          <a href="<?php echo k2_h(amiga_live_tournament_url($tournamentId)); ?>">view public page</a>.</p>
+      <?php } ?>
       <dl class="k2-amiga-organizer-lifecycle__meta">
         <dt>Started</dt>
         <dd><?php echo $lifecycle['started_at'] !== null ? k2_h($lifecycle['started_at']) : '<span class="k2-amiga-live-ops__muted">not set</span>'; ?></dd>
@@ -3737,30 +3751,29 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
     <h2>League table</h2>
     <?php if ($tournamentRatingFinalized) { ?>
       <p class="k2-amiga-organizer-table__preview-note k2-amiga-organizer-table__preview-note--warn">
-        This league is <strong>rating-finalized</strong> — global ladder ratings are committed.
-        Ground-truth score edits on a finalized league require a full derived rebuild:
+        This league is <strong>official</strong> — global ratings and site chronology include this event (N&rarr;N+1).
+        Ground-truth score edits require a full derived rebuild:
         <code>python -m scripts.amiga prove</code>
       </p>
-    <?php } ?>
-    <?php if ($tournamentUnratedGameCount > 0) { ?>
+    <?php } elseif ($tournamentCanMakeOfficial) { ?>
       <div class="k2-amiga-organizer-table__reprocess">
-        <p class="k2-amiga-organizer-table__preview-note k2-amiga-organizer-table__preview-note--warn">
-          <?php echo (int) $tournamentUnratedGameCount; ?> match result<?php echo $tournamentUnratedGameCount === 1 ? '' : 's'; ?>
-          recorded but not yet reflected in the table (ratings/standings processing did not complete).
+        <p class="k2-amiga-organizer-table__preview-note">
+          When every result is in, <strong>Make official</strong> commits ratings and adds this event to the tournament chronology.
+          <?php if ($tournamentUnratedGameCount > 0) { ?>
+            <?php echo (int) $tournamentUnratedGameCount; ?> match result<?php echo $tournamentUnratedGameCount === 1 ? '' : 's'; ?> ready.
+          <?php } ?>
         </p>
-        <?php if ($entrantOpsEligible) { ?>
-          <form class="k2-amiga-organizer-table__reprocess-form" method="post" action="<?php echo $self; ?>">
-            <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
-            <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
-            <input type="hidden" name="action" value="reprocess_tournament_derived">
-            <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
-            <input type="hidden" name="view" value="table">
-            <?php if ($status !== '') { ?>
-              <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
-            <?php } ?>
-            <button type="submit">Update table from results</button>
-          </form>
-        <?php } ?>
+        <form class="k2-amiga-organizer-table__reprocess-form" method="post" action="<?php echo $self; ?>">
+          <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+          <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+          <input type="hidden" name="action" value="reprocess_tournament_derived">
+          <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+          <input type="hidden" name="view" value="table">
+          <?php if ($status !== '') { ?>
+            <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+          <?php } ?>
+          <button type="submit" class="k2-amiga-organizer-lifecycle__action k2-amiga-organizer-lifecycle__action--primary">Make official</button>
+        </form>
       </div>
     <?php } elseif ($organizerTableDisplay['preview_note'] !== null) { ?>
       <p class="k2-amiga-organizer-table__preview-note"><?php echo k2_h($organizerTableDisplay['preview_note']); ?></p>
@@ -3806,9 +3819,9 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
         $tableTabUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'table', $status);
         ?>
       <p class="k2-amiga-organizer-results__hint k2-amiga-organizer-table__preview-note--warn">
-        <?php echo (int) $tournamentUnratedGameCount; ?> result<?php echo $tournamentUnratedGameCount === 1 ? '' : 's'; ?>
-        not yet in the league table —
-        <a href="<?php echo htmlspecialchars($tableTabUrl, ENT_QUOTES, 'UTF-8'); ?>">update table on the Table tab</a>.
+        When the league is finished, use <strong>Make official</strong> on the
+        <a href="<?php echo htmlspecialchars($tableTabUrl, ENT_QUOTES, 'UTF-8'); ?>">Table tab</a>
+        to commit ratings (<?php echo (int) $tournamentUnratedGameCount; ?> result<?php echo $tournamentUnratedGameCount === 1 ? '' : 's'; ?> ready).
       </p>
     <?php } ?>
     <?php if ($organizerLifecycleUi !== null && $organizerLifecycleUi['is_imported']) { ?>

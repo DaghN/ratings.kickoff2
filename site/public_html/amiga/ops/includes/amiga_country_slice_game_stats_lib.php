@@ -7,8 +7,8 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_country_slice_totals_lib.php';
-require_once __DIR__ . '/../includes/amiga_player_geo_year_lib.php';
-require_once __DIR__ . '/../includes/post_game_outcome.php';
+require_once __DIR__ . '/amiga_player_geo_year_lib.php';
+require_once dirname(__DIR__, 3) . '/ops/includes/post_game_outcome.php';
 require_once dirname(__DIR__, 3) . '/includes/amiga_performance_rating.php';
 
 final class AmigaCountryWorldCupSliceTracker
