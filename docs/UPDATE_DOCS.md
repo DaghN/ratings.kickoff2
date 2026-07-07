@@ -61,7 +61,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | **Amiga Countries hub** | [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) · [`amiga-countries-hub-implementation-plan.md`](amiga-countries-hub-implementation-plan.md) |
 | Amiga ground layers / community packs | `docs/amiga-ground-stack.md`, `docs/amiga-ground-layers-policy.md`, `docs/amiga-ground-layers-implementation-plan.md` (L0–L5) |
 | Amiga derived write policy / prove-only corrections | `docs/amiga-derived-write-policy.md`, `docs/amiga-data-contract.md` |
-| **Amiga live ops** (staging authority, lanes A/B/C, anchored repair, ground packs, community media) | [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) |
+| **Amiga live ops** (staging authority, lanes A/B/C, anchored repair, ground packs, community media) | [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) · **implementation:** [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) |
 | Amiga event finish / honours / podiums | `docs/amiga-tournament-honours-rules.md`, `docs/amiga-event-finish-implementation-plan.md`, `docs/amiga-player-universe-contract.md` §5.2–§6 |
 | **Amiga perfect event** (undefeated events, honours LB, HoF) | [`amiga-perfect-event-policy.md`](amiga-perfect-event-policy.md) · [`amiga-perfect-event-implementation-plan.md`](amiga-perfect-event-implementation-plan.md) |
 | **Amiga perf. rating LB sub-wings** (Best · Top 100 · Perfect) | [`amiga-performance-rating-leaderboard-policy.md`](amiga-performance-rating-leaderboard-policy.md) |

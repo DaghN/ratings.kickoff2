@@ -2,7 +2,7 @@
 
 **Status:** **Live** on `ratings.kickoff2.com` (Jun 2026) — rating, profile, games, cross-realm search.
 
-**Operational model (Jul 2026):** Community tournaments and future media uploads are **authoritative on staged `ko2amiga_db`** (Lane B/C). Local full `prove` is **canon regression**, not daily staging ops. Anchored repair, ground packs, bidirectional pull — [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md).
+**Operational model (Jul 2026):** Community tournaments and future media uploads are **authoritative on staged `ko2amiga_db`** (Lane B/C). Local full `prove` is **canon regression**, not daily staging ops. **Implementation:** practice-first — run reference tournaments, log pain, slice infra — [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md). Policy: anchored repair, ground packs, bidirectional pull — [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md).
 
 **Agents — remind Dagh:** When local `ko2amiga_db` should match staging (any import path, not only Access file changes): export → WinSCP sync → browser import. Script: `public_html/amiga/run_import_ko2amiga.php` (build tag in page header, e.g. `a2-2026-06-06-b4`). Password **`coffee`** — add `&pwd=coffee` to the URL, or enter it on the form when the `once` link is valid without `pwd`. **Preview:** `/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` · **Apply:** `&apply=1&part=1` (short parts auto-continue; avoids gateway timeout). Staging base: `https://ratings.kickoff2.com` · local: `http://ratingskickoff.test`. Import payload: `public_html/amiga/_import/ko2amiga_manifest.json` + `ko2amiga_*.sql` part files (gitignored; WinSCP). Full dump `ko2amiga_db.sql` optional (Heidi fallback).
 

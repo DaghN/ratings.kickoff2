@@ -1,7 +1,7 @@
 # Browser organizer workflow checkpoint
 
 **Date:** 2026-06-08  
-**Status:** Active guidance after worker jobs 001–017  
+**Status:** Active guidance after worker jobs 001–017 — **Track L1 UX backlog** for [`amiga-live-ops-practice-track.md`](../../amiga-live-ops-practice-track.md) (Ref-League-A drills)  
 **Classification:** internal ops / UX architecture / product workflow
 
 ## Executive summary

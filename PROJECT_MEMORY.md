@@ -88,6 +88,8 @@
 
 - **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~299** videos; unified embed UI; **C06** dedicated Videos column; **With videos** filter; **player profile Videos wing**. **Jul 2026:** **TV-2b DB anchor sync** — `sync_db_ids` + `verify-tournament-videos` in `prove` ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md) §12).
 
+- **Amiga live ops (Jul 2026):** **Practice-first track active** — Ref-League-A / Ref-Cup-A drills on staging gate Lane B/C infra; pain log drives slices — [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md) (L0 start). Policy: [`amiga-live-ops-platform.md`](docs/amiga-live-ops-platform.md) (ALO1–ALO10).
+
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
 ---
@@ -109,7 +111,7 @@
 | `player_milestones` row-count timeline | `docs/archive/replay-register-2026-05.md` § Milestone unlock row counts |
 | Prod cutover | `docs/prod-coordination.md`, `site/public_html/ops/docs/post-dagh-live-story.md` |
 | Ladder ops platform (Steve, `ops/`, sim) | `docs/ladder-ops-platform.md` |
-| Amiga live ops (staging authority, repair, media) | [`amiga-live-ops-platform.md`](docs/amiga-live-ops-platform.md) |
+| Amiga live ops (staging authority, repair, media) | [`amiga-live-ops-platform.md`](docs/amiga-live-ops-platform.md) · drill [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md) |
 | DB copies (local + staging names) | `docs/coordination/database-copies-2026-06.md` |
 | Work DB prepare / simul | `docs/work-db-prepare.md` |
 | Ground vs derived columns | `docs/replay-v1-scope-and-reset.md`, `docs/ground-truth-manifest.md` (online) · **`docs/amiga-data-contract.md`** (Amiga) |
@@ -135,6 +137,7 @@
 
 ## Recent log
 
+| 2026-07-07 | **Amiga live ops — practice-first track** — §12 rewritten in platform doc; new [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md) (Ref-League-A / Ref-Cup-A drill loop, pain log, L0 start); AGENTS + MEMORY + staging handoff cross-links. |
 | 2026-07-06 | **Milestone panel carry-scroll** — Made it/Graphs pills omit spotlight hash; carry payload beats `$k2ScrollTargetId`; hash handler skips carry-nav links |
 | 2026-07-06 | **Milestone spotlight glow fade** — 1.5s tier border glow-in on cold entry; warm chain skips on milestone→milestone (mirrors feast player hero) |
 | 2026-07-06 | **Milestone spotlight inset** — detail hero card `margin-left: calc(--k2-player-hero-glow-inset + 10px)` (feast player hero parity) |

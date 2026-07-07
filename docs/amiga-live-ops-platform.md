@@ -1,12 +1,12 @@
 # Amiga live operations platform — design (Jul 2026)
 
-**Status:** **Policy locked** — architecture and operational boundaries agreed Jul 2026. **Implementation:** phased (see §12); most Lane B/C verbs not shipped yet.
+**Status:** **Policy locked** — architecture and operational boundaries agreed Jul 2026. **Implementation:** **practice-first** (see §12) — each infra slice ships only when a reference-tournament drill exposes real friction; most Lane B/C verbs not shipped yet. **Active track:** [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md).
 
 **Audience:** Dagh, Cursor agents, future community organisers / secretaries (via ops UI).
 
 **Online analogue:** [`ladder-ops-platform.md`](ladder-ops-platform.md) — online prod/staging = `site/public_html/ops/` + `kooldb*`. Amiga live realm = `site/public_html/amiga/ops/` + `ko2amiga_db` + server filesystem for uploads.
 
-**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) (layers, table register) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) (L5 writers, prove-only repair today) · [`amiga-staging-handoff.md`](amiga-staging-handoff.md) (export/import loop) · [`amiga-ground-stack.md`](amiga-ground-stack.md) (L0–L5 canon pipeline) · [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) · [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) · [`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)
+**Related:** [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) (reference formats, drill loop, pain-point log — **start here for implementation**) · [`amiga-data-contract.md`](amiga-data-contract.md) (layers, table register) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) (L5 writers, prove-only repair today) · [`amiga-staging-handoff.md`](amiga-staging-handoff.md) (export/import loop) · [`amiga-ground-stack.md`](amiga-ground-stack.md) (L0–L5 canon pipeline) · [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (stage/fixture/game model) · [`archive/orchestration/browser-organizer-workflow-checkpoint.md`](archive/orchestration/browser-organizer-workflow-checkpoint.md) (organizer UX gaps) · [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) · [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) · [`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)
 
 ---
 
@@ -355,35 +355,94 @@ Same **philosophy:** stored timeline truth where needed; present rows for hot re
 
 ---
 
-## 12. Implementation roadmap (phased — intent)
+## 12. Implementation — practice-first sequencing
 
-Order is recommendation; slices ship independently unless Dagh locks a track.
+**Policy defines boundaries (ALO1–ALO10). Practice defines priority.**
 
-| Phase | Deliverable | Lane | Exit criteria |
-|-------|-------------|------|---------------|
-| **0 — Doc** | This policy | — | Agents cite ALO1–ALO10 |
-| **1 — Verify-lite PHP** | `verify-derived` subset on staging | B | Present=timeline checks pass on staging clone |
-| **2 — Project present** | `project-present-at` + SQL helpers | B | Matches Python oracle on sample DB |
-| **3 — Delete last finalized** | Guarded delete + Case B pipeline | B | Training tournament removed without prove |
-| **4 — Ground pack v0** | Export/import one tournament L3+L4 | B | Pull staging event to local |
-| **5 — Truncate + refinalize forward** | Case C pipeline | B | Mid-history delete recovers without full prove |
-| **6 — Media DDL + upload API** | `amiga_tournament_media` + YouTube form | C | Secretary adds URL on staging; tab shows after approve |
-| **7 — Photo upload** | Filesystem + thumbnails + Photos tab | C | Self-hosted serve; ground pack includes files |
-| **8 — Pull export** | Staging → download ground/media pack | B/C | Local dev without manual mysqldump |
-| **9 — L5-only prove flag** | `prove --l5-only` or `replay` without L1–L4 | A | Faster writer sign-off when ground unchanged |
-| **10 — Media read migration** | PHP lib reads DB first, JSON fallback | C | Historical JSON still works; live rows on staging |
+Do **not** implement §12.2 infra phases in numeric order. Each slice ships when a **reference-tournament drill** (§12.1) hits a concrete pain point, then **re-runs the same drill** as the smoke test before the next slice.
 
-**Do not block** Lane B repair on Lane C media DDL — independent tracks.
+**Living log:** [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) — pain points, slice queue, drill checklist.
+
+### 12.1 Reference formats and drill loop (Track L — live maturity)
+
+**v1 live product = two shapes only.** Everything else (Swiss, WC-class, promotion graph, bulk historical materialize) is **Track C — canon** (§12.3), not live v1.
+
+| ID | Shape | Players | Create today | Drill exit |
+|----|-------|---------|--------------|------------|
+| **Ref-League-A** | Kitchen marathon — one `round_robin` stage | 4–6 | Browser [`amiga/ops/fixtures.php`](../../site/public_html/amiga/ops/fixtures.php) | All fixtures played → **finalize** → tournament page + rating movement sane |
+| **Ref-Cup-A** | Single elimination (`knockout` ties) | 4 or 8 | CLI initially (`build-tournament create-group-knockout` / smallest KO); browser play + finalize | Winner + honours visible on site |
+
+**Drill loop** (repeat between every implementation slice):
+
+```text
+1. Create   → name, date, players (by name search, not raw ids)
+2. Start    → enter all fixture results
+3. Finalize → `run_process_game.php finalize-tournament`
+4. Website  → tournament page, standings, profile/LB spot-check
+5. (Later)  → delete/cancel training event once repair verbs exist
+```
+
+**Track L order** (gates — do not skip ahead without a drill reason):
+
+| Step | Work | Infra from §12.2 | Exit |
+|------|------|------------------|------|
+| **L0** | Run **Ref-League-A** on staging **as-is**; log pain in practice track | — | Pain-point log started |
+| **L1** | Organizer UX only where L0 blocked repeat ([`browser-organizer-workflow-checkpoint.md`](archive/orchestration/browser-organizer-workflow-checkpoint.md)) | — | League drill repeatable same evening |
+| **L2** | **Ref-League-A ×3** until boring | — | You can narrate lifecycle without opening PHP |
+| **L3** | Minimal **Ref-Cup-A** create path (CLI OK) | — | One cup finalized on staging |
+| **L4** | **Ref-Cup-A ×2** | — | League + cup feel like one product |
+| **L5** | **Mistake-driven repair** — delete training events, fix present projection | Phases **1–3**, **5** (Case B first) | Training tournament removed without full `prove` |
+| **L6** | Pull staging ground you created | Phases **4**, **8** | Ground pack on laptop |
+| **L7** | Media on a tournament you ran | Phases **6–7**, **10** | YouTube URL on staging event |
+
+**Slice sizing:** one agent chat = one pain point → one fix → **same drill re-run**. Not “Phases 1–3 in one go.”
+
+**Agent gate:** No new Lane B/C verb without naming **which reference format**, **which drill step**, and **which logged pain point** it resolves.
+
+### 12.2 Infra capability menu (not default sequence)
+
+Ship when §12.1 unlocks it. Technical exit criteria unchanged; **behavioural** exit = drill re-run green.
+
+| Phase | Deliverable | Lane | Unlocks at | Technical exit |
+|-------|-------------|------|------------|----------------|
+| **0 — Doc** | This policy + practice track | — | Done | Agents cite ALO1–ALO10 + practice-first |
+| **1 — Verify-lite PHP** | `verify-derived` subset on staging | B | **L5+** (after first repair) | Present=timeline checks pass on staging |
+| **2 — Project present** | `project-present-at` + SQL helpers | B | **L5** (paired with delete) | Matches Python oracle on sample DB |
+| **3 — Delete last finalized** | Guarded delete + Case B pipeline | B | **L5** (first motivated infra) | Training tournament removed without `prove` |
+| **4 — Ground pack v0** | Export/import one tournament L3+L4 | B | **L6** | Pull staging event to local |
+| **5 — Truncate + refinalize forward** | Case C pipeline | B | After **L5** Case B trusted | Mid-history delete without full `prove` |
+| **6 — Media DDL + upload API** | `amiga_tournament_media` + YouTube form | C | **L7** | Secretary adds URL; tab after approve |
+| **7 — Photo upload** | Filesystem + thumbnails + Photos tab | C | **L7** | Self-hosted serve; pack includes files |
+| **8 — Pull export** | Staging → download ground/media pack | B/C | **L6** | Local dev without manual mysqldump |
+| **9 — L5-only prove flag** | `prove --l5-only` or `replay` without L1–L4 | A | **Track C** | Faster writer sign-off when ground unchanged |
+| **10 — Media read migration** | PHP lib reads DB first, JSON fallback | C | **L7** | Historical JSON fallback; live rows on staging |
+
+**Do not block** Lane B repair on Lane C media DDL — independent once their L-step arrives.
+
+### 12.3 Track C — canon / history (parallel, do not mix with drill sessions)
+
+Separate agent track. Does **not** gate Ref-League-A / Ref-Cup-A practice.
+
+| Work | Examples |
+|------|----------|
+| Disposition review | 44 `pending_review` in disposition register |
+| Bulk materialize | Structure plan slices 6–6wc (tier B/C/WC) |
+| Prove speed / modes | Full prove ~30 min; Phase 9 L5-only |
+| Format backbone expansion | Swiss product surface, promotion graph, WC generator |
+
+**Rule:** Do not assign “implement Phase 2 project-present” when Dagh says “I’m running my first league today” unless a drill just failed on present projection.
 
 ---
 
 ## 13. Agent policy
 
-- **Community tournament / staging mistake / cancel / media upload** → read **this doc** first, then [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) for what may write L5 today.
+- **Live ops implementation** → read [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) first (reference formats, pain log, slice queue); then **this doc** for lanes/repair boundaries.
+- **Community tournament / staging mistake / cancel / media upload** → this doc + [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) for what may write L5 today.
+- **Practice-first:** every Lane B/C slice must cite a **logged pain point** + **drill re-run** as smoke test (§12.1). Do not burn through §12.2 phases infra-blind.
 - **Do not** instruct full `prove` as the first fix for staging-only ground errors.
 - **Do not** resurrect refinalize / batch `*-rebuild` CLIs — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md).
 - **Do not** add live community writes to git-tracked `tournament_videos.json` without an explicit migration slice.
-- **New Lane B/C ops verbs** → under `site/public_html/amiga/ops/`, mirror `run_process_game.php` bootstrap; register in this doc §7.4 / §12 when shipped.
+- **New Lane B/C ops verbs** → under `site/public_html/amiga/ops/`, mirror `run_process_game.php` bootstrap; register in practice track + this doc §7.4 / §12.2 when shipped.
 - **Part B migration registers** apply when media DDL or repair verbs change stored schema — [`UPDATE_DOCS.md`](UPDATE_DOCS.md).
 
 ---
@@ -415,4 +474,5 @@ Order is recommendation; slices ship independently unless Dagh locks a track.
 
 | Date | Change |
 |------|--------|
+| 2026-07-07 | **Practice-first sequencing** — §12 rewritten: Ref-League-A / Ref-Cup-A drill loop gates §12.2 infra; Track L vs Track C; [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) living log. |
 | 2026-07-05 | Initial policy — three lanes, staging authority, timeline/present repair, ground packs, Lane C media, bidirectional flow, phased roadmap (ALO1–ALO10). |
