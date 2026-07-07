@@ -1,6 +1,6 @@
 # Amiga running tournament boundary — implementation plan
 
-**Status:** **RTB-0 locked (Jul 2026)** — policy + inventory + this plan. **Code not started.** Execute slices in order; do not git commit unless Dagh asks.
+**Status:** **RTB-0 locked (Jul 2026, rev. 2)** — policy + inventory + implementation plan. **Code not started.** Execute slices in order; do not git commit unless Dagh asks.
 
 **Policy:** [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (rev. 1, RTB1–RTB12)  
 **Inventory:** [`amiga-running-tournament-boundary-inventory.md`](amiga-running-tournament-boundary-inventory.md) (rev. 2, audit fold-in)  
@@ -9,6 +9,8 @@
 **Prerequisites shipped:** Player create **PC-1–PC-7** ([`amiga-player-create-implementation-plan.md`](amiga-player-create-implementation-plan.md)); country registry CR-5+; organizer `fixtures.php` compose + Results/Table tabs; CLI `fixtures` / `finalize-tournament`.
 
 **Execution:** Slices **RTB-PREFLIGHT → RTB-8** in order. Run each slice **Verification** before continuing. **Lane A (`prove`, import, materialize)** must stay green — RTB is **Lane B live ops only** (policy RTB11).
+
+**DDL (RTB-1):** Schema changes **only** through the **holy ops** path — see § **DDL — holy ops only** below. **Not** manual `mysql`, numbered `047_*.sql`, or one-off `apply_schema_*` on a live DB.
 
 ---
 
@@ -20,7 +22,53 @@
 | **Inventory** | Engineering grep checklist — what touches what, audit gaps |
 | **This plan** | Ordered slices, file-level tasks, STOP gates, oracle strategy, staging cutover, parity contracts |
 
-The inventory is necessary but not sufficient: it does not specify **slice bundling** (e.g. RTB-2 writers without RTB-2c leaves the UI blank), **promote ordering**, **game-shaped dict** for standings, or **pre-RTB staging hygiene**.
+The inventory is necessary but not sufficient: it does not specify **slice bundling** (e.g. RTB-2 writers without RTB-2c leaves the UI blank), **promote ordering**, **game-shaped dict** for standings, **pre-RTB staging hygiene**, or **DDL holy-ops-only** (RTB-1 trap — Jul 2026).
+
+---
+
+## DDL — holy ops only (mandatory — read before RTB-1)
+
+**Project policy is explicit:** Amiga schema is applied **only** through the nuclear holy loop, not ad-hoc SQL on `ko2amiga_db`.
+
+| Authority | Rule |
+|-----------|------|
+| [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) **G12** | Strict chain — **no side doors** (no L0→L3 shortcuts; L5 via `prove` only) |
+| [`amiga-data-contract.md`](amiga-data-contract.md) § Derived sign-off | **Fresh schema = `python -m scripts.amiga prove`**; incremental `014–023` **archived** — do not run after recreate-schema |
+| [`scripts/amiga/sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md) | Numbered flat `sql/NNN_*.sql` files are **upgrade archaeology**, not wired into `prove` |
+| [`schema_bundles.py`](../scripts/amiga/schema_bundles.py) | **`STRUCTURE_SQL`** includes `sql/structure/006_tournament_fixtures.sql` only — prove calls `apply_schema_structure()` |
+| [`amiga-player-create-implementation-plan.md`](amiga-player-create-implementation-plan.md) **PC-1** | Precedent: `player_source` in **`ground/001_core.sql`** via prove; **`047_player_source.sql` removed** after wrongful manual mysql |
+
+RTB fixture columns are **L4 structure** — same rule as `player_source` is L3 ground: **edit the bundle file, then `prove`.**
+
+### RTB-1 — authorized (only these steps)
+
+1. **Edit** [`scripts/amiga/sql/structure/006_tournament_fixtures.sql`](../scripts/amiga/sql/structure/006_tournament_fixtures.sql) — add `goals_a`, `goals_b`, `extra`, `result_recorded_at` to the `CREATE TABLE tournament_fixtures` definition.
+2. **Optional mirror** [`scripts/amiga/sql/006_tournament_fixtures.sql`](../scripts/amiga/sql/006_tournament_fixtures.sql) (archaeology / docs — **not** applied by prove).
+3. **Apply to local DB:** run **`python -m scripts.amiga prove`** (full holy loop). This nuclear-resets `ko2amiga_db` and applies all bundles.
+4. **Staging schema:** **`prove` → `scripts\export_ko2amiga_db.ps1` → WinSCP → browser import** ([`amiga-staging-handoff.md`](amiga-staging-handoff.md)) — part `ko2amiga_01_schema.sql` carries the new columns.
+
+**Do not** edit `schema_bundles.py` for RTB-1 unless adding a **new** bundle file (not needed — `006` is already listed).
+
+### RTB-1 — forbidden (agent STOP — do not proceed)
+
+| Forbidden action | Why |
+|------------------|-----|
+| `mysql … ALTER TABLE tournament_fixtures` (CLI, Heidi, Laragon UI) | Side door — bypasses holy loop |
+| New `scripts/amiga/sql/047_fixture_running_results.sql` (or any numbered migration) | Not in `STRUCTURE_SQL`; repeats **047_player_source** mistake |
+| `python -c` / one-off `apply_schema_structure()` on existing DB without full prove | Partial apply — not sign-off path |
+| `SHOW COLUMNS` → "columns missing" → **ALTER instead of prove** | Wrong fix — run **`prove`** after bundle edit |
+| `site/public_html/ops/sql/migrations/` | **Online ladder** (`kooldb*`) — wrong realm |
+| Backfill running scores from `amiga_games` into new columns | Lane A / repair — out of scope |
+
+**If a prior agent already ALTERed local `ko2amiga_db`:** do not "sync" with more manual SQL. **Revert repo files** if needed, fix bundle, run **`prove`** — nuclear reset is the repair.
+
+### RTB-1 STOP gate (non-negotiable)
+
+- [ ] Bundle file edited (`structure/006` only).
+- [ ] **`python -m scripts.amiga prove`** exit **0** (~28 min).
+- [ ] **Then** `SHOW COLUMNS` / RTB-2 code — **never** the reverse order.
+
+**No RTB-2 PHP/Python** until prove is green on the bundle edit.
 
 ---
 
@@ -41,7 +89,7 @@ The inventory is necessary but not sufficient: it does not specify **slice bundl
 | **IP11** | **Broadcast standings:** call **`amiga_ops_compute_tournament_standings()`** on fixture-derived game dicts (PHP); parity with **`tournament_standings.compute_tournament_standings()`** (Python). |
 | **IP12** | **`verify-rating-events`** unfinalized+tournament games rule: exclude **IP9** live-ops running tournaments (games must be zero) OR fail with actionable message — do not break Lane A import tournaments. |
 | **IP13** | **Staging cutover:** before RTB-2 on any DB with old running leagues that already have `amiga_games`, run **RTB-PREFLIGHT** cleanup (delete test leagues or one-off repair). |
-| **IP14** | **DDL path:** update `scripts/amiga/sql/structure/006_tournament_fixtures.sql` + mirror `scripts/amiga/sql/006_tournament_fixtures.sql`; add incremental **`047_fixture_running_results.sql`** for non-nuclear DBs (staging mid-flight). |
+| **IP14** | **DDL holy ops only:** L4 columns in **`sql/structure/006_tournament_fixtures.sql`** only; DB apply **only** via **`python -m scripts.amiga prove`**. Staging = prove → export → import. **No** manual ALTER, **no** numbered `047_*.sql`, **no** `ops/sql/migrations/`. |
 | **IP15** | **PHP/Python parity:** every RTB writer slice ships both sides before STOP, or documents explicit asymmetry with follow-up slice same day. |
 
 ---
@@ -50,7 +98,7 @@ The inventory is necessary but not sufficient: it does not specify **slice bundl
 
 1. Read **policy + inventory + this plan** at RTB-0 (done when Dagh approved plan).
 2. Run **RTB-PREFLIGHT** on target DB before RTB-2 if any live-ops running tournament has `amiga_games` rows.
-3. **RTB-1** schema → prove on fresh `ko2amiga_db` (nuclear) picks up structure bundle.
+3. **RTB-1** — edit **`sql/structure/006_tournament_fixtures.sql`**, then **`python -m scripts.amiga prove`** (§ DDL — holy ops only). **No** manual mysql.
 4. **RTB-2 tranche** (writers + lifecycle + broadcast reads + league table compute) ships **together** — single STOP gate.
 5. **RTB-3** Python CLI parity — can start after RTB-1 in parallel with RTB-2 but must pass same STOP gate.
 6. **RTB-4** standings parity hardening (knockout broadcast, `standings_parity.py`) before Ref-Cup-A drill.
@@ -68,7 +116,7 @@ The inventory is necessary but not sufficient: it does not specify **slice bundl
 |-------|-------------|-----------|
 | **RTB-0** | Policy + inventory + this plan | Dagh OK — **done** |
 | **RTB-PREFLIGHT** | Staging/local DB hygiene for pre-RTB running leagues | No IP9 tournament with `rating_finalized=0` AND `amiga_games` rows |
-| **RTB-1** | Fixture running result columns (DDL) | Columns exist; prove structure apply OK |
+| **RTB-1** | Fixture running result columns (structure bundle + **prove**) | **`prove` exit 0**; columns present on fresh DB |
 | **RTB-2** | PHP running path: write, lifecycle, broadcast read, table compute, entrant guards, UI copy | Scores on fixtures; zero games while running; Live hub + organizer show scores + table |
 | **RTB-3** | Python `record_fixture_result`, list/detail, verify helpers, CLI output | CLI record + list match PHP |
 | **RTB-4** | Shared standings parity (KO broadcast, `standings_parity`, builder smokes) | Parity report clean on test tournament |
@@ -291,10 +339,23 @@ Decisions locked; touchpoint registry agreed before code.
 - [x] [`amiga-running-tournament-boundary-inventory.md`](amiga-running-tournament-boundary-inventory.md) rev. 2
 - [x] This plan
 
-### Optional starter prompt (new chat)
+### Starter prompt (new chat — continuous track)
 
 ```text
-Track: Amiga running tournament boundary (RTB). Read docs/amiga-running-tournament-boundary-policy.md + amiga-running-tournament-boundary-implementation-plan.md. Start at RTB-PREFLIGHT or RTB-1 if DB clean. Do not git commit unless asked.
+Track: Amiga running tournament boundary (RTB) — continuous implementation in this chat.
+
+Read first:
+- docs/amiga-running-tournament-boundary-policy.md
+- docs/amiga-running-tournament-boundary-implementation-plan.md (full plan; § "DDL — holy ops only" is mandatory before RTB-1)
+- docs/amiga-running-tournament-boundary-inventory.md (touchpoint checklist)
+
+Execute slices in order: RTB-PREFLIGHT (if needed) → RTB-1 → RTB-2 tranche → RTB-3 → RTB-4 → RTB-5 → RTB-6 → RTB-7 → RTB-8. Run each slice Verification / STOP gate before continuing to the next. Do not skip ahead.
+
+Resume rule: inspect git status and the plan to see which slice is done; continue at the first incomplete slice unless I say otherwise.
+
+DDL (RTB-1): edit ONLY scripts/amiga/sql/structure/006_tournament_fixtures.sql; apply ONLY via python -m scripts.amiga prove. FORBIDDEN: mysql ALTER, 047_*.sql, apply_schema_structure one-off, ops/sql/migrations.
+
+Do not git commit unless I ask. UPDATE_DOCS Part A (+ Part B for DDL) at RTB-8 in the same turn as shipping code.
 ```
 
 ---
@@ -335,49 +396,47 @@ WHERE t.rating_finalized = 0 AND t.source_id IS NULL
 
 ---
 
-## RTB-1 — Schema: fixture running result columns
+## RTB-1 — Schema: fixture running result columns (holy ops only)
 
 ### Goal
 
-L4 storage for running scores (policy §5.1, IP1).
+L4 storage for running scores (policy §5.1, IP1). **Canon DDL in structure bundle; DB apply via `prove` only** — § **DDL — holy ops only**.
 
 ### Tasks
 
-- [ ] Add to `tournament_fixtures`:
+- [ ] Add to **`CREATE TABLE tournament_fixtures`** in **`scripts/amiga/sql/structure/006_tournament_fixtures.sql`**:
   - `goals_a` SMALLINT UNSIGNED NULL
   - `goals_b` SMALLINT UNSIGNED NULL
   - `extra` VARCHAR(255) NULL (match `amiga_games.extra` width)
   - `result_recorded_at` DATETIME NULL
-- [ ] Update **`scripts/amiga/sql/structure/006_tournament_fixtures.sql`** (greenfield).
-- [ ] Mirror **`scripts/amiga/sql/006_tournament_fixtures.sql`**.
-- [ ] Add **`scripts/amiga/sql/047_fixture_running_results.sql`**:
-  ```sql
-  ALTER TABLE tournament_fixtures
-    ADD COLUMN goals_a smallint unsigned NULL AFTER status,
-    ADD COLUMN goals_b smallint unsigned NULL AFTER goals_a,
-    ADD COLUMN extra varchar(255) NULL AFTER goals_b,
-    ADD COLUMN result_recorded_at datetime NULL AFTER extra;
-  ```
-- [ ] Register in **`schema_bundles.py`** if numbered migrations are wired (verify `verify_structure` / import path).
+- [ ] **Optional:** mirror same `CREATE TABLE` in **`scripts/amiga/sql/006_tournament_fixtures.sql`** (archaeology — not applied by prove).
+- [ ] Run **`python -m scripts.amiga prove`** on local `ko2amiga_db` — **this is the only authorized apply step**.
 - [ ] **Do not** backfill from existing `amiga_games` on import tournaments — Lane A materialize unchanged.
+- [ ] **Do not** create `047_*.sql`, run `mysql ALTER`, or call `apply_schema_structure()` standalone.
 
 ### Files
 
-| Action | Path |
-|--------|------|
-| Edit | `scripts/amiga/sql/structure/006_tournament_fixtures.sql` |
-| Edit | `scripts/amiga/sql/006_tournament_fixtures.sql` |
-| New | `scripts/amiga/sql/047_fixture_running_results.sql` |
+| Action | Path | Applied by prove? |
+|--------|------|-------------------|
+| **Edit (required)** | `scripts/amiga/sql/structure/006_tournament_fixtures.sql` | **Yes** (`STRUCTURE_SQL`) |
+| Edit (optional) | `scripts/amiga/sql/006_tournament_fixtures.sql` | No |
+| **Forbidden** | `scripts/amiga/sql/047_*.sql` | No — do not add |
+| **Forbidden** | `site/public_html/ops/sql/migrations/*` | Wrong DB realm |
 
 ### Verification
 
 ```powershell
-# Fresh prove (or apply 047 on existing ko2amiga_db):
-C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe -u root -e "SHOW COLUMNS FROM ko2amiga_db.tournament_fixtures LIKE 'goals_a'"
+# 1. Edit structure/006 first, then:
 python -m scripts.amiga prove
+# 2. Only after prove exit 0:
+C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe -u root -e "SHOW COLUMNS FROM ko2amiga_db.tournament_fixtures LIKE 'goals_a'"
 ```
 
-**STOP** if prove fails or columns missing.
+**STOP** if prove fails.
+
+**STOP** if you applied schema any way other than **`prove`** after editing the bundle — re-run **`prove`**; do not ALTER to "fix".
+
+**Do not start RTB-2** until this STOP passes.
 
 ---
 
@@ -595,7 +654,7 @@ Contract docs match shipped behaviour; staging drill.
 ### Tasks
 
 - [ ] UPDATE_DOCS Part A: MEMORY, policy link to this plan, `feature-log.md`, `AGENTS.md` cold-start row.
-- [ ] UPDATE_DOCS Part B: `amiga-data-contract.md` record-result + fixture chain; DDL register `047`.
+- [ ] UPDATE_DOCS Part B: `amiga-data-contract.md` record-result + fixture chain; **`tournament_fixtures` running columns** in table register (structure bundle `006`, applied via `prove` — **not** a numbered migration).
 - [ ] Update per inventory §8: `amiga-live-ops-platform.md`, `amiga-tournament-structure-policy.md`, `scripts/amiga/README.md`, `amiga-live-ops-practice-track.md` (step 3: scores on fixtures; step 4: promote+finalize), `amiga-player-create-policy.md` §6.4.
 - [ ] WinSCP sync; `scripts\export_ko2amiga_db.ps1` if schema changed; staging import apply.
 - [ ] Run **Ref-League-A** checklist on staging ([`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) §3).
@@ -646,26 +705,32 @@ Staging drill + `verify-running-tournament-boundary` on staging DB.
 | Two-leg KO chronology wrong | leg_no + fixture id ordering in promote |
 | Undo leaves stale table | Undo triggers broadcast recompute (RTB-2a) |
 | Operator confusion (no game id) | Flash + UI copy RTB-2d |
-| Export mid-tournament | Document: L4 has scores; L3 empty until official |
+| Agent runs manual ALTER / 047 migration | § **DDL — holy ops only** + IP14; precedent `047_player_source` removed |
 
 ---
 
-## Starter prompts (fresh agent chats)
+## Starter prompt (fresh agent chat — one track, all slices)
 
-**RTB-1:**
+Use this single prompt to run **RTB-PREFLIGHT through RTB-8** in one chat. Continue across slices without waiting for a new chat per slice.
+
 ```text
-Track: Amiga RTB. Read docs/amiga-running-tournament-boundary-implementation-plan.md slice RTB-1. Implement fixture running result DDL only. Do not git commit unless asked.
+Track: Amiga running tournament boundary (RTB) — continuous implementation in this chat.
+
+Read first:
+- docs/amiga-running-tournament-boundary-policy.md
+- docs/amiga-running-tournament-boundary-implementation-plan.md (full plan; § "DDL — holy ops only" is mandatory before RTB-1)
+- docs/amiga-running-tournament-boundary-inventory.md (touchpoint checklist)
+
+Execute slices in order: RTB-PREFLIGHT (if needed) → RTB-1 → RTB-2 tranche → RTB-3 → RTB-4 → RTB-5 → RTB-6 → RTB-7 → RTB-8. Run each slice Verification / STOP gate before continuing to the next. Do not skip ahead.
+
+Resume rule: inspect git status and the plan to see which slice is done; continue at the first incomplete slice unless I say otherwise.
+
+DDL (RTB-1): edit ONLY scripts/amiga/sql/structure/006_tournament_fixtures.sql; apply ONLY via python -m scripts.amiga prove. FORBIDDEN: mysql ALTER, 047_*.sql, apply_schema_structure one-off, ops/sql/migrations.
+
+Do not git commit unless I ask. UPDATE_DOCS Part A (+ Part B for DDL) at RTB-8 in the same turn as shipping code.
 ```
 
-**RTB-2 tranche:**
-```text
-Track: Amiga RTB. Read policy + implementation plan RTB-2 (2a–2e). RTB-1 done. Ship PHP running path + broadcast reads together. STOP at RTB-2 verification.
-```
-
-**RTB-5/6:**
-```text
-Track: Amiga RTB. Read implementation plan RTB-5 and RTB-6. Implement promote + wire Make official. PHP/Python parity.
-```
+**Mid-track steer (same chat):** e.g. “pause after RTB-2”, “skip to RTB-5”, “only fix RTB-3 parity” — agent stays in this track; do not require a new chat.
 
 ---
 
@@ -673,4 +738,6 @@ Track: Amiga RTB. Read implementation plan RTB-5 and RTB-6. Implement promote + 
 
 | Date | Change |
 |------|--------|
+| 2026-07-07 | **Rev. 3** — single continuous starter prompt (all slices one chat); removed per-slice-only prompts. |
+| 2026-07-07 | **Rev. 2** — § **DDL — holy ops only**; IP14 prove-only; RTB-1 forbids manual ALTER / 047 migrations (post agent trap). |
 | 2026-07-07 | **Plan created** — slices RTB-PREFLIGHT through RTB-8; touchpoint registry; locked IP1–IP15; promote algorithm; tranche RTB-2 rule. |

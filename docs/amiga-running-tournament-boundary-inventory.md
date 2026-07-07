@@ -34,7 +34,7 @@
 | `extra` | `varchar` NULL | ET / pens |
 | `result_recorded_at` | `datetime NULL` | optional audit / display order within event (policy §5.1: align on this name; table already has `scheduled_at`) |
 
-- DDL in `scripts/amiga/sql/structure/` (+ ground bundle if needed) via `prove`.
+- **DDL canon:** edit **`scripts/amiga/sql/structure/006_tournament_fixtures.sql`** only; apply via **`python -m scripts.amiga prove`** ([`amiga-running-tournament-boundary-implementation-plan.md`](amiga-running-tournament-boundary-implementation-plan.md) § DDL — holy ops only). **Forbidden:** manual `mysql ALTER`, numbered `047_*.sql` (same trap as removed `047_player_source.sql`).
 - Existing `amiga_games.fixture_id` FK: `ON DELETE SET NULL` — promote creates rows; abandon before promote leaves no games; undo clears fixture columns only.
 - **Running integrity rule (verify):** `status = played` ⇒ `goals_a`/`goals_b` non-null and **no** `amiga_games` row for that `fixture_id` while `rating_finalized = 0`.
 - Alternative (`tournament_fixture_results` 1:1 table) — only if fixture row width is undesirable; inventory assumes fixture columns unless Dagh chooses otherwise.
@@ -277,6 +277,7 @@ Run oracle updates on **staging before cutover**; do not ship RTB-2 to a DB with
 
 | Date | Change |
 |------|--------|
+| 2026-07-07 | **Rev. 3** — schema pin: prove-only DDL (no 047 migration); cross-link plan § DDL holy ops. |
 | 2026-07-07 | **Implementation plan** — [`amiga-running-tournament-boundary-implementation-plan.md`](amiga-running-tournament-boundary-implementation-plan.md). |
 | 2026-07-07 | **Rev. 2** — audit fold-in: lifecycle gates §3.4, CLI readers, verify oracles, undo recompute, `reprocess` correction, slice reorder, export row. |
 | 2026-07-07 | Initial inventory for RTB policy rev. 1. |

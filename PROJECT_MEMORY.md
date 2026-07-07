@@ -137,6 +137,7 @@
 
 ## Recent log
 
+| 2026-07-07 | **RTB plan rev. 2** — DDL holy-ops-only tightened (§ forbid manual ALTER / 047); after agent went outside prove for RTB-1. |
 | 2026-07-07 | **RTB implementation plan** — [`amiga-running-tournament-boundary-implementation-plan.md`](docs/amiga-running-tournament-boundary-implementation-plan.md) (RTB-PREFLIGHT→RTB-8, touchpoint registry, IP1–IP15); code not started. |
 | 2026-07-07 | **RTB inventory rev. 2** — audit fold-in (lifecycle gates, verify oracles, slice reorder); policy still rev. 1. |
 | 2026-07-07 | **Amiga player create shipped (PC-1–PC-7)** — organizer compose Create player; `player_source` in ground bundle via prove; orphan hygiene; `verify-player-create` in prove. Staging: prove → export → WinSCP → browser import. |
