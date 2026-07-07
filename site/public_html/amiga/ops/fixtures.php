@@ -73,7 +73,7 @@ if (!$pwdOk) {
     ?>
 <header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
   <h1 class="k2-hub-intro" style="margin:0 0 0.5rem">Tournament organizer</h1>
-  <p class="k2-hub-intro" style="margin:0 0 1rem;color:var(--k2-text-secondary)">Password required for fixture ops.</p>
+  <p class="k2-hub-intro" style="margin:0 0 1rem;color:var(--k2-text-secondary)">Enter the organizer password to create or open a league.</p>
 </header>
 <div class="k2-amiga-live-ops">
 <?php if ($pwdProvided) { ?>
@@ -81,11 +81,14 @@ if (!$pwdOk) {
 <?php } ?>
   <form method="get" action="<?php echo $self; ?>" class="k2-amiga-live-ops__grid-form" style="max-width:24rem">
     <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+    <?php
+    $gateTournamentId = isset($_GET['tournament_id']) ? max(0, (int) $_GET['tournament_id']) : 0;
+    if ($gateTournamentId > 0) {
+        ?>
+    <input type="hidden" name="tournament_id" value="<?php echo $gateTournamentId; ?>">
+    <?php } ?>
     <label>Password
       <input type="password" id="pwd" name="pwd" autocomplete="current-password" required autofocus>
-    </label>
-    <label>Tournament id
-      <input type="number" id="tournament_id" name="tournament_id" min="1">
     </label>
     <div class="wide"><button type="submit">Continue</button></div>
   </form>
