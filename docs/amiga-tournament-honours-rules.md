@@ -23,7 +23,7 @@
 
 | # | Decision |
 |---|----------|
-| **M1** | **Tournament-first ontology** — World Cups are tournaments in `tournaments` / participation; honours WC block = filter (`amiga_tournament_is_world_cup()`), not a separate entity. |
+| **M1** | **Tournament-first ontology** — World Cups are tournaments in `tournaments` / participation; honours WC block = filter on **`is_world_cup`** when shipped ([`amiga-world-cup-flag-policy.md`](amiga-world-cup-flag-policy.md)); until then `amiga_tournament_is_world_cup()` / name regex. |
 | **M2** | **`event_finish_position`** (`SMALLINT NULL`) on participation is the **single canonical** holistic finish when known. **NULL** = unknown. **Never 0.** |
 | **M3** | **Podium tier** = `event_finish_position IN (1, 2, 3)` for **all** tournaments including World Cups. |
 | **M4** | **WC below podium** — `event_finish_position` stays **NULL** until a future holistic WC rank job (4th, 5th, …). **Out of scope for v2.** |

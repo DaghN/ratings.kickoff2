@@ -85,7 +85,8 @@ function amiga_running_tournament_games(mysqli $con, int $tournamentId): array
     $stmt = mysqli_prepare(
         $con,
         'SELECT f.id AS fixture_id, f.player_a_id, f.player_b_id, f.goals_a, f.goals_b, '
-        . 'f.extra, f.phase_label AS phase, f.leg_no, s.tournament_id '
+        . 'f.extra, f.phase_label AS phase, f.phase_label AS fixture_phase_label, '
+        . 'f.leg_no, s.tournament_id, s.stage_key, s.name AS stage_name, s.stage_type, s.track_key '
         . 'FROM tournament_fixtures f '
         . 'INNER JOIN tournament_stages s ON s.id = f.stage_id '
         . 'WHERE s.tournament_id = ? AND f.status = ? '
@@ -112,7 +113,12 @@ function amiga_running_tournament_games(mysqli $con, int $tournamentId): array
                 'goals_b' => (int) $row['goals_b'],
                 'extra' => $row['extra'],
                 'phase' => $row['phase'],
+                'fixture_phase_label' => $row['fixture_phase_label'],
                 'leg_no' => (int) $row['leg_no'],
+                'stage_key' => $row['stage_key'],
+                'stage_name' => $row['stage_name'],
+                'stage_type' => $row['stage_type'],
+                'track_key' => $row['track_key'],
             ];
         }
         mysqli_free_result($res);
@@ -123,9 +129,157 @@ function amiga_running_tournament_games(mysqli $con, int $tournamentId): array
 }
 
 /**
+ * Merge broadcast/official league standings with full roster (zero-game players at tied rank).
+ *
+ * @param list<array{position:int,games:int,wins:int,draws:int,losses:int,goals_for:int,goals_against:int,points:int,player_id:int,player_name:string,country?:string}> $standingsRows
+ * @param list<array{player_id:int,player_name:string,country?:string|null}> $roster
+ * @return array{
+ *   rows:list<array{position:int,games:int,wins:int,draws:int,losses:int,goals_for:int,goals_against:int,points:int,player_id:int,player_name:string,country:string}>,
+ *   is_preview:bool,
+ *   preview_note:?string
+ * }
+ */
+function amiga_running_tournament_merged_league_table_rows(array $standingsRows, array $roster): array
+{
+    if ($roster === []) {
+        return [
+            'rows' => [],
+            'is_preview' => false,
+            'preview_note' => null,
+        ];
+    }
+
+    if ($standingsRows === []) {
+        $rows = [];
+        foreach ($roster as $idx => $entrant) {
+            $rows[] = [
+                'position' => $idx + 1,
+                'games' => 0,
+                'wins' => 0,
+                'draws' => 0,
+                'losses' => 0,
+                'goals_for' => 0,
+                'goals_against' => 0,
+                'points' => 0,
+                'player_id' => (int) $entrant['player_id'],
+                'player_name' => (string) $entrant['player_name'],
+                'country' => trim((string) ($entrant['country'] ?? '')),
+            ];
+        }
+
+        return [
+            'rows' => $rows,
+            'is_preview' => true,
+            'preview_note' => 'No results yet — showing entrants at zero.',
+        ];
+    }
+
+    /** @var array<int, array<string, mixed>> $standingsByPlayer */
+    $standingsByPlayer = [];
+    $maxPosition = 0;
+    foreach ($standingsRows as $row) {
+        $playerId = (int) $row['player_id'];
+        $standingsByPlayer[$playerId] = $row;
+        $maxPosition = max($maxPosition, (int) $row['position']);
+    }
+    $zeroGamePosition = $maxPosition > 0 ? $maxPosition + 1 : count($roster);
+
+    $rows = [];
+    foreach ($roster as $entrant) {
+        $playerId = (int) $entrant['player_id'];
+        if (isset($standingsByPlayer[$playerId])) {
+            $standing = $standingsByPlayer[$playerId];
+            $rows[] = [
+                'position' => (int) $standing['position'],
+                'games' => (int) $standing['games'],
+                'wins' => (int) $standing['wins'],
+                'draws' => (int) $standing['draws'],
+                'losses' => (int) $standing['losses'],
+                'goals_for' => (int) $standing['goals_for'],
+                'goals_against' => (int) $standing['goals_against'],
+                'points' => (int) $standing['points'],
+                'player_id' => $playerId,
+                'player_name' => (string) $standing['player_name'],
+                'country' => trim((string) ($standing['country'] ?? $entrant['country'] ?? '')),
+            ];
+            continue;
+        }
+        $rows[] = [
+            'position' => $zeroGamePosition,
+            'games' => 0,
+            'wins' => 0,
+            'draws' => 0,
+            'losses' => 0,
+            'goals_for' => 0,
+            'goals_against' => 0,
+            'points' => 0,
+            'player_id' => $playerId,
+            'player_name' => (string) $entrant['player_name'],
+            'country' => trim((string) ($entrant['country'] ?? '')),
+        ];
+    }
+
+    usort(
+        $rows,
+        static function (array $a, array $b): int {
+            $posCmp = (int) $a['position'] <=> (int) $b['position'];
+            if ($posCmp !== 0) {
+                return $posCmp;
+            }
+            $pointsCmp = (int) $b['points'] <=> (int) $a['points'];
+            if ($pointsCmp !== 0) {
+                return $pointsCmp;
+            }
+            $gdA = (int) $a['goals_for'] - (int) $a['goals_against'];
+            $gdB = (int) $b['goals_for'] - (int) $b['goals_against'];
+            if ($gdA !== $gdB) {
+                return $gdB <=> $gdA;
+            }
+            return strnatcasecmp((string) $a['player_name'], (string) $b['player_name']);
+        }
+    );
+
+    return [
+        'rows' => $rows,
+        'is_preview' => false,
+        'preview_note' => null,
+    ];
+}
+
+/**
+ * Live hub league table rows for running broadcast tournaments.
+ *
+ * @return array{rows:list<array<string,mixed>>,is_preview:bool,preview_note:?string}|null
+ */
+function amiga_live_tournament_league_table_rows(mysqli $con, int $tournamentId): ?array
+{
+    if (!amiga_running_tournament_broadcast_mode($con, $tournamentId)) {
+        return null;
+    }
+
+    $participants = amiga_live_tournament_participants($con, $tournamentId);
+    if ($participants === []) {
+        return null;
+    }
+
+    $roster = [];
+    foreach ($participants as $participant) {
+        $roster[] = [
+            'player_id' => (int) $participant['player_id'],
+            'player_name' => (string) $participant['player_name'],
+            'country' => $participant['country'] ?? '',
+        ];
+    }
+
+    $standingsRows = amiga_running_tournament_standings_rows($con, $tournamentId);
+
+    return amiga_running_tournament_merged_league_table_rows($standingsRows, $roster);
+}
+
+/**
  * Broadcast league standings rows (not persisted).
  *
- * @return list<array{position:int,games:int,wins:int,draws:int,losses:int,goals_for:int,goals_against:int,points:int,player_id:int,player_name:string}>
+ * @return list<array{position:int,games:int,wins:int,draws:int,losses:int,goals_for:int,goals_against:int,points:int,player_id:int,player_name:string,country:string}>
  */
 function amiga_running_tournament_standings_rows(mysqli $con, int $tournamentId): array
 {
@@ -152,14 +306,17 @@ function amiga_running_tournament_standings_rows(mysqli $con, int $tournamentId)
     if ($playerIds !== []) {
         $placeholders = implode(',', array_fill(0, count($playerIds), '?'));
         $types = str_repeat('i', count($playerIds));
-        $stmt = mysqli_prepare($con, "SELECT id, name FROM amiga_players WHERE id IN ({$placeholders})");
+        $stmt = mysqli_prepare($con, "SELECT id, name, country FROM amiga_players WHERE id IN ({$placeholders})");
         if ($stmt !== false) {
             mysqli_stmt_bind_param($stmt, $types, ...$playerIds);
             mysqli_stmt_execute($stmt);
             $res = mysqli_stmt_get_result($stmt);
             if ($res) {
                 while ($nameRow = mysqli_fetch_assoc($res)) {
-                    $names[(int) $nameRow['id']] = (string) $nameRow['name'];
+                    $names[(int) $nameRow['id']] = [
+                        'name' => (string) $nameRow['name'],
+                        'country' => $nameRow['country'] !== null ? (string) $nameRow['country'] : '',
+                    ];
                 }
                 mysqli_free_result($res);
             }
@@ -170,6 +327,7 @@ function amiga_running_tournament_standings_rows(mysqli $con, int $tournamentId)
     $rows = [];
     foreach ($leagueRows as $row) {
         $pid = (int) $row['player_id'];
+        $playerMeta = $names[$pid] ?? null;
         $rows[] = [
             'position' => (int) $row['position'],
             'games' => (int) $row['games'],
@@ -180,7 +338,8 @@ function amiga_running_tournament_standings_rows(mysqli $con, int $tournamentId)
             'goals_against' => (int) $row['goals_against'],
             'points' => (int) $row['points'],
             'player_id' => $pid,
-            'player_name' => $names[$pid] ?? ('Player #' . $pid),
+            'player_name' => is_array($playerMeta) ? $playerMeta['name'] : ('Player #' . $pid),
+            'country' => is_array($playerMeta) ? $playerMeta['country'] : '',
         ];
     }
 

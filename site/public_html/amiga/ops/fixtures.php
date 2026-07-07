@@ -35,7 +35,7 @@ $pwdProvided = $pwdValue !== '';
 $pwdOk = $pwdProvided && hash_equals($opsPassword, $pwdValue);
 $self = htmlspecialchars($_SERVER['SCRIPT_NAME'] ?? '/amiga/ops/fixtures.php', ENT_QUOTES, 'UTF-8');
 
-function amiga_fixture_render_chrome_start(string $pageTitle, bool $withDayPickerAssets = false): void
+function amiga_fixture_render_chrome_start(string $pageTitle, bool $withDayPickerAssets = false, bool $withSortableTableAssets = false): void
 {
     global $k2AmigaHubTabActive;
     $k2AmigaHubTabActive = 'live-tournaments';
@@ -46,8 +46,12 @@ function amiga_fixture_render_chrome_start(string $pageTitle, bool $withDayPicke
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?php echo k2_h($pageTitle); ?></title>
+<?php if ($withSortableTableAssets) { $k2RankedCloak = true; } ?>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
+<?php if ($withSortableTableAssets) { ?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
+<?php } ?>
 <?php
     if ($withDayPickerAssets) {
         require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_day_picker.php';
@@ -1044,74 +1048,29 @@ function amiga_fixture_partition_for_results(array $fixtures): array
 
 /**
  * @param list<array{position:int,games:int,wins:int,draws:int,losses:int,goals_for:int,goals_against:int,points:int,player_id:int,player_name:string}> $standingsRows
- * @param list<array{id:int,player_id:int,player_name:string,seed_no:?int,status:string,note:?string}> $entrants
+ * @param list<array{id:int,player_id:int,player_name:string,country:string,seed_no:?int,status:string,note:?string}> $entrants
  * @return array{
- *   rows:list<array{position:?int,games:int,wins:int,draws:int,losses:int,goals_for:int,goals_against:int,points:int,player_id:int,player_name:string,seed_no:?int}>,
+ *   rows:list<array{position:int,games:int,wins:int,draws:int,losses:int,goals_for:int,goals_against:int,points:int,player_id:int,player_name:string,country:string}>,
  *   is_preview:bool,
  *   preview_note:?string
  * }
  */
 function amiga_fixture_organizer_table_rows(array $standingsRows, array $entrants): array
 {
-    if ($standingsRows !== []) {
-        $rows = [];
-        foreach ($standingsRows as $row) {
-            $rows[] = [
-                'position' => (int) $row['position'],
-                'games' => (int) $row['games'],
-                'wins' => (int) $row['wins'],
-                'draws' => (int) $row['draws'],
-                'losses' => (int) $row['losses'],
-                'goals_for' => (int) $row['goals_for'],
-                'goals_against' => (int) $row['goals_against'],
-                'points' => (int) $row['points'],
-                'player_id' => (int) $row['player_id'],
-                'player_name' => (string) $row['player_name'],
-                'seed_no' => null,
-            ];
-        }
-
-        return [
-            'rows' => $rows,
-            'is_preview' => false,
-            'preview_note' => null,
-        ];
-    }
-
     $registered = array_values(array_filter(
         $entrants,
         static fn (array $entrant): bool => $entrant['status'] === 'registered'
     ));
-    if ($registered === []) {
-        return [
-            'rows' => [],
-            'is_preview' => false,
-            'preview_note' => null,
-        ];
-    }
-
-    $rows = [];
+    $roster = [];
     foreach ($registered as $entrant) {
-        $rows[] = [
-            'position' => null,
-            'games' => 0,
-            'wins' => 0,
-            'draws' => 0,
-            'losses' => 0,
-            'goals_for' => 0,
-            'goals_against' => 0,
-            'points' => 0,
+        $roster[] = [
             'player_id' => (int) $entrant['player_id'],
             'player_name' => (string) $entrant['player_name'],
-            'seed_no' => $entrant['seed_no'],
+            'country' => (string) ($entrant['country'] ?? ''),
         ];
     }
 
-    return [
-        'rows' => $rows,
-        'is_preview' => true,
-        'preview_note' => 'No results yet — showing entrants at zero.',
-    ];
+    return amiga_running_tournament_merged_league_table_rows($standingsRows, $roster);
 }
 
 /**
@@ -1662,7 +1621,7 @@ function amiga_fixture_list_entrants(mysqli $con, int $tournamentId, int $limit 
 {
     $limit = max(1, min($limit, 2000));
     $stmt = $con->prepare(
-        'SELECT e.id, e.player_id, p.name AS player_name, e.seed_no, e.status, e.note '
+        'SELECT e.id, e.player_id, p.name AS player_name, p.country, e.seed_no, e.status, e.note '
         . 'FROM tournament_entrants e '
         . 'INNER JOIN amiga_players p ON p.id = e.player_id '
         . 'WHERE e.tournament_id = ? '
@@ -1683,6 +1642,7 @@ function amiga_fixture_list_entrants(mysqli $con, int $tournamentId, int $limit 
             'id' => (int) $row['id'],
             'player_id' => (int) $row['player_id'],
             'player_name' => (string) $row['player_name'],
+            'country' => $row['country'] !== null ? (string) $row['country'] : '',
             'seed_no' => $row['seed_no'] !== null ? (int) $row['seed_no'] : null,
             'status' => (string) $row['status'],
             'note' => $row['note'] !== null ? (string) $row['note'] : null,
@@ -3350,7 +3310,7 @@ $createMatchHint = amiga_fixture_expected_round_robin_fixtures(
     count($createDraft['player_ids']),
     $createDraft['legs']
 );
-amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
+amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view === 'table');
 ?>
 <header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
   <h1 class="k2-hub-intro" style="margin:0 0 0.5rem">Tournament organizer</h1>
@@ -4101,32 +4061,9 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
     <?php } ?>
     <?php if ($organizerTableDisplay['rows'] === []) { ?>
       <p class="k2-amiga-live-ops__muted">No registered entrants yet. Add players on the Players tab.</p>
-    <?php } else { ?>
-      <div class="k2-table-wrap">
-      <table class="k2-table k2-table--numeric-default k2-table--calm-stats">
-        <thead>
-          <tr><th>Pos</th><th class="k2-table-cell--left">Player</th><th>Games</th><th>W-D-L</th><th>Goals</th><th>GD</th><th>Pts</th></tr>
-        </thead>
-        <tbody>
-        <?php foreach ($organizerTableDisplay['rows'] as $row) {
-            $gf = (int) $row['goals_for'];
-            $ga = (int) $row['goals_against'];
-            $gd = $gf - $ga;
-            ?>
-          <tr<?php echo $organizerTableDisplay['is_preview'] ? ' class="k2-amiga-organizer-table__row--preview"' : ''; ?>>
-            <td><?php echo $row['position'] !== null ? (int) $row['position'] : '<span class="k2-amiga-live-ops__muted">—</span>'; ?></td>
-            <td class="k2-table-cell--left"><?php echo k2_h((string) $row['player_name']); ?></td>
-            <td><?php echo (int) $row['games']; ?></td>
-            <td><?php echo (int) $row['wins']; ?>-<?php echo (int) $row['draws']; ?>-<?php echo (int) $row['losses']; ?></td>
-            <td><?php echo $gf; ?>-<?php echo $ga; ?></td>
-            <td><?php echo $gd > 0 ? '+' . $gd : (string) $gd; ?></td>
-            <td><?php echo $organizerTableDisplay['is_preview'] ? '0' : '<strong>' . (int) $row['points'] . '</strong>'; ?></td>
-          </tr>
-        <?php } ?>
-        </tbody>
-      </table>
-      </div>
-    <?php } ?>
+    <?php } else {
+        amiga_tournament_render_standings_table($organizerTableDisplay['rows'], false);
+    } ?>
   </div>
 <?php } ?>
 

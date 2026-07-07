@@ -9,8 +9,9 @@ amiga_snapshot_redirect_present_only_page();
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Amiga — Live tournament</title>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<?php $k2RankedCloak = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 <link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
 </head>
 <body class="k2-site">
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
@@ -40,6 +41,7 @@ if ($tournament === null) {
 }
 
 $participants = amiga_live_tournament_participants($con, $id);
+$leagueTable = amiga_live_tournament_league_table_rows($con, $id);
 $fixtureGroups = amiga_live_tournament_fixture_groups($con, $id);
 $liveGameCount = amiga_tournament_game_count($con, $id);
 mysqli_close($con);
@@ -96,6 +98,16 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_hero.php';
       </tbody>
     </table>
   </div>
+</section>
+<?php } ?>
+
+<?php if ($leagueTable !== null && $leagueTable['rows'] !== []) { ?>
+<section class="k2-amiga-live-view__section k2-amiga-live-view__section--standings" aria-labelledby="k2-amiga-live-standings-heading">
+  <h2 id="k2-amiga-live-standings-heading" class="k2-panel-heading">League table</h2>
+  <?php if ($leagueTable['preview_note'] !== null) { ?>
+    <p class="k2-amiga-tournament-empty"><?php echo k2_h((string) $leagueTable['preview_note']); ?></p>
+  <?php } ?>
+  <?php amiga_tournament_render_standings_table($leagueTable['rows'], false); ?>
 </section>
 <?php } ?>
 

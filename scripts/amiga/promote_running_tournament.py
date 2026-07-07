@@ -41,7 +41,9 @@ def running_tournament_games(conn: pymysql.connections.Connection, tournament_id
         cur.execute(
             """
             SELECT f.id AS fixture_id, f.player_a_id, f.player_b_id, f.goals_a, f.goals_b,
-                   f.extra, f.phase_label AS phase, f.leg_no, s.tournament_id
+                   f.extra, f.phase_label AS phase, f.phase_label AS fixture_phase_label,
+                   f.leg_no, s.tournament_id, s.stage_key, s.name AS stage_name,
+                   s.stage_type, s.track_key
             FROM tournament_fixtures f
             INNER JOIN tournament_stages s ON s.id = f.stage_id
             WHERE s.tournament_id = %s AND f.status = 'played'
@@ -64,7 +66,12 @@ def running_tournament_games(conn: pymysql.connections.Connection, tournament_id
                 "goals_b": int(row["goals_b"]),
                 "extra": row["extra"],
                 "phase": row["phase"],
+                "fixture_phase_label": row["fixture_phase_label"],
                 "leg_no": int(row["leg_no"]),
+                "stage_key": row["stage_key"],
+                "stage_name": row["stage_name"],
+                "stage_type": row["stage_type"],
+                "track_key": row["track_key"],
             }
         )
     return games

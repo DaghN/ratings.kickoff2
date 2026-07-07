@@ -60,6 +60,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | **Amiga WC HoF** | [`amiga-wc-hof-policy.md`](amiga-wc-hof-policy.md) · [`amiga-wc-hof-implementation-plan.md`](amiga-wc-hof-implementation-plan.md) |
 | **Amiga Countries hub** | [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) · [`amiga-countries-hub-implementation-plan.md`](amiga-countries-hub-implementation-plan.md) |
 | **Amiga country registry** (canonical tokens, JSON registry, L3 normalization) | [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) · [`amiga-country-registry-implementation-plan.md`](amiga-country-registry-implementation-plan.md) |
+| **Amiga `is_world_cup` flag** (L3 catalog membership, snapshot denorm, live checkbox) | [`amiga-world-cup-flag-policy.md`](amiga-world-cup-flag-policy.md) · [`amiga-world-cup-flag-implementation-plan.md`](amiga-world-cup-flag-implementation-plan.md) |
 | **Amiga player create** (KOA naming, permanent roster + orphan cleanup, organizer UX) | [`amiga-player-create-policy.md`](amiga-player-create-policy.md) · [`amiga-player-create-implementation-plan.md`](amiga-player-create-implementation-plan.md) |
 | Amiga ground layers / community packs | `docs/amiga-ground-stack.md`, `docs/amiga-ground-layers-policy.md`, `docs/amiga-ground-layers-implementation-plan.md` (L0–L5) |
 | Amiga derived write policy / prove-only corrections | `docs/amiga-derived-write-policy.md`, `docs/amiga-data-contract.md` |

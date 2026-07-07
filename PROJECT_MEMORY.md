@@ -137,6 +137,10 @@
 
 ## Recent log
 
+| 2026-07-08 | **`is_world_cup` flag policy locked** — L3 `tournaments` column + snapshot denorm; import derives from name regex after catalog transforms; live create checkbox ⟺ name; no index/overrides. [`amiga-world-cup-flag-policy.md`](docs/amiga-world-cup-flag-policy.md) + implementation plan. |
+| 2026-07-08 | **Live tournament league table** — `/amiga/live-tournament.php` shows `amiga_tournament_render_standings_table()` (broadcast merge via `amiga_live_tournament_league_table_rows()`); shared merge helper with organizer. |
+| 2026-07-08 | **Organizer Table tab UX** — shared `amiga_tournament_render_standings_table()` + k2 sortable stack; merge all registered entrants (zero-game players at tied rank); country flags via entrant/standings rows. |
+| 2026-07-08 | **Organizer Table tab (RTB broadcast)** — `amiga_running_tournament_games()` joins stage metadata so running standings resolve `round_robin`/`overall` → league `scope_key=''` (was preview zeros when only `phase_label` reached parser). Python `running_tournament_games()` parity. |
 | 2026-07-07 | **RTB shipped (RTB-1–RTB-8)** — fixture running columns (`structure/006` via `prove`); PHP/Python promote at Make official; `verify-running-tournament-boundary` in holy loop; **`prove` green**. Staging: export → WinSCP → import → Ref-League-A drill. |
 | 2026-07-07 | **RTB plan + inventory locked** — holy-ops-only DDL; implementation plan RTB-PREFLIGHT→RTB-8 ([`amiga-running-tournament-boundary-implementation-plan.md`](docs/amiga-running-tournament-boundary-implementation-plan.md)). |
 | 2026-07-07 | **Amiga player create shipped (PC-1–PC-7)** — organizer compose Create player; `player_source` in ground bundle via prove; orphan hygiene; `verify-player-create` in prove. Staging: prove → export → WinSCP → browser import. |
