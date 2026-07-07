@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_country_registry.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_player_naming.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 require_once __DIR__ . '/modules/process_completed_game.php';
 require_once __DIR__ . '/modules/finalize_tournament.php';
@@ -58,6 +59,11 @@ function amiga_fixture_render_chrome_start(string $pageTitle, bool $withDayPicke
         if (is_file($organizerCountryJs)) {
             echo '<script type="text/javascript" src="/js/amiga-organizer-country-picker.js?v='
                 . (int) @filemtime($organizerCountryJs) . '" defer="defer"></script>' . "\n";
+        }
+        $organizerPlayerCreateJs = $_SERVER['DOCUMENT_ROOT'] . '/js/amiga-organizer-player-create.js';
+        if (is_file($organizerPlayerCreateJs)) {
+            echo '<script type="text/javascript" src="/js/amiga-organizer-player-create.js?v='
+                . (int) @filemtime($organizerPlayerCreateJs) . '" defer="defer"></script>' . "\n";
         }
     }
 ?>
@@ -309,7 +315,16 @@ function amiga_fixture_load_player_summaries(mysqli $con, array $ids): array
 }
 
 /**
- * @return array{name:string,event_date:string,country:string,legs:int,player_ids:list<int>}
+ * @return array{
+ *   name:string,
+ *   event_date:string,
+ *   country:string,
+ *   legs:int,
+ *   player_ids:list<int>,
+ *   new_player_full:string,
+ *   new_player_country:string,
+ *   new_player_preview:string
+ * }
  */
 function amiga_fixture_create_draft_from_request(): array
 {
@@ -338,6 +353,9 @@ function amiga_fixture_create_draft_from_request(): array
         'country' => trim((string) ($_POST['country'] ?? $_GET['cp_country'] ?? '')),
         'legs' => max(1, min(2, $legs)),
         'player_ids' => $playerIds,
+        'new_player_full' => trim((string) ($_POST['new_player_full_name'] ?? $_GET['cp_new_full'] ?? '')),
+        'new_player_country' => trim((string) ($_POST['new_player_country'] ?? $_GET['cp_new_country'] ?? '')),
+        'new_player_preview' => trim((string) ($_POST['new_player_preview'] ?? $_GET['cp_new_preview'] ?? '')),
     ];
 }
 
@@ -358,6 +376,15 @@ function amiga_fixture_create_draft_query(array $draft, string $createPlayerSear
     }
     if ($createPlayerSearch !== '') {
         $params['create_player_search'] = $createPlayerSearch;
+    }
+    if (($draft['new_player_full'] ?? '') !== '') {
+        $params['cp_new_full'] = $draft['new_player_full'];
+    }
+    if (($draft['new_player_country'] ?? '') !== '') {
+        $params['cp_new_country'] = $draft['new_player_country'];
+    }
+    if (($draft['new_player_preview'] ?? '') !== '') {
+        $params['cp_new_preview'] = $draft['new_player_preview'];
     }
 
     return $params;
@@ -427,6 +454,96 @@ function amiga_fixture_render_create_country_field(string $selectedCountry, arra
         <?php } ?>
       </div>
     <?php
+}
+
+/**
+ * @param list<string> $usedOfficialNames
+ * @param list<array<string, mixed>> $moreRows
+ */
+function amiga_fixture_render_new_player_country_field(
+    string $selectedCountry,
+    array $usedOfficialNames,
+    array $moreRows
+): void {
+    $selectedCountry = trim($selectedCountry);
+    $selectedInMore = false;
+    if ($selectedCountry !== '') {
+        $selectedInMore = true;
+        foreach ($usedOfficialNames as $usedName) {
+            if (strcasecmp($usedName, $selectedCountry) === 0) {
+                $selectedInMore = false;
+                break;
+            }
+        }
+    }
+    $moreOptionsJson = [];
+    foreach ($moreRows as $row) {
+        $officialName = trim((string) ($row['official_name'] ?? ''));
+        if ($officialName === '') {
+            continue;
+        }
+        $moreOptionsJson[] = [
+            'value' => $officialName,
+            'label' => k2_amiga_country_display_name($officialName),
+            'selected' => strcasecmp($officialName, $selectedCountry) === 0,
+        ];
+    }
+    $moreJsonAttr = htmlspecialchars(
+        json_encode($moreOptionsJson, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT),
+        ENT_QUOTES,
+        'UTF-8'
+    );
+    ?>
+      <div class="k2-amiga-organizer-create__country k2-amiga-organizer-create__player-country">
+        <label for="amiga-organizer-player-country">Nationality
+          <select name="new_player_country" id="amiga-organizer-player-country" required<?php echo $moreOptionsJson !== [] ? ' data-amiga-more-countries="' . $moreJsonAttr . '"' : ''; ?>>
+            <option value="">Choose country…</option>
+            <?php foreach ($usedOfficialNames as $officialName) {
+                $isSelected = !$selectedInMore && strcasecmp($officialName, $selectedCountry) === 0;
+                ?>
+            <option value="<?php echo k2_h($officialName); ?>"<?php echo $isSelected ? ' selected' : ''; ?>><?php echo k2_h(k2_amiga_country_display_name($officialName)); ?></option>
+            <?php } ?>
+          </select>
+        </label>
+        <?php if ($moreOptionsJson !== []) { ?>
+        <p class="k2-amiga-organizer-create__country-more">
+          <input type="checkbox" id="amiga-organizer-player-country-more"<?php echo $selectedInMore ? ' checked' : ''; ?>>
+          <label for="amiga-organizer-player-country-more">More countries…</label>
+        </p>
+        <?php } ?>
+      </div>
+    <?php
+}
+
+/**
+ * @param array{
+ *   name:string,
+ *   event_date:string,
+ *   country:string,
+ *   legs:int,
+ *   player_ids:list<int>,
+ *   new_player_full:string,
+ *   new_player_country:string,
+ *   new_player_preview:string
+ * } $draft
+ */
+function amiga_fixture_redirect_create_compose(
+    string $self,
+    string $onceKey,
+    string $pwd,
+    array $draft,
+    ?string $flashMessage = null,
+    bool $flashError = false
+): void {
+    if ($flashMessage !== null) {
+        amiga_fixture_ops_flash_set($flashMessage, $flashError);
+    }
+    $params = array_merge(
+        ['once' => $onceKey, 'pwd' => $pwd, 'view' => 'setup'],
+        amiga_fixture_create_draft_query($draft)
+    );
+    header('Location: ' . $self . '?' . http_build_query($params));
+    exit;
 }
 
 function amiga_fixture_ops_url(
@@ -2696,7 +2813,12 @@ $createFormError = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $tournamentId <= 0) {
     $createMutated = false;
-    if (isset($_GET['create_add_player_id'])) {
+    if (isset($_GET['create_clear_new_player'])) {
+        $createDraft['new_player_full'] = '';
+        $createDraft['new_player_country'] = '';
+        $createDraft['new_player_preview'] = '';
+        $createMutated = true;
+    } elseif (isset($_GET['create_add_player_id'])) {
         $addId = max(0, (int) $_GET['create_add_player_id']);
         if ($addId > 0 && !in_array($addId, $createDraft['player_ids'], true)) {
             $createDraft['player_ids'][] = $addId;
@@ -2705,6 +2827,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $tournamentId <= 0) {
     } elseif (isset($_GET['create_remove_player_id'])) {
         $removeId = max(0, (int) $_GET['create_remove_player_id']);
         if ($removeId > 0) {
+            k2_amiga_player_try_delete_orphan($con, $removeId, null);
             $createDraft['player_ids'] = array_values(array_filter(
                 $createDraft['player_ids'],
                 static function (int $id) use ($removeId): bool {
@@ -2735,7 +2858,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $postStatus = '';
     }
     try {
-        if ($action === 'create_kitchen') {
+        if ($action === 'suggest_player') {
+            if ($tournamentId > 0) {
+                throw new RuntimeException('Create player is only available on the compose league screen.');
+            }
+            $fullName = trim((string) ($_POST['new_player_full_name'] ?? ''));
+            $country = trim((string) ($_POST['new_player_country'] ?? ''));
+            if ($fullName === '') {
+                throw new RuntimeException('Enter the newcomer’s full name (first and surname).');
+            }
+            if (!k2_amiga_country_validate_token($country)) {
+                throw new RuntimeException('Choose a valid nationality from the list.');
+            }
+            $suggestion = k2_amiga_suggest_koa_display_name($con, $fullName);
+            if (!$suggestion['available'] || $suggestion['suggested_name'] === null) {
+                throw new RuntimeException((string) ($suggestion['reason'] ?? 'Could not suggest a KOA display name.'));
+            }
+            $createDraft = amiga_fixture_create_draft_from_request();
+            $createDraft['new_player_full'] = $fullName;
+            $createDraft['new_player_country'] = $country;
+            $createDraft['new_player_preview'] = (string) $suggestion['suggested_name'];
+            amiga_fixture_redirect_create_compose(
+                $self,
+                $key,
+                $pwdValue,
+                $createDraft,
+                'Suggested ladder name: ' . $createDraft['new_player_preview'] . ' — confirm below to create.'
+            );
+        } elseif ($action === 'create_player') {
+            if ($tournamentId > 0) {
+                throw new RuntimeException('Create player is only available on the compose league screen.');
+            }
+            $fullName = trim((string) ($_POST['new_player_full_name'] ?? ''));
+            $country = trim((string) ($_POST['new_player_country'] ?? ''));
+            $preview = trim((string) ($_POST['new_player_preview'] ?? ''));
+            if ($fullName === '' || $preview === '') {
+                throw new RuntimeException('Preview a KOA name before creating the player.');
+            }
+            $suggestion = k2_amiga_suggest_koa_display_name($con, $fullName);
+            if (
+                !$suggestion['available']
+                || $suggestion['suggested_name'] === null
+                || strcasecmp((string) $suggestion['suggested_name'], $preview) !== 0
+            ) {
+                throw new RuntimeException('Name suggestion changed — preview again before creating.');
+            }
+            $created = k2_amiga_player_create_live($con, $fullName, $country);
+            $createDraft = amiga_fixture_create_draft_from_request();
+            $createDraft['new_player_full'] = '';
+            $createDraft['new_player_country'] = '';
+            $createDraft['new_player_preview'] = '';
+            if (!in_array($created['player_id'], $createDraft['player_ids'], true)) {
+                $createDraft['player_ids'][] = $created['player_id'];
+            }
+            amiga_fixture_redirect_create_compose(
+                $self,
+                $key,
+                $pwdValue,
+                $createDraft,
+                'Created ' . $created['name'] . ' and added to the draft roster.'
+            );
+        } elseif ($action === 'create_kitchen') {
             $createDraft = [
                 'name' => trim((string) ($_POST['name'] ?? '')),
                 'event_date' => trim((string) ($_POST['event_date'] ?? '')),
@@ -2975,7 +3158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new RuntimeException('Unknown action.');
         }
     } catch (Throwable $e) {
-        if ($action === 'create_kitchen') {
+        if (in_array($action, ['create_kitchen', 'suggest_player', 'create_player'], true)) {
             $createFormError = true;
             $flashIsError = true;
             $flash = $e->getMessage();
@@ -3247,6 +3430,52 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
         aria-autocomplete="list" aria-expanded="false" aria-controls="amiga-organizer-create-player-search-list" placeholder="Type at least 2 characters…" />
       <ul id="amiga-organizer-create-player-search-list" class="k2-amiga-organizer-player-search__results" role="listbox" hidden="hidden"></ul>
       <span class="k2-amiga-organizer-player-search__live visually-hidden" aria-live="polite"></span>
+    </div>
+
+    <div class="k2-amiga-organizer-create-player">
+      <h3 class="k2-amiga-organizer-create__step">Create player</h3>
+      <p class="k2-amiga-live-ops__muted">Enter full name + nationality; the system assigns the KOA ladder name (no manual abbreviation).</p>
+      <?php if ($createDraft['new_player_preview'] !== '') { ?>
+        <div class="k2-amiga-organizer-create-player__preview">
+          <p><strong>Suggested ladder name:</strong> <?php echo k2_h($createDraft['new_player_preview']); ?></p>
+          <form class="k2-amiga-live-ops__inline-form" method="post" action="<?php echo $self; ?>">
+            <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+            <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+            <input type="hidden" name="action" value="create_player">
+            <?php foreach ($createDraft['player_ids'] as $pid) { ?>
+              <input type="hidden" name="player_ids[]" value="<?php echo (int) $pid; ?>">
+            <?php } ?>
+            <input type="hidden" name="name" value="<?php echo k2_h($createDraft['name']); ?>">
+            <input type="hidden" name="event_date" value="<?php echo k2_h($createDraft['event_date']); ?>">
+            <input type="hidden" name="country" value="<?php echo k2_h($createDraft['country']); ?>">
+            <input type="hidden" name="legs" value="<?php echo (int) $createDraft['legs']; ?>">
+            <input type="hidden" name="new_player_full_name" value="<?php echo k2_h($createDraft['new_player_full']); ?>">
+            <input type="hidden" name="new_player_country" value="<?php echo k2_h($createDraft['new_player_country']); ?>">
+            <input type="hidden" name="new_player_preview" value="<?php echo k2_h($createDraft['new_player_preview']); ?>">
+            <button type="submit">Create player and add to list</button>
+          </form>
+          <p class="k2-amiga-live-ops__muted"><a href="<?php echo htmlspecialchars($self . '?' . http_build_query(array_merge(['once' => $key, 'pwd' => $pwdValue, 'view' => 'setup', 'create_clear_new_player' => '1'], amiga_fixture_create_draft_query($createDraft))), ENT_QUOTES, 'UTF-8'); ?>">Clear preview</a></p>
+        </div>
+      <?php } ?>
+      <form class="k2-amiga-live-ops__grid-form k2-amiga-organizer-create-player__form" method="post" action="<?php echo $self; ?>">
+        <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+        <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+        <input type="hidden" name="action" value="suggest_player">
+        <?php foreach ($createDraft['player_ids'] as $pid) { ?>
+          <input type="hidden" name="player_ids[]" value="<?php echo (int) $pid; ?>">
+        <?php } ?>
+        <input type="hidden" name="name" value="<?php echo k2_h($createDraft['name']); ?>">
+        <input type="hidden" name="event_date" value="<?php echo k2_h($createDraft['event_date']); ?>">
+        <input type="hidden" name="country" value="<?php echo k2_h($createDraft['country']); ?>">
+        <input type="hidden" name="legs" value="<?php echo (int) $createDraft['legs']; ?>">
+        <label>Full name
+          <input type="text" name="new_player_full_name" required maxlength="80" placeholder="Mark Bentley" value="<?php echo k2_h($createDraft['new_player_full']); ?>">
+        </label>
+        <?php amiga_fixture_render_new_player_country_field($createDraft['new_player_country'], $createCountryUsedOfficial, $createCountryMoreRows); ?>
+        <div class="wide">
+          <button type="submit">Preview KOA name</button>
+        </div>
+      </form>
     </div>
 
     <form class="k2-amiga-live-ops__grid-form k2-amiga-organizer-create__form" method="post" action="<?php echo $self; ?>">

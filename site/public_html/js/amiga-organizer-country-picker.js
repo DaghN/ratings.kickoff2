@@ -17,9 +17,9 @@
         }
     }
 
-    function boot() {
-        var select = document.getElementById("amiga-organizer-country");
-        var toggle = document.getElementById("amiga-organizer-country-more");
+    function wireCountryPicker(selectId, toggleId) {
+        var select = document.getElementById(selectId);
+        var toggle = document.getElementById(toggleId);
         if (!select || !toggle) {
             return;
         }
@@ -73,6 +73,11 @@
             setMoreVisible(toggle.checked);
         });
         setMoreVisible(toggle.checked);
+    }
+
+    function boot() {
+        wireCountryPicker("amiga-organizer-country", "amiga-organizer-country-more");
+        wireCountryPicker("amiga-organizer-player-country", "amiga-organizer-player-country-more");
     }
 
     window.k2OnPageReady(boot);

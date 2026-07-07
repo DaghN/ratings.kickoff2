@@ -6,7 +6,7 @@
 
 **Related:** [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) (nationality on create) · [`amiga-import-layer.md`](amiga-import-layer.md) (historical import merges — separate from live create) · [`scripts/amiga/player_names.py`](../scripts/amiga/player_names.py) (reference algorithms today) · [`scripts/amiga/player_registry.py`](../scripts/amiga/player_registry.py) (today's CLI — already inserts `amiga_players`; aligns with rev. 2 storage)
 
-**Implementation plan:** [`amiga-player-create-implementation-plan.md`](amiga-player-create-implementation-plan.md) — slices **PC-1+** not started.
+**Implementation plan:** [`amiga-player-create-implementation-plan.md`](amiga-player-create-implementation-plan.md) — **PC-1–PC-7 shipped Jul 2026** (browser compose create; PC-9 delete league = phase 2).
 
 ---
 
@@ -310,3 +310,4 @@ Future `verify-*` / ops checks should include:
 | 2026-07-07 | Policy locked — Dagh decisions: auto-suggest only, minimum unique suffix, country required, create+roster in tournament context, delete-not-edit, organizer auth. |
 | 2026-07-07 | **Rev. 2** — Retire provisional-until-finalize; **permanent `amiga_players` at create** + **orphan cleanup** on abandoned never-finalized tournaments (§4.4 X→Y edge case). |
 | 2026-07-07 | **Rev. 2.1** — Orphan guard: tournament **X** delete must **not** remove **N** if **N** is still entrant on **Y** (§6.3.1); condition 3 = any other tournament, not “with at least one game”. |
+| 2026-07-07 | **Implementation shipped (PC-1–PC-7)** — browser compose create, `player_source`, orphan helpers, `verify-player-create`; PC-9 browser delete league = phase 2. |

@@ -1,6 +1,6 @@
 # Amiga player create — implementation plan
 
-**Status:** **PC-0 done (Jul 2026)** — policy rev. 2.1 locked; plan ready. **PC-1+ not started.**
+**Status:** **PC-1–PC-7 shipped (Jul 2026)** — local `ko2amiga_db` via **prove** (ground bundle); staging via prove → export (part 01 schema). **PC-8** staging spot-check; **PC-9** browser delete league = phase 2.
 
 **Policy:** [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (rev. 2.1)  
 **Parent:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) · [`amiga-data-contract.md`](amiga-data-contract.md)
@@ -9,7 +9,7 @@
 
 **Execution:** Slices **in order**. Run each slice **Verification** before continuing. **Do not git commit** unless Dagh asks.
 
-**Migration:** **New DDL** on `amiga_players` (`player_source`). Part B applies at closure (schema migration file + `amiga-data-contract.md` register line). Re-import does **not** backfill provenance — migration sets existing rows to `import`.
+**Schema:** **New DDL** on `amiga_players` (`player_source`) in [`ground/001_core.sql`](../scripts/amiga/sql/ground/001_core.sql) via `prove`; `amiga-data-contract.md` register (Part B done Jul 2026). Re-import does **not** backfill provenance — column default `import`.
 
 ---
 
@@ -92,6 +92,68 @@
 
 ---
 
+## Existing platform vs this track (dependency audit)
+
+**Nothing in PC-1–PC-8 waits on unimplemented work elsewhere.** External prerequisites are already shipped; tournament delete for orphan testing is **CLI today**, not a future slice.
+
+### Already implemented (use, do not rebuild)
+
+| Capability | Status | Where | Used by |
+|------------|--------|-------|---------|
+| **Delete unplayed generated tournament** | **Shipped (CLI)** | `python -m scripts.amiga fixtures cleanup-generated --tournament-id N` · `cleanup_generated_tournament()` in [`tournament_fixtures.py`](../scripts/amiga/tournament_fixtures.py) | **PC-7** hooks orphan sweep **into** this function |
+| Guards: no Access import, no games, builder-generated only | Shipped | Same function + [`amiga-data-contract.md`](amiga-data-contract.md) | PC-7 inherits; PC-9 mirrors |
+| KOA suggest / create (CLI) | Shipped | [`player_names.py`](../scripts/amiga/player_names.py), [`player_registry.py`](../scripts/amiga/player_registry.py) | PC-2 aligns provenance; PC-5 browser parity |
+| Onboard newcomer (create + entrant) | Shipped | `fixtures onboard-newcomer` | Reference only; v1 browser uses compose draft path |
+| Organizer create-league compose + player search | Shipped | [`fixtures.php`](../site/public_html/amiga/ops/fixtures.php), [`amiga-organizer-player-picker.js`](../site/public_html/js/amiga-organizer-player-picker.js) | PC-5 extends |
+| Country registry + validate on create | Shipped (CR-5+) | [`k2_amiga_country_registry.php`](../site/public_html/includes/k2_amiga_country_registry.php) | PC-3/PC-5 |
+| `tournament_entrants` + kitchen-marathon builder | Shipped | fixture tooling | PC-7 oracle needs entrants on X and Y |
+
+### Not implemented elsewhere (explicitly in this plan)
+
+| Capability | Slice | Notes |
+|------------|-------|-------|
+| `player_source` provenance column | **PC-1** | Blocks PC-2+ |
+| Orphan eligibility helpers | **PC-2** (Python), **PC-3** (PHP) | Shared callables — not a separate product feature |
+| Orphan sweep on tournament delete | **PC-7** | **Extends** existing `cleanup_generated_tournament` — does **not** add a new delete verb |
+| Browser Create player | **PC-5** | |
+| Draft chip orphan delete | **PC-6** | No tournament row; not tournament delete |
+| Browser Delete league | **PC-9** | **Phase 2** — thin UI over same cleanup path as CLI; **not** required for PC-1–PC-8 |
+
+### Orphan delete call sites (one helper, three triggers)
+
+```text
+delete_orphan_live_players_for_tournament()   ← PC-2 Python; mirror in PC-3 PHP
+  ├─ PC-6  draft chip remove (compose — no tournament_id yet; direct player delete)
+  ├─ PC-7  cleanup_generated_tournament()   ← EXISTING CLI entry point
+  └─ PC-9  fixtures.php Advanced POST         ← future; calls same logic as PC-7
+```
+
+**PC-7 is not “implement delete tournament.”** It is “when the **existing** CLI delete runs, also delete eligible `live_ops` zero-game players who have no other entrant links.” The X/Y oracle in PC-7 uses **`fixtures cleanup-generated`** only — no browser work required.
+
+### Slice dependency matrix
+
+| Slice | Depends on | External blocker? |
+|-------|------------|-------------------|
+| **PC-1** | — | No |
+| **PC-2** | PC-1 | No |
+| **PC-3** | PC-1 (read `player_source`; suggest needs DB) | No |
+| **PC-4** | PC-1, PC-2 | No |
+| **PC-5** | PC-3, country registry (shipped) | No |
+| **PC-6** | PC-3 (orphan helper) | No — does **not** need tournament delete |
+| **PC-7** | PC-2 (orphan helper); **CLI `cleanup-generated` (shipped)** | **No** |
+| **PC-8** | PC-1–PC-7 | No |
+| **PC-9** | PC-7 + PC-3; **CLI cleanup semantics (shipped)** | No — but **out of PC-1–PC-8 scope** until requested |
+
+### Out of scope / other tracks (not blockers)
+
+| Item | Track | Relation to player create |
+|------|-------|---------------------------|
+| `delete-unfinalized-tournament` / Case B finalized delete | [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) L5 repair | Different verb — rated/finalized path; **not** PC-7 |
+| Mid-tournament Create player (open league) | Policy phase 2 | Not v1 |
+| Sitewide hide zero-game players | Policy §6.4 audit | Optional later |
+
+---
+
 ## PC-0 — Policy + plan (done)
 
 ### Goal
@@ -119,29 +181,24 @@ Distinguish import corpus from live-created rows for orphan cleanup (policy §6.
 
 ### Tasks
 
-- [ ] Add migration under **`scripts/amiga/sql/`** (next id — grep existing):
-  - `ALTER TABLE amiga_players ADD COLUMN player_source ENUM('import','live_ops') NOT NULL DEFAULT 'import'`
-  - Optional index if orphan queries need it (likely unnecessary at Amiga scale — skip unless explain shows scan pain).
-- [ ] Update **`scripts/amiga/sql/ground/001_core.sql`** for greenfield installs (same column).
+- [ ] Update **`scripts/amiga/sql/ground/001_core.sql`** (and mirror **`sql/001_core.sql`** if present) for greenfield installs.
 - [ ] Document column in **`docs/amiga-data-contract.md`** `amiga_players` row (Part B at PC-8).
 
 ### Files
 
 | Action | Path |
 |--------|------|
-| New | `scripts/amiga/sql/NNN_player_source.sql` |
 | Edit | `scripts/amiga/sql/ground/001_core.sql` |
 
 ### Verification
 
 ```powershell
-# Apply on local ko2amiga_db (path per Laragon habit)
-C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe -u root ko2amiga_db < scripts/amiga/sql/NNN_player_source.sql
+python -m scripts.amiga prove
 C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe -u root -e "SELECT player_source, COUNT(*) FROM ko2amiga_db.amiga_players GROUP BY player_source"
 # Expect: import only, count = full corpus
 ```
 
-**STOP** if migration fails or any row is not `import` after backfill.
+**STOP** if prove fails or any row is not `import` after backfill.
 
 ---
 
@@ -302,13 +359,16 @@ Policy PC9 + §6.5 — delete live-created zero-game player from compose draft.
 
 ### Goal
 
-Policy §6.3.1 — **`cleanup-generated`** deletes eligible live-created zero-game players who were **only** on the removed tournament.
+Policy §6.3.1 — when the **existing** CLI tournament delete runs, also remove eligible live-created zero-game players who were **only** on that tournament.
+
+**Prerequisite (already shipped):** `fixtures cleanup-generated` / `cleanup_generated_tournament()` — see §Existing platform. **Do not** wait for PC-9 (browser delete).
 
 ### Tasks
 
-- [ ] Call **`delete_orphan_live_players_for_tournament`** from **`cleanup_generated_tournament`** after entrant list collected, **before** `DELETE FROM tournaments` (FK order — audit CASCADE on `tournament_entrants`).
+- [ ] Call **`delete_orphan_live_players_for_tournament`** (from PC-2) inside **`cleanup_generated_tournament`** — collect tournament entrant player ids, run per-player eligibility with `excluding_tournament_id`, delete eligible rows, **then** existing `DELETE FROM tournaments` (audit CASCADE on `tournament_entrants`).
+- [ ] Optional: fix `--dry-run` so it does not execute the tournament `DELETE` before rollback (today dry-run still runs delete then rolls back — confusing for operators).
 - [ ] Oracle test in **`test_player_create.py`** or integration script:
-  - Create **N** live on tournament **X** and **Y** (zero games)
+  - Create **N** live on tournament **X** and **Y** (zero games) — use `fixtures onboard-newcomer` or `players create` + `add-entrant`
   - `fixtures cleanup-generated --tournament-id X`
   - Assert **N** still exists
   - Create **M** live only on **X** → cleanup **X** → **M** deleted
@@ -332,7 +392,7 @@ Ship path documented; staging spot-check.
 
 ### Tasks
 
-- [ ] WinSCP sync PHP + JS + migration applied on staging DB
+- [ ] WinSCP sync PHP + JS; **`scripts\export_ko2amiga_db.ps1`** → sync `_import/` → browser import apply
 - [ ] Browser checklist on staging organizer (suggest, create, chip, league submit)
 - [ ] UPDATE_DOCS Part A: MEMORY, policy implementation plan link, `feature-log.md`, `amiga-live-ops-platform.md`, `scripts/amiga/README.md`
 - [ ] UPDATE_DOCS Part B: migration register, `amiga-data-contract.md` `player_source` column
@@ -347,12 +407,14 @@ Staging organizer create drill + `verify-player-create` on staging import DB aft
 
 ### Goal
 
-Expose existing cleanup + orphan sweep in organizer Advanced tab (policy backlog §12).
+Expose **existing** CLI cleanup + PC-7 orphan sweep in organizer Advanced tab (policy backlog §12).
+
+**Depends on PC-7** (orphan sweep in cleanup path) and **PC-3** (PHP helper if browser calls PHP directly). **Does not** block PC-1–PC-8 — operators can delete via CLI until PC-9 ships.
 
 ### Tasks (outline)
 
-- [ ] Guarded delete on unplayed generated tournaments only (mirror CLI refuses)
-- [ ] Same orphan sweep as PC-7
+- [ ] Advanced tab POST action — mirror CLI guards (generated only, zero games)
+- [ ] Call same cleanup + orphan sweep as `cleanup_generated_tournament` (shared PHP lib or documented subprocess — prefer shared PHP in `k2_amiga_player_naming.php` / ops include)
 - [ ] Flash message listing deleted orphan player names (optional UX)
 
 **Not in PC-1–PC-8 order** — start only when Dagh asks.
@@ -388,3 +450,5 @@ Copy of policy §6.3 — **all** required for delete:
 | Date | Note |
 |------|------|
 | 2026-07-07 | Plan created — policy rev. 2.1; slices PC-1–PC-9; locked `player_source` provenance |
+| 2026-07-07 | §Existing platform — dependency audit: PC-7 extends shipped CLI `cleanup-generated` |
+| 2026-07-07 | **PC-1–PC-7 shipped** — code + verify; PC-8 staging spot-check + PC-9 browser delete league remain |

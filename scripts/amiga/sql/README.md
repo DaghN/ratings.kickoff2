@@ -10,6 +10,6 @@
 
 **L1** (full Access mirror) and **L2** (pruned dump) are separate export pipeline artefacts — not these folders.
 
-Flat files in this directory remain for archaeology. New DDL → appropriate bundle.
+Flat files in this directory remain for archaeology. **New DDL → ground/structure/derived bundle only** — applied by `python -m scripts.amiga prove` (`apply_schema_*` in `schema_bundles.py`).
 
 Policy: [`docs/amiga-ground-layers-policy.md`](../../../docs/amiga-ground-layers-policy.md) · stack intent: [`docs/amiga-ground-stack.md`](../../../docs/amiga-ground-stack.md)

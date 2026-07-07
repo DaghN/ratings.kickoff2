@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `amiga_players` (
   `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `country` varchar(50) NOT NULL DEFAULT '',
   `display` tinyint(1) NOT NULL DEFAULT 1,
+  `player_source` enum('import','live_ops') NOT NULL DEFAULT 'import',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_amiga_players_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

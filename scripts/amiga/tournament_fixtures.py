@@ -13,6 +13,7 @@ from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.player_registry import check_player_name, create_player, suggest_player_name
+from scripts.amiga.player_orphans import delete_orphan_live_players_for_tournament
 
 VALID_STAGE_TYPES = {"round_robin", "knockout"}
 VALID_FIXTURE_STATUSES = {"scheduled", "played", "void"}
@@ -1572,7 +1573,12 @@ def backfill_tournament_entrants(
     return summary
 
 
-def cleanup_generated_tournament(conn: pymysql.connections.Connection, *, tournament_id: int) -> None:
+def cleanup_generated_tournament(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int,
+    dry_run: bool = False,
+) -> list[int]:
     row = _load_one(
         conn,
         """
@@ -1593,7 +1599,15 @@ def cleanup_generated_tournament(conn: pymysql.connections.Connection, *, tourna
         game_count = int(cur.fetchone()["n"])
         if game_count > 0:
             raise ValueError(f"refusing to delete tournament with {game_count} game(s)")
-        cur.execute("DELETE FROM tournaments WHERE id = %s", (tournament_id,))
+    orphan_deleted = delete_orphan_live_players_for_tournament(
+        conn,
+        tournament_id,
+        dry_run=dry_run,
+    )
+    if not dry_run:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM tournaments WHERE id = %s", (tournament_id,))
+    return orphan_deleted
 
 
 def audit_entrant_integrity(
@@ -1991,7 +2005,7 @@ def main(argv: list[str] | None = None) -> int:
     p_onboard.add_argument("--tournament-id", type=int, required=True)
     p_onboard.add_argument("--name", default=None, help="Explicit canonical KOA display name")
     p_onboard.add_argument("--full-name", default=None, help="Suggest first available KOA-style name")
-    p_onboard.add_argument("--country", default="")
+    p_onboard.add_argument("--country", required=True, help="Registry official_name (choosable)")
     p_onboard.add_argument("--seed-no", type=int, default=None)
     p_onboard.add_argument("--note", default=None)
     p_onboard.add_argument("--dry-run", action="store_true")
@@ -2218,14 +2232,22 @@ def main(argv: list[str] | None = None) -> int:
             return 0
 
         if args.cmd == "cleanup-generated":
-            cleanup_generated_tournament(conn, tournament_id=args.tournament_id)
+            orphan_deleted = cleanup_generated_tournament(
+                conn,
+                tournament_id=args.tournament_id,
+                dry_run=args.dry_run,
+            )
             if args.dry_run:
                 conn.rollback()
                 print("DRY RUN: rolled back")
                 print(f"would delete tournament_id={args.tournament_id}")
+                if orphan_deleted:
+                    print(f"would orphan-delete player_ids={orphan_deleted}")
             else:
                 conn.commit()
                 print(f"deleted tournament_id={args.tournament_id}")
+                if orphan_deleted:
+                    print(f"orphan-deleted player_ids={orphan_deleted}")
             return 0
 
         if args.cmd == "backfill-entrants":

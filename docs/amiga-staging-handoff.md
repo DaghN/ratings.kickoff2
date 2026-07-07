@@ -31,14 +31,17 @@ Online `kooldb*` is untouched. Credentials mirror staging config1 user/password;
 - https://ratings.kickoff2.com/amiga/tournaments.php
 - https://ratings.kickoff2.com/amiga/tournament.php?id=372 (London XXIII — adjust id after import)
 - https://ratings.kickoff2.com/amiga/player/profile.php?id=1
-- https://ratings.kickoff2.com/amiga/player/games.php?id=1
+- https://ratings.kickoff2.com/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee (organizer — **Create player** on compose league after prove/export/import)
 
 ---
 
 ## Dagh — code or data refresh
 
 1. **Code:** WinSCP sync **`site/public_html/`** → staging **`public_html/`** (usual button). Include **`public_html/data/amiga/country_registry.json`** (country registry — Jul 2026) and **`img/flags/amiga/`** (253 flag SVGs) with PHP changes; without the JSON, Amiga table pages render headers but **fatal mid-row** (empty bodies).
+
 2. **Data** — whenever local **`ko2amiga_db`** is the state you want on staging (Access import, replay-only, manual SQL, etc.):
+
+**PHP-only sync** (organizer PHP/JS without re-import): staging DB may lag until the next full import — prefer export + import for schema changes.
 
 ```powershell
 # Full rebuild from Access (import + Elo + export):

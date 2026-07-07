@@ -12,11 +12,24 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
+from scripts.amiga.country_registry import official_name_to_row
 from scripts.amiga.player_names import (
     identity_key,
     normalize_display_name,
     suggest_koa_display_name,
 )
+
+PLAYER_SOURCE_LIVE_OPS = "live_ops"
+
+
+def _validate_live_country(country: str) -> str:
+    token = (country or "").strip()
+    if token == "":
+        raise ValueError("country is required for live player create")
+    row = official_name_to_row().get(token)
+    if row is None or not bool(row.get("choosable", True)):
+        raise ValueError(f"country must be a choosable registry official name: {token!r}")
+    return token
 
 
 @dataclass(frozen=True)
@@ -171,10 +184,13 @@ def create_player(
                 f"normalized={normalized!r} collides with player_id={existing.id} name={existing.name!r}"
             )
 
+        country_token = _validate_live_country(country)
+
         row = {
             "name": normalized,
-            "country": country,
+            "country": country_token,
             "display": display,
+            "player_source": PLAYER_SOURCE_LIVE_OPS,
         }
 
         if dry_run:
@@ -184,8 +200,8 @@ def create_player(
 
         with conn.cursor() as cur:
             cur.execute(
-                "INSERT INTO amiga_players (name, country, display) VALUES (%s, %s, %s)",
-                (row["name"], row["country"], row["display"]),
+                "INSERT INTO amiga_players (name, country, display, player_source) VALUES (%s, %s, %s, %s)",
+                (row["name"], row["country"], row["display"], row["player_source"]),
             )
             player_id = int(cur.lastrowid)
         if owns_conn:
@@ -231,7 +247,7 @@ def main(argv: list[str] | None = None) -> int:
 
     p_create = sub.add_parser("create", help="Create a new amiga_players row")
     p_create.add_argument("--name", required=True)
-    p_create.add_argument("--country", default="")
+    p_create.add_argument("--country", required=True, help="Registry official_name (choosable)")
     p_create.add_argument("--dry-run", action="store_true")
 
     args = parser.parse_args(argv)

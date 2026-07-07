@@ -416,6 +416,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Assert witness country tokens and choosable flag SVGs match country_registry.json",
     )
 
+    sub.add_parser(
+        "verify-player-create",
+        help="Assert live_ops amiga_players rows and player_source column",
+    )
+
     p_build_registry = sub.add_parser(
         "build-country-registry",
         help="Build data/amiga/country_registry.json from flag-icons country.json",
@@ -749,6 +754,11 @@ def main(argv: list[str] | None = None) -> int:
         from scripts.amiga.verify_country_registry import main as verify_country_registry_main
 
         return verify_country_registry_main()
+
+    if args.cmd == "verify-player-create":
+        from scripts.amiga.verify_player_create import main as verify_player_create_main
+
+        return verify_player_create_main()
 
     if args.cmd == "build-country-registry":
         from scripts.amiga.build_country_registry import main as build_country_registry_main

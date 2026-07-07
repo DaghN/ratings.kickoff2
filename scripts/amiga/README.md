@@ -81,6 +81,7 @@ python -m scripts.amiga verify-event-snapshots
 python -m scripts.amiga verify-player-participation
 python -m scripts.amiga verify-player-matchups
 python -m scripts.amiga verify-import-manifest
+python -m scripts.amiga verify-player-create
 python -m scripts.amiga verify-l2-l3
 python -m scripts.amiga verify-tournament-formats
 python -m scripts.amiga fixtures verify
@@ -345,7 +346,9 @@ python -m scripts.amiga fixtures set-tournament-status --tournament-id N --statu
 # Browser results entry: Results tab lists playable fixtures with score forms when running; played results for context;
 # record_result POST redirects to view=results. Fixtures tab links to Results when scores can be entered.
 # Browser table preview: Table tab shows registered entrants at zero before derived standings exist (read-only presentation).
-# No browser player creation or onboard-newcomer; use CLI for those.
+# Browser create player (compose league): full name + nationality → Preview KOA name → confirm → draft chip;
+# orphan delete on chip remove for live_ops zero-game players. See docs/amiga-player-create-policy.md.
+# Requires amiga_players.player_source (ground bundle via prove).
 
 # Fixture-backed result entry creates one canonical game and marks the fixture played.
 # record-result requires lifecycle_status=running and both players to be active (registered) entrants.
