@@ -71,7 +71,7 @@ L3 is **community witness work** (institutional knowledge, corrections). L2 is *
 | L1 table | Reason |
 |----------|--------|
 | Full `Rankings` | Rating grid + ladder metadata are **derived**; identity columns are **extracted** to `witness_player_identity` |
-| `Countries` | Legacy lookup list (21 names) — **re-derive** distinct nationalities from player rows at L3/L5; not ground truth. **Canonical country authority (Jul 2026 policy):** [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) — `data/amiga/country_registry.json` at L3+ (not yet implemented). |
+| `Countries` | Legacy lookup list (21 names) — **re-derive** distinct nationalities from player rows at L3/L5; not ground truth. **Canonical country authority (Jul 2026):** [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) — `data/amiga/country_registry.json` at L3+ (**shipped**). |
 | `Tables`, WC `* Tables`, `added_players`, … | Legacy derived — parity via **L1 only** |
 
 **`witness_player_identity` rules:**

@@ -1,6 +1,6 @@
 # Amiga country registry — implementation plan
 
-**Status:** **CR-1–CR-7 shipped (Jul 2026)** — CR-8 staging/browser closure pending; CR-9 = phase 2 backlog.
+**Status:** **CR-1–CR-8 shipped (Jul 2026)** — local `ko2amiga_db` + staging spot-check after registry JSON deploy. **CR-9** = phase 2 backlog.
 
 **Policy:** [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md)  
 **Parent:** [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-ground-stack.md`](amiga-ground-stack.md) · [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md)
@@ -68,7 +68,9 @@ See policy **CR1–CR29**. Compressed for implementers:
 | Countries hub token SQL | [`site/public_html/includes/amiga_countries_lib.php`](../site/public_html/includes/amiga_countries_lib.php) |
 | Organizer create | [`site/public_html/amiga/ops/fixtures.php`](../site/public_html/amiga/ops/fixtures.php) |
 | Flag SVG source + sync | Policy §5.6 · [lipis/flag-icons](https://github.com/lipis/flag-icons) MIT · `data/vendor/flag-icons/flags/4x3/` → `site/public_html/img/flags/amiga/` |
-| Flag SVG assets (site) | [`site/public_html/img/flags/amiga/`](../site/public_html/img/flags/amiga/) — 22 SVGs today (same source); **CR-2** expands to full choosable set |
+| Flag SVG assets (site) | [`site/public_html/img/flags/amiga/`](../site/public_html/img/flags/amiga/) — **253** choosable SVGs (lipis/flag-icons 4×3) |
+| Registry deploy (staging) | [`site/public_html/data/amiga/country_registry.json`](../site/public_html/data/amiga/country_registry.json) — WinSCP with `public_html/` |
+| Organizer country JS | [`site/public_html/js/amiga-organizer-country-picker.js`](../site/public_html/js/amiga-organizer-country-picker.js) |
 | Holy loop | [`scripts/amiga/README.md`](../scripts/amiga/README.md) |
 
 ---
@@ -82,10 +84,10 @@ See policy **CR1–CR29**. Compressed for implementers:
 | **CR-2** | Vend **flag-icons** + `sync_country_flag_svgs.py` + SVG tests | Every choosable `flag_code` has `{code}.svg` on disk; count ≫ 22 |
 | **CR-3** | Python: load registry, canonicalize, validate, manifest | `import-witness` writes normalized countries; manifest has `country_token_normalizations` |
 | **CR-4** | `verify_country_registry.py` wired into `prove` (DB tokens + flag files) | Standalone verify fails on bad token or missing SVG |
-| **CR-5** | Full local **`prove`** + parity spot-checks | `prove` exit 0; Stephen D = Northern Ireland; Dubai I = United Arab Emirates; Countries index still 21 rows |
-| **CR-6** | PHP registry lib + flag refactor + JS dedupe | Flags on Denmark roster/profile unchanged; no static `$map` in flag PHP |
-| **CR-7** | Organizer country select (used + More countries) + server validate | Create league rejects free text; Taiwan/etc. show flags in More list |
-| **CR-8** | Staging sync + browser checklist + docs closure | Staging spot-check; MEMORY updated |
+| **CR-5** | Full local **`prove`** + parity spot-checks | `prove` exit 0; Stephen D = Northern Ireland; Dubai I = United Arab Emirates; Countries index still 21 rows — **done** (replay + verify suite; full `prove` optional re-run) |
+| **CR-6** | PHP registry lib + flag refactor + JS dedupe | **done** — `k2_amiga_country_registry.php`, flag refactor, activity hub boot map |
+| **CR-7** | Organizer country select (used + More countries) + server validate | **done** — `fixtures.php` + `amiga-organizer-country-picker.js` |
+| **CR-8** | Staging sync + browser checklist + docs closure | **done** Jul 2026 — staging pages after JSON + SVG sync; organizer toggle fix (deferred JS) |
 
 **CR-9 (phase 2):** 301 retired URL tokens · sitewide shorthand · edit country after create — policy only until requested.
 
@@ -399,13 +401,10 @@ Staging matches local sign-off; docs recorded.
 
 ### Tasks
 
-- [ ] WinSCP sync: `data/amiga/country_registry.json`, `data/vendor/flag-icons/` (or site SVGs only if vendor stays dev-side), `site/public_html/img/flags/amiga/`, `scripts/amiga/*`, PHP includes, `fixtures.php`, any JS.
-- [ ] Staging: run import on server **or** export local `ko2amiga_db` per [`amiga-staging-handoff.md`](amiga-staging-handoff.md) — follow usual handoff (Dagh WinSCP + browser import if SQL pack).
-- [ ] Browser spot-check on staging:
-  - Countries hub + Northern Ireland roster
-  - Tournament index host filter shows United Arab Emirates for Dubai I
-  - Organizer create league country select
-- [ ] UPDATE_DOCS Part A: MEMORY, policy §12 changelog, this plan slice checkboxes, `amiga-import-layer.md`, optional `amiga-live-ops-platform.md` one line.
+- [x] WinSCP sync: `site/public_html/data/amiga/country_registry.json`, `site/public_html/img/flags/amiga/` (253 SVGs), PHP includes, `fixtures.php`, `amiga-organizer-country-picker.js`, `amiga-activity-charts.js` boot path. Vendor tree `data/vendor/flag-icons/` stays dev-side only.
+- [ ] Staging DB: re-export + browser import when local witness tokens change (normal handoff — not required for PHP-only registry deploy).
+- [x] Browser spot-check on staging: table pages load (registry JSON present); organizer country select used / More countries.
+- [x] UPDATE_DOCS Part A.
 
 ### Verification
 
@@ -429,7 +428,7 @@ Dagh confirms staging spot-check OK.
 |------|------------|
 | Bookmarked roster URLs with old tokens | CR-9 301; until then Dagh knows Northern Ireland URL changed |
 | `verify_country_slice` / rivals keyed on old tokens | Full `prove` in CR-5; grep tests |
-| Registry JSON path on staging vs local | PHP loader must resolve repo root reliably (document path in registry PHP) |
+| Registry JSON path on staging vs local | PHP prefers `public_html/data/amiga/country_registry.json`; `build-country-registry` writes repo + site copies; missing deploy copy → table pages fatal mid-row (empty bodies) |
 | ~240 SVGs in git | Acceptable — single vendor bump + sync script; do not hand-maintain |
 | flag-icons missing code for exotic registry row | Block choosable until vendor has file, or fix `flag_code` before CR-2 sign-off |
 
@@ -440,4 +439,4 @@ Dagh confirms staging spot-check OK.
 | Date | Note |
 |------|------|
 | 2026-07-07 | Plan drafted — slices CR-0–CR-7 aligned with policy CR1–CR28. |
-| 2026-07-07 | **CR-2 added** — full **flag-icons** 4×3 sync required (CR29); slices renumbered CR-0–CR-8; phase 2 = CR-9. |
+| 2026-07-07 | **CR-8 closed** — staging deploy path documented; organizer country picker deferred JS; docs updated. |

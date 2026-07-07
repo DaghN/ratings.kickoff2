@@ -115,6 +115,7 @@ Each import writes **`data/amiga/exports/import_manifest.json`** (gitignored; re
 | `transforms.catalog_overrides` | Applied manual patches (access vs canonical + reason) |
 | `transforms.player_country_overrides` | Player nationality patches when L2 identity is missing/wrong |
 | `transforms.country_token_normalizations` | Legacy alias → registry `official_name` at L3 import (`import_country_registry.py`) |
+| `registry.country_registry` | Registry `version` + path snapshot at import time |
 | `transforms.score_supplements` | Games appended from external evidence (tournament, count, reason) |
 | `transforms.structure_specs` | Registered structure specs applied (or skipped) during import |
 | `registry` | Module pointers for reviewers |

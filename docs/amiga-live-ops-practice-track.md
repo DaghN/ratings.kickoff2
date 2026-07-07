@@ -34,7 +34,7 @@ Only these two shapes count as live v1 until both drills are boring.
 |-------|-------|
 | Template | `kitchen_marathon` — one `round_robin` stage |
 | Players | 4–6 |
-| Create | Browser — [`/amiga/ops/fixtures.php`](../../site/public_html/amiga/ops/fixtures.php) (password-gated) |
+| Create | Browser — [`/amiga/ops/fixtures.php`](../../site/public_html/amiga/ops/fixtures.php) (password-gated; **country** = registry select: archive-used + **More countries…**) |
 | Host | **Staging** (`ratings.kickoff2.com` / synced ops) |
 
 ### Ref-Cup-A — single elimination
@@ -58,7 +58,7 @@ Host:       staging / local
 Date:       ___
 Tournament id (after create): ___
 
-[ ] 1. CREATE — name, date, country; players by search (not raw ids)
+[ ] 1. CREATE — name, date, **country from registry select** (used list or More countries…); players by search (not raw ids)
 [ ] 2. START  — lifecycle to in-progress; **check Live hub** lists the league
 [ ] 3. PLAY    — all fixtures have scores
 [ ] 4. MAKE OFFICIAL — Table tab → **Make official** (finalize; N→N+1 ratings + chronology)

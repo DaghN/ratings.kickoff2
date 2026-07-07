@@ -77,7 +77,7 @@ This document locks **three operational lanes**, **where code runs**, **timeline
 
 | Capability | Status (Jul 2026) | Location |
 |------------|-------------------|----------|
-| Structure + fixtures + results | **Shipped** | `amiga/ops/fixtures.php`, L4 tables |
+| Structure + fixtures + results | **Shipped** | `amiga/ops/fixtures.php`, L4 tables; create league **country** = registry select (archive-used + **More countries…**) — [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) §8.2 |
 | Finalize one tournament | **Shipped** | `amiga/ops/run_process_game.php finalize-tournament` |
 | Zero derived | **Shipped** (PHP) | Same runner |
 | Delete/cancel tournament (guarded) | **Not shipped** | Planned ops verbs |

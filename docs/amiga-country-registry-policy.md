@@ -1,6 +1,6 @@
 # Amiga country registry — policy
 
-**Status:** **Policy locked (Jul 2026)** — implementation **not started**. Spec only; code still uses free-text `country` columns and the legacy flag map in `k2_amiga_country_flag.php`.
+**Status:** **Shipped (Jul 2026)** — CR-1–CR-7 complete on local `ko2amiga_db`; staging verified after WinSCP sync of `public_html/data/amiga/country_registry.json` + flag SVGs. Phase 2 = **CR-9** backlog only.
 
 **Parent:** [`amiga-ground-stack.md`](amiga-ground-stack.md) (S7 nationality + host country) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (L3 witness) · [`amiga-import-layer.md`](amiga-import-layer.md) (import manifest)
 
@@ -130,10 +130,10 @@ Same token → same country roster (`/amiga/country/roster.php?country=…`), sa
 
 ### 5.1 Path
 
-**`data/amiga/country_registry.json`** — committed to git; ships with code sync; read by:
+**`data/amiga/country_registry.json`** — committed to git (Python build authority). **Website deploy copy:** **`site/public_html/data/amiga/country_registry.json`** — written by `build-country-registry`; **required on staging** (WinSCP syncs `public_html/` only). Read by:
 
 - `scripts/amiga/` import pipeline (Python)
-- `site/public_html/includes/` (PHP helpers — TBD implementation)
+- `site/public_html/includes/k2_amiga_country_registry.php` (PHP static cache; prefers `public_html/data/amiga/` path)
 
 Optional future: mirror into MySQL for SQL joins — **not required v1**.
 
@@ -291,18 +291,21 @@ Example row:
 
 ## 7. Website read path
 
-### 7.1 Shared helpers (implementation TBD)
+### 7.1 Shared helpers (shipped Jul 2026)
 
-Replace ad-hoc logic in `k2_amiga_country_flag.php` with registry-backed helpers, e.g.:
+Registry-backed helpers in **`k2_amiga_country_registry.php`**; flags in **`k2_amiga_country_flag.php`**:
 
 | Helper | Purpose |
 |--------|---------|
 | `k2_amiga_country_registry()` | Load / cache JSON |
-| `k2_amiga_country_resolve(string $token)` | Token → registry row or null |
+| `k2_amiga_country_resolve(string $token)` | Token → registry row or null (incl. legacy aliases at read) |
 | `k2_amiga_country_display_name(string $token, bool $shorthand = false)` | CR17 / CR18 |
-| `k2_amiga_country_flag_meta(string $token)` | `flag_code` + display label |
+| `k2_amiga_country_flag_meta(string $token)` | via `k2_amiga_country_flag.php` — `flag_code` + display label |
 | `k2_amiga_country_choosable_rows()` | All `choosable: true` |
 | `k2_amiga_country_used_tokens(mysqli $con)` | CR22 DISTINCT union |
+| `k2_amiga_country_validate_token(string $token)` | Choosable official name only (organizer POST) |
+
+Activity geography charts: `window.k2AmigaCountryFlagCodes` booted from PHP in `amiga_activity_hub_shell_start.inc.php` (replaces hardcoded JS map).
 
 ### 7.2 Flags
 
@@ -332,11 +335,14 @@ Keep existing routes: `k2_amiga_route('amiga-country-roster', ['country' => $off
 | **Organizer — create player** | Registry select only (when player create exists) |
 | **Free text** | Rejected server-side if not ∈ registry |
 
-### 8.2 Organizer UI (CR21)
+### 8.2 Organizer UI (CR21) — shipped
 
-1. **Default panel:** tokens from `country_used_tokens()` (sorted).
-2. **“More countries”** expander: full `choosable` registry minus already-shown (or full list — UX detail deferred).
-3. Labels: official names (CR19).
+**[`fixtures.php`](../site/public_html/amiga/ops/fixtures.php)** create league:
+
+1. **Default:** archive-used countries only (~21) from `k2_amiga_country_used_tokens()`.
+2. **“More countries…”** checkbox — **`amiga-organizer-country-picker.js`** (deferred; must load after `k2-page-boot.js`) appends full choosable registry from `data-amiga-more-countries` JSON on the select.
+3. Labels: `k2_amiga_country_display_name()` official names (CR19).
+4. Server POST: `k2_amiga_country_validate_token()` — rejects tampered/free text.
 
 ### 8.3 Edit after create (CR28)
 
@@ -398,3 +404,4 @@ All except **N. Ireland** and **UAE** already match intended official names.
 |------|------|
 | 2026-07-07 | Policy drafted — decisions locked in product discussion (string canonical, JSON registry, L3 normalization, UK nations, Ireland/Taiwan naming, defer used-countries table + URL slugs + edit-after-create). |
 | 2026-07-07 | **CR29** — flag SVGs = vendored **lipis/flag-icons** `flags/4x3/`; full choosable set required before ship (CR-2). |
+| 2026-07-07 | **Shipped CR-1–CR-7** — 254 registry rows (253 choosable); L3 normalizes `N. Ireland`→Northern Ireland, `UAE`→United Arab Emirates; 253 site SVGs; PHP registry + activity chart boot map; organizer country select. Deploy copy: `public_html/data/amiga/country_registry.json`. Staging empty-table pitfall documented in [`amiga-staging-handoff.md`](amiga-staging-handoff.md). |

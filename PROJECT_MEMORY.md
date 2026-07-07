@@ -137,9 +137,7 @@
 
 ## Recent log
 
-| 2026-07-07 | **Amiga country registry staging fix** — deploy copy at `public_html/data/amiga/country_registry.json` (WinSCP path); without it staged table pages fatal mid-row (empty bodies). `build-country-registry` now writes both repo + site paths. |
-| 2026-07-07 | **Amiga country registry policy** — locked spec [`amiga-country-registry-policy.md`](docs/amiga-country-registry-policy.md): JSON registry, string-canonical official names, L3 alias normalization (`N. Ireland`/`UAE`), UK home nations, Ireland/Taiwan naming; implementation CR-1–8 not started. |
-| 2026-07-07 | **Amiga country registry plan** — [`amiga-country-registry-implementation-plan.md`](docs/amiga-country-registry-implementation-plan.md) slices CR-0–CR-8 (+ CR-9 phase 2); **CR-2** = vendored lipis/flag-icons full SVG sync. |
+| 2026-07-07 | **Amiga country registry shipped (CR-1–CR-8)** — `country_registry.json` (254 rows, 253 choosable); L3 alias normalize (`N. Ireland`→Northern Ireland, `UAE`→United Arab Emirates); 253 lipis/flag-icons SVGs; Python verify in `prove`; PHP `k2_amiga_country_registry.php` + activity chart boot map; organizer create league = used countries + **More countries…** (`amiga-organizer-country-picker.js`). **Staging:** sync `public_html/data/amiga/country_registry.json` + flag SVGs with PHP (empty tables if JSON missing). Policy/plan: [`amiga-country-registry-policy.md`](docs/amiga-country-registry-policy.md). **Backlog CR-9:** URL 301 aliases, shorthand toggle, edit country after create. |
 | 2026-07-07 | **Organizer gate UX** — password-only login (removed tournament id field); optional URL deep link preserved. |
 | 2026-07-07 | **Live hub — start=public (ALO11)** — removed config allowlist; `running` generated leagues auto on `/amiga/live-tournaments.php`; organizer **Make official** = finalize UX; data contract + live-ops policy updated. |
 | 2026-07-07 | **Amiga fixture manager 500 fix** — `amiga_country_slice_game_stats_lib.php` wrong `post_game_outcome` require killed `fixtures.php` before password gate; practice track §4 L0-001. |

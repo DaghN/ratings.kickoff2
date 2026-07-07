@@ -4,7 +4,7 @@
 
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.0 · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) (H8 country token)
 
-**Related:** [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) (canonical country tokens, registry JSON, L3 normalization — **policy locked Jul 2026, not yet implemented**) · [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md) (WC-only nation roll-ups — sibling surface) · [`amiga-profile-v0.md`](amiga-profile-v0.md) · [`url-routes.md`](url-routes.md) · [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) · [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md)
+**Related:** [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) (canonical tokens + flags — **shipped Jul 2026**) · [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md) (WC-only nation roll-ups — sibling surface) · [`amiga-profile-v0.md`](amiga-profile-v0.md) · [`url-routes.md`](url-routes.md) · [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) · [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md)
 
 **Implementation plan:** [`amiga-countries-hub-implementation-plan.md`](amiga-countries-hub-implementation-plan.md) — slices CH-1–CH-6.
 
@@ -230,7 +230,7 @@ See [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) — same cutoff
 | **Avoid** | “National team”, “federation”, “squad selection” |
 | **Prefer** | *Players from Denmark*, *Denmark roster*, *Browse by country* |
 | **Unknown** | Show **`Unknown`** row on index when blank-nationality players have games; roster page for `?country=Unknown` |
-| **Unmapped flags** | Fall back to escaped country name text ([`k2_amiga_country_flag.php`](../site/public_html/includes/k2_amiga_country_flag.php)) |
+| **Unmapped flags** | Registry-backed ([`k2_amiga_country_registry.php`](../site/public_html/includes/k2_amiga_country_registry.php)); unknown/drift token → **no flag img** (name text still via entity link helpers — CH9) |
 | **Medals zero** | Show `0` (consistent with WC tables) unless a slice chooses em dash for zero — pick one at implementation |
 
 ---
