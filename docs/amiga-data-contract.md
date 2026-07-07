@@ -207,7 +207,7 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_player_stats` | Derived | **Retired slice 8** — replaced by `amiga_player_current` | Retired |
 | `amiga_player_tournament_participation` | Derived | **Retired slice 8** — event-local block on snapshots | Retired |
 | `amiga_player_tournament_totals` | Derived | **Retired slice 8** — honours on `amiga_player_current` | Retired |
-| `amiga_tournament_standings` | Derived | Per-tournament finalize (`rebuild_standings_for_tournament`) or standings rebuild on result entry | Active |
+| `amiga_tournament_standings` | Derived | Tournament finalize (`rebuild_standings_for_tournament`); **not** written on live score entry (broadcast compute while running — RTB) | Active |
 | `amiga_tournament_catalog_stats` | Derived | Tournament finalize / `replay` (`refresh_catalog_stats_for_tournament`) | Active |
 | `amiga_tournament_finish_override` | **L3 witness** (curated) | Manual import / ops; Tier E historical claims. DDL `sql/ground/002_tournament_finish_override.sql` | Active |
 | `amiga_player_matchup_at_event` | Derived | Tournament finalize — cumulative directed pair stats (+ SCH-031 extremes) as of each participated event. Read: future Opponents wing at cutoff | **Active** |
@@ -222,7 +222,7 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_world_cup_stats` | Derived | Tournament finalize / `replay` — one wide row per World Cup `tournament_id`. Policy [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md). DDL `037` | **Active** |
 | `reference_*` (optional) | Reference | Parity tooling only | — |
 
-DDL bundles: [`schema_bundles.py`](../scripts/amiga/schema_bundles.py) — `sql/ground/` (**L3**), `sql/structure/` (**L4**), `sql/derived/` (**L5**). Archived flat files and incremental `010–023`: [`sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md). Fresh schema = `python -m scripts.amiga prove`.
+DDL bundles: [`schema_bundles.py`](../scripts/amiga/schema_bundles.py) — `sql/ground/` (**L3**), `sql/structure/` (**L4**, incl. `006_tournament_fixtures.sql` running result cols — RTB Jul 2026), `sql/derived/` (**L5**). Archived flat files and incremental `010–023`: [`sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md). Fresh schema = `python -m scripts.amiga prove`.
 
 ### HoF record rise dates (SCH-029)
 
@@ -263,7 +263,7 @@ Twenty nullable columns on **`amiga_player_event_snapshots`** and **`amiga_playe
   1. `lifecycle_status = running` only — not `draft`, `registration`, `ready`, `completed`, `archived`, or `void`.
   2. Fixture-backed generated structure: `source_id IS NULL`, at least one `tournament_stages` row, and `format_overrides.generated_by` prefix matching approved fixture tooling (`scripts.amiga.tournament_builder` or `site.public_html.amiga.ops.fixtures`).
   - **Visibility rule:** **Start tournament** in ops ⇒ `running` ⇒ appears on the Live hub automatically. Setup (`draft`/`ready`) stays off public pages. No hide toggle in v1.
-  - **Make official (finalize):** organizer **Make official** on Table tab (browser) or `finalize-tournament` (CLI) commits L5 derived truth (ratings, event snapshots, chronology N→N+1). Community-facing label; same verb as `rating_finalized` on `tournaments`.
+  - **Make official (finalize):** organizer **Make official** on Table tab (browser) or `finalize-tournament` (CLI) runs **promote** (batch `amiga_games` insert from fixture running columns; assigns `chrono` when null) then **finalize** (L5 derived truth: ratings, event snapshots, chronology N→N+1). Community-facing label; same verb as `rating_finalized` on `tournaments`.
   - **After complete:** when lifecycle moves to `completed`/`archived`, the event leaves the Live hub and appears on the historical tournament catalog (`/amiga/tournament.php`) per lifecycle filter above.
   - **Display:** lifecycle metadata, date/country, registered entrants (or stage players fallback), fixtures grouped by stage with player links, regulation scores for played fixtures, muted void rows. No result entry, lifecycle controls, or fixture assignment.
   - **Ops boundary:** public pages must not embed the ops password or password-bearing ops URLs. Operators use `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot` (**password-only gate** — create or pick a league inside; optional `tournament_id=` deep link preserved when already in URL). Live index may link to that path without `pwd=`.

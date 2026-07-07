@@ -738,6 +738,7 @@ Do not git commit unless I ask. UPDATE_DOCS Part A (+ Part B for DDL) at RTB-8 i
 
 | Date | Change |
 |------|--------|
+| 2026-07-07 | **RTB shipped** — RTB-PREFLIGHT through RTB-8 complete; `prove` green. |
 | 2026-07-07 | **Rev. 3** — single continuous starter prompt (all slices one chat); removed per-slice-only prompts. |
 | 2026-07-07 | **Rev. 2** — § **DDL — holy ops only**; IP14 prove-only; RTB-1 forbids manual ALTER / 047 migrations (post agent trap). |
 | 2026-07-07 | **Plan created** — slices RTB-PREFLIGHT through RTB-8; touchpoint registry; locked IP1–IP15; promote algorithm; tranche RTB-2 rule. |

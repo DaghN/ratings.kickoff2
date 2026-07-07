@@ -15,7 +15,7 @@
 | **`python -m scripts.amiga replay`** | Same L5 finalize loop (without full L1–L4 reset) |
 | **`python -m scripts.amiga finalize-tournament`** | Single-event finalize (same writer as replay slice) |
 | **PHP `finalize-tournament`** | Staging/live ops — mirrors Python finalize |
-| **Open-tournament ops** | Ground + standings only (`fixtures record-result`, `standings-rebuild --tournament-id` on **unfinalized** events) |
+| **Open-tournament ops** | **Running package only** — `fixtures record-result` / browser Results tab write fixture columns; **no** L5 until Make official ([`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md)) |
 
 **Wrong derived state → run `prove` again.** Do not patch derived tables with batch rebuild commands.
 
@@ -25,7 +25,7 @@
 
 `prove` ends with verify modules that **recompute in Python and compare** to stored rows. They **do not write**.
 
-Examples: `verify-realm-snapshots` (`build_generalstats_payload`), `verify-community-stats`, `verify-player-matchups`, `verify-event-snapshots`, **`verify-tournament-videos`**.
+Examples: `verify-realm-snapshots` (`build_generalstats_payload`), `verify-community-stats`, `verify-player-matchups`, `verify-event-snapshots`, **`verify-tournament-videos`**, **`verify-running-tournament-boundary`** (RTB Jul 2026).
 
 Oracle **functions** in `scripts/amiga/*.py` exist for verify and unit tests — not as a second write path.
 

@@ -209,5 +209,6 @@ This behaviour is **non-compliant** with RTB1–RTB3 and will be removed when im
 
 | Date | Change |
 |------|--------|
+| 2026-07-07 | **Implementation shipped (RTB-1–RTB-8)** — running vs official boundary; fixture running columns; promote at Make official. |
 | 2026-07-07 | **Rev. 1 locked** — two-universe split; promote at Make official; broadcast vs official tables. |
 | 2026-07-07 | **Inventory rev. 2** — audit fold-in (lifecycle gates, verify oracles, CLI readers). |

@@ -139,5 +139,6 @@ Current step: **L0** (start today).
 
 | Date | Change |
 |------|--------|
+| 2026-07-07 | **RTB shipped** — drill step 3 = fixture-only scores; step 5 = promote + Make official. |
 | 2026-07-07 | Drill checklist + §4 — ALO11 start=public; Make official wording. |
 | 2026-07-07 | Initial practice track — Ref-League-A / Ref-Cup-A, drill loop, pain log, L0 start. |

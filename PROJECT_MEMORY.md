@@ -88,7 +88,7 @@
 
 - **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~299** videos; unified embed UI; **C06** dedicated Videos column; **With videos** filter; **player profile Videos wing**. **Jul 2026:** **TV-2b DB anchor sync** — `sync_db_ids` + `verify-tournament-videos` in `prove` ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md) §12).
 
-- **Amiga live ops (Jul 2026):** **Practice-first track active** — Ref-League-A drills on staging; **ALO11:** start=public on Live hub (no allowlist); **Make official** = finalize. **Player create shipped (PC-1–PC-7):** compose Create player, `player_source`, orphan hygiene — [`amiga-player-create-implementation-plan.md`](docs/amiga-player-create-implementation-plan.md) (**PC-9** browser delete league = backlog). Policy: [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md) · [`amiga-live-ops-platform.md`](docs/amiga-live-ops-platform.md).
+- **Amiga live ops (Jul 2026):** **RTB shipped (RTB-1–RTB-8)** — running scores on fixtures until **Make official** (promote + finalize); `verify-running-tournament-boundary` in `prove`. **Next:** staging Ref-League-A drill after `export_ko2amiga_db.ps1` + import. **PC-1–PC-7** player create shipped. Policy: [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md) · [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md) · [`amiga-live-ops-platform.md`](docs/amiga-live-ops-platform.md).
 
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
@@ -137,10 +137,8 @@
 
 ## Recent log
 
-| 2026-07-07 | **RTB shipped (RTB-1–RTB-8)** — fixture running columns (`structure/006` via `prove`); PHP/Python promote at Make official; `verify-running-tournament-boundary` in holy loop; **`prove` green**. |
-| 2026-07-07 | **RTB plan rev. 2** — DDL holy-ops-only tightened (§ forbid manual ALTER / 047); after agent went outside prove for RTB-1. |
-| 2026-07-07 | **RTB implementation plan** — [`amiga-running-tournament-boundary-implementation-plan.md`](docs/amiga-running-tournament-boundary-implementation-plan.md) (RTB-PREFLIGHT→RTB-8, touchpoint registry, IP1–IP15); code not started. |
-| 2026-07-07 | **RTB inventory rev. 2** — audit fold-in (lifecycle gates, verify oracles, slice reorder); policy still rev. 1. |
+| 2026-07-07 | **RTB shipped (RTB-1–RTB-8)** — fixture running columns (`structure/006` via `prove`); PHP/Python promote at Make official; `verify-running-tournament-boundary` in holy loop; **`prove` green**. Staging: export → WinSCP → import → Ref-League-A drill. |
+| 2026-07-07 | **RTB plan + inventory locked** — holy-ops-only DDL; implementation plan RTB-PREFLIGHT→RTB-8 ([`amiga-running-tournament-boundary-implementation-plan.md`](docs/amiga-running-tournament-boundary-implementation-plan.md)). |
 | 2026-07-07 | **Amiga player create shipped (PC-1–PC-7)** — organizer compose Create player; `player_source` in ground bundle via prove; orphan hygiene; `verify-player-create` in prove. Staging: prove → export → WinSCP → browser import. |
 | 2026-07-07 | **Amiga country registry shipped (CR-1–CR-8)** — `country_registry.json` (254 rows, 253 choosable); L3 alias normalize (`N. Ireland`→Northern Ireland, `UAE`→United Arab Emirates); 253 lipis/flag-icons SVGs; Python verify in `prove`; PHP `k2_amiga_country_registry.php` + activity chart boot map; organizer create league = used countries + **More countries…** (`amiga-organizer-country-picker.js`). **Staging:** sync `public_html/data/amiga/country_registry.json` + flag SVGs with PHP (empty tables if JSON missing). Policy/plan: [`amiga-country-registry-policy.md`](docs/amiga-country-registry-policy.md). **Backlog CR-9:** URL 301 aliases, shorthand toggle, edit country after create. |
 | 2026-07-07 | **Organizer gate UX** — password-only login (removed tournament id field); optional URL deep link preserved. |

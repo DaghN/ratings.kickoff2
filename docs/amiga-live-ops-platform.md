@@ -77,8 +77,8 @@ This document locks **three operational lanes**, **where code runs**, **timeline
 
 | Capability | Status (Jul 2026) | Location |
 |------------|-------------------|----------|
-| Structure + fixtures + results | **Shipped** | `amiga/ops/fixtures.php`, L4 tables; create league **country** = registry select (archive-used + **More countries…**) — [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) §8.2 |
-| Finalize one tournament | **Shipped** | `amiga/ops/run_process_game.php finalize-tournament` |
+| Structure + fixtures + results | **Shipped (RTB Jul 2026)** | Running scores on `tournament_fixtures` until **Make official** (`promote_running_tournament` → `finalize_tournament`); broadcast table on organizer + Live hub — [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) |
+| Finalize one tournament | **Shipped** | Browser Table **Make official** or `finalize-tournament` (promote prefix when zero `amiga_games`) |
 | Zero derived | **Shipped** (PHP) | Same runner |
 | Delete/cancel tournament (guarded) | **Not shipped** | Planned ops verbs |
 | Truncate derived after cutoff N | **Not shipped** | Planned |
@@ -476,6 +476,7 @@ Separate agent track. Does **not** gate Ref-League-A / Ref-Cup-A practice.
 
 | Date | Change |
 |------|--------|
+| 2026-07-07 | **RTB shipped** — Lane B running scores on fixtures; Make official = promote + finalize; `verify-running-tournament-boundary` in prove. |
 | 2026-07-07 | **Start=public live + Make official** — removed config allowlist; running generated events auto on Live hub; organizer **Make official** = finalize (ALO11). |
 | 2026-07-07 | **Practice-first sequencing** — §12 rewritten: Ref-League-A / Ref-Cup-A drill loop gates §12.2 infra; Track L vs Track C; [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) living log. |
 | 2026-07-05 | Initial policy — three lanes, staging authority, timeline/present repair, ground packs, Lane C media, bidirectional flow, phased roadmap (ALO1–ALO10). |
