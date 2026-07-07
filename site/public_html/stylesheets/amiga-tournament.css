@@ -651,11 +651,34 @@ body.k2-site .k2-amiga-live-ops input[type="text"] {
   margin-top: 0.75rem;
 }
 
+.k2-amiga-organizer-create__country {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+}
+
 .k2-amiga-organizer-create__country-more {
-  display: block;
-  margin-top: 0.35rem;
-  font-size: 0.9rem;
-  color: var(--k2-text-secondary);
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 0.4rem;
+	margin: 0;
+	font-size: 0.9rem;
+	color: var(--k2-text-secondary);
+}
+
+.k2-amiga-organizer-create__country-more input[type="checkbox"] {
+	margin: 0;
+	flex: 0 0 auto;
+	width: auto;
+}
+
+.k2-amiga-organizer-create__country-more label {
+	display: inline;
+	margin: 0;
+	font-size: inherit;
+	color: inherit;
+	cursor: pointer;
 }
 
 .k2-amiga-organizer__title {

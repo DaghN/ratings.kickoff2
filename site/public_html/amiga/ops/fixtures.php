@@ -54,6 +54,11 @@ function amiga_fixture_render_chrome_start(string $pageTitle, bool $withDayPicke
             echo '<script type="text/javascript" src="/js/amiga-organizer-player-picker.js?v='
                 . (int) @filemtime($organizerPickerJs) . '" defer="defer"></script>' . "\n";
         }
+        $organizerCountryJs = $_SERVER['DOCUMENT_ROOT'] . '/js/amiga-organizer-country-picker.js';
+        if (is_file($organizerCountryJs)) {
+            echo '<script type="text/javascript" src="/js/amiga-organizer-country-picker.js?v='
+                . (int) @filemtime($organizerCountryJs) . '" defer="defer"></script>' . "\n";
+        }
     }
 ?>
 </head>
@@ -385,31 +390,42 @@ function amiga_fixture_render_create_country_field(string $selectedCountry, arra
             }
         }
     }
+    $moreOptionsJson = [];
+    foreach ($moreRows as $row) {
+        $officialName = trim((string) ($row['official_name'] ?? ''));
+        if ($officialName === '') {
+            continue;
+        }
+        $moreOptionsJson[] = [
+            'value' => $officialName,
+            'label' => k2_amiga_country_display_name($officialName),
+            'selected' => strcasecmp($officialName, $selectedCountry) === 0,
+        ];
+    }
+    $moreJsonAttr = htmlspecialchars(
+        json_encode($moreOptionsJson, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT),
+        ENT_QUOTES,
+        'UTF-8'
+    );
     ?>
-      <label class="k2-amiga-organizer-create__country">Country
-        <select name="country" id="amiga-organizer-country" required>
-          <option value="">Choose country…</option>
-          <?php foreach ($usedOfficialNames as $officialName) {
-              $isSelected = strcasecmp($officialName, $selectedCountry) === 0;
-              ?>
-          <option value="<?php echo k2_h($officialName); ?>"<?php echo $isSelected ? ' selected' : ''; ?>><?php echo k2_h(k2_amiga_country_display_name($officialName)); ?></option>
-          <?php } ?>
-          <?php foreach ($moreRows as $row) {
-              $officialName = trim((string) ($row['official_name'] ?? ''));
-              if ($officialName === '') {
-                  continue;
-              }
-              $isSelected = strcasecmp($officialName, $selectedCountry) === 0;
-              ?>
-          <option value="<?php echo k2_h($officialName); ?>" hidden="hidden" data-amiga-country-more="1"<?php echo $isSelected ? ' selected' : ''; ?>><?php echo k2_h(k2_amiga_country_display_name($officialName)); ?></option>
-          <?php } ?>
-        </select>
-        <?php if ($moreRows !== []) { ?>
-        <span class="k2-amiga-organizer-create__country-more">
-          <label><input type="checkbox" id="amiga-organizer-country-more"<?php echo $selectedInMore ? ' checked' : ''; ?>> More countries…</label>
-        </span>
+      <div class="k2-amiga-organizer-create__country">
+        <label for="amiga-organizer-country">Country
+          <select name="country" id="amiga-organizer-country" required<?php echo $moreOptionsJson !== [] ? ' data-amiga-more-countries="' . $moreJsonAttr . '"' : ''; ?>>
+            <option value="">Choose country…</option>
+            <?php foreach ($usedOfficialNames as $officialName) {
+                $isSelected = !$selectedInMore && strcasecmp($officialName, $selectedCountry) === 0;
+                ?>
+            <option value="<?php echo k2_h($officialName); ?>"<?php echo $isSelected ? ' selected' : ''; ?>><?php echo k2_h(k2_amiga_country_display_name($officialName)); ?></option>
+            <?php } ?>
+          </select>
+        </label>
+        <?php if ($moreOptionsJson !== []) { ?>
+        <p class="k2-amiga-organizer-create__country-more">
+          <input type="checkbox" id="amiga-organizer-country-more"<?php echo $selectedInMore ? ' checked' : ''; ?>>
+          <label for="amiga-organizer-country-more">More countries…</label>
+        </p>
         <?php } ?>
-      </label>
+      </div>
     <?php
 }
 
@@ -3279,26 +3295,6 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
         <button type="submit">Create league</button>
       </div>
     </form>
-    <?php if ($createCountryMoreRows !== []) { ?>
-    <script type="text/javascript">
-    window.k2OnPageReady(function () {
-      var select = document.getElementById('amiga-organizer-country');
-      var toggle = document.getElementById('amiga-organizer-country-more');
-      if (!select || !toggle) {
-        return;
-      }
-      var moreOptions = select.querySelectorAll('[data-amiga-country-more]');
-      function syncMoreOptions() {
-        var show = toggle.checked;
-        for (var i = 0; i < moreOptions.length; i++) {
-          moreOptions[i].hidden = !show;
-        }
-      }
-      toggle.addEventListener('change', syncMoreOptions);
-      syncMoreOptions();
-    });
-    </script>
-    <?php } ?>
   </div>
   <?php } elseif ($tournament === null) { ?>
     <p class="k2-amiga-live-ops__muted">That tournament could not be found. <a href="<?php echo htmlspecialchars(amiga_fixture_ops_url($self, $key, $pwdValue, 0, 'setup'), ENT_QUOTES, 'UTF-8'); ?>">Create or open a league</a> from the list below.</p>
