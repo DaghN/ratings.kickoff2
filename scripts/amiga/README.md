@@ -42,6 +42,11 @@ python -m scripts.amiga import-witness --recreate-ground
 python -m scripts.amiga verify-witness
 python -m scripts.amiga verify-l2-l3
 
+# Country registry (L3 canonical names + site flags — docs/amiga-country-registry-policy.md):
+python -m scripts.amiga build-country-registry
+python -m scripts.amiga sync-country-flags
+python -m scripts.amiga verify-country-registry
+
 # L4 structure (disposition register dispatch; requires L3 first):
 python -m scripts.amiga apply-structure --from-disposition
 python -m scripts.amiga verify-structure

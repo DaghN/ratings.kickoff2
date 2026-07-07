@@ -37,7 +37,7 @@ Online `kooldb*` is untouched. Credentials mirror staging config1 user/password;
 
 ## Dagh — code or data refresh
 
-1. **Code:** WinSCP sync **`site/public_html/`** → staging **`public_html/`** (usual button).
+1. **Code:** WinSCP sync **`site/public_html/`** → staging **`public_html/`** (usual button). Include **`public_html/data/amiga/country_registry.json`** (country registry — Jul 2026) and **`img/flags/amiga/`** (253 flag SVGs) with PHP changes; without the JSON, Amiga table pages render headers but **fatal mid-row** (empty bodies).
 2. **Data** — whenever local **`ko2amiga_db`** is the state you want on staging (Access import, replay-only, manual SQL, etc.):
 
 ```powershell

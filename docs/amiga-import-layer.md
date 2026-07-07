@@ -114,7 +114,7 @@ Each import writes **`data/amiga/exports/import_manifest.json`** (gitignored; re
 | `transforms.name_merges` | Same detail as legacy `name_merges.json` |
 | `transforms.catalog_overrides` | Applied manual patches (access vs canonical + reason) |
 | `transforms.player_country_overrides` | Player nationality patches when L2 identity is missing/wrong |
-| `transforms.country_token_normalizations` | *(Planned — [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) CR14)* Legacy alias → registry `official_name` at L3 import |
+| `transforms.country_token_normalizations` | Legacy alias → registry `official_name` at L3 import (`import_country_registry.py`) |
 | `transforms.score_supplements` | Games appended from external evidence (tournament, count, reason) |
 | `transforms.structure_specs` | Registered structure specs applied (or skipped) during import |
 | `registry` | Module pointers for reviewers |

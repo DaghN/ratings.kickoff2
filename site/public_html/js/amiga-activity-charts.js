@@ -2195,30 +2195,9 @@
     var GEO_RACE_KEYS_MAX = 9;
     var GEO_RACE_KEYS_DEFAULT = 4;
     var GEO_DUEL_B_EMPTY_LABEL = '...country';
-    var GEO_FLAG_CODES = {
-        'Germany': 'de',
-        'England': 'gb-eng',
-        'Italy': 'it',
-        'Norway': 'no',
-        'Greece': 'gr',
-        'Netherlands': 'nl',
-        'Sweden': 'se',
-        'Denmark': 'dk',
-        'Spain': 'es',
-        'Austria': 'at',
-        'Ireland': 'ie',
-        'France': 'fr',
-        'Poland': 'pl',
-        'Switzerland': 'ch',
-        'Turkey': 'tr',
-        'Scotland': 'gb-sct',
-        'Belgium': 'be',
-        'Wales': 'gb-wls',
-        'Portugal': 'pt',
-        'N. Ireland': 'gb-nir',
-        'Hong Kong': 'hk',
-        'UAE': 'ae'
-    };
+    var GEO_FLAG_CODES = (typeof window !== 'undefined' && window.k2AmigaCountryFlagCodes)
+        ? window.k2AmigaCountryFlagCodes
+        : {};
     var geoStates = new WeakMap();
     var geoListeners = [];
 

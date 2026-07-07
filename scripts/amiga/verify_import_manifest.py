@@ -21,6 +21,7 @@ from scripts.amiga.import_corrections import (
     supplemental_scores_manifest,
     world_cup_catalog_name,
 )
+from scripts.amiga.country_registry import official_names
 from scripts.amiga.import_manifest import default_manifest_path
 
 _REPO = Path(__file__).resolve().parents[2]
@@ -74,6 +75,21 @@ def main() -> int:
             elif int(match[0].get("games_added", 0)) != want_count:
                 errors.append(
                     f"manifest score_supplements {name!r}: games_added={match[0].get('games_added')!r}, want {want_count}"
+                )
+
+        normalizations = manifest.get("transforms", {}).get("country_token_normalizations", [])
+        for want_access, want_canonical in (
+            ("N. Ireland", "Northern Ireland"),
+            ("UAE", "United Arab Emirates"),
+        ):
+            match = [
+                n
+                for n in normalizations
+                if n.get("access") == want_access and n.get("canonical") == want_canonical
+            ]
+            if not match:
+                errors.append(
+                    f"manifest missing country_token_normalization {want_access!r} → {want_canonical!r}"
                 )
 
     cfg = load_amiga_db_config()
@@ -139,6 +155,35 @@ def main() -> int:
             got = int(row["n"]) if row else 0
             if got != want_count:
                 errors.append(f"{name}: {got} games in DB, want {want_count} from supplemental import")
+
+        for _base_name, (_city, want_country) in WORLD_CUP_VENUES.items():
+            if want_country not in official_names():
+                errors.append(f"WC host country not in registry: {want_country!r}")
+
+        cur.execute(
+            "SELECT name, country FROM amiga_players WHERE TRIM(country) IN ('N. Ireland', 'UAE')"
+        )
+        if cur.fetchall():
+            errors.append("amiga_players still has legacy country token (N. Ireland / UAE)")
+        cur.execute(
+            "SELECT name, country FROM tournaments WHERE TRIM(country) IN ('N. Ireland', 'UAE')"
+        )
+        if cur.fetchall():
+            errors.append("tournaments still has legacy country token (N. Ireland / UAE)")
+
+        cur.execute("SELECT name, country FROM amiga_players WHERE name = 'Stephen D' LIMIT 1")
+        row = cur.fetchone()
+        if row is None:
+            errors.append("amiga_players missing Stephen D")
+        elif str(row["country"]) != "Northern Ireland":
+            errors.append(f"Stephen D country={row['country']!r}, want 'Northern Ireland'")
+
+        cur.execute("SELECT name, country FROM tournaments WHERE name LIKE 'Dubai%' LIMIT 1")
+        row = cur.fetchone()
+        if row is None:
+            errors.append("tournaments missing Dubai I")
+        elif str(row["country"]) != "United Arab Emirates":
+            errors.append(f"Dubai host country={row['country']!r}, want 'United Arab Emirates'")
 
     conn.close()
 

@@ -1,6 +1,6 @@
 # Amiga country registry — implementation plan
 
-**Status:** **Plan ready (Jul 2026)** — slices **CR-0–CR-8** not started (CR-9 = phase 2 backlog). Policy locked; no code yet.
+**Status:** **CR-1–CR-7 shipped (Jul 2026)** — CR-8 staging/browser closure pending; CR-9 = phase 2 backlog.
 
 **Policy:** [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md)  
 **Parent:** [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-ground-stack.md`](amiga-ground-stack.md) · [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md)

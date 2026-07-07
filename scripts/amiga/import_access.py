@@ -8,6 +8,7 @@ import logging
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
+from types import SimpleNamespace
 
 import pymysql
 import pyodbc
@@ -22,6 +23,10 @@ from scripts.amiga.import_corrections import (
     apply_player_country_corrections,
     catalog_splits_manifest,
     supplemental_scores_manifest,
+)
+from scripts.amiga.import_country_registry import (
+    apply_country_registry_to_prepared,
+    registry_manifest_metadata,
 )
 from scripts.amiga.import_manifest import (
     build_manifest,
@@ -207,6 +212,7 @@ class WitnessPrepared:
     countries: dict[str, str]
     catalog_overrides: list[dict[str, str]]
     player_country_overrides: list[dict[str, str]]
+    country_token_normalizations: list[dict[str, str]]
     catalog_splits: list[dict[str, str | int | float]]
     score_supplements: list[dict[str, object]]
     skipped_catalog: list[str]
@@ -300,6 +306,24 @@ def _prepare_witness_core(
                 entry["canonical"],
             )
 
+    country_token_normalizations = apply_country_registry_to_prepared(
+        SimpleNamespace(countries=countries, tournaments=tournaments)
+    )
+    if country_token_normalizations:
+        log.info(
+            "Applied %s country token normalization(s) from country_registry.json",
+            len(country_token_normalizations),
+        )
+        for entry in country_token_normalizations:
+            log.info(
+                "  → %s %s.%s: %s → %s",
+                entry["entity"],
+                entry["name"],
+                entry["field"],
+                entry["access"],
+                entry["canonical"],
+            )
+
     return WitnessPrepared(
         source=source,
         tournaments=tournaments,
@@ -312,6 +336,7 @@ def _prepare_witness_core(
         countries=countries,
         catalog_overrides=catalog_overrides,
         player_country_overrides=player_country_overrides,
+        country_token_normalizations=country_token_normalizations,
         catalog_splits=catalog_splits_manifest(),
         score_supplements=score_supplements,
         skipped_catalog=skipped_catalog,
@@ -512,6 +537,8 @@ def persist_witness_to_mysql(
         name_merges=prepared.merge_log,
         catalog_overrides=prepared.catalog_overrides,
         player_country_overrides=prepared.player_country_overrides,
+        country_token_normalizations=prepared.country_token_normalizations,
+        country_registry=registry_manifest_metadata(),
         catalog_splits=prepared.catalog_splits,
         score_supplements=prepared.score_supplements,
         structure_specs=structure_specs_manifest(structure_result) if structure_result else [],

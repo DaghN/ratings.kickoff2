@@ -412,6 +412,25 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     sub.add_parser(
+        "verify-country-registry",
+        help="Assert witness country tokens and choosable flag SVGs match country_registry.json",
+    )
+
+    p_build_registry = sub.add_parser(
+        "build-country-registry",
+        help="Build data/amiga/country_registry.json from flag-icons country.json",
+    )
+    p_build_registry.add_argument("--source", type=Path, default=None)
+    p_build_registry.add_argument("--output", type=Path, default=None)
+
+    p_sync_flags = sub.add_parser(
+        "sync-country-flags",
+        help="Copy vendored flag-icons 4x3 SVGs into site/public_html/img/flags/amiga/",
+    )
+    p_sync_flags.add_argument("--dry-run", action="store_true")
+    p_sync_flags.add_argument("--all-registry-rows", action="store_true")
+
+    sub.add_parser(
         "verify-tournament-formats",
         help="Assert imported tournaments with games have league/cup format flags",
     )
@@ -725,6 +744,31 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "verify-import-manifest":
         return verify_import_manifest_main()
+
+    if args.cmd == "verify-country-registry":
+        from scripts.amiga.verify_country_registry import main as verify_country_registry_main
+
+        return verify_country_registry_main()
+
+    if args.cmd == "build-country-registry":
+        from scripts.amiga.build_country_registry import main as build_country_registry_main
+
+        br_argv: list[str] = []
+        if args.source is not None:
+            br_argv.extend(["--source", str(args.source)])
+        if args.output is not None:
+            br_argv.extend(["--output", str(args.output)])
+        return build_country_registry_main(br_argv)
+
+    if args.cmd == "sync-country-flags":
+        from scripts.amiga.sync_country_flag_svgs import main as sync_country_flag_svgs_main
+
+        sf_argv: list[str] = []
+        if args.dry_run:
+            sf_argv.append("--dry-run")
+        if args.all_registry_rows:
+            sf_argv.append("--all-registry-rows")
+        return sync_country_flag_svgs_main(sf_argv)
 
     if args.cmd == "verify-tournament-formats":
         return tournament_format_main([])

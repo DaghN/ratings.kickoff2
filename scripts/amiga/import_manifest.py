@@ -16,6 +16,7 @@ AUTOMATIC_TRANSFORM_MODULES = (
     "scripts.amiga.tournament_format",
     "scripts.amiga.tournament_structure",
     "scripts.amiga.import_access",
+    "scripts.amiga.import_country_registry",
 )
 MANUAL_TRANSFORM_MODULE = "scripts.amiga.import_corrections"
 
@@ -39,6 +40,8 @@ def build_manifest(
     name_merges: list[dict[str, object]],
     catalog_overrides: list[dict[str, str]],
     player_country_overrides: list[dict[str, str]] | None = None,
+    country_token_normalizations: list[dict[str, str]] | None = None,
+    country_registry: dict[str, int | str] | None = None,
     catalog_splits: list[dict[str, str | int | float]] | None = None,
     score_supplements: list[dict[str, str | int]] | None = None,
     structure_specs: list[dict[str, object]] | None = None,
@@ -56,6 +59,7 @@ def build_manifest(
             "name_merges": name_merges,
             "catalog_overrides": catalog_overrides,
             "player_country_overrides": player_country_overrides or [],
+            "country_token_normalizations": country_token_normalizations or [],
             "catalog_splits": catalog_splits or [],
             "score_supplements": score_supplements or [],
             "structure_specs": structure_specs or [],
@@ -63,6 +67,7 @@ def build_manifest(
         "registry": {
             "automatic_modules": list(AUTOMATIC_TRANSFORM_MODULES),
             "manual_overrides_module": MANUAL_TRANSFORM_MODULE,
+            "country_registry": country_registry or {},
         },
     }
 

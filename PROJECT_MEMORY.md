@@ -137,6 +137,7 @@
 
 ## Recent log
 
+| 2026-07-07 | **Amiga country registry staging fix** — deploy copy at `public_html/data/amiga/country_registry.json` (WinSCP path); without it staged table pages fatal mid-row (empty bodies). `build-country-registry` now writes both repo + site paths. |
 | 2026-07-07 | **Amiga country registry policy** — locked spec [`amiga-country-registry-policy.md`](docs/amiga-country-registry-policy.md): JSON registry, string-canonical official names, L3 alias normalization (`N. Ireland`/`UAE`), UK home nations, Ireland/Taiwan naming; implementation CR-1–8 not started. |
 | 2026-07-07 | **Amiga country registry plan** — [`amiga-country-registry-implementation-plan.md`](docs/amiga-country-registry-implementation-plan.md) slices CR-0–CR-8 (+ CR-9 phase 2); **CR-2** = vendored lipis/flag-icons full SVG sync. |
 | 2026-07-07 | **Organizer gate UX** — password-only login (removed tournament id field); optional URL deep link preserved. |

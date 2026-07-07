@@ -9,6 +9,7 @@
 declare(strict_types=1);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_country_registry.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 require_once __DIR__ . '/modules/process_completed_game.php';
 require_once __DIR__ . '/modules/finalize_tournament.php';
@@ -355,6 +356,61 @@ function amiga_fixture_create_draft_query(array $draft, string $createPlayerSear
     }
 
     return $params;
+}
+
+function amiga_fixture_validate_create_country(string $country): string
+{
+    $country = trim($country);
+    if (!k2_amiga_country_validate_token($country)) {
+        throw new RuntimeException('Choose a valid country from the list.');
+    }
+
+    return $country;
+}
+
+/**
+ * @param list<string> $usedOfficialNames
+ * @param list<array<string, mixed>> $moreRows
+ */
+function amiga_fixture_render_create_country_field(string $selectedCountry, array $usedOfficialNames, array $moreRows): void
+{
+    $selectedCountry = trim($selectedCountry);
+    $selectedInMore = false;
+    if ($selectedCountry !== '') {
+        $selectedInMore = true;
+        foreach ($usedOfficialNames as $usedName) {
+            if (strcasecmp($usedName, $selectedCountry) === 0) {
+                $selectedInMore = false;
+                break;
+            }
+        }
+    }
+    ?>
+      <label class="k2-amiga-organizer-create__country">Country
+        <select name="country" id="amiga-organizer-country" required>
+          <option value="">Choose country…</option>
+          <?php foreach ($usedOfficialNames as $officialName) {
+              $isSelected = strcasecmp($officialName, $selectedCountry) === 0;
+              ?>
+          <option value="<?php echo k2_h($officialName); ?>"<?php echo $isSelected ? ' selected' : ''; ?>><?php echo k2_h(k2_amiga_country_display_name($officialName)); ?></option>
+          <?php } ?>
+          <?php foreach ($moreRows as $row) {
+              $officialName = trim((string) ($row['official_name'] ?? ''));
+              if ($officialName === '') {
+                  continue;
+              }
+              $isSelected = strcasecmp($officialName, $selectedCountry) === 0;
+              ?>
+          <option value="<?php echo k2_h($officialName); ?>" hidden="hidden" data-amiga-country-more="1"<?php echo $isSelected ? ' selected' : ''; ?>><?php echo k2_h(k2_amiga_country_display_name($officialName)); ?></option>
+          <?php } ?>
+        </select>
+        <?php if ($moreRows !== []) { ?>
+        <span class="k2-amiga-organizer-create__country-more">
+          <label><input type="checkbox" id="amiga-organizer-country-more"<?php echo $selectedInMore ? ' checked' : ''; ?>> More countries…</label>
+        </span>
+        <?php } ?>
+      </label>
+    <?php
 }
 
 function amiga_fixture_ops_url(
@@ -2084,6 +2140,9 @@ function amiga_fixture_create_kitchen_tournament(
     if ($name === '') {
         throw new RuntimeException('Tournament name is required.');
     }
+    if (!k2_amiga_country_validate_token($country)) {
+        throw new RuntimeException('Choose a valid country from the list.');
+    }
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $eventDate)) {
         throw new RuntimeException('Event date must be YYYY-MM-DD.');
     }
@@ -2670,6 +2729,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ];
             $playerIds = amiga_fixture_collect_player_ids_from_request();
             $createDraft['player_ids'] = $playerIds;
+            $createDraft['country'] = amiga_fixture_validate_create_country($createDraft['country']);
             $tournamentId = amiga_fixture_create_kitchen_tournament(
                 $con,
                 $createDraft['name'],
@@ -3069,6 +3129,26 @@ if ($tournamentId > 0) {
     }
 }
 
+$createCountryUsedOfficial = [];
+foreach (k2_amiga_country_used_tokens($con) as $token) {
+    $row = k2_amiga_country_resolve($token);
+    if ($row !== null && !empty($row['choosable'])) {
+        $createCountryUsedOfficial[] = (string) $row['official_name'];
+    } elseif (k2_amiga_country_validate_official($token)) {
+        $createCountryUsedOfficial[] = $token;
+    }
+}
+$createCountryUsedOfficial = array_values(array_unique($createCountryUsedOfficial));
+sort($createCountryUsedOfficial, SORT_NATURAL | SORT_FLAG_CASE);
+$createCountryUsedSet = array_flip($createCountryUsedOfficial);
+$createCountryMoreRows = [];
+foreach (k2_amiga_country_choosable_rows() as $row) {
+    $official = trim((string) ($row['official_name'] ?? ''));
+    if ($official !== '' && !isset($createCountryUsedSet[$official])) {
+        $createCountryMoreRows[] = $row;
+    }
+}
+
 mysqli_close($con);
 $fixtureScheduleGroups = amiga_fixture_group_fixtures_for_schedule($fixtures);
 $fixtureResultsPartition = amiga_fixture_partition_for_results($fixtures);
@@ -3188,9 +3268,7 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
       <label>Date
         <?php k2_render_day_picker('amiga-fixture-event-date', 'event_date', $createDraft['event_date'] !== '' ? $createDraft['event_date'] : gmdate('Y-m-d'), 'Tournament date'); ?>
       </label>
-      <label>Country
-        <input type="text" name="country" maxlength="50" placeholder="Denmark" value="<?php echo k2_h($createDraft['country']); ?>">
-      </label>
+      <?php amiga_fixture_render_create_country_field($createDraft['country'], $createCountryUsedOfficial, $createCountryMoreRows); ?>
       <label>Round-robin format
         <select name="legs">
           <option value="1"<?php echo $createDraft['legs'] === 1 ? ' selected' : ''; ?>>Single round-robin</option>
@@ -3201,6 +3279,26 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true);
         <button type="submit">Create league</button>
       </div>
     </form>
+    <?php if ($createCountryMoreRows !== []) { ?>
+    <script type="text/javascript">
+    window.k2OnPageReady(function () {
+      var select = document.getElementById('amiga-organizer-country');
+      var toggle = document.getElementById('amiga-organizer-country-more');
+      if (!select || !toggle) {
+        return;
+      }
+      var moreOptions = select.querySelectorAll('[data-amiga-country-more]');
+      function syncMoreOptions() {
+        var show = toggle.checked;
+        for (var i = 0; i < moreOptions.length; i++) {
+          moreOptions[i].hidden = !show;
+        }
+      }
+      toggle.addEventListener('change', syncMoreOptions);
+      syncMoreOptions();
+    });
+    </script>
+    <?php } ?>
   </div>
   <?php } elseif ($tournament === null) { ?>
     <p class="k2-amiga-live-ops__muted">That tournament could not be found. <a href="<?php echo htmlspecialchars(amiga_fixture_ops_url($self, $key, $pwdValue, 0, 'setup'), ENT_QUOTES, 'UTF-8'); ?>">Create or open a league</a> from the list below.</p>

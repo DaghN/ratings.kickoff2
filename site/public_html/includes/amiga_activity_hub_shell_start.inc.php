@@ -25,6 +25,10 @@ $k2AmigaActivityPageTitle = $k2AmigaActivityPageTitle ?? 'Activity';
 <?php if ($k2AmigaActivityWingView === 'geography') { ?>
 <script type="text/javascript" src="/js/k2-archive-listbox.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/k2-archive-listbox.js'); ?>" defer="defer"></script>
 <?php } ?>
+<?php
+require_once __DIR__ . '/k2_amiga_country_registry.php';
+?>
+<script type="text/javascript">window.k2AmigaCountryFlagCodes = <?php echo json_encode(k2_amiga_country_flag_code_map(), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;</script>
 <script type="text/javascript" src="/js/amiga-activity-charts.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/amiga-activity-charts.js'); ?>" defer="defer"></script>
 </head>
 <body class="k2-site k2-activity-charts k2-amiga-activity-charts">

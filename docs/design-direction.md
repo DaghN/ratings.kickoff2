@@ -222,7 +222,7 @@ Imagery:
 
 - No repeating site-wide decorative banner.
 - Use imagery where it earns its place, e.g. Status heritage box or future Amiga photos.
-- **Amiga player hero:** country as fourth hero stat (label + flag under Rank/Rating/Games); `k2_amiga_country_flag.php` + `img/flags/amiga/`.
+- **Amiga player hero:** country as fourth hero stat (label + flag under Rank/Rating/Games); `k2_amiga_country_flag.php` + `img/flags/amiga/` (SVGs from [lipis/flag-icons](https://github.com/lipis/flag-icons) MIT, synced from `data/vendor/flag-icons/flags/4x3/` per [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md)).
 - **Player hero (online + Amiga player wing):** `.k2-player-hero` — 2px accent border + layered panel glow (rhymes with H2H fighter cards); avatar ring uses matching accent glow; **`--k2-player-hero-chrome-gap` (24px)** on hub bar bottom + hero bottom in `body.k2-player-wing`; **`--k2-player-hero-glow-inset` (14px)** left inset for panel glow. **Not** applied to `.k2-country-hero` / tournament heroes (quiet 1px surface).
 - **Amiga table flags + entity links:** one leaderboard flag impression (`k2-amiga-country-flag-img`, 20×15); inline `[flag][name]` via `k2_amiga_lb_player_cell()` / `k2_amiga_lb_tournament_cell()` / `k2_amiga_lb_country_cell()` — **no dedicated flag-only Country columns** (migration: [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md)). Flag img → `k2_amiga_country_flag_link()`; entity names → `k2-link-star` helpers. Video spotlight caption: tgame `flag_link` + decorative (caption-only).
 - Status heritage box may use a clipped tint-following halo behind the art; the inset boundary contains the light.

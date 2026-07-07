@@ -648,7 +648,14 @@ body.k2-site .k2-amiga-live-ops input[type="text"] {
 }
 
 .k2-amiga-organizer-create__form {
-	margin-top: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.k2-amiga-organizer-create__country-more {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--k2-text-secondary);
 }
 
 .k2-amiga-organizer__title {

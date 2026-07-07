@@ -9,43 +9,37 @@
  * @see docs/amiga-countries-hub-policy.md CH9
  */
 require_once __DIR__ . '/k2_safety.php';
+require_once __DIR__ . '/k2_amiga_country_registry.php';
 
 /**
  * @return array{code: string, label: string}|null
  */
 function k2_amiga_country_flag_meta(string $country): ?array
 {
-    static $map = [
-        'Germany' => ['code' => 'de', 'label' => 'Germany'],
-        'England' => ['code' => 'gb-eng', 'label' => 'England'],
-        'Italy' => ['code' => 'it', 'label' => 'Italy'],
-        'Norway' => ['code' => 'no', 'label' => 'Norway'],
-        'Greece' => ['code' => 'gr', 'label' => 'Greece'],
-        'Netherlands' => ['code' => 'nl', 'label' => 'Netherlands'],
-        'Sweden' => ['code' => 'se', 'label' => 'Sweden'],
-        'Denmark' => ['code' => 'dk', 'label' => 'Denmark'],
-        'Spain' => ['code' => 'es', 'label' => 'Spain'],
-        'Austria' => ['code' => 'at', 'label' => 'Austria'],
-        'Ireland' => ['code' => 'ie', 'label' => 'Ireland'],
-        'France' => ['code' => 'fr', 'label' => 'France'],
-        'Poland' => ['code' => 'pl', 'label' => 'Poland'],
-        'Switzerland' => ['code' => 'ch', 'label' => 'Switzerland'],
-        'Turkey' => ['code' => 'tr', 'label' => 'Turkey'],
-        'Scotland' => ['code' => 'gb-sct', 'label' => 'Scotland'],
-        'Belgium' => ['code' => 'be', 'label' => 'Belgium'],
-        'Wales' => ['code' => 'gb-wls', 'label' => 'Wales'],
-        'Portugal' => ['code' => 'pt', 'label' => 'Portugal'],
-        'N. Ireland' => ['code' => 'gb-nir', 'label' => 'Northern Ireland'],
-        'Hong Kong' => ['code' => 'hk', 'label' => 'Hong Kong'],
-        'UAE' => ['code' => 'ae', 'label' => 'United Arab Emirates'],
-    ];
-
     $country = trim($country);
     if ($country === '') {
         return null;
     }
 
-    return $map[$country] ?? null;
+    $row = k2_amiga_country_resolve($country);
+    if ($row === null) {
+        return null;
+    }
+
+    $code = trim((string) ($row['flag_code'] ?? ''));
+    if ($code === '') {
+        return null;
+    }
+
+    $svgPath = dirname(__DIR__) . '/img/flags/amiga/' . $code . '.svg';
+    if (!is_file($svgPath)) {
+        return null;
+    }
+
+    return [
+        'code' => $code,
+        'label' => k2_amiga_country_display_name($country),
+    ];
 }
 
 function k2_amiga_country_flag_src(string $code): string
