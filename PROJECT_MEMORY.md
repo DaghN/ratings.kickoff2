@@ -138,6 +138,7 @@
 ## Recent log
 
 | 2026-07-07 | **Amiga country registry policy** — locked spec [`amiga-country-registry-policy.md`](docs/amiga-country-registry-policy.md): JSON registry, string-canonical official names, L3 alias normalization (`N. Ireland`/`UAE`), UK home nations, Ireland/Taiwan naming; implementation CR-1–8 not started. |
+| 2026-07-07 | **Amiga country registry plan** — [`amiga-country-registry-implementation-plan.md`](docs/amiga-country-registry-implementation-plan.md) slices CR-0–CR-8 (+ CR-9 phase 2); **CR-2** = vendored lipis/flag-icons full SVG sync. |
 | 2026-07-07 | **Organizer gate UX** — password-only login (removed tournament id field); optional URL deep link preserved. |
 | 2026-07-07 | **Live hub — start=public (ALO11)** — removed config allowlist; `running` generated leagues auto on `/amiga/live-tournaments.php`; organizer **Make official** = finalize UX; data contract + live-ops policy updated. |
 | 2026-07-07 | **Amiga fixture manager 500 fix** — `amiga_country_slice_game_stats_lib.php` wrong `post_game_outcome` require killed `fixtures.php` before password gate; practice track §4 L0-001. |

@@ -4,7 +4,7 @@
 
 **Parent:** [`amiga-ground-stack.md`](amiga-ground-stack.md) (S7 nationality + host country) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (L3 witness) · [`amiga-import-layer.md`](amiga-import-layer.md) (import manifest)
 
-**Related:** [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) (CH4 country token, CH9 flags, CH17 host vs nationality) · [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (organizer create) · [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) · [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) (H8 token SQL)
+**Related:** [`amiga-country-registry-implementation-plan.md`](amiga-country-registry-implementation-plan.md) · [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) (CH4 country token, CH9 flags, CH17 host vs nationality) · [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (organizer create) · [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) · [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) (H8 token SQL)
 
 ---
 
@@ -94,6 +94,7 @@ The Countries hub policy (**CH4**, **CH9**, **CH17**) stays valid. After this tr
 | **CR26** | **Drift handling** | Unmapped post-migration DB value — undefined fail-soft for v1 (show raw / no flag); not a launch blocker. |
 | **CR27** | **301 retired tokens** | Phase 2 — optional redirect `?country=N.+Ireland` → `Northern Ireland`. |
 | **CR28** | **Edit after create** | Deferred — spec notes future ops ability to change country on existing player/tournament. |
+| **CR29** | **Flag SVG source** | **[lipis/flag-icons](https://github.com/lipis/flag-icons)** (MIT) **`flags/4x3/`** set only — same source as existing 22 Amiga SVGs. Vend pinned release under `data/vendor/flag-icons/`; sync script copies to `site/public_html/img/flags/amiga/{flag_code}.svg`. **Every choosable registry row must have an SVG before ship** — not deferred. |
 
 ---
 
@@ -178,7 +179,7 @@ Optional future: mirror into MySQL for SQL joins — **not required v1**.
 | Field | Required | Rule |
 |-------|----------|------|
 | `official_name` | yes | **Stored in DB**; unique; primary key for lookups |
-| `flag_code` | yes | SVG basename under `/img/flags/amiga/{code}.svg`; unique |
+| `flag_code` | yes | SVG basename under `/img/flags/amiga/{code}.svg`; unique; file from **flag-icons** 4×3 (CR29) |
 | `legacy_aliases` | no | Strings rewritten to `official_name` at L3 import |
 | `site_shorthand` | no | Shorter display label; **not stored** in DB |
 | `choosable` | yes | If `false`, row exists for flags/display only (edge case); default `true` |
@@ -212,7 +213,25 @@ Skip obscure territories until a player or tournament requires them. Full ISO so
 
 ### 5.5 Adding a new country later
 
-Manual edit to `country_registry.json` + add flag SVG if missing + L3 re-import + prove. No automation.
+Manual edit to `country_registry.json` + run **`sync_country_flag_svgs.py`** (copy from vendored flag-icons if `flag_code` is new) + L3 re-import + prove. No automation.
+
+### 5.6 Flag SVG assets (lipis/flag-icons)
+
+**Source (locked — CR29):** existing Amiga flags already come from **[lipis/flag-icons](https://github.com/lipis/flag-icons)** (MIT). Each SVG uses `id="flag-icons-{code}"` and `viewBox="0 0 640 480"` — the repo’s **`flags/4x3/`** export. Initial batch shipped **2026-06-14** (`e9421fd`); **`ae.svg`** added **2026-06-25**.
+
+| Concern | Rule |
+|---------|------|
+| **Vendor path** | `data/vendor/flag-icons/` — pinned release; record version in `VERSION.txt` or registry metadata |
+| **Site path** | `site/public_html/img/flags/amiga/{flag_code}.svg` |
+| **Naming** | `flag_code` = flag-icons basename: ISO alpha-2 lower case; UK subdivisions `gb-eng`, `gb-sct`, `gb-wls`, `gb-nir` |
+| **Sync** | `scripts/amiga/sync_country_flag_svgs.py` copies 4×3 files for every registry row that needs a flag (minimum: all `choosable: true`) |
+| **Completeness** | **Ship gate:** every choosable `flag_code` has a site SVG after sync — verified in tests + `prove` |
+| **New countries** | Add registry row → run sync → add SVG from same vendor if code exists in flag-icons |
+| **Attribution** | MIT licence — credit flag-icons in [`design-direction.md`](design-direction.md) when bulk sync lands |
+
+**Do not** mix other flag libraries or hand-drawn SVGs for registry countries — one visual family sitewide.
+
+**United Kingdom (`gb`):** not choosable (CR6); omit from sync unless a non-choosable registry row is added later.
 
 ---
 
@@ -287,9 +306,10 @@ Replace ad-hoc logic in `k2_amiga_country_flag.php` with registry-backed helpers
 
 ### 7.2 Flags
 
-- Registry **`flag_code`** → `/img/flags/amiga/{code}.svg`
+- Registry **`flag_code`** → `/img/flags/amiga/{code}.svg` (from **flag-icons** 4×3 via sync script — §5.6)
 - Retire static `$map` in `k2_amiga_country_flag.php` and duplicate map in `amiga-activity-charts.js`
-- **CH9** behaviour unchanged: unmapped token → no flag img (no text fallback)
+- **CH9** behaviour for **unknown / drift tokens** (not in registry): no flag img (no text fallback)
+- **Choosable registry rows:** SVG **must exist** on disk before slice sign-off (CR29)
 
 ### 7.3 Display mode (v1)
 
@@ -333,7 +353,8 @@ Run after import and as part of **`python -m scripts.amiga prove`**:
 1. Load registry JSON.
 2. Query distinct non-empty `amiga_players.country` and `tournaments.country`.
 3. **Fail** if any value is not an `official_name` in registry.
-4. **Report** (informational): registry choosable entries never used in DB; legacy aliases still present in L2 (pre-canonicalize audit only).
+4. **Fail** if any choosable registry `flag_code` lacks `site/public_html/img/flags/amiga/{code}.svg`.
+5. **Report** (informational): registry choosable entries never used in DB; legacy aliases still present in L2 (pre-canonicalize audit only).
 
 ### 9.2 Repair
 
@@ -346,13 +367,16 @@ Wrong witness country strings → fix registry and/or aliases → **full L3 re-i
 | Slice | Deliverable |
 |-------|-------------|
 | **CR-1** | `data/amiga/country_registry.json` + build notes; initial ISO + KOO edits |
-| **CR-2** | Python: load registry, `country_token_canonicalize`, manifest, import validate |
-| **CR-3** | `verify_country_registry.py` wired into `prove` |
-| **CR-4** | L3 re-import on work DB; manifest + corpus audit clean |
-| **CR-5** | PHP registry helpers; refactor `k2_amiga_country_flag.php` + activity charts JS |
-| **CR-6** | Organizer create — registry select + used / “More countries” UI |
-| **CR-7** | Staging export sync + spot-check Countries hub, filters, rivals, WC host |
-| **CR-8** | Phase 2 backlog: 301 aliases (CR27), shorthand sitewide toggle (CR18), edit after create (CR28) |
+| **CR-2** | Vend **flag-icons** + `sync_country_flag_svgs.py`; full SVG set for choosable registry rows |
+| **CR-3** | Python: load registry, `country_token_canonicalize`, manifest, import validate |
+| **CR-4** | `verify_country_registry.py` wired into `prove` (includes flag SVG gate) |
+| **CR-5** | L3 re-import on work DB; manifest + corpus audit clean |
+| **CR-6** | PHP registry helpers; refactor `k2_amiga_country_flag.php` + activity charts JS |
+| **CR-7** | Organizer create — registry select + used / “More countries” UI |
+| **CR-8** | Staging export sync + spot-check Countries hub, filters, rivals, WC host |
+| **CR-9** | Phase 2 backlog: 301 aliases (CR27), shorthand sitewide toggle (CR18), edit after create (CR28) |
+
+**Implementation plan:** [`amiga-country-registry-implementation-plan.md`](amiga-country-registry-implementation-plan.md) — slices CR-0–CR-8.
 
 ---
 
@@ -373,3 +397,4 @@ All except **N. Ireland** and **UAE** already match intended official names.
 | Date | Note |
 |------|------|
 | 2026-07-07 | Policy drafted — decisions locked in product discussion (string canonical, JSON registry, L3 normalization, UK nations, Ireland/Taiwan naming, defer used-countries table + URL slugs + edit-after-create). |
+| 2026-07-07 | **CR29** — flag SVGs = vendored **lipis/flag-icons** `flags/4x3/`; full choosable set required before ship (CR-2). |

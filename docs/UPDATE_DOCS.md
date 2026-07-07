@@ -59,7 +59,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | **Amiga World Cups LB (slice + columns)** | [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) (data contract; UI = hub Player stats) · **slice V2** [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md) |
 | **Amiga WC HoF** | [`amiga-wc-hof-policy.md`](amiga-wc-hof-policy.md) · [`amiga-wc-hof-implementation-plan.md`](amiga-wc-hof-implementation-plan.md) |
 | **Amiga Countries hub** | [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) · [`amiga-countries-hub-implementation-plan.md`](amiga-countries-hub-implementation-plan.md) |
-| **Amiga country registry** (canonical tokens, JSON registry, L3 normalization) | [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) |
+| **Amiga country registry** (canonical tokens, JSON registry, L3 normalization) | [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) · [`amiga-country-registry-implementation-plan.md`](amiga-country-registry-implementation-plan.md) |
 | Amiga ground layers / community packs | `docs/amiga-ground-stack.md`, `docs/amiga-ground-layers-policy.md`, `docs/amiga-ground-layers-implementation-plan.md` (L0–L5) |
 | Amiga derived write policy / prove-only corrections | `docs/amiga-derived-write-policy.md`, `docs/amiga-data-contract.md` |
 | **Amiga live ops** (staging authority, lanes A/B/C, anchored repair, ground packs, community media) | [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) · **implementation:** [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) |
