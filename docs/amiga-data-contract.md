@@ -266,7 +266,7 @@ Twenty nullable columns on **`amiga_player_event_snapshots`** and **`amiga_playe
   - **Make official (finalize):** organizer **Make official** on Table tab (browser) or `finalize-tournament` (CLI) commits L5 derived truth (ratings, event snapshots, chronology N→N+1). Community-facing label; same verb as `rating_finalized` on `tournaments`.
   - **After complete:** when lifecycle moves to `completed`/`archived`, the event leaves the Live hub and appears on the historical tournament catalog (`/amiga/tournament.php`) per lifecycle filter above.
   - **Display:** lifecycle metadata, date/country, registered entrants (or stage players fallback), fixtures grouped by stage with player links, regulation scores for played fixtures, muted void rows. No result entry, lifecycle controls, or fixture assignment.
-  - **Ops boundary:** public pages must not embed the ops password or password-bearing ops URLs. Operators use `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot` (password form) separately; the live index may link to that path without `pwd=`.
+  - **Ops boundary:** public pages must not embed the ops password or password-bearing ops URLs. Operators use `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot` (**password-only gate** — create or pick a league inside; optional `tournament_id=` deep link preserved when already in URL). Live index may link to that path without `pwd=`.
   - **Retired (Jun 2026):** `AMIGA_PUBLIC_LIVE_TOURNAMENT_IDS` / `$amigaPublicLiveTournamentIds` config allowlist — replaced by start=public policy Jul 2026.
 
 ### Tournament entrants, stages, and fixtures

@@ -82,6 +82,7 @@ Add a row **during or immediately after** each drill. This is the backlog input 
 
 | Date | Run # | Format | Step | Pain point (what hurt) | Slice / phase | Status |
 |------|-------|--------|------|------------------------|---------------|--------|
+| 2026-07-07 | — | — | enter ops | Tournament id field on password gate confused secretaries | Password-only gate; open leagues from Recent list inside | shipped |
 | 2026-07-07 | — | League | website | Allowlist blocked public live page until manual config | Remove allowlist; start=public (ALO11) | shipped |
 | 2026-07-07 | — | — | enter ops | Staging `/amiga/ops/fixtures.php?once=…` → HTTP 500 before password gate | Fix `amiga_country_slice_game_stats_lib.php` require path | shipped (sync needed) |
 
@@ -99,6 +100,7 @@ Work items land here when a pain point maps to a concrete deliverable. **Empty u
 
 | Id | Pain (from §4) | Deliverable | Platform phase | Drill smoke test |
 |----|----------------|-------------|----------------|------------------|
+| L0-003 | Tournament id on password gate | Password-only gate + in-app Recent leagues | L1 UX | Gate shows password field only |
 | L0-002 | Allowlist blocked public live view | Auto public on `running`; **Make official** UX | ALO11 | Start league → visible on Live hub |
 | L0-001 | fixtures.php HTTP 500 on load (bad `post_game_outcome` path) | Fix require in `amiga_country_slice_game_stats_lib.php` | ad-hoc | Password gate loads on staging |
 

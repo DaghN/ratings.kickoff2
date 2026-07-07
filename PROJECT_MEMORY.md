@@ -137,6 +137,7 @@
 
 ## Recent log
 
+| 2026-07-07 | **Organizer gate UX** — password-only login (removed tournament id field); optional URL deep link preserved. |
 | 2026-07-07 | **Live hub — start=public (ALO11)** — removed config allowlist; `running` generated leagues auto on `/amiga/live-tournaments.php`; organizer **Make official** = finalize UX; data contract + live-ops policy updated. |
 | 2026-07-07 | **Amiga fixture manager 500 fix** — `amiga_country_slice_game_stats_lib.php` wrong `post_game_outcome` require killed `fixtures.php` before password gate; practice track §4 L0-001. |
 | 2026-07-07 | **Amiga live ops — practice-first track** — §12 rewritten in platform doc; new [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md) (Ref-League-A / Ref-Cup-A drill loop, pain log, L0 start); AGENTS + MEMORY + staging handoff cross-links. |
