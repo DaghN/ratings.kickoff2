@@ -509,6 +509,14 @@ def finalize_tournament(
             f"tournament_id={tournament_id} ({tour['name']!r}) already rating_finalized"
         )
 
+    from scripts.amiga.promote_running_tournament import promote_running_tournament
+
+    with conn.cursor() as cur:
+        cur.execute("SELECT COUNT(*) AS n FROM amiga_games WHERE tournament_id = %s", (tournament_id,))
+        existing_games = int(cur.fetchone()["n"])
+    if existing_games == 0:
+        promote_running_tournament(conn, tournament_id, dry_run=dry_run)
+
     with conn.cursor() as cur:
         cur.execute(GAME_SELECT_FOR_TOURNAMENT, (tournament_id,))
         games = cur.fetchall()

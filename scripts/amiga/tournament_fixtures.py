@@ -595,6 +595,17 @@ def attach_game_to_fixture(
         raise ValueError(f"fixture_id={fixture_id} not found")
 
     tournament_id = int(fixture["tournament_id"])
+    tour = _load_one(
+        conn,
+        "SELECT rating_finalized, source_id, format_overrides FROM tournaments WHERE id = %s",
+        (tournament_id,),
+    )
+    if tour is not None and int(tour["rating_finalized"]) == 0 and _is_eligible_generated_tournament(tour):
+        raise ValueError(
+            f"fixture_id={fixture_id} is in a running live-ops tournament; "
+            "attach-game is official repair only — use promote at Make official"
+        )
+
     if int(game["tournament_id"]) != tournament_id:
         raise ValueError("game and fixture belong to different tournaments")
 
@@ -717,40 +728,20 @@ def record_fixture_result(
     with conn.cursor() as cur:
         cur.execute("SELECT COUNT(*) AS n FROM amiga_games WHERE fixture_id = %s", (fixture_id,))
         if int(cur.fetchone()["n"]) > 0:
-            raise ValueError(f"fixture_id={fixture_id} already has an attached game")
+            raise ValueError(f"fixture_id={fixture_id} already has an official game attached")
 
-    game_date = played_at or _next_append_only_game_date(conn)
-    last_game_date = _next_append_only_game_date(conn) - timedelta(seconds=1)
-    if game_date <= last_game_date:
-        raise ValueError(f"played_at={game_date.isoformat(sep=' ')} is not after last game_date")
-
-    source_scores_id = _next_live_source_scores_id(conn)
+    extra_value = extra.strip() if extra and extra.strip() else None
     with conn.cursor() as cur:
         cur.execute(
             """
-            INSERT INTO amiga_games
-              (source_scores_id, game_date, player_a_id, player_b_id, tournament_id, fixture_id,
-               phase, goals_a, goals_b, extra)
-            VALUES
-              (%(source_scores_id)s, %(game_date)s, %(player_a_id)s, %(player_b_id)s,
-               %(tournament_id)s, %(fixture_id)s, %(phase)s, %(goals_a)s, %(goals_b)s, %(extra)s)
+            UPDATE tournament_fixtures
+            SET goals_a = %s, goals_b = %s, extra = %s,
+                result_recorded_at = UTC_TIMESTAMP(), status = 'played'
+            WHERE id = %s
             """,
-            {
-                "source_scores_id": source_scores_id,
-                "game_date": game_date.strftime("%Y-%m-%d %H:%M:%S"),
-                "player_a_id": int(player_a_id),
-                "player_b_id": int(player_b_id),
-                "tournament_id": int(fixture["tournament_id"]),
-                "fixture_id": fixture_id,
-                "phase": fixture["phase_label"],
-                "goals_a": goals_a,
-                "goals_b": goals_b,
-                "extra": extra.strip() if extra and extra.strip() else None,
-            },
+            (goals_a, goals_b, extra_value, fixture_id),
         )
-        game_id = int(cur.lastrowid)
-        cur.execute("UPDATE tournament_fixtures SET status = 'played' WHERE id = %s", (fixture_id,))
-    return game_id
+    return fixture_id
 
 
 def list_entrants(
@@ -804,7 +795,8 @@ def list_fixtures(
                s.stage_key, s.name AS stage_name, s.stage_type, s.sequence_no,
                f.player_a_id, pa.name AS player_a_name,
                f.player_b_id, pb.name AS player_b_name,
-               g.id AS game_id, g.goals_a, g.goals_b, g.extra
+               f.goals_a, f.goals_b, f.extra,
+               g.id AS game_id
         FROM tournament_fixtures f
         INNER JOIN tournament_stages s ON s.id = f.stage_id
         LEFT JOIN amiga_players pa ON pa.id = f.player_a_id
@@ -826,7 +818,8 @@ def fixture_detail(conn: pymysql.connections.Connection, *, fixture_id: int) -> 
                s.stage_key, s.name AS stage_name, s.stage_type, s.sequence_no,
                f.player_a_id, pa.name AS player_a_name,
                f.player_b_id, pb.name AS player_b_name,
-               g.id AS game_id, g.source_scores_id, g.game_date, g.goals_a, g.goals_b, g.extra
+               f.goals_a, f.goals_b, f.extra, f.result_recorded_at,
+               g.id AS game_id, g.source_scores_id, g.game_date
         FROM tournament_fixtures f
         INNER JOIN tournament_stages s ON s.id = f.stage_id
         INNER JOIN tournaments t ON t.id = s.tournament_id
@@ -1807,14 +1800,61 @@ def audit_fixture_integrity(conn: pymysql.connections.Connection) -> list[str]:
 
         cur.execute(
             """
+            SELECT f.id AS fixture_id
+            FROM tournament_fixtures f
+            WHERE f.status = 'played'
+              AND (f.goals_a IS NULL OR f.goals_b IS NULL)
+            ORDER BY f.id
+            """
+        )
+        for row in cur.fetchall():
+            errors.append(f"fixture {row['fixture_id']} status 'played' but goals are null")
+
+        cur.execute(
+            """
+            SELECT f.id AS fixture_id, COUNT(g.id) AS game_count
+            FROM tournament_fixtures f
+            INNER JOIN tournament_stages s ON s.id = f.stage_id
+            INNER JOIN tournaments t ON t.id = s.tournament_id
+            LEFT JOIN amiga_games g ON g.fixture_id = f.id
+            WHERE t.source_id IS NULL
+              AND t.rating_finalized = 0
+              AND (
+                COALESCE(t.format_overrides, '') LIKE %s
+                OR COALESCE(t.format_overrides, '') LIKE %s
+              )
+            GROUP BY f.id
+            HAVING game_count > 0
+            ORDER BY f.id
+            """,
+            ("%fixtures%", "%tournament_builder%"),
+        )
+        for row in cur.fetchall():
+            errors.append(
+                f"running live-ops fixture {row['fixture_id']} has {int(row['game_count'])} official game(s)"
+            )
+
+        cur.execute(
+            """
             SELECT f.id AS fixture_id, f.status, COUNT(g.id) AS game_count
             FROM tournament_fixtures f
+            INNER JOIN tournament_stages s ON s.id = f.stage_id
+            INNER JOIN tournaments t ON t.id = s.tournament_id
             LEFT JOIN amiga_games g ON g.fixture_id = f.id
+            WHERE NOT (
+                t.source_id IS NULL
+                AND t.rating_finalized = 0
+                AND (
+                  COALESCE(t.format_overrides, '') LIKE %s
+                  OR COALESCE(t.format_overrides, '') LIKE %s
+                )
+              )
             GROUP BY f.id, f.status
             HAVING (f.status = 'played' AND game_count <> 1)
                 OR (f.status = 'scheduled' AND game_count <> 0)
             ORDER BY f.id
-            """
+            """,
+            ("%fixtures%", "%tournament_builder%"),
         )
         for row in cur.fetchall():
             errors.append(
@@ -2201,7 +2241,7 @@ def main(argv: list[str] | None = None) -> int:
                 print("DRY RUN: rolled back")
             else:
                 conn.commit()
-            print(f"game_id={game_id}")
+            print(f"fixture_id={game_id}")
             return 0
 
         if args.cmd == "list":

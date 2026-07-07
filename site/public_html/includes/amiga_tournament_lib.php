@@ -467,7 +467,8 @@ function amiga_live_tournament_fixture_groups(mysqli $con, int $tournamentId): a
                    s.id AS stage_id, s.stage_key, s.name AS stage_name, s.stage_type, s.sequence_no,
                    f.player_a_id, f.player_b_id,
                    pa.name AS player_a_name, pb.name AS player_b_name,
-                   g.id AS game_id, g.goals_a, g.goals_b, g.extra
+                   f.goals_a, f.goals_b, f.extra,
+                   g.id AS game_id
             FROM tournament_fixtures f
             INNER JOIN tournament_stages s ON s.id = f.stage_id
             LEFT JOIN amiga_players pa ON pa.id = f.player_a_id
@@ -978,7 +979,7 @@ function amiga_tournament_videos_url(
     return $url;
 }
 
-/** Indexed lookup on ``amiga_games.tournament_id`` (`idx_amiga_games_tournament`). */
+/** Indexed lookup — official games, or played fixtures while running (RTB broadcast). */
 function amiga_tournament_game_count(mysqli $con, int $tournamentId): int
 {
     static $cache = [];
@@ -986,6 +987,11 @@ function amiga_tournament_game_count(mysqli $con, int $tournamentId): int
         return 0;
     }
     if (isset($cache[$tournamentId])) {
+        return $cache[$tournamentId];
+    }
+    require_once __DIR__ . '/amiga_running_tournament_lib.php';
+    if (amiga_running_tournament_broadcast_mode($con, $tournamentId)) {
+        $cache[$tournamentId] = amiga_running_tournament_count_played_fixtures($con, $tournamentId);
         return $cache[$tournamentId];
     }
     $stmt = mysqli_prepare($con, 'SELECT COUNT(*) AS n FROM amiga_games WHERE tournament_id = ?');

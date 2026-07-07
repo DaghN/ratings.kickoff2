@@ -421,6 +421,18 @@ def main(argv: list[str] | None = None) -> int:
         help="Assert live_ops amiga_players rows and player_source column",
     )
 
+    sub.add_parser(
+        "verify-running-tournament-boundary",
+        help="Assert live-ops running tournaments have zero amiga_games until Make official",
+    )
+
+    p_promote = sub.add_parser(
+        "promote-running-tournament",
+        help="Promote running fixture scores into amiga_games (Make official L3 step)",
+    )
+    p_promote.add_argument("--tournament-id", type=int, required=True)
+    p_promote.add_argument("--dry-run", action="store_true")
+
     p_build_registry = sub.add_parser(
         "build-country-registry",
         help="Build data/amiga/country_registry.json from flag-icons country.json",
@@ -759,6 +771,25 @@ def main(argv: list[str] | None = None) -> int:
         from scripts.amiga.verify_player_create import main as verify_player_create_main
 
         return verify_player_create_main()
+
+    if args.cmd == "verify-running-tournament-boundary":
+        from scripts.amiga.verify_running_tournament_boundary import main as verify_running_tournament_boundary_main
+
+        return verify_running_tournament_boundary_main()
+
+    if args.cmd == "promote-running-tournament":
+        from scripts.amiga.config import load_amiga_db_config
+        from scripts.amiga.promote_running_tournament import promote_running_tournament
+        from scripts.amiga.replay import _connect
+
+        cfg = load_amiga_db_config()
+        conn = _connect(cfg)
+        try:
+            result = promote_running_tournament(conn, args.tournament_id, dry_run=args.dry_run)
+        finally:
+            conn.close()
+        print(result)
+        return 0
 
     if args.cmd == "build-country-registry":
         from scripts.amiga.build_country_registry import main as build_country_registry_main

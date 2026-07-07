@@ -15,6 +15,7 @@ from scripts.amiga.verify_chronology import main as verify_chronology_main
 from scripts.amiga.verify_event_snapshots import main as verify_event_snapshots_main
 from scripts.amiga.verify_country_registry import main as verify_country_registry_main
 from scripts.amiga.verify_player_create import main as verify_player_create_main
+from scripts.amiga.verify_running_tournament_boundary import main as verify_running_tournament_boundary_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
 from scripts.amiga.verify_l2_l3_boundary import main as verify_l2_l3_boundary_main
 from scripts.amiga.verify_player_matchups import main as verify_player_matchups_main
@@ -58,6 +59,7 @@ _VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
     ("verify-import-manifest", verify_import_manifest_main),
     ("verify-country-registry", verify_country_registry_main),
     ("verify-player-create", verify_player_create_main),
+    ("verify-running-tournament-boundary", verify_running_tournament_boundary_main),
     ("verify-tournament-videos", verify_tournament_videos_main),
     ("verify-l2-l3", lambda: verify_l2_l3_boundary_main([])),
     ("verify-tournament-formats", lambda: verify_tournament_formats_main([])),

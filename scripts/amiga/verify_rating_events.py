@@ -41,12 +41,42 @@ def verify_rating_events(conn: pymysql.connections.Connection) -> list[str]:
             FROM tournaments t
             WHERE t.rating_finalized = 0
               AND EXISTS (SELECT 1 FROM amiga_games g WHERE g.tournament_id = t.id)
-            """
+              AND NOT (
+                t.source_id IS NULL
+                AND (
+                  COALESCE(t.format_overrides, '') LIKE %s
+                  OR COALESCE(t.format_overrides, '') LIKE %s
+                )
+              )
+            """,
+            ("%fixtures%", "%tournament_builder%"),
         )
         unfinalized = int(cur.fetchone()["n"])
         if unfinalized:
             errors.append(
-                f"tournaments with games but rating_finalized=0: {unfinalized} (expected 0)"
+                f"tournaments with games but rating_finalized=0: {unfinalized} (expected 0; "
+                "live-ops running leagues use fixture scores until Make official)"
+            )
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM tournaments t
+            WHERE t.rating_finalized = 0
+              AND t.source_id IS NULL
+              AND (
+                COALESCE(t.format_overrides, '') LIKE %s
+                OR COALESCE(t.format_overrides, '') LIKE %s
+              )
+              AND EXISTS (SELECT 1 FROM amiga_games g WHERE g.tournament_id = t.id)
+            """,
+            ("%fixtures%", "%tournament_builder%"),
+        )
+        live_ops_offenders = int(cur.fetchone()["n"])
+        if live_ops_offenders:
+            errors.append(
+                f"live-ops tournaments with games before Make official: {live_ops_offenders} "
+                "(RTB — run verify-running-tournament-boundary)"
             )
 
         cur.execute("SELECT COUNT(*) AS n FROM amiga_games")

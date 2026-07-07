@@ -902,8 +902,24 @@ def verify_built_tournament(
 
         cur.execute("SELECT COUNT(*) AS n FROM amiga_games WHERE tournament_id = %s", (tournament_id,))
         attached_games = int(cur.fetchone()["n"])
-        if attached_games and not allow_attached_games:
-            errors.append(f"expected no attached games yet, found {attached_games}")
+        if attached_games:
+            errors.append(f"expected no official games yet, found {attached_games}")
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM tournament_fixtures f
+            INNER JOIN tournament_stages s ON s.id = f.stage_id
+            WHERE s.tournament_id = %s AND f.status = 'played'
+            """,
+            (tournament_id,),
+        )
+        played_fixtures = int(cur.fetchone()["n"])
+        if allow_attached_games:
+            if played_fixtures == 0:
+                errors.append("expected played fixtures with running results, found none")
+        elif played_fixtures:
+            errors.append(f"expected no played fixtures yet, found {played_fixtures}")
 
     return errors
 
@@ -1067,14 +1083,13 @@ def smoke_fixture_result_flow(conn: pymysql.connections.Connection, *, player_id
         tournament_id=result["tournament_id"],
         status="running",
     )
-    game_id = record_fixture_result(conn, fixture_id=fixture_id, goals_a=1, goals_b=0)
+    fixture_id = record_fixture_result(conn, fixture_id=fixture_id, goals_a=1, goals_b=0)
     errors = verify_built_tournament(conn, tournament_id=result["tournament_id"], allow_attached_games=True)
     if errors:
         raise ValueError("; ".join(errors))
     return {
         **result,
         "fixture_id": fixture_id,
-        "game_id": game_id,
     }
 
 

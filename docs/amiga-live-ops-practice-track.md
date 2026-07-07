@@ -60,17 +60,19 @@ Tournament id (after create): ___
 
 [ ] 1. CREATE — name, date, **country from registry select** (used list or More countries…); players by search (not raw ids)
 [ ] 2. START  — lifecycle to in-progress; **check Live hub** lists the league
-[ ] 3. PLAY    — all fixtures have scores
-[ ] 4. MAKE OFFICIAL — Table tab → **Make official** (finalize; N→N+1 ratings + chronology)
-[ ] 5. WEBSITE — running: `/amiga/live-tournament.php?id=N`; after complete: historical tournament page + rating LB spot-check
-[ ] 6. (Later) DELETE — training event removed without full prove
+[ ] 3. PLAY    — all results on **fixtures only** (Results tab or `fixtures record-result`)
+[ ] 3b. SQL    — `SELECT COUNT(*) FROM amiga_games WHERE tournament_id = ?` → **0** while running
+[ ] 4. TABLE   — broadcast standings on Table tab match expectation
+[ ] 5. MAKE OFFICIAL — Table tab → **Make official** (promote + finalize; N→N+1 ratings + chronology)
+[ ] 6. WEBSITE — running: `/amiga/live-tournament.php?id=N`; after official: historical tournament page + rating LB spot-check
+[ ] 7. CLEANUP — `fixtures cleanup-generated` removes workspace; zero orphan L3 games if never official
 
 Pain points this run (→ §4):
 -
 -
 ```
 
-**Make official:** Table tab in organizer (or CLI `finalize-tournament`). Commits L5 derived truth.
+**Make official:** Table tab in organizer (promote running package → `amiga_games`, then `finalize_tournament`). CLI: `python -m scripts.amiga finalize-tournament --tournament-id N`. See [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md).
 
 **WinSCP:** sync `site/public_html/amiga/ops/` before staging drills after local UX fixes.
 

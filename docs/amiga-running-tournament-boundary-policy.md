@@ -1,6 +1,6 @@
 # Amiga running tournament boundary — policy
 
-**Status:** **Policy locked (Jul 2026, rev. 1)** — two-universe split: **Running** (live workspace + broadcast) vs **Official** (permanent ladder record). Implementation not started.
+**Status:** **Policy locked (Jul 2026, rev. 1)** — two-universe split: **Running** (live workspace + broadcast) vs **Official** (permanent ladder record). **Implementation shipped (RTB-1–RTB-8, Jul 2026).**
 
 **Parent:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (Lane B) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (L3–L5) · [`amiga-data-contract.md`](amiga-data-contract.md)
 

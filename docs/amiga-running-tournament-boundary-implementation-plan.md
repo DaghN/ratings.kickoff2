@@ -1,6 +1,6 @@
 # Amiga running tournament boundary — implementation plan
 
-**Status:** **RTB-0 locked (Jul 2026, rev. 2)** — policy + inventory + implementation plan. **Code not started.** Execute slices in order; do not git commit unless Dagh asks.
+**Status:** **RTB shipped (Jul 2026)** — slices RTB-PREFLIGHT through RTB-8 complete; `python -m scripts.amiga prove` green with `verify-running-tournament-boundary`.
 
 **Policy:** [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (rev. 1, RTB1–RTB12)  
 **Inventory:** [`amiga-running-tournament-boundary-inventory.md`](amiga-running-tournament-boundary-inventory.md) (rev. 2, audit fold-in)  

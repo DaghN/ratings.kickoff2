@@ -361,7 +361,10 @@ python -m scripts.amiga fixtures set-players --fixture-id F --player-a-id 1 --pl
 python -m scripts.amiga fixtures attach-game --game-id G --fixture-id F --dry-run
 python -m scripts.amiga fixtures record-result --fixture-id F --goals-a 3 --goals-b 2 --dry-run
 python -m scripts.amiga fixtures record-result --fixture-id F --goals-a 3 --goals-b 2
-# Live browser ops record results + rebuild standings; finalize via finalize-tournament when event closes.
+# Prints fixture_id=…; writes running columns only (no amiga_games). Make official: finalize-tournament (promote + derive).
+
+python -m scripts.amiga promote-running-tournament --tournament-id N --dry-run
+python -m scripts.amiga verify-running-tournament-boundary
 
 # Cleanup is intentionally limited to unplayed tournament_builder output.
 python -m scripts.amiga fixtures cleanup-generated --tournament-id N --dry-run

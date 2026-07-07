@@ -137,6 +137,7 @@
 
 ## Recent log
 
+| 2026-07-07 | **RTB shipped (RTB-1–RTB-8)** — fixture running columns (`structure/006` via `prove`); PHP/Python promote at Make official; `verify-running-tournament-boundary` in holy loop; **`prove` green**. |
 | 2026-07-07 | **RTB plan rev. 2** — DDL holy-ops-only tightened (§ forbid manual ALTER / 047); after agent went outside prove for RTB-1. |
 | 2026-07-07 | **RTB implementation plan** — [`amiga-running-tournament-boundary-implementation-plan.md`](docs/amiga-running-tournament-boundary-implementation-plan.md) (RTB-PREFLIGHT→RTB-8, touchpoint registry, IP1–IP15); code not started. |
 | 2026-07-07 | **RTB inventory rev. 2** — audit fold-in (lifecycle gates, verify oracles, slice reorder); policy still rev. 1. |

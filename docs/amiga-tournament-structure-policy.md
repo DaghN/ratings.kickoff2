@@ -34,7 +34,7 @@ STRUCTURE (separate artifact)
 
 | Path | Fixtures created by… | Games |
 |------|----------------------|-------|
-| **Live** | Tournament software (schedule first) | Filled when results entered (`record-result`, ops) |
+| **Live** | Tournament software (schedule first) | Running scores on **fixture columns** until **Make official** promotes to `amiga_games` ([`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md)) |
 | **Legacy** | Materialize from imported games (results first) | Already ground truth; fixtures derived and assigned to stages |
 
 Do **not** maintain a legacy-only path that skips fixtures and points games directly at stages. The fixture layer is universal; only **provenance** differs.
@@ -42,7 +42,7 @@ Do **not** maintain a legacy-only path that skips fixtures and points games dire
 | Question | Answered by | Examples |
 |----------|-------------|----------|
 | **What module is this match in?** | `fixture → stage → stage_type` | RR table; KO tie |
-| **Where is the score?** | `amiga_games` (linked via `fixture_id`) | goals, extra time |
+| **Where is the score?** | **Running:** `tournament_fixtures.goals_*` · **Official:** `amiga_games` (linked via `fixture_id`) | goals, extra time |
 | **Who ranked / who won the module?** | Derived on the **stage** (RR table or tie winner) | structure reads this later |
 | **How do modules combine?** | `StructureSpec`, promotion graph | groups → KO; dinner 1v2/3v4 |
 
