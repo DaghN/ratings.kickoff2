@@ -29,50 +29,73 @@
             return;
         }
 
-        var builtOptions = [];
-
-        function clearMoreOptions() {
-            for (var i = 0; i < builtOptions.length; i++) {
-                var opt = builtOptions[i];
-                if (opt.parentNode) {
-                    if (opt.selected) {
-                        select.selectedIndex = 0;
-                    }
-                    opt.remove();
-                }
+        var baseOptions = [];
+        for (var i = 0; i < select.options.length; i++) {
+            var baseOpt = select.options[i];
+            if (!baseOpt.value) {
+                continue;
             }
-            builtOptions = [];
+            baseOptions.push({
+                value: baseOpt.value,
+                label: baseOpt.textContent
+            });
         }
 
-        function addMoreOptions() {
-            for (var i = 0; i < moreSpec.length; i++) {
-                var spec = moreSpec[i];
-                if (!spec || !spec.value) {
-                    continue;
+        function rebuildOptions(includeMore) {
+            var selected = select.value;
+            var merged = [];
+            var seen = {};
+
+            function pushOption(value, label) {
+                var key = String(value).toLowerCase();
+                if (seen[key]) {
+                    return;
                 }
+                seen[key] = true;
+                merged.push({ value: value, label: label });
+            }
+
+            for (var i = 0; i < baseOptions.length; i++) {
+                pushOption(baseOptions[i].value, baseOptions[i].label);
+            }
+            if (includeMore) {
+                for (var j = 0; j < moreSpec.length; j++) {
+                    var spec = moreSpec[j];
+                    if (!spec || !spec.value) {
+                        continue;
+                    }
+                    pushOption(spec.value, spec.label || spec.value);
+                }
+            }
+
+            merged.sort(function (a, b) {
+                return a.label.localeCompare(b.label, undefined, { sensitivity: "base" });
+            });
+
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+
+            for (var k = 0; k < merged.length; k++) {
+                var item = merged[k];
                 var opt = document.createElement("option");
-                opt.value = spec.value;
-                opt.textContent = spec.label || spec.value;
-                opt.setAttribute("data-amiga-country-more", "1");
-                if (spec.selected) {
+                opt.value = item.value;
+                opt.textContent = item.label;
+                if (item.value === selected) {
                     opt.selected = true;
                 }
                 select.appendChild(opt);
-                builtOptions.push(opt);
             }
-        }
 
-        function setMoreVisible(show) {
-            clearMoreOptions();
-            if (show) {
-                addMoreOptions();
+            if (selected && select.value !== selected) {
+                select.selectedIndex = 0;
             }
         }
 
         toggle.addEventListener("change", function () {
-            setMoreVisible(toggle.checked);
+            rebuildOptions(toggle.checked);
         });
-        setMoreVisible(toggle.checked);
+        rebuildOptions(toggle.checked);
     }
 
     function boot() {

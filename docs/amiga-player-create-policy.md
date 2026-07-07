@@ -6,7 +6,7 @@
 
 **Related:** [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) (nationality on create) · [`amiga-import-layer.md`](amiga-import-layer.md) (historical import merges — separate from live create) · [`scripts/amiga/player_names.py`](../scripts/amiga/player_names.py) (reference algorithms today) · [`scripts/amiga/player_registry.py`](../scripts/amiga/player_registry.py) (today's CLI — already inserts `amiga_players`; aligns with rev. 2 storage)
 
-**Implementation plan:** [`amiga-player-create-implementation-plan.md`](amiga-player-create-implementation-plan.md) — **PC-1–PC-7 shipped Jul 2026** (browser compose create; PC-9 delete league = phase 2).
+**Implementation plan:** [`amiga-player-create-implementation-plan.md`](amiga-player-create-implementation-plan.md) — **PC-1–PC-7 shipped Jul 2026** (browser compose create; PC-9 delete league = phase 2). **Running tournament boundary:** [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (orphan rules use official `amiga_games` only after RTB ships).
 
 ---
 
