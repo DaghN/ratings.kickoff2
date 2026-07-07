@@ -332,7 +332,7 @@ Keep existing routes: `k2_amiga_route('amiga-country-roster', ['country' => $off
 | Surface | Rule |
 |---------|------|
 | **Organizer — create tournament** | `fixtures.php` country field → registry select only |
-| **Organizer — create player** | Registry select only (when player create exists) |
+| **Organizer — create player** | Permanent `amiga_players` at create + orphan cleanup — [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (rev. 2; not implemented) |
 | **Free text** | Rejected server-side if not ∈ registry |
 
 ### 8.2 Organizer UI (CR21) — shipped

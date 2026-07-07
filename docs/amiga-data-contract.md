@@ -310,6 +310,8 @@ Twenty nullable columns on **`amiga_player_event_snapshots`** and **`amiga_playe
 
 ### Player identity and KOA naming (internal ops)
 
+**Browser organizer create:** policy locked Jul 2026 — [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (rev. 2: permanent `amiga_players` at create + orphan cleanup on abandoned tournaments; auto-suggest only; country required).
+
 - `amiga_players.name` is the canonical display identity. Import normalizes spacing, collapses duplicate case/spacing variants, and strips trailing periods (`scripts/amiga/player_names.py`). The column uses `utf8mb4_bin` collation — exact spelling is unique; identity checks also use casefolded `identity_key` to refuse likely duplicates.
 - **Public newcomer registration is deferred.** Internal ops use `python -m scripts.amiga players`:
   - `players check-name --name TEXT` — normalize and report availability; exit `1` when a case-insensitive identity collision exists.

@@ -137,6 +137,8 @@
 
 ## Recent log
 
+| 2026-07-07 | **Amiga player create policy (rev. 2.1)** — [`amiga-player-create-policy.md`](docs/amiga-player-create-policy.md): permanent roster at create; orphan cleanup; **X delete must not remove N if N still on Y** (§6.3.1). |
+| 2026-07-07 | **Amiga player create plan (PC-0)** — [`amiga-player-create-implementation-plan.md`](docs/amiga-player-create-implementation-plan.md): slices PC-1–PC-8 + PC-9 backlog; locked `player_source` provenance DDL. |
 | 2026-07-07 | **Amiga country registry shipped (CR-1–CR-8)** — `country_registry.json` (254 rows, 253 choosable); L3 alias normalize (`N. Ireland`→Northern Ireland, `UAE`→United Arab Emirates); 253 lipis/flag-icons SVGs; Python verify in `prove`; PHP `k2_amiga_country_registry.php` + activity chart boot map; organizer create league = used countries + **More countries…** (`amiga-organizer-country-picker.js`). **Staging:** sync `public_html/data/amiga/country_registry.json` + flag SVGs with PHP (empty tables if JSON missing). Policy/plan: [`amiga-country-registry-policy.md`](docs/amiga-country-registry-policy.md). **Backlog CR-9:** URL 301 aliases, shorthand toggle, edit country after create. |
 | 2026-07-07 | **Organizer gate UX** — password-only login (removed tournament id field); optional URL deep link preserved. |
 | 2026-07-07 | **Live hub — start=public (ALO11)** — removed config allowlist; `running` generated leagues auto on `/amiga/live-tournaments.php`; organizer **Make official** = finalize UX; data contract + live-ops policy updated. |
