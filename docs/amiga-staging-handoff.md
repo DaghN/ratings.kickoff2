@@ -10,7 +10,7 @@
 
 **Destructive import (read every time):** Staging browser import **replaces** the whole staging `ko2amiga_db` from export parts — it does **not** merge events that exist only on staging. Routine refresh = export **living work** after **simul**, not nuclear `prove` + oracle export. Community mistakes on staging → anchored repair ([`amiga-live-ops-platform.md`](amiga-live-ops-platform.md)), not full reimport from Access.
 
-**Agents — pull staged → local (repair shop):** Run `powershell -ExecutionPolicy Bypass -File scripts\pull_ko2amiga_from_staging.ps1 -Force` (staging generate → download → replace **`ko2amiga_work`**). **Does not run simul by default** — add `-Simul` only when repair/sign-off needs it. Requires synced `run_export_ko2amiga.php` on staging (JSON `format=json`). Manual/browser: preview/generate/download URLs below. Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) §8.
+**Agents — pull staged → local (repair shop):** Run `powershell -ExecutionPolicy Bypass -File scripts\pull_ko2amiga_from_staging.ps1 -Force` when Dagh says **pull staged Amiga** (or: pull Amiga from staged · refresh `ko2amiga_work` from staging). **Execute the script** — do not hand-wave WinSCP/mysqldump. Sync to staging first if export PHP changed: `run_export_ko2amiga.php` + `includes/amiga_staging_export_lib.php` (export build **v4+**). **Does not run simul by default** — `-Simul` only when sign-off needs it. Writes `data/amiga/modern/staging-sync-last.json`. Manual URLs below. Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) §8.
 
 ---
 
@@ -24,7 +24,7 @@
 | Amiga PHP include | `include __DIR__ . '/../../config/ko2amiga_config.php';` in `public_html/amiga/*.php` |
 | Database | **`ko2amiga_db`** (separate from online `kooldb*`) |
 | Import payload | `public_html/amiga/_import/ko2amiga_manifest.json` (tracked) + `ko2amiga_01_schema.sql` … part files ending in snapshots/current + derived tables (SQL parts gitignored; WinSCP) (+ optional full `ko2amiga_db.sql`) |
-| Pull export dump | `public_html/amiga/_export/ko2amiga_staging_pull.sql` (gitignored; `run_export_ko2amiga.php` → WinSCP download) |
+| Pull export dump | `public_html/amiga/_export/ko2amiga_staging_pull.sql` + `ko2amiga_staging_pull_manifest.json` (gitignored; **overwrite** each generate) |
 
 Online `kooldb*` is untouched. Credentials mirror staging config1 user/password; only `$database` differs.
 
@@ -48,7 +48,11 @@ Online `kooldb*` is untouched. Credentials mirror staging config1 user/password;
 powershell -ExecutionPolicy Bypass -File scripts\pull_ko2amiga_from_staging.ps1 -Force
 ```
 
-Triggers staging export PHP (`generate=1&format=json`), downloads dump, **replaces** local **`ko2amiga_work`**, writes `data/amiga/modern/staging-sync-last.json`. **Simul opt-in:** `-Simul` (~20 min; not default). Requires Laragon MySQL + synced `run_export_ko2amiga.php` on staging.
+Triggers staging export PHP (`generate=1&format=json`), downloads dump, **replaces** local **`ko2amiga_work`**, writes `data/amiga/modern/staging-sync-last.json`. **Simul opt-in:** `-Simul` (~20 min; not default). Requires Laragon MySQL + synced export PHP on staging (`run_export_ko2amiga.php` + `includes/amiga_staging_export_lib.php`, build **v4+**).
+
+**File retention:** Staging keeps **one** SQL file (overwrite). Local pull keeps `ko2amiga_staging_pull_latest.sql` (overwrite) plus one timestamped archive per run under `data/amiga/pulls/` (gitignored).
+
+**Verified Jul 2026:** full pull from `ratings.kickoff2.com` — ~74 MB mysqldump, import ~2.5 min, spot-check **605 / 469 / 27,418** games.
 
 **Manual / browser** (same end state):
 

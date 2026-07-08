@@ -148,7 +148,9 @@ Agents: do not treat local work as the backup of staged unless a pull just happe
 powershell -ExecutionPolicy Bypass -File scripts\pull_ko2amiga_from_staging.ps1 -Force
 ```
 
-Agents: run the above when Dagh says **pull staged Amiga** (non-interactive). Flow: staging `run_export_ko2amiga.php` generate (JSON) → download → rewrite `ko2amiga_db` → `ko2amiga_work` → **DROP/CREATE** work DB → mysql import → `staging-sync-last.json`. **`simul` not default** — `-Simul` only when sign-off needs it.
+Agents: run the above when Dagh says **pull staged Amiga** (non-interactive). Flow: staging `run_export_ko2amiga.php` generate (JSON; HTML fallback on older builds) → download → rewrite DB name → **DROP/CREATE** `ko2amiga_work` → mysql import → `staging-sync-last.json`. **`simul` not default** — `-Simul` only when sign-off needs it.
+
+**Verified Jul 2026** on staging — full automated pull green (605 / 469 / 27,418).
 
 **Manual / browser** (same dump):
 
@@ -158,15 +160,15 @@ Agents: run the above when Dagh says **pull staged Amiga** (non-interactive). Fl
 | **Generate dump** | https://ratings.kickoff2.com/amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=coffee&generate=1 |
 | **Download dump** | https://ratings.kickoff2.com/amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=coffee&download=1 |
 
-Password **`coffee`**. Writes **`public_html/amiga/_export/ko2amiga_staging_pull.sql`** (+ manifest JSON). Direct HTTP to the SQL path is blocked (`.htaccess`); use export page **Download dump** or WinSCP.
+Password **`coffee`**. Writes **`public_html/amiga/_export/ko2amiga_staging_pull.sql`** (+ manifest JSON; **overwrite** each generate). Direct HTTP to `_export/*.sql` is blocked (`.htaccess`); use export page **Download dump**, pull script, or WinSCP.
 
-**Local ritual (manual import until PULL-1a):**
+**Manual fallback** (if pull script unavailable):
 
-1. WinSCP sync code (`run_export_ko2amiga.php`, `includes/amiga_staging_export_lib.php`, `_export/`).
-2. Open **Generate** URL on staging; wait for OK (may take minutes; tries `mysqldump`, falls back to PHP batched INSERTs).
-3. WinSCP download `ko2amiga_staging_pull.sql` → local path of your choice.
-4. **Import** into local **`ko2amiga_work`** (replace repair clone — not oracle `ko2amiga_db`).
-5. **`python -m scripts.amiga simul`** — only when sign-off or writer repair needs it (pull script: `-Simul`; not default).
+1. WinSCP sync `run_export_ko2amiga.php` + `includes/amiga_staging_export_lib.php`.
+2. Open **Generate** URL; wait for OK.
+3. **Download** or WinSCP `ko2amiga_staging_pull.sql`.
+4. Import into local **`ko2amiga_work`**.
+5. **`python -m scripts.amiga simul`** — only when sign-off needs it (`-Simul` on pull script).
 6. Repair if needed; then **push** per [`amiga-staging-handoff.md`](amiga-staging-handoff.md).
 
 Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
@@ -176,9 +178,10 @@ Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
 ## 9. Agent habits
 
 1. **Staged prod, local repair** — do not assign “local is ahead of staging” features without pull/push vocabulary.
-2. **Export to staged** — run `export_ko2amiga_work.ps1` only when work reflects the repair you intend; remind Dagh if staging had community activity since last pull.
-3. **Destructive import** — staging browser import still **wipes** unstaged ground; see handoff doc every time.
-4. **Forward authority** — [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0 for simul/work; this doc for **staging sync roles**.
+2. **Pull from staged** — Dagh says “pull staged Amiga” (or similar) → **run** `pull_ko2amiga_from_staging.ps1 -Force`; not simul unless asked.
+3. **Export to staged** — run `export_ko2amiga_work.ps1` only when work reflects the repair you intend; remind Dagh if staging had community activity since last pull.
+4. **Destructive import** — staging browser import still **wipes** unstaged ground; see handoff doc every time.
+5. **Forward authority** — [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0 for simul/work; this doc for **staging sync roles**.
 
 ---
 
@@ -186,8 +189,8 @@ Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
 
 | ID | Work |
 |----|------|
-| **PULL-1a** | **Shipped** — `pull_ko2amiga_from_staging.ps1` + `staging-sync-last.json` |
-| **PULL-1b** | **Shipped** — `run_export_ko2amiga.php` staging dump generator |
+| **PULL-1a** | **Shipped + verified Jul 2026** — `pull_ko2amiga_from_staging.ps1` + `staging-sync-last.json` |
+| **PULL-1b** | **Shipped + verified Jul 2026** — `run_export_ko2amiga.php` (export-v4; JSON + download) |
 | **SYNC-1** | `staging-sync-last.json` + export gate |
 | **ADMIN-1** | Staged admin page (lock / discard / delete) — after permissions sketch firms up |
 | **PACK-1** | Per-tournament ground pack export (live-ops L6) |
@@ -198,5 +201,7 @@ Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
 
 | Date | Change |
 |------|--------|
-| 2026-07-08 | **PULL-1b** — `run_export_ko2amiga.php` + `_export/` staging pull dump (preview/generate one-shot). |
+| 2026-07-08 | **Agent pull ritual** — `kool-workspace.mdc` + `AGENTS.md`: trigger phrases → `pull_ko2amiga_from_staging.ps1 -Force`. |
+| 2026-07-08 | **PULL-1 verified** — full staging → `ko2amiga_work` pull green; export-v4 mysqldump stderr fix; simul opt-in on pull script. |
+| 2026-07-08 | **PULL-1b** — `run_export_ko2amiga.php` + `_export/` staging pull dump (preview/generate/download). |
 | 2026-07-08 | Initial policy — staged prod, local repair shop, pull → repair → push; SS-1–SS-7; permissions open. |

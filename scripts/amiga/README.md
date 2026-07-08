@@ -85,7 +85,7 @@ Oracle archaeology only: `export_ko2amiga_db.ps1` (frozen `ko2amiga_db` after le
 powershell -ExecutionPolicy Bypass -File scripts\pull_ko2amiga_from_staging.ps1 -Force
 ```
 
-Staging generate (JSON) → download → replace `ko2amiga_work` → `staging-sync-last.json`. Add `-Simul` when sign-off needs it (not default). Runbook: [`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md).
+Staging generate (JSON) → download → replace `ko2amiga_work` → `staging-sync-last.json`. Add `-Simul` when sign-off needs it (not default). **Verified Jul 2026.** Runbook: [`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md).
 
 **Sign-off / daily dev (legacy Access path — retiring):**
 

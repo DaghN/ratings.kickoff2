@@ -248,7 +248,7 @@ preflight (L3 exists; day 0 = reference only)
 
 **Authority:** [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) — **staged `ko2amiga_db` = prod**; **local `ko2amiga_work` = repair shop**; **pull → repair → push** (not merge-import).
 
-Until **PULL-1** ships: treat **full browser import** as **destructive** to unstaged ground ([`amiga-staging-handoff.md`](amiga-staging-handoff.md)). **Pull before push** when staging has community events. PoC pull = manual mysqldump + import into work (§8 of staging authority policy).
+**PULL-1 shipped (Jul 2026):** `pull_ko2amiga_from_staging.ps1` + `run_export_ko2amiga.php` — verified full pull to work. **Pull before push** when staging has community events. Push import remains **destructive** to unstaged ground ([`amiga-staging-handoff.md`](amiga-staging-handoff.md)). **Simul** after pull = opt-in (`-Simul`), not default.
 
 ---
 
@@ -282,8 +282,9 @@ Execute in order. Each slice ends with a recorded check.
 | **PROMOTE-1** | `ko2amiga_config.local.php` → `ko2amiga_work`; export reads work; legacy `prove` locked to `ko2amiga_db` only | **Done** — `export_ko2amiga_work.ps1` · `promote_ko2amiga_work_local.ps1` · `promote-video-deploy`; oracle export = `export_ko2amiga_db.ps1` shim |
 | **DOC-1** | Archive Access pipeline docs; agent routing | **Done** — archive index + doc pass 2–3 (55+ historical/sign-off banners on shipped plans/policies) |
 | **CODE-1** | `scripts/amiga/modern/` compartment; legacy import frozen (**MG11** — copy, never mutate) | **Done** — `modern/README.md`; FROZEN headers; `audit_amiga_modern_compartment.py` |
+| **PULL-1** | Staging → `ko2amiga_work` pull automation + export one-shot | **Done** — `pull_ko2amiga_from_staging.ps1` + `run_export_ko2amiga.php`; verified Jul 2026 |
 
-**Out of scope for day-one cutover (follow-on):** **PULL-1** staging → work · ground pack pull · `append-event` CLI · retiring L4 pipeline at 100% structure. Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md).
+**Out of scope for day-one cutover (follow-on):** **SYNC-1** export gate from `staging-sync-last.json` · ground pack pull · `append-event` CLI · retiring L4 pipeline at 100% structure. Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md).
 
 ---
 
@@ -352,7 +353,7 @@ New evidence **without Access:**
 
 ## 16. Open questions
 
-- Exact **pull** automation (`pull-staging-to-work`, sync manifest) — policy locked [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md); implementation PULL-1 / SYNC-1.
+- **SYNC-1** — export gate from `staging-sync-last.json` before push (PULL-1 done). Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md).
 - When to declare **L4 pipeline retired** (structure coverage % threshold).
 - Lane C video DB migration vs JSON read path.
 
@@ -362,6 +363,7 @@ New evidence **without Access:**
 
 | Date | Change |
 |------|--------|
+| 2026-07-08 | **PULL-1 done** — `pull_ko2amiga_from_staging.ps1` + `run_export_ko2amiga.php`; verified staging → `ko2amiga_work`. |
 | 2026-07-08 | **L4-1 done** — `verify-structure-work` on `ko2amiga_work`; disposition register complete. |
 | 2026-07-08 | **Simul preflight/postcheck** — living-ground rule: no day 0 count pin; postcheck = L3 unchanged during run. |
 | 2026-07-08 | **P-1 done** — `modern/parity.py` CLI; semantic signatures exclude replay timestamps + standings surrogate `id`. |
