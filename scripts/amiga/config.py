@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+from dataclasses import replace
 from pathlib import Path
 
 from scripts.k2_rating_core.config import DbConfig, _parse_php_config
@@ -17,4 +19,8 @@ def load_amiga_db_config() -> DbConfig:
             f"Missing {_LOCAL}\n"
             f"Copy {example.name} → ko2amiga_config.local.php and set database=ko2amiga_db"
         )
-    return _parse_php_config(_LOCAL)
+    cfg = _parse_php_config(_LOCAL)
+    override = os.environ.get("KO2AMIGA_DATABASE", "").strip()
+    if override:
+        return replace(cfg, database=override)
+    return cfg

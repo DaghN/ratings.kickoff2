@@ -118,7 +118,7 @@ def _is_idempotent_alter_error(exc: pymysql.err.OperationalError) -> bool:
     if not exc.args:
         return False
     code = int(exc.args[0])
-    if code in (1060, 1061, 1826):
+    if code in (1060, 1061, 1091, 1826):
         return True
     return code == 1005 and "Duplicate" in str(exc)
 

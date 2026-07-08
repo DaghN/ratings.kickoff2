@@ -27,6 +27,15 @@ python -m scripts.amiga seed-work
 
 Creates **`ko2amiga_work`**, `apply_schema`, loads `manifest.json` → `sql_parts` (skips `day0_01_schema.sql`), clears derived placeholders. Exit: L3 counts match day 0 manifest.
 
+**Modern simul (S-1):**
+
+```powershell
+python -m scripts.amiga simul
+# or: powershell -ExecutionPolicy Bypass -File scripts\run_amiga_simul.ps1
+```
+
+On **`ko2amiga_work`**: preflight → `apply_schema` (migrate) → L4 disposition (first run) → `clear_derived` + full replay → optional `--with-video` → 22-step verify suite. Work DB routing: `KO2AMIGA_DATABASE=ko2amiga_work` env override in `config.py`. Last run summary: `data/amiga/modern/simul-last.json` (gitignored). **Video on work:** [`docs/amiga-modern-video-policy.md`](../../docs/amiga-modern-video-policy.md) (V-1; `--with-video` after fork). **Legacy `prove` on `ko2amiga_db` is frozen** — forward sign-off = simul.
+
 **Sign-off / daily dev (legacy Access path — retiring):**
 
 ```powershell

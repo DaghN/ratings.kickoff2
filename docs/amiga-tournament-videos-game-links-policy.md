@@ -4,7 +4,7 @@
 
 **Parent:** [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) (product + catalog) · [`amiga-import-layer.md`](amiga-import-layer.md) (L3 witness / koatd)
 
-**Related:** [`amiga-tournament-videos-implementation-plan.md`](amiga-tournament-videos-implementation-plan.md) · [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) · [`scripts/amiga/tournament_videos/README.md`](../scripts/amiga/tournament_videos/README.md)
+**Related:** [`amiga-tournament-videos-implementation-plan.md`](amiga-tournament-videos-implementation-plan.md) · [`amiga-modern-video-policy.md`](amiga-modern-video-policy.md) (**living ground / `ko2amiga_work`** — canonical `game_id`, V-1) · [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) · [`scripts/amiga/tournament_videos/README.md`](../scripts/amiga/tournament_videos/README.md)
 
 **Supersedes for game-link mechanics:** [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §12 bullet “Re-resolved from tournament + players + score via `resolve_games`” as the **sole** sync authority — that behaviour is **retired** by this policy.
 
@@ -74,7 +74,9 @@ Videos are ground truth for **“this clip shows this match”**, not for **“M
 | **`source_scores_id`** | **Mostly yes** — unless koatd `Scores` row removed/changed | DB ground key (`UNIQUE` on `amiga_games`); import ordering; **should be synced into manifest as secondary cache**, not hand-edited |
 | **Match fact** (tournament + players + score + stage + leg) | **Yes** (editorial) | **Authoritative** video→game link in git |
 
-There is **no frozen global list of `amiga_games.id`** and we should not try to create one. **`source_scores_id`** is the witness-stable key inside the DB; **match facts** are the video-stable key in the catalog.
+There is **no frozen global list of `amiga_games.id`** on the **legacy prove path** — remap from facts each reimport. **`source_scores_id`** is the witness-stable key inside the DB; **match facts** are the video-stable key in the catalog.
+
+**Modern (`ko2amiga_work`):** after day 0, verified links use **stable `amiga_games.id`** as canonical — see [`amiga-modern-video-policy.md`](amiga-modern-video-policy.md). This section applies to **`prove` / `ko2amiga_db`**.
 
 ### 4.1 Alkis / koatd change scenarios
 

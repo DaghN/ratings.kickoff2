@@ -8,7 +8,7 @@
 
 **Supersedes (daily habits, not history):** Treat **L0→L3 Access witness import** as the default Amiga sign-off path — archived after day 0 seal (§6). Lane A wording in [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) §1 defers here for **local ground authority**.
 
-**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) (table register) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) (L5 writers — **update repair verbs** during cutover) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (staging live ops — Lane B/C unchanged) · [`amiga-staging-handoff.md`](amiga-staging-handoff.md) (export/import — **merge direction** §9) · [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (L4 model) · [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) · [`amiga-tournament-videos-game-links-policy.md`](amiga-tournament-videos-game-links-policy.md) · **Archive (Access pipeline):** [`amiga-ground-stack.md`](amiga-ground-stack.md) · [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md)
+**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) (table register) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) (L5 writers — **update repair verbs** during cutover) · [**`amiga-modern-simul-implementation-plan.md`**](amiga-modern-simul-implementation-plan.md) (**S-1** slice plan) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (staging live ops — Lane B/C unchanged) · [`amiga-staging-handoff.md`](amiga-staging-handoff.md) (export/import — **merge direction** §9) · [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (L4 model) · [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) · [`amiga-tournament-videos-game-links-policy.md`](amiga-tournament-videos-game-links-policy.md) · **Archive (Access pipeline):** [`amiga-ground-stack.md`](amiga-ground-stack.md) · [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md)
 
 ---
 
@@ -126,7 +126,7 @@ Same shape as online: **ground accumulates; derived is replayable.**
 
 **Allowed without fork:** `schema_bundles.apply_schema` on **`ko2amiga_work`** (DDL only — same bundles as legacy, different DB target).
 
-**Not allowed:** `from scripts.amiga.replay import …` or `from scripts.amiga.prove import …` in modern code — fork first. *(W-1 debt: `seed_work` still calls `replay.clear_derived`; fork to `modern/clear_derived.py` in S-1.)*
+**Not allowed:** `from scripts.amiga.replay import …` or `from scripts.amiga.prove import …` in modern code — fork first. `seed_work` uses `modern/clear_derived.py` (S-1.0).
 
 ## 6. What we retire
 
@@ -255,10 +255,10 @@ Execute in order. Each slice ends with a recorded check.
 | **D0-1** | Seal **day 0 L3** from current `ko2amiga_db` — **witness tables only** (§7.1); manifest + SQL under `data/amiga/day0/` | **Done** `day0-2026-07-08` — 605 / 469 / 27,418; `python -m scripts.amiga seal-day0` |
 | **D0-2** | **Freeze** local `ko2amiga_db` — no further writes; label as cutover oracle in manifest note | Oracle frozen flag in manifest; manual discipline until P-1 |
 | **W-1** | Create **`ko2amiga_work`**: `apply_schema` + **load day 0 L3 only** (not mysqldump of `ko2amiga_db`) | **Done** — `python -m scripts.amiga seed-work`; 605 / 469 / 27,418; derived cleared |
-| **S-1** | **`apply-structure`** (disposition) + **simul** on `ko2amiga_work` — no ground truncate | Simul + verify green on work |
+| **S-1** | **`apply-structure`** (disposition) + **simul** on `ko2amiga_work` — no ground truncate | **Done** — `python -m scripts.amiga simul`; 27,418 ratings; 16,046 fixtures; 22 verify steps (video deferred S-1.8) |
 | **P-1** | **Parity check** — work post-simul vs frozen `ko2amiga_db` (derived tables, snapshots, key scalars) | Oracle diff documented; failures block promote |
 | **L4-1** | Confirm L4 on work matches disposition expectations | `verify-structure` green |
-| **V-1** | Video align on work + `verify-tournament-videos` | Stable ids; no witness reimport |
+| **V-1** | Video on work — stable `game_id` binding, oracle/work compartments, simul `--with-video` | Plan: [`amiga-modern-video-policy.md`](amiga-modern-video-policy.md) §8 |
 | **PROMOTE-1** | `ko2amiga_config.local.php` → `ko2amiga_work`; export reads work; legacy `prove` locked to `ko2amiga_db` only | Daily path = work + simul |
 | **DOC-1** | Archive Access pipeline docs; agent routing | Agents read **this doc** |
 | **CODE-1** | `scripts/amiga/modern/` compartment; legacy import frozen (**MG11** — copy, never mutate) | No new `import_access.py` features; no modern imports from `prove`/`replay` without fork |
@@ -271,8 +271,10 @@ Execute in order. Each slice ends with a recorded check.
 
 | Topic | Rule |
 |-------|------|
-| **Authority** | `youtube_id` + match facts (players, score, stage) — [`amiga-tournament-videos-game-links-policy.md`](amiga-tournament-videos-game-links-policy.md) |
-| **Simul** | Align caches to living ground ids; verify — **not** “fix nuclear reimport damage” |
+| **Modern policy** | [`amiga-modern-video-policy.md`](amiga-modern-video-policy.md) — canonical **`amiga_games.id`** on work; oracle/work file compartments; **V-1** |
+| **Legacy mechanics** | [`amiga-tournament-videos-game-links-policy.md`](amiga-tournament-videos-game-links-policy.md) — fact remap on nuclear reimport (`prove` only) |
+| **Product** | [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) |
+| **Simul** | Align + verify on **work** — not reimport repair; default skip video until **V-1** (`--with-video`) |
 | **Harvest/build** | Offline editorial; not every simul |
 | **Lane C (future)** | Staging DB writes for community clips — [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) §8 |
 
@@ -341,6 +343,7 @@ New evidence **without Access:**
 
 | Date | Change |
 |------|--------|
+| 2026-07-08 | **S-1 done** — `modern/simul.py` + verify suite on `ko2amiga_work`; `KO2AMIGA_DATABASE` config hook. |
 | 2026-07-08 | **MG11 locked** — copy legacy prove scripts into `modern/`; do not mutate legacy path (§5.1). |
 | 2026-07-08 | **W-1 done** — `seed-work` CLI; `ko2amiga_work` from day 0 archive. |
 | 2026-07-08 | **Policy locked** — living ground, day 0 bootstrap, Access retired, simul model, cutover program D0/W/S/P. |

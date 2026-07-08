@@ -1,0 +1,13 @@
+<?php
+/**
+ * Optional mirror for ko2amiga_work — Python simul uses KO2AMIGA_DATABASE env override
+ * via scripts/amiga/modern/db_config.py; PHP still reads ko2amiga_config.local.php unless
+ * you point Amiga pages at this file manually.
+ *
+ *   copy ko2amiga_config_work.local.php.example → ko2amiga_config_work.local.php
+ */
+$dbhost = '127.0.0.1';
+$username = 'root';
+$password = '';
+$database = 'ko2amiga_work';
+$dbportnum = 3306;

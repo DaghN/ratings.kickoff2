@@ -90,7 +90,7 @@
 
 - **Amiga live ops (Jul 2026):** **RTB shipped (RTB-1–RTB-9)** — running scores until organizer **Finish and make official** (promote + finalize + lifecycle `completed` in one Table-tab action). Policy: [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md) rev. 2.
 
-- **Amiga modern ground (Jul 2026):** **W-1 done** — `ko2amiga_work` seeded from day 0 (`seed-work`). **Next:** S-1 simul + apply-structure. [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md).
+- **Amiga modern ground (Jul 2026):** **S-1 done** — `python -m scripts.amiga simul` on `ko2amiga_work` (L4 + replay + 22-step verify; video skipped until S-1.8). **Next:** P-1 parity vs oracle. [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md) · [`amiga-modern-simul-implementation-plan.md`](docs/amiga-modern-simul-implementation-plan.md).
 
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
@@ -139,6 +139,8 @@
 
 ## Recent log
 
+| 2026-07-08 | **Modern video policy** — [`amiga-modern-video-policy.md`](docs/amiga-modern-video-policy.md): canonical `game_id` on work, oracle/work file compartments, V-1 slices. |
+| 2026-07-08 | **S-1 done** — `scripts/amiga/modern/` simul compartment: `simul`, `replay`, `apply-structure-work`, 22-step verify suite; `KO2AMIGA_DATABASE` env hook; `python -m scripts.amiga simul` green on work (~17 min replay + verify). |
 | 2026-07-08 | **W-1 done** — `ko2amiga_work` seeded from `data/amiga/day0/` via `seed-work` CLI (605 / 469 / 27,418 L3; derived cleared). |
 | 2026-07-08 | **`is_world_cup` flag shipped** — L3 `tournaments.is_world_cup` + snapshot denorm; import derives from name regex; `verify-is-world-cup` in prove; read paths use stored flag; organizer create checkbox ⟺ name. Policy: [`amiga-world-cup-flag-policy.md`](docs/amiga-world-cup-flag-policy.md). |
 | 2026-07-08 | **RTB-9 shipped** — one **Finish and make official** button (promote + finalize + lifecycle `completed`); Setup **Mark complete** retired; limbo repair on re-click. |

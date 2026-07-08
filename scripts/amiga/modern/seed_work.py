@@ -17,7 +17,7 @@ from scripts.amiga.modern.constants import (
     WORK_DB,
 )
 from scripts.amiga.modern.work_db import connect_work, ensure_work_database
-from scripts.amiga.replay import clear_derived
+from scripts.amiga.modern.clear_derived import clear_derived
 from scripts.amiga.schema_bundles import _DERIVED_DROP_ORDER, apply_schema
 from scripts.work_prepare.paths import find_mysql_exe
 

@@ -56,6 +56,8 @@ from scripts.amiga.export_packs import (
 from scripts.amiga.modern.constants import DAY0_DIR as _SEED_DAY0_DIR
 from scripts.amiga.modern.seal_day0 import _DEFAULT_OUT as _DAY0_OUT, seal_day0
 from scripts.amiga.modern.seed_work import seed_work_from_day0
+from scripts.amiga.modern.simul import run_simul
+from scripts.amiga.modern.apply_structure import run_apply_structure_work
 from scripts.amiga.verify_export_pack import verify_export_pack
 from scripts.amiga.verify_structure import verify_structure
 from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
@@ -343,6 +345,45 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Do not drop existing tables before apply_schema",
     )
+
+    p_simul = sub.add_parser(
+        "simul",
+        help="Modern simul on ko2amiga_work: L4 + L5 replay + verify (S-1)",
+    )
+    p_simul.add_argument("--dry-run", action="store_true")
+    p_simul.add_argument(
+        "--skip-structure",
+        action="store_true",
+        help="Skip L4 disposition dispatch (dev only)",
+    )
+    p_simul.add_argument(
+        "--apply-structure",
+        action="store_true",
+        help="Force L4 disposition dispatch even when fixtures exist",
+    )
+    p_simul.add_argument(
+        "--with-video",
+        action="store_true",
+        help="Run video align and include verify-tournament-videos (default: skip until S-1.8)",
+    )
+    p_simul.add_argument(
+        "--skip-verify",
+        action="store_true",
+        help="Replay smoke only — skip modern verify suite",
+    )
+    p_simul.add_argument(
+        "--recreate-schema",
+        action="store_true",
+        help="apply_schema(drop_existing=True) — destructive dev only",
+    )
+
+    p_apply_structure_work = sub.add_parser(
+        "apply-structure-work",
+        help="L4 structure overlay on ko2amiga_work from disposition register",
+    )
+    p_apply_structure_work.add_argument("--tournament-id", type=int, default=None)
+    p_apply_structure_work.add_argument("--limit", type=int, default=None)
+    p_apply_structure_work.add_argument("--dry-run", action="store_true")
 
     p_verify_export_pack = sub.add_parser(
         "verify-export-pack",
@@ -712,6 +753,25 @@ def main(argv: list[str] | None = None) -> int:
             stats["l3_counts"]["amiga_games"],
             len(stats["loaded_parts"]),
         )
+        return 0
+
+    if args.cmd == "simul":
+        return run_simul(
+            dry_run=args.dry_run,
+            skip_structure=args.skip_structure,
+            apply_structure=args.apply_structure,
+            skip_video=not args.with_video,
+            skip_verify=args.skip_verify,
+            recreate_schema=args.recreate_schema,
+        )
+
+    if args.cmd == "apply-structure-work":
+        stats = run_apply_structure_work(
+            tournament_id=args.tournament_id,
+            limit=args.limit,
+            dry_run=args.dry_run,
+        )
+        log.info("apply-structure-work complete: %s", stats.to_dict())
         return 0
 
     if args.cmd == "seal-day0":

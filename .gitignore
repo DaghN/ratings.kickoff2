@@ -25,6 +25,7 @@ site/public_html/ops/config/dispatch-http.ini
 
 # Day 0 L3 witness archive (git-tracked sealed ground)
 !data/amiga/day0/**/*.sql
+data/amiga/modern/simul-last.json
 
 /KO2PC_DB/
 

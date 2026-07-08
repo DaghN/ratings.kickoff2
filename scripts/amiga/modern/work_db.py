@@ -6,13 +6,14 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
+from scripts.amiga.modern.db_config import load_work_db_config
 from scripts.amiga.modern.constants import WORK_DB
 
 
 def connect_work(*, database: str = WORK_DB) -> pymysql.connections.Connection:
-    cfg = load_amiga_db_config()
     if database != WORK_DB:
         raise SystemExit(f"Refusing work DB connect: expected {WORK_DB!r}, got {database!r}")
+    cfg = load_work_db_config()
     return pymysql.connect(
         host=cfg.host,
         port=cfg.port,
