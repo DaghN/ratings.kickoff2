@@ -58,6 +58,7 @@ from scripts.amiga.modern.seal_day0 import _DEFAULT_OUT as _DAY0_OUT, seal_day0
 from scripts.amiga.modern.seed_work import seed_work_from_day0
 from scripts.amiga.modern.simul import run_simul
 from scripts.amiga.modern.apply_structure import run_apply_structure_work
+from scripts.amiga.modern.parity import run_parity
 from scripts.amiga.verify_export_pack import verify_export_pack
 from scripts.amiga.verify_structure import verify_structure
 from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
@@ -384,6 +385,16 @@ def main(argv: list[str] | None = None) -> int:
     p_apply_structure_work.add_argument("--tournament-id", type=int, default=None)
     p_apply_structure_work.add_argument("--limit", type=int, default=None)
     p_apply_structure_work.add_argument("--dry-run", action="store_true")
+
+    p_parity = sub.add_parser(
+        "parity",
+        help="P-1: compare ko2amiga_work vs frozen ko2amiga_db (counts + checksum)",
+    )
+    p_parity.add_argument(
+        "--no-checksum",
+        action="store_true",
+        help="Row counts + scalar rows only (faster smoke)",
+    )
 
     p_verify_export_pack = sub.add_parser(
         "verify-export-pack",
@@ -772,6 +783,10 @@ def main(argv: list[str] | None = None) -> int:
             dry_run=args.dry_run,
         )
         log.info("apply-structure-work complete: %s", stats.to_dict())
+        return 0
+
+    if args.cmd == "parity":
+        run_parity(checksum=not args.no_checksum)
         return 0
 
     if args.cmd == "seal-day0":

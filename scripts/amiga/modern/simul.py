@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from scripts.amiga.modern.apply_structure import run_apply_structure_work
-from scripts.amiga.modern.constants import DAY0_DIR, WORK_DB
+from scripts.amiga.modern.constants import L3_GROUND_COUNT_KEYS, WORK_DB
 from scripts.amiga.modern.db_config import activate_work_database_env
 from scripts.amiga.modern.preflight import preflight_simul
 from scripts.amiga.modern.replay import run_replay_work
@@ -83,29 +83,27 @@ def _postcheck(
     apply_structure: bool,
     skip_video: bool,
 ) -> dict[str, Any]:
-    manifest = json.loads((DAY0_DIR / "manifest.json").read_text(encoding="utf-8"))
-    for key, manifest_key in (
-        ("tournaments", "tournament_count"),
-        ("players", "player_count"),
-        ("games", "game_count"),
-    ):
-        expected = int(manifest.get(manifest_key, -1))
-        got = l3_after.get(key, -1)
-        if expected != got:
+    """Assert L3 ground unchanged during this simul run (living DB may exceed day 0)."""
+    for key in L3_GROUND_COUNT_KEYS:
+        before = l3_before.get(key)
+        after = l3_after.get(key)
+        if before != after:
             raise SystemExit(
-                f"Postcheck L3 drift: {key} expected {expected}, got {got} (was {l3_before.get(key)})"
+                f"Postcheck L3 drift during simul: {key} before={before} after={after}"
             )
 
+    day0 = preflight.get("day0_baseline")
     summary: dict[str, Any] = {
         "database": WORK_DB,
         "started_utc": started_utc,
         "finished_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "duration_sec": round(duration_sec, 2),
         "git_head": _git_head(),
-        "day0_version": manifest.get("version"),
+        "day0_baseline": day0,
         "preflight": preflight,
         "l3_before": l3_before,
         "l3_after": l3_after,
+        "l3_ground_unchanged": True,
         "apply_structure": apply_structure,
         "skip_video": skip_video,
         "derived": {
@@ -136,8 +134,8 @@ def run_simul(
     t0 = time.monotonic()
     started_utc = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
-    preflight = preflight_simul(require_l3=True)
-    l3_before = preflight["counts"]
+    preflight = preflight_simul()
+    l3_before = {k: preflight["counts"][k] for k in L3_GROUND_COUNT_KEYS}
 
     conn = connect_work()
     try:
@@ -194,12 +192,8 @@ def run_simul(
         started_utc=started_utc,
         duration_sec=time.monotonic() - t0,
         preflight=preflight,
-        l3_before={
-            "tournaments": l3_before["tournaments"],
-            "players": l3_before["players"],
-            "games": l3_before["games"],
-        },
-        l3_after=l3_after,
+        l3_before=l3_before,
+        l3_after={k: l3_after[k] for k in (*L3_GROUND_COUNT_KEYS, "ratings", "fixtures")},
         apply_structure=need_structure,
         skip_video=skip_video,
     )

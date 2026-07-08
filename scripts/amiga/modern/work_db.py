@@ -6,8 +6,8 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
-from scripts.amiga.modern.db_config import load_work_db_config
-from scripts.amiga.modern.constants import WORK_DB
+from scripts.amiga.modern.constants import ORACLE_DB, WORK_DB
+from scripts.amiga.modern.db_config import load_oracle_db_config, load_work_db_config
 
 
 def connect_work(*, database: str = WORK_DB) -> pymysql.connections.Connection:
@@ -20,6 +20,21 @@ def connect_work(*, database: str = WORK_DB) -> pymysql.connections.Connection:
         user=cfg.user,
         password=cfg.password,
         database=database,
+        charset="utf8mb4",
+        cursorclass=DictCursor,
+    )
+
+
+def connect_oracle() -> pymysql.connections.Connection:
+    cfg = load_oracle_db_config()
+    if cfg.database != ORACLE_DB:
+        raise SystemExit(f"Refusing oracle connect: expected {ORACLE_DB!r}, got {cfg.database!r}")
+    return pymysql.connect(
+        host=cfg.host,
+        port=cfg.port,
+        user=cfg.user,
+        password=cfg.password,
+        database=ORACLE_DB,
         charset="utf8mb4",
         cursorclass=DictCursor,
     )

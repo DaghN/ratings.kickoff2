@@ -1,6 +1,6 @@
 # Amiga modern simul — S-1 implementation plan
 
-**Status:** **S-1 shipped** — execute P-1 next.
+**Status:** **P-1 shipped** — next: PROMOTE-1 or V-1.
 
 **Policy:** [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) (§9 simul, §10 S-1, **MG11** copy-do-not-mutate)
 
@@ -36,7 +36,7 @@ S-1 is the first time we prove the **bootstrap path end-to-end**: day 0 L3 → w
 
 After **S-1.9**, all of the following hold on **`ko2amiga_work`**:
 
-1. **L3 ground unchanged** — tournament / player / game row counts still match `data/amiga/day0/manifest.json`.
+1. **L3 ground unchanged by simul** — tournament / player / game row counts identical before and after the run (living work may exceed day 0).
 2. **L4 structure materialized** — disposition dispatch ran; fixture/stage rows exist for handled tournaments (~515 materialized on oracle; pending_review skipped).
 3. **L5 derived rebuilt** — full chronological replay; `amiga_game_ratings` row count = game count; snapshots/current populated.
 4. **Modern verify suite green** — subset in §6 (no Access-era oracles).
@@ -166,7 +166,7 @@ Legacy verifiers call `load_amiga_db_config()` → `ko2amiga_config.local.php` �
 ## 7. Simul loop (canonical)
 
 ```text
-preflight     WORK_DB exists; L3 counts match day0 manifest
+preflight     WORK_DB exists; L3 has tournaments + games (day 0 manifest = reference only)
 → schema      apply_schema(ko2amiga_work, drop_existing=False)  # migrate DDL only
 → L4          apply_structure --from-disposition  (first bootstrap: required)
 → L5          clear_derived → replay (full, no --limit)
@@ -223,7 +223,7 @@ preflight     WORK_DB exists; L3 counts match day0 manifest
 
 **Work:**
 
-1. `modern/preflight.py` — assert work DB exists; compare L3 counts to `data/amiga/day0/manifest.json`; assert derived empty (modulo placeholders).
+1. `modern/preflight.py` — assert work DB exists with L3 witness rows; day 0 manifest optional baseline (no count pin).
 
 **Verification:**
 
@@ -298,7 +298,7 @@ preflight     WORK_DB exists; L3 counts match day0 manifest
 
 **Work:**
 
-1. Add postcheck to `simul.py`: L3 counts, derived totals, log summary JSON to `data/amiga/modern/simul-last.json` (gitignored).
+1. Add postcheck to `simul.py`: L3 ground counts unchanged pre/post (not pinned to day 0); log summary JSON to `data/amiga/modern/simul-last.json` (gitignored).
 
 **Verification:**
 

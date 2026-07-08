@@ -197,11 +197,13 @@ Forward changes → **living ground**, not day 0 v2.
 ### 9.1 Default loop
 
 ```text
-apply_schema (DDL on ko2amiga_work)
+preflight (L3 exists; day 0 = reference only)
+→ apply_schema (DDL on ko2amiga_work)
 → clear derived (L5 tables; reset rating_finalized flags)
 → replay (finalize all tournaments with games, chrono order)
 → video align + verify-tournament-videos
 → verify suite (modern subset)
+→ postcheck (L3 ground counts unchanged vs preflight)
 ```
 
 ### 9.2 What simul does **not** do
@@ -256,7 +258,7 @@ Execute in order. Each slice ends with a recorded check.
 | **D0-2** | **Freeze** local `ko2amiga_db` — no further writes; label as cutover oracle in manifest note | Oracle frozen flag in manifest; manual discipline until P-1 |
 | **W-1** | Create **`ko2amiga_work`**: `apply_schema` + **load day 0 L3 only** (not mysqldump of `ko2amiga_db`) | **Done** — `python -m scripts.amiga seed-work`; 605 / 469 / 27,418; derived cleared |
 | **S-1** | **`apply-structure`** (disposition) + **simul** on `ko2amiga_work` — no ground truncate | **Done** — `python -m scripts.amiga simul`; 27,418 ratings; 16,046 fixtures; 22 verify steps (video deferred S-1.8) |
-| **P-1** | **Parity check** — work post-simul vs frozen `ko2amiga_db` (derived tables, snapshots, key scalars) | Oracle diff documented; failures block promote |
+| **P-1** | **Parity check** — work post-simul vs frozen `ko2amiga_db` (derived tables, snapshots, key scalars) | **Done** — `python -m scripts.amiga parity`; 29 tables; report `data/amiga/modern/parity-last.json` |
 | **L4-1** | Confirm L4 on work matches disposition expectations | `verify-structure` green |
 | **V-1** | Video on work — stable `game_id` binding, oracle/work compartments, simul `--with-video` | Plan: [`amiga-modern-video-policy.md`](amiga-modern-video-policy.md) §8 |
 | **PROMOTE-1** | `ko2amiga_config.local.php` → `ko2amiga_work`; export reads work; legacy `prove` locked to `ko2amiga_db` only | Daily path = work + simul |
@@ -334,7 +336,6 @@ New evidence **without Access:**
 
 - Exact **merge** semantics for staging import (per-table upsert vs ground packs only).
 - When to declare **L4 pipeline retired** (structure coverage % threshold).
-- **Parity oracle scope** for P-1 (which derived tables / tolerances vs `ko2amiga_db`).
 - Lane C video DB migration vs JSON read path.
 
 ---
@@ -343,6 +344,8 @@ New evidence **without Access:**
 
 | Date | Change |
 |------|--------|
+| 2026-07-08 | **Simul preflight/postcheck** — living-ground rule: no day 0 count pin; postcheck = L3 unchanged during run. |
+| 2026-07-08 | **P-1 done** — `modern/parity.py` CLI; semantic signatures exclude replay timestamps + standings surrogate `id`. |
 | 2026-07-08 | **S-1 done** — `modern/simul.py` + verify suite on `ko2amiga_work`; `KO2AMIGA_DATABASE` config hook. |
 | 2026-07-08 | **MG11 locked** — copy legacy prove scripts into `modern/`; do not mutate legacy path (§5.1). |
 | 2026-07-08 | **W-1 done** — `seed-work` CLI; `ko2amiga_work` from day 0 archive. |

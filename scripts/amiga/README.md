@@ -34,7 +34,16 @@ python -m scripts.amiga simul
 # or: powershell -ExecutionPolicy Bypass -File scripts\run_amiga_simul.ps1
 ```
 
-On **`ko2amiga_work`**: preflight → `apply_schema` (migrate) → L4 disposition (first run) → `clear_derived` + full replay → optional `--with-video` → 22-step verify suite. Work DB routing: `KO2AMIGA_DATABASE=ko2amiga_work` env override in `config.py`. Last run summary: `data/amiga/modern/simul-last.json` (gitignored). **Video on work:** [`docs/amiga-modern-video-policy.md`](../../docs/amiga-modern-video-policy.md) (V-1; `--with-video` after fork). **Legacy `prove` on `ko2amiga_db` is frozen** — forward sign-off = simul.
+On **`ko2amiga_work`**: preflight → `apply_schema` (migrate) → L4 disposition (first run) → `clear_derived` + full replay → optional `--with-video` → 22-step verify suite. **Preflight/postcheck:** L3 ground must exist and stay **unchanged during simul**; counts may grow above day 0 after forward append (day 0 pin is **`seed-work`** only). Work DB routing: `KO2AMIGA_DATABASE=ko2amiga_work`. Last run: `data/amiga/modern/simul-last.json` (gitignored). **Legacy `prove` on `ko2amiga_db` is frozen** — forward sign-off = simul.
+
+**P-1 parity (oracle vs work):**
+
+```powershell
+python -m scripts.amiga parity
+# or: powershell -ExecutionPolicy Bypass -File scripts\run_amiga_parity.ps1
+```
+
+Compares **29 tables** (export scope): row counts + semantic BIT_XOR/CRC32 signatures. Excludes replay metadata columns (`finalized_at`, `rating_finalized_at`, `created_at`, …) and surrogate `id` on `amiga_tournament_standings`. Full `amiga_generalstats` / `amiga_community_stats` row compare. Report: `data/amiga/modern/parity-last.json`.
 
 **Sign-off / daily dev (legacy Access path — retiring):**
 
