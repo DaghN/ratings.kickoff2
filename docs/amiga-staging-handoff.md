@@ -10,6 +10,8 @@
 
 **Destructive import (read every time):** Staging browser import **replaces** the whole staging `ko2amiga_db` from export parts — it does **not** merge events that exist only on staging. Routine refresh = export **living work** after **simul**, not nuclear `prove` + oracle export. Community mistakes on staging → anchored repair ([`amiga-live-ops-platform.md`](amiga-live-ops-platform.md)), not full reimport from Access.
 
+**Agents — pull staged → local (repair shop):** Run `powershell -ExecutionPolicy Bypass -File scripts\pull_ko2amiga_from_staging.ps1 -Force` (staging generate → download → replace **`ko2amiga_work`**). **Does not run simul by default** — add `-Simul` only when repair/sign-off needs it. Requires synced `run_export_ko2amiga.php` on staging (JSON `format=json`). Manual/browser: preview/generate/download URLs below. Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) §8.
+
 ---
 
 ## Layout (same as online site)
@@ -22,6 +24,7 @@
 | Amiga PHP include | `include __DIR__ . '/../../config/ko2amiga_config.php';` in `public_html/amiga/*.php` |
 | Database | **`ko2amiga_db`** (separate from online `kooldb*`) |
 | Import payload | `public_html/amiga/_import/ko2amiga_manifest.json` (tracked) + `ko2amiga_01_schema.sql` … part files ending in snapshots/current + derived tables (SQL parts gitignored; WinSCP) (+ optional full `ko2amiga_db.sql`) |
+| Pull export dump | `public_html/amiga/_export/ko2amiga_staging_pull.sql` (gitignored; `run_export_ko2amiga.php` → WinSCP download) |
 
 Online `kooldb*` is untouched. Credentials mirror staging config1 user/password; only `$database` differs.
 
@@ -34,6 +37,28 @@ Online `kooldb*` is untouched. Credentials mirror staging config1 user/password;
 - https://ratings.kickoff2.com/amiga/tournament.php?id=372 (London XXIII — adjust id after import)
 - https://ratings.kickoff2.com/amiga/player/profile.php?id=1
 - https://ratings.kickoff2.com/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee (organizer — **Create player** on compose league after prove/export/import)
+
+---
+
+## Pull staged → local (repair shop)
+
+**One command (PULL-1a):**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\pull_ko2amiga_from_staging.ps1 -Force
+```
+
+Triggers staging export PHP (`generate=1&format=json`), downloads dump, **replaces** local **`ko2amiga_work`**, writes `data/amiga/modern/staging-sync-last.json`. **Simul opt-in:** `-Simul` (~20 min; not default). Requires Laragon MySQL + synced `run_export_ko2amiga.php` on staging.
+
+**Manual / browser** (same end state):
+
+| Step | URL |
+|------|-----|
+| **Preview** (no dump) | https://ratings.kickoff2.com/amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=coffee |
+| **Generate dump** | https://ratings.kickoff2.com/amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=coffee&generate=1 |
+| **Download dump** | https://ratings.kickoff2.com/amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=coffee&download=1 |
+
+Local dry-run: same paths on `http://ratingskickoff.test` when Laragon `ko2amiga_db` is configured.
 
 ---
 

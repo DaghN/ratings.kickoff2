@@ -6,6 +6,7 @@ site/config/ko2unitydb_config.local.php
 site/config/ko2unitydb_config_work.local.php
 site/config/ko2amiga_config.local.php
 site/public_html/amiga/_import/*.sql
+site/public_html/amiga/_export/*.sql
 site/config/ladder.ini
 site/config/ladder-work.ini
 site/config/work-targets.ini
@@ -26,6 +27,8 @@ site/public_html/ops/config/dispatch-http.ini
 # Day 0 L3 witness archive (git-tracked sealed ground)
 !data/amiga/day0/**/*.sql
 data/amiga/modern/simul-last.json
+data/amiga/modern/staging-sync-last.json
+data/amiga/pulls/*.sql
 data/amiga/modern/parity-last.json
 data/amiga/modern/l4-verify-last.json
 data/amiga/modern/video-last.json

@@ -92,7 +92,7 @@
 
 - **Amiga live ops (Jul 2026):** **RTB shipped (RTB-1–RTB-9)** — running scores until organizer **Finish and make official** (promote + finalize + lifecycle `completed` in one Table-tab action). Policy: [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md) rev. 2.
 
-- **Amiga modern ground (Jul 2026):** **Cutover bootstrap complete** (D0 → PROMOTE-1 + DOC-1 + CODE-1). **Staged prod / local repair shop:** [`amiga-staging-authority-policy.md`](docs/amiga-staging-authority-policy.md). Daily repair path: pull (manual PoC) → **simul** → **export_ko2amiga_work.ps1**. [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md).
+- **Amiga modern ground (Jul 2026):** **Cutover bootstrap complete** (D0 → PROMOTE-1 + DOC-1 + CODE-1). **Staged prod / local repair shop:** [`amiga-staging-authority-policy.md`](docs/amiga-staging-authority-policy.md). Daily repair path: **pull** (`run_export_ko2amiga.php` on staging → WinSCP) → **simul** → **export_ko2amiga_work.ps1** push. [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md).
 
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
@@ -142,6 +142,8 @@
 ## Recent log
 
 | 2026-07-08 | **L3 legacy fixes inventory** — [`amiga-l3-legacy-fixes-inventory.md`](docs/amiga-l3-legacy-fixes-inventory.md): human-readable catalog of all koatd corrections at L2→L3 import (tournaments, WC venues, splits, supplements, name merges incl. automatic, countries). |
+| 2026-07-08 | **PULL-1a pull script** — `pull_ko2amiga_from_staging.ps1` (staging generate → download → replace `ko2amiga_work`; simul opt-in `-Simul`). |
+| 2026-07-08 | **PULL-1b staging pull export** — `run_export_ko2amiga.php` (preview + generate → `amiga/_export/ko2amiga_staging_pull.sql`); WinSCP download → manual import to `ko2amiga_work` + simul. [`amiga-staging-handoff.md`](docs/amiga-staging-handoff.md). |
 | 2026-07-08 | **Amiga staging authority policy** — staged = prod, local = repair shop, pull → repair → push (SS-1–SS-7); permissions open; PULL-1 PoC manual. [`amiga-staging-authority-policy.md`](docs/amiga-staging-authority-policy.md). |
 | 2026-07-08 | **Doc pass 3b (intelligent banner review)** — fixed misleading banners (in-progress plans, countries hub, obsolete-dev, video/RTB); refined Product policy vs Historical wording; body fixes (profile, performance rating, CR migration). |
 | 2026-07-08 | **Doc pass 3** — Historical/sign-off banners on 55+ shipped Amiga plans and policies; archive index § shipped feature plans; `__main__.py` CLI docstring. |

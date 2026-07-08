@@ -1,0 +1,2 @@
+# Block web access to SQL dumps (download via WinSCP only).
+Require all denied
