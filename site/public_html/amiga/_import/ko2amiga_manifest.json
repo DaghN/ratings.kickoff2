@@ -1,5 +1,4 @@
 {
-    "generated":  "2026-07-08 07:53:11",
     "parts":  [
                   "ko2amiga_01_schema.sql",
                   "ko2amiga_02_format_templates.sql",
@@ -41,5 +40,8 @@
                   "ko2amiga_38_country_slice_at_event.sql",
                   "ko2amiga_39_wc_hof_snapshots.sql",
                   "ko2amiga_40_wc_hof_present.sql"
-              ]
+              ],
+    "generated":  "2026-07-08 08:40:17",
+    "source_database":  "ko2amiga_work",
+    "staging_database":  "ko2amiga_db"
 }

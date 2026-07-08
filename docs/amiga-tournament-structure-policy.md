@@ -1,5 +1,7 @@
 # Amiga tournament structure — policy (modules vs structure)
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **In progress** — slices 1–2 shipped Jun 2026 (migration `023`); slice 3 pilot **revised** (policy v2 Jun 2026).  
 **Purpose:** Lock how we model **tournament modules** separately from **event structure** (composition, promotion, rounds, tracks), and how **legacy import** materializes fixtures without inventing draw-order schedules.
 
@@ -213,7 +215,7 @@ Tiers remain useful as **audit vocabulary**; **import reads handlers only**:
 |---------------|------|
 | **Disposition register** | `disposition_register.json` — **605** ids → handler |
 | **Pure knockout handler** | `pure_knockout.py` + preview/materialize CLI — **shipped** |
-| Handler dispatch in `run` / `prove` | **Shipped** (ground layers slice 6) — `apply-structure --from-disposition` after L3 witness |
+| Handler dispatch in `run` / **`simul`** (forward) or legacy `prove` (oracle) | **Shipped** (ground layers slice 6) — `apply-structure-work` / `apply-structure --from-disposition` after L3 witness |
 
 **Review deliverable:** promote id from `pending_review` → correct handler (or add `structure_spec` slug). Not “bless auto script.”
 

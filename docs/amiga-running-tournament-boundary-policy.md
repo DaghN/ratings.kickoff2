@@ -1,5 +1,7 @@
 # Amiga running tournament boundary — policy
 
+> **Live ops policy (Jul 2026):** Lane B running vs official — **active** on staging. Local writer regression = **`simul`** on **`ko2amiga_work`**; oracle **`prove`** was ship path only ([`amiga-running-tournament-boundary-implementation-plan.md`](amiga-running-tournament-boundary-implementation-plan.md)).
+
 **Status:** **Policy locked (Jul 2026, rev. 2)** — two-universe split: **Running** vs **Official**. RTB-1–RTB-9 shipped Jul 2026 (organizer **Finish and make official** = promote + finalize + lifecycle `completed`).
 
 **Parent:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (Lane B) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (L3–L5) · [`amiga-data-contract.md`](amiga-data-contract.md)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CLI: python -m scripts.amiga prove | import | replay | run"""
+"""CLI: python -m scripts.amiga simul | seed-work | … (forward on ko2amiga_work); prove (oracle only)."""
 
 from __future__ import annotations
 
@@ -79,7 +79,7 @@ log = logging.getLogger("scripts.amiga")
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Amiga realm import + Elo replay (ko2amiga_db)")
+    parser = argparse.ArgumentParser(description="Amiga realm — forward simul on ko2amiga_work; prove = oracle only")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p_import = sub.add_parser("import", help="Load Access ground truth into MySQL")

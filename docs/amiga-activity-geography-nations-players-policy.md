@@ -1,5 +1,7 @@
 # Amiga Activity — Geography Nations player grains (policy & spec)
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Shipped in code** (Jul 2026) — slices **A–D** complete; **`python -m scripts.amiga prove`** green on local `ko2amiga_db` (Jul 2026). Slice **E** (name tooltips on duel bars) deferred.
 
 **Implementation plan:** [`amiga-activity-geography-nations-players-implementation-plan.md`](amiga-activity-geography-nations-players-implementation-plan.md)

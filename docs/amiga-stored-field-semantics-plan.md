@@ -1,5 +1,7 @@
 # Amiga stored id/date semantics — decision & plan
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** Phases A–D complete (Jun 2026) — manifest [`amiga-stored-field-semantics.md`](amiga-stored-field-semantics.md)  
 **Trigger:** SCH-029 showed `prove` green while HoF `*Date` was wrong (projection + verify gap, not missing columns).  
 **Related:** [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md) (rise dates, done) · [`amiga-data-contract.md`](amiga-data-contract.md) · holy loop `python -m scripts.amiga prove`

@@ -1,5 +1,7 @@
 # Amiga tournament videos — game link anchors policy
 
+> **Oracle mechanics (Jul 2026):** Match-fact remap after nuclear L3 reimport — true on frozen **`ko2amiga_db`** + legacy **`prove`**. **Forward living ground:** [`amiga-modern-video-policy.md`](amiga-modern-video-policy.md) — stable `game_id` on **`ko2amiga_work`**, **`align-video-work`**, simul video on by default.
+
 **Status:** **Locked (Jul 2026)** — **GL-0…GL-6 shipped.** Match facts authoritative; sync remaps ids; verify oracle; dual-leg + **`video_game_links.csv`** sidecar (`stream_map` mode). **`verify_tournament_videos` OK** with empty sidecar (machinery ready for stream curation).
 
 **Parent:** [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) (product + catalog) · [`amiga-import-layer.md`](amiga-import-layer.md) (L3 witness / koatd)

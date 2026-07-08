@@ -1,5 +1,7 @@
 # Amiga player rank chart — policy (profile solo)
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Implemented** (Jun 2026) — slices 1–5 + **post-ship tweak session** (Jun 2026) complete local.  
 **Purpose:** Career **Elo rank over time** on Amiga player profile — one player, event-step timeline, rich scale/window controls. Complements the existing **rating** chart (skill signal); rank = position among the full historical ladder.
 

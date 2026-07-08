@@ -1,7 +1,9 @@
 # Amiga cumulative matchup at event — implementation plan
 
+> **Historical execution record (Jul 2026):** Feature **shipped** via **`prove`** on frozen **`ko2amiga_db`**. Steps below are archaeology — **do not re-run for new work**. Forward: **`simul`** on **`ko2amiga_work`** → **`export_ko2amiga_work.ps1`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** Complete (slices 0–6, Jun 2026).  
-**Derived repair (Jun 2026):** Batch `*-rebuild` CLIs retired — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md). **Corrections = `prove` only**.  
+**Derived repair (Jun 2026):** Batch `*-rebuild` CLIs retired — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md). **Forward corrections = `simul`** on **`ko2amiga_work`**.  
 **Policy:** [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md)
 
 **Goal:** Finalize-only pairwise + network truth; remove replay tail batches (`commit_heavy` network, bulk `*-rebuild` CLIs — all retired Jun 2026).

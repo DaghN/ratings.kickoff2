@@ -1,6 +1,8 @@
 # Amiga tournament videos — policy
 
-**Status:** **Catalog live (Jun 2026)** — manifest + tournament Videos tab + player profile **Videos** wing shipped. **DB anchor sync (Jul 2026)** — `sync_db_ids` + `verify-tournament-videos` in `prove` after every full L3 reimport ([§12](#12-db-anchors-vs-editorial-keys-jul-2026)). Deep-link interaction: [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md).
+> **Product policy (Jul 2026):** Catalog + UI rules below remain authoritative. **Forward video path:** [`amiga-modern-video-policy.md`](amiga-modern-video-policy.md) on **`ko2amiga_work`**. §12 oracle `sync_db_ids` / **`prove`** = frozen archaeology only.
+
+**Status:** **Catalog live (Jun 2026)** — manifest + tournament Videos tab + player profile **Videos** wing shipped. **DB anchor sync (Jul 2026)** — oracle `sync_db_ids` + `verify-tournament-videos` after full L3 reimport on frozen DB ([§12](#12-db-anchors-vs-editorial-keys-jul-2026)); forward = **`align-video-work`** in simul. Deep-link interaction: [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md).
 
 **Parent:** [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) · [`url-routes.md`](url-routes.md) · [`design-direction.md`](design-direction.md) · [`join-play-setup.md`](join-play-setup.md)
 

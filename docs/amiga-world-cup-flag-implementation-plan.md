@@ -1,5 +1,7 @@
 # Amiga World Cup flag — implementation plan
 
+> **Historical execution record (Jul 2026):** Feature **shipped** via **`prove`** on frozen **`ko2amiga_db`**. Steps below are archaeology — **do not re-run for new work**. Forward: **`simul`** on **`ko2amiga_work`** → **`export_ko2amiga_work.ps1`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **WC-F1–WC-F8 shipped (Jul 2026)** — `prove` green on local `ko2amiga_db`.  
 **Policy:** [`amiga-world-cup-flag-policy.md`](amiga-world-cup-flag-policy.md)  
 **Parent:** [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-ground-stack.md`](amiga-ground-stack.md)

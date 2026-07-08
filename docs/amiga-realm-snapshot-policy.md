@@ -1,5 +1,7 @@
 # Amiga realm snapshots — foundational policy
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Locked** (Jun 2026) — implementation **complete** (slices 0–8); historical HoF UI follow-on.  
 **Implementation plan:** [`amiga-realm-snapshot-implementation-plan.md`](amiga-realm-snapshot-implementation-plan.md)
 

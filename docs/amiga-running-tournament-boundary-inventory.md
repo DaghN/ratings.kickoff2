@@ -1,5 +1,7 @@
 # Amiga running tournament boundary — inventory
 
+> **Engineering inventory (Jul 2026):** RTB **shipped** — checklist still valid for Lane B grep and regression. **DDL/sign-off forward** = **`simul`** on **`ko2amiga_work`**. Oracle **`prove`** mentions = ship-era only.
+
 **Status:** **Inventory for implementation (Jul 2026, rev. 2)** — engineering checklist for [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (RTB rev. 1). **Shipped Jul 2026** (RTB-1–RTB-8).
 
 **PHP/Python asymmetry (today):** browser `record_result` calls `amiga_ops_process_derived_for_game()` → standings + catalog; Python `record-result` inserts `amiga_games` only. RTB removes PHP L5 writes; parity = fixture columns only on both sides.

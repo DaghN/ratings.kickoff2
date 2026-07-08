@@ -1,5 +1,7 @@
 # Amiga tournament structure — implementation plan (agent slices)
 
+> **In progress (Jul 2026):** Slices **1–2 shipped** on oracle path; L4 forward work continues on **`ko2amiga_work`** via **`apply-structure-work`** / **`simul`** ([`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0). **`prove`** steps below = historical oracle pipeline only.
+
 **Status:** **In progress** — slices 1–2 shipped; slice 3 pilot **superseded by 3b** (policy v2 Jun 2026).  
 **Policy (locked):** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) · **restart:** [`archive/orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md`](archive/orchestration/agent-handoffs/2026-06-13-013-amiga-tournament-structure-restart-handoff.md)  
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md) (standings tally layer — do not re-litigate) · [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) (background; partially superseded)

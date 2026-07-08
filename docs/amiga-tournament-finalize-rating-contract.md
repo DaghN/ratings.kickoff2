@@ -1,5 +1,7 @@
 # Amiga tournament finalize & rating events — implementation contract
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Implemented** (Jun 2026) — tournament finalize commit boundary live in Python + PHP; rating history from `amiga_rating_events`; **staging verified** (24-part import on `ratings.kickoff2.com`)  
 **Scope:** `ko2amiga_db` rating commit model, derived replay, and related read-path policy  
 **Supersedes:** [`amiga-data-contract.md`](amiga-data-contract.md) § Post-game / replay for rating and global career-stat commit rules  

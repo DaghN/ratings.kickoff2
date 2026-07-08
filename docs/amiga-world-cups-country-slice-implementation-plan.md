@@ -1,5 +1,7 @@
 # Amiga World Cups — country slice implementation plan
 
+> **Historical execution record (Jul 2026):** Feature **shipped** via **`prove`** on frozen **`ko2amiga_db`**. Steps below are archaeology — **do not re-run for new work**. Forward: **`simul`** on **`ko2amiga_work`** → **`export_ko2amiga_work.ps1`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Complete** (Jun 2026-24) — CS-1–CS-7 shipped; `verify-country-slice` green on replay.
 
 **Policy:** [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md)  

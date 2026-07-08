@@ -1,5 +1,7 @@
 # Amiga community stats — foundational policy
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Locked** (Jun 2026) — **implemented** (slices 1–9).  
 **Implementation plan:** [`amiga-community-stats-implementation-plan.md`](amiga-community-stats-implementation-plan.md) (v1 complete) · **V2 product plan:** [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md)
 

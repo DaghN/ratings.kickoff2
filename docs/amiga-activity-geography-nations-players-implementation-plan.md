@@ -1,5 +1,7 @@
 # Amiga Activity — Geography Nations player grains (implementation plan)
 
+> **Historical execution record (Jul 2026):** Feature **shipped** via **`prove`** on frozen **`ko2amiga_db`**. Steps below are archaeology — **do not re-run for new work**. Forward: **`simul`** on **`ko2amiga_work`** → **`export_ko2amiga_work.ps1`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Slices A–D shipped** (Jul 2026) — slice **E** (name tooltips) deferred.
 
 **Policy (locked):** [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md)

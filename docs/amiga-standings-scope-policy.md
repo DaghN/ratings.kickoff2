@@ -1,5 +1,7 @@
 # Amiga tournament standings scope — policy (Jun 2026)
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Implemented** Jun 2026 (slices 0–7; migration `020` on existing DBs).  
 **Purpose:** Unify the points-table standings primitive so NULL-phase and labeled-phase round-robin tables are the same `scope_type`, not accidental KOATD import splits.
 

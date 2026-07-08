@@ -1,5 +1,7 @@
 # Amiga World Cups leaderboard — policy
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **V2 shipped** (Jun 2026-23) — five sub-wings; slice `039` + `prove` green. **UI home:** World Cups hub → Player stats only (LB wing **retired** Jun 2026).
 
 **Parent:** [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) · [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md)

@@ -1,5 +1,7 @@
 # Amiga World Cups hub — policy
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Wings 1–4 shipped** (Jun 2026-24) — **events catalog** (`amiga_world_cups_events_table.php`); tournament stats (`amiga_world_cup_stats`); **Player stats** + **Country stats** (five sub-wings each) on hub; player + country bodies shared with Leaderboards player wing only (no LB Countries mirror). **`tournament.php` event-stats enrichment** TBD.
 
 **Parent:** [`hub-ia-agreement.md`](hub-ia-agreement.md) · [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md) · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md)

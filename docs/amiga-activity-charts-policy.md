@@ -1,5 +1,7 @@
 # Amiga Activity charts — IA & product policy
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Shipped — v1 shippable** (Jul 2026) — **49 panels / 50 ship IDs** on `/amiga/activity/` (six wings). Base track complete (slices 0–10); **Jul 2026 extension:** Nations player grains (+3 panels, community fact registry) — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md). **Jul 2026 copy pass:** wing section intros locked (§5.0); no open v1 backlog — future charts need a new catalog **ship** row first.
 **Implementation track:** [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md)
 **Questions (product source):** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 50 ship IDs

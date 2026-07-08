@@ -1,5 +1,7 @@
 # Amiga player universe — implementation plan (agent slices)
 
+> **Historical execution record (Jul 2026):** Feature **shipped** via **`prove`** on frozen **`ko2amiga_db`**. Steps below are archaeology — **do not re-run for new work**. Forward: **`simul`** on **`ko2amiga_work`** → **`export_ko2amiga_work.ps1`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** Complete (Jun 2026). Slices 0–14 shipped; STOP gates A–G passed (E/F/G signed off by owner).  
 **Derived repair (Jun 2026):** Batch `*-rebuild` CLIs retired — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md). Slice notes may name removed commands historically; **corrections = `prove` only**.  
 **Contract (authority):** [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md)  

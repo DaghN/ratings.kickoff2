@@ -1,5 +1,7 @@
 # Amiga Countries hub — implementation plan
 
+> **Historical execution record (Jul 2026):** Hub **shipped** (Jun 2026) — mostly PHP read-time over stored snapshots; oracle **`prove`** only where verification slices mention replay. Forward DDL = **`simul`** on **`ko2amiga_work`**.
+
 **Status:** **Complete** (Jun 2026) — CH-1–CH-6 shipped.
 
 > **Superseded path (Jun 2026):** the roster later moved from `amiga/countries/roster.php` to the singular **`amiga/country/roster.php`** entity namespace (+ Rivals segment), per [`navigation-model.md`](navigation-model.md) NM3. The `amiga-countries-roster` references in the slices below are **historical**; current routes/paths live in [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) §6 + [`url-routes.md`](url-routes.md).

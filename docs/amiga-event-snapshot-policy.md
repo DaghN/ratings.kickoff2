@@ -1,6 +1,8 @@
 # Amiga event snapshots — foundational policy
 
-**Status:** **Locked** (Jun 2026) — design authority; implementation in progress.  
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
+**Status:** **Locked** (Jun 2026) — design authority; implementation **complete** (Jun 2026).  
 **Implementation plan:** [`amiga-event-snapshot-implementation-plan.md`](amiga-event-snapshot-implementation-plan.md)
 
 **Supersedes (for player timeline truth):** sparse V2 intent in [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md) §6 · per-table placement for retired tables in [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.0 (snapshots become the home for career + event-local + honours cumulative at participated-event grain).

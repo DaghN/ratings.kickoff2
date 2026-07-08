@@ -1,5 +1,7 @@
 # Amiga tournament honours and event finish — policy
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Implemented** (v2, Jun 2026) — track complete locally — [`amiga-tournament-medals-unification-implementation-plan.md`](amiga-tournament-medals-unification-implementation-plan.md) · starter [`archive/orchestration/agent-handoffs/amiga-tournament-medals-unification-STARTER-PROMPT.md`](archive/orchestration/agent-handoffs/amiga-tournament-medals-unification-STARTER-PROMPT.md) ✓
 
 **Purpose:** One **tournament** universe. Holistic finish (`event_finish_position`) is canonical for every event including World Cups. Career honours = medal + podium counts over all tournaments, with **World Cup** counters as a **subset filter** — not a parallel event type.

@@ -1,5 +1,7 @@
 # Amiga country Rivals — nation-pair implementation plan
 
+> **Historical execution record (Jul 2026):** Feature **shipped** via **`prove`** on frozen **`ko2amiga_db`**. Steps below are archaeology — **do not re-run for new work**. Forward: **`simul`** on **`ko2amiga_work`** → **`export_ko2amiga_work.ps1`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Shipped** (Jun 2026). Slices **CRV-1–CRV-7** complete.
 
 **Policy:** [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) (**CRV1–CRV16**)

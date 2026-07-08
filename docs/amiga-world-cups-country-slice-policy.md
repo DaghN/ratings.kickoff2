@@ -1,5 +1,7 @@
 # Amiga World Cups — country slice (WC career by nation)
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Policy locked** (Jun 2026-24) — **shipped** Jun 2026-24 (DDL `040`, Python + PHP writers, hub wing 4 UI, `verify-country-slice` in `prove`).
 
 **Parent:** [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) · [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)

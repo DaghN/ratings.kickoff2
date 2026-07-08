@@ -8,7 +8,7 @@
 
 **Supersedes (daily habits, not history):** Treat **L0→L3 Access witness import** as the default Amiga sign-off path — archived after day 0 seal (§6). Lane A wording in [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) §1 defers here for **local ground authority**.
 
-**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) (table register) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) (L5 writers — **update repair verbs** during cutover) · [**`amiga-modern-simul-implementation-plan.md`**](amiga-modern-simul-implementation-plan.md) (**S-1** slice plan) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (staging live ops — Lane B/C unchanged) · [`amiga-staging-handoff.md`](amiga-staging-handoff.md) (export/import — **merge direction** §9) · [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (L4 model) · [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) · [`amiga-tournament-videos-game-links-policy.md`](amiga-tournament-videos-game-links-policy.md) · **Archive (Access pipeline):** [`amiga-ground-stack.md`](amiga-ground-stack.md) · [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md)
+**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) (table register) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) (L5 writers — **update repair verbs** during cutover) · [**`amiga-modern-simul-implementation-plan.md`**](amiga-modern-simul-implementation-plan.md) (**S-1** slice plan) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (staging live ops — Lane B/C unchanged) · [**`amiga-staging-authority-policy.md`**](amiga-staging-authority-policy.md) (**staged prod, local repair shop, pull → push**) · [`amiga-staging-handoff.md`](amiga-staging-handoff.md) (export/import runbook) · [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (L4 model) · [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) · [`amiga-tournament-videos-game-links-policy.md`](amiga-tournament-videos-game-links-policy.md) · **Archive (Access pipeline):** [`amiga-ground-stack.md`](amiga-ground-stack.md) · [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md)
 
 ---
 
@@ -246,9 +246,9 @@ preflight (L3 exists; day 0 = reference only)
 
 ### 9.5 Staging handoff (direction)
 
-Until merge import ships: treat **full browser import** as **destructive** to community ground (documented warning in [`amiga-staging-handoff.md`](amiga-staging-handoff.md)).
+**Authority:** [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) — **staged `ko2amiga_db` = prod**; **local `ko2amiga_work` = repair shop**; **pull → repair → push** (not merge-import).
 
-**Target:** export carries **living ground**; staging apply **merges** or replace only when explicitly intended (schema-only parts, disaster recovery).
+Until **PULL-1** ships: treat **full browser import** as **destructive** to unstaged ground ([`amiga-staging-handoff.md`](amiga-staging-handoff.md)). **Pull before push** when staging has community events. PoC pull = manual mysqldump + import into work (§8 of staging authority policy).
 
 ---
 
@@ -280,10 +280,10 @@ Execute in order. Each slice ends with a recorded check.
 | **L4-1** | Confirm L4 on work matches disposition expectations | **Done** — `python -m scripts.amiga verify-structure-work`; 16,046 fixtures; Homburg + pure_rr smoke OK |
 | **V-1** | Video on work — stable `game_id` binding, oracle/work compartments, simul `--with-video` | **Done** — `seal-video-oracle` · `seed-video-work` · `align-video-work` · `verify-tournament-videos-work`; work manifest `data/amiga/work/tournament_videos.json` (299 videos) |
 | **PROMOTE-1** | `ko2amiga_config.local.php` → `ko2amiga_work`; export reads work; legacy `prove` locked to `ko2amiga_db` only | **Done** — `export_ko2amiga_work.ps1` · `promote_ko2amiga_work_local.ps1` · `promote-video-deploy`; oracle export = `export_ko2amiga_db.ps1` shim |
-| **DOC-1** | Archive Access pipeline docs; agent routing | **Done** — archive index; layers/import/stack banners; derived-write + staging handoff; **doc pass 2** (kool-workspace, MEMORY, live-ops, obsolete-dev-scripts) |
+| **DOC-1** | Archive Access pipeline docs; agent routing | **Done** — archive index + doc pass 2–3 (55+ historical/sign-off banners on shipped plans/policies) |
 | **CODE-1** | `scripts/amiga/modern/` compartment; legacy import frozen (**MG11** — copy, never mutate) | **Done** — `modern/README.md`; FROZEN headers; `audit_amiga_modern_compartment.py` |
 
-**Out of scope for day-one cutover (follow-on):** staging merge import · ground pack pull · `append-event` CLI · retiring L4 pipeline at 100% structure.
+**Out of scope for day-one cutover (follow-on):** **PULL-1** staging → work · ground pack pull · `append-event` CLI · retiring L4 pipeline at 100% structure. Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md).
 
 ---
 
@@ -333,7 +333,7 @@ New evidence **without Access:**
 | [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) | L5 writers unchanged; **forward sign-off = simul** on work (DOC-1). |
 | [`amiga-ground-stack.md`](amiga-ground-stack.md) | **Historical** strict chain; archived for Access era. |
 | [`amiga-import-layer.md`](amiga-import-layer.md) | **Historical** L3 import transforms; archived after day 0. |
-| [`amiga-staging-handoff.md`](amiga-staging-handoff.md) | Export from work; **destructive import warning** (DOC-1). |
+| [`amiga-staging-handoff.md`](amiga-staging-handoff.md) | Export from work; pull-before-push ([`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md)). |
 
 ---
 
@@ -352,7 +352,7 @@ New evidence **without Access:**
 
 ## 16. Open questions
 
-- Exact **merge** semantics for staging import (per-table upsert vs ground packs only).
+- Exact **pull** automation (`pull-staging-to-work`, sync manifest) — policy locked [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md); implementation PULL-1 / SYNC-1.
 - When to declare **L4 pipeline retired** (structure coverage % threshold).
 - Lane C video DB migration vs JSON read path.
 

@@ -1,5 +1,7 @@
 # Amiga HoF career cumulative rise dates — implementation plan (SCH-030)
 
+> **In progress (Jun 2026):** Not shipped — do **not** treat as complete. **When implementing:** sign-off = **`simul`** on **`ko2amiga_work`**; oracle **`prove`** references below are template only.
+
 **Status:** In progress (Jun 2026)  
 **Policy:** [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md) § SCH-030 / D11  
 **Parent track:** [`amiga-stored-field-semantics-plan.md`](amiga-stored-field-semantics-plan.md)

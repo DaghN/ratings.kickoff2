@@ -1,5 +1,7 @@
 # Amiga player universe — derived data contract (intent)
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** Intent / design lock candidate (Jun 2026). **Scope:** derived player facts, read paths, and phased expansion — not UI mockups.
 
 **Purpose:** Define what the Amiga realm should store and serve for **players** (career, tournaments, opponents, honours, HoF) before schema DDL and replay writers expand. This document owns **player-centric derived design**; layer definitions and global replay rules remain in [`amiga-data-contract.md`](amiga-data-contract.md).

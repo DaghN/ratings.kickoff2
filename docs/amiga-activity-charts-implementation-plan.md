@@ -1,5 +1,7 @@
 # Amiga Activity charts — implementation plan
 
+> **Historical execution record (Jul 2026):** Feature **shipped** via **`prove`** on frozen **`ko2amiga_db`**. Steps below are archaeology — **do not re-run for new work**. Forward: **`simul`** on **`ko2amiga_work`** → **`export_ko2amiga_work.ps1`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Shipped — v1 shippable** (Jul 2026) — **49 panels / 50 ship IDs** on `/amiga/activity/` (six wings). Base track complete (slices 0–10). **Jul 2026 extension:** Nations player grains — [`amiga-activity-geography-nations-players-implementation-plan.md`](amiga-activity-geography-nations-players-implementation-plan.md) (registry + scan + 3 panels; **no DDL**). **Jul 2026 copy pass:** wing section intros finalized — see policy §5.0.
 **Locked IA / product:** [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) — wings, panel order, selectors, TT rules, bucket defaults.
 **Questions:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — 50 ship IDs → 49 panels.

@@ -1,5 +1,7 @@
 # Amiga player profile (v0)
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** profile feast v1 (Jun 2026) — **surface expansion slices 0–8 complete**. Extend via [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md) §4 Potential only.
 
 ## URLs
@@ -122,7 +124,7 @@ Participation **roster and W-D-L/goals** come from **`amiga_games`** — a row e
 - Case variants (`Oliver ST` → `Oliver St`, most games wins)
 - Country from `Rankings` when any alias had one
 
-Re-run: `python -m scripts.amiga prove`. Import audit: `data/amiga/exports/import_manifest.json` (see [`amiga-import-layer.md`](amiga-import-layer.md)).
+Re-run: `python -m scripts.amiga simul` on **`ko2amiga_work`**. Import audit (oracle): `data/amiga/exports/import_manifest.json` (see [`amiga-import-layer.md`](amiga-import-layer.md) — archived).
 
 ## Rating chart timeline
 

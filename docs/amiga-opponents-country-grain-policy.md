@@ -1,5 +1,7 @@
 # Amiga Opponents — country grain (player vs country)
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Shipped** (Jun 2026). OCG-1–OCG-7 complete — see [`amiga-opponents-country-grain-implementation-plan.md`](amiga-opponents-country-grain-implementation-plan.md).
 
 **Implementation plan:** [`amiga-opponents-country-grain-implementation-plan.md`](amiga-opponents-country-grain-implementation-plan.md) — slices **OCG-1–OCG-7**.

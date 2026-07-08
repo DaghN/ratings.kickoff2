@@ -1,5 +1,7 @@
 # Amiga World Cups — player slice V2 expansion
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Shipped** (Jun 2026-23) — DDL `039`, writers, `verify-player-slice` V2, **`prove` green**, **five sub-wing UI** on World Cups hub → Player stats. *(LB duplicate retired Jun 2026-29.)*
 
 **Parent:** [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) (V1 data home) · [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) (UI home) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) (prove-only writes)

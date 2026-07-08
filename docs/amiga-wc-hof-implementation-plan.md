@@ -1,5 +1,7 @@
 # Amiga World Cup Hall of Fame — implementation plan
 
+> **Historical execution record (Jul 2026):** Feature **shipped** via **`prove`** on frozen **`ko2amiga_db`**. Steps below are archaeology — **do not re-run for new work**. Forward: **`simul`** on **`ko2amiga_work`** → **`export_ko2amiga_work.ps1`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Executed / complete** (Jun 2026-29) — all slices WCH-1…WCH-8 shipped; `prove` green (`verify-wc-hof`, `verify-hof-geo-year`, `verify-realm-snapshots`); Python + PHP finalize parity verified. Legacy `MostWcPlayed*` columns on `amiga_generalstats` / `amiga_realm_snapshots` **dropped** (`028` no longer adds them + idempotent `schema_bundles.py` drop helper; realm read lib cleaned) — re-`prove` green.  
 **Policy:** [`amiga-wc-hof-policy.md`](amiga-wc-hof-policy.md)  
 **Parent:** [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) · [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md)

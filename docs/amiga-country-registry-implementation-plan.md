@@ -1,5 +1,7 @@
 # Amiga country registry — implementation plan
 
+> **Historical execution record (Jul 2026):** Feature **shipped** via **`prove`** on frozen **`ko2amiga_db`**. Steps below are archaeology — **do not re-run for new work**. Forward: **`simul`** on **`ko2amiga_work`** → **`export_ko2amiga_work.ps1`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **CR-1–CR-8 shipped (Jul 2026)** — local `ko2amiga_db` + staging spot-check after registry JSON deploy. **CR-9** = phase 2 backlog.
 
 **Policy:** [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md)  
@@ -7,7 +9,7 @@
 
 **Execution:** Slices **in order**. Run each slice **Verification** before continuing. **Do not git commit** unless Dagh asks.
 
-**Migration:** **L3 witness value change** (no new DDL). After **CR-5**, **`python -m scripts.amiga prove`** is the repair/sign-off path. Part B registers **not** expected unless import contract docs need a one-line note — Part A only at closure.
+**Migration:** **L3 witness value change** (no new DDL). After **CR-5**, forward repair/sign-off = **`simul`** on **`ko2amiga_work`** (oracle **`prove`** was ship path). Part B registers **not** expected unless import contract docs need a one-line note — Part A only at closure.
 
 ---
 

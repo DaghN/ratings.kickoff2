@@ -1,5 +1,7 @@
 # Amiga World Cup stats table — product spec (event grain)
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Curated v1** (Jun 2026) — product/design only; no DDL, writers, or PHP in this doc. Dagh curation pass 1 applied.  
 **Parent:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) § Product backlog · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) (boundary only — **do not reopen C1–C13**)  
 **Related:** [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) (player WC slice) · [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)

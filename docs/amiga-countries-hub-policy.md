@@ -1,6 +1,6 @@
 # Amiga Countries hub — policy
 
-**Status:** **Shipped** (Jun 2026) — slices CH-1–CH-6.
+**Status:** **Shipped** (Jun 2026) — slices CH-1–CH-6. **Sign-off:** v1 is read-time aggregation over stored player snapshots — no **`prove`** gate; if a slice adds DDL, use **`simul`** on **`ko2amiga_work`** ([`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0).
 
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.0 · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) (H8 country token)
 

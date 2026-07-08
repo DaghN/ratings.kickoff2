@@ -1,5 +1,7 @@
 # Amiga cumulative matchup at event — policy
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Locked** (Jun 2026). Extended **SCH-044** (Jun 2026): per-opponent `performance_rating` on both tables.  
 **Implementation plan:** [`amiga-matchup-at-event-implementation-plan.md`](amiga-matchup-at-event-implementation-plan.md)  
 **Parent:** [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.4

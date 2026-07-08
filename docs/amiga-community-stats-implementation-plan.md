@@ -1,5 +1,7 @@
 # Amiga community stats — implementation plan
 
+> **Partially complete (Jul 2026):** **Writers + verify shipped** on oracle path; Activity chart UI track shipped separately. **`prove`** steps below = archaeology for writer slices; forward = **`simul`** on **`ko2amiga_work`**. Per-WC table: [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md).
+
 **Status:** **V1 complete** (Jun 2026) · **V2 writers complete** (Jun 2026-23) — registry v2 + headline extensions (`036`) + `verify-world-cup-stats`; `prove` green (~21 min). Charts/UI **not** started. Per-WC table: [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md) (`037`, separate module).  
 **Policy:** [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md)  
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) (HoF — separate grain)

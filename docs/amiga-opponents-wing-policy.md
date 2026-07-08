@@ -1,5 +1,7 @@
 # Amiga Opponents wing — policy
 
+> **Product policy (Jul 2026):** Rules below remain authoritative. **In progress** — new Opponents slices sign off via **`simul`** on **`ko2amiga_work`**. Oracle **`prove`** = Jun 2026 ship path for completed slices.
+
 **Status:** **In progress** (Jun 2026) — **SCH-031** goal extremes shipped; **Opponents IA shell** shipped; **W/D/L · Goals · DDs tables** wired with time travel (`amiga_matchup_snapshot_lib.php`). **H2H slices D+F shipped** — poster/pickers/pair detail/moments/charts on `amiga/player/opponents/h2h.php` (event-step rating compare; chart APIs `?realm=amiga`). **SCH-044** stored pair performance rating shipped — W/D/L **Perf.** column + H2H pair detail read stored value.  
 **No implementation plan yet** — work incrementally; add a plan or slice handoff only when a concrete slice is about to ship.
 

@@ -1,5 +1,7 @@
 # Amiga performance rating (event TPR)
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** Shipped (Jun 2026). **Per-opponent (pair) TPR** added **SCH-044** (Jun 2026) — see [§ Per-opponent performance rating](#per-opponent-performance-rating-sch-044).  
 **Scope:** `ko2amiga_db` — one performance rating per player per finalized tournament; plus one **directed pair** TPR per opponent (matchup tables)  
 **Related:** [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.2 · [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) · [`amiga-opponents-wing-policy.md`](amiga-opponents-wing-policy.md)
@@ -65,7 +67,7 @@ Do **not** store on `amiga_tournament_standings` (phase-scoped, multiple rows pe
 **Writer order:**
 
 1. `finalize_tournament` — after per-game `amiga_game_ratings`, before/with rating event insert (Python + PHP ops)
-2. Full **`replay`** / **`prove`** — same finalize loop for all events (no batch repair CLI)
+2. Full **`simul`** on **`ko2amiga_work`** (or oracle **`replay`** / **`prove`** on frozen DB) — same finalize loop for all events (no batch repair CLI)
 
 **Verify:** `verify-player-participation` — participation `performance_rating` must match `amiga_rating_events` when either side is non-NULL.
 
@@ -109,7 +111,7 @@ Same TPR math, but the game set is **all rated games vs one opponent through the
 | `amiga_player_matchup_summary.performance_rating` | **Present** value per directed pair |
 | `amiga_player_matchup_at_event.performance_rating` | **Cumulative through E** per directed pair (time travel: latest row ≤ cutoff) |
 
-Written at **tournament finalize** by the cumulative matchup writer ([`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) §3, §5): recomputed only for **pairs played that event** (replay uses in-memory `(opponent_rating, score)` samples; warm/live reseeds touched pairs from `amiga_game_ratings`); untouched pairs carry the prior value forward. No batch repair CLI — wrong state → `replay` / `prove`.
+Written at **tournament finalize** by the cumulative matchup writer ([`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) §3, §5): recomputed only for **pairs played that event** (replay uses in-memory `(opponent_rating, score)` samples; warm/live reseeds touched pairs from `amiga_game_ratings`); untouched pairs carry the prior value forward. No batch repair CLI — wrong state → **`simul`** on work (or oracle **`replay`** / **`prove`**).
 
 ### Read paths
 
@@ -122,7 +124,7 @@ Written at **tournament finalize** by the cumulative matchup writer ([`amiga-mat
 
 ---
 
-## CLI
+## CLI (oracle archaeology — frozen `ko2amiga_db` only)
 
 ```powershell
 mysql ko2amiga_db < scripts/amiga/sql/015_performance_rating.sql
@@ -130,6 +132,8 @@ python -m scripts.amiga prove
 python -m scripts.amiga verify-player-participation
 python -m scripts.amiga verify-player-matchups
 ```
+
+**Forward:** DDL in bundle → **`simul`** on **`ko2amiga_work`**; verify steps run inside simul suite.
 
 Full replay recomputes via finalize loop (no separate backfill needed after `replay`).
 

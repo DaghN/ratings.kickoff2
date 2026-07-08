@@ -171,7 +171,9 @@ Present rows are **output** of finalize, not input for the next event’s career
 
 ## 6. Bidirectional flow
 
-### 6.1 Today (canon push — keep for historical refresh)
+**Policy:** [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) — staged prod, local repair shop, **pull → repair → push** (SS-1–SS-7).
+
+### 6.1 Push (repair shop → staging)
 
 ```text
 local simul (ko2amiga_work) → export_ko2amiga_work.ps1 → WinSCP → run_import_ko2amiga.php
@@ -179,16 +181,16 @@ local simul (ko2amiga_work) → export_ko2amiga_work.ps1 → WinSCP → run_impo
 
 See [`amiga-staging-handoff.md`](amiga-staging-handoff.md). Staging does **not** run Python replay on import.
 
-### 6.2 Required (community pull — not shipped)
+### 6.2 Pull (staging → repair shop — required habit; PoC manual)
 
 Once staging owns community tournaments:
 
 ```text
-staging ko2amiga_db → ground pack / delta export → local clone for dev
-staging media + metadata → pull for backup / optional canon merge
+staging ko2amiga_db → dump / ground pack → import into ko2amiga_work → simul
+staging media + metadata → pull for backup (Lane C)
 ```
 
-**Rule:** Community ground created on staging may **never** exist locally until pulled. Local full prove must not be the only recovery path for staged mistakes.
+**Rule:** Community ground on staging may **never** exist on local until **pulled**. Local is a **repair clone**, not a second version of staged ([`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) §2–§3). Local full prove must not be the only recovery path for staged mistakes.
 
 ### 6.3 Promotion (optional)
 

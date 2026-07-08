@@ -1,5 +1,7 @@
 # Amiga country Rivals — nation-pair grain (country vs country)
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Shipped** (Jun 2026). Slices **CRV-1–CRV-7** complete.
 
 **Implementation plan:** [`amiga-country-rivals-implementation-plan.md`](amiga-country-rivals-implementation-plan.md) — slices **CRV-1–CRV-7**.

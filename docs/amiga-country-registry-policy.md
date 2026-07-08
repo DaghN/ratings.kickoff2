@@ -1,5 +1,7 @@
 # Amiga country registry — policy
 
+> **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
 **Status:** **Shipped (Jul 2026)** — CR-1–CR-7 complete on local `ko2amiga_db`; staging verified after WinSCP sync of `public_html/data/amiga/country_registry.json` + flag SVGs. Phase 2 = **CR-9** backlog only.
 
 **Parent:** [`amiga-ground-stack.md`](amiga-ground-stack.md) (S7 nationality + host country) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (L3 witness) · [`amiga-import-layer.md`](amiga-import-layer.md) (import manifest)
@@ -213,7 +215,7 @@ Skip obscure territories until a player or tournament requires them. Full ISO so
 
 ### 5.5 Adding a new country later
 
-Manual edit to `country_registry.json` + run **`sync_country_flag_svgs.py`** (copy from vendored flag-icons if `flag_code` is new) + L3 re-import + prove. No automation.
+Manual edit to `country_registry.json` + run **`sync_country_flag_svgs.py`** (copy from vendored flag-icons if `flag_code` is new) + forward **`simul`** on work (oracle: L3 re-import + **`prove`**). No automation.
 
 ### 5.6 Flag SVG assets (lipis/flag-icons)
 

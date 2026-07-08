@@ -1,6 +1,8 @@
 # Amiga player create — implementation plan
 
-**Status:** **PC-1–PC-7 shipped (Jul 2026)** — local `ko2amiga_db` via **prove** (ground bundle); staging via prove → export (part 01 schema). **PC-8** staging spot-check; **PC-9** browser delete league = phase 2.
+> **Historical execution record (Jul 2026):** Feature **shipped** via **`prove`** on frozen **`ko2amiga_db`**. Steps below are archaeology — **do not re-run for new work**. Forward: **`simul`** on **`ko2amiga_work`** → **`export_ko2amiga_work.ps1`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
+**Status:** **PC-1–PC-7 shipped (Jul 2026)** — ground bundle via oracle **`prove`**; staging via **`export_ko2amiga_work.ps1`**. **PC-8** staging spot-check; **PC-9** browser delete league = phase 2.
 
 **Policy:** [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (rev. 2.1)  
 **Parent:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) · [`amiga-data-contract.md`](amiga-data-contract.md)

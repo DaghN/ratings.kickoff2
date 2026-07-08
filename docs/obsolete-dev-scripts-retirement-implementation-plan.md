@@ -1,5 +1,7 @@
 # Obsolete dev scripts — implementation plan
 
+> **Retirement track complete (Jun 2026):** Historical slice plan — policy [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) is authority. **Online** sign-off = `run_ops_sim.php`. **Amiga forward** = **`simul`** on **`ko2amiga_work`** (oracle **`prove`** only for frozen legacy touches).
+
 **Status:** **Complete** (Jun 2026) — all slices 0–6 done. Policy: [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md).  
 **Rule:** **§5 retirement gate in the policy doc is mandatory for every file** — no folder-level deletes without per-file gates.
 
@@ -12,8 +14,8 @@
 - **Online proof smoke (when touching online paths):**  
   `php site/public_html/ops/run_prepare.php zero-derived --target local-work` (dry-run OK for gate-only)  
   Full sign-off remains full simul — not required per micro-slice unless the slice changes post-game writers.
-- **Amiga proof (when touching `scripts/ladder` or `scripts/amiga`):**  
-  `python -m scripts.amiga prove` — **required** before closing any slice that moves/renames ladder library code.
+- **Amiga proof (when touching `scripts/ladder` or `scripts/amiga/modern`):**  
+  `python -m scripts.amiga simul` on **`ko2amiga_work`** — oracle **`prove`** only when intentionally touching frozen legacy paths.
 
 ---
 
