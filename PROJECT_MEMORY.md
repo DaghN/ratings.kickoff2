@@ -90,6 +90,8 @@
 
 - **Amiga live ops (Jul 2026):** **RTB shipped (RTB-1–RTB-9)** — running scores until organizer **Finish and make official** (promote + finalize + lifecycle `completed` in one Table-tab action). Policy: [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md) rev. 2.
 
+- **Amiga modern ground (Jul 2026):** **Policy locked** — living **`ko2amiga_work`** seeded from **day 0 L3** (git archive); frozen **`ko2amiga_db`** = parity oracle; simul on work only. Cutover: D0 seal → W-1 seed → S-1 simul → P-1 parity → promote. [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md).
+
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
 ---
@@ -137,6 +139,7 @@
 
 ## Recent log
 
+| 2026-07-08 | **Amiga modern ground — cutover sequence locked** — day 0 L3 git archive; `ko2amiga_work` from day 0 only; `ko2amiga_db` parity oracle; MG10 + §10.1. [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md). |
 | 2026-07-08 | **`is_world_cup` flag shipped** — L3 `tournaments.is_world_cup` + snapshot denorm; import derives from name regex; `verify-is-world-cup` in prove; read paths use stored flag; organizer create checkbox ⟺ name. Policy: [`amiga-world-cup-flag-policy.md`](docs/amiga-world-cup-flag-policy.md). |
 | 2026-07-08 | **RTB-9 shipped** — one **Finish and make official** button (promote + finalize + lifecycle `completed`); Setup **Mark complete** retired; limbo repair on re-click. |
 | 2026-07-08 | **RTB policy rev. 2** — locked vocabulary + finish-action contract. |

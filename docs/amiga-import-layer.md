@@ -1,5 +1,7 @@
 # Amiga import layer
 
+> **Archive (Jul 2026):** Forward ground authority → [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md). This doc owns the **Access-era L2→L3 witness import** path, retired after day 0 seal.
+
 **Purpose:** Define how **L2 pruned witness SQL** becomes canonical Amiga **ground truth** in `ko2amiga_db`. Import is the **only** place we normalize, correct, or reinterpret archival data before replay and the website see it.
 
 **Related:** [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) (L3 country canonicalization + registry validation — policy locked Jul 2026) · [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · [`amiga-ground-stack.md`](amiga-ground-stack.md) (strict chain) · [`scripts/amiga/README.md`](../scripts/amiga/README.md)

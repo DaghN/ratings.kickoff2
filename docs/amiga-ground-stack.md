@@ -1,5 +1,7 @@
 # Amiga ground stack — strict layer chain (L0–L5)
 
+> **Archive (Jul 2026):** Forward Amiga ground authority → [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md). This doc records the **Access-era** strict L0→L5 chain (shipped Jun 2026). Do not assign daily simul or staging work from here.
+
 **Status:** **Policy locked** (Jun 2026) — strict L0→L5 stack **shipped** (slices 1–11).  
 **Authority:** This doc states **engineering intent** for the koatd pipeline. When it conflicts with older archived wording (e.g. “prove skips L1/L2”), **this doc wins**. Strict stack **shipped** slices 1–11 (Jun 2026).  
 **Parent:** [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md)
