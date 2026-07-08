@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS `amiga_player_event_snapshots` (
   `country` varchar(50) DEFAULT NULL,
   `has_league` tinyint(1) NOT NULL DEFAULT 0,
   `has_cup` tinyint(1) NOT NULL DEFAULT 0,
+  `is_world_cup` tinyint(1) NOT NULL DEFAULT 0,
   `finalized_at` datetime NOT NULL,
   -- Event-local (this tournament; mirrors amiga_player_tournament_participation)
   `event_finish_position` smallint DEFAULT NULL,

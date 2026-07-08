@@ -348,6 +348,7 @@ def derive_event_finish_position(
     tournament_name: str,
     has_league: bool = False,
     has_cup: bool = False,
+    is_world_cup: bool | None = None,
     player_ids: list[int] | None = None,
     overrides: dict[int, int] | None = None,
 ) -> dict[int, int | None]:
@@ -358,7 +359,8 @@ def derive_event_finish_position(
     Tier E: ``overrides`` from ``amiga_tournament_finish_override`` wins per player.
     """
     primary_league = resolve_primary_league_standings(standing_rows)
-    if is_world_cup_tournament(tournament_name):
+    wc_event = is_world_cup if is_world_cup is not None else is_world_cup_tournament(tournament_name)
+    if wc_event:
         finish = compute_tier_d_wc_finish(standing_rows)
     elif has_league and has_cup and primary_league:
         finish = compute_tier_b_league_cup_finish(standing_rows)

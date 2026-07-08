@@ -88,6 +88,7 @@ class SnapshotRowBuildTests(unittest.TestCase):
             "country": "England",
             "has_league": 1,
             "has_cup": 0,
+            "is_world_cup": 0,
         }
         rating_event = {
             "rating_before": 1650.0,
@@ -165,6 +166,7 @@ class SnapshotRowBuildTests(unittest.TestCase):
                 "country": "X",
                 "has_league": 0,
                 "has_cup": 1,
+                "is_world_cup": 0,
             },
             {
                 "rating_before": 1600.0,

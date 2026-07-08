@@ -24,7 +24,7 @@ from scripts.amiga.community_stat_registry import (
 )
 from scripts.amiga.community_stats_columns import COMMUNITY_FACT_COLUMNS
 from scripts.amiga.realm_cutoff import cutoff_params, game_cutoff_sql, load_realm_cutoff, tournament_cutoff_params
-from scripts.amiga.tournament_honours import is_world_cup_tournament
+from scripts.amiga.tournament_honours import is_world_cup_tournament, tournament_is_world_cup
 
 
 @dataclass
@@ -344,7 +344,7 @@ def build_community_realm_scan(
     cutoff_where = game_cutoff_sql("t")
     sql = f"""
         SELECT g.id AS game_id, g.player_a_id, g.player_b_id, g.goals_a, g.goals_b, g.phase,
-               t.event_date, t.country AS host_country, t.name AS tournament_name,
+               t.event_date, t.country AS host_country, t.name AS tournament_name, t.is_world_cup,
                pa.country AS country_a, pb.country AS country_b,
                r.sum_of_goals, r.actual_score,
                r.dd_player_a, r.dd_player_b, r.cs_player_a, r.cs_player_b
@@ -363,7 +363,7 @@ def build_community_realm_scan(
             year = year_key(row["event_date"])
             host_country = country_token(row["host_country"])
             metrics = rated_game_metrics_from_row(row)
-            is_wc = is_world_cup_tournament(str(row.get("tournament_name") or ""))
+            is_wc = tournament_is_world_cup(row)
             accum.add_game(
                 year=year,
                 host_country=host_country,

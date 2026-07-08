@@ -31,6 +31,7 @@ _SNAPSHOT_KEY_COLUMNS: tuple[str, ...] = (
     "country",
     "has_league",
     "has_cup",
+    "is_world_cup",
     "finalized_at",
 )
 
@@ -142,6 +143,7 @@ _PARTICIPATION_TO_SNAPSHOT_EVENT: tuple[str, ...] = (
     "country",
     "has_league",
     "has_cup",
+    "is_world_cup",
     "finalized_at",
     *EVENT_LOCAL_COLUMNS,
 )

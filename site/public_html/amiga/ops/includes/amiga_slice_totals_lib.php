@@ -129,8 +129,7 @@ function amiga_slice_recompute_podiums(array &$totals): void
  */
 function amiga_slice_increment_world_cup(array &$totals, array $participation): void
 {
-    $tournamentName = (string) ($participation['tournament_name'] ?? '');
-    if (!amiga_honours_is_world_cup_tournament($tournamentName)) {
+    if (!amiga_honours_participation_is_world_cup($participation)) {
         return;
     }
 

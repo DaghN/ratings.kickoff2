@@ -558,7 +558,7 @@ function amiga_tournament_index_cached_all_rows(mysqli $con, ?AmigaSnapshotConte
     $types = '';
     $params = [];
     $cutoffSql = amiga_snapshot_tournament_cutoff_and_sql($ctx, $types, $params);
-    $sql = 'SELECT t.id, t.name, t.event_date, t.chrono, t.is_cup, t.has_league, t.has_cup, t.equal_teams, t.country, t.player_count,
+    $sql = 'SELECT t.id, t.name, t.event_date, t.chrono, t.is_cup, t.has_league, t.has_cup, t.is_world_cup, t.equal_teams, t.country, t.player_count,
                    t.lifecycle_status,
                    COALESCE(c.game_count, 0) AS game_count,
                    COALESCE(c.standing_players, 0) AS standing_players,
@@ -630,7 +630,7 @@ function amiga_tournament_load(mysqli $con, int $tournamentId, bool $publicOnly 
 
     $visibility = $publicOnly ? ' AND ' . amiga_tournament_public_visibility_where('t') : '';
     $sql = 'SELECT t.id, t.name, t.chrono, t.event_date, t.is_cup, t.country, t.equal_teams, t.player_count,
-                   t.lifecycle_status
+                   t.has_league, t.has_cup, t.is_world_cup, t.lifecycle_status
             FROM tournaments t
             WHERE t.id = ?' . $visibility;
     $stmt = mysqli_prepare($con, $sql);
@@ -1266,9 +1266,32 @@ function amiga_tournament_is_world_cup_by_name(string $name): bool
     return preg_match('/^World Cup\s+\S/i', trim($name)) === 1;
 }
 
-/** True when catalog name is a World Cup (e.g. World Cup XI). */
+/**
+ * Bidirectional create/save guard: checkbox must match World Cup name shape (WC11).
+ */
+function amiga_tournament_validate_is_world_cup_correspondence(string $name, bool $isWorldCup): void
+{
+    $nameMatches = amiga_tournament_is_world_cup_by_name($name);
+    if ($isWorldCup === $nameMatches) {
+        return;
+    }
+    if ($isWorldCup) {
+        throw new RuntimeException(
+            'World Cup event requires a name matching "World Cup …" (with text after Cup).'
+        );
+    }
+    throw new RuntimeException(
+        'This name is reserved for World Cup events — tick "World Cup event" or choose a different name.'
+    );
+}
+
+/** True when catalog row is a World Cup (stored flag when present). */
 function amiga_tournament_is_world_cup(array $row): bool
 {
+    if (array_key_exists('is_world_cup', $row)) {
+        return (int) ($row['is_world_cup'] ?? 0) === 1;
+    }
+
     return amiga_tournament_is_world_cup_by_name((string) ($row['name'] ?? ''));
 }
 

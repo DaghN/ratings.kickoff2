@@ -424,7 +424,7 @@ function amiga_realm_games_all_where_sql(array $state, AmigaSnapshotContext $ctx
     }
 
     if (($state['event'] ?? 'all') === 'world-cup') {
-        $where[] = amiga_games_world_cup_name_sql('r.tournament_name');
+        $where[] = amiga_games_world_cup_flag_sql('r.is_world_cup');
     }
 
     if (($state['videos'] ?? '') === 'with-videos') {

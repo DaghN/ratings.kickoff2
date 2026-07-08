@@ -162,7 +162,7 @@ function amiga_world_cup_count_first_time_wc_players(
         FROM amiga_games g
         INNER JOIN tournaments t ON t.id = g.tournament_id
         WHERE g.player_a_id IN ({$placeholders})
-          AND t.name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
+          AND t.is_world_cup = 1
           AND (
             t.event_date < ?
             OR (t.event_date = ? AND (t.chrono < ? OR (t.chrono = ? AND t.id < ?)))
@@ -172,7 +172,7 @@ function amiga_world_cup_count_first_time_wc_players(
         FROM amiga_games g
         INNER JOIN tournaments t ON t.id = g.tournament_id
         WHERE g.player_b_id IN ({$placeholders})
-          AND t.name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
+          AND t.is_world_cup = 1
           AND (
             t.event_date < ?
             OR (t.event_date = ? AND (t.chrono < ? OR (t.chrono = ? AND t.id < ?)))
@@ -259,7 +259,7 @@ function amiga_world_cup_build_stats_row(
     ?string $finalizedAt = null,
 ): ?array {
     $stmt = $con->prepare(
-        'SELECT id, name, event_date, chrono, country, rating_finalized_at
+        'SELECT id, name, event_date, chrono, country, rating_finalized_at, is_world_cup
          FROM tournaments WHERE id = ? LIMIT 1'
     );
     if ($stmt === false) {
@@ -273,7 +273,7 @@ function amiga_world_cup_build_stats_row(
     $tour = $res ? $res->fetch_assoc() : null;
     $stmt->close();
 
-    if ($tour === null || !amiga_honours_is_world_cup_tournament((string) ($tour['name'] ?? ''))) {
+    if ($tour === null || !amiga_tournament_is_world_cup($tour)) {
         return null;
     }
 

@@ -18,7 +18,7 @@ from scripts.amiga.country_slice_game_stats import CountryWorldCupSliceTracker
 from scripts.amiga.slice_game_stats import WorldCupSliceTracker, apply_world_cup_tournament_games
 from scripts.amiga.slice_totals import empty_world_cup_slice, increment_world_cup_slice
 from scripts.amiga.wc_slice_awards import apply_wc_slice_awards_and_peaks
-from scripts.amiga.tournament_honours import is_world_cup_tournament
+from scripts.amiga.tournament_honours import is_world_cup_tournament, tournament_is_world_cup
 from scripts.amiga.player_stats_load import load_player_states_before_tournament
 from scripts.amiga.performance_rating import performance_rating_from_pairs
 from scripts.amiga.player_tournament_participation import build_participation_rows_for_tournament
@@ -81,7 +81,7 @@ def _row_to_rating_insert_finalize(game_id: int, row: dict[str, Any]) -> dict[st
 def _load_tournament(conn: pymysql.connections.Connection, tournament_id: int) -> dict[str, Any]:
     with conn.cursor() as cur:
         cur.execute(
-            "SELECT id, name, rating_finalized, event_date, chrono, country FROM tournaments WHERE id = %s LIMIT 1",
+            "SELECT id, name, rating_finalized, event_date, chrono, country, has_league, has_cup, is_world_cup FROM tournaments WHERE id = %s LIMIT 1",
             (tournament_id,),
         )
         row = cur.fetchone()
@@ -264,10 +264,11 @@ def _persist_event_snapshots(
         increment_world_cup_slice(slice_accum[pid], row)
         slice_for_event[pid] = dict(slice_accum[pid])
 
+    wc_event = bool(part_rows) and tournament_is_world_cup(part_rows[0])
+
     if (
         tournament_games
-        and tournament_name
-        and is_world_cup_tournament(tournament_name)
+        and wc_event
         and slice_trackers is not None
         and player_countries is not None
     ):
@@ -716,7 +717,7 @@ def finalize_tournament(
     ):
         log.info("finalize_tournament: world cup stats tournament_id=%s", tournament_id)
 
-    if is_world_cup_tournament(str(tour.get("name") or "")):
+    if tournament_is_world_cup(tour):
         from scripts.amiga.country_slice_compute import rebuild_country_slices_at_world_cup_finalize
         if country_trackers is None:
             country_trackers = {}
@@ -749,7 +750,7 @@ def finalize_tournament(
 
     # WC Hall of Fame (sparse): compute + persist only on World Cup finalize, after
     # the WC slice (incl. awards/peaks) for this event has been written above.
-    if is_world_cup_tournament(str(tour.get("name") or "")):
+    if tournament_is_world_cup(tour):
         from scripts.amiga.wc_hof_persist import persist_wc_hof_for_tournament
 
         persist_wc_hof_for_tournament(

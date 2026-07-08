@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from scripts.amiga.slice_columns import SLICE_KEY_WORLD_CUP, SLICE_RISE_METRICS
-from scripts.amiga.tournament_honours import is_world_cup_tournament
+from scripts.amiga.tournament_honours import tournament_is_world_cup
 
 
 def _empty_rise_fields() -> dict[str, Any]:
@@ -87,8 +87,7 @@ def _recompute_podiums(totals: dict[str, Any]) -> None:
 
 def increment_world_cup_slice(totals: dict[str, Any], participation: dict[str, Any]) -> None:
     """Apply one participation row when the tournament is a World Cup."""
-    tournament_name = str(participation.get("tournament_name") or "")
-    if not is_world_cup_tournament(tournament_name):
+    if not tournament_is_world_cup(participation):
         return
 
     prior_tournaments_played = int(totals["tournaments_played"])

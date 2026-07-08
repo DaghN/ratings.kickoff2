@@ -414,10 +414,12 @@ function amiga_participation_derive_event_finish_position(
     bool $hasLeague = false,
     bool $hasCup = false,
     ?array $playerIds = null,
-    array $overrides = []
+    array $overrides = [],
+    ?bool $isWorldCup = null,
 ): array {
     $primaryLeague = amiga_participation_resolve_primary_league_standings($standingRows);
-    if (amiga_tournament_is_world_cup(['name' => $tournamentName])) {
+    $wcEvent = $isWorldCup ?? amiga_tournament_is_world_cup_by_name($tournamentName);
+    if ($wcEvent) {
         $finish = amiga_participation_compute_tier_d_wc_finish($standingRows);
     } elseif ($hasLeague && $hasCup && $primaryLeague !== []) {
         $finish = amiga_participation_compute_tier_b_league_cup_finish($standingRows);

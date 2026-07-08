@@ -254,7 +254,7 @@ function amiga_slice_load_wc_games_through_tournament(mysqli $con, int $tourname
         . 'FROM amiga_games g '
         . 'INNER JOIN tournaments t ON t.id = g.tournament_id '
         . 'INNER JOIN tournaments tc ON tc.id = ? '
-        . "WHERE t.name REGEXP '^World Cup[[:space:]]+[^[:space:]]' "
+        . "WHERE t.is_world_cup = 1 "
         . 'AND ('
         . '  t.event_date < tc.event_date '
         . '  OR (t.event_date = tc.event_date AND t.chrono < tc.chrono) '

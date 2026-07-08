@@ -1,6 +1,6 @@
 # Amiga World Cup flag — implementation plan
 
-**Status:** **Not started** — policy locked Jul 2026.  
+**Status:** **WC-F1–WC-F8 shipped (Jul 2026)** — `prove` green on local `ko2amiga_db`.  
 **Policy:** [`amiga-world-cup-flag-policy.md`](amiga-world-cup-flag-policy.md)  
 **Parent:** [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-ground-stack.md`](amiga-ground-stack.md)
 

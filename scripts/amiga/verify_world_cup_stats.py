@@ -65,14 +65,11 @@ def verify_world_cup_stats(conn: pymysql.connections.Connection) -> list[str]:
             SELECT t.id, t.name
             FROM tournaments t
             WHERE t.rating_finalized = 1
+              AND t.is_world_cup = 1
               AND EXISTS (SELECT 1 FROM amiga_games g WHERE g.tournament_id = t.id)
             """
         )
-        wc_ids = [
-            int(row["id"])
-            for row in cur.fetchall()
-            if is_world_cup_tournament(str(row.get("name") or ""))
-        ]
+        wc_ids = [int(row["id"]) for row in cur.fetchall()]
 
         cur.execute("SELECT tournament_id FROM amiga_world_cup_stats")
         stored_ids = {int(row["tournament_id"]) for row in cur.fetchall()}

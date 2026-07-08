@@ -394,7 +394,7 @@ function amiga_community_snapshot_series(mysqli $con, string $column, ?float $cu
         throw new RuntimeException('unknown headline column: ' . $column);
     }
 
-    $sql = "SELECT s.tournament_id, s.event_date, s.tournament_name, t.country AS host_country, `{$column}` AS v
+    $sql = "SELECT s.tournament_id, s.event_date, s.tournament_name, t.is_world_cup, t.country AS host_country, `{$column}` AS v
             FROM amiga_community_stats_snapshots s
             LEFT JOIN tournaments t ON t.id = s.tournament_id";
     if ($cutoffChrono !== null) {
@@ -418,7 +418,7 @@ function amiga_community_snapshot_series(mysqli $con, string $column, ?float $cu
     $out = [];
     while ($row = $res->fetch_assoc()) {
         $name = (string) ($row['tournament_name'] ?? '');
-        if ($column === 'WcGamesPlayed' && !amiga_tournament_is_world_cup_by_name($name)) {
+        if ($column === 'WcGamesPlayed' && (int) ($row['is_world_cup'] ?? 0) !== 1) {
             continue;
         }
         $out[] = [

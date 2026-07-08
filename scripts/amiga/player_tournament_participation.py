@@ -165,6 +165,7 @@ def participation_row_from_parts(
         "country": tournament.get("country"),
         "has_league": int(tournament.get("has_league") or 0),
         "has_cup": int(tournament.get("has_cup") or 0),
+        "is_world_cup": int(tournament.get("is_world_cup") or 0),
         "event_finish_position": event_finish_position,
         "best_knockout_phase": best_knockout_phase,
         "games": games_count,
@@ -227,7 +228,7 @@ def _load_tournament(conn: pymysql.connections.Connection, tournament_id: int) -
     with conn.cursor() as cur:
         cur.execute(
             """
-            SELECT id, name, event_date, chrono, is_cup, country, has_league, has_cup
+            SELECT id, name, event_date, chrono, is_cup, country, has_league, has_cup, is_world_cup
             FROM tournaments
             WHERE id = %s
             """,
@@ -332,6 +333,7 @@ def build_participation_rows_for_tournament(
         tournament_name=tournament_name,
         has_league=bool(tournament.get("has_league")),
         has_cup=bool(tournament.get("has_cup")),
+        is_world_cup=bool(int(tournament.get("is_world_cup") or 0)),
         player_ids=player_ids,
         overrides=finish_overrides or None,
     )

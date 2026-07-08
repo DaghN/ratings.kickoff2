@@ -82,6 +82,7 @@ FROM (
         t.country AS tournament_country,
         t.event_date AS tournament_event_date,
         t.chrono AS tournament_chrono,
+        t.is_world_cup,
         pa.country AS country_a,
         pb.country AS country_b
     FROM amiga_games g

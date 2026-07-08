@@ -49,7 +49,7 @@ function amiga_wc_perfect_events_by_player(mysqli $con, ?AmigaSnapshotContext $c
             FROM amiga_player_event_snapshots s
             INNER JOIN tournaments t ON t.id = s.tournament_id
             WHERE s.is_perfect_event = 1
-              AND t.name REGEXP \'^World Cup[[:space:]]+[^[:space:]]\'
+              AND t.is_world_cup = 1
               ' . $cutoffSql . '
             GROUP BY s.player_id';
     if ($types === '') {

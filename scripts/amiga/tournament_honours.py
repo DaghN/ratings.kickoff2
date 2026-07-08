@@ -9,8 +9,15 @@ _WORLD_CUP_NAME_RE = re.compile(r"^World Cup\s+\S", re.IGNORECASE)
 
 
 def is_world_cup_tournament(name: str) -> bool:
-    """Match PHP ``amiga_tournament_is_world_cup()`` — ``^World Cup\\s+\\S``."""
+    """Match PHP ``amiga_tournament_is_world_cup_by_name()`` — ``^World Cup\\s+\\S``."""
     return bool(_WORLD_CUP_NAME_RE.match(str(name or "").strip()))
+
+
+def tournament_is_world_cup(tournament: dict[str, Any]) -> bool:
+    """Read stored ``is_world_cup`` when present; else derive from name."""
+    if "is_world_cup" in tournament:
+        return int(tournament.get("is_world_cup") or 0) == 1
+    return is_world_cup_tournament(str(tournament.get("name") or ""))
 
 
 def knockout_scope_label(scope_key: str) -> str:

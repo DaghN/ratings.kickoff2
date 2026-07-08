@@ -124,7 +124,7 @@ function amiga_games_highlights_lean_scope_where_sql(
     );
     $where = '1=1' . $cutoffSql;
     if (amiga_games_highlights_valid_scope($scope) === 'world-cup') {
-        $where .= ' AND ' . amiga_games_world_cup_name_sql('t.name');
+        $where .= ' AND ' . amiga_games_world_cup_flag_sql('t.is_world_cup');
     }
 
     return $where;

@@ -78,11 +78,10 @@ function amiga_games_valid_event_filter(string $value): string
     return $value === 'world-cup' ? 'world-cup' : 'all';
 }
 
-/** SQL fragment: World Cup catalog names (`amiga_tournament_is_world_cup_by_name`). */
-function amiga_games_world_cup_name_sql(string $tournamentNameColumn): string
+/** SQL fragment: World Cup catalog filter on stored flag. */
+function amiga_games_world_cup_flag_sql(string $column): string
 {
-    // No literal space before [[:space:]] — "World Cup IV…" has only one space after Cup.
-    return $tournamentNameColumn . " REGEXP '^World Cup[[:space:]]+[^[:space:]]'";
+    return '(' . $column . ' = 1)';
 }
 
 /**
@@ -381,7 +380,7 @@ function amiga_games_where_clause(
     }
 
     if ($eventFilter === 'world-cup') {
-        $where[] = amiga_games_world_cup_name_sql('r.tournament_name');
+        $where[] = amiga_games_world_cup_flag_sql('r.is_world_cup');
     }
 
     if ($countryFilter !== '') {
@@ -464,7 +463,7 @@ function amiga_games_tournament_meta_and_sql(
 ): string {
     $parts = [];
     if ($eventFilter === 'world-cup') {
-        $parts[] = amiga_games_world_cup_name_sql('t.name');
+        $parts[] = amiga_games_world_cup_flag_sql('t.is_world_cup');
     }
     if ($countryFilter !== '') {
         $parts[] = 't.country = ?';

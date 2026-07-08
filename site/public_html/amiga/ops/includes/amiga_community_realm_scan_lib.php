@@ -39,7 +39,7 @@ function amiga_community_build_realm_scan(mysqli $con, int $tournamentId): array
 
     $sql = "
         SELECT g.id AS game_id, g.player_a_id, g.player_b_id, g.goals_a, g.goals_b, g.phase,
-               t.event_date, t.country AS host_country, t.name AS tournament_name,
+               t.event_date, t.country AS host_country, t.name AS tournament_name, t.is_world_cup,
                pa.country AS country_a, pb.country AS country_b,
                r.sum_of_goals, r.actual_score,
                r.dd_player_a, r.dd_player_b, r.cs_player_a, r.cs_player_b
@@ -117,7 +117,7 @@ function amiga_community_build_realm_scan(mysqli $con, int $tournamentId): array
         $goalsA = (int) $metrics['goals_a'];
         $goalsB = (int) $metrics['goals_b'];
         $sumGoals = (int) $metrics['sum_of_goals'];
-        $isWc = amiga_honours_is_world_cup_tournament((string) ($row['tournament_name'] ?? ''));
+        $isWc = (int) ($row['is_world_cup'] ?? 0) === 1;
 
         if ($year !== null) {
             $bump($factKey('year', $year, 'realm', AMIGA_COMMUNITY_REALM_SLICE_KEY, 'games', 'game'), 1);

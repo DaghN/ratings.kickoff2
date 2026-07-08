@@ -88,7 +88,7 @@
 
 - **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~299** videos; unified embed UI; **C06** dedicated Videos column; **With videos** filter; **player profile Videos wing**. **Jul 2026:** **TV-2b DB anchor sync** — `sync_db_ids` + `verify-tournament-videos` in `prove` ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md) §12).
 
-- **Amiga live ops (Jul 2026):** **RTB shipped (RTB-1–RTB-8)** — running scores on fixtures until **Make official** (promote + finalize); `verify-running-tournament-boundary` in `prove`. **Next:** staging Ref-League-A drill after `export_ko2amiga_db.ps1` + import. **PC-1–PC-7** player create shipped. Policy: [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md) · [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md) · [`amiga-live-ops-platform.md`](docs/amiga-live-ops-platform.md).
+- **Amiga live ops (Jul 2026):** **RTB shipped (RTB-1–RTB-9)** — running scores until organizer **Finish and make official** (promote + finalize + lifecycle `completed` in one Table-tab action). Policy: [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md) rev. 2.
 
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
@@ -137,7 +137,9 @@
 
 ## Recent log
 
-| 2026-07-08 | **`is_world_cup` flag policy locked** — L3 `tournaments` column + snapshot denorm; import derives from name regex after catalog transforms; live create checkbox ⟺ name; no index/overrides. [`amiga-world-cup-flag-policy.md`](docs/amiga-world-cup-flag-policy.md) + implementation plan. |
+| 2026-07-08 | **`is_world_cup` flag shipped** — L3 `tournaments.is_world_cup` + snapshot denorm; import derives from name regex; `verify-is-world-cup` in prove; read paths use stored flag; organizer create checkbox ⟺ name. Policy: [`amiga-world-cup-flag-policy.md`](docs/amiga-world-cup-flag-policy.md). |
+| 2026-07-08 | **RTB-9 shipped** — one **Finish and make official** button (promote + finalize + lifecycle `completed`); Setup **Mark complete** retired; limbo repair on re-click. |
+| 2026-07-08 | **RTB policy rev. 2** — locked vocabulary + finish-action contract. |
 | 2026-07-08 | **Live tournament league table** — `/amiga/live-tournament.php` shows `amiga_tournament_render_standings_table()` (broadcast merge via `amiga_live_tournament_league_table_rows()`); shared merge helper with organizer. |
 | 2026-07-08 | **Organizer Table tab UX** — shared `amiga_tournament_render_standings_table()` + k2 sortable stack; merge all registered entrants (zero-game players at tied rank); country flags via entrant/standings rows. |
 | 2026-07-08 | **Organizer Table tab (RTB broadcast)** — `amiga_running_tournament_games()` joins stage metadata so running standings resolve `round_robin`/`overall` → league `scope_key=''` (was preview zeros when only `phase_label` reached parser). Python `running_tournament_games()` parity. |

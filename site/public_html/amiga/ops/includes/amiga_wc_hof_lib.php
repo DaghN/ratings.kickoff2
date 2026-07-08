@@ -575,7 +575,7 @@ function amiga_wc_hof_persist_for_tournament(
     $res = $stmt->get_result();
     $tour = $res ? $res->fetch_assoc() : null;
     $stmt->close();
-    if ($tour === null || !amiga_honours_is_world_cup_tournament((string) ($tour['name'] ?? ''))) {
+    if ($tour === null || !amiga_tournament_is_world_cup($tour)) {
         return false;
     }
 

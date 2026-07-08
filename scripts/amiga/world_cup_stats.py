@@ -15,7 +15,7 @@ from scripts.amiga.community_game_metrics import (
     rate,
     rated_game_metrics_from_row,
 )
-from scripts.amiga.tournament_honours import compute_wc_podium_finish_from_standings, is_world_cup_tournament
+from scripts.amiga.tournament_honours import compute_wc_podium_finish_from_standings, tournament_is_world_cup
 from scripts.amiga.world_cup_stats_columns import WORLD_CUP_STATS_COLUMNS
 
 
@@ -130,13 +130,13 @@ def build_world_cup_stats_row(
     with conn.cursor() as cur:
         cur.execute(
             """
-            SELECT id, name, event_date, chrono, country, rating_finalized_at
+            SELECT id, name, event_date, chrono, country, rating_finalized_at, is_world_cup
             FROM tournaments WHERE id = %s LIMIT 1
             """,
             (tournament_id,),
         )
         tour = cur.fetchone()
-    if not tour or not is_world_cup_tournament(str(tour.get("name") or "")):
+    if not tour or not tournament_is_world_cup(tour):
         return None
 
     event_date = tour.get("event_date")

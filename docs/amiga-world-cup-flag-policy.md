@@ -1,6 +1,6 @@
 # Amiga World Cup flag (`is_world_cup`) — policy
 
-**Status:** **Policy locked (Jul 2026)** — implementation not started.  
+**Status:** **Shipped (Jul 2026)** — local `ko2amiga_db` + `prove` green.  
 **Parent:** [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (L3 witness) · [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-data-contract.md`](amiga-data-contract.md)  
 **Related:** [`amiga-world-cup-flag-implementation-plan.md`](amiga-world-cup-flag-implementation-plan.md) · [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) · [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md)
 
@@ -145,3 +145,4 @@ After ship, gate on **`is_world_cup`** (tournament row or denormalized snapshot 
 | When | Summary |
 |------|---------|
 | **Jul 2026** | Policy locked — stored `is_world_cup`, import derivation, snapshot denorm, live checkbox ⟺ name, no index, no manifest overrides. |
+| **Jul 2026** | **Shipped** — DDL `structure/010` + `derived/047`; import persist; `verify-is-world-cup` in prove; read paths + organizer create checkbox. |

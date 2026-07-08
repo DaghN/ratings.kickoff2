@@ -33,6 +33,7 @@ function amiga_ops_snapshot_participation_columns(): array
         'country',
         'has_league',
         'has_cup',
+        'is_world_cup',
         'finalized_at',
         'event_finish_position',
         'event_points',
@@ -544,7 +545,7 @@ function amiga_ops_persist_tournament_event_snapshots(
         $tournamentName = (string) ($participation['tournament_name'] ?? '');
         break;
     }
-    if (amiga_honours_is_world_cup_tournament($tournamentName)) {
+    if (amiga_honours_participation_is_world_cup($participation)) {
         amiga_slice_apply_v2_through_tournament($con, $tournamentId, $sliceByPlayer, $playerCountries);
         // SCH-046: per-event awards + single-WC peaks (must precede slice persist below).
         amiga_ops_apply_wc_slice_awards_and_peaks($con, $tournamentId, $sliceByPlayer);
@@ -576,7 +577,7 @@ function amiga_ops_persist_tournament_event_snapshots(
 
     amiga_ops_persist_world_cup_slices($con, $tournamentId, $eventDate, $eventChrono, $sliceByPlayer);
 
-    if (amiga_honours_is_world_cup_tournament($tournamentName)) {
+    if (amiga_honours_participation_is_world_cup($participation)) {
         amiga_country_slice_rebuild_at_world_cup_finalize(
             $con,
             $tournamentId,

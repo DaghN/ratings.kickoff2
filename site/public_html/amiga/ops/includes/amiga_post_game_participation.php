@@ -247,7 +247,7 @@ function amiga_ops_participation_rows_for_tournament(
     }
 
     $tournamentStmt = $con->prepare(
-        'SELECT id, name, event_date, chrono, is_cup, country, has_league, has_cup
+        'SELECT id, name, event_date, chrono, is_cup, country, has_league, has_cup, is_world_cup
          FROM tournaments
          WHERE id = ?
          LIMIT 1'
@@ -284,13 +284,15 @@ function amiga_ops_participation_rows_for_tournament(
     $tournamentName = (string) $tournament['name'];
     $hasLeague = (bool) ((int) ($tournament['has_league'] ?? 0));
     $hasCup = (bool) ((int) ($tournament['has_cup'] ?? 0));
+    $isWorldCup = (bool) ((int) ($tournament['is_world_cup'] ?? 0));
     $eventFinishes = amiga_participation_derive_event_finish_position(
         $standingRows,
         $tournamentName,
         $hasLeague,
         $hasCup,
         $playerIds,
-        $finishOverrides
+        $finishOverrides,
+        $isWorldCup
     );
 
     $rowsByPlayer = [];
@@ -317,6 +319,7 @@ function amiga_ops_participation_rows_for_tournament(
             'country' => (string) ($tournament['country'] ?? ''),
             'has_league' => (int) ($tournament['has_league'] ?? 0),
             'has_cup' => (int) ($tournament['has_cup'] ?? 0),
+            'is_world_cup' => (int) ($tournament['is_world_cup'] ?? 0),
             'event_finish_position' => $eventFinishPosition,
             'best_knockout_phase' => $bestKnockoutPhase,
             'event_points' => $wins * 3 + $draws,
@@ -355,7 +358,7 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
     $delete->close();
 
     $tournamentStmt = $con->prepare(
-        'SELECT id, name, event_date, chrono, is_cup, country, has_league, has_cup
+        'SELECT id, name, event_date, chrono, is_cup, country, has_league, has_cup, is_world_cup
          FROM tournaments
          WHERE id = ?
          LIMIT 1'
@@ -390,13 +393,15 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
     $tournamentName = (string) $tournament['name'];
     $hasLeague = (bool) ((int) ($tournament['has_league'] ?? 0));
     $hasCup = (bool) ((int) ($tournament['has_cup'] ?? 0));
+    $isWorldCup = (bool) ((int) ($tournament['is_world_cup'] ?? 0));
     $eventFinishes = amiga_participation_derive_event_finish_position(
         $standingRows,
         $tournamentName,
         $hasLeague,
         $hasCup,
         $playerIds,
-        $finishOverrides
+        $finishOverrides,
+        $isWorldCup
     );
 
     $insert = $con->prepare(
@@ -514,7 +519,7 @@ function amiga_ops_participation_replace_tournament(mysqli $con, int $tournament
 
 function amiga_ops_participation_wc_supplement_tournament(mysqli $con, int $tournamentId): int
 {
-    $nameStmt = $con->prepare('SELECT name FROM tournaments WHERE id = ? LIMIT 1');
+    $nameStmt = $con->prepare('SELECT name, is_world_cup FROM tournaments WHERE id = ? LIMIT 1');
     if ($nameStmt === false) {
         throw new RuntimeException('prepare tournament name: ' . $con->error);
     }
@@ -523,17 +528,17 @@ function amiga_ops_participation_wc_supplement_tournament(mysqli $con, int $tour
         throw new RuntimeException('execute tournament name: ' . $nameStmt->error);
     }
     $res = $nameStmt->get_result();
-    $name = '';
+    $tourRow = false;
     if ($res) {
-        $row = $res->fetch_assoc();
-        $name = (string) ($row['name'] ?? '');
+        $tourRow = $res->fetch_assoc();
         $res->free();
     }
     $nameStmt->close();
 
-    if (!amiga_tournament_is_world_cup(['name' => $name])) {
+    if ($tourRow === false || !amiga_tournament_is_world_cup($tourRow)) {
         return 0;
     }
+    $name = (string) ($tourRow['name'] ?? '');
 
     $gamesRollup = amiga_ops_participation_player_games_rollup_sql();
     $sql = <<<SQL
@@ -615,7 +620,7 @@ LEFT JOIN amiga_tournament_standings gs
          AND s2.scope_type = 'league'
          AND s2.scope_key <> ''
    )
-WHERE t.name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
+WHERE t.is_world_cup = 1
   AND NOT EXISTS (
       SELECT 1
       FROM amiga_player_tournament_participation p
@@ -702,31 +707,31 @@ SELECT
             THEN 1 ELSE 0
         END
     ) AS event_podiums,
-    SUM(CASE WHEN p.tournament_name REGEXP '^World Cup[[:space:]]+[^[:space:]]' THEN 1 ELSE 0 END) AS wc_played,
+    SUM(CASE WHEN p.is_world_cup = 1 THEN 1 ELSE 0 END) AS wc_played,
     SUM(
         CASE
-            WHEN p.tournament_name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
+            WHEN p.is_world_cup = 1
              AND p.event_finish_position = 1
             THEN 1 ELSE 0
         END
     ) AS wc_gold,
     SUM(
         CASE
-            WHEN p.tournament_name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
+            WHEN p.is_world_cup = 1
              AND p.event_finish_position = 2
             THEN 1 ELSE 0
         END
     ) AS wc_silver,
     SUM(
         CASE
-            WHEN p.tournament_name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
+            WHEN p.is_world_cup = 1
              AND p.event_finish_position = 3
             THEN 1 ELSE 0
         END
     ) AS wc_bronze,
     SUM(
         CASE
-            WHEN p.tournament_name REGEXP '^World Cup[[:space:]]+[^[:space:]]'
+            WHEN p.is_world_cup = 1
              AND p.event_finish_position IS NOT NULL
              AND p.event_finish_position <= 3
             THEN 1 ELSE 0

@@ -51,6 +51,7 @@ from scripts.amiga.tournament_format import (
     infer_legacy_tournament_formats,
     seed_format_templates,
 )
+from scripts.amiga.tournament_honours import is_world_cup_tournament
 from scripts.amiga.tournament_structure.apply import (
     ApplyContext,
     apply_structure_spec,
@@ -390,10 +391,10 @@ def persist_witness_to_mysql(
                 """
                 INSERT INTO tournaments
                   (source_id, name, chrono, event_date, is_cup, country, equal_teams, player_count,
-                   format_template_id, has_league, has_cup, lifecycle_status, completed_at)
+                   format_template_id, has_league, has_cup, is_world_cup, lifecycle_status, completed_at)
                 VALUES (%(source_id)s, %(name)s, %(chrono)s, %(event_date)s, %(is_cup)s,
                         %(country)s, %(equal_teams)s, %(player_count)s,
-                        %(format_template_id)s, %(has_league)s, %(has_cup)s,
+                        %(format_template_id)s, %(has_league)s, %(has_cup)s, %(is_world_cup)s,
                         'completed', %(completed_at)s)
                 """,
                 {
@@ -402,6 +403,7 @@ def persist_witness_to_mysql(
                     "format_template_id": legacy_template_id,
                     "has_league": inferred_format.has_league,
                     "has_cup": inferred_format.has_cup,
+                    "is_world_cup": 1 if is_world_cup_tournament(str(t["name"])) else 0,
                     "completed_at": (
                         datetime.combine(
                             t["event_date"].date() if isinstance(t["event_date"], datetime) else t["event_date"],

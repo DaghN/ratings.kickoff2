@@ -1,8 +1,8 @@
 # Amiga running tournament boundary — implementation plan
 
-**Status:** **RTB shipped (Jul 2026)** — slices RTB-PREFLIGHT through RTB-8 complete; `python -m scripts.amiga prove` green with `verify-running-tournament-boundary`.
+**Status:** **RTB-1–RTB-9 shipped (Jul 2026)** — `python -m scripts.amiga prove` green; organizer **Finish and make official** on Table tab.
 
-**Policy:** [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (rev. 1, RTB1–RTB12)  
+**Policy:** [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (rev. 2, RTB1–RTB13)  
 **Inventory:** [`amiga-running-tournament-boundary-inventory.md`](amiga-running-tournament-boundary-inventory.md) (rev. 2, audit fold-in)  
 **Parent:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (Lane B) · [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md)
 
@@ -83,7 +83,7 @@ RTB fixture columns are **L4 structure** — same rule as `player_source` is L3 
 | **IP5** | **Chronology** (`source_scores_id`, `game_date`) allocated only in **promote** transaction, ordered by `s.sequence_no`, `f.leg_no`, `f.id`, optional `f.result_recorded_at`. |
 | **IP6** | **Void (running):** allowed when **zero official** `amiga_games` for tournament — **played fixtures with running scores do not block void** (inventory §3.4). Void does not require DELETE of fixture rows; lifecycle `void` is sufficient. |
 | **IP7** | **Make official gate:** all non-void fixtures **`played`** (fixture columns), lifecycle `running`, not `rating_finalized`, zero pre-existing `amiga_games` for TID (idempotent promote guard). |
-| **IP8** | **Mark complete** (lifecycle → `completed` without Make official): still allowed when zero scheduled fixtures remain; **`complete_blocked_reason`** uses **played-fixture count**, not `amiga_games`. |
+| **IP8** | **Organizer finish (RTB-9):** browser **Finish and make official** = promote + finalize + lifecycle `completed` in one action. **Mark complete** retired from Setup happy path. Until RTB-9 ships, RTB-1–8 may leave `rating_finalized = 1` with `lifecycle_status = running` — repair §6.6. |
 | **IP9** | **Live-ops tournament** = `source_id IS NULL` AND (`format_overrides` LIKE `%tournament_builder%` OR `%fixtures%`) — same as generated list in `fixtures.php` (~3195–3208). Oracles scope RTB rules to this set only. |
 | **IP10** | **`attach-game` / `attach_game_to_fixture`:** not used on running path; CLI help marks **official repair only** (or refuse when `rating_finalized = 0`). |
 | **IP11** | **Broadcast standings:** call **`amiga_ops_compute_tournament_standings()`** on fixture-derived game dicts (PHP); parity with **`tournament_standings.compute_tournament_standings()`** (Python). |
@@ -124,6 +124,7 @@ RTB fixture columns are **L4 structure** — same rule as `player_source` is L3 
 | **RTB-6** | Wire promote into Make official / finalize | Make official → games + full L5 derive |
 | **RTB-7** | `verify-running-tournament-boundary` + oracle updates + prove | `python -m scripts.amiga prove` exit 0 |
 | **RTB-8** | Docs, practice track, staging drill, UPDATE_DOCS | Ref-League-A drill on staging |
+| **RTB-9** | One **Finish and make official** action: promote + finalize + lifecycle `completed`; retire Setup **Mark complete**; UI copy | Staging league finish: leaves Live hub + on catalog + ratings; no limbo `running`+`rating_finalized` |
 
 ---
 
@@ -734,10 +735,41 @@ Do not git commit unless I ask. UPDATE_DOCS Part A (+ Part B for DDL) at RTB-8 i
 
 ---
 
+## RTB-9 — Organizer finish UX (policy rev. 2)
+
+**Policy:** [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) §2, §6, RTB13.
+
+### Scope
+
+| Task | File / area |
+|------|-------------|
+| After successful `amiga_fixture_reprocess_tournament_derived()`, set `lifecycle_status = completed` + `completed_at` (same transaction or rollback-safe sequence) | `fixtures.php` |
+| Rename Table tab button + helper to **Finish and make official** | `fixtures.php` |
+| Update Results tab hint copy | `fixtures.php` |
+| Remove **Mark complete** from Setup happy path (`can_complete` / button) | `fixtures.php` |
+| Flash messages: “League finished and made official …” | `fixtures.php` |
+| Optional: one-off repair for `rating_finalized=1` + `lifecycle_status=running` on staging | `scripts/` or CLI note only |
+
+### Verification
+
+1. Running league with all fixtures played → single button → `rating_finalized=1`, `lifecycle_status=completed`, off Live index, on `/amiga/tournaments.php`.
+2. Partial league → button hidden; Setup shows no Mark complete.
+3. Second click → calm already-official flash.
+4. `python -m scripts.amiga prove` still green.
+
+### Out of scope
+
+- CLI rename (`finalize-tournament` stays).
+- Changing derive pipeline semantics.
+
+---
+
 ## Changelog
 
 | Date | Change |
 |------|--------|
+| 2026-07-08 | **RTB-9 shipped** — `fixtures.php`: Finish and make official; lifecycle on success; Mark complete removed from Setup. |
+| 2026-07-08 | **RTB-9 slice added** — policy rev. 2 organizer finish UX; IP8 updated. |
 | 2026-07-07 | **RTB shipped** — RTB-PREFLIGHT through RTB-8 complete; `prove` green. |
 | 2026-07-07 | **Rev. 3** — single continuous starter prompt (all slices one chat); removed per-slice-only prompts. |
 | 2026-07-07 | **Rev. 2** — § **DDL — holy ops only**; IP14 prove-only; RTB-1 forbids manual ALTER / 047 migrations (post agent trap). |

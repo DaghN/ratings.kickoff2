@@ -359,6 +359,7 @@ function amiga_fixture_create_draft_from_request(): array
         'country' => trim((string) ($_POST['country'] ?? $_GET['cp_country'] ?? '')),
         'legs' => max(1, min(2, $legs)),
         'player_ids' => $playerIds,
+        'is_world_cup' => (($_POST['is_world_cup'] ?? $_GET['cp_is_world_cup'] ?? '') === '1'),
         'new_player_full' => trim((string) ($_POST['new_player_full_name'] ?? $_GET['cp_new_full'] ?? '')),
         'new_player_country' => trim((string) ($_POST['new_player_country'] ?? $_GET['cp_new_country'] ?? '')),
         'new_player_preview' => trim((string) ($_POST['new_player_preview'] ?? $_GET['cp_new_preview'] ?? '')),
@@ -366,7 +367,7 @@ function amiga_fixture_create_draft_from_request(): array
 }
 
 /**
- * @param array{name:string,event_date:string,country:string,legs:int,player_ids:list<int>} $draft
+ * @param array{name:string,event_date:string,country:string,legs:int,player_ids:list<int>,is_world_cup?:bool} $draft
  */
 function amiga_fixture_create_draft_query(array $draft, string $createPlayerSearch = ''): array
 {
@@ -391,6 +392,9 @@ function amiga_fixture_create_draft_query(array $draft, string $createPlayerSear
     }
     if (($draft['new_player_preview'] ?? '') !== '') {
         $params['cp_new_preview'] = $draft['new_player_preview'];
+    }
+    if (!empty($draft['is_world_cup'])) {
+        $params['cp_is_world_cup'] = '1';
     }
 
     return $params;
@@ -782,9 +786,8 @@ function amiga_fixture_organizer_status_badge_modifier(string $status): string
  *   is_imported:bool,
  *   is_read_only:bool,
  *   can_start:bool,
- *   can_complete:bool,
  *   can_void:bool,
- *   complete_blocked_reason:?string,
+ *   finish_hint:?string,
  *   scheduled_remaining:int,
  *   game_count:int
  * }
@@ -804,16 +807,18 @@ function amiga_fixture_organizer_lifecycle_ui(mysqli $con, array $lifecycle): ar
     $canStart = !$isImported
         && in_array($rawStatus, ['draft', 'registration', 'ready'], true)
         && (in_array('running', $allowed, true) || in_array('ready', $allowed, true));
-    $canComplete = !$isImported && in_array('completed', $allowed, true);
     $canVoid = !$isImported && in_array('void', $allowed, true);
 
-    $completeBlockedReason = null;
-    if ($rawStatus === 'running' && !$canComplete && !$isImported) {
+    $finishHint = null;
+    if ($rawStatus === 'running' && !$isImported) {
         if ($scheduledRemaining > 0) {
             $fixtureWord = $scheduledRemaining === 1 ? 'fixture' : 'fixtures';
-            $completeBlockedReason = "Mark complete is unavailable while {$scheduledRemaining} scheduled {$fixtureWord} remain.";
-        } elseif ($playedFixtureCount === 0) {
-            $completeBlockedReason = 'Mark complete is unavailable until at least one match has been played or voided fixtures are cleared.';
+            $finishHint = $scheduledRemaining . ' scheduled ' . $fixtureWord
+                . ' remain — enter results on the Results tab, then use '
+                . AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL . ' on the Table tab.';
+        } elseif ($playedFixtureCount > 0) {
+            $finishHint = 'All match results are in — use '
+                . AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL . ' on the Table tab to commit ratings and close the league.';
         }
     }
 
@@ -827,9 +832,8 @@ function amiga_fixture_organizer_lifecycle_ui(mysqli $con, array $lifecycle): ar
         'is_imported' => $isImported,
         'is_read_only' => $isReadOnly,
         'can_start' => $canStart,
-        'can_complete' => $canComplete,
         'can_void' => $canVoid,
-        'complete_blocked_reason' => $completeBlockedReason,
+        'finish_hint' => $finishHint,
         'scheduled_remaining' => $scheduledRemaining,
         'game_count' => $gameCount,
     ];
@@ -851,7 +855,7 @@ function amiga_fixture_organizer_lifecycle_ui(mysqli $con, array $lifecycle): ar
  */
 function amiga_fixture_apply_organizer_lifecycle_action(mysqli $con, int $tournamentId, string $action): array
 {
-    $validActions = ['start_tournament', 'mark_complete', 'void_tournament'];
+    $validActions = ['start_tournament', 'void_tournament'];
     if (!in_array($action, $validActions, true)) {
         throw new RuntimeException('Unknown organizer lifecycle action.');
     }
@@ -888,7 +892,7 @@ function amiga_fixture_apply_organizer_lifecycle_action(mysqli $con, int $tourna
         ];
     }
 
-    $targetStatus = $action === 'mark_complete' ? 'completed' : 'void';
+    $targetStatus = 'void';
     $summary = amiga_fixture_set_lifecycle_status($con, $tournamentId, $targetStatus);
 
     return [
@@ -1271,6 +1275,7 @@ function amiga_fixture_require_stage_players(mysqli $con, int $stageId, array $p
 
 /** @var list<string> */
 const AMIGA_FIXTURE_ENTRANT_REGISTRATION_LIFECYCLES = ['draft', 'registration', 'ready'];
+const AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL = 'Finish and make official';
 
 const AMIGA_FIXTURE_WITHDRAW_ENTRANT_ACTION = 'withdrawn by fixtures browser ops';
 const AMIGA_FIXTURE_REPLACE_ENTRANT_ACTION = 'replaced by fixtures browser ops';
@@ -2246,13 +2251,15 @@ function amiga_fixture_create_kitchen_tournament(
     string $eventDate,
     string $country,
     array $playerIds,
-    int $legs
+    int $legs,
+    bool $isWorldCup = false,
 ): int {
     $name = trim($name);
     $country = trim($country);
     if ($name === '') {
         throw new RuntimeException('Tournament name is required.');
     }
+    amiga_tournament_validate_is_world_cup_correspondence($name, $isWorldCup);
     if (!k2_amiga_country_validate_token($country)) {
         throw new RuntimeException('Choose a valid country from the list.');
     }
@@ -2281,18 +2288,19 @@ function amiga_fixture_create_kitchen_tournament(
         $hasLeague = 1;
         $hasCup = 0;
         $isCup = 0;
+        $isWorldCupInt = $isWorldCup ? 1 : 0;
         $lifecycleStatus = 'draft';
         $stmt = $con->prepare(
             'INSERT INTO tournaments '
             . '(source_id, name, chrono, event_date, is_cup, country, equal_teams, player_count, '
-            . 'format_template_id, format_overrides, has_league, has_cup, lifecycle_status) '
-            . 'VALUES (NULL, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            . 'format_template_id, format_overrides, has_league, has_cup, is_world_cup, lifecycle_status) '
+            . 'VALUES (NULL, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         if ($stmt === false) {
             throw new RuntimeException('prepare tournament insert: ' . $con->error);
         }
         $stmt->bind_param(
-            'ssisiiisiis',
+            'ssisiisiisis',
             $name,
             $eventDate,
             $isCup,
@@ -2303,6 +2311,7 @@ function amiga_fixture_create_kitchen_tournament(
             $overrides,
             $hasLeague,
             $hasCup,
+            $isWorldCupInt,
             $lifecycleStatus
         );
         if (!$stmt->execute()) {
@@ -2593,14 +2602,80 @@ function amiga_fixture_list_tournament_unrated_game_ids(mysqli $con, int $tourna
 }
 
 /**
- * @return array{processed:int,failed_game_id:?int,skip_reason:?string}
+ * Complete lifecycle for an already-official running tournament (RTB-1–8 limbo repair).
+ */
+function amiga_fixture_try_complete_official_tournament_lifecycle(mysqli $con, int $tournamentId): bool
+{
+    $lifecycle = amiga_fixture_load_lifecycle($con, $tournamentId);
+    if ($lifecycle === null) {
+        return false;
+    }
+    $current = $lifecycle['lifecycle_status'];
+    if (in_array($current, ['completed', 'archived'], true)) {
+        return false;
+    }
+    if ($current !== 'running') {
+        return false;
+    }
+
+    $summary = amiga_fixture_set_lifecycle_status($con, $tournamentId, 'completed');
+
+    return $summary['changed'] || $summary['lifecycle_status'] === 'completed';
+}
+
+/**
+ * Organizer finish (Finish and make official): promote + finalize + lifecycle completed.
+ *
+ * @return array{
+ *   processed:int,
+ *   failed_game_id:?int,
+ *   skip_reason:?string,
+ *   lifecycle_completed:bool
+ * }
  */
 function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournamentId): array
 {
     amiga_fixture_require_generated_tournament($con, $tournamentId);
     if (amiga_ops_tournament_rating_finalized($con, $tournamentId)) {
-        return ['processed' => 0, 'failed_game_id' => null, 'skip_reason' => 'already_finalized'];
+        $lifecycleCompleted = amiga_fixture_try_complete_official_tournament_lifecycle($con, $tournamentId);
+
+        return [
+            'processed' => 0,
+            'failed_game_id' => null,
+            'skip_reason' => $lifecycleCompleted ? 'lifecycle_repaired' : 'already_finalized',
+            'lifecycle_completed' => $lifecycleCompleted,
+        ];
     }
+
+    $lifecycle = amiga_fixture_load_lifecycle($con, $tournamentId);
+    if ($lifecycle === null || $lifecycle['lifecycle_status'] !== 'running') {
+        return [
+            'processed' => 0,
+            'failed_game_id' => null,
+            'skip_reason' => 'lifecycle_not_running',
+            'lifecycle_completed' => false,
+        ];
+    }
+
+    $scheduledRemaining = amiga_fixture_count_scheduled_fixtures($con, $tournamentId);
+    if ($scheduledRemaining > 0) {
+        return [
+            'processed' => 0,
+            'failed_game_id' => null,
+            'skip_reason' => 'scheduled_fixtures_remain',
+            'lifecycle_completed' => false,
+        ];
+    }
+
+    if (amiga_fixture_count_played_fixtures($con, $tournamentId) === 0) {
+        return [
+            'processed' => 0,
+            'failed_game_id' => null,
+            'skip_reason' => 'no_played_fixtures',
+            'lifecycle_completed' => false,
+        ];
+    }
+
     if (amiga_fixture_count_official_tournament_games($con, $tournamentId) === 0) {
         $promote = amiga_promote_running_tournament($con, $tournamentId, false);
         if ($promote['skipped'] && ($promote['skip_reason'] ?? null) === 'games_already_exist') {
@@ -2608,12 +2683,18 @@ function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournament
                 'processed' => 0,
                 'failed_game_id' => null,
                 'skip_reason' => 'promote_refused_games_exist',
+                'lifecycle_completed' => false,
             ];
         }
     }
     $gameIds = amiga_fixture_list_tournament_unrated_game_ids($con, $tournamentId);
     if ($gameIds === []) {
-        return ['processed' => 0, 'failed_game_id' => null, 'skip_reason' => 'no_games_to_finalize'];
+        return [
+            'processed' => 0,
+            'failed_game_id' => null,
+            'skip_reason' => 'no_games_to_finalize',
+            'lifecycle_completed' => false,
+        ];
     }
 
     try {
@@ -2623,6 +2704,20 @@ function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournament
             'processed' => 0,
             'failed_game_id' => $gameIds[0] ?? null,
             'skip_reason' => $e->getMessage(),
+            'lifecycle_completed' => false,
+        ];
+    }
+
+    try {
+        $lifecycleSummary = amiga_fixture_set_lifecycle_status($con, $tournamentId, 'completed');
+        $lifecycleCompleted = $lifecycleSummary['changed']
+            || $lifecycleSummary['lifecycle_status'] === 'completed';
+    } catch (Throwable $e) {
+        return [
+            'processed' => (int) ($result['games'] ?? 0),
+            'failed_game_id' => null,
+            'skip_reason' => 'lifecycle_complete_failed: ' . $e->getMessage(),
+            'lifecycle_completed' => false,
         ];
     }
 
@@ -2630,6 +2725,7 @@ function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournament
         'processed' => (int) ($result['games'] ?? 0),
         'failed_game_id' => null,
         'skip_reason' => null,
+        'lifecycle_completed' => $lifecycleCompleted,
     ];
 }
 
@@ -2891,6 +2987,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'country' => trim((string) ($_POST['country'] ?? '')),
                 'legs' => max(1, min(2, (int) ($_POST['legs'] ?? 1))),
                 'player_ids' => [],
+                'is_world_cup' => (($_POST['is_world_cup'] ?? '') === '1'),
             ];
             $playerIds = amiga_fixture_collect_player_ids_from_request();
             $createDraft['player_ids'] = $playerIds;
@@ -2901,7 +2998,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $createDraft['event_date'],
                 $createDraft['country'],
                 $playerIds,
-                $createDraft['legs']
+                $createDraft['legs'],
+                (bool) $createDraft['is_world_cup']
             );
             amiga_fixture_ops_flash_set('Created league #' . $tournamentId . '. Fixtures are ready to preview.');
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'fixtures');
@@ -2940,7 +3038,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             amiga_fixture_ops_flash_set(
                 'Recorded result on fixture #' . $gameId
-                . '. Table updates live from running scores; use Make official on the Table tab when finished.'
+                . '. Table updates live from running scores; use '
+                . AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL
+                . ' on the Table tab when finished.'
             );
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'results', $postStatus);
         } elseif ($action === 'reprocess_tournament_derived') {
@@ -2949,25 +3049,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new RuntimeException('Missing tournament id.');
             }
             $summary = amiga_fixture_reprocess_tournament_derived($con, $tournamentId);
-            if ($summary['skip_reason'] === 'already_finalized') {
-                amiga_fixture_ops_flash_set('This league is already official — ratings were committed earlier.');
-            } elseif ($summary['skip_reason'] === 'no_games_to_finalize') {
+            if ($summary['skip_reason'] === 'lifecycle_repaired') {
                 amiga_fixture_ops_flash_set(
-                    'Make official needs at least one played fixture with scores entered.',
+                    'League was already official — lifecycle marked finished so it leaves Live and appears in the tournament catalog.'
+                );
+            } elseif ($summary['skip_reason'] === 'already_finalized') {
+                amiga_fixture_ops_flash_set('This league is already finished and official.');
+            } elseif ($summary['skip_reason'] === 'scheduled_fixtures_remain') {
+                amiga_fixture_ops_flash_set(
+                    AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL
+                    . ' needs every match played — scheduled fixtures remain.',
                     true
                 );
-            } elseif ($summary['processed'] === 0 && $summary['failed_game_id'] === null) {
-                amiga_fixture_ops_flash_set('Nothing new to make official — league table is already up to date.');
+            } elseif ($summary['skip_reason'] === 'lifecycle_not_running') {
+                amiga_fixture_ops_flash_set(
+                    AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL . ' is only available while the league is in progress.',
+                    true
+                );
+            } elseif ($summary['skip_reason'] === 'no_played_fixtures' || $summary['skip_reason'] === 'no_games_to_finalize') {
+                amiga_fixture_ops_flash_set(
+                    AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL
+                    . ' needs at least one played fixture with scores entered.',
+                    true
+                );
+            } elseif ($summary['skip_reason'] !== null && str_starts_with((string) $summary['skip_reason'], 'lifecycle_complete_failed:')) {
+                amiga_fixture_ops_flash_set(
+                    'Ratings were committed but lifecycle could not be marked finished: '
+                    . substr((string) $summary['skip_reason'], strlen('lifecycle_complete_failed: '))
+                    . ' Use Advanced lifecycle or CLI repair.',
+                    true
+                );
             } elseif ($summary['failed_game_id'] !== null) {
                 amiga_fixture_ops_flash_set(
-                    'Make official stopped after ' . $summary['processed'] . ' match(es) at game #'
+                    AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL
+                    . ' stopped after ' . $summary['processed'] . ' match(es) at game #'
                     . $summary['failed_game_id'] . ': ' . (string) $summary['skip_reason']
                     . '. Try `python -m scripts.amiga replay` if this persists.',
                     true
                 );
+            } elseif ($summary['skip_reason'] !== null) {
+                amiga_fixture_ops_flash_set(
+                    AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL . ' could not run: ' . (string) $summary['skip_reason'],
+                    true
+                );
             } else {
                 amiga_fixture_ops_flash_set(
-                    'League is official — ' . $summary['processed'] . ' match result(s) committed to ratings and site chronology.'
+                    'League finished and made official — '
+                    . $summary['processed']
+                    . ' match result(s) committed to ratings and tournament history.'
                 );
             }
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
@@ -3011,15 +3140,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$summary['changed']) {
                 if ($lifecycleAction === 'start_tournament') {
                     amiga_fixture_ops_flash_set('Tournament is already in progress.');
-                } elseif ($lifecycleAction === 'mark_complete') {
-                    amiga_fixture_ops_flash_set('Tournament is already marked complete.');
                 } else {
                     amiga_fixture_ops_flash_set('Tournament is already void.');
                 }
             } elseif ($lifecycleAction === 'start_tournament') {
                 amiga_fixture_ops_flash_set('Tournament started — you can now enter results on the Results tab.');
-            } elseif ($lifecycleAction === 'mark_complete') {
-                amiga_fixture_ops_flash_set('Tournament marked complete.');
             } else {
                 amiga_fixture_ops_flash_set('Tournament voided.');
             }
@@ -3471,6 +3596,10 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
           <option value="2"<?php echo $createDraft['legs'] === 2 ? ' selected' : ''; ?>>Home and away</option>
         </select>
       </label>
+      <label class="wide k2-amiga-organizer-create__wc">
+        <input type="checkbox" name="is_world_cup" value="1"<?php echo !empty($createDraft['is_world_cup']) ? ' checked' : ''; ?>>
+        World Cup event (name must match <code>World Cup …</code>)
+      </label>
       <div class="wide">
         <button type="submit">Create league</button>
       </div>
@@ -3518,20 +3647,6 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
               <button type="submit" class="k2-amiga-organizer-lifecycle__action k2-amiga-organizer-lifecycle__action--primary">Start tournament</button>
             </form>
           <?php } ?>
-          <?php if ($organizerLifecycleUi['can_complete']) { ?>
-            <form class="k2-amiga-organizer-lifecycle__action-form" method="post" action="<?php echo $self; ?>">
-              <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
-              <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
-              <input type="hidden" name="action" value="organizer_lifecycle_action">
-              <input type="hidden" name="lifecycle_action" value="mark_complete">
-              <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
-              <input type="hidden" name="view" value="setup">
-              <?php if ($status !== '') { ?>
-                <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
-              <?php } ?>
-              <button type="submit" class="k2-amiga-organizer-lifecycle__action">Mark complete</button>
-            </form>
-          <?php } ?>
           <?php if ($organizerLifecycleUi['can_void']) { ?>
             <form class="k2-amiga-organizer-lifecycle__action-form" method="post" action="<?php echo $self; ?>">
               <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
@@ -3547,8 +3662,8 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
             </form>
           <?php } ?>
         </div>
-        <?php if ($organizerLifecycleUi['complete_blocked_reason'] !== null) { ?>
-          <p class="k2-amiga-organizer-lifecycle__hint"><?php echo k2_h($organizerLifecycleUi['complete_blocked_reason']); ?></p>
+        <?php if ($organizerLifecycleUi['finish_hint'] !== null) { ?>
+          <p class="k2-amiga-organizer-lifecycle__hint"><?php echo k2_h($organizerLifecycleUi['finish_hint']); ?></p>
         <?php } ?>
       <?php } ?>
       <?php if ($organizerLifecycleUi['raw_status'] !== 'running') { ?>
@@ -3744,7 +3859,7 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
   <?php if ($lifecycle !== null) { ?>
   <div class="k2-amiga-live-ops__section k2-amiga-organizer-lifecycle-advanced">
     <h3>Lifecycle (advanced)</h3>
-    <p class="k2-amiga-live-ops__muted">Internal status transitions for operators. Prefer the friendly Start / Mark complete actions on Setup for normal league nights.</p>
+    <p class="k2-amiga-live-ops__muted">Internal status transitions for operators. Prefer <strong>Start tournament</strong> on Setup and <strong><?php echo k2_h(AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL); ?></strong> on the Table tab for normal league nights.</p>
     <dl class="k2-amiga-organizer-lifecycle__meta">
       <dt>Internal status</dt>
       <dd><span class="k2-amiga-live-ops__muted"><?php echo k2_h($lifecycle['lifecycle_status']); ?></span></dd>
@@ -4039,7 +4154,7 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
     <?php } elseif ($tournamentCanMakeOfficial) { ?>
       <div class="k2-amiga-organizer-table__reprocess">
         <p class="k2-amiga-organizer-table__preview-note">
-          When every result is in, <strong>Make official</strong> commits ratings and adds this event to the tournament chronology.
+          Commits all results to ratings and tournament history. This league leaves Live and joins the historical catalog.
           <?php if ($tournamentUnratedGameCount > 0) { ?>
             <?php echo (int) $tournamentUnratedGameCount; ?> match result<?php echo $tournamentUnratedGameCount === 1 ? '' : 's'; ?> ready.
           <?php } ?>
@@ -4053,7 +4168,7 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
           <?php if ($status !== '') { ?>
             <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
           <?php } ?>
-          <button type="submit" class="k2-amiga-organizer-lifecycle__action k2-amiga-organizer-lifecycle__action--primary">Make official</button>
+          <button type="submit" class="k2-amiga-organizer-lifecycle__action k2-amiga-organizer-lifecycle__action--primary"><?php echo k2_h(AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL); ?></button>
         </form>
       </div>
     <?php } elseif ($organizerTableDisplay['preview_note'] !== null) { ?>
@@ -4077,9 +4192,9 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
         $tableTabUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'table', $status);
         ?>
       <p class="k2-amiga-organizer-results__hint k2-amiga-organizer-table__preview-note--warn">
-        When the league is finished, use <strong>Make official</strong> on the
+        When the league is finished, use <strong><?php echo k2_h(AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL); ?></strong> on the
         <a href="<?php echo htmlspecialchars($tableTabUrl, ENT_QUOTES, 'UTF-8'); ?>">Table tab</a>
-        to commit ratings (<?php echo (int) $tournamentUnratedGameCount; ?> result<?php echo $tournamentUnratedGameCount === 1 ? '' : 's'; ?> ready).
+        (<?php echo (int) $tournamentUnratedGameCount; ?> result<?php echo $tournamentUnratedGameCount === 1 ? '' : 's'; ?> ready).
       </p>
     <?php } ?>
     <?php if ($organizerLifecycleUi !== null && $organizerLifecycleUi['is_imported']) { ?>

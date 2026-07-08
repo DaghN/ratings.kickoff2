@@ -8,6 +8,7 @@ from scripts.amiga.tournament_honours import (
     compute_wc_podium_finish_from_standings,
     is_world_cup_tournament,
     knockout_scope_label,
+    tournament_is_world_cup,
 )
 
 
@@ -18,6 +19,10 @@ class WorldCupNameTests(unittest.TestCase):
         self.assertFalse(is_world_cup_tournament("London XXIII"))
         # Matches PHP ``^World Cup\s+\S`` (same as catalog WC detector).
         self.assertTrue(is_world_cup_tournament("World Cup V KOA Cup"))
+
+    def test_tournament_is_world_cup_reads_stored_flag(self) -> None:
+        self.assertTrue(tournament_is_world_cup({"name": "Kitchen I", "is_world_cup": 1}))
+        self.assertFalse(tournament_is_world_cup({"name": "World Cup I (Dartford)", "is_world_cup": 0}))
 
 
 class KnockoutScopeLabelTests(unittest.TestCase):

@@ -14,6 +14,7 @@ from scripts.amiga.replay import run_replay
 from scripts.amiga.verify_chronology import main as verify_chronology_main
 from scripts.amiga.verify_event_snapshots import main as verify_event_snapshots_main
 from scripts.amiga.verify_country_registry import main as verify_country_registry_main
+from scripts.amiga.verify_is_world_cup import main as verify_is_world_cup_main
 from scripts.amiga.verify_player_create import main as verify_player_create_main
 from scripts.amiga.verify_running_tournament_boundary import main as verify_running_tournament_boundary_main
 from scripts.amiga.verify_import_manifest import main as verify_import_manifest_main
@@ -40,6 +41,7 @@ log = logging.getLogger(__name__)
 
 _VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
     ("verify-chronology", verify_chronology_main),
+    ("verify-is-world-cup", verify_is_world_cup_main),
     ("verify-rating-events", verify_rating_events_main),
     ("verify-event-snapshots", verify_event_snapshots_main),
     ("verify-player-participation", verify_player_participation_main),

@@ -72,6 +72,15 @@ function amiga_honours_empty_totals(): array
     ] + amiga_honours_empty_rise_fields();
 }
 
+function amiga_honours_participation_is_world_cup(array $participation): bool
+{
+    if (array_key_exists('is_world_cup', $participation)) {
+        return (int) ($participation['is_world_cup'] ?? 0) === 1;
+    }
+
+    return amiga_honours_is_world_cup_tournament((string) ($participation['tournament_name'] ?? ''));
+}
+
 function amiga_honours_is_world_cup_tournament(string $name): bool
 {
     return preg_match('/^World Cup\s+\S/i', trim($name)) === 1;
