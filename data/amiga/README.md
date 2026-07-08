@@ -25,6 +25,21 @@ Use the original filename if you like, or a stable name such as `amiga-ladder.md
 
 ---
 
+## Day 0 L3 archive (git-tracked)
+
+Sealed witness ground for modern cutover — **L3 tables only** (no L4/L5):
+
+```text
+data/amiga/day0/
+  manifest.json
+  day0_*.sql
+  manifests/          # import provenance copies
+```
+
+Reseal: `powershell -ExecutionPolicy Bypass -File scripts\export_amiga_day0.ps1` — see [`day0/README.md`](day0/README.md). Policy: [`docs/amiga-modern-ground-platform.md`](../docs/amiga-modern-ground-platform.md).
+
+---
+
 ## Optional exports
 
 Import and discovery write JSON extracts here (gitignored):

@@ -53,6 +53,7 @@ from scripts.amiga.export_packs import (
     export_all_packs,
     export_pack,
 )
+from scripts.amiga.modern.seal_day0 import _DEFAULT_OUT as _DAY0_OUT, seal_day0
 from scripts.amiga.verify_export_pack import verify_export_pack
 from scripts.amiga.verify_structure import verify_structure
 from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
@@ -301,6 +302,23 @@ def main(argv: list[str] | None = None) -> int:
         "--refresh-pristine",
         action="store_true",
         help="Re-run import-pristine before mirror pack",
+    )
+
+    p_seal_day0 = sub.add_parser(
+        "seal-day0",
+        help="Seal L3 witness ground from ko2amiga_db to data/amiga/day0/ (D0-1)",
+    )
+    p_seal_day0.add_argument(
+        "--out-dir",
+        type=Path,
+        default=_DAY0_OUT,
+        help="Output directory (default: data/amiga/day0)",
+    )
+    p_seal_day0.add_argument(
+        "--version",
+        type=str,
+        default=None,
+        help="Manifest version id (default: day0-YYYY-MM-DD)",
     )
 
     p_verify_export_pack = sub.add_parser(
@@ -654,6 +672,18 @@ def main(argv: list[str] | None = None) -> int:
                 log.error("%s", err)
             return 1
         log.info("verify-structure OK")
+        return 0
+
+    if args.cmd == "seal-day0":
+        stats = seal_day0(out_dir=args.out_dir, version=args.version)
+        log.info(
+            "seal-day0 OK: version=%s tournaments=%s players=%s games=%s parts=%s",
+            stats["version"],
+            stats["row_counts"]["tournaments"],
+            stats["row_counts"]["amiga_players"],
+            stats["row_counts"]["amiga_games"],
+            stats["sql_parts"],
+        )
         return 0
 
     if args.cmd == "export-pack":

@@ -139,7 +139,7 @@
 
 ## Recent log
 
-| 2026-07-08 | **Amiga modern ground — cutover sequence locked** — day 0 L3 git archive; `ko2amiga_work` from day 0 only; `ko2amiga_db` parity oracle; MG10 + §10.1. [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md). |
+| 2026-07-08 | **D0-1 done** — `day0-2026-07-08` sealed to `data/amiga/day0/` (605 tournaments, 469 players, 27,418 games); `scripts/amiga/modern/seal_day0.py` + `seal-day0` CLI. |
 | 2026-07-08 | **`is_world_cup` flag shipped** — L3 `tournaments.is_world_cup` + snapshot denorm; import derives from name regex; `verify-is-world-cup` in prove; read paths use stored flag; organizer create checkbox ⟺ name. Policy: [`amiga-world-cup-flag-policy.md`](docs/amiga-world-cup-flag-policy.md). |
 | 2026-07-08 | **RTB-9 shipped** — one **Finish and make official** button (promote + finalize + lifecycle `completed`); Setup **Mark complete** retired; limbo repair on re-click. |
 | 2026-07-08 | **RTB policy rev. 2** — locked vocabulary + finish-action contract. |

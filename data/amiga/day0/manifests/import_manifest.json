@@ -1,0 +1,521 @@
+{
+  "manifest_version": 1,
+  "generated_at_utc": "2026-07-07T23:54:41.101410+00:00",
+  "source": {
+    "layer": "L2",
+    "path": "C:\\Users\\daghn\\Desktop\\Online and Amiga 500 ELO\\data\\amiga\\exports\\pruned\\L2_pruned.sql",
+    "filename": "L2_pruned.sql",
+    "size_bytes": 2104991,
+    "modified_utc": "2026-07-07T23:54:23.202088Z",
+    "prune_manifest": "C:\\Users\\daghn\\Desktop\\Online and Amiga 500 ELO\\data\\amiga\\exports\\pruned\\prune_manifest.json"
+  },
+  "stats": {
+    "tournaments": 605,
+    "games": 27418,
+    "players_raw": 474,
+    "players_canonical": 469,
+    "name_merge_groups": 5,
+    "format_league_only": 519,
+    "format_cup_only": 13,
+    "format_league_and_cup": 73,
+    "format_neither": 0
+  },
+  "transforms": {
+    "name_merges": [
+      {
+        "canonical": "Ian K",
+        "variants": [
+          {
+            "raw": "Ian K",
+            "games": 251
+          },
+          {
+            "raw": "Ian Ka",
+            "games": 21
+          }
+        ]
+      },
+      {
+        "canonical": "Jorg D",
+        "variants": [
+          {
+            "raw": "Joerg D",
+            "games": 20
+          },
+          {
+            "raw": "Jorg D",
+            "games": 49
+          }
+        ]
+      },
+      {
+        "canonical": "Jorg S",
+        "variants": [
+          {
+            "raw": "Joerg S",
+            "games": 16
+          },
+          {
+            "raw": "Jorg S",
+            "games": 23
+          }
+        ]
+      },
+      {
+        "canonical": "Klaus Le",
+        "variants": [
+          {
+            "raw": "Klaus L",
+            "games": 22
+          },
+          {
+            "raw": "Klaus Le",
+            "games": 287
+          }
+        ]
+      },
+      {
+        "canonical": "Oliver St",
+        "variants": [
+          {
+            "raw": "Oliver ST",
+            "games": 1
+          },
+          {
+            "raw": "Oliver St",
+            "games": 808
+          }
+        ]
+      }
+    ],
+    "catalog_overrides": [
+      {
+        "tournament": "World Cup 2015",
+        "field": "name",
+        "access": "World Cup 2015",
+        "canonical": "World Cup XV",
+        "reason": "Access [Tournament players].Tournament and Scores.Tournament use year label 'World Cup 2015'; chrono 548 sits between World Cup XIV and World Cup XVI. Access group reference table is already 'World Cup XV Tables'. Canonical catalog name is World Cup XV."
+      },
+      {
+        "tournament": "World Cup VIII",
+        "field": "event_date",
+        "access": "2008-09-08",
+        "canonical": "2008-11-09",
+        "reason": "Access [Tournament players].Date is 2008-09-08; chrono 325 sits between Newent XIV (2008-11-03) and Helsingborg I (2008-11-14). Real-world event was 9 November 2008."
+      },
+      {
+        "tournament": "Wiesbaden IX",
+        "field": "event_date",
+        "access": "2009-04-07",
+        "canonical": "2009-01-25",
+        "reason": "Access Date is 2009-04-07; chrono 333 is before Wiesbaden X (335, 2009-02-22) and Newent XVI (334, 2009-02-13). Roman-numeral order requires IX before X. Canonical date 2009-01-25 from KO Gathering forum: https://ko-gathering.com/forum/viewtopic.php?p=247684#p247684"
+      },
+      {
+        "tournament": "World Cup I",
+        "field": "name",
+        "access": "World Cup I",
+        "canonical": "World Cup I (Dartford)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup I (Dartford)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "England",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup II",
+        "field": "name",
+        "access": "World Cup II",
+        "canonical": "World Cup II (Athens)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup II (Athens)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Greece",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup III",
+        "field": "name",
+        "access": "World Cup III",
+        "canonical": "World Cup III (Groningen)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup III (Groningen)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Netherlands",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup IV",
+        "field": "name",
+        "access": "World Cup IV",
+        "canonical": "World Cup IV (Milan)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup IV (Milan)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Italy",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup V",
+        "field": "name",
+        "access": "World Cup V",
+        "canonical": "World Cup V (Cologne)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup V (Cologne)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Germany",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup VI",
+        "field": "name",
+        "access": "World Cup VI",
+        "canonical": "World Cup VI (Rickmansworth)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup VI (Rickmansworth)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "England",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup VII",
+        "field": "name",
+        "access": "World Cup VII",
+        "canonical": "World Cup VII (Rome)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup VII (Rome)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Italy",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup VIII",
+        "field": "name",
+        "access": "World Cup VIII",
+        "canonical": "World Cup VIII (Athens)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup VIII (Athens)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Greece",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup IX",
+        "field": "name",
+        "access": "World Cup IX",
+        "canonical": "World Cup IX (Voitsberg)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup IX (Voitsberg)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Austria",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup X",
+        "field": "name",
+        "access": "World Cup X",
+        "canonical": "World Cup X (Dusseldorf)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup X (Dusseldorf)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Germany",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XI",
+        "field": "name",
+        "access": "World Cup XI",
+        "canonical": "World Cup XI (Birmingham)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XI (Birmingham)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "England",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XII",
+        "field": "name",
+        "access": "World Cup XII",
+        "canonical": "World Cup XII (Milan)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XII (Milan)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Italy",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XIII",
+        "field": "name",
+        "access": "World Cup XIII",
+        "canonical": "World Cup XIII (Voitsberg)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XIII (Voitsberg)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Austria",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XIV",
+        "field": "name",
+        "access": "World Cup XIV",
+        "canonical": "World Cup XIV (Copenhagen)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XIV (Copenhagen)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Denmark",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XV",
+        "field": "name",
+        "access": "World Cup XV",
+        "canonical": "World Cup XV (Dublin)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XV (Dublin)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Ireland",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XVI",
+        "field": "name",
+        "access": "World Cup XVI",
+        "canonical": "World Cup XVI (Milan)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XVI (Milan)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Italy",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XVII",
+        "field": "name",
+        "access": "World Cup XVII",
+        "canonical": "World Cup XVII (Landskrona)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XVII (Landskrona)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Sweden",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XVIII",
+        "field": "name",
+        "access": "World Cup XVIII",
+        "canonical": "World Cup XVIII (Bournemouth)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XVIII (Bournemouth)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "England",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XIX",
+        "field": "name",
+        "access": "World Cup XIX",
+        "canonical": "World Cup XIX (Bremen)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XIX (Bremen)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Germany",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XX",
+        "field": "name",
+        "access": "World Cup XX",
+        "canonical": "World Cup XX (Athens)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XX (Athens)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Greece",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XXI",
+        "field": "name",
+        "access": "World Cup XXI",
+        "canonical": "World Cup XXI (Torremolinos)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XXI (Torremolinos)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Spain",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XXII",
+        "field": "name",
+        "access": "World Cup XXII",
+        "canonical": "World Cup XXII (Nottingham)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XXII (Nottingham)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "England",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XXIII",
+        "field": "name",
+        "access": "World Cup XXIII",
+        "canonical": "World Cup XXIII (Milan)",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      },
+      {
+        "tournament": "World Cup XXIII (Milan)",
+        "field": "country",
+        "access": "WC",
+        "canonical": "Italy",
+        "reason": "Access [Tournament players].Country is the placeholder 'WC' for all World Cups; canonical catalog uses the real host nation and appends the host city to the name."
+      }
+    ],
+    "player_country_overrides": [
+      {
+        "player": "Diego L",
+        "field": "country",
+        "access": "",
+        "canonical": "Italy",
+        "reason": "Italian player; missing from L2 witness_player_identity."
+      },
+      {
+        "player": "Ingvald E",
+        "field": "country",
+        "access": "",
+        "canonical": "Norway",
+        "reason": "Norwegian player; missing from L2 witness_player_identity."
+      },
+      {
+        "player": "Kjetil D",
+        "field": "country",
+        "access": "",
+        "canonical": "Norway",
+        "reason": "Norwegian player; missing from L2 witness_player_identity."
+      },
+      {
+        "player": "Oyvind H",
+        "field": "country",
+        "access": "",
+        "canonical": "Norway",
+        "reason": "Norwegian player; missing from L2 witness_player_identity."
+      }
+    ],
+    "country_token_normalizations": [
+      {
+        "entity": "player",
+        "name": "Stephen D",
+        "field": "country",
+        "access": "N. Ireland",
+        "canonical": "Northern Ireland",
+        "reason": "Registry legacy alias or official token (amiga-country-registry-policy.md CR11)."
+      },
+      {
+        "entity": "tournament",
+        "name": "Dubai I",
+        "field": "country",
+        "access": "UAE",
+        "canonical": "United Arab Emirates",
+        "reason": "Registry legacy alias or official token (amiga-country-registry-policy.md CR11)."
+      }
+    ],
+    "catalog_splits": [
+      {
+        "tournament": "Groningen VII Cup",
+        "parent": "Groningen VII",
+        "source_id": 900000001,
+        "reason": "Access [Tournament players] has one row for Groningen VII (2002-07-13) but Scores uses a separate Tournament label for a 14-game cup (Round 1 / Semi Final / Final). Split via synthetic catalog row; main event keeps id 48."
+      },
+      {
+        "tournament": "Gloucester III Team",
+        "parent": "Gloucester III",
+        "source_id": 900000002,
+        "reason": "Access [Tournament players] has one row for Gloucester III (2002-10-12, 10 players) but Scores uses label Gloucester III Team for 10 additional games (IDs contiguous after the 90-game double round-robin). Split via synthetic catalog row; main keeps id 62."
+      }
+    ],
+    "score_supplements": [
+      {
+        "tournament": "Rodenbach II",
+        "games_added": 10,
+        "reason": "Access [Tournament players] lists Rodenbach II (2012-08-12, 5 players, chrono 513) but Scores has zero rows. Results recovered from the original KO Gathering forum thread (10 games = complete round-robin among Frank F, Horst L, Joerg D, Jan K, Thorsten B)."
+      }
+    ],
+    "structure_specs": []
+  },
+  "registry": {
+    "automatic_modules": [
+      "scripts.amiga.player_names",
+      "scripts.amiga.tournament_names",
+      "scripts.amiga.tournament_format",
+      "scripts.amiga.tournament_structure",
+      "scripts.amiga.import_access",
+      "scripts.amiga.import_country_registry"
+    ],
+    "manual_overrides_module": "scripts.amiga.import_corrections",
+    "country_registry": {
+      "version": 1
+    }
+  }
+}

@@ -1,0 +1,67 @@
+[
+  {
+    "canonical": "Ian K",
+    "variants": [
+      {
+        "raw": "Ian K",
+        "games": 251
+      },
+      {
+        "raw": "Ian Ka",
+        "games": 21
+      }
+    ]
+  },
+  {
+    "canonical": "Jorg D",
+    "variants": [
+      {
+        "raw": "Joerg D",
+        "games": 20
+      },
+      {
+        "raw": "Jorg D",
+        "games": 49
+      }
+    ]
+  },
+  {
+    "canonical": "Jorg S",
+    "variants": [
+      {
+        "raw": "Joerg S",
+        "games": 16
+      },
+      {
+        "raw": "Jorg S",
+        "games": 23
+      }
+    ]
+  },
+  {
+    "canonical": "Klaus Le",
+    "variants": [
+      {
+        "raw": "Klaus L",
+        "games": 22
+      },
+      {
+        "raw": "Klaus Le",
+        "games": 287
+      }
+    ]
+  },
+  {
+    "canonical": "Oliver St",
+    "variants": [
+      {
+        "raw": "Oliver ST",
+        "games": 1
+      },
+      {
+        "raw": "Oliver St",
+        "games": 808
+      }
+    ]
+  }
+]

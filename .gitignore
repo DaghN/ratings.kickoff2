@@ -23,6 +23,9 @@ site/public_html/ops/config/dispatch-http.ini
 /data/amiga/exports/*
 !/data/amiga/exports/.gitkeep
 
+# Day 0 L3 witness archive (git-tracked sealed ground)
+!data/amiga/day0/**/*.sql
+
 /KO2PC_DB/
 
 # Stray *.sql elsewhere (HeidiSQL exports, ad-hoc dumps). Canonical DDL is allowlisted below.

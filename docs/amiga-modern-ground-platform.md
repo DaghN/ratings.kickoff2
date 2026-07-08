@@ -241,8 +241,8 @@ Execute in order. Each slice ends with a recorded check.
 
 | ID | Work | Exit |
 |----|------|------|
-| **D0-1** | Seal **day 0 L3** from current `ko2amiga_db` — **witness tables only** (§7.1); manifest + SQL under `data/amiga/day0/` | Git commit; counts documented (~605 tournaments, ~27k games) |
-| **D0-2** | **Freeze** local `ko2amiga_db` — no further writes; label as cutover oracle in manifest note | Oracle DB unchanged for parity phase |
+| **D0-1** | Seal **day 0 L3** from current `ko2amiga_db` — **witness tables only** (§7.1); manifest + SQL under `data/amiga/day0/` | **Done** `day0-2026-07-08` — 605 / 469 / 27,418; `python -m scripts.amiga seal-day0` |
+| **D0-2** | **Freeze** local `ko2amiga_db` — no further writes; label as cutover oracle in manifest note | Oracle frozen flag in manifest; manual discipline until P-1 |
 | **W-1** | Create **`ko2amiga_work`**: `apply_schema` + **load day 0 L3 only** (not mysqldump of `ko2amiga_db`) | L3 row counts match day 0 manifest; zero derived rows |
 | **S-1** | **`apply-structure`** (disposition) + **simul** on `ko2amiga_work` — no ground truncate | Simul + verify green on work |
 | **P-1** | **Parity check** — work post-simul vs frozen `ko2amiga_db` (derived tables, snapshots, key scalars) | Oracle diff documented; failures block promote |
@@ -329,5 +329,5 @@ New evidence **without Access:**
 
 | Date | Change |
 |------|--------|
-| 2026-07-08 | **Cutover sequence locked** — day 0 L3 git archive; `ko2amiga_work` seeds from day 0 only (MG10); `ko2amiga_db` frozen oracle + parity (P-1); DB names §4.1. |
+| 2026-07-08 | **D0-1 done** — seal-day0 CLI; `day0-2026-07-08` in `data/amiga/day0/` (git-tracked). |
 | 2026-07-08 | **Policy locked** — living ground, day 0 bootstrap, Access retired, simul model, cutover program D0/W/S/P. |

@@ -9,7 +9,16 @@ Phase A0+ tooling for the offline Access source (`data/amiga/source/koatd.mdb`).
 
 ## Commands (repo root)
 
-**Sign-off / daily dev (only supported path):**
+**Modern ground cutover (Jul 2026):** [`docs/amiga-modern-ground-platform.md`](../../docs/amiga-modern-ground-platform.md) — forward path is **simul on `ko2amiga_work`**, not full `prove`. **Day 0 seal (D0-1):**
+
+```powershell
+python -m scripts.amiga seal-day0
+# or: powershell -ExecutionPolicy Bypass -File scripts\export_amiga_day0.ps1
+```
+
+Writes L3 witness SQL + `manifest.json` to `data/amiga/day0/` from frozen `ko2amiga_db`. Legacy `prove` below is **archived** after cutover.
+
+**Sign-off / daily dev (legacy Access path — retiring):**
 
 ```powershell
 # Nuclear reset + replay + verify (holy Amiga loop):

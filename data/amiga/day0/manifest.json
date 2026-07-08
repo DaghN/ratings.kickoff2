@@ -1,0 +1,48 @@
+{
+  "version": "day0-2026-07-08",
+  "layer": "L3",
+  "generated_utc": "2026-07-08T03:37:58.948504Z",
+  "source_database": "ko2amiga_db",
+  "source_note": "Sealed witness ground from last legacy prove on ko2amiga_db (git de619ea)",
+  "oracle_frozen": true,
+  "oracle_note": "ko2amiga_db is parity oracle (P-1) until promote; do not use as work seed",
+  "tournament_count": 605,
+  "player_count": 469,
+  "game_count": 27418,
+  "tables": {
+    "tournament_format_templates": 6,
+    "tournaments": 605,
+    "amiga_players": 469,
+    "amiga_tournament_finish_override": 0,
+    "amiga_games": 27418
+  },
+  "rows_total": 28498,
+  "excluded": {
+    "L4_structure": [
+      "tournament_entrants",
+      "tournament_stages",
+      "tournament_stage_players",
+      "tournament_fixtures"
+    ],
+    "L5_derived": "all derived tables \u2014 rebuilt by simul on ko2amiga_work",
+    "video": "editorial manifests \u2014 aligned on work after simul"
+  },
+  "sql_parts": [
+    "day0_01_schema.sql",
+    "day0_02_format_templates.sql",
+    "day0_03_tournaments.sql",
+    "day0_04_players.sql",
+    "day0_05_finish_override.sql",
+    "day0_06_games_1_5000.sql",
+    "day0_07_games_5001_10000.sql",
+    "day0_08_games_10001_15000.sql",
+    "day0_09_games_15001_20000.sql",
+    "day0_10_games_20001_25000.sql",
+    "day0_11_games_25001_27418.sql"
+  ],
+  "witness_manifests": [
+    "manifests/import_manifest.json",
+    "manifests/name_merges.json"
+  ],
+  "policy": "docs/amiga-modern-ground-platform.md section 7"
+}
