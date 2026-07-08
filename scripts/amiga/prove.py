@@ -1,4 +1,8 @@
-"""Nuclear reset + replay + verify — holy Amiga loop (ko2amiga_db proof path)."""
+"""Nuclear reset + replay + verify — holy Amiga loop (ko2amiga_db proof path).
+
+FROZEN (Jul 2026, CODE-1): oracle / archaeology on ko2amiga_db only.
+Forward path: scripts/amiga/modern/simul.py on ko2amiga_work — do not extend this module (MG11).
+"""
 
 from __future__ import annotations
 

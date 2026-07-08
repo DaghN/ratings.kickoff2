@@ -1,5 +1,7 @@
 # Amiga ground layers L0–L5 — implementation plan
 
+> **Archive (Jul 2026, DOC-1):** Forward authority → [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md). Index: [`archive/amiga-access-pipeline-index.md`](archive/amiga-access-pipeline-index.md).
+
 **Status:** Slices **1–11** done (Jun 2026). Strict stack **complete**; policy v3 + [`amiga-ground-stack.md`](amiga-ground-stack.md) locked.  
 **Policy:** [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · **stack intent:** [`amiga-ground-stack.md`](amiga-ground-stack.md)
 
@@ -185,7 +187,7 @@ verify suite
 - **ground** (Pack A) — L3 tables + manifests; no L5
 - **structure** (Pack B) — L3 + L4 + disposition register
 - **product** (Pack C) — L3 + L4 + L5 full derived
-- Staging chunked import remains `scripts/export_ko2amiga_db.ps1` (browser-friendly parts)
+- Staging chunked import: **`scripts/export_ko2amiga_work.ps1`** (forward from work); oracle shim **`export_ko2amiga_db.ps1`**
 
 **STOP:** `verify-export-pack structure` — fixtures + Homburg/pure_rr linked; all packs verified Jun 2026.
 

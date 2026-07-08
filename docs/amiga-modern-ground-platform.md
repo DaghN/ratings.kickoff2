@@ -1,6 +1,6 @@
 # Amiga modern ground platform — policy (Jul 2026)
 
-**Status:** **Policy locked** — birthing decision Jul 2026. **Implementation:** **in progress** (cutover program §10).
+**Status:** **Shipped (Jul 2026)** — cutover bootstrap complete (§10.2). **Start here** for all forward Amiga ground / simul / staging export work.
 
 **Audience:** Dagh, Cursor agents, future maintainers.
 
@@ -22,6 +22,24 @@ The Amiga realm adopts a **living ground database** model, matching online ladde
 | **After (this policy)** | **Day 0 L3** = one-time sealed witness ground (L3 tables only — no L4, no L5). **Living ground** = **`ko2amiga_work`** — seeded from day 0, then accumulates structure, video, post–day-0 events. **Simul** = DDL migrate + clear **derived only** + replay + video align/verify. **Never** rewind living ground to pure day 0 in normal ops. |
 
 **Access (`koatd.mdb`) is retired from the product pipeline.** Everything Access had to say is accounted for in day 0 L3. New historical evidence is added as **forward ground** (append), not re-import.
+
+---
+
+## 0. New agent — quick reference (Jul 2026)
+
+**Do not** treat `python -m scripts.amiga prove`, `import-witness`, or `setup_ko2amiga_db.ps1` as the daily Amiga path. Those are **oracle / archaeology** on frozen **`ko2amiga_db`**.
+
+| Question | Answer |
+|----------|--------|
+| **Local working DB** | **`ko2amiga_work`** (living ground) |
+| **Frozen oracle** | **`ko2amiga_db`** (P-1 baseline; legacy prove only) |
+| **Staging DB name** | **`ko2amiga_db`** (import target on server — same name, different machine) |
+| **Daily sign-off** | `python -m scripts.amiga simul` on work (video on by default) |
+| **DDL / schema bundles** | Edit `sql/ground|structure|derived` → **simul** on work |
+| **Push to staging** | `export_ko2amiga_work.ps1` → WinSCP → browser import |
+| **Forward code** | `scripts/amiga/modern/` only (**MG11** — audit: `python scripts/audit_amiga_modern_compartment.py`) |
+| **Access L0–L5 docs** | **Archived** — [`archive/amiga-access-pipeline-index.md`](archive/amiga-access-pipeline-index.md) |
+| **Community mistakes on staging** | [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) — anchored repair, not full prove |
 
 ---
 
@@ -262,8 +280,8 @@ Execute in order. Each slice ends with a recorded check.
 | **L4-1** | Confirm L4 on work matches disposition expectations | **Done** — `python -m scripts.amiga verify-structure-work`; 16,046 fixtures; Homburg + pure_rr smoke OK |
 | **V-1** | Video on work — stable `game_id` binding, oracle/work compartments, simul `--with-video` | **Done** — `seal-video-oracle` · `seed-video-work` · `align-video-work` · `verify-tournament-videos-work`; work manifest `data/amiga/work/tournament_videos.json` (299 videos) |
 | **PROMOTE-1** | `ko2amiga_config.local.php` → `ko2amiga_work`; export reads work; legacy `prove` locked to `ko2amiga_db` only | **Done** — `export_ko2amiga_work.ps1` · `promote_ko2amiga_work_local.ps1` · `promote-video-deploy`; oracle export = `export_ko2amiga_db.ps1` shim |
-| **DOC-1** | Archive Access pipeline docs; agent routing | Agents read **this doc** |
-| **CODE-1** | `scripts/amiga/modern/` compartment; legacy import frozen (**MG11** — copy, never mutate) | No new `import_access.py` features; no modern imports from `prove`/`replay` without fork |
+| **DOC-1** | Archive Access pipeline docs; agent routing | **Done** — archive index; layers/import/stack banners; derived-write + staging handoff; **doc pass 2** (kool-workspace, MEMORY, live-ops, obsolete-dev-scripts) |
+| **CODE-1** | `scripts/amiga/modern/` compartment; legacy import frozen (**MG11** — copy, never mutate) | **Done** — `modern/README.md`; FROZEN headers; `audit_amiga_modern_compartment.py` |
 
 **Out of scope for day-one cutover (follow-on):** staging merge import · ground pack pull · `append-event` CLI · retiring L4 pipeline at 100% structure.
 
@@ -302,7 +320,7 @@ New evidence **without Access:**
 4. **Do not** treat day 0 reload as normal prove.
 5. **DDL** → edit `scripts/amiga/sql/` bundles → **simul** on **`ko2amiga_work`**.
 6. **Never** seed `ko2amiga_work` from full `ko2amiga_db` clone — **day 0 L3 load only** (MG10).
-7. **Access pipeline docs** → archive only; historical context.
+7. **Access pipeline docs** → archive only — [`archive/amiga-access-pipeline-index.md`](archive/amiga-access-pipeline-index.md).
 8. **MG11 — copy, do not mutate legacy prove** — forward code in `scripts/amiga/modern/` only; fork legacy helpers into `modern/` before use; never edit `prove.py` / `import_access.py` for transition slices.
 
 ---
@@ -312,10 +330,10 @@ New evidence **without Access:**
 | Doc | Relationship |
 |-----|----------------|
 | [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) | Lane B/C **unchanged**. Lane A “canon pipeline” **defers here** for local ground authority. ALO8 bidirectional flow still required; merge import is follow-on. |
-| [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) | L5 writers unchanged; **sign-off verb** becomes **simul** (update during DOC-1). |
+| [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) | L5 writers unchanged; **forward sign-off = simul** on work (DOC-1). |
 | [`amiga-ground-stack.md`](amiga-ground-stack.md) | **Historical** strict chain; archived for Access era. |
 | [`amiga-import-layer.md`](amiga-import-layer.md) | **Historical** L3 import transforms; archived after day 0. |
-| [`amiga-staging-handoff.md`](amiga-staging-handoff.md) | Export path remains; **destructive import warning** strengthened in DOC-1. |
+| [`amiga-staging-handoff.md`](amiga-staging-handoff.md) | Export from work; **destructive import warning** (DOC-1). |
 
 ---
 
@@ -348,6 +366,7 @@ New evidence **without Access:**
 | 2026-07-08 | **Simul preflight/postcheck** — living-ground rule: no day 0 count pin; postcheck = L3 unchanged during run. |
 | 2026-07-08 | **P-1 done** — `modern/parity.py` CLI; semantic signatures exclude replay timestamps + standings surrogate `id`. |
 | 2026-07-08 | **S-1 done** — `modern/simul.py` + verify suite on `ko2amiga_work`; `KO2AMIGA_DATABASE` config hook. |
+| 2026-07-08 | **DOC-1 + CODE-1 shipped** — Access pipeline docs archived; `modern/` compartment README + MG11 audit; legacy prove/import/replay FROZEN. |
 | 2026-07-08 | **MG11 locked** — copy legacy prove scripts into `modern/`; do not mutate legacy path (§5.1). |
 | 2026-07-08 | **W-1 done** — `seed-work` CLI; `ko2amiga_work` from day 0 archive. |
 | 2026-07-08 | **Policy locked** — living ground, day 0 bootstrap, Access retired, simul model, cutover program D0/W/S/P. |

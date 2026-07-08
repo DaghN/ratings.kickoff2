@@ -1,6 +1,8 @@
 # Amiga running tournament boundary — implementation plan
 
-**Status:** **RTB-1–RTB-9 shipped (Jul 2026)** — `python -m scripts.amiga prove` green; organizer **Finish and make official** on Table tab.
+> **Historical execution record (Jul 2026):** RTB shipped via legacy **`prove`** on frozen **`ko2amiga_db`**. **Forward DDL apply** = edit bundle → **`simul`** on **`ko2amiga_work`** → **`export_ko2amiga_work.ps1`**. Authority: [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
+
+**Status:** **RTB-1–RTB-9 shipped (Jul 2026)** — oracle `prove` green at ship; organizer **Finish and make official** on Table tab.
 
 **Policy:** [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (rev. 2, RTB1–RTB13)  
 **Inventory:** [`amiga-running-tournament-boundary-inventory.md`](amiga-running-tournament-boundary-inventory.md) (rev. 2, audit fold-in)  

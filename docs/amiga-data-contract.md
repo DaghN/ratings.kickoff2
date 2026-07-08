@@ -146,13 +146,14 @@ import (ground only)  →  python -m scripts.amiga replay
 - **Rating authority:** Python replay + `amiga_player_event_snapshots` event rating columns — never legacy Access `Rankings`
 - **Connection:** `SET time_zone = '+00:00'` before period/date logic
 
-**Derived sign-off (L5 + verify):**
+**Derived sign-off (L5 + verify) — forward vs oracle:**
 
-```bash
-python -m scripts.amiga prove   # nuclear reset + replay + verify (only supported path)
-```
+| Path | DB | Command |
+|------|-----|---------|
+| **Forward (daily)** | **`ko2amiga_work`** | `python -m scripts.amiga simul` |
+| **Oracle (archaeology)** | frozen **`ko2amiga_db`** | `python -m scripts.amiga prove` |
 
-Step-by-step equivalent: `import --recreate-schema` → `replay` → verify CLIs. Wrong derived state → **`prove` again**, not repair jobs. **Derived write policy:** [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md). Incremental `import` / manual `014–023` are archived — [`scripts/amiga/sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md).
+Wrong derived state on **work** → **`simul`** again. Wrong **oracle** regression → **`prove`** on frozen `ko2amiga_db`. **Not** batch `*-rebuild` CLIs. Policy: [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) · platform: [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md).
 
 Full `replay` (~27k games): **~180s local** (Jun 2026) — each tournament finalize writes `amiga_game_ratings`, snapshots/current, matchup at-event + summary, and network/peaks from cumulative pairs. No end-of-replay tail batches.
 
@@ -222,7 +223,7 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `amiga_world_cup_stats` | Derived | Tournament finalize / `replay` — one wide row per World Cup `tournament_id`. Policy [`amiga-world-cup-stats-table-plan.md`](amiga-world-cup-stats-table-plan.md). DDL `037` | **Active** |
 | `reference_*` (optional) | Reference | Parity tooling only | — |
 
-DDL bundles: [`schema_bundles.py`](../scripts/amiga/schema_bundles.py) — `sql/ground/` (**L3**), `sql/structure/` (**L4**, incl. `006_tournament_fixtures.sql` running result cols — RTB Jul 2026), `sql/derived/` (**L5**). Archived flat files and incremental `010–023`: [`sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md). Fresh schema = `python -m scripts.amiga prove`.
+DDL bundles: [`schema_bundles.py`](../scripts/amiga/schema_bundles.py) — `sql/ground/` (**L3**), `sql/structure/` (**L4**, incl. `006_tournament_fixtures.sql` running result cols — RTB Jul 2026), `sql/derived/` (**L5**). Archived flat files and incremental `010–023`: [`sql/archive/incremental/README.md`](../scripts/amiga/sql/archive/incremental/README.md). **Forward:** apply via **`simul`** on **`ko2amiga_work`**. **Oracle:** full schema via legacy **`prove`** on frozen `ko2amiga_db`.
 
 ### HoF record rise dates (SCH-029)
 
@@ -374,12 +375,16 @@ Do not “fix” these by importing Access snapshots as truth. Re-run: `python -
 
 ## Agent policy
 
-- **Import:** ground truth only — see `scripts/amiga/import_access.py` and [`amiga-import-layer.md`](amiga-import-layer.md). Corrections to legacy Access belong in the import layer (`import_corrections.py`, `player_names.py`, `tournament_names.py`, `tournament_format.py`), not in edited `koatd.mdb`. `import_corrections.py` also appends **supplemental Scores** when Access has a tournament catalog row but no game rows (currently Rodenbach II, +10 games → **27,418** ground-truth games from Access **27,408**). Each import writes `data/amiga/exports/import_manifest.json`. A full import **truncates** derived player tables (`amiga_game_ratings`, snapshots, current — FK order) but does not repopulate them. **`import` alone leaves the website read path empty** until replay. Use `python -m scripts.amiga prove` for full rebuild, or `run` for import + replay without verify.
-- **Replay:** derived truth only — clears derived rows, never truncates canonical game rows
-- **Live result entry:** browser `/amiga/ops/fixtures.php` or `fixtures record-result` — **running package only** (fixture columns; broadcast table compute). **Finish and make official** = `promote_running_tournament` + `finalize_tournament` + lifecycle `completed` ([`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md)).
-- **Finalize:** `php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tournament-id=T` or `python -m scripts.amiga finalize-tournament --tournament-id=T`. Ops bootstrap reads **prior snapshots** only (S4); `amiga_player_current` is write + website read. Post-finalize verify rejects cumulative `NumberGames` ≠ rated game count through the event.
-- **Batch rebuild:** `python -m scripts.amiga prove` (preferred) or `replay` then verify suite. PHP `replay-to` removed.
-- **Corrections / derived repair:** `python -m scripts.amiga prove` only — reopen/refinalize retired Jun 2026 ([`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)).
+**Read first:** [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0 — forward path is **simul on `ko2amiga_work`**, not daily `prove`.
+
+- **Import (oracle / Access era):** ground truth from L2 witness — see frozen `import_access.py` and archived [`amiga-import-layer.md`](amiga-import-layer.md). **Do not** use for forward ground after day 0 seal.
+- **Replay (forward):** `scripts/amiga/modern/replay.py` via **simul** — clears derived only on work; never truncates canonical game rows.
+- **Replay (oracle):** legacy `scripts/amiga/replay.py` via **prove** on `ko2amiga_db`.
+- **Live result entry:** browser `/amiga/ops/fixtures.php` or `fixtures record-result` — **running package only**. **Finish and make official** = promote + finalize + lifecycle `completed` ([`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md)).
+- **Finalize:** `php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tournament-id=T` or `python -m scripts.amiga finalize-tournament --tournament-id=T`.
+- **Batch rebuild (forward):** **`python -m scripts.amiga simul`** on **`ko2amiga_work`**.
+- **Batch rebuild (oracle):** `python -m scripts.amiga prove` or `replay` + verify on frozen **`ko2amiga_db`**.
+- **Corrections / derived repair:** **simul** on work; anchored repair on staging per live-ops platform — not nuclear reimport. Reopen/refinalize retired Jun 2026 ([`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)).
 - **New derived tables:** add row to § Table register + post-game rule before implementing
 - **Website:** extend `includes/amiga_*.php`, not online `k2_*` game loaders
 - **Match streaks:** never ship UI or APIs that display `*Streak` / `Longest*Streak` on Amiga — see § Match streaks

@@ -1,6 +1,8 @@
 # Amiga realm scripts
 
-Phase A0+ tooling for the offline Access source (`data/amiga/source/koatd.mdb`).
+**Forward path (Jul 2026):** [`docs/amiga-modern-ground-platform.md`](../../docs/amiga-modern-ground-platform.md) · daily **`simul`** on **`ko2amiga_work`** · code in [`modern/`](modern/README.md).
+
+Legacy Access import (`koatd.mdb`, L0–L5 `prove`) is **oracle/archaeology** — [`docs/archive/amiga-access-pipeline-index.md`](../../docs/archive/amiga-access-pipeline-index.md).
 
 ## Requirements
 
@@ -27,11 +29,12 @@ python -m scripts.amiga seed-work
 
 Creates **`ko2amiga_work`**, `apply_schema`, loads `manifest.json` → `sql_parts` (skips `day0_01_schema.sql`), clears derived placeholders. Exit: L3 counts match day 0 manifest.
 
-**Modern simul (S-1):**
+**Modern simul (S-1) — daily path on `ko2amiga_work`:**
 
 ```powershell
 python -m scripts.amiga simul
 # or: powershell -ExecutionPolicy Bypass -File scripts\run_amiga_simul.ps1
+python scripts/audit_amiga_modern_compartment.py   # MG11 gate before modern/ edits
 ```
 
 On **`ko2amiga_work`**: preflight → `apply_schema` (migrate) → L4 disposition (first run) → `clear_derived` + full replay → **video align + verify** (default; `--skip-video` to opt out) → 22-step verify suite. **Preflight/postcheck:** L3 ground must exist and stay **unchanged during simul**; counts may grow above day 0 after forward append (day 0 pin is **`seed-work`** only). Work DB routing: `KO2AMIGA_DATABASE=ko2amiga_work`. Last run: `data/amiga/modern/simul-last.json` (gitignored). **Legacy `prove` on `ko2amiga_db` is frozen** — forward sign-off = simul.
@@ -88,7 +91,7 @@ powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
 
 `prove` = L1 `import-pristine` → L2 `import-prune` → L3 `import-witness` → L4 `apply-structure` → L5 `replay` → **tournament-video DB anchor sync** → verify suite (strict stack, slices 1–11 complete). Includes `verify-tournament-videos` — see [`tournament_videos/README.md`](tournament_videos/README.md).
 
-**Strict stack policy:** [`docs/amiga-ground-stack.md`](../../docs/amiga-ground-stack.md) · [`docs/amiga-ground-layers-policy.md`](../../docs/amiga-ground-layers-policy.md) (v3). **Live ops (staging vs prove):** [`docs/amiga-live-ops-platform.md`](../../docs/amiga-live-ops-platform.md).
+**Strict stack policy (archived):** [`amiga-ground-stack.md`](../../docs/amiga-ground-stack.md) · [`amiga-ground-layers-policy.md`](../../docs/amiga-ground-layers-policy.md) · index [`archive/amiga-access-pipeline-index.md`](../../docs/archive/amiga-access-pipeline-index.md). **Live ops:** [`amiga-live-ops-platform.md`](../../docs/amiga-live-ops-platform.md).
 
 **Modular pipeline (L0–L5):** DDL bundles `sql/ground|structure|derived` = L3|L4|L5. L1/L2 = SQL dumps under `data/amiga/exports/`.
 
@@ -124,69 +127,28 @@ python -m scripts.amiga verify-export-pack structure
 # Output: data/amiga/exports/packs/{mirror|ground|structure|product}/
 ```
 
-**Import + replay without verify** (mid-slice only):
-
-```powershell
-python -m scripts.amiga run
-```
-
-**Not for sign-off:** `import --incremental` reloads ground truth on an existing schema (import-layer debugging only). Manual `mysql < 014…023` is archived — see [`sql/archive/incremental/README.md`](sql/archive/incremental/README.md).
+**Utilities (finalize, parity, staging export):**
 
 ```powershell
 # Finalize one tournament (frozen Elo — see docs/amiga-tournament-finalize-rating-contract.md):
 python -m scripts.amiga finalize-tournament --tournament-id=N
+php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tournament-id=N
 
-# Corrections / derived state (full L1→L5 loop):
-python -m scripts.amiga prove
-
-# Step by step (same as prove without verify; --recreate-schema runs L1→L2→L3→L4):
-python -m scripts.amiga import --recreate-schema
-python -m scripts.amiga replay
-python -m scripts.amiga verify-chronology
-python -m scripts.amiga verify-rating-events
-python -m scripts.amiga verify-event-snapshots
-python -m scripts.amiga verify-player-participation
-python -m scripts.amiga verify-player-matchups
-python -m scripts.amiga verify-import-manifest
-python -m scripts.amiga verify-player-create
-python -m scripts.amiga verify-l2-l3
-python -m scripts.amiga verify-tournament-formats
-python -m scripts.amiga fixtures verify
-python -m scripts.amiga audit-catalog-dates
-
-# Derived write policy (no batch *-rebuild CLIs): docs/amiga-derived-write-policy.md
-
-# Full replay (~27k games, ~65s local Jun 2026): shared in-memory players across tournaments;
-# each finalize writes amiga_game_ratings + amiga_player_event_snapshots + amiga_player_current.
-# Network counts + peak/nadir once via commit_heavy_player_derived(players). Live
-# finalize-tournament (PHP or Python CLI) loads from DB and persists full snapshot row per event.
-# Live one-event finalize at catalog tail (full history on disk): ~0.7s local (Jun 2026).
-
-# Partial rebuild smoke (≥500 games in scope; verify-rating-events requires full replay):
+# Oracle replay smoke on frozen ko2amiga_db (≥500 games):
 python -m scripts.amiga replay --limit 500
-
-# PHP replay-to removed — batch oracle is Python replay only.
 
 # Tournament standings parity vs Access Tables (reference only):
 python -m scripts.amiga standings-parity --tournament "London XXIII"
-python -m scripts.amiga standings-parity --tournament "World Cup XI (Birmingham)" --scope group --scope-key "Round 1 - Group A"
-
-# Full sweep (overall + World Cup groups; JSON report):
 python -m scripts.amiga standings-parity --sweep
-python -m scripts.amiga standings-parity --sweep --only-failures
-python -m scripts.amiga standings-parity --sweep --tournament-id 42 --fail-fast
 
-# Finalize one tournament (PHP — same semantics as Python finalize-tournament):
-php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tournament-id=N
-
-# process-one hard-fails for tournament-tagged games — use fixtures ops + finalize-tournament
-
-# Schema inventory from Access
+# Schema inventory from Access (archaeology)
 python scripts/amiga/discover_access_schema.py
 
-# SQL dump for staging (after local ko2amiga_work is ready — simul first if derived changed)
+# Staging export (forward — ko2amiga_work):
 powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_work.ps1
 ```
+
+Derived write policy: [`docs/amiga-derived-write-policy.md`](../../docs/amiga-derived-write-policy.md). Forward sign-off = **simul** on work.
 
 Export writes part files + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). **38 parts** (Jun 2026-26): ground + structure through games/ratings chunks, then derived tail — snapshots, current, elo rank, matchup at-event, standings, catalog, matchup summary, generalstats, realm snapshots, community stats (+ snapshots + facts), world cup stats, player slice (+ at-event), **country slice (+ at-event)**. Audit: `python scripts/oneoff/audit_ko2amiga_export_tables.py`. Sync all of `_import/` via WinSCP.
 
@@ -224,7 +186,7 @@ python -m scripts.amiga replay   # Elo + standings
 
 ```powershell
 mysql ko2amiga_db < scripts/amiga/sql/004_tournament_catalog_stats.sql
-python -m scripts.amiga prove   # catalog stats written at each finalize
+python -m scripts.amiga simul   # forward — catalog stats at each finalize
 ```
 
 **Tournament format foundation** (legacy imports + future format templates):
@@ -275,8 +237,11 @@ Extension contract: [`docs/amiga-tournament-format-vision.md`](../../docs/amiga-
 # Full stack is rebuilt by replay (after standings):
 # snapshots + current → matchup_summary → generalstats → catalog_stats
 
-# Sign-off (only supported derived write path):
-python -m scripts.amiga prove
+# Forward sign-off on ko2amiga_work:
+python -m scripts.amiga simul
+
+# Oracle only (frozen ko2amiga_db):
+# python -m scripts.amiga prove
 
 # Verify only (read-only oracles — do not write derived tables):
 python -m scripts.amiga verify-realm-snapshots
@@ -286,7 +251,7 @@ python -m scripts.amiga.verify_php_community_parity
 python -m unittest scripts.amiga.test_community_registry_parity -v
 
 # Derived write policy: docs/amiga-derived-write-policy.md
-# Wrong derived state → prove again (no batch *-rebuild CLIs).
+# Wrong derived state on work → simul again (no batch *-rebuild CLIs).
 
 # Parity gates (player universe contract §8):
 python -m scripts.amiga verify-player-participation
@@ -302,7 +267,7 @@ PHP live path: `amiga_finalize_tournament` persists snapshots + current after st
 
 Participation **roster = `amiga_games`**; finish from `participation_placement.py` / `includes/amiga_participation_placement.php` → `event_finish_position` per [`docs/amiga-tournament-honours-rules.md`](../docs/amiga-tournament-honours-rules.md) (tiers A–E; Tier E = `amiga_tournament_finish_override`). Phase ranks stay in `amiga_tournament_standings` only.
 
-**Schema (Jun 2026):** nuclear reset only — `python -m scripts.amiga prove`. Fresh DDL bundles: `sql/ground/`, `sql/structure/`, `sql/derived/` via `schema_bundles.apply_schema_*` (slice 1). Legacy flat files in `sql/` remain for archaeology. Archived upgrade files `010`–`023`: [`sql/archive/incremental/README.md`](sql/archive/incremental/README.md).
+**Schema (Jun 2026):** **Forward:** DDL bundles `sql/ground/`, `sql/structure/`, `sql/derived/` via **simul** on **`ko2amiga_work`**. **Oracle:** legacy **`prove`** on frozen `ko2amiga_db`. Archived incremental `010`–`023`: [`sql/archive/incremental/README.md`](sql/archive/incremental/README.md).
 
 **Event finish:** `019` (Tier E override table) is in the fresh bundle; `010` has `event_finish_position`.
 
@@ -335,8 +300,8 @@ Read surfaces: profile recent tournaments + top opponents; `/amiga/player/tourna
 **Tournament fixtures foundation** (internal ops only; public builder UI deferred):
 
 ```powershell
-# Schema + derived rebuild: use prove (not manual mysql ladder).
-python -m scripts.amiga prove
+# Forward: simul on ko2amiga_work (not manual mysql ladder).
+python -m scripts.amiga simul
 python -m scripts.amiga fixtures verify
 python -m scripts.amiga fixtures verify-entrants
 python -m scripts.amiga fixtures verify-lifecycle

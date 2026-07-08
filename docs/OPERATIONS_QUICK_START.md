@@ -146,9 +146,10 @@ Not online ladder ops. Local build any way you like → export snapshot → sync
 
 | Step | Command / URL |
 |------|----------------|
-| Build local `ko2amiga_db` | `scripts\setup_ko2amiga_db.ps1` or `python -m scripts.amiga run` |
-| **Sign-off / derived rebuild** | `python -m scripts.amiga prove` — L0→L5 + tournament-video DB anchor sync + verify ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md); manifest sync [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §12) |
-| **Export SQL (agent runs this)** | `scripts\export_ko2amiga_work.ps1` → `site/public_html/amiga/_import/ko2amiga_*.sql` (source `ko2amiga_work`; promotes video manifest first) |
+| **Local PHP + living DB** | `ko2amiga_config.local.php` → **`ko2amiga_work`** (`promote_ko2amiga_work_local.ps1` once) |
+| **Sign-off / derived rebuild** | `python -m scripts.amiga simul` on **`ko2amiga_work`** ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md); video on by default) |
+| **Oracle / Access rebuild** | `setup_ko2amiga_db.ps1` or `python -m scripts.amiga prove` on frozen **`ko2amiga_db`** — archaeology only |
+| **Export SQL (agent runs this)** | `scripts\export_ko2amiga_work.ps1` → `site/public_html/amiga/_import/ko2amiga_*.sql` (promotes work video manifest first) |
 | Deploy (Dagh) | WinSCP sync `site/public_html/` |
 | **Staging import (preview)** | https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee |
 | **Staging import (apply)** | same + `&apply=1` |
@@ -163,7 +164,8 @@ Full handoff: [`amiga-staging-handoff.md`](amiga-staging-handoff.md) · scripts:
 ```text
 site/public_html/ops/           ← holy ops (prepare, simul, verify, post-game)
 scripts/k2_rating_core/         ← shared Elo library (Amiga + PHP mirror reference)
-scripts/amiga/                  ← Amiga holy ops (prove)
+scripts/amiga/modern/         ← Amiga forward ground (simul on ko2amiga_work)
+scripts/amiga/                  ← verify oracles, DDL bundles, frozen legacy prove
 scripts/oneoff/                 ← registered one-offs + local toolkit (see README)
 scripts/throwaway_*.php         ← browser probes only; not default WinSCP sync
 site/public_html/ops/sql/migrations/  ← SCH DDL (synced with ops)

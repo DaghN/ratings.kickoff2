@@ -22,8 +22,9 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | `docs/DEAD_SURFACE.md` | **Removed / kept** runtime files; **§ Retired dev scripts** inventory (Jun 2026 track complete) |
 | `site/config/` | DB config — `ko2unitydb_config.php` router; `*.local.php` gitignored |
 | `site/public_html/amiga/` | **Amiga realm** — leaderboard, profile, staging SQL dump path |
-| `scripts/amiga/` | **Amiga import + replay** — Access → `ko2amiga_db` |
-| `scripts/k2_rating_core/` | **Shared Elo library** — Amiga `prove` + PHP mirror reference |
+| `scripts/amiga/modern/` | **Amiga forward ground** — simul, parity, video on **`ko2amiga_work`** |
+| `scripts/amiga/` | **Amiga tooling** — verify oracles, DDL bundles, **frozen** legacy prove/import (oracle) |
+| `scripts/k2_rating_core/` | **Shared Elo library** — Amiga replay/simul + PHP mirror reference |
 | `scripts/ladder/` | **Deprecated shim** + GST DDL — see [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) |
 | `docs/coordination/cutover-readiness.md` | **Prep done vs live cutover** — read before schema/replay registers |
 | `site/public_html/ops/sql/migrations/` | Canonical SCH DDL (indexes, tables); see `ops-schema-migrations.md` |
@@ -51,7 +52,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 |-------|------|--------|
 | **Taste** | UI/copy/scope disputes | `PROJECT_BRIEF.md`, `docs/design-direction.md` |
 | **Now** | Every session | `PROJECT_MEMORY.md` |
-| **Feature** | Working on X | e.g. `docs/STATUS_PAGE_DATA.md`, **`docs/with-player-stepper-policy.md`** (chevron filters + auto-snap), **`docs/activity-charts.md`** (online Activity `activity.php` charts), **`docs/amiga-activity-charts-policy.md`** (**Amiga Activity hub — v1 shippable** Jul 2026) · [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md), **`docs/milestones-README.md`** (milestones entry → `milestones-catalog.md`), `docs/player-profile-feast.md` (**online profile complete**), **`docs/player-opponents-hub.md`** (online Opponents IA), **`docs/amiga-opponents-wing-policy.md`** (Amiga Opponents port — cold start), **`docs/amiga-world-cups-leaderboard-policy.md`** (Amiga WC LB slice + sub-wings), **`docs/amiga-wc-hof-policy.md`** (WC HoF — **complete** WCH-1–8) · **`docs/amiga-wc-hof-implementation-plan.md`**, **`docs/amiga-world-cups-country-slice-policy.md`** (WC country stats wing — policy) · **`docs/amiga-countries-hub-policy.md`** (Countries hub + Rivals — **shipped**) · **`docs/amiga-countries-hub-implementation-plan.md`** (Countries hub — slices), **`docs/amiga-world-cups-country-slice-implementation-plan.md`** (WC country stats — slices), **`docs/amiga-world-cup-stats-table-plan.md`** (per-WC event stats table — product spec), **`docs/amiga-community-stats-policy.md`** (Amiga realm-wide aggregates / stored facts), **`docs/amiga-derived-write-policy.md`** (prove-only derived writes), **`docs/amiga-community-stats-implementation-plan.md`** (community stats v1 + Phase 2 verify hygiene), **`docs/amiga-community-stats-catalog-plan.md`** (community stats v2 question catalog method), **`docs/amiga-community-stats-question-catalog.md`** (community stats v2 question brainstorm), **`docs/amiga-ground-stack.md`** / **`docs/amiga-ground-layers-policy.md`** (Amiga L0–L5 strict stack), **`docs/amiga-profile-v0.md`** / **`docs/amiga-event-finish-implementation-plan.md`** (event finish migration) / **`docs/amiga-staging-handoff.md`**, **`docs/amiga-rating-history-policy.md`** (historical ladder), **`docs/amiga-tournament-videos-policy.md`** (tournament YouTube catalog) · **`docs/k2-embedded-video-page-policy.md`** (WC spotlight URL / share / Back) · **`docs/amiga-tournament-videos-implementation-plan.md`** (slices TV-1–TV-6, TV-URL), `docs/hub-ia-agreement.md`, **`docs/present-layer-ia.md`** (News / Misc / editorial landings — intent) |
+| **Feature** | Working on X | e.g. `docs/STATUS_PAGE_DATA.md`, … **`docs/amiga-modern-ground-platform.md`** (**Amiga forward ground — read first for simul/staging/DDL**), [`archive/amiga-access-pipeline-index.md`](archive/amiga-access-pipeline-index.md) (Access L0–L5 **archived**), **`docs/amiga-derived-write-policy.md`** (simul sign-off on work; prove = oracle), **`docs/amiga-staging-handoff.md`**, … |
 | **Run** | Replay, SQL, commands | `docs/OPERATIONS_QUICK_START.md` · **retired scripts:** [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) |
 | **Ladder ops platform** | Steve boundary, `ops/`, sim | [`docs/ladder-ops-platform.md`](ladder-ops-platform.md) |
 | **Website data contract** | Stored/derived DB truth | `docs/website-data-contract.md` (online) · **`docs/amiga-data-contract.md`** (Amiga) |
@@ -99,7 +100,7 @@ Dagh uses this phrase often — **not only for DB work**. Always: session handof
 | PHP site + `ops/` | WinSCP sync `site/public_html/` | Prod deploy agreed |
 | Schema SQL | `ops/sql/migrations/` (synced with ops) | `migrate-work` on work DB; Steve WinSCP `ops/` |
 | Website derived history | `ops/run_ops_sim.php` | Steve on prod copy / live (cutover) |
-| Shared rating formulas (library) | `scripts/k2_rating_core/` | Amiga `prove`; PHP ops mirrors in `ops/includes/post_game_*.php` |
+| Shared rating formulas (library) | `scripts/k2_rating_core/` | Amiga **simul** + PHP mirror reference |
 | After each game (prod) | [`ladder-ops-platform.md`](ladder-ops-platform.md) → `dispatch_request.php` or `ops/dispatch.php` | Steve insert + HTTP/CLI call (agreed Jun 2026) |
 
 Post-game **rules:** [`website-data-contract.md`](website-data-contract.md). **Cutover runtime:** PHP `ops/dispatch.php` ([`ladder-ops-platform.md`](ladder-ops-platform.md) §2). **Prod today:** legacy C++ until Steve switches — agents implement PHP ops + contract, not C++ extensions. Records: [`coordination/records-post-game-exception.md`](coordination/records-post-game-exception.md).

@@ -2,11 +2,13 @@
 
 **Status:** **Live** on `ratings.kickoff2.com` (Jun 2026) — rating, profile, games, cross-realm search.
 
-**Operational model (Jul 2026):** Community tournaments and future media uploads are **authoritative on staged `ko2amiga_db`** (Lane B/C). Local full `prove` is **canon regression**, not daily staging ops. **Implementation:** practice-first — run reference tournaments, log pain, slice infra — [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md). Policy: anchored repair, ground packs, bidirectional pull — [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md).
+**Operational model (Jul 2026):** Community tournaments and future media uploads are **authoritative on staged `ko2amiga_db`** (Lane B/C). **Local living ground** = **`ko2amiga_work`** → **`simul`** → **`export_ko2amiga_work.ps1`**. Legacy full `prove` on frozen local `ko2amiga_db` is **oracle regression only**, not daily staging ops. **Implementation:** practice-first — [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md). Policy: [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md).
 
 **Agents — remind Dagh:** When local `ko2amiga_db` should match staging (any import path, not only Access file changes): export → WinSCP sync → browser import. Script: `public_html/amiga/run_import_ko2amiga.php` (build tag in page header, e.g. `a2-2026-06-06-b4`). Password **`coffee`** — add `&pwd=coffee` to the URL, or enter it on the form when the `once` link is valid without `pwd`. **Preview:** `/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` · **Apply:** `&apply=1&part=1` (short parts auto-continue; avoids gateway timeout). Staging base: `https://ratings.kickoff2.com` · local: `http://ratingskickoff.test`. Import payload: `public_html/amiga/_import/ko2amiga_manifest.json` + `ko2amiga_*.sql` part files (gitignored; WinSCP). Full dump `ko2amiga_db.sql` optional (Heidi fallback).
 
 **Agents — when Dagh says “export to staged” (or similar):** **run** `scripts\export_ko2amiga_work.ps1` yourself (dumps local **`ko2amiga_work`** into staging-import `ko2amiga_*` parts; promotes work video manifest first). Use `setup_ko2amiga_db.ps1` only for a full Access oracle rebuild (`export_ko2amiga_db.ps1` shim). Then reply that the dump is **ready for WinSCP sync and staging import** — include preview/apply URLs above. Do not hand-wave “run export locally”; execute it.
+
+**Destructive import (read every time):** Staging browser import **replaces** the whole staging `ko2amiga_db` from export parts — it does **not** merge events that exist only on staging. Routine refresh = export **living work** after **simul**, not nuclear `prove` + oracle export. Community mistakes on staging → anchored repair ([`amiga-live-ops-platform.md`](amiga-live-ops-platform.md)), not full reimport from Access.
 
 ---
 
@@ -60,7 +62,7 @@ WinSCP sync `public_html/` (must include `amiga/run_import_ko2amiga.php` + `amig
 
 Preview must show the manifest **part count** from the latest export and the importer build tag. Apply runs part 1 (schema) through the last part; each part auto-continues (~2s). Expect **~473 players**, **~27k games**, **`amiga_player_event_snapshots`** + **`amiga_player_current`** + **`amiga_player_elo_rank_at_event`** (time-travel hero rank), **`tournament_entrants`**, and **`lifecycle_status`** columns after import completes.
 
-**Post-import verify (local or after staging refresh):** `python -m scripts.amiga prove` against a clone, or spot-check `verify-rating-events` + `verify-chronology` + **`verify-tournament-videos`** on the imported DB. Staging does not run Python replay automatically — export must come from a local DB that already passed full replay.
+**Post-import verify (local or after staging refresh):** On work clone: `python -m scripts.amiga simul` or spot-check verify CLIs. On oracle: `python -m scripts.amiga parity` (work vs frozen `ko2amiga_db`). Staging does not run Python replay automatically — export must come from local **`ko2amiga_work`** that already passed **simul**.
 
 **Tournament video manifest:** Modern path — `export_ko2amiga_work.ps1` runs **`promote-video-deploy`** (work manifest → `site/public_html/data/amiga/`). Legacy oracle rebuild: **`prove`** + `sync_db_ids` before export ([`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §12).
 

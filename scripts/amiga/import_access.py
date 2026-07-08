@@ -1,5 +1,9 @@
 ﻿#!/usr/bin/env python3
-"""Import ground truth from koatd.mdb into ko2amiga_db."""
+"""Import ground truth from koatd.mdb into ko2amiga_db.
+
+FROZEN (Jul 2026, CODE-1): Access L3 witness import — oracle path only.
+Forward ground: day 0 seal + ko2amiga_work — do not extend (MG11).
+"""
 
 from __future__ import annotations
 

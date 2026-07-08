@@ -21,7 +21,7 @@ This policy introduces a **single version-controlled registry** (`data/amiga/cou
 
 **Stored identity:** the registry **official English name** string (not ISO codes in DB columns). **Unknown** remains a read-time sentinel for empty nationality — never choosable on create.
 
-**Repair contract:** registry or normalization changes → full **L3 re-import + L5 `prove`** (no ad-hoc SQL patches on witness columns).
+**Repair contract:** registry or normalization changes on **living ground** → edit registry/aliases → **`simul`** on **`ko2amiga_work`**. Oracle-only: full L3 re-import + **`prove`** on frozen **`ko2amiga_db`** (no ad-hoc SQL on witness columns).
 
 ---
 
@@ -81,7 +81,7 @@ The Countries hub policy (**CH4**, **CH9**, **CH17**) stays valid. After this tr
 | **CR13** | **Import pipeline order** | Name merge → `PLAYER_COUNTRY_OVERRIDES` → catalog / WC corrections → **`country_token_canonicalize`** → registry validate → persist. |
 | **CR14** | **Manifest** | New section **`transforms.country_token_normalizations`** — same shape as other overrides (`access`, `canonical`, `reason`, optional `entity` hint). |
 | **CR15** | **Unmapped at import** | After canonicalize + validate, any country string ∉ registry → **import error** (fail loud; fix registry or alias). |
-| **CR16** | **Repair path** | Registry or normalization change → **`import-witness` + `replay` + `prove`** on `ko2amiga_db`. |
+| **CR16** | **Repair path** | Registry change on **work** → **`simul`**. Oracle archaeology → **`import-witness` + `prove`** on frozen **`ko2amiga_db`**. |
 | **CR17** | **Default display** | Website shows **`official_name`** via registry lookup (matches DB post-migration). |
 | **CR18** | **Site shorthand** | Optional per-row `site_shorthand` in registry (e.g. `UAE` for United Arab Emirates). **Sitewide display toggle off in v1** — metadata ready for later. |
 | **CR19** | **Filter listboxes** | Official names in labels for v1 (same as CR17). |
@@ -354,7 +354,7 @@ Future slice — allow organizers to change country on existing player/tournamen
 
 ### 9.1 `verify_country_registry` (new script)
 
-Run after import and as part of **`python -m scripts.amiga prove`**:
+Run after **simul** on work and (oracle) as part of **`python -m scripts.amiga prove`**:
 
 1. Load registry JSON.
 2. Query distinct non-empty `amiga_players.country` and `tournaments.country`.
@@ -364,7 +364,7 @@ Run after import and as part of **`python -m scripts.amiga prove`**:
 
 ### 9.2 Repair
 
-Wrong witness country strings → fix registry and/or aliases → **full L3 re-import + replay + prove** — not `UPDATE` patches, not L5-only repair.
+Wrong witness country strings → fix registry and/or aliases → **`simul`** on work (forward) or full L3 re-import + **`prove`** (oracle only) — not `UPDATE` patches, not L5-only repair.
 
 ---
 

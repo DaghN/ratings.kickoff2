@@ -2,7 +2,7 @@
 
 Microsoft Access snapshot for the offline / Amiga 500 ladder (~27k games).
 
-**Canonical L0 in Git:** `source/koatd.mdb` (~5.6 MB, May 2026 drop) — tracked so clone + `prove` needs no separate KOA fetch. Other files under `source/` stay gitignored (extra `.mdb` / `.accdb` drops).
+**Canonical L0 in Git:** `source/koatd.mdb` (~5.6 MB, May 2026 drop) — **archaeology only** after modern cutover; forward ground is **`data/amiga/day0/`** + **`ko2amiga_work`**. Other files under `source/` stay gitignored.
 
 ---
 
@@ -69,17 +69,16 @@ See [`docs/amiga-import-layer.md`](../../docs/amiga-import-layer.md) and example
 
 ---
 
-## Build local `ko2amiga_db`
+## Build local databases
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\setup_ko2amiga_db.ps1
-```
-
-Name merges logged to `exports/name_merges.json` (gitignored).
+| Goal | Command |
+|------|---------|
+| **Living ground (forward)** | `python -m scripts.amiga seed-work` then **`simul`** — see [`docs/amiga-modern-ground-platform.md`](../docs/amiga-modern-ground-platform.md) |
+| **Oracle rebuild (Access)** | `powershell -File scripts\setup_ko2amiga_db.ps1` — frozen **`ko2amiga_db`** only |
 
 ## Push to staging
 
-Whenever local **`ko2amiga_db`** is the state you want (any build path):
+Whenever local **`ko2amiga_work`** is the state you want (after **simul**):
 
 1. `scripts\export_ko2amiga_work.ps1` → `site/public_html/amiga/_import/ko2amiga_db.sql`
 2. WinSCP sync `public_html/`

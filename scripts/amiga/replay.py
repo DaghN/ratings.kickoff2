@@ -1,4 +1,8 @@
-"""Chronological Elo replay for Amiga ground-truth games → derived tables."""
+"""Chronological Elo replay for Amiga ground-truth games → derived tables.
+
+FROZEN (Jul 2026, CODE-1): legacy replay on ko2amiga_db.
+Forward replay: scripts/amiga/modern/replay.py on ko2amiga_work (MG11).
+"""
 
 from __future__ import annotations
 

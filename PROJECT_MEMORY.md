@@ -4,6 +4,8 @@
 
 **Authority (when documents disagree):** `PROJECT_BRIEF.md` defines purpose and taste. **`docs/design-direction.md`** governs visual identity and cosmetics-track work. **Dagh’s latest message in chat wins** on scope and direction. This file records **logistics, recent work, and near-term intent** — not a second brief. Rituals and agent rules: **`AGENTS.md`**.
 
+**Amiga agents (Jul 2026):** Forward = **`ko2amiga_work`** + **`simul`**. Staging export = **`export_ko2amiga_work.ps1`**. Legacy **`prove`** / Access L0–L5 = oracle only — [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md) §0.
+
 ---
 
 ## Current focus
@@ -90,7 +92,7 @@
 
 - **Amiga live ops (Jul 2026):** **RTB shipped (RTB-1–RTB-9)** — running scores until organizer **Finish and make official** (promote + finalize + lifecycle `completed` in one Table-tab action). Policy: [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md) rev. 2.
 
-- **Amiga modern ground (Jul 2026):** **PROMOTE-1 done** — local PHP + export on `ko2amiga_work`; `export_ko2amiga_work.ps1`; simul includes video by default. **Next:** DOC-1 / CODE-1. [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md).
+- **Amiga modern ground (Jul 2026):** **Cutover bootstrap complete** (D0 → PROMOTE-1 + DOC-1 + CODE-1). Daily path: **simul** + **export_ko2amiga_work.ps1** on `ko2amiga_work`. [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md).
 
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
@@ -140,6 +142,9 @@
 ## Recent log
 
 | 2026-07-08 | **L3 legacy fixes inventory** — [`amiga-l3-legacy-fixes-inventory.md`](docs/amiga-l3-legacy-fixes-inventory.md): human-readable catalog of all koatd corrections at L2→L3 import (tournaments, WC venues, splits, supplements, name merges incl. automatic, countries). |
+| 2026-07-08 | **Doc pass 2 (agent orientation)** — `kool-workspace.mdc`, MEMORY blurb, live-ops opening, obsolete-dev-scripts proof gates, RTB plan banner, archive index §0; foreground simul/work vs oracle prove. |
+| 2026-07-08 | **Doc pass (modern orientation)** — README, PROJECT_MAP, OPERATIONS, staging handoff, data-contract, live-ops, scripts/amiga/README: simul/work forward; prove/oracle archived. |
+| 2026-07-08 | **DOC-1 + CODE-1 done** — Access pipeline docs archived (`docs/archive/amiga-access-pipeline-index.md`); `modern/README.md` + `audit_amiga_modern_compartment.py`; prove/import/replay FROZEN. |
 | 2026-07-08 | **PROMOTE-1 done** — `ko2amiga_config.local.php` → work; `export_ko2amiga_work.ps1` + `Export-Ko2AmigaStaging.ps1`; `promote-video-deploy`; simul video on by default (`--skip-video` opt-out). |
 | 2026-07-08 | **V-1 done** — `seal-video-oracle` → `seed-video-work` → `align-video-work` → `verify-tournament-videos-work` green on `ko2amiga_work` (299 videos, 13 remap escalations non-fatal); `work_video_paths()` patches legacy module imports; simul `--with-video` wired. |
 | 2026-07-08 | **Modern video policy** — [`amiga-modern-video-policy.md`](docs/amiga-modern-video-policy.md): canonical `game_id` on work, oracle/work file compartments, V-1 slices. |

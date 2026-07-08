@@ -1,5 +1,7 @@
 # Amiga ground layers — policy (L0–L5)
 
+> **Archive (Jul 2026, DOC-1):** Forward Amiga ground authority → [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md). This doc records the **Access-era L0–L5 pipeline** (shipped Jun 2026). Do not assign daily simul, staging export, or living-ground work from here. Index: [`archive/amiga-access-pipeline-index.md`](archive/amiga-access-pipeline-index.md).
+
 **Status:** **Policy v3** (Jun 2026) — strict stack **locked** and **shipped** (slices 1–11).  
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md)
 
@@ -225,9 +227,9 @@ Pack A must not require Pack C tables.
 | L5 Product | `replay` | `prove` verify suite |
 | Orchestrator | `prove` | full chain L1→L5 → verify (includes `verify-l2-l3`) |
 | Export packs | `export-pack {mirror\|ground\|structure\|product\|all}` | `verify-export-pack` |
-| Staging browser import | `scripts/export_ko2amiga_db.ps1` | preview URL in [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
+| Staging browser import | `scripts/export_ko2amiga_work.ps1` (forward) · oracle shim `export_ko2amiga_db.ps1` | preview URL in [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 
-Community packs live under `data/amiga/exports/packs/`. Pack C archive = `export-pack product`; chunked staging = `export_ko2amiga_db.ps1`.
+Community packs live under `data/amiga/exports/packs/`. Pack C archive = `export-pack product`; chunked staging = **`export_ko2amiga_work.ps1`**.
 
 Structure track ([`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md)) **is L4 work**. Per-tournament materialize CLIs remain dev/repair tools.
 
@@ -256,7 +258,8 @@ Structure track ([`amiga-tournament-structure-policy.md`](amiga-tournament-struc
 | L3 | `verify-chronology`, `verify-import-manifest`, catalog audits |
 | L4 | `verify-disposition-register`, `verify-structure`, `verify-export-pack structure` |
 | L5 | `prove` verify suite |
-| Full loop | `python -m scripts.amiga prove` — L1→L5, no `.mdb` on L3 witness path |
+| Full loop (oracle) | `python -m scripts.amiga prove` — L1→L5 on frozen **`ko2amiga_db`** |
+| Full loop (forward) | `python -m scripts.amiga simul` — L4/L5 on **`ko2amiga_work`** ([`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md)) |
 
 ---
 

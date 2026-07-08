@@ -8,9 +8,9 @@
 
 ## 1. What we decided
 
-We are **retiring dev-era batch and replay tooling** that predates the Jun 2026 **holy ops** model (baseline/work DBs + PHP ops simul + Amiga `prove`). These scripts were built when local `ko2unity_db` was the only sandbox and the future path was unknown. They remain in the repo mainly because agents flagged them as “maybe still useful” during cleanup — which adds **context complexity** and **misleading runbook presence** without matching how we work today.
+We are **retiring dev-era batch and replay tooling** that predates the Jun 2026 **holy ops** model (baseline/work DBs + PHP ops simul + Amiga **simul** on living ground). These scripts were built when local `ko2unity_db` was the only sandbox and the future path was unknown. They remain in the repo mainly because agents flagged them as “maybe still useful” during cleanup — which adds **context complexity** and **misleading runbook presence** without matching how we work today.
 
-**We are not deleting Python from the project.** Amiga holy ops **is** Python (`python -m scripts.amiga prove`). Online holy ops **is** PHP (`run_ops_sim.php`). The retirement target is **obsolete fill/repair surfaces**, not every file under `scripts/`.
+**We are not deleting Python from the project.** Amiga **forward** holy ops = **`python -m scripts.amiga simul`** on **`ko2amiga_work`**; legacy **`prove`** on frozen **`ko2amiga_db`** is oracle-only. Online holy ops **is** PHP (`run_ops_sim.php`). The retirement target is **obsolete fill/repair surfaces**, not every file under `scripts/`.
 
 **If we ever need a quick parity filler again**, we prefer **building from contract + holy ops semantics** over reviving May-era batch chains.
 
@@ -21,7 +21,7 @@ We are **retiring dev-era batch and replay tooling** that predates the Jun 2026 
 | Realm | Database(s) | Holy fill path | Holy verify |
 |-------|-------------|----------------|-------------|
 | **Online** | `ko2unity_work` / `kooldb1` (sign-off); `ko2unity_db` frozen dev (UI/cosmetics) | `run_prepare.php` → `zero-derived` → **`run_ops_sim.php run`** → `FinalizeUtcDay` via timeline sim | **`run_verify_ops_sim.php`** |
-| **Amiga** | `ko2amiga_db` | **`python -m scripts.amiga prove`** (L1→L5) · `replay` / `finalize-tournament` for narrow dev | verify modules inside **`prove`** |
+| **Amiga** | **`ko2amiga_work`** (living) + frozen **`ko2amiga_db`** (oracle) | **`python -m scripts.amiga simul`** on work · legacy **`prove`** on oracle only | verify modules in simul / prove |
 
 **Wrong derived state on work / Amiga:** re-run holy path (`zero-derived` → simul, or `prove`). **Not** batch SQL, **not** `python -m scripts.ladder run`.
 
@@ -51,7 +51,8 @@ Related locked policies: [`work-db-prepare.md`](work-db-prepare.md) §1.5 · [`a
 
 | Entry point | Executes Python? | Calls `scripts.ladder`? |
 |-------------|------------------|-------------------------|
-| **`python -m scripts.amiga prove`** | **Yes** — holy loop | **Imports only** — see §3.3 |
+| **`python -m scripts.amiga simul`** | **Yes** — forward holy loop on work | **Imports only** — see §3.3 |
+| **`python -m scripts.amiga prove`** | **Yes** — oracle loop (frozen `ko2amiga_db`) | **Imports only** — see §3.3 |
 | `python -m scripts.amiga replay` | Yes | Same imports |
 | `finalize_tournament.py` | Yes (writer) | `apply_game_row`, `PlayerState`, `START_RATING`, `config` |
 | Amiga PHP ops (`finalize-tournament`, `process_completed_game`) | **No shell to Python** | Comments reference Python parity; runtime is PHP |
@@ -124,7 +125,7 @@ After Amiga imports are repointed:
 |-------|----------|
 | `site/public_html/ops/**` | Online holy ops |
 | `python -m scripts.amiga prove` + `scripts/amiga/**` | Amiga holy ops |
-| `scripts/export_ko2amiga_db.ps1` / `setup_ko2amiga_db.ps1` | Staging export (calls `prove`, not ladder `run`) |
+| `scripts/export_ko2amiga_work.ps1` / `export_ko2amiga_db.ps1` (shim) / `setup_ko2amiga_db.ps1` | Staging export from work; oracle rebuild only |
 | `scripts/prepare_local_work_db.ps1` | Already delegates to **PHP** `run_prepare.php` |
 | `scripts/oneoff/load_milestone_definitions.py` | Catalog seed generator (not a derived fill path) |
 | `ops/sql/generalstatstable.sql` | Canonical DDL (sync note with ladder copy until moved) |
@@ -169,13 +170,13 @@ G5. Replacement
 
 G6. Proof after change
   [ ] Online: run_prepare zero-derived smoke OR note N/A if dev-only
-  [ ] Amiga: python -m scripts.amiga prove (full or agreed smoke) if any amiga/ladder touch
+  [ ] Amiga: `python -m scripts.amiga simul` on work (or oracle `prove` smoke if legacy touch only) if any amiga/ladder touch
 
 G7. Sign-off
   [ ] Gate complete — safe to delete/stub/archive this slice
 ```
 
-**Minimum proof after any slice touching `scripts/ladder` or `scripts/amiga`:** `python -m scripts.amiga prove` green (or documented smoke with Dagh approval).
+**Minimum proof after any slice touching `scripts/ladder` or `scripts/amiga/modern`:** `python -m scripts.amiga simul` green on **`ko2amiga_work`** (or documented smoke with Dagh approval). Legacy **`prove`** only when intentionally touching frozen oracle code paths.
 
 ---
 

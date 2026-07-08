@@ -27,7 +27,7 @@ The tournament video catalog connects **YouTube clips** to **rated Amiga games**
 ### 2.1 Symptoms observed (Jul 2026)
 
 - Dual-leg knockout uploads (e.g. WC 2025 Milan final) appear **once** in video game indexes despite notes saying “dual-leg video”.
-- Notes and `game_ids` can disagree after `python -m scripts.amiga prove` — editorial residue vs collapsed id list.
+- Notes and `game_ids` can disagree after a full **oracle** `prove` reimport — editorial residue vs collapsed id list. **Forward path:** `align-video-work` on **`ko2amiga_work`** (V-1); simul includes video by default.
 - Same underlying issue will block **long stream → many games** curation (dozens of links per `youtube_id`).
 
 ### 2.2 Root cause (not PHP UI)

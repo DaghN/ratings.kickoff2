@@ -1,6 +1,6 @@
 # Amiga modern simul — S-1 implementation plan
 
-**Status:** **P-1 shipped** — next: PROMOTE-1 or V-1.
+**Status:** **Shipped (Jul 2026)** — S-1 complete; see [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §10.2.
 
 **Policy:** [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) (§9 simul, §10 S-1, **MG11** copy-do-not-mutate)
 

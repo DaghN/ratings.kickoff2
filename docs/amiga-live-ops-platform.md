@@ -16,12 +16,12 @@ The Amiga realm is **two products** that must not be conflated:
 
 | Product | Question it answers | Natural home |
 |---------|---------------------|--------------|
-| **Historical canon** | “Rebuild the Access lineage and prove writers still match oracle.” | **Local** — Python `scripts/amiga/`, `koatd.mdb`, L1–L5 pipeline |
+| **Historical canon** | “Rebuild the Access lineage and prove writers still match oracle.” | **Local oracle** — frozen `ko2amiga_db`, legacy `prove`, `koatd.mdb` |
 | **Live community realm** | “Run tournaments, enter results, finalize, attach media, fix mistakes.” | **Staging** (then prod) — PHP `amiga/ops/`, `ko2amiga_db`, server disk |
 
-Today’s habit — **local `prove` → export SQL → WinSCP → browser import** — made sense when staging was a **read-only mirror of local canon**. It breaks once **community members create tournaments on staging** that never existed on the laptop.
+Today’s habit — **local `simul` on `ko2amiga_work` → `export_ko2amiga_work.ps1` → WinSCP → browser import** — replaces the old **`prove` → export** loop. That old loop made sense when staging was a **read-only mirror of local canon**. It breaks once **community members create tournaments on staging** that never existed on the laptop.
 
-This document locks **three operational lanes**, **where code runs**, **timeline vs present projection** (repair semantics), **bidirectional data flow**, and **editorial media** (YouTube URLs, photos). Full `python -m scripts.amiga prove` remains the **deep oracle** for canon and writer regression; it is **not** the default response to secretary mistakes or live uploads.
+This document locks **three operational lanes**, **where code runs**, **timeline vs present projection** (repair semantics), **bidirectional data flow**, and **editorial media** (YouTube URLs, photos). Full `python -m scripts.amiga prove` on frozen **`ko2amiga_db`** remains the **deep oracle** for Access lineage and writer regression; it is **not** the default response to secretary mistakes, daily staging export, or live uploads.
 
 **Prove runtime (Jul 2026):** full holy loop is **~30 minutes** locally after DB expansion — anchored repair on staging becomes **essential**, not optional.
 
@@ -39,7 +39,7 @@ This document locks **three operational lanes**, **where code runs**, **timeline
 | **Cutoff N** | Last good finalized tournament in catalog chrono order after a repair or delete. |
 | **Anchored repair** | Truncate derived timeline after N, re-project present at N, optionally re-finalize forward — **without** full L0–L5 prove. |
 | **Ground pack** | Export/import slice of L3+L4 (+ optional editorial) for one `tournament_id` — backup and pull from staging. |
-| **Canon export** | Full Pack C push local → staging (`export_ko2amiga_db.ps1` + browser import). |
+| **Canon export** | Pack C / chunked SQL from **`ko2amiga_work`** → staging (`export_ko2amiga_work.ps1` + browser import). Oracle shim: `export_ko2amiga_db.ps1`. |
 
 **Elo and ladder stats are L5 derived truth** — same class as online post-game derived columns. Editorial media is **not** L5.
 
@@ -61,7 +61,7 @@ This document locks **three operational lanes**, **where code runs**, **timeline
 
 **Frequency:** When import rules change, new historical tranches, major L5 writer work, or before promoting a large canon refresh to staging.
 
-**Output:** Verified local `ko2amiga_db` → **canon export** to staging (existing handoff).
+**Output:** Verified local **`ko2amiga_work`** (via **simul**) → **export** to staging (existing handoff).
 
 **Prove modes (intent — not all implemented):**
 
@@ -174,7 +174,7 @@ Present rows are **output** of finalize, not input for the next event’s career
 ### 6.1 Today (canon push — keep for historical refresh)
 
 ```text
-local prove → export_ko2amiga_db.ps1 → WinSCP → run_import_ko2amiga.php
+local simul (ko2amiga_work) → export_ko2amiga_work.ps1 → WinSCP → run_import_ko2amiga.php
 ```
 
 See [`amiga-staging-handoff.md`](amiga-staging-handoff.md). Staging does **not** run Python replay on import.
