@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit ko2amiga_db tables vs staging export script (export_ko2amiga_db.ps1)."""
+"""Audit Amiga DB tables vs staging export script (Export-Ko2AmigaStaging.ps1)."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from pathlib import Path
 _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
-_EXPORT_PS1 = _REPO / "scripts" / "export_ko2amiga_db.ps1"
+_EXPORT_PS1 = _REPO / "scripts" / "lib" / "Export-Ko2AmigaStaging.ps1"
 
 # Active product tables (docs/amiga-data-contract.md register, Jun 2026).
 ACTIVE: frozenset[str] = frozenset(
@@ -72,7 +72,7 @@ def _parse_export_tables() -> set[str]:
     text = _EXPORT_PS1.read_text(encoding="utf-8")
     m = re.search(r"\$Tables = @\((.*?)\)", text, re.S)
     if not m:
-        raise SystemExit("Could not parse $Tables from export_ko2amiga_db.ps1")
+        raise SystemExit("Could not parse $Tables from Export-Ko2AmigaStaging.ps1")
     return set(re.findall(r"'([^']+)'", m.group(1)))
 
 

@@ -34,7 +34,7 @@ python -m scripts.amiga simul
 # or: powershell -ExecutionPolicy Bypass -File scripts\run_amiga_simul.ps1
 ```
 
-On **`ko2amiga_work`**: preflight → `apply_schema` (migrate) → L4 disposition (first run) → `clear_derived` + full replay → optional `--with-video` → 22-step verify suite. **Preflight/postcheck:** L3 ground must exist and stay **unchanged during simul**; counts may grow above day 0 after forward append (day 0 pin is **`seed-work`** only). Work DB routing: `KO2AMIGA_DATABASE=ko2amiga_work`. Last run: `data/amiga/modern/simul-last.json` (gitignored). **Legacy `prove` on `ko2amiga_db` is frozen** — forward sign-off = simul.
+On **`ko2amiga_work`**: preflight → `apply_schema` (migrate) → L4 disposition (first run) → `clear_derived` + full replay → **video align + verify** (default; `--skip-video` to opt out) → 22-step verify suite. **Preflight/postcheck:** L3 ground must exist and stay **unchanged during simul**; counts may grow above day 0 after forward append (day 0 pin is **`seed-work`** only). Work DB routing: `KO2AMIGA_DATABASE=ko2amiga_work`. Last run: `data/amiga/modern/simul-last.json` (gitignored). **Legacy `prove` on `ko2amiga_db` is frozen** — forward sign-off = simul.
 
 **P-1 parity (oracle vs work):**
 
@@ -52,6 +52,29 @@ python -m scripts.amiga verify-structure-work
 ```
 
 Disposition register complete; Homburg (`id=137`) + pure_rr smoke (`id=1`) fixtures linked. Report: `data/amiga/modern/l4-verify-last.json`.
+
+**V-1 video (work compartment):**
+
+```powershell
+python -m scripts.amiga seal-video-oracle    # one-time oracle snapshot
+python -m scripts.amiga seed-video-work       # copy shared editorial → work/
+python -m scripts.amiga align-video-work      # sync caches + build work manifest
+python -m scripts.amiga verify-tournament-videos-work
+python -m scripts.amiga promote-video-deploy
+# simul includes video by default; use --skip-video to opt out
+```
+
+Work manifest: `data/amiga/work/tournament_videos.json` (gitignored). Oracle snapshot: `data/amiga/oracle/tournament_videos/`. Report: `data/amiga/modern/video-last.json`. Policy: [`docs/amiga-modern-video-policy.md`](../docs/amiga-modern-video-policy.md).
+
+**PROMOTE-1 staging export (living ground):**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_work.ps1
+# one-time local PHP -> ko2amiga_work:
+powershell -ExecutionPolicy Bypass -File scripts\promote_ko2amiga_work_local.ps1
+```
+
+Oracle archaeology only: `export_ko2amiga_db.ps1` (frozen `ko2amiga_db` after legacy `prove`).
 
 **Sign-off / daily dev (legacy Access path — retiring):**
 
@@ -161,8 +184,8 @@ php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tourna
 # Schema inventory from Access
 python scripts/amiga/discover_access_schema.py
 
-# SQL dump for staging (after local ko2amiga_db is ready)
-powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_db.ps1
+# SQL dump for staging (after local ko2amiga_work is ready — simul first if derived changed)
+powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_work.ps1
 ```
 
 Export writes part files + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). **38 parts** (Jun 2026-26): ground + structure through games/ratings chunks, then derived tail — snapshots, current, elo rank, matchup at-event, standings, catalog, matchup summary, generalstats, realm snapshots, community stats (+ snapshots + facts), world cup stats, player slice (+ at-event), **country slice (+ at-event)**. Audit: `python scripts/oneoff/audit_ko2amiga_export_tables.py`. Sync all of `_import/` via WinSCP.

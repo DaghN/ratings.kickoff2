@@ -123,7 +123,7 @@ def run_simul(
     dry_run: bool = False,
     skip_structure: bool = False,
     apply_structure: bool = False,
-    skip_video: bool = True,
+    skip_video: bool = False,
     skip_verify: bool = False,
     recreate_schema: bool = False,
 ) -> int:

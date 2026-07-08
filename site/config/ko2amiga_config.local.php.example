@@ -4,13 +4,16 @@
  *
  *   copy ko2amiga_config.local.php.example → ko2amiga_config.local.php
  *
+ * Living ground (PROMOTE-1): ko2amiga_work — daily simul + export_ko2amiga_work.ps1.
+ * Frozen oracle: ko2amiga_db — legacy prove / P-1 parity only.
+ *
  * Amiga pages load this via ../../config/ko2amiga_config.php.
  * ko2amiga_config.local.php is gitignored — never commit credentials.
  */
 $dbhost = '127.0.0.1';
 $username = 'root';
 $password = '';
-$database = 'ko2amiga_db';
+$database = 'ko2amiga_work';
 $dbportnum = 3306;
 
 // Live hub visibility (Jul 2026): running generated tournaments appear automatically —

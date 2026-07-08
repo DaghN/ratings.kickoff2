@@ -81,7 +81,7 @@ Name merges logged to `exports/name_merges.json` (gitignored).
 
 Whenever local **`ko2amiga_db`** is the state you want (any build path):
 
-1. `scripts\export_ko2amiga_db.ps1` → `site/public_html/amiga/_import/ko2amiga_db.sql`
+1. `scripts\export_ko2amiga_work.ps1` → `site/public_html/amiga/_import/ko2amiga_db.sql`
 2. WinSCP sync `public_html/`
 3. **Preview:** https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee
 4. **Apply:** same URL with `&apply=1`

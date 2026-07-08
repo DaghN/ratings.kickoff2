@@ -80,8 +80,10 @@ PACK_LAYERS: dict[str, str] = {
 
 def _connect() -> pymysql.connections.Connection:
     cfg = load_amiga_db_config()
-    if cfg.database != "ko2amiga_db":
-        raise SystemExit(f"Refusing export: expected ko2amiga_db, got {cfg.database!r}")
+    if cfg.database not in ("ko2amiga_work", "ko2amiga_db"):
+        raise SystemExit(
+            f"Refusing export: expected ko2amiga_work or ko2amiga_db, got {cfg.database!r}"
+        )
     return pymysql.connect(
         host=cfg.host,
         port=cfg.port,

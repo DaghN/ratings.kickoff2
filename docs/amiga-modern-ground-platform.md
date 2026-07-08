@@ -260,8 +260,8 @@ Execute in order. Each slice ends with a recorded check.
 | **S-1** | **`apply-structure`** (disposition) + **simul** on `ko2amiga_work` — no ground truncate | **Done** — `python -m scripts.amiga simul`; 27,418 ratings; 16,046 fixtures; 22 verify steps (video deferred S-1.8) |
 | **P-1** | **Parity check** — work post-simul vs frozen `ko2amiga_db` (derived tables, snapshots, key scalars) | **Done** — `python -m scripts.amiga parity`; 29 tables; report `data/amiga/modern/parity-last.json` |
 | **L4-1** | Confirm L4 on work matches disposition expectations | **Done** — `python -m scripts.amiga verify-structure-work`; 16,046 fixtures; Homburg + pure_rr smoke OK |
-| **V-1** | Video on work — stable `game_id` binding, oracle/work compartments, simul `--with-video` | Plan: [`amiga-modern-video-policy.md`](amiga-modern-video-policy.md) §8 |
-| **PROMOTE-1** | `ko2amiga_config.local.php` → `ko2amiga_work`; export reads work; legacy `prove` locked to `ko2amiga_db` only | Daily path = work + simul |
+| **V-1** | Video on work — stable `game_id` binding, oracle/work compartments, simul `--with-video` | **Done** — `seal-video-oracle` · `seed-video-work` · `align-video-work` · `verify-tournament-videos-work`; work manifest `data/amiga/work/tournament_videos.json` (299 videos) |
+| **PROMOTE-1** | `ko2amiga_config.local.php` → `ko2amiga_work`; export reads work; legacy `prove` locked to `ko2amiga_db` only | **Done** — `export_ko2amiga_work.ps1` · `promote_ko2amiga_work_local.ps1` · `promote-video-deploy`; oracle export = `export_ko2amiga_db.ps1` shim |
 | **DOC-1** | Archive Access pipeline docs; agent routing | Agents read **this doc** |
 | **CODE-1** | `scripts/amiga/modern/` compartment; legacy import frozen (**MG11** — copy, never mutate) | No new `import_access.py` features; no modern imports from `prove`/`replay` without fork |
 
@@ -276,7 +276,7 @@ Execute in order. Each slice ends with a recorded check.
 | **Modern policy** | [`amiga-modern-video-policy.md`](amiga-modern-video-policy.md) — canonical **`amiga_games.id`** on work; oracle/work file compartments; **V-1** |
 | **Legacy mechanics** | [`amiga-tournament-videos-game-links-policy.md`](amiga-tournament-videos-game-links-policy.md) — fact remap on nuclear reimport (`prove` only) |
 | **Product** | [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) |
-| **Simul** | Align + verify on **work** — not reimport repair; default skip video until **V-1** (`--with-video`) |
+| **Simul** | Align + verify on **work** by default; `--skip-video` to opt out |
 | **Harvest/build** | Offline editorial; not every simul |
 | **Lane C (future)** | Staging DB writes for community clips — [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) §8 |
 

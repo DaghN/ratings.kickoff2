@@ -28,6 +28,7 @@ from scripts.amiga.verify_country_slice import main as verify_country_slice_main
 from scripts.amiga.verify_wc_hof import main as verify_wc_hof_main
 from scripts.amiga.verify_perfect_event import main as verify_perfect_event_main
 from scripts.amiga.modern.verify_tournament_formats_work import main as verify_tournament_formats_work_main
+from scripts.amiga.modern.video_catalog import run_verify_tournament_videos_work
 
 log = logging.getLogger(__name__)
 
@@ -61,9 +62,7 @@ def run_modern_verify_suite(*, include_videos: bool = False) -> int:
     activate_work_database_env()
     steps = list(MODERN_VERIFY_STEPS)
     if include_videos:
-        from scripts.amiga.verify_tournament_videos import main as verify_tournament_videos_main
-
-        steps.append(("verify-tournament-videos", verify_tournament_videos_main))
+        steps.append(("verify-tournament-videos", run_verify_tournament_videos_work))
 
     for name, verify_fn in steps:
         log.info("simul verify: %s", name)

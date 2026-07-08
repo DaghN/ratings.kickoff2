@@ -19,7 +19,7 @@
 | **Frozen dev DB (`ko2unity_db`) recovery?** | Re-import May dump (`data/README.md`) — not retired batch/replay CLIs |
 | **Steve prod cutover?** | [`site/public_html/ops/docs/post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md) |
 | **Schema migrations?** | `site/public_html/ops/sql/migrations/` + `run_prepare.php migrate-work` |
-| **Amiga staging DB refresh?** | Agent **runs** `scripts\export_ko2amiga_db.ps1` when Dagh asks to export to staged → tells him **ready for sync + import** → **preview** `/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` → **apply** `&apply=1` on `ratings.kickoff2.com` — [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
+| **Amiga staging DB refresh?** | Agent **runs** `scripts\export_ko2amiga_work.ps1` when Dagh asks to export to staged → tells him **ready for sync + import** → **preview** `/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` → **apply** `&apply=1` on `ratings.kickoff2.com` — [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 
 ---
 
@@ -148,7 +148,7 @@ Not online ladder ops. Local build any way you like → export snapshot → sync
 |------|----------------|
 | Build local `ko2amiga_db` | `scripts\setup_ko2amiga_db.ps1` or `python -m scripts.amiga run` |
 | **Sign-off / derived rebuild** | `python -m scripts.amiga prove` — L0→L5 + tournament-video DB anchor sync + verify ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md); manifest sync [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §12) |
-| **Export SQL (agent runs this)** | `scripts\export_ko2amiga_db.ps1` → `site/public_html/amiga/_import/ko2amiga_db.sql` — run **`sync_db_ids`** (or full **`prove`**) first if player merges shifted ids; commit `review.csv` + `tournament_videos.json` with export |
+| **Export SQL (agent runs this)** | `scripts\export_ko2amiga_work.ps1` → `site/public_html/amiga/_import/ko2amiga_*.sql` (source `ko2amiga_work`; promotes video manifest first) |
 | Deploy (Dagh) | WinSCP sync `site/public_html/` |
 | **Staging import (preview)** | https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee |
 | **Staging import (apply)** | same + `&apply=1` |

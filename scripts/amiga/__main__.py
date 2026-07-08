@@ -60,6 +60,12 @@ from scripts.amiga.modern.simul import run_simul
 from scripts.amiga.modern.apply_structure import run_apply_structure_work
 from scripts.amiga.modern.parity import run_parity
 from scripts.amiga.modern.verify_structure_work import run_verify_structure_work
+from scripts.amiga.modern.video_catalog import (
+    run_verify_tournament_videos_work,
+    run_video_align_work,
+    seal_video_oracle,
+    seed_work_video_catalog,
+)
 from scripts.amiga.verify_export_pack import verify_export_pack
 from scripts.amiga.verify_structure import verify_structure
 from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
@@ -364,9 +370,9 @@ def main(argv: list[str] | None = None) -> int:
         help="Force L4 disposition dispatch even when fixtures exist",
     )
     p_simul.add_argument(
-        "--with-video",
+        "--skip-video",
         action="store_true",
-        help="Run video align and include verify-tournament-videos (default: skip until S-1.8)",
+        help="Skip video align and verify-tournament-videos-work",
     )
     p_simul.add_argument(
         "--skip-verify",
@@ -400,6 +406,33 @@ def main(argv: list[str] | None = None) -> int:
     p_verify_structure_work = sub.add_parser(
         "verify-structure-work",
         help="L4-1: verify-structure on ko2amiga_work (disposition STOP gate)",
+    )
+
+    p_seal_video_oracle = sub.add_parser(
+        "seal-video-oracle",
+        help="V-1.0: snapshot oracle video catalog to data/amiga/oracle/tournament_videos/",
+    )
+    p_seed_video_work = sub.add_parser(
+        "seed-video-work",
+        help="V-1.2: copy shared editorial video files into work compartment",
+    )
+    p_seed_video_work.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite existing work review.csv / sidecar files",
+    )
+    p_align_video_work = sub.add_parser(
+        "align-video-work",
+        help="V-1: sync work video catalog to ko2amiga_work + rebuild work manifest",
+    )
+    p_align_video_work.add_argument("--dry-run", action="store_true")
+    p_verify_video_work = sub.add_parser(
+        "verify-tournament-videos-work",
+        help="V-1: verify work tournament_videos.json against ko2amiga_work",
+    )
+    p_promote_video_deploy = sub.add_parser(
+        "promote-video-deploy",
+        help="PROMOTE-1: copy work video manifest to site/public_html deploy paths",
     )
 
     p_verify_export_pack = sub.add_parser(
@@ -777,7 +810,7 @@ def main(argv: list[str] | None = None) -> int:
             dry_run=args.dry_run,
             skip_structure=args.skip_structure,
             apply_structure=args.apply_structure,
-            skip_video=not args.with_video,
+            skip_video=args.skip_video,
             skip_verify=args.skip_verify,
             recreate_schema=args.recreate_schema,
         )
@@ -797,6 +830,26 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "verify-structure-work":
         return run_verify_structure_work()
+
+    if args.cmd == "seal-video-oracle":
+        seal_video_oracle()
+        return 0
+
+    if args.cmd == "seed-video-work":
+        seed_work_video_catalog(force=args.force)
+        return 0
+
+    if args.cmd == "align-video-work":
+        return run_video_align_work(dry_run=args.dry_run)
+
+    if args.cmd == "verify-tournament-videos-work":
+        return run_verify_tournament_videos_work()
+
+    if args.cmd == "promote-video-deploy":
+        from scripts.amiga.modern.video_catalog import promote_work_video_deploy
+
+        promote_work_video_deploy()
+        return 0
 
     if args.cmd == "seal-day0":
         stats = seal_day0(out_dir=args.out_dir, version=args.version)

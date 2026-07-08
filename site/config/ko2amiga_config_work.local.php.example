@@ -1,5 +1,6 @@
 <?php
 /**
+ * Deprecated — use ko2amiga_config.local.php.example (ko2amiga_work) after PROMOTE-1.
  * Optional mirror for ko2amiga_work — Python simul uses KO2AMIGA_DATABASE env override
  * via scripts/amiga/modern/db_config.py; PHP still reads ko2amiga_config.local.php unless
  * you point Amiga pages at this file manually.

@@ -69,7 +69,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | | Local | Staging | Prod |
 |---|--------|---------|------|
 | **Online** | `ko2unity_db` (+ sandbox `ko2unity_work` / `ko2unity_baseline`) | `kooldb1` / `kooldb2` (legacy `kooldb` possible) | Steve-managed |
-| **Amiga (offline)** | `ko2amiga_db` — separate realm, no player linking | **`ko2amiga_db`** — canon push: `export_ko2amiga_db.ps1` + WinSCP + browser import — [`amiga-staging-handoff.md`](amiga-staging-handoff.md). **Live ops:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) · drill track [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) | A2 live staging |
+| **Amiga (offline)** | **`ko2amiga_work`** local living ground; **`ko2amiga_db`** frozen oracle + staging import name | **Staging push:** `export_ko2amiga_work.ps1` + WinSCP + browser import — [`amiga-staging-handoff.md`](amiga-staging-handoff.md). **Live ops:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) · drill track [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) | A2 live staging |
 | Work prepare / simul | [`work-db-prepare.md`](work-db-prepare.md) | Same vocabulary (refresh → migrate → zero derived) | — |
 | Live games | No | **No** | **Yes** |
 | PHP deploy | Laragon | WinSCP sync **`site/public_html/`** | Steve |

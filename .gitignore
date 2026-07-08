@@ -28,6 +28,9 @@ site/public_html/ops/config/dispatch-http.ini
 data/amiga/modern/simul-last.json
 data/amiga/modern/parity-last.json
 data/amiga/modern/l4-verify-last.json
+data/amiga/modern/video-last.json
+data/amiga/work/
+data/amiga/oracle/
 
 /KO2PC_DB/
 

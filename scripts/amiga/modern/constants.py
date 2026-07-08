@@ -28,7 +28,7 @@ L3_GROUND_COUNT_KEYS: Final[tuple[str, ...]] = (
     "games",
 )
 
-# P-1 parity scope — mirrors export_ko2amiga_db.ps1 table list.
+# P-1 parity scope — mirrors Export-Ko2AmigaStaging.ps1 table list.
 PARITY_TABLES: Final[tuple[str, ...]] = (
     "tournament_format_templates",
     "tournaments",
@@ -59,4 +59,13 @@ PARITY_TABLES: Final[tuple[str, ...]] = (
     "amiga_country_slice_at_event",
     "amiga_wc_hof_snapshots",
     "amiga_wc_hof_present",
+)
+
+# Tournament video file compartments (V-1).
+SHARED_VIDEO_DIR: Final[Path] = _REPO / "data" / "amiga" / "tournament_videos"
+ORACLE_VIDEO_DIR: Final[Path] = _REPO / "data" / "amiga" / "oracle" / "tournament_videos"
+WORK_VIDEO_DIR: Final[Path] = _REPO / "data" / "amiga" / "work" / "tournament_videos"
+WORK_MANIFEST_JSON: Final[Path] = _REPO / "data" / "amiga" / "work" / "tournament_videos.json"
+LEGACY_MANIFEST_JSON: Final[Path] = (
+    _REPO / "site" / "public_html" / "data" / "amiga" / "tournament_videos.json"
 )

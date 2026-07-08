@@ -1,6 +1,6 @@
 # Amiga modern video — policy (living ground)
 
-**Status:** **Policy locked (Jul 2026)** — captures cutover intent from S-1 / V-1 planning. **Implementation:** **not started** (S-1.8 shell only; `--with-video` off).
+**Status:** **Shipped (Jul 2026)** — V-1 + PROMOTE-1: work manifest promoted via `promote-video-deploy` / `export_ko2amiga_work.ps1`; simul includes video by default.
 
 **Parent:** [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) (§11 Video, slice **V-1**) · [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) (product + UI)
 
@@ -79,7 +79,7 @@ Work outputs (writable by modern tooling only)
 
 ## 5. Modern video align (simul step)
 
-When `python -m scripts.amiga simul --with-video`:
+When `python -m scripts.amiga simul` (video on by default; `--skip-video` to opt out):
 
 1. Target DB = **`ko2amiga_work`** only (`KO2AMIGA_DATABASE`).
 2. Read shared editorial (+ work cache overlay if split).
@@ -89,7 +89,7 @@ When `python -m scripts.amiga simul --with-video`:
 6. Write **work** `review.csv` cache columns + rebuild **work** manifest.
 7. Run `verify-tournament-videos` against work (env override).
 
-**Default until V-1 ships:** simul skips video (`--with-video` opt-in).
+**Default:** simul runs video align + verify unless `--skip-video`. Export promotes work manifest via `promote-video-deploy` before WinSCP sync.
 
 Harvest (`harvest`, `apply_review`, `resolve_games`) remains **offline editorial** — not every simul.
 
@@ -101,7 +101,7 @@ Harvest (`harvest`, `apply_review`, `resolve_games`) remains **offline editorial
 |------|------|-------|
 | Find match | Human / `resolve_games` proposal | Facts help search |
 | Lock link | Set `game_id_guess` + `verified=Y` (and `game_link_mode` / sidecar if multi-game) | **Id is the commitment** on work |
-| Simul | `--with-video` | Validates; rebuilds work manifest |
+| Simul | default (or `--skip-video`) | Validates; rebuilds work manifest |
 | New community game | Live ops → new `amiga_games.id` | Link video to that id directly; no koatd key |
 
 Dual-leg / stream_map rules from [game-links policy](amiga-tournament-videos-game-links-policy.md) §8 still apply to **link count**; authority of each linked id is **work `amiga_games.id`**, not remap-from-facts.
@@ -125,11 +125,11 @@ Do not edit legacy policy to contradict prove behaviour; agents implementing wor
 
 | ID | Work | Exit |
 |----|------|------|
-| **V-1.0** | Seal oracle video snapshot under `data/amiga/oracle/tournament_videos/` from current `ko2amiga_db`-aligned catalog | Read-only baseline for P-1 |
-| **V-1.1** | `modern/constants` video paths; fork `sync_db_ids` / `build_manifest` writers with path overrides (**MG11**) | No writes to legacy paths from modern |
-| **V-1.2** | Seed work catalog from shared editorial + align to `ko2amiga_work` (day-0 ids should match oracle caches today) | Work manifest + verify green |
-| **V-1.3** | Wire `simul --with-video`; add `verify-tournament-videos` to modern suite when video on | `python -m scripts.amiga simul --with-video` exit 0 |
-| **V-1.4** | **PROMOTE-1** hook: PHP reads work manifest (or copy step in export) | Staging sees work-aligned ids |
+| **V-1.0** | Seal oracle video snapshot under `data/amiga/oracle/tournament_videos/` from current `ko2amiga_db`-aligned catalog | **Done** — `python -m scripts.amiga seal-video-oracle` |
+| **V-1.1** | `modern/constants` video paths; fork `sync_db_ids` / `build_manifest` writers with path overrides (**MG11**) | **Done** — `modern/video_catalog.py` + `work_video_paths()` |
+| **V-1.2** | Seed work catalog from shared editorial + align to `ko2amiga_work` (day-0 ids should match oracle caches today) | **Done** — align + verify green; 13 non-fatal remap escalations |
+| **V-1.3** | Wire `simul --with-video`; add `verify-tournament-videos` to modern suite when video on | **Done** — verify suite step when `include_videos` |
+| **V-1.4** | **PROMOTE-1** hook: PHP reads work manifest (or copy step in export) | **Done** — `promote-video-deploy` + `export_ko2amiga_work.ps1` |
 
 **Out of scope V-1:** Lane C DB migration · re-harvest cadence changes · rewriting PHP read paths (already id-based).
 
@@ -149,4 +149,6 @@ Do not edit legacy policy to contradict prove behaviour; agents implementing wor
 
 | Date | Change |
 |------|--------|
+| 2026-07-08 | **PROMOTE-1** — `export_ko2amiga_work.ps1`, `promote-video-deploy`, simul video default on. |
+| 2026-07-08 | **V-1 shipped** — work/oracle compartments, align + verify CLIs, simul video wiring; path patch for legacy module imports. |
 | 2026-07-08 | Policy locked — canonical `amiga_games.id` on work, file compartments, V-1 slices; legacy fact-remap scoped to prove path. |
