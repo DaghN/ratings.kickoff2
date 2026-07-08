@@ -139,6 +139,7 @@
 
 ## Recent log
 
+| 2026-07-08 | **L3 legacy fixes inventory** — [`amiga-l3-legacy-fixes-inventory.md`](docs/amiga-l3-legacy-fixes-inventory.md): human-readable catalog of all koatd corrections at L2→L3 import (tournaments, WC venues, splits, supplements, name merges incl. automatic, countries). |
 | 2026-07-08 | **PROMOTE-1 done** — `ko2amiga_config.local.php` → work; `export_ko2amiga_work.ps1` + `Export-Ko2AmigaStaging.ps1`; `promote-video-deploy`; simul video on by default (`--skip-video` opt-out). |
 | 2026-07-08 | **V-1 done** — `seal-video-oracle` → `seed-video-work` → `align-video-work` → `verify-tournament-videos-work` green on `ko2amiga_work` (299 videos, 13 remap escalations non-fatal); `work_video_paths()` patches legacy module imports; simul `--with-video` wired. |
 | 2026-07-08 | **Modern video policy** — [`amiga-modern-video-policy.md`](docs/amiga-modern-video-policy.md): canonical `game_id` on work, oracle/work file compartments, V-1 slices. |

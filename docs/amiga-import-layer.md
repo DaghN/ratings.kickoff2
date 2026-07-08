@@ -4,7 +4,7 @@
 
 **Purpose:** Define how **L2 pruned witness SQL** becomes canonical Amiga **ground truth** in `ko2amiga_db`. Import is the **only** place we normalize, correct, or reinterpret archival data before replay and the website see it.
 
-**Related:** [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) (L3 country canonicalization + registry validation — policy locked Jul 2026) · [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · [`amiga-ground-stack.md`](amiga-ground-stack.md) (strict chain) · [`scripts/amiga/README.md`](../scripts/amiga/README.md)
+**Related:** [`amiga-l3-legacy-fixes-inventory.md`](amiga-l3-legacy-fixes-inventory.md) (human-readable list of every koatd correction at L3) · [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) (L3 country canonicalization + registry validation — policy locked Jul 2026) · [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · [`amiga-ground-stack.md`](amiga-ground-stack.md) (strict chain) · [`scripts/amiga/README.md`](../scripts/amiga/README.md)
 
 **Layer:** This doc owns **L3 witness ground** transforms and `import_manifest.json`. **L4** structure = [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md). **L5** derived = replay/finalize. **L0–L2** = `import-pristine`, `import-prune` — see policy §4–5 and stack doc §4.
 
