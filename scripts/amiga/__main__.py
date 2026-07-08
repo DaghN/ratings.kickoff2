@@ -53,7 +53,9 @@ from scripts.amiga.export_packs import (
     export_all_packs,
     export_pack,
 )
+from scripts.amiga.modern.constants import DAY0_DIR as _SEED_DAY0_DIR
 from scripts.amiga.modern.seal_day0 import _DEFAULT_OUT as _DAY0_OUT, seal_day0
+from scripts.amiga.modern.seed_work import seed_work_from_day0
 from scripts.amiga.verify_export_pack import verify_export_pack
 from scripts.amiga.verify_structure import verify_structure
 from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
@@ -319,6 +321,27 @@ def main(argv: list[str] | None = None) -> int:
         type=str,
         default=None,
         help="Manifest version id (default: day0-YYYY-MM-DD)",
+    )
+
+    p_seed_work = sub.add_parser(
+        "seed-work",
+        help="Seed ko2amiga_work from data/amiga/day0/ L3 archive (W-1)",
+    )
+    p_seed_work.add_argument(
+        "--day0-dir",
+        type=Path,
+        default=_SEED_DAY0_DIR,
+        help="Day 0 archive directory (default: data/amiga/day0)",
+    )
+    p_seed_work.add_argument(
+        "--include-schema-part",
+        action="store_true",
+        help="Also run day0_01_schema.sql (default: skip; apply_schema already ran)",
+    )
+    p_seed_work.add_argument(
+        "--no-recreate",
+        action="store_true",
+        help="Do not drop existing tables before apply_schema",
     )
 
     p_verify_export_pack = sub.add_parser(
@@ -672,6 +695,23 @@ def main(argv: list[str] | None = None) -> int:
                 log.error("%s", err)
             return 1
         log.info("verify-structure OK")
+        return 0
+
+    if args.cmd == "seed-work":
+        stats = seed_work_from_day0(
+            day0_dir=args.day0_dir,
+            skip_schema_part=not args.include_schema_part,
+            recreate=not args.no_recreate,
+        )
+        log.info(
+            "seed-work OK: version=%s db=%s tournaments=%s players=%s games=%s parts=%s",
+            stats["version"],
+            stats["database"],
+            stats["l3_counts"]["tournaments"],
+            stats["l3_counts"]["amiga_players"],
+            stats["l3_counts"]["amiga_games"],
+            len(stats["loaded_parts"]),
+        )
         return 0
 
     if args.cmd == "seal-day0":

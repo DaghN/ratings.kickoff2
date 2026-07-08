@@ -16,7 +16,7 @@ L3 witness tables only — **no L4 structure, no L5 derived, no video.**
 | amiga_tournament_finish_override | 0 |
 | tournament_format_templates | 6 |
 
-`ko2amiga_db` remains the **parity oracle** (frozen) until P-1 passes. **`ko2amiga_work`** is seeded from this bundle only (W-1).
+`ko2amiga_db` remains the **parity oracle** (frozen) until P-1 passes. **`ko2amiga_work`** is seeded via `python -m scripts.amiga seed-work`.
 
 ## Files
 

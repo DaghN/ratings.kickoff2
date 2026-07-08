@@ -114,8 +114,19 @@ Same shape as online: **ground accumulates; derived is replayable.**
 | **MG7** | **DDL holy path unchanged** | Schema bundles in `scripts/amiga/sql/{ground,structure,derived}/` — applied via **simul** on living DB ([`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) G12). |
 | **MG8** | **Live ops unchanged** | [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) Lane B/C — `site/public_html/amiga/ops/`, staging authority for community events. This doc fixes **local ground + simul + staging handoff direction.** |
 | **MG9** | **Legacy quirks stay local** | Per-tournament phase fallback, `format_overrides`, games-before-fixtures provenance — **not** a second pipeline. |
+| **MG11** | **Copy, do not mutate legacy prove** | Forward work lives in **`scripts/amiga/modern/`**. **Do not** edit or import from legacy prove orchestration (`prove.py`, `import_access.py`, nuclear import path) except read-only archaeology. Need legacy behaviour → **copy + rename** into `modern/` and evolve there. Keeps frozen `ko2amiga_db` oracle path reproducible. |
 
----
+### 5.1 Legacy script compartment
+
+| Zone | Path | Rule |
+|------|------|------|
+| **Modern (mutable)** | `scripts/amiga/modern/` | All cutover + forward simul/seed/load code |
+| **Legacy prove (frozen)** | `scripts/amiga/prove.py`, `import_access.py`, `import_pristine.py`, `import_prune.py`, … | **No edits** for transition work; last green path preserved for oracle + archaeology |
+| **Shared read-only** | `scripts/amiga/sql/`, `finalize_tournament.py`, verify modules | **Read/copy** OK; changes only when deliberately shared (DDL bundles) or after fork into `modern/` |
+
+**Allowed without fork:** `schema_bundles.apply_schema` on **`ko2amiga_work`** (DDL only — same bundles as legacy, different DB target).
+
+**Not allowed:** `from scripts.amiga.replay import …` or `from scripts.amiga.prove import …` in modern code — fork first. *(W-1 debt: `seed_work` still calls `replay.clear_derived`; fork to `modern/clear_derived.py` in S-1.)*
 
 ## 6. What we retire
 
@@ -243,14 +254,14 @@ Execute in order. Each slice ends with a recorded check.
 |----|------|------|
 | **D0-1** | Seal **day 0 L3** from current `ko2amiga_db` — **witness tables only** (§7.1); manifest + SQL under `data/amiga/day0/` | **Done** `day0-2026-07-08` — 605 / 469 / 27,418; `python -m scripts.amiga seal-day0` |
 | **D0-2** | **Freeze** local `ko2amiga_db` — no further writes; label as cutover oracle in manifest note | Oracle frozen flag in manifest; manual discipline until P-1 |
-| **W-1** | Create **`ko2amiga_work`**: `apply_schema` + **load day 0 L3 only** (not mysqldump of `ko2amiga_db`) | L3 row counts match day 0 manifest; zero derived rows |
+| **W-1** | Create **`ko2amiga_work`**: `apply_schema` + **load day 0 L3 only** (not mysqldump of `ko2amiga_db`) | **Done** — `python -m scripts.amiga seed-work`; 605 / 469 / 27,418; derived cleared |
 | **S-1** | **`apply-structure`** (disposition) + **simul** on `ko2amiga_work` — no ground truncate | Simul + verify green on work |
 | **P-1** | **Parity check** — work post-simul vs frozen `ko2amiga_db` (derived tables, snapshots, key scalars) | Oracle diff documented; failures block promote |
 | **L4-1** | Confirm L4 on work matches disposition expectations | `verify-structure` green |
 | **V-1** | Video align on work + `verify-tournament-videos` | Stable ids; no witness reimport |
 | **PROMOTE-1** | `ko2amiga_config.local.php` → `ko2amiga_work`; export reads work; legacy `prove` locked to `ko2amiga_db` only | Daily path = work + simul |
 | **DOC-1** | Archive Access pipeline docs; agent routing | Agents read **this doc** |
-| **CODE-1** | `scripts/amiga/modern/` compartment; legacy import frozen | No new `import_access.py` features |
+| **CODE-1** | `scripts/amiga/modern/` compartment; legacy import frozen (**MG11** — copy, never mutate) | No new `import_access.py` features; no modern imports from `prove`/`replay` without fork |
 
 **Out of scope for day-one cutover (follow-on):** staging merge import · ground pack pull · `append-event` CLI · retiring L4 pipeline at 100% structure.
 
@@ -288,6 +299,7 @@ New evidence **without Access:**
 5. **DDL** → edit `scripts/amiga/sql/` bundles → **simul** on **`ko2amiga_work`**.
 6. **Never** seed `ko2amiga_work` from full `ko2amiga_db` clone — **day 0 L3 load only** (MG10).
 7. **Access pipeline docs** → archive only; historical context.
+8. **MG11 — copy, do not mutate legacy prove** — forward code in `scripts/amiga/modern/` only; fork legacy helpers into `modern/` before use; never edit `prove.py` / `import_access.py` for transition slices.
 
 ---
 
@@ -329,5 +341,6 @@ New evidence **without Access:**
 
 | Date | Change |
 |------|--------|
-| 2026-07-08 | **D0-1 done** — seal-day0 CLI; `day0-2026-07-08` in `data/amiga/day0/` (git-tracked). |
+| 2026-07-08 | **MG11 locked** — copy legacy prove scripts into `modern/`; do not mutate legacy path (§5.1). |
+| 2026-07-08 | **W-1 done** — `seed-work` CLI; `ko2amiga_work` from day 0 archive. |
 | 2026-07-08 | **Policy locked** — living ground, day 0 bootstrap, Access retired, simul model, cutover program D0/W/S/P. |

@@ -18,6 +18,15 @@ python -m scripts.amiga seal-day0
 
 Writes L3 witness SQL + `manifest.json` to `data/amiga/day0/` from frozen `ko2amiga_db`. Legacy `prove` below is **archived** after cutover.
 
+**Work DB seed (W-1):**
+
+```powershell
+python -m scripts.amiga seed-work
+# or: powershell -ExecutionPolicy Bypass -File scripts\seed_ko2amiga_work.ps1
+```
+
+Creates **`ko2amiga_work`**, `apply_schema`, loads `manifest.json` → `sql_parts` (skips `day0_01_schema.sql`), clears derived placeholders. Exit: L3 counts match day 0 manifest.
+
 **Sign-off / daily dev (legacy Access path — retiring):**
 
 ```powershell
