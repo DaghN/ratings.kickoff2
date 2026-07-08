@@ -259,7 +259,7 @@ Execute in order. Each slice ends with a recorded check.
 | **W-1** | Create **`ko2amiga_work`**: `apply_schema` + **load day 0 L3 only** (not mysqldump of `ko2amiga_db`) | **Done** — `python -m scripts.amiga seed-work`; 605 / 469 / 27,418; derived cleared |
 | **S-1** | **`apply-structure`** (disposition) + **simul** on `ko2amiga_work` — no ground truncate | **Done** — `python -m scripts.amiga simul`; 27,418 ratings; 16,046 fixtures; 22 verify steps (video deferred S-1.8) |
 | **P-1** | **Parity check** — work post-simul vs frozen `ko2amiga_db` (derived tables, snapshots, key scalars) | **Done** — `python -m scripts.amiga parity`; 29 tables; report `data/amiga/modern/parity-last.json` |
-| **L4-1** | Confirm L4 on work matches disposition expectations | `verify-structure` green |
+| **L4-1** | Confirm L4 on work matches disposition expectations | **Done** — `python -m scripts.amiga verify-structure-work`; 16,046 fixtures; Homburg + pure_rr smoke OK |
 | **V-1** | Video on work — stable `game_id` binding, oracle/work compartments, simul `--with-video` | Plan: [`amiga-modern-video-policy.md`](amiga-modern-video-policy.md) §8 |
 | **PROMOTE-1** | `ko2amiga_config.local.php` → `ko2amiga_work`; export reads work; legacy `prove` locked to `ko2amiga_db` only | Daily path = work + simul |
 | **DOC-1** | Archive Access pipeline docs; agent routing | Agents read **this doc** |
@@ -344,6 +344,7 @@ New evidence **without Access:**
 
 | Date | Change |
 |------|--------|
+| 2026-07-08 | **L4-1 done** — `verify-structure-work` on `ko2amiga_work`; disposition register complete. |
 | 2026-07-08 | **Simul preflight/postcheck** — living-ground rule: no day 0 count pin; postcheck = L3 unchanged during run. |
 | 2026-07-08 | **P-1 done** — `modern/parity.py` CLI; semantic signatures exclude replay timestamps + standings surrogate `id`. |
 | 2026-07-08 | **S-1 done** — `modern/simul.py` + verify suite on `ko2amiga_work`; `KO2AMIGA_DATABASE` config hook. |

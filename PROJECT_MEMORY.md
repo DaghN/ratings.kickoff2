@@ -90,7 +90,7 @@
 
 - **Amiga live ops (Jul 2026):** **RTB shipped (RTB-1–RTB-9)** — running scores until organizer **Finish and make official** (promote + finalize + lifecycle `completed` in one Table-tab action). Policy: [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md) rev. 2.
 
-- **Amiga modern ground (Jul 2026):** **P-1 done** — `python -m scripts.amiga parity` green (29 tables, semantic signatures). **Next:** PROMOTE-1 or V-1. [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md).
+- **Amiga modern ground (Jul 2026):** **L4-1 done** — structure verified on work. **Next:** V-1 (video). [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md).
 
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
 
@@ -140,6 +140,7 @@
 ## Recent log
 
 | 2026-07-08 | **Modern video policy** — [`amiga-modern-video-policy.md`](docs/amiga-modern-video-policy.md): canonical `game_id` on work, oracle/work file compartments, V-1 slices. |
+| 2026-07-08 | **L4-1 done** — `verify-structure-work` green on `ko2amiga_work` (16,046 fixtures; disposition smoke). |
 | 2026-07-08 | **Simul preflight/postcheck** — aligned with living ground (no day 0 count pin on simul). |
 | 2026-07-08 | **P-1 done** — `python -m scripts.amiga parity` green: 29 tables counts + semantic signatures. |
 | 2026-07-08 | **S-1 done** — `scripts/amiga/modern/` simul compartment: `simul`, `replay`, `apply-structure-work`, 22-step verify suite; `KO2AMIGA_DATABASE` env hook; `python -m scripts.amiga simul` green on work (~17 min replay + verify). |

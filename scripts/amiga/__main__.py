@@ -59,6 +59,7 @@ from scripts.amiga.modern.seed_work import seed_work_from_day0
 from scripts.amiga.modern.simul import run_simul
 from scripts.amiga.modern.apply_structure import run_apply_structure_work
 from scripts.amiga.modern.parity import run_parity
+from scripts.amiga.modern.verify_structure_work import run_verify_structure_work
 from scripts.amiga.verify_export_pack import verify_export_pack
 from scripts.amiga.verify_structure import verify_structure
 from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
@@ -394,6 +395,11 @@ def main(argv: list[str] | None = None) -> int:
         "--no-checksum",
         action="store_true",
         help="Row counts + scalar rows only (faster smoke)",
+    )
+
+    p_verify_structure_work = sub.add_parser(
+        "verify-structure-work",
+        help="L4-1: verify-structure on ko2amiga_work (disposition STOP gate)",
     )
 
     p_verify_export_pack = sub.add_parser(
@@ -788,6 +794,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "parity":
         run_parity(checksum=not args.no_checksum)
         return 0
+
+    if args.cmd == "verify-structure-work":
+        return run_verify_structure_work()
 
     if args.cmd == "seal-day0":
         stats = seal_day0(out_dir=args.out_dir, version=args.version)

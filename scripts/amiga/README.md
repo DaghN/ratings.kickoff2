@@ -45,6 +45,14 @@ python -m scripts.amiga parity
 
 Compares **29 tables** (export scope): row counts + semantic BIT_XOR/CRC32 signatures. Excludes replay metadata columns (`finalized_at`, `rating_finalized_at`, `created_at`, …) and surrogate `id` on `amiga_tournament_standings`. Full `amiga_generalstats` / `amiga_community_stats` row compare. Report: `data/amiga/modern/parity-last.json`.
 
+**L4 structure verify (L4-1):**
+
+```powershell
+python -m scripts.amiga verify-structure-work
+```
+
+Disposition register complete; Homburg (`id=137`) + pure_rr smoke (`id=1`) fixtures linked. Report: `data/amiga/modern/l4-verify-last.json`.
+
 **Sign-off / daily dev (legacy Access path — retiring):**
 
 ```powershell

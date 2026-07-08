@@ -27,6 +27,7 @@ site/public_html/ops/config/dispatch-http.ini
 !data/amiga/day0/**/*.sql
 data/amiga/modern/simul-last.json
 data/amiga/modern/parity-last.json
+data/amiga/modern/l4-verify-last.json
 
 /KO2PC_DB/
 
