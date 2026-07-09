@@ -1,6 +1,6 @@
 # Amiga format scoring contract — design discussion plan (Jul 2026)
 
-**Status:** **In discussion** — Session A complete; Session B in progress (**D7** locked; D8–D9 open).  
+**Status:** **In discussion** — Session B in progress (**D7–D8** locked; D9 open).  
 **Purpose:** Working reference for a dedicated design chat that resolves intent about **L4 structure vs L5 standings**, **scoring contracts**, and **where format ground truth lives** — before policy updates and code.
 
 **Authority when implemented:** Will supersede or amend scattered rules in [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md), [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md), [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings, and [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) §9 — only after decisions here are locked.
@@ -42,6 +42,7 @@ Record of agreed intent. Serialization shape (D13–D14) and engine boundary (D8
 | **D5** | Precedence / copy rules | **Locked** — see §2.3 (copy-on-create; stage row = runtime authority). |
 | **D6** | Platform default + freeze | **Locked** — `platform_default_v1` in repo; bridge resolver until explicit rows backfilled; **freeze effective contract at finalize**. |
 | **D7** | Canonical module key | **Locked** — `stage_id` canonical for compute/UI; phase + scope strings = witness/skin; C→A migration; D10 retires phase fallback. |
+| **D8** | Standings executor scope | **Locked** — see §2.5 |
 | **D11** | Disposition register | **Locked** — git routing/materializer only; never scoring rules; not used at simul. |
 | **D16** | Export self-containment | **Locked (intent)** — staging dump includes explicit tournament + stage scoring ground; import site does not require git templates to rebuild standings. |
 
@@ -130,6 +131,36 @@ These can **diverge** by organizer choice. The product must stay flexible: organ
 
 **Rationale:** imprint L4 on all catalog events; unify product under explicit stages. Access `Phase` was optional per-game labels (~61% NULL), not a format schema.
 
+### 2.5 Standings executor (D8 locked)
+
+**Job:** Given L3 game results + L4 module topology + per-stage scoring contracts, compute **module outcomes** and write or return the L5 standings projection (broadcast while running may skip L5 persist until finalize — D15).
+
+**In scope (E1–E7):** load stage scoring contract; group games by module (`fixture → stage_id`, phase fallback during transition); apply D9 primitives; emit L5 rows; idempotent rebuild; PHP/Python parity. **One module** owns routing + math; materializers never compute standings.
+
+**Out of scope (X1–X12):** topology materialization; template choose/copy; finalize freeze; **promotion** (reads L5 as input, P4); honours/Elo/catalog stats; disposition; L3 mutation; phase as end-state authority; **event-wide rollup / Event stats tab** (separate writer — §2.6).
+
+**Orchestration:** executor is stateless (pure compute + write helper); `finalize` / `simul` / ops call it for **module standings only**.
+
+**Transition:** phase fallback branch inside executor until D10; tournaments without L4 may present as uncurated in UI.
+
+### 2.6 Event stats vs module standings (locked distinction)
+
+Two **separate** L5 projections — different writers, different tables, different UI tabs. Do not conflate.
+
+| | **Module standings** | **Event stats (event rollup)** |
+|--|----------------------|--------------------------------|
+| **Question answered** | Who ranked where **in this module**? Who won **this KO tie**? | How did each player do **across the whole event**? |
+| **Writer today** | `tournament_standings.py` / `amiga_post_game_standings.php` → `rebuild_standings_for_tournament` | Finalize / replay → **event block on `amiga_player_event_snapshots`** (not standings executor) |
+| **Storage today** | `amiga_tournament_standings` (`scope_type`, `scope_key` → target `stage_id`) | `amiga_player_event_snapshots` per player (`event_points`, `games`, W/D/L, GF/GA, rating delta, perf. rating, …) |
+| **UI today** | Stages / standings tabs (`amiga_tournament_standings_rows`) | **Event stats** tab (`amiga_tournament_participation_rows`) |
+| **D8 owner** | **Standings executor** | **Not** standings executor — sibling finalize writer (D9 may name primitive `event_aggregate`) |
+
+**Product:** Event stats stays a **permanent** tournament-wide surface (ratings, event Pts, finish) — not replaced by per-stage tabs. Imprinting L4 does not remove it.
+
+**Legacy blur to retire:** implicit `league` + `scope_key = ''` in `amiga_tournament_standings` as a stand-in for event rollup — target model keeps event rollup on **snapshot event block** (or explicit D9 primitive), module rows on **`stage_id`**.
+
+**Running tournaments:** module table may use broadcast standings (RTB); Event stats typically needs finalize (snapshots). Separate paths today and in target model.
+
 ---
 
 ## 3. Vocabulary (working definitions)
@@ -141,8 +172,10 @@ Use consistently in this track:
 | **Module** | One `tournament_stages` atom: `round_robin` (player-set RR) or `knockout` (one 2-player tie). |
 | **Fixture result** | L3 ground: regulation goals (+ `extra` witness) for one match. |
 | **Module outcome** | Placement **within one module**: RR rank table; KO winner/loser. Not the same as fixture results. |
+| **Module standings projection** | Derived L5 rows in **`amiga_tournament_standings`** — per module (`stage_id` target); **standings executor** writes these. |
+| **Event rollup / Event stats** | Derived **event-wide** per-player summary (all phases, ratings) — **`amiga_player_event_snapshots`** event block today; **not** standings executor; Event stats UI tab. |
 | **Scoring contract** | Ground/config: rules for turning fixture results into module outcomes (points, tie-break chain, KO resolution chain). |
-| **Standings projection** | Derived L5 rows (`amiga_tournament_standings`) — cache of module outcomes keyed for reads/honours. |
+| **Standings projection** | Shorthand for **module standings** (`amiga_tournament_standings`) — not Event stats. |
 | **Scope routing** | Which games feed which module/table (fixture → stage path vs legacy `phase` parser). |
 
 Policy T14 (“module outcomes on stage”) describes **module outcomes** as what a future promotion graph reads. Today they are **not** stored as first-class `stage_id → ranks`; they appear only via L5 scope rows or recompute.
@@ -155,7 +188,8 @@ Policy T14 (“module outcomes on stage”) describes **module outcomes** as wha
 L3   Match results           amiga_games (+ extra); running cols on fixtures until official
 L4a  Topology                tournament_stages, tournament_fixtures, entrants
 L4b  Scoring contract        explicit on tournaments + tournament_stages (D4); templates = presets only
-L5   Standings projection    amiga_tournament_standings
+L5a  Module standings       amiga_tournament_standings (standings executor)
+L5b  Event rollup           amiga_player_event_snapshots event block (finalize writer; Event stats tab)
 
 GIT  Authoring registers     StructureSpec, disposition_register (materialize → DB; not read at simul)
 REPO platform_default_v1     copied into DB on create/backfill
@@ -230,8 +264,8 @@ Work through in order. Mark **Status:** `open` | `draft` | `locked` in chat; upd
 | ID | Decision | Question |
 |----|----------|----------|
 | **D7** | Canonical module key | **locked** — §2.4 |
-| **D8** | Engine responsibilities | Load contract → group games → apply rules → write L5; explicit out-of-scope list. |
-| **D9** | Scoring primitive set | Closed vocabulary (`league_table`, `knockout_tie`, …); retire orphan `standings_resolver` strings unless wired. |
+| **D8** | Standings executor scope | **locked** — §2.5 (module standings only); §2.6 event stats separate |
+| **D9** | Scoring primitive set | Closed vocabulary (`league_table`, `knockout_tie`, `event_aggregate`, …); **`league_table` / `knockout_tie` → standings executor**; **`event_aggregate` → finalize event writer** (§2.6); retire orphan `standings_resolver` strings unless wired. |
 
 ### Tier 4 — Legacy and coverage
 
@@ -268,7 +302,7 @@ Take **one tier per discussion block** where possible. Record outcomes inline un
 
 ### Session B — Keys + engine (D7–D9)
 
-**Progress (2026-07-09):** **D7 locked** (§2.4). **Next:** D8, D9 — await discussion open.
+**Progress (2026-07-09):** **D7–D8 locked** (§2.4–§2.6). **Next:** D9.
 
 ### Session C — Legacy + format (D10–D14)
 
@@ -325,6 +359,8 @@ Facts for discussion — not targets:
 
 | Date | Change |
 |------|--------|
+| 2026-07-09 | **§2.6** — Event stats vs module standings: separate writers/tables; D8 excludes event rollup. |
+| 2026-07-09 | **D8 locked** — standings executor scope §2.5; orchestration split. |
 | 2026-07-09 | **D7 locked** — `stage_id` canonical; `phase`/scope witness+skin; C→A; D10 retires phase fallback. |
 | 2026-07-09 | **Session A complete** — D4, D5, D11, D16 (intent) locked; §2.2 authority map, §2.3 copy rules. |
 | 2026-07-09 | **P4 locked** — promotion overrides = L4 ops ground only; D18 remains for storage shape. |
