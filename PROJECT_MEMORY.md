@@ -141,7 +141,7 @@
 
 ## Recent log
 
-| 2026-07-09 | **L4/L5 scoring contract — Session A partial** — D0/D1/D2/D6 + promotion P1–P4 locked; D18 open — [`amiga-format-scoring-contract-design-discussion.md`](docs/amiga-format-scoring-contract-design-discussion.md). |
+| 2026-07-09 | **L4/L5 scoring contract — Session A complete** — D0–D2, D4–D6, D5, D11, D16, P1–P4 locked — [`amiga-format-scoring-contract-design-discussion.md`](docs/amiga-format-scoring-contract-design-discussion.md). |
 | 2026-07-09 | **L4/L5 scoring contract design track** — discussion plan opened (D0–D17, sessions A–D); problem: topology vs scoring rules vs standings projection conflated in engine — [`amiga-format-scoring-contract-design-discussion.md`](docs/amiga-format-scoring-contract-design-discussion.md). |
 | 2026-07-08 | **L3 legacy fixes inventory** — [`amiga-l3-legacy-fixes-inventory.md`](docs/amiga-l3-legacy-fixes-inventory.md): human-readable catalog of all koatd corrections at L2→L3 import (tournaments, WC venues, splits, supplements, name merges incl. automatic, countries). |
 | 2026-07-08 | **Agent pull ritual** — `kool-workspace.mdc` + `AGENTS.md` cold-start: “pull staged Amiga” → run `pull_ko2amiga_from_staging.ps1 -Force` (no simul default). |
