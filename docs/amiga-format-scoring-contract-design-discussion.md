@@ -1,6 +1,6 @@
 # Amiga format scoring contract — design discussion plan (Jul 2026)
 
-**Status:** **In discussion** — Session C in progress (**D10** locked); D11–D14 open.  
+**Status:** **In discussion** — Session C in progress (**D10**, **D12** locked); D13–D14 open.  
 **Purpose:** Working reference for a dedicated design chat that resolves intent about **L4 structure vs L5 standings**, **scoring contracts**, and **where format ground truth lives** — before policy updates and code.
 
 **Authority when implemented:** Will supersede or amend scattered rules in [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md), [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md), [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings, and [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) §9 — only after decisions here are locked.
@@ -45,6 +45,7 @@ Record of agreed intent. Serialization shape (D13–D14) follows in Session C.
 | **D8** | Standings executor scope | **Locked** — see §2.5 |
 | **D9** | Executor scoring primitives | **Locked** — see §2.7 |
 | **D10** | Phase parser fallback retirement | **Locked** — see §2.8 |
+| **D12** | `extra` / match extensions | **Locked** — see §2.9 |
 | **D11** | Disposition register | **Locked** — git routing/materializer only; never scoring rules; not used at simul. |
 | **D16** | Export self-containment | **Locked (intent)** — staging dump includes explicit tournament + stage scoring ground; import site does not require git templates to rebuild standings. |
 
@@ -235,6 +236,14 @@ Post-retirement unlinked games = data corruption (verify/ops), not a separate D1
 - `legacy_inferred` template flag semantics / cleanup
 - Per-tournament retirement flags or coverage thresholds
 
+### 2.9 Match extensions — `extra` and structured L3 (D12 locked)
+
+**Principle:** Match extensions (extra time, penalties, and similar) are **structured L3 ground** on the match/fixture row at end state. `amiga_games.extra` (and fixture running `extra`) remain **human witness text** for display and import archaeology — **not** compute authority once structure exists.
+
+**Legacy:** Text-based penalty parsing in the standings executor (`parse_standings_winner` / PHP parity) is **transitional**. Do **not** extend it. **Retire** when structured fields cover the catalog and a parity audit passes (same retirement habit as D10).
+
+**Out of this register (implementation slice):** column DDL, import backfill, ops entry, deterministic `knockout_tie` resolution chain over structured fields, step enums, golden goal, pre-structure fallback behaviour. League tables continue to use regulation goals unless a future format explicitly requests otherwise.
+
 ---
 
 ## 3. Vocabulary (working definitions)
@@ -348,7 +357,7 @@ Work through in order. Mark **Status:** `open` | `draft` | `locked` in chat; upd
 |----|----------|----------|
 | **D10** | Phase parser fallback | **locked** — §2.8 (NULL `fixture_id` only; 100% linkage + audit → delete branch) |
 | **D11** | Disposition register | **locked** — §2.2; handler = materializer only |
-| **D12** | `extra` / penalties | Match witness (L3) vs rule “consult extra for pens” (part of knockout contract). |
+| **D12** | `extra` / match extensions | **locked** — §2.9 (structured L3 target; `extra` witness; retire text parse) |
 
 ### Tier 5 — Data format
 
@@ -381,7 +390,7 @@ Take **one tier per discussion block** where possible. Record outcomes inline un
 
 ### Session C — Legacy + format (D10–D14)
 
-**Progress (2026-07-09):** **D10 locked** (§2.8). **Next:** D12, D13, D14.
+**Progress (2026-07-09):** **D10**, **D12** locked (§2.8–§2.9). **Next:** D13, D14.
 
 ### Session D — Runtime (D15–D17)
 
@@ -434,6 +443,7 @@ Facts for discussion — not targets:
 
 | Date | Change |
 |------|--------|
+| 2026-07-09 | **D12 locked** — match extensions §2.9: structured L3 target; `extra` witness; retire text parse (slice for DDL/backfill). |
 | 2026-07-09 | **D10 locked** — phase fallback §2.8: NULL `fixture_id` only; 100% linkage + parity audit → delete executor branch. |
 | 2026-07-09 | **Session B complete** — D7–D9 locked. |
 | 2026-07-09 | **§2.6** — Event stats vs module standings: separate writers/tables; D8 excludes event rollup. |
