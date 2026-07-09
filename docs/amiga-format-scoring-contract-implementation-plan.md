@@ -1,6 +1,6 @@
 # Amiga format scoring contract — implementation plan (agent slices)
 
-**Status:** **SC-2 shipped (Jul 2026)** — contract reader + `verify-scoring-contract` in modern verify suite.
+**Status:** **SC-3 shipped (Jul 2026)** — Python standings executor reads `ScoringContext` / stage contracts; PHP still hardcoded (SC-4).
 
 **Policy (locked):** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md)
 
@@ -117,7 +117,33 @@ Load L4b contracts from DB; fail on malformed rows (D14 structural verify).
 
 ---
 
-## SC-3 / SC-4 — Executor refactor (sketch)
+---
+
+## SC-3 — Python executor reads contracts (shipped Jul 2026)
+
+### Goal
+
+`tournament_standings.py` dispatches points + tie-break/KO chains from L4b contracts.
+
+### Delivered
+
+- [x] `ScoringContext` + `load_scoring_context_for_tournament()` in `scoring_contract.py`
+- [x] `default_scoring_context()` for parity CLI (no DB)
+- [x] `LEGACY_KNOCKOUT_BRIDGE_STEPS` (GD → GF → pens) when stage contract NULL — catalog parity until SC-6
+- [x] DB stage contracts used when `scoring_primitive` set (SC-1 live path uses `platform_default_v1` KO)
+- [x] `GAME_SELECT` includes `stage_id`
+- [x] Step-aware `_assign_positions` / `_knockout_positions`
+
+### Verification
+
+- [x] `standings-parity --sweep` **FAIL=0** on `ko2amiga_work`
+- [ ] SC-5 PHP↔Python oracle (SC-4 first)
+
+**Not in SC-3:** PHP executor (`amiga_post_game_standings.php`), catalog backfill (SC-6).
+
+---
+
+## SC-4 / SC-5 — PHP executor + parity (sketch)
 
 ### Goal
 

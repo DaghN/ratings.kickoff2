@@ -70,7 +70,7 @@ Computed from ground truth by chronological replay or per-game ops. **Always reb
 |------|--------|
 | Per-game Elo | Ratings before/after, adjustments, outcome flags |
 | Player career stats | W/D/L, goals, peaks, opponent networks — **not match streaks** (see § Match streaks; columns exist but are not product truth) |
-| Tournament standings | L5 projection from L3 games + L4 topology + **L4b scoring contract** — [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md). **Today:** hardcoded 3-1-0 bridge in `tournament_standings.py` / `amiga_post_game_standings.php` until SC slices ship. |
+| Tournament standings | L5 projection from L3 games + L4 topology + **L4b scoring contract** — [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md). **Python executor:** reads contracts (SC-3). **PHP incremental:** hardcoded bridge until SC-4. |
 | Future aggregates | H2H summaries, period activity, etc. — when needed |
 
 **Rule:** After one new canonical game, derived tables must match what a full replay from empty would produce.

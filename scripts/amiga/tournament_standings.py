@@ -12,6 +12,15 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
+from scripts.amiga.scoring_contract import (
+    DRAW_POINTS,
+    LOSS_POINTS,
+    WIN_POINTS,
+    ScoringContext,
+    StageScoringContract,
+    default_scoring_context,
+    load_scoring_context_for_tournament,
+)
 from scripts.amiga.tournament_phases import (
     PhaseScope,
     ScopeType,
@@ -23,15 +32,12 @@ from scripts.amiga.tournament_phases import (
 
 log = logging.getLogger(__name__)
 
-WIN_POINTS = 3
-DRAW_POINTS = 1
-LOSS_POINTS = 0
-
 GAME_SELECT = """
     SELECT g.id, g.tournament_id, g.player_a_id, g.player_b_id,
            g.goals_a, g.goals_b, g.phase, g.extra, g.source_scores_id,
            g.fixture_id,
            f.phase_label AS fixture_phase_label,
+           s.id AS stage_id,
            s.stage_key, s.name AS stage_name, s.stage_type, s.track_key
     FROM amiga_games g
     LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id
@@ -43,6 +49,9 @@ GAME_SELECT = """
 
 @dataclass
 class PlayerStanding:
+    win_points: int = WIN_POINTS
+    draw_points: int = DRAW_POINTS
+    loss_points: int = LOSS_POINTS
     games: int = 0
     wins: int = 0
     draws: int = 0
@@ -52,7 +61,7 @@ class PlayerStanding:
 
     @property
     def points(self) -> int:
-        return self.wins * WIN_POINTS + self.draws * DRAW_POINTS
+        return self.wins * self.win_points + self.draws * self.draw_points
 
     @property
     def goal_difference(self) -> int:
@@ -78,13 +87,21 @@ def _connect() -> pymysql.connections.Connection:
     return conn
 
 
-def regulation_outcome(goals_a: int, goals_b: int) -> tuple[int, int, int]:
+def regulation_outcome(
+    goals_a: int,
+    goals_b: int,
+    *,
+    contract: StageScoringContract,
+) -> tuple[int, int, int]:
     """Return (points_a, points_b, outcome) where outcome: 1=a win, 0=draw, -1=b win."""
+    win_pts = contract.win_points
+    draw_pts = contract.draw_points
+    loss_pts = contract.loss_points
     if goals_a > goals_b:
-        return WIN_POINTS, LOSS_POINTS, 1
+        return win_pts, loss_pts, 1
     if goals_a < goals_b:
-        return LOSS_POINTS, WIN_POINTS, -1
-    return DRAW_POINTS, DRAW_POINTS, 0
+        return loss_pts, win_pts, -1
+    return draw_pts, draw_pts, 0
 
 
 def parse_standings_winner(
@@ -124,6 +141,22 @@ def parse_standings_winner(
     return None
 
 
+def _standing_for_table(
+    table: dict[int, PlayerStanding],
+    player_id: int,
+    contract: StageScoringContract,
+) -> PlayerStanding:
+    st = table.get(player_id)
+    if st is None:
+        st = PlayerStanding(
+            win_points=contract.win_points,
+            draw_points=contract.draw_points,
+            loss_points=contract.loss_points,
+        )
+        table[player_id] = st
+    return st
+
+
 def _apply_game(
     standings: dict[tuple[ScopeType, str], dict[int, PlayerStanding]],
     scope: PhaseScope,
@@ -132,16 +165,17 @@ def _apply_game(
     goals_a: int,
     goals_b: int,
     *,
+    contract: StageScoringContract,
     league_only: bool = True,
 ) -> None:
     if league_only and not is_league_scope(scope):
         return
     key = (scope.scope_type, scope.scope_key)
     table = standings.setdefault(key, {})
-    pa = table.setdefault(player_a_id, PlayerStanding())
-    pb = table.setdefault(player_b_id, PlayerStanding())
+    pa = _standing_for_table(table, player_a_id, contract)
+    pb = _standing_for_table(table, player_b_id, contract)
 
-    pts_a, pts_b, outcome = regulation_outcome(goals_a, goals_b)
+    pts_a, pts_b, outcome = regulation_outcome(goals_a, goals_b, contract=contract)
 
     pa.games += 1
     pb.games += 1
@@ -163,6 +197,48 @@ def _apply_game(
     _ = pts_a, pts_b  # points derived from W/D/L counts
 
 
+def _league_metric(st: PlayerStanding, step: str) -> int | None:
+    if step == "points":
+        return st.points
+    if step in ("goal_difference", "aggregate_goal_difference"):
+        return st.goal_difference
+    if step == "goals_for":
+        return st.goals_for
+    if step == "games_played":
+        return st.games
+    if step == "head_to_head":
+        return None
+    if step in ("extra_time", "penalty_shootout", "golden_goal"):
+        return None
+    return None
+
+
+def _league_sort_key(st: PlayerStanding, contract: StageScoringContract) -> tuple:
+    parts: list[int] = []
+    for step in contract.steps:
+        metric = _league_metric(st, step)
+        if metric is None:
+            continue
+        parts.append(-metric)
+    if not parts:
+        return (-st.points, -st.goal_difference, -st.goals_for, -st.games)
+    return tuple(parts)
+
+
+def _league_position_tie_key(st: PlayerStanding, contract: StageScoringContract) -> tuple:
+    parts: list[int] = []
+    for step in contract.steps:
+        if step == "games_played":
+            break
+        metric = _league_metric(st, step)
+        if metric is None:
+            continue
+        parts.append(-metric)
+    if not parts:
+        return (-st.points, -st.goal_difference, -st.goals_for)
+    return tuple(parts)
+
+
 def _sort_key(item: tuple[int, PlayerStanding]) -> tuple:
     _pid, st = item
     return (-st.points, -st.goal_difference, -st.goals_for, -st.games)
@@ -170,49 +246,60 @@ def _sort_key(item: tuple[int, PlayerStanding]) -> tuple:
 
 def _knockout_positions(
     table: dict[int, PlayerStanding],
-    games: list[dict[str, Any]] | None = None,
+    games: list[dict[str, Any]] | None,
+    contract: StageScoringContract,
 ) -> list[tuple[int, PlayerStanding, int]]:
-    """Two-player tie: aggregate GD/GF, then Extra penalties when still tied."""
+    """Two-player tie: resolve via contract step chain."""
     if len(table) != 2:
-        return _assign_positions(table)
+        return _assign_positions(table, contract)
     (id1, s1), (id2, s2) = sorted(table.items(), key=lambda x: x[0])
-    if s1.goal_difference > s2.goal_difference:
-        winner, loser = (id1, s1), (id2, s2)
-    elif s2.goal_difference > s1.goal_difference:
-        winner, loser = (id2, s2), (id1, s1)
-    elif s1.goals_for > s2.goals_for:
-        winner, loser = (id1, s1), (id2, s2)
-    elif s2.goals_for > s1.goals_for:
-        winner, loser = (id2, s2), (id1, s1)
-    else:
-        if games:
-            for g in games:
-                extra = g.get("extra")
-                if not extra or not str(extra).strip():
-                    continue
-                wid = parse_standings_winner(
-                    int(g["goals_a"]),
-                    int(g["goals_b"]),
-                    str(extra),
-                    int(g["player_a_id"]),
-                    int(g["player_b_id"]),
-                )
-                if wid is not None:
-                    loser_id = id2 if wid == id1 else id1
-                    return [(wid, table[wid], 1), (loser_id, table[loser_id], 2)]
-        return _assign_positions(table)
-    wid, ws = winner
-    lid, ls = loser
-    return [(wid, ws, 1), (lid, ls, 2)]
+
+    for step in contract.steps:
+        if step == "aggregate_goal_difference":
+            if s1.goal_difference > s2.goal_difference:
+                return [(id1, s1, 1), (id2, s2, 2)]
+            if s2.goal_difference > s1.goal_difference:
+                return [(id2, s2, 1), (id1, s1, 2)]
+        elif step == "goals_for":
+            if s1.goals_for > s2.goals_for:
+                return [(id1, s1, 1), (id2, s2, 2)]
+            if s2.goals_for > s1.goals_for:
+                return [(id2, s2, 1), (id1, s1, 2)]
+        elif step in ("extra_time", "penalty_shootout", "golden_goal"):
+            if games:
+                for g in games:
+                    extra = g.get("extra")
+                    if not extra or not str(extra).strip():
+                        continue
+                    wid = parse_standings_winner(
+                        int(g["goals_a"]),
+                        int(g["goals_b"]),
+                        str(extra),
+                        int(g["player_a_id"]),
+                        int(g["player_b_id"]),
+                    )
+                    if wid is not None:
+                        loser_id = id2 if wid == id1 else id1
+                        return [(wid, table[wid], 1), (loser_id, table[loser_id], 2)]
+        elif step == "points":
+            if s1.points > s2.points:
+                return [(id1, s1, 1), (id2, s2, 2)]
+            if s2.points > s1.points:
+                return [(id2, s2, 1), (id1, s1, 2)]
+
+    return _assign_positions(table, contract)
 
 
-def _assign_positions(table: dict[int, PlayerStanding]) -> list[tuple[int, PlayerStanding, int]]:
-    ranked = sorted(table.items(), key=_sort_key)
+def _assign_positions(
+    table: dict[int, PlayerStanding],
+    contract: StageScoringContract,
+) -> list[tuple[int, PlayerStanding, int]]:
+    ranked = sorted(table.items(), key=lambda item: _league_sort_key(item[1], contract))
     out: list[tuple[int, PlayerStanding, int]] = []
     pos = 0
     prev_key: tuple | None = None
     for rank_idx, (pid, st) in enumerate(ranked, start=1):
-        key = (-st.points, -st.goal_difference, -st.goals_for)
+        key = _league_position_tie_key(st, contract)
         if key != prev_key:
             pos = rank_idx
             prev_key = key
@@ -260,13 +347,39 @@ def _fixture_scope(
 
 def compute_tournament_standings(
     games: list[dict[str, Any]],
+    *,
+    scoring_context: ScoringContext | None = None,
 ) -> list[dict[str, Any]]:
     """Build standings rows for one tournament's games (already ordered)."""
+    tournament_id = int(games[0]["tournament_id"]) if games else 0
+    context = scoring_context or default_scoring_context(tournament_id)
+
     scopes: dict[tuple[ScopeType, str], dict[int, PlayerStanding]] = {}
+    scope_contracts: dict[tuple[ScopeType, str], StageScoringContract] = {}
     knockout_scopes: dict[tuple[ScopeType, str], dict[int, PlayerStanding]] = {}
     knockout_games: dict[tuple[ScopeType, str], list[dict[str, Any]]] = defaultdict(list)
     has_null_phase = False
     has_structured = False
+
+    def _record_scope_contract(
+        scope_key: tuple[ScopeType, str],
+        contract: StageScoringContract,
+    ) -> None:
+        existing = scope_contracts.get(scope_key)
+        if existing is None:
+            scope_contracts[scope_key] = contract
+            return
+        if (
+            existing.primitive != contract.primitive
+            or existing.steps != contract.steps
+            or existing.win_points != contract.win_points
+        ):
+            log.warning(
+                "compute_tournament_standings: mixed scoring contracts for scope %s "
+                "in tournament_id=%s",
+                scope_key,
+                tournament_id,
+            )
 
     for g in games:
         phase = g.get("phase")
@@ -278,9 +391,11 @@ def compute_tournament_standings(
         fixture_scope = _fixture_scope(g, player_a_id, player_b_id)
         if fixture_scope is not None:
             scope, is_elimination = fixture_scope
+            contract = context.contract_for_game(g, is_elimination=is_elimination)
+            scope_key = (scope.scope_type, scope.scope_key)
+            _record_scope_contract(scope_key, contract)
             has_structured = True
             if is_elimination:
-                scope_key = (scope.scope_type, scope.scope_key)
                 knockout_games[scope_key].append(g)
                 _apply_game(
                     knockout_scopes,
@@ -289,6 +404,7 @@ def compute_tournament_standings(
                     player_b_id,
                     goals_a,
                     goals_b,
+                    contract=contract,
                     league_only=False,
                 )
             else:
@@ -299,6 +415,7 @@ def compute_tournament_standings(
                     player_b_id,
                     goals_a,
                     goals_b,
+                    contract=contract,
                 )
             continue
 
@@ -311,6 +428,8 @@ def compute_tournament_standings(
             pair_key = knockout_pair_scope_key(str(phase), player_a_id, player_b_id)
             scope = PhaseScope(ScopeType.KNOCKOUT, pair_key)
             scope_key = (scope.scope_type, scope.scope_key)
+            contract = context.default_knockout
+            _record_scope_contract(scope_key, contract)
             knockout_games[scope_key].append(g)
             _apply_game(
                 knockout_scopes,
@@ -319,11 +438,15 @@ def compute_tournament_standings(
                 player_b_id,
                 goals_a,
                 goals_b,
+                contract=contract,
                 league_only=False,
             )
             continue
 
         scope = parse_phase(phase)
+        scope_key = (scope.scope_type, scope.scope_key)
+        contract = context.default_league
+        _record_scope_contract(scope_key, contract)
         _apply_game(
             scopes,
             scope,
@@ -331,6 +454,7 @@ def compute_tournament_standings(
             player_b_id,
             goals_a,
             goals_b,
+            contract=contract,
         )
 
     # Marathon round-robins: all phase NULL → one implicit league table only.
@@ -338,16 +462,24 @@ def compute_tournament_standings(
         scopes = {
             k: v for k, v in scopes.items() if k == (ScopeType.LEAGUE, "")
         }
+        scope_contracts[(ScopeType.LEAGUE, "")] = context.default_league
     elif has_null_phase and has_structured:
         # Mixed: synthesize league + '' aggregating all labeled league-scope games.
-        league_aggregate: dict[int, PlayerStanding] = defaultdict(PlayerStanding)
+        league_aggregate: dict[int, PlayerStanding] = {}
         for (stype, skey), table in scopes.items():
             if stype == ScopeType.LEAGUE and skey == "":
                 continue
             if stype != ScopeType.LEAGUE:
                 continue
             for pid, st in table.items():
-                agg = league_aggregate[pid]
+                agg = league_aggregate.get(pid)
+                if agg is None:
+                    agg = PlayerStanding(
+                        win_points=st.win_points,
+                        draw_points=st.draw_points,
+                        loss_points=st.loss_points,
+                    )
+                    league_aggregate[pid] = agg
                 agg.games += st.games
                 agg.wins += st.wins
                 agg.draws += st.draws
@@ -355,20 +487,24 @@ def compute_tournament_standings(
                 agg.goals_for += st.goals_for
                 agg.goals_against += st.goals_against
         if league_aggregate:
-            scopes[(ScopeType.LEAGUE, "")] = dict(league_aggregate)
+            scopes[(ScopeType.LEAGUE, "")] = league_aggregate
+            scope_contracts[(ScopeType.LEAGUE, "")] = context.default_league
 
     for (stype, skey), table in knockout_scopes.items():
         scopes[(stype, skey)] = table
 
-    tournament_id = int(games[0]["tournament_id"]) if games else 0
     rows: list[dict[str, Any]] = []
     for (stype, skey), table in sorted(scopes.items(), key=lambda x: (x[0][0].value, x[0][1])):
         if not table:
             continue
+        contract = scope_contracts.get(
+            (stype, skey),
+            context.default_knockout if stype == ScopeType.KNOCKOUT else context.default_league,
+        )
         if stype == ScopeType.KNOCKOUT:
-            ranked = _knockout_positions(table, knockout_games.get((stype, skey), []))
+            ranked = _knockout_positions(table, knockout_games.get((stype, skey), []), contract)
         else:
-            ranked = _assign_positions(table)
+            ranked = _assign_positions(table, contract)
         for pid, st, pos in ranked:
             rows.append(
                 {
@@ -394,6 +530,7 @@ GAME_SELECT_FOR_TOURNAMENT = """
            g.goals_a, g.goals_b, g.phase, g.extra, g.source_scores_id,
            g.fixture_id,
            f.phase_label AS fixture_phase_label,
+           s.id AS stage_id,
            s.stage_key, s.name AS stage_name, s.stage_type, s.track_key
     FROM amiga_games g
     LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id
@@ -423,7 +560,8 @@ def rebuild_standings_for_tournament(
     with conn.cursor() as cur:
         cur.execute(GAME_SELECT_FOR_TOURNAMENT, (tournament_id,))
         games = cur.fetchall()
-    rows = compute_tournament_standings(games)
+    scoring_context = load_scoring_context_for_tournament(conn, tournament_id)
+    rows = compute_tournament_standings(games, scoring_context=scoring_context)
     with conn.cursor() as cur:
         cur.execute(
             "DELETE FROM amiga_tournament_standings WHERE tournament_id = %s",
@@ -468,7 +606,13 @@ def rebuild_all_standings(
 
     all_rows: list[dict[str, Any]] = []
     for tid in sorted(by_tournament):
-        all_rows.extend(compute_tournament_standings(by_tournament[tid]))
+        scoring_context = load_scoring_context_for_tournament(conn, tid)
+        all_rows.extend(
+            compute_tournament_standings(
+                by_tournament[tid],
+                scoring_context=scoring_context,
+            )
+        )
 
     log.info(
         "rebuild_all_standings: %s tournaments, %s standing rows",

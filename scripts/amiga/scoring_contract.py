@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Final
+from typing import Any, Final
 
 import pymysql
 
@@ -45,6 +45,14 @@ LEAGUE_TABLE_DEFAULT_STEPS: Final[tuple[str, ...]] = (
 KNOCKOUT_TIE_DEFAULT_STEPS: Final[tuple[str, ...]] = (
     "aggregate_goal_difference",
     "extra_time",
+    "penalty_shootout",
+)
+
+# Executor-only KO chain for legacy catalog (NULL DB contract). Preserves GD → GF → pens
+# parity until SC-6 backfill; not stored in platform_default_v1 (policy omits GF step).
+LEGACY_KNOCKOUT_BRIDGE_STEPS: Final[tuple[str, ...]] = (
+    "aggregate_goal_difference",
+    "goals_for",
     "penalty_shootout",
 )
 
@@ -220,6 +228,171 @@ def validate_stage_scoring_contract(contract: StageScoringContract) -> list[str]
         errors.append(f"{label}: knockout_tie contract must include aggregate_goal_difference step")
 
     return errors
+
+
+def synthetic_league_contract(
+    *,
+    tournament_id: int,
+    stage_id: int = 0,
+    stage_key: str = "",
+    stage_type: str = "round_robin",
+    win_points: int = WIN_POINTS,
+    draw_points: int = DRAW_POINTS,
+    loss_points: int = LOSS_POINTS,
+) -> StageScoringContract:
+    return StageScoringContract(
+        stage_id=stage_id,
+        tournament_id=tournament_id,
+        stage_key=stage_key,
+        stage_type=stage_type,
+        primitive=LEAGUE_TABLE_PRIMITIVE,
+        schema_version=SCORING_SCHEMA_VERSION,
+        win_points=win_points,
+        draw_points=draw_points,
+        loss_points=loss_points,
+        steps=LEAGUE_TABLE_DEFAULT_STEPS,
+    )
+
+
+def synthetic_knockout_contract(
+    *,
+    tournament_id: int,
+    stage_id: int = 0,
+    stage_key: str = "",
+    win_points: int = WIN_POINTS,
+    draw_points: int = DRAW_POINTS,
+    loss_points: int = LOSS_POINTS,
+    steps: tuple[str, ...] | None = None,
+) -> StageScoringContract:
+    return StageScoringContract(
+        stage_id=stage_id,
+        tournament_id=tournament_id,
+        stage_key=stage_key,
+        stage_type="knockout",
+        primitive=KNOCKOUT_TIE_PRIMITIVE,
+        schema_version=SCORING_SCHEMA_VERSION,
+        win_points=win_points,
+        draw_points=draw_points,
+        loss_points=loss_points,
+        steps=steps or LEGACY_KNOCKOUT_BRIDGE_STEPS,
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class ScoringContext:
+    """Resolved L4b contracts for one tournament standings compute pass."""
+
+    default_league: StageScoringContract
+    default_knockout: StageScoringContract
+    by_stage_id: dict[int, StageScoringContract]
+
+    def contract_for_game(self, game: dict[str, Any], *, is_elimination: bool) -> StageScoringContract:
+        raw_stage_id = game.get("stage_id")
+        if raw_stage_id is not None:
+            stage_id = int(raw_stage_id)
+            if stage_id in self.by_stage_id:
+                return self.by_stage_id[stage_id]
+        return self.default_knockout if is_elimination else self.default_league
+
+
+def _tournament_point_defaults(row: dict[str, Any] | None) -> tuple[int, int, int]:
+    if row is None:
+        return WIN_POINTS, DRAW_POINTS, LOSS_POINTS
+    win = row.get("scoring_win_points_default")
+    draw = row.get("scoring_draw_points_default")
+    loss = row.get("scoring_loss_points_default")
+    return (
+        int(win) if win is not None else WIN_POINTS,
+        int(draw) if draw is not None else DRAW_POINTS,
+        int(loss) if loss is not None else LOSS_POINTS,
+    )
+
+
+def load_scoring_context_for_tournament(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+) -> ScoringContext:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT scoring_win_points_default, scoring_draw_points_default, scoring_loss_points_default
+            FROM tournaments
+            WHERE id = %s
+            """,
+            (tournament_id,),
+        )
+        tour_row = cur.fetchone()
+        cur.execute(
+            """
+            SELECT id, stage_key, stage_type
+            FROM tournament_stages
+            WHERE tournament_id = %s
+            ORDER BY id
+            """,
+            (tournament_id,),
+        )
+        stage_rows = cur.fetchall()
+
+    win_pts, draw_pts, loss_pts = _tournament_point_defaults(tour_row)
+    default_league = synthetic_league_contract(
+        tournament_id=tournament_id,
+        win_points=win_pts,
+        draw_points=draw_pts,
+        loss_points=loss_pts,
+    )
+    default_knockout = synthetic_knockout_contract(
+        tournament_id=tournament_id,
+        win_points=win_pts,
+        draw_points=draw_pts,
+        loss_points=loss_pts,
+        steps=LEGACY_KNOCKOUT_BRIDGE_STEPS,
+    )
+
+    by_stage_id: dict[int, StageScoringContract] = {}
+    for row in stage_rows:
+        stage_id = int(row["id"])
+        stage_type = str(row["stage_type"])
+        loaded = load_stage_scoring_contract(conn, stage_id)
+        if loaded is not None:
+            by_stage_id[stage_id] = loaded
+            continue
+        if stage_type == "knockout":
+            by_stage_id[stage_id] = synthetic_knockout_contract(
+                tournament_id=tournament_id,
+                stage_id=stage_id,
+                stage_key=str(row["stage_key"]),
+                win_points=win_pts,
+                draw_points=draw_pts,
+                loss_points=loss_pts,
+                steps=LEGACY_KNOCKOUT_BRIDGE_STEPS,
+            )
+        else:
+            by_stage_id[stage_id] = synthetic_league_contract(
+                tournament_id=tournament_id,
+                stage_id=stage_id,
+                stage_key=str(row["stage_key"]),
+                stage_type=stage_type,
+                win_points=win_pts,
+                draw_points=draw_pts,
+                loss_points=loss_pts,
+            )
+
+    return ScoringContext(
+        default_league=default_league,
+        default_knockout=default_knockout,
+        by_stage_id=by_stage_id,
+    )
+
+
+def default_scoring_context(tournament_id: int = 0) -> ScoringContext:
+    """In-memory bridge when DB context is unavailable (parity CLI, unit tests)."""
+    league = synthetic_league_contract(tournament_id=tournament_id)
+    knockout = synthetic_knockout_contract(tournament_id=tournament_id)
+    return ScoringContext(
+        default_league=league,
+        default_knockout=knockout,
+        by_stage_id={},
+    )
 
 
 def ensure_tournament_scoring_defaults(
