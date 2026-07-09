@@ -1,6 +1,6 @@
 # Amiga format scoring contract — design discussion plan (Jul 2026)
 
-**Status:** **In discussion** — no decisions locked; no implementation started.  
+**Status:** **In discussion** — Session A partial complete (D0, D1, D2, D6 locked); D4+ open.  
 **Purpose:** Working reference for a dedicated design chat that resolves intent about **L4 structure vs L5 standings**, **scoring contracts**, and **where format ground truth lives** — before policy updates and code.
 
 **Authority when implemented:** Will supersede or amend scattered rules in [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md), [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md), [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings, and [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) §9 — only after decisions here are locked.
@@ -9,7 +9,7 @@
 
 ---
 
-## 1. Problem statement (agreed direction, not yet locked)
+## 1. Problem statement (locked D0)
 
 The first implementation flurry conflated three concerns in one standings engine:
 
@@ -25,11 +25,59 @@ The first implementation flurry conflated three concerns in one standings engine
 - **L5 standings** are a **projection/cache** only — recomputed from L3 scores + L4 topology + scoring contract on simul/finalize.
 - **Standings engine** becomes an **executor** that reads contract config — not the silent owner of “what Amiga football means.”
 
-**Decision D0:** Confirm or refine this problem statement in Session A.
+**Decision D0:** **Locked (2026-07-09)** — wording accepted.
 
 ---
 
-## 2. Vocabulary (working definitions)
+## 2. Locked decisions (Session A — partial)
+
+Record of agreed intent. Implementation and storage shape follow in D4–D14.
+
+| ID | Decision | Outcome |
+|----|----------|---------|
+| **D0** | Problem statement | **Locked** — topology, scoring contract, and standings projection are separate concerns; engine executes stored rules; L5 is projection. |
+| **D1** | Module outcome | **Locked** — always **derived**; **L5 cache only** for stored form. No ground `stage_rankings` table in v1. Revisit only if promotion graph performance or product needs require it. |
+| **D2** | Scoring contract vs projection | **Locked — strict (A)** — scoring contract = **ground/config** (L4b); `amiga_tournament_standings` = **derived projection** (L5), recomputable on simul/finalize; no scoring policy only in scattered code constants. |
+| **D6** | Platform default + freeze | **Locked** — (1) named **`platform_default_v1`** artefact (today’s 3-1-0 + GD/GF/games league tie-break + KO agg GD → GF → `extra` parse); engine always loads a contract object. (2) **Resolver fallback:** missing explicit per-tournament/stage config → `platform_default_v1`. (3) **Freeze effective contract at finalize** (explicit config or resolved default + schema version) so historical recompute does not drift when platform default evolves. |
+
+**Session A still open:** D3 (defer), **D4**, **D5**.
+
+**Design constraint (partial lock — see §2.1):** Promotion is separate from module outcomes. **Locked:** P1–P4 (incl. L4 ops ground only). **Open:** D18 storage shape.
+
+### 2.1 Promotion overrides vs module outcomes
+
+#### Locked (2026-07-09)
+
+| ID | Rule |
+|----|------|
+| **P1** | **Promotion ≠ module outcome.** Standings/projection = what the table/tie says under the scoring contract. Promotion = who is placed into the next stage or bracket slot. |
+| **P2** | Organizer **may** override promotion without redefining scoring rules (wild card, on-the-spot boundary settlement, etc.). |
+| **P3** | **Rejected:** implementing promotion overrides by mutating `amiga_tournament_standings.position` (or any L5 standings row as fake ranks). |
+| **P4** | **Locked:** promotion overrides are **L4 ops ground** only — never L5 derived rows. Exact storage shape is **D18** (deferred). |
+
+#### Open — decision **D18** (not locked)
+
+**Not decided yet:** exact ground shape on L4 — e.g. dedicated `promotion_override` records vs materialized `tournament_stage_players` / fixtures only vs promotion edges on a structure graph. P4 locks the **layer**; D18 locks the **tables/ops flow** when promotion graph work begins.
+
+**Module outcome** (L5 projection): ranks / tie winner under the **scoring contract** — “what the table says.”
+
+**Promotion** (structure): which players (or seeds) populate the **next** stage or bracket slot — “who plays in the next phase.”
+
+These can **diverge** by organizer choice. The product must stay flexible: organizer is not locked to engine-suggested advancement from standings alone.
+
+| Concern | Layer | Override? |
+|---------|-------|-----------|
+| Points, GD, KO tie winner | Scoring contract → L5 projection | Contract-driven; not promotion |
+| Who advances to next stage | L4 ops ground (**P4 locked**; shape **D18**) | **Yes** — explicit organizer override allowed |
+| Next stage fixture composition | L4 topology (`tournament_stage_players`, fixtures) | Materialized from override + optional rule hint |
+
+**Implication for this track:** standings engine computes **module outcomes** only. A future **promotion** subsystem (graph + ops UI) reads L5 outcomes as **input** and writes **L4 ground** when the organizer overrides — **how** is D18.
+
+**Analogue:** L3 `amiga_tournament_finish_override` (Tier E) at event-finish grain; promotion overrides are the same *class* of curated ops truth at **module boundary** grain.
+
+---
+
+## 3. Vocabulary (working definitions)
 
 Use consistently in this track:
 
@@ -46,7 +94,7 @@ Policy T14 (“module outcomes on stage”) describes **module outcomes** as wha
 
 ---
 
-## 3. Layer model (strawman — react in discussion)
+## 4. Layer model (strawman — react in discussion)
 
 Not committed. Documents the split the chat is exploring:
 
@@ -63,7 +111,7 @@ GIT  Curated topology        StructureSpec, disposition_register (routing only)
 
 ---
 
-## 4. JSON vs normalized storage (audit notes — no decision)
+## 5. JSON vs normalized storage (audit notes — no decision)
 
 The repo already uses **JSON inside MySQL** (`spec_json`, `format_overrides`, `config_json`). The real question is **blob vs normalized vs split authority** — and **at which grain**.
 
@@ -91,7 +139,7 @@ The repo already uses **JSON inside MySQL** (`spec_json`, `format_overrides`, `c
 
 ---
 
-## 5. Decision register
+## 6. Decision register
 
 Work through in order. Mark **Status:** `open` | `draft` | `locked` in chat; update this table when locked.
 
@@ -99,23 +147,29 @@ Work through in order. Mark **Status:** `open` | `draft` | `locked` in chat; upd
 
 | ID | Decision | Status |
 |----|----------|--------|
-| **D0** | Problem statement (§1) — confirm wording | open |
+| **D0** | Problem statement (§1) — confirm wording | **locked** |
 
 ### Tier 1 — Conceptual model
 
-| ID | Decision | Question |
-|----|----------|----------|
-| **D1** | Module vs module outcome | Is module outcome always derived, ever stored as ground, or L5 cache only? |
-| **D2** | Scoring contract vs standings projection | Lock: contract = input; rows = output. No policy only in code constants. |
-| **D3** | L4 unified vs L4a/L4b documented split | Same tables + doc split vs explicit separation; defer if blocking. |
+| ID | Decision | Status / outcome |
+|----|----------|------------------|
+| **D1** | Module vs module outcome | **locked** — derived; L5 cache only |
+| **D2** | Scoring contract vs standings projection | **locked** — strict A |
+| **D3** | L4 unified vs L4a/L4b documented split | open (defer) |
 
 ### Tier 2 — Authority and placement
 
-| ID | Decision | Question |
-|----|----------|----------|
-| **D4** | Where each truth lives | Template / tournament / stage / git — primary authority per kind (topology, scoring, routing). |
-| **D5** | Precedence chain | e.g. stage → tournament overrides → template → platform default. |
-| **D6** | Freeze on finalize | Snapshot scoring contract on tournament at finalize vs always resolve live from template. |
+| ID | Decision | Status |
+|----|----------|--------|
+| **D4** | Where each truth lives | open |
+| **D5** | Precedence chain | open |
+| **D6** | Platform default + freeze on finalize | **locked** — see §2 |
+
+### Tier 2b — Promotion (structure graph track)
+
+| ID | Decision | Status |
+|----|----------|--------|
+| **D18** | Promotion override storage | open — P1–P4 locked (§2.1); exact tables/ops flow TBD at promotion-graph slice |
 
 ### Tier 3 — Identity and engine
 
@@ -150,13 +204,15 @@ Work through in order. Mark **Status:** `open` | `draft` | `locked` in chat; upd
 
 ---
 
-## 6. Session plan
+## 7. Session plan
 
 Take **one tier per discussion block** where possible. Record outcomes inline under each decision ID.
 
 ### Session A — Concept + authority (D0–D6)
 
 **Outcome target:** Agreed ground vs derived diagram; precedence chain; freeze-on-finalize yes/no.
+
+**Progress (2026-07-09):** D0, D1, D2, D6 **locked**. Promotion override constraint recorded (§2.1). **Next:** D4, then D5.
 
 **Suggested first three within session:** D2 → D4 → D6 (philosophy, then placement, then audit/immutability).
 
@@ -176,7 +232,7 @@ Take **one tier per discussion block** where possible. Record outcomes inline un
 
 ---
 
-## 7. Recommended tackle order (within sessions)
+## 8. Recommended tackle order (within sessions)
 
 If not following full tier order:
 
@@ -189,22 +245,24 @@ If not following full tier order:
 
 ---
 
-## 8. Strawman authority map (for Session A reaction)
+## 9. Strawman authority map (for Session A reaction)
 
-Not locked:
+Partially informed by D6 lock. D4 will refine.
 
 | Kind | Primary authority | Copied to DB when |
 |------|-------------------|-------------------|
 | Topology (curated) | Git `StructureSpec` | Materialize → stages/fixtures |
 | Topology (bulk RR/KO) | Disposition handler + materializer | apply-structure |
 | Scoring defaults | `tournament_format_templates.spec_json` | Template seed |
-| Scoring instance | `tournaments.format_overrides` (+ optional stage `config_json`) | Create / materialize / **finalize?** |
+| Scoring instance | `tournaments.format_overrides` (+ optional stage override) | Create / materialize; **effective contract frozen at finalize** |
+| Platform default | Named `platform_default_v1` in repo | Resolver when explicit config absent; frozen copy at finalize |
+| Promotion override | L4 ops ground (**P4**; shape **D18**) | Organizer action at module boundary |
 | Routing | `disposition_register.json` | Never rules — handler only |
-| Standings rows | L5 | Rebuild on finalize/simul |
+| Standings rows | L5 | Rebuild on finalize/simul from L3 + L4a + frozen/effective contract |
 
 ---
 
-## 9. Current-state anchors (Jul 2026)
+## 10. Current-state anchors (Jul 2026)
 
 Facts for discussion — not targets:
 
@@ -216,8 +274,11 @@ Facts for discussion — not targets:
 
 ---
 
-## 10. Changelog
+## 11. Changelog
 
 | Date | Change |
 |------|--------|
+| 2026-07-09 | **P4 locked** — promotion overrides = L4 ops ground only; D18 remains for storage shape. |
+| 2026-07-09 | §2.1 split: P1–P3 locked; D18 added for promotion override storage (deferred). |
+| 2026-07-09 | **Session A partial** — D0, D1, D2 (strict), D6 (platform default + finalize freeze) locked; §2.1 promotion. |
 | 2026-07-09 | Initial discussion plan from L4/L5 boundary design chat (problem identified; sessions A–D outlined). |
