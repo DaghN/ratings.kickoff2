@@ -141,6 +141,7 @@
 
 ## Recent log
 
+| 2026-07-09 | **L4/L5 — Session C complete** (D10–D14; D14 §2.11 `platform_default_v1` chains) — [`amiga-format-scoring-contract-design-discussion.md`](docs/amiga-format-scoring-contract-design-discussion.md). |
 | 2026-07-09 | **L4/L5 — D13 locked** (relational L4b serialization §2.10) — [`amiga-format-scoring-contract-design-discussion.md`](docs/amiga-format-scoring-contract-design-discussion.md). |
 | 2026-07-09 | **L4/L5 — D12 locked** (match extensions §2.9: structured L3, retire text parse) — [`amiga-format-scoring-contract-design-discussion.md`](docs/amiga-format-scoring-contract-design-discussion.md). |
 | 2026-07-09 | **L4/L5 — D10 locked** (phase fallback retirement §2.8) — [`amiga-format-scoring-contract-design-discussion.md`](docs/amiga-format-scoring-contract-design-discussion.md). |

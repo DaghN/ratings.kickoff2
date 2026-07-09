@@ -1,6 +1,6 @@
 # Amiga format scoring contract — design discussion plan (Jul 2026)
 
-**Status:** **In discussion** — Session C in progress (**D10**, **D12**, **D13** locked); D14 open.  
+**Status:** **In discussion** — Session C **complete** (D10–D14 locked); Session D next (D15–D17).  
 **Purpose:** Working reference for a dedicated design chat that resolves intent about **L4 structure vs L5 standings**, **scoring contracts**, and **where format ground truth lives** — before policy updates and code.
 
 **Authority when implemented:** Will supersede or amend scattered rules in [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md), [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md), [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings, and [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) §9 — only after decisions here are locked.
@@ -31,7 +31,7 @@ The first implementation flurry conflated three concerns in one standings engine
 
 ## 2. Locked decisions
 
-Record of agreed intent. Serialization shape (D13–D14) follows in Session C.
+Record of agreed intent. Runtime topics (D15–D17) in Session D.
 
 | ID | Decision | Outcome |
 |----|----------|---------|
@@ -47,6 +47,7 @@ Record of agreed intent. Serialization shape (D13–D14) follows in Session C.
 | **D10** | Phase parser fallback retirement | **Locked** — see §2.8 |
 | **D12** | `extra` / match extensions | **Locked** — see §2.9 |
 | **D13** | Scoring contract serialization | **Locked** — see §2.10 |
+| **D14** | Schema version + step enums | **Locked** — see §2.11 |
 | **D11** | Disposition register | **Locked** — git routing/materializer only; never scoring rules; not used at simul. |
 | **D16** | Export self-containment | **Locked (intent)** — staging dump includes explicit tournament + stage scoring ground; import site does not require git templates to rebuild standings. |
 
@@ -259,6 +260,37 @@ Post-retirement unlinked games = data corruption (verify/ops), not a separate D1
 
 **Deferred (slice / D14):** exact column names, whether contract is columns-on-row vs `scoring_contract` + `tiebreak_step` tables, backfill from hardcoded 3-1-0, export-pack column list.
 
+### 2.11 Schema version and step enums (D14 locked)
+
+**`scoring_schema_version`:** integer, starts at **`1`** on tournament + stage contract rows. Unknown version at executor read = **hard error** (no silent default). D6 finalize copies version into tournament frozen snapshot columns (D13e).
+
+**Closed step enums** (relational child rows, D13d) — two vocabularies by primitive:
+
+| `league_table` steps | `knockout_tie` steps |
+|----------------------|----------------------|
+| `points` | `aggregate_goal_difference` |
+| `head_to_head` | `extra_time` |
+| `goal_difference` | `penalty_shootout` |
+| `goals_for` | `golden_goal` |
+| `games_played` | |
+
+Steps in enum ≠ steps in default chain. Per-stage chains may use any subset/order allowed for that primitive.
+
+**`platform_default_v1` (repo relational seed, D6):** copied to DB on create/backfill.
+
+| Primitive | Default chain |
+|-----------|----------------|
+| `league_table` | `points` → `goal_difference` → `goals_for` → `games_played` |
+| `knockout_tie` | `aggregate_goal_difference` → `extra_time` → `penalty_shootout` |
+
+**Not in defaults (enum only or audit later):** `head_to_head` on leagues (used on many events — audit catalog later for where it changes outcomes vs default). `golden_goal` on knockouts. No `aggregate_goals_for` (redundant after aggregate GD for standard two-leg ties). Legacy text penalty parse (D12) is transition only — not in default chain.
+
+**Points (v1 default):** win = 3, draw = 1, loss = 0.
+
+**Verify:** structural contract validity CLI in modern verify suite (known version, valid primitive, non-empty chains, steps ∈ enum, points present) — not standings numeric parity.
+
+**Deferred (implementation slice / D17):** exact enum spellings in DDL, CHECK constraints, `tiebreak_profile` preset table, executor implementation of `head_to_head` / structured ET+pens, PHP/Python contract reader.
+
 ---
 
 ## 3. Vocabulary (working definitions)
@@ -379,7 +411,7 @@ Work through in order. Mark **Status:** `open` | `draft` | `locked` in chat; upd
 | ID | Decision | Question |
 |----|----------|----------|
 | **D13** | Scoring contract serialization | **locked** — §2.10 (relational L4b; no JSON-canonical; D6 freeze columns) |
-| **D14** | Schema versioning | `scoring_schema_version`, closed tie-break step enum, verify CLI. |
+| **D14** | Schema version + step enums | **locked** — §2.11 (`scoring_schema_version` 1; enums; `platform_default_v1` chains; verify CLI) |
 
 ### Tier 6 — Runtime and product
 
@@ -405,7 +437,7 @@ Take **one tier per discussion block** where possible. Record outcomes inline un
 
 ### Session C — Legacy + format (D10–D14)
 
-**Progress (2026-07-09):** **D10**, **D12**, **D13** locked (§2.8–§2.10). **Next:** D14.
+**Status:** **Complete (2026-07-09)** — D10–D14 locked (§2.8–§2.11).
 
 ### Session D — Runtime (D15–D17)
 
@@ -458,7 +490,8 @@ Facts for discussion — not targets:
 
 | Date | Change |
 |------|--------|
-| 2026-07-09 | **D13 locked** — relational L4b §2.10; no JSON-canonical; D6 freeze as columns; tie-break chains relational (D13d). |
+| 2026-07-09 | **Session C complete** — D14 locked §2.11; D10–D14. |
+| 2026-07-09 | **D14 locked** — schema v1, step enums, `platform_default_v1` chains, verify CLI intent. |
 | 2026-07-09 | **D10 locked** — phase fallback §2.8: NULL `fixture_id` only; 100% linkage + parity audit → delete executor branch. |
 | 2026-07-09 | **Session B complete** — D7–D9 locked. |
 | 2026-07-09 | **§2.6** — Event stats vs module standings: separate writers/tables; D8 excludes event rollup. |
