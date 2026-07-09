@@ -1,6 +1,6 @@
 # Amiga format scoring contract — design discussion plan (Jul 2026)
 
-**Status:** **In discussion** — Session B **complete** (D7–D9 locked); Session C next (D10–D14).  
+**Status:** **In discussion** — Session C in progress (**D10** locked); D11–D14 open.  
 **Purpose:** Working reference for a dedicated design chat that resolves intent about **L4 structure vs L5 standings**, **scoring contracts**, and **where format ground truth lives** — before policy updates and code.
 
 **Authority when implemented:** Will supersede or amend scattered rules in [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md), [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md), [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings, and [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) §9 — only after decisions here are locked.
@@ -44,6 +44,7 @@ Record of agreed intent. Serialization shape (D13–D14) follows in Session C.
 | **D7** | Canonical module key | **Locked** — `stage_id` canonical for compute/UI; phase + scope strings = witness/skin; C→A migration; D10 retires phase fallback. |
 | **D8** | Standings executor scope | **Locked** — see §2.5 |
 | **D9** | Executor scoring primitives | **Locked** — see §2.7 |
+| **D10** | Phase parser fallback retirement | **Locked** — see §2.8 |
 | **D11** | Disposition register | **Locked** — git routing/materializer only; never scoring rules; not used at simul. |
 | **D16** | Export self-containment | **Locked (intent)** — staging dump includes explicit tournament + stage scoring ground; import site does not require git templates to rebuild standings. |
 
@@ -205,6 +206,35 @@ v1 lists `league_table` and `knockout_tie` only. A **new executor math type** re
 
 **Not primitives** (parameters or other layers): tie-break steps inside `league_table`; pen/`extra` rules inside `knockout_tie` (D12); pairing/bracket topology (L4a); `platform_default_v1` (preset bundle, D6).
 
+### 2.8 Phase parser fallback retirement (D10 locked)
+
+**Scope:** standings **executor** only (Python + PHP). `amiga_games.phase` column **preserved** as L3 witness — D10 retires **compute use in the executor**, not the column.
+
+#### D10a — Fallback trigger (locked)
+
+Phase parser (`parse_phase()` / `amiga_ops_parse_phase()`) runs **only when `fixture_id IS NULL`** on that game — **per-game** grain. Primary path: `fixture_id` → `stage_id` → stage contract → D9 primitive.
+
+#### D10b — During catalog gap (locked)
+
+No special product behaviour while imprint is incomplete (e.g. 515/605 tournaments linked today). Mixed tournaments: each game uses fixture path or fallback side by side until materialize finishes the catalog. No “uncurated” badge required for D10.
+
+#### D10c — Retirement rule (locked)
+
+Fallback remains in the executor until:
+
+1. **100% fixture linkage** — zero `fixture_id IS NULL` games across the catalog, and
+2. **One full audit** — standings parity / verify-structure confirms fixture-only routing matches current outputs.
+
+**Then** remove the executor fallback branch (Python + PHP). No indefinite dead-code retention “just in case.”
+
+Post-retirement unlinked games = data corruption (verify/ops), not a separate D10 policy.
+
+#### Deferred (not D10)
+
+- `parse_phase()` in materialize/import paths until those slices rework parser usage
+- `legacy_inferred` template flag semantics / cleanup
+- Per-tournament retirement flags or coverage thresholds
+
 ---
 
 ## 3. Vocabulary (working definitions)
@@ -316,7 +346,7 @@ Work through in order. Mark **Status:** `open` | `draft` | `locked` in chat; upd
 
 | ID | Decision | Question |
 |----|----------|----------|
-| **D10** | Phase parser fallback | When `fixture_id` NULL only; retirement criteria vs L4 coverage %. |
+| **D10** | Phase parser fallback | **locked** — §2.8 (NULL `fixture_id` only; 100% linkage + audit → delete branch) |
 | **D11** | Disposition register | **locked** — §2.2; handler = materializer only |
 | **D12** | `extra` / penalties | Match witness (L3) vs rule “consult extra for pens” (part of knockout contract). |
 
@@ -351,7 +381,7 @@ Take **one tier per discussion block** where possible. Record outcomes inline un
 
 ### Session C — Legacy + format (D10–D14)
 
-**Outcome target:** Phase fallback sunset; serialization sketch; schema version; audit-filter strategy (addresses JSON vs queryable columns).
+**Progress (2026-07-09):** **D10 locked** (§2.8). **Next:** D12, D13, D14.
 
 ### Session D — Runtime (D15–D17)
 
@@ -404,7 +434,7 @@ Facts for discussion — not targets:
 
 | Date | Change |
 |------|--------|
-| 2026-07-09 | **D9 locked** — executor primitives §2.7: `league_table`, `knockout_tie`; D9-pre; `standings_resolver` deprecated; event rollup/finish out of scope. |
+| 2026-07-09 | **D10 locked** — phase fallback §2.8: NULL `fixture_id` only; 100% linkage + parity audit → delete executor branch. |
 | 2026-07-09 | **Session B complete** — D7–D9 locked. |
 | 2026-07-09 | **§2.6** — Event stats vs module standings: separate writers/tables; D8 excludes event rollup. |
 | 2026-07-09 | **D8 locked** — standings executor scope §2.5; orchestration split. |
