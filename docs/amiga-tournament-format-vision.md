@@ -324,7 +324,7 @@ planned  →  implemented  →  (optional) deprecated
 
 - **`planned`:** seeded in DB; no builder, no standings branch, no tournaments may reference except tests.
 - **`implemented`:** builder and/or import structure path exists; `verify-tournament-formats` counts it as active.
-- Tournaments always store `format_template_id` + optional `format_overrides` JSON for event-specific facts (evidence URL, round count, etc.). **Scoring contract authority (in discussion, Session A locked):** templates = presets only; explicit scoring ground on every `tournaments` + `tournament_stages` row; simul DB-only — [`amiga-format-scoring-contract-design-discussion.md`](amiga-format-scoring-contract-design-discussion.md) §2.2–§2.3.
+- Tournaments always store `format_template_id` + optional `format_overrides` JSON for event-specific facts (evidence URL, round count, etc.). **Scoring contract authority (in discussion, Session A locked):** templates = presets only; explicit scoring ground on every `tournaments` + `tournament_stages` row; simul DB-only — [`amiga-format-scoring-contract-design-discussion.md`](amiga-format-scoring-contract-design-discussion.md) §2.2–§2.3. **Module identity (D7 locked):** `stage_id` canonical; `amiga_games.phase` witness preserved — same doc §2.4.
 
 ### Seeded templates (Jun 2026)
 

@@ -1,6 +1,6 @@
 # Amiga format scoring contract — design discussion plan (Jul 2026)
 
-**Status:** **In discussion** — Session A **complete** (D0–D2, D4–D6, P1–P4); Session B next (D7–D9).  
+**Status:** **In discussion** — Session A complete; Session B in progress (**D7** locked; D8–D9 open).  
 **Purpose:** Working reference for a dedicated design chat that resolves intent about **L4 structure vs L5 standings**, **scoring contracts**, and **where format ground truth lives** — before policy updates and code.
 
 **Authority when implemented:** Will supersede or amend scattered rules in [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md), [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md), [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings, and [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) §9 — only after decisions here are locked.
@@ -31,7 +31,7 @@ The first implementation flurry conflated three concerns in one standings engine
 
 ## 2. Locked decisions
 
-Record of agreed intent. Serialization shape (D13–D14) and engine boundary (D7–D9) follow in later sessions.
+Record of agreed intent. Serialization shape (D13–D14) and engine boundary (D8–D9) follow in later sessions.
 
 | ID | Decision | Outcome |
 |----|----------|---------|
@@ -41,6 +41,7 @@ Record of agreed intent. Serialization shape (D13–D14) and engine boundary (D7
 | **D4** | Where each truth lives | **Locked** — see §2.2 (register → DB; templates = presets; explicit scoring on every tournament + stage row; simul DB-only). |
 | **D5** | Precedence / copy rules | **Locked** — see §2.3 (copy-on-create; stage row = runtime authority). |
 | **D6** | Platform default + freeze | **Locked** — `platform_default_v1` in repo; bridge resolver until explicit rows backfilled; **freeze effective contract at finalize**. |
+| **D7** | Canonical module key | **Locked** — `stage_id` canonical for compute/UI; phase + scope strings = witness/skin; C→A migration; D10 retires phase fallback. |
 | **D11** | Disposition register | **Locked** — git routing/materializer only; never scoring rules; not used at simul. |
 | **D16** | Export self-containment | **Locked (intent)** — staging dump includes explicit tournament + stage scoring ground; import site does not require git templates to rebuild standings. |
 
@@ -111,6 +112,25 @@ These can **diverge** by organizer choice. The product must stay flexible: organ
 **At simul / standings compute:** read **`tournament_stages` scoring ground** for each module. Missing stage contract = **data defect**, not silent read-time inheritance from tournament. Tournament row remains source for **new** stages and finalize snapshot.
 
 **D13 note:** explicit storage may be JSON columns on row; audit filters may add denormalized facets later — does not change D4 intent.
+
+### 2.4 Module identity (D7 locked)
+
+**Canonical key:** `tournament_stages.id` (`stage_id`) for scoring-contract binding, standings computation, and UI module surfaces.
+
+**Engine primary path:** `amiga_games.fixture_id` → `tournament_fixtures.stage_id` → stage scoring contract.
+
+**L5:** add `stage_id` (nullable until L4 imprint on that tournament). Target: every standings row keyed by `stage_id`.
+
+**Witness preserved (not deleted):**
+
+- `amiga_games.phase` — L3 witness of what koatd recorded; **retire inference/compute**, keep column for display and archaeology.
+- Legacy `scope_type` / `scope_key` on L5 — may remain for **display / URL compat** (cf. standings scope S8); **not** engine identity at end state.
+
+**Migration:** **C → A** — dual-write / nullable `stage_id` while events lack L4; phase parser = **transition fallback only** until imprint complete (**D10** sets retirement). Permanent canonical key via scope strings (**B**) rejected.
+
+**Rationale:** imprint L4 on all catalog events; unify product under explicit stages. Access `Phase` was optional per-game labels (~61% NULL), not a format schema.
+
+---
 
 ## 3. Vocabulary (working definitions)
 
@@ -209,7 +229,7 @@ Work through in order. Mark **Status:** `open` | `draft` | `locked` in chat; upd
 
 | ID | Decision | Question |
 |----|----------|----------|
-| **D7** | Canonical module key | `stage_id` on L5 rows vs keep `scope_type` + `scope_key` (+ migration path). |
+| **D7** | Canonical module key | **locked** — §2.4 |
 | **D8** | Engine responsibilities | Load contract → group games → apply rules → write L5; explicit out-of-scope list. |
 | **D9** | Scoring primitive set | Closed vocabulary (`league_table`, `knockout_tie`, …); retire orphan `standings_resolver` strings unless wired. |
 
@@ -248,7 +268,7 @@ Take **one tier per discussion block** where possible. Record outcomes inline un
 
 ### Session B — Keys + engine (D7–D9)
 
-**Status:** **Next.** Outcome: `stage_id` as canonical module key (likely); engine as executor; primitive enum.
+**Progress (2026-07-09):** **D7 locked** (§2.4). **Next:** D8, D9 — await discussion open.
 
 ### Session C — Legacy + format (D10–D14)
 
@@ -305,6 +325,7 @@ Facts for discussion — not targets:
 
 | Date | Change |
 |------|--------|
+| 2026-07-09 | **D7 locked** — `stage_id` canonical; `phase`/scope witness+skin; C→A; D10 retires phase fallback. |
 | 2026-07-09 | **Session A complete** — D4, D5, D11, D16 (intent) locked; §2.2 authority map, §2.3 copy rules. |
 | 2026-07-09 | **P4 locked** — promotion overrides = L4 ops ground only; D18 remains for storage shape. |
 | 2026-07-09 | §2.1 split: P1–P3 locked; D18 added for promotion override storage (deferred). |
