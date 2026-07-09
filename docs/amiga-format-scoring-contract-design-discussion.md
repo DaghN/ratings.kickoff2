@@ -1,6 +1,6 @@
 # Amiga format scoring contract — design discussion plan (Jul 2026)
 
-**Status:** **In discussion** — Session C **complete** (D10–D14 locked); Session D next (D15–D17).  
+**Status:** **In discussion** — Session D **complete** (D15, D17 locked). Design register: **D3** deferred, **D18** open (promotion). Promote to policy docs when ready.  
 **Purpose:** Working reference for a dedicated design chat that resolves intent about **L4 structure vs L5 standings**, **scoring contracts**, and **where format ground truth lives** — before policy updates and code.
 
 **Authority when implemented:** Will supersede or amend scattered rules in [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md), [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md), [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings, and [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) §9 — only after decisions here are locked.
@@ -48,6 +48,8 @@ Record of agreed intent. Runtime topics (D15–D17) in Session D.
 | **D12** | `extra` / match extensions | **Locked** — see §2.9 |
 | **D13** | Scoring contract serialization | **Locked** — see §2.10 |
 | **D14** | Schema version + step enums | **Locked** — see §2.11 |
+| **D15** | Running vs finalized (RTB) | **Locked** — see §2.12 |
+| **D17** | PHP/Python contract reader | **Locked** — see §2.13 |
 | **D11** | Disposition register | **Locked** — git routing/materializer only; never scoring rules; not used at simul. |
 | **D16** | Export self-containment | **Locked (intent)** — staging dump includes explicit tournament + stage scoring ground; import site does not require git templates to rebuild standings. |
 
@@ -291,6 +293,33 @@ Steps in enum ≠ steps in default chain. Per-stage chains may use any subset/or
 
 **Deferred (implementation slice / D17):** exact enum spellings in DDL, CHECK constraints, `tiebreak_profile` preset table, executor implementation of `head_to_head` / structured ET+pens, PHP/Python contract reader.
 
+### 2.12 Running vs finalized — RTB alignment (D15 locked)
+
+Aligns scoring-contract track with [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) RTB2–RTB3.
+
+| ID | Rule |
+|----|------|
+| **D15a** | **One contract, one executor** — broadcast and official module standings use the same **stage scoring contracts** (D5) and **standings executor** (D8/D9). No separate “live scoring profile.” |
+| **D15b** | **Broadcast does not persist L5** — compute module standings for display only until Make official (RTB2). |
+| **D15c** | **Input adapters only** — running: played **fixtures** (running score cols) → executor game shape; official: **`amiga_games`** after promote. Executor + contract unchanged. |
+| **D15d** | **Parity** — same fixture scores + same stage contracts at moment *T* ⇒ broadcast standings = L5 after promote+rebuild at *T*. Implementation slice adds verify/oracle. |
+| **D15e** | **Contracts live while running**; **D6 freeze** at finalize only. Post-official historical reads use frozen tournament snapshot. Mid-tournament contract edit policy = live-ops slice (not D15). |
+| **D15f** | **Live hub KO in scope** — broadcast surfaces include **knockout** module standings/bracket (not league table only); same executor + `knockout_tie` contract as finalize. |
+
+**Out of scope:** event rollup / Event stats on live hub (finalize only, §2.6); ratings, catalog stats, community writes (RTB).
+
+### 2.13 PHP/Python contract reader (D17 locked)
+
+| ID | Rule |
+|----|------|
+| **D17a** | **Single contract reader shape (v1)** — per D14 (`scoring_schema_version`, primitive, points, relational step chains). Python and PHP loaders produce the **same logical structure** from the same DB rows. |
+| **D17b** | **Two implementations required** — Python (simul, finalize, CLI); PHP (RTB broadcast, ops post-game). No production dependency on “PHP calls Python.” |
+| **D17c** | **PHP↔Python parity oracle** — automated verify runs both executors on shared inputs (games + contracts); fails on row diff. Separate from Access `standings-parity` and D14 structural contract verify. |
+| **D17d** | **D14 §2.11** is the enum/version authority; shared test fixtures in implementation slice prove reader + executor agreement. |
+| **D17e** | **No hardcoded scoring policy in UI paths** after contract backfill — both runtimes read DB contracts only; D6 `platform_default_v1` bridge until explicit rows exist. |
+
+**Deferred (implementation slice):** exact reader API, file layout, parity scope (full catalog vs sample), optional standalone spec/fixture artefact beyond D14 §2.11.
+
 ---
 
 ## 3. Vocabulary (working definitions)
@@ -417,9 +446,9 @@ Work through in order. Mark **Status:** `open` | `draft` | `locked` in chat; upd
 
 | ID | Decision | Question |
 |----|----------|----------|
-| **D15** | Running vs finalized | Broadcast compute uses same contract as finalize (RTB alignment). |
+| **D15** | Running vs finalized (RTB) | **locked** — §2.12 (same contract+executor; broadcast no L5 persist; live hub KO in scope) |
 | **D16** | Export packs | **locked (intent)** — self-contained scoring ground in dump; §2.2 |
-| **D17** | PHP/Python contract reader | Single shape; two implementations; no policy drift. |
+| **D17** | PHP/Python contract reader | **locked** — §2.13 (single v1 shape; two implementations; PHP↔Python parity oracle) |
 
 ---
 
@@ -441,7 +470,7 @@ Take **one tier per discussion block** where possible. Record outcomes inline un
 
 ### Session D — Runtime (D15–D17)
 
-**Outcome target:** RTB parity, export self-containment, shared contract loader spec.
+**Status:** **Complete (2026-07-10)** — D15, D17 locked (§2.12–§2.13). **Design register complete** for sessions A–D (D3 deferred, D18 promotion track open).
 
 **After all sessions:** Promote locked decisions into policy docs + implementation plan slice(s).
 
@@ -490,7 +519,8 @@ Facts for discussion — not targets:
 
 | Date | Change |
 |------|--------|
-| 2026-07-09 | **Session C complete** — D14 locked §2.11; D10–D14. |
+| 2026-07-10 | **Session D complete** — D17 locked §2.13; D15 §2.12. Design sessions A–D done (D3 deferred, D18 open). |
+| 2026-07-10 | **D17 locked** — PHP/Python contract reader §2.13. |
 | 2026-07-09 | **D14 locked** — schema v1, step enums, `platform_default_v1` chains, verify CLI intent. |
 | 2026-07-09 | **D10 locked** — phase fallback §2.8: NULL `fixture_id` only; 100% linkage + parity audit → delete executor branch. |
 | 2026-07-09 | **Session B complete** — D7–D9 locked. |
