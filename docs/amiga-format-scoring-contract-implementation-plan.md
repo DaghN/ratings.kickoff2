@@ -1,6 +1,6 @@
 # Amiga format scoring contract — implementation plan (agent slices)
 
-**Status:** **Not started** — policy locked Jul 2026; code still on hardcoded 3-1-0 bridge.
+**Status:** **SC-0 shipped (Jul 2026)** — L4b DDL `011_tournament_scoring_contract.sql`; executor still on hardcoded bridge until SC-3+.
 
 **Policy (locked):** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md)
 
@@ -58,16 +58,17 @@ Persistent relational home for scoring contracts per policy SC3–SC6.
 
 ### Tasks (agent fills detail at slice time)
 
-- [ ] Migration under `scripts/amiga/sql/structure/` (forward ground path per MG11).
-- [ ] Stage grain: `primitive`, points cols, `scoring_schema_version`.
-- [ ] Child table: `(stage_id, sequence_no, step)` with v1 enum CHECK or app validation.
-- [ ] Tournament grain: defaults + frozen snapshot columns post-finalize.
-- [ ] Export pack includes new tables/columns (SC16).
+- [x] Migration under `scripts/amiga/sql/structure/` — **`011_tournament_scoring_contract.sql`**
+- [x] Stage grain: `scoring_primitive`, points cols, `scoring_schema_version`, frozen mirror cols
+- [x] Child table: `tournament_stage_scoring_steps` (`stage_id`, `sequence_no`, `step` enum v1)
+- [x] Tournament grain: `scoring_*_points_default`, `frozen_scoring_schema_version`, `scoring_frozen_at`
+- [x] Export pack includes contract table — `L4_TABLES` + `schema_bundles` drop order
 
 ### Verification
 
-- [ ] `apply_schema` on `ko2amiga_work` clean.
-- [ ] `verify-export-pack` includes contract tables.
+- [x] `apply_schema_structure` on `ko2amiga_work` clean (idempotent ALTER)
+- [x] `standings-parity --sweep` **FAIL=0** (681 PASS, 29 EXCEPTION, 112 SKIP)
+- [ ] `verify-export-pack structure` — passes after next `export-pack structure` (manifest lists new table)
 
 ---
 

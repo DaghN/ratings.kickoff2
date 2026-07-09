@@ -24,6 +24,7 @@ STRUCTURE_SQL: tuple[Path, ...] = (
     _SQL_ROOT / "structure" / "008_tournament_lifecycle.sql",
     _SQL_ROOT / "structure" / "009_tournament_finalize_markers.sql",
     _SQL_ROOT / "structure" / "010_is_world_cup.sql",
+    _SQL_ROOT / "structure" / "011_tournament_scoring_contract.sql",
 )
 
 DERIVED_SQL: tuple[Path, ...] = (
@@ -86,6 +87,7 @@ _DERIVED_DROP_ORDER = (
 
 _STRUCTURE_DROP_ORDER = (
     "tournament_fixtures",
+    "tournament_stage_scoring_steps",
     "tournament_stage_players",
     "tournament_stages",
     "tournament_entrants",

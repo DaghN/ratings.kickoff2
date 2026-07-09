@@ -191,7 +191,8 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `tournament_format_templates` | Ground/config | Import seed / future admin-managed templates | Active |
 | `tournaments` | Ground | Import / submission | Active |
 | `tournament_entrants` | Ground | Future live tournament ops / fixture tooling | Active |
-| `tournament_stages` | Ground | Live + legacy module atoms (`round_robin` \| `knockout`) | Active |
+| `tournament_stages` | Ground | Live + legacy module atoms (`round_robin` \| `knockout`); **L4b scoring contract** cols (`scoring_*`, `frozen_scoring_*`) — runtime authority per stage | Active |
+| `tournament_stage_scoring_steps` | Ground | Ordered tie-break / KO resolution steps per stage (`sequence_no` + v1 `step` enum). DDL `sql/structure/011_tournament_scoring_contract.sql` | Active (SC-0; rows empty until SC-1/SC-6) |
 | `tournament_stage_players` | Ground | Stage rosters (live ops) | Active |
 | `tournament_fixtures` | Ground | One match per row (live schedule or legacy materialize); `stage_id` → module; **running scores** `goals_a`/`goals_b`/`extra`/`result_recorded_at` until Make official (DDL `sql/structure/006_tournament_fixtures.sql` via `prove`) | Active |
 | `amiga_players` | Ground | Import / browser organizer create / `players create` CLI (`player_source`: `import` \| `live_ops`) | Active |
@@ -350,7 +351,7 @@ Twenty nullable columns on **`amiga_player_event_snapshots`** and **`amiga_playe
 | Staging multi-part browser import | **Done** (Jun 2026) |
 | Amiga tournament finalize ops | **Done** — PHP `finalize-tournament` + live standings-only entry; Python `replay` batch oracle |
 | Amiga rating events + read path | **Done** — `amiga_rating_events`, profile chart from events, `verify-rating-events` |
-| Tournament standings (derived) | **Done** (Track B bridge — `league` + `knockout`; migration `020`; PHP incremental post-game). **Next:** relational L4b scoring contract — policy locked; plan SC-0+ |
+| Tournament standings (derived) | **Done** (Track B bridge — `league` + `knockout`; migration `020`; PHP incremental post-game). **L4b DDL shipped (SC-0)** — contract backfill + executor SC-1+ |
 | Reference parity tables / diffs | **Done** (`standings-parity --sweep` vs Access ODBC; 0 engine FAILs Jun 2026) |
 | Amiga hub nav (v0) | **Done** — `includes/amiga_hub_nav.php` (Ladder · Tournaments · Hall of Fame); HoF stub `/amiga/hall-of-fame.php` |
 | Tournament format foundation | **In progress** — `tournament_format_templates` + non-exclusive `tournaments.has_league` / `has_cup` import flags |

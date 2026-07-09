@@ -45,6 +45,7 @@ L4_TABLES: tuple[str, ...] = (
     "tournament_format_templates",
     "tournament_entrants",
     "tournament_stages",
+    "tournament_stage_scoring_steps",
     "tournament_stage_players",
     "tournament_fixtures",
 )

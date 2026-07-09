@@ -18,6 +18,7 @@ _REPO = Path(__file__).resolve().parents[2]
 
 _L4_STRUCTURE_TABLES = (
     "tournament_stages",
+    "tournament_stage_scoring_steps",
     "tournament_fixtures",
     "tournament_stage_players",
     "tournament_entrants",

@@ -110,7 +110,7 @@
 | L4a / L4b doc split label only | Design **D3** |
 | Promotion override storage | **D18** / structure graph track |
 | Match extension DDL + structured ET/pens | Implementation slice (see SC11) |
-| Exact contract DDL table names | [`amiga-format-scoring-contract-implementation-plan.md`](amiga-format-scoring-contract-implementation-plan.md) |
+| Exact contract DDL table names | **Shipped** — `sql/structure/011_tournament_scoring_contract.sql` |
 
 ---
 
