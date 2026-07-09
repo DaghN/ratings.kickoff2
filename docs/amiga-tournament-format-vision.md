@@ -351,6 +351,8 @@ planned  →  implemented  →  (optional) deprecated
 
 ## 10. Open product questions
 
+**Active design track (Jul 2026):** L4 topology vs scoring contract vs L5 standings projection — decision register and session plan: [`amiga-format-scoring-contract-design-discussion.md`](amiga-format-scoring-contract-design-discussion.md).
+
 1. Backfill all 603 events or only `legacy_inferred` + curated majors?
 2. Is bracket **advancement graph** required, or phase-grouped columns enough for v2?
 3. Honours rules: data-driven from stage/track keys vs community narrative docs (Alkis pages)?
