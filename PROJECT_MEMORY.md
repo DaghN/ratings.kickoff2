@@ -141,6 +141,7 @@
 
 ## Recent log
 
+| 2026-07-09 | **L4/L5 — D9 locked** (executor primitives §2.7: `league_table`, `knockout_tie`; Session B complete) — [`amiga-format-scoring-contract-design-discussion.md`](docs/amiga-format-scoring-contract-design-discussion.md). |
 | 2026-07-09 | **L4/L5 — D8 locked** (standings executor §2.5) — [`amiga-format-scoring-contract-design-discussion.md`](docs/amiga-format-scoring-contract-design-discussion.md). |
 | 2026-07-09 | **L4/L5 scoring contract — D7 locked** (`stage_id` canonical; phase witness preserved) — [`amiga-format-scoring-contract-design-discussion.md`](docs/amiga-format-scoring-contract-design-discussion.md) §2.4. |
 | 2026-07-09 | **L4/L5 scoring contract — Session A complete** — D0–D2, D4–D6, D5, D11, D16, P1–P4 locked — [`amiga-format-scoring-contract-design-discussion.md`](docs/amiga-format-scoring-contract-design-discussion.md). |
