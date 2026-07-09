@@ -92,6 +92,8 @@
 
 - **Amiga live ops (Jul 2026):** **RTB shipped (RTB-1–RTB-9)** — running scores until organizer **Finish and make official** (promote + finalize + lifecycle `completed` in one Table-tab action). Policy: [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md) rev. 2.
 
+- **Amiga format scoring contract (Jul 2026):** **Policy + implementation plan promoted** (design sessions A–D → SC1–SC18). **Next:** SC-0+ slices — relational L4b DDL, contract readers, executor refactor (code still on hardcoded 3-1-0 bridge). Policy [`amiga-format-scoring-contract-policy.md`](docs/amiga-format-scoring-contract-policy.md) · plan [`amiga-format-scoring-contract-implementation-plan.md`](docs/amiga-format-scoring-contract-implementation-plan.md) · history [`amiga-format-scoring-contract-design-discussion.md`](docs/amiga-format-scoring-contract-design-discussion.md).
+
 - **Amiga modern ground (Jul 2026):** **Cutover bootstrap complete** (D0 → PROMOTE-1 + DOC-1 + CODE-1). **Staged prod / local repair shop:** [`amiga-staging-authority-policy.md`](docs/amiga-staging-authority-policy.md). **PULL-1a/1b shipped** — `pull_ko2amiga_from_staging.ps1` + `run_export_ko2amiga.php` (verified pull Jul 2026). Daily loop: pull → repair → push (`export_ko2amiga_work.ps1` after simul when needed). [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md).
 
 - **Obsolete dev scripts retirement (Jun 2026):** **Track complete** (slices 1–6) — retired batch/replay CLIs stubbed or archived; `scripts/k2_rating_core/` is the shared formula library; runbooks → holy ops — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md) · inventory [`DEAD_SURFACE.md`](docs/DEAD_SURFACE.md).
@@ -141,6 +143,9 @@
 
 ## Recent log
 
+| Date | Note |
+|------|------|
+| 2026-07-10 | **L4/L5 scoring contract — promoted to policy** — [`amiga-format-scoring-contract-policy.md`](docs/amiga-format-scoring-contract-policy.md) + [`amiga-format-scoring-contract-implementation-plan.md`](docs/amiga-format-scoring-contract-implementation-plan.md); cross-refs in data contract, structure, standings scope, format vision, RTB. **Next:** SC-0. |
 | 2026-07-10 | **L4/L5 — Session D complete** (D15, D17; design track sessions A–D done) — [`amiga-format-scoring-contract-design-discussion.md`](docs/amiga-format-scoring-contract-design-discussion.md). |
 | 2026-07-10 | **L4/L5 — D15 locked** (RTB alignment §2.12; live hub KO in scope) — [`amiga-format-scoring-contract-design-discussion.md`](docs/amiga-format-scoring-contract-design-discussion.md). |
 | 2026-07-09 | **L4/L5 — Session C complete** (D10–D14; D14 §2.11 `platform_default_v1` chains) — [`amiga-format-scoring-contract-design-discussion.md`](docs/amiga-format-scoring-contract-design-discussion.md). |

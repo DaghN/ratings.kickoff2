@@ -70,7 +70,7 @@ Computed from ground truth by chronological replay or per-game ops. **Always reb
 |------|--------|
 | Per-game Elo | Ratings before/after, adjustments, outcome flags |
 | Player career stats | W/D/L, goals, peaks, opponent networks — **not match streaks** (see § Match streaks; columns exist but are not product truth) |
-| Tournament standings | Points tables, group tables — from games via `scripts/amiga/tournament_standings.py` |
+| Tournament standings | L5 projection from L3 games + L4 topology + **L4b scoring contract** — [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md). **Today:** hardcoded 3-1-0 bridge in `tournament_standings.py` / `amiga_post_game_standings.php` until SC slices ship. |
 | Future aggregates | H2H summaries, period activity, etc. — when needed |
 
 **Rule:** After one new canonical game, derived tables must match what a full replay from empty would produce.
@@ -324,11 +324,13 @@ Twenty nullable columns on **`amiga_player_event_snapshots`** and **`amiga_playe
 
 **Tournament index (`/amiga/tournaments.php`):** read **`amiga_tournament_catalog_stats`** only — one row per tournament (`game_count`, `standing_players`, `league_scopes`, `knockout_ties`). Do **not** aggregate `amiga_games` × `amiga_tournament_standings` at page load (cartesian explosion). Populated by tournament finalize / `replay`. Time travel: filter catalog with `amiga_snapshot_tournament_cutoff_and_sql()` (stats columns are event-intrinsic).
 
-### Tournament standings rules (Track B v1)
+### Tournament standings rules (Track B v1 — pre-contract bridge)
+
+**Policy (locked Jul 2026):** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md) · implementation [`amiga-format-scoring-contract-implementation-plan.md`](amiga-format-scoring-contract-implementation-plan.md). **Below = current engine behaviour** until relational L4b + contract reader slices (SC-0+) replace the hardcoded bridge.
 
 - **Source:** `amiga_games` grouped per `tournament_id`, ordered by `source_scores_id` within tournament.
 - **Points:** 3 per win, 1 per draw, 0 per loss (W×3 + D×1). **League tie-break order (v1):** points, then goal difference, then goals scored, then games played — **no head-to-head mini-league** among tied players yet (UEFA-style internal match is future format work; see [`amiga-format-add-swiss-checklist.md`](amiga-format-add-swiss-checklist.md)).
-- **Scopes:** `scope_type` is **`league`** (points table) or **`knockout`** (elimination tie) only — migration `020` merged legacy `overall`+`group` into `league`; phase identity = `scope_key` (`''` = implicit single-phase table). Source: fixture stage metadata when `amiga_games.fixture_id` is present; otherwise phase labels (`scripts/amiga/tournament_phases.py`). Knockout phases (`Semi Finals`, `Places 9-16`, …) → `knockout` per **player pair** (`scope_key` = `{phase}|{id}-{id}`), two rows per tie. Policy: [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md).
+- **Scopes:** `scope_type` is **`league`** (points table) or **`knockout`** (elimination tie) only — migration `020` merged legacy `overall`+`group` into `league`; phase identity = `scope_key` (`''` = implicit single-phase table). Source: fixture stage metadata when `amiga_games.fixture_id` is present; otherwise phase labels (`scripts/amiga/tournament_phases.py`). Knockout phases (`Semi Finals`, `Places 9-16`, …) → `knockout` per **player pair** (`scope_key` = `{phase}|{id}-{id}`), two rows per tie. Policy: [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md) (S11: `scope_type` ≠ scoring primitive; S12: `stage_id` target).
 - **Goals:** Regulation `goals_a` / `goals_b` only for `league` tables (Elo uses the same). `extra` column stores Access `Scores.Extra` (ET/penalties text); does not affect Elo.
 - **Knockout tie winner** (per pair scope, all legs in that phase between the two players): (1) higher aggregate goal difference; (2) if tied, higher aggregate goals scored; (3) if still tied, `parse_standings_winner` on any leg with non-empty `extra` (penalties); (4) if unresolved, UI shows “Tie unresolved” and falls back to derived `position` order. Same rules in `scripts/amiga/tournament_standings.py` (`_knockout_positions`) and `includes/amiga_tournament_lib.php` (`amiga_tournament_knockout_resolve_winner`). Website knockout view lists per-leg fixtures via `amiga_tournament_knockout_fixture_games`.
 - **Parity:** Access `Tables` / `World Cup * Tables` are reference only — `python -m scripts.amiga standings-parity` (spot check) or `standings-parity --sweep` (full report → `data/amiga/exports/standings_parity_report.json`). Player names normalized via `normalize_display_name` at compare time; Silver/Bronze cup groups map to Access `Group A`…`H` labels.
@@ -348,7 +350,7 @@ Twenty nullable columns on **`amiga_player_event_snapshots`** and **`amiga_playe
 | Staging multi-part browser import | **Done** (Jun 2026) |
 | Amiga tournament finalize ops | **Done** — PHP `finalize-tournament` + live standings-only entry; Python `replay` batch oracle |
 | Amiga rating events + read path | **Done** — `amiga_rating_events`, profile chart from events, `verify-rating-events` |
-| Tournament standings (derived) | **Done** (Track B — `league` + `knockout`; migration `020`; PHP incremental post-game) |
+| Tournament standings (derived) | **Done** (Track B bridge — `league` + `knockout`; migration `020`; PHP incremental post-game). **Next:** relational L4b scoring contract — policy locked; plan SC-0+ |
 | Reference parity tables / diffs | **Done** (`standings-parity --sweep` vs Access ODBC; 0 engine FAILs Jun 2026) |
 | Amiga hub nav (v0) | **Done** — `includes/amiga_hub_nav.php` (Ladder · Tournaments · Hall of Fame); HoF stub `/amiga/hall-of-fame.php` |
 | Tournament format foundation | **In progress** — `tournament_format_templates` + non-exclusive `tournaments.has_league` / `has_cup` import flags |

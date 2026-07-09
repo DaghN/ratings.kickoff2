@@ -312,7 +312,7 @@ Format templates are rows in `tournament_format_templates` with JSON `spec_json`
 |----------------|------|----------------|
 | **`slug` + `stages[]`** | Canonical stage keys and types | `seed_format_templates()` · DDL `tournament_stages` |
 | **`stage_factory`** (slug or module path) | Creates stages + fixtures for **new** events | `tournament_builder.py` (e.g. `kitchen_marathon`, `group_knockout`) |
-| **`standings_resolver`** | How `amiga_games` map to `amiga_tournament_standings` scopes | `tournament_standings._fixture_scope()` · phase fallback when `fixture_id` NULL |
+| **`standings_resolver`** | **Deprecated** — was template JSON hint for phase/fixture routing. Runtime = `stage_id` + stage scoring contract ([`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md) SC17). Bridge code: `tournament_standings._fixture_scope()` · phase fallback when `fixture_id` NULL |
 | **`legacy_phase_fallback`** | Whether imported games without fixtures use `tournament_phases.py` | `true` only for `legacy_inferred` |
 | **Structure backfill** (historical) | Optional `StructureSpec` in `tournament_structure/registry.py` | Import hook `apply_structure_spec()` |
 
@@ -324,12 +324,12 @@ planned  →  implemented  →  (optional) deprecated
 
 - **`planned`:** seeded in DB; no builder, no standings branch, no tournaments may reference except tests.
 - **`implemented`:** builder and/or import structure path exists; `verify-tournament-formats` counts it as active.
-- Tournaments always store `format_template_id` + optional `format_overrides` JSON for event-specific facts (evidence URL, round count, etc.). **Scoring contract authority (in discussion, Session A locked):** templates = presets only; explicit scoring ground on every `tournaments` + `tournament_stages` row; simul DB-only — [`amiga-format-scoring-contract-design-discussion.md`](amiga-format-scoring-contract-design-discussion.md) §2.2–§2.3. **Module identity (D7 locked):** `stage_id` canonical; `amiga_games.phase` witness preserved — same doc §2.4.
+- Tournaments always store `format_template_id` + optional `format_overrides` JSON for event-specific facts (evidence URL, round count, etc.). **Scoring contract authority:** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md) — templates = presets only; explicit relational L4b on every `tournaments` + `tournament_stages` row; simul DB-only. **Module identity:** `stage_id` canonical; `amiga_games.phase` witness preserved.
 
 ### Seeded templates (Jun 2026)
 
-| Slug | Status | Stage factory | Standings resolver |
-|------|--------|---------------|-------------------|
+| Slug | Status | Stage factory | Standings routing (bridge / target) |
+|------|--------|---------------|-------------------------------------|
 | `legacy_inferred` | implemented | — (import only) | `parse_phase()` |
 | `kitchen_marathon` | implemented | `create_kitchen_marathon_tournament` | fixture `league` / overall |
 | `group_knockout` | implemented | `create_group_knockout_tournament` + structure backfill | fixture `group` + `knockout` |
@@ -341,7 +341,7 @@ planned  →  implemented  →  (optional) deprecated
 
 1. Add `FORMAT_TEMPLATES` row with `spec_json` (start with `status: "planned"` if not ready).
 2. Implement **stage factory** and wire `tournament_builder` CLI.
-3. Add **standings resolver** branch (Python + PHP if live ops).
+3. Wire **stage scoring contract** copy-on-create + executor (Python + PHP) — [`amiga-format-scoring-contract-implementation-plan.md`](amiga-format-scoring-contract-implementation-plan.md).
 4. Add tests + `verify-tournament-formats`.
 5. For historical events: `StructureSpec` + registry — not ad-hoc import code.
 
@@ -351,7 +351,7 @@ planned  →  implemented  →  (optional) deprecated
 
 ## 10. Open product questions
 
-**Active design track (Jul 2026):** L4 topology vs scoring contract vs L5 standings projection — decision register and session plan: [`amiga-format-scoring-contract-design-discussion.md`](amiga-format-scoring-contract-design-discussion.md).
+**Scoring contract (Jul 2026):** Policy locked — [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md). Design history: [`amiga-format-scoring-contract-design-discussion.md`](amiga-format-scoring-contract-design-discussion.md). **Open:** promotion graph storage (**D18**).
 
 1. Backfill all 603 events or only `legacy_inferred` + curated majors?
 2. Is bracket **advancement graph** required, or phase-grouped columns enough for v2?

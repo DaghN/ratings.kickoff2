@@ -4,7 +4,7 @@
 
 **Status:** **Policy locked (Jul 2026, rev. 2)** — two-universe split: **Running** vs **Official**. RTB-1–RTB-9 shipped Jul 2026 (organizer **Finish and make official** = promote + finalize + lifecycle `completed`).
 
-**Parent:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (Lane B) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (L3–L5) · [`amiga-data-contract.md`](amiga-data-contract.md)
+**Parent:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (Lane B) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (L3–L5) · [`amiga-data-contract.md`](amiga-data-contract.md) · **Scoring contract:** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md) (RTB14)
 
 **Related:** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (fixture = one match) · [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (permanent `amiga_players` at create) · [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) (Make official writers)
 
@@ -100,6 +100,7 @@ Broadcast / organizer reads ──►           Public ladder reads ──►
 | **RTB11** | **Import/prove unchanged** | Lane A historical path still materializes fixtures from existing `amiga_games`. RTB applies to **Lane B live ops** only. |
 | **RTB12** | **Python/PHP parity** | Record-result and organizer finish must match between `fixtures.php` and `scripts/amiga/tournament_fixtures.py` / `finalize_tournament.py`. |
 | **RTB13** | **One organizer finish action** | Browser happy path = single **Finish and make official** control. On success, atomically: **promote** → **finalize** derive → `rating_finalized = 1` → `lifecycle_status = completed` + `completed_at`. No separate **Mark complete** step. |
+| **RTB14** | **Scoring contract parity** | Broadcast (fixtures) and official (`amiga_games`) use the **same stage scoring contracts + standings executor** ([`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md) SC14). Broadcast **does not persist L5**; live hub league + KO in scope. |
 
 ---
 
@@ -220,7 +221,7 @@ Finalize **must not** read running fixture score columns after promote — it re
 
 ## 7. Broadcast (running reads)
 
-Broadcast paths **read the running package only** and may **compute** standings/bracket in PHP or JS for display.
+Broadcast paths **read the running package only** and may **compute** standings/bracket in PHP or JS for display. **Target (SC14):** same relational stage scoring contracts + executor as official path — no separate “live scoring profile.”
 
 | Surface | Today (wrong) | Target |
 |---------|---------------|--------|

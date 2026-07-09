@@ -5,7 +5,7 @@
 **Status:** **Implemented** Jun 2026 (slices 0–7; migration `020` on existing DBs).  
 **Purpose:** Unify the points-table standings primitive so NULL-phase and labeled-phase round-robin tables are the same `scope_type`, not accidental KOATD import splits.
 
-**Authority:** This doc owns **standings scope taxonomy** and **primary league standings resolution** for honours. Event finish tiers: [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md). Table grain and participation: [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5. Phase derivation rules: [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings.
+**Authority:** This doc owns **standings scope taxonomy** and **primary league standings resolution** for honours. **Scoring contract / executor:** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md) (`scope_type` ≠ scoring primitive). Event finish tiers: [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md). Table grain and participation: [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5. Phase derivation rules: [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings.
 
 **Implementation:** [`amiga-standings-scope-implementation-plan.md`](amiga-standings-scope-implementation-plan.md) · starter: [`archive/orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md`](archive/orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md)
 
@@ -27,6 +27,9 @@
 | **S8** | **URL compatibility** | Accept legacy `?scope=overall` and `?scope=group&scope_key=…`; redirect or map to `league` + key. |
 | **S9** | **Catalog stats column** | Rename `amiga_tournament_catalog_stats.group_scopes` → **`league_scopes`** (count of distinct `league` scope keys per tournament). |
 | **S10** | **Vocabulary** | Do not use “overall” for standings scope in new code or docs. Online ladder-honours “overall” cup tab is a **different realm** — unrelated. |
+| **S11** | **`scope_type` ≠ scoring primitive** | `league` / `knockout` = L5 **storage shape** only. Executor math primitives = `league_table` / `knockout_tie` on stage contract — [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md) §4. |
+| **S12** | **`stage_id` target on L5** | Canonical module key = `tournament_stages.id` on standings rows. `scope_type` / `scope_key` → witness/URL compat (same arc as `amiga_games.phase`). |
+| **S13** | **Synthetic `league`+`''` ≠ Event stats** | S6 aggregate is for standings/honours display — not event rollup ([`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md) SC12). |
 
 ---
 

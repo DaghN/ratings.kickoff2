@@ -1,6 +1,6 @@
 # Amiga format scoring contract — design discussion plan (Jul 2026)
 
-**Status:** **In discussion** — Session D **complete** (D15, D17 locked). Design register: **D3** deferred, **D18** open (promotion). Promote to policy docs when ready.  
+**Status:** **Promoted to policy (Jul 2026)** — sessions A–D complete. **Authority:** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md). This file = design history + decision IDs.  
 **Purpose:** Working reference for a dedicated design chat that resolves intent about **L4 structure vs L5 standings**, **scoring contracts**, and **where format ground truth lives** — before policy updates and code.
 
 **Authority when implemented:** Will supersede or amend scattered rules in [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md), [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md), [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings, and [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) §9 — only after decisions here are locked.
@@ -472,7 +472,7 @@ Take **one tier per discussion block** where possible. Record outcomes inline un
 
 **Status:** **Complete (2026-07-10)** — D15, D17 locked (§2.12–§2.13). **Design register complete** for sessions A–D (D3 deferred, D18 promotion track open).
 
-**After all sessions:** Promote locked decisions into policy docs + implementation plan slice(s).
+**Promoted (2026-07-10):** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md) · [`amiga-format-scoring-contract-implementation-plan.md`](amiga-format-scoring-contract-implementation-plan.md).
 
 ---
 
