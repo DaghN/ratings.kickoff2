@@ -580,6 +580,11 @@ def main(argv: list[str] | None = None) -> int:
     p_sync_flags.add_argument("--all-registry-rows", action="store_true")
 
     sub.add_parser(
+        "verify-scoring-contract",
+        help="Structural oracle for L4b stage scoring contracts",
+    )
+
+    sub.add_parser(
         "verify-tournament-formats",
         help="Assert imported tournaments with games have league/cup format flags",
     )
@@ -978,6 +983,11 @@ def main(argv: list[str] | None = None) -> int:
         from scripts.amiga.verify_player_create import main as verify_player_create_main
 
         return verify_player_create_main()
+
+    if args.cmd == "verify-scoring-contract":
+        from scripts.amiga.verify_scoring_contract import main as verify_scoring_contract_main
+
+        return verify_scoring_contract_main()
 
     if args.cmd == "verify-running-tournament-boundary":
         from scripts.amiga.verify_running_tournament_boundary import main as verify_running_tournament_boundary_main

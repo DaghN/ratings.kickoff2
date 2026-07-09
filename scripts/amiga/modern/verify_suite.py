@@ -10,6 +10,7 @@ from scripts.amiga.verify_chronology import main as verify_chronology_main
 from scripts.amiga.verify_country_registry import main as verify_country_registry_main
 from scripts.amiga.verify_is_world_cup import main as verify_is_world_cup_main
 from scripts.amiga.verify_player_create import main as verify_player_create_main
+from scripts.amiga.verify_scoring_contract import main as verify_scoring_contract_main
 from scripts.amiga.verify_running_tournament_boundary import main as verify_running_tournament_boundary_main
 from scripts.amiga.verify_player_matchups import main as verify_player_matchups_main
 from scripts.amiga.verify_player_participation import main as verify_player_participation_main
@@ -54,6 +55,7 @@ MODERN_VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
     ("verify-country-registry", verify_country_registry_main),
     ("verify-player-create", verify_player_create_main),
     ("verify-running-tournament-boundary", verify_running_tournament_boundary_main),
+    ("verify-scoring-contract", verify_scoring_contract_main),
     ("verify-tournament-formats", verify_tournament_formats_work_main),
 ]
 

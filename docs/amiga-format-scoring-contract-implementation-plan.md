@@ -1,6 +1,6 @@
 # Amiga format scoring contract — implementation plan (agent slices)
 
-**Status:** **SC-1 shipped (Jul 2026)** — `platform_default_v1` in `scoring_contract.py` + copy-on-create on `create_stage` / PHP fixtures create.
+**Status:** **SC-2 shipped (Jul 2026)** — contract reader + `verify-scoring-contract` in modern verify suite.
 
 **Policy (locked):** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md)
 
@@ -91,6 +91,29 @@ New stages/tournaments get explicit relational contract rows from repo preset �
 - [x] `standings-parity --sweep` **FAIL=0**
 
 **Not in SC-1:** legacy catalog backfill (SC-6), executor reads (SC-3), structural verify CLI (SC-2).
+
+---
+
+## SC-2 — contract reader + structural verify (shipped Jul 2026)
+
+### Goal
+
+Load L4b contracts from DB; fail on malformed rows (D14 structural verify).
+
+### Delivered
+
+- [x] `StageScoringContract` + `load_stage_scoring_contract()` / `load_stage_scoring_steps()` in `scoring_contract.py`
+- [x] `validate_stage_scoring_contract()` — schema version, primitive/stage_type, points, step enum, non-empty chain
+- [x] `verify_scoring_contract.py` + CLI `verify-scoring-contract`
+- [x] Wired into `modern/verify_suite.py` (simul)
+- [x] Unit tests extended in `test_scoring_contract.py`
+
+### Verification
+
+- [x] `python -m scripts.amiga verify-scoring-contract` OK on `ko2amiga_work` (0 explicit contracts or all valid)
+- [x] Unit tests pass
+
+**Bridge:** verify only stages with `scoring_primitive IS NOT NULL` — legacy NULL rows ignored until SC-6.
 
 ---
 
