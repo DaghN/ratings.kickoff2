@@ -192,7 +192,7 @@ Pages read through **Amiga PHP helpers** in `site/public_html/includes/amiga_*.p
 | `tournaments` | Ground | Import / submission | Active |
 | `tournament_entrants` | Ground | Future live tournament ops / fixture tooling | Active |
 | `tournament_stages` | Ground | Live + legacy module atoms (`round_robin` \| `knockout`); **L4b scoring contract** cols (`scoring_*`, `frozen_scoring_*`) — runtime authority per stage | Active |
-| `tournament_stage_scoring_steps` | Ground | Ordered tie-break / KO resolution steps per stage (`sequence_no` + v1 `step` enum). DDL `sql/structure/011_tournament_scoring_contract.sql` | Active (SC-0; rows empty until SC-1/SC-6) |
+| `tournament_stage_scoring_steps` | Ground | Ordered tie-break / KO resolution steps per stage (`sequence_no` + v1 `step` enum). DDL `sql/structure/011_tournament_scoring_contract.sql` | Active (SC-0 DDL; rows from SC-1 copy-on-create on new stages) |
 | `tournament_stage_players` | Ground | Stage rosters (live ops) | Active |
 | `tournament_fixtures` | Ground | One match per row (live schedule or legacy materialize); `stage_id` → module; **running scores** `goals_a`/`goals_b`/`extra`/`result_recorded_at` until Make official (DDL `sql/structure/006_tournament_fixtures.sql` via `prove`) | Active |
 | `amiga_players` | Ground | Import / browser organizer create / `players create` CLI (`player_source`: `import` \| `live_ops`) | Active |

@@ -99,7 +99,7 @@
 
 **Today:** 3-1-0 + GD/GF/games and KO aggregate GD/GF + `extra` text parse are **hardcoded** in `tournament_standings.py` / `amiga_post_game_standings.php`. Explicit relational contracts **not yet shipped**.
 
-**Bridge:** `platform_default_v1` resolver copies preset into DB on backfill; retire hardcoding after contract rows + executor refactor + verify green on **`ko2amiga_work`** simul.
+**Bridge:** `platform_default_v1` copies into DB on **stage/tournament create** (SC-1). Legacy catalog rows still NULL until SC-6. Executor still hardcoded until SC-3+.
 
 ---
 

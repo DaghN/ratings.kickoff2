@@ -14,6 +14,7 @@ from pymysql.cursors import DictCursor
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.player_registry import check_player_name, create_player, suggest_player_name
 from scripts.amiga.player_orphans import delete_orphan_live_players_for_tournament
+from scripts.amiga.scoring_contract import ensure_stage_scoring_contract
 
 VALID_STAGE_TYPES = {"round_robin", "knockout"}
 VALID_FIXTURE_STATUSES = {"scheduled", "played", "void"}
@@ -401,7 +402,10 @@ def create_stage(
             "SELECT id FROM tournament_stages WHERE tournament_id = %s AND stage_key = %s",
             (tournament_id, stage_key),
         )
-        return int(cur.fetchone()["id"])
+        stage_id = int(cur.fetchone()["id"])
+
+    ensure_stage_scoring_contract(conn, stage_id, stage_type=stage_type)
+    return stage_id
 
 
 def add_tournament_entrant(

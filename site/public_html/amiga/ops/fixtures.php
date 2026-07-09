@@ -13,6 +13,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_country_registry.ph
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_player_naming.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_running_tournament_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_scoring_contract.php';
 require_once __DIR__ . '/modules/process_completed_game.php';
 require_once __DIR__ . '/modules/finalize_tournament.php';
 require_once __DIR__ . '/includes/amiga_promote_running_tournament.php';
@@ -2319,6 +2320,7 @@ function amiga_fixture_create_kitchen_tournament(
         }
         $tournamentId = (int) $stmt->insert_id;
         $stmt->close();
+        amiga_scoring_contract_ensure_tournament_defaults($con, $tournamentId);
 
         $entrantStatus = 'registered';
         $stmt = $con->prepare(
@@ -2363,6 +2365,7 @@ function amiga_fixture_create_kitchen_tournament(
         }
         $stageId = (int) $stmt->insert_id;
         $stmt->close();
+        amiga_scoring_contract_ensure_stage($con, $stageId, $stageType);
 
         $stmt = $con->prepare(
             'INSERT INTO tournament_stage_players (stage_id, player_id, seed_no, group_key) VALUES (?, ?, ?, NULL)'

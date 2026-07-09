@@ -1,6 +1,6 @@
 # Amiga format scoring contract — implementation plan (agent slices)
 
-**Status:** **SC-0 shipped (Jul 2026)** — L4b DDL `011_tournament_scoring_contract.sql`; executor still on hardcoded bridge until SC-3+.
+**Status:** **SC-1 shipped (Jul 2026)** — `platform_default_v1` in `scoring_contract.py` + copy-on-create on `create_stage` / PHP fixtures create.
 
 **Policy (locked):** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md)
 
@@ -69,6 +69,28 @@ Persistent relational home for scoring contracts per policy SC3–SC6.
 - [x] `apply_schema_structure` on `ko2amiga_work` clean (idempotent ALTER)
 - [x] `standings-parity --sweep` **FAIL=0** (681 PASS, 29 EXCEPTION, 112 SKIP)
 - [ ] `verify-export-pack structure` — passes after next `export-pack structure` (manifest lists new table)
+
+---
+
+## SC-1 — platform_default_v1 + copy-on-create (shipped Jul 2026)
+
+### Goal
+
+New stages/tournaments get explicit relational contract rows from repo preset — no executor change yet.
+
+### Delivered
+
+- [x] `scripts/amiga/scoring_contract.py` — `platform_default_v1` chains + `ensure_*` helpers
+- [x] Hook: `tournament_fixtures.create_stage()` → `ensure_stage_scoring_contract`
+- [x] PHP: `includes/amiga_scoring_contract.php` + `fixtures.php` league create path
+- [x] Unit tests: `scripts/amiga/test_scoring_contract.py`
+
+### Verification
+
+- [x] Kitchen marathon smoke on `ko2amiga_work` — tournament defaults 3/1/0, stage `league_table` + 4 steps
+- [x] `standings-parity --sweep` **FAIL=0**
+
+**Not in SC-1:** legacy catalog backfill (SC-6), executor reads (SC-3), structural verify CLI (SC-2).
 
 ---
 
