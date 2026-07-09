@@ -8,10 +8,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_tournament_phases.php';
 require_once dirname(__DIR__, 3) . '/includes/amiga_tournament_lib.php';
-
-const AMIGA_STANDINGS_WIN_POINTS = 3;
-const AMIGA_STANDINGS_DRAW_POINTS = 1;
-const AMIGA_STANDINGS_LOSS_POINTS = 0;
+require_once dirname(__DIR__, 3) . '/includes/amiga_scoring_contract.php';
 
 /**
  * @return array{wins: int, draws: int, losses: int}
@@ -42,7 +39,7 @@ function amiga_ops_standings_load_tournament_games(mysqli $con, int $tournamentI
     $sql = 'SELECT g.id, g.tournament_id, g.player_a_id, g.player_b_id, '
         . 'g.goals_a, g.goals_b, g.phase, g.extra, g.source_scores_id, g.fixture_id, '
         . 'f.phase_label AS fixture_phase_label, '
-        . 's.stage_key, s.name AS stage_name, s.stage_type, s.track_key '
+        . 's.id AS stage_id, s.stage_key, s.name AS stage_name, s.stage_type, s.track_key '
         . 'FROM amiga_games g '
         . 'LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id '
         . 'LEFT JOIN tournament_stages s ON s.id = f.stage_id '
@@ -77,7 +74,7 @@ function amiga_ops_standings_load_rated_tournament_games(mysqli $con, int $tourn
     $sql = 'SELECT g.id, g.tournament_id, g.player_a_id, g.player_b_id, '
         . 'g.goals_a, g.goals_b, g.phase, g.extra, g.source_scores_id, g.fixture_id, '
         . 'f.phase_label AS fixture_phase_label, '
-        . 's.stage_key, s.name AS stage_name, s.stage_type, s.track_key '
+        . 's.id AS stage_id, s.stage_key, s.name AS stage_name, s.stage_type, s.track_key '
         . 'FROM amiga_games g '
         . 'INNER JOIN amiga_game_ratings r ON r.game_id = g.id '
         . 'LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id '
@@ -166,20 +163,42 @@ function amiga_ops_fixture_standings_scope(array $game, int $playerAId, int $pla
 }
 
 /**
- * @param array<int, array{games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int}> $table
+ * @param array<int, array{games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int, win_points?: int, draw_points?: int, loss_points?: int}> $table
+ * @param array<string, mixed> $contract
  */
 function amiga_ops_standings_apply_game_to_table(
     array &$table,
     int $playerAId,
     int $playerBId,
     int $goalsA,
-    int $goalsB
+    int $goalsB,
+    array $contract
 ): void {
     if (!isset($table[$playerAId])) {
-        $table[$playerAId] = ['games' => 0, 'wins' => 0, 'draws' => 0, 'losses' => 0, 'goals_for' => 0, 'goals_against' => 0];
+        $table[$playerAId] = [
+            'games' => 0,
+            'wins' => 0,
+            'draws' => 0,
+            'losses' => 0,
+            'goals_for' => 0,
+            'goals_against' => 0,
+            'win_points' => (int) $contract['win_points'],
+            'draw_points' => (int) $contract['draw_points'],
+            'loss_points' => (int) $contract['loss_points'],
+        ];
     }
     if (!isset($table[$playerBId])) {
-        $table[$playerBId] = ['games' => 0, 'wins' => 0, 'draws' => 0, 'losses' => 0, 'goals_for' => 0, 'goals_against' => 0];
+        $table[$playerBId] = [
+            'games' => 0,
+            'wins' => 0,
+            'draws' => 0,
+            'losses' => 0,
+            'goals_for' => 0,
+            'goals_against' => 0,
+            'win_points' => (int) $contract['win_points'],
+            'draw_points' => (int) $contract['draw_points'],
+            'loss_points' => (int) $contract['loss_points'],
+        ];
     }
 
     $da = amiga_ops_standings_regulation_delta($goalsA, $goalsB, true);
@@ -200,32 +219,51 @@ function amiga_ops_standings_apply_game_to_table(
 }
 
 /**
- * @param array<int, array{games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int}> $table
+ * @param array<string, mixed> $scopeContracts
+ * @param array<string, mixed> $contract
+ */
+function amiga_ops_standings_record_scope_contract(array &$scopeContracts, string $scopeKey, array $contract): void
+{
+    if (!isset($scopeContracts[$scopeKey])) {
+        $scopeContracts[$scopeKey] = $contract;
+
+        return;
+    }
+    $existing = $scopeContracts[$scopeKey];
+    if (
+        ($existing['primitive'] ?? '') !== ($contract['primitive'] ?? '')
+        || ($existing['steps'] ?? []) !== ($contract['steps'] ?? [])
+        || (int) ($existing['win_points'] ?? 0) !== (int) ($contract['win_points'] ?? 0)
+    ) {
+        error_log(
+            'amiga_ops_compute_tournament_standings: mixed scoring contracts for scope '
+            . $scopeKey
+        );
+    }
+}
+
+/**
+ * @param array<int, array{games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int, win_points?: int, draw_points?: int}> $table
+ * @param array<string, mixed> $contract
  * @return list<array{player_id: int, position: int, games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int, points: int}>
  */
-function amiga_ops_standings_assign_positions(array $table): array
+function amiga_ops_standings_assign_positions(array $table, array $contract): array
 {
     $items = [];
     foreach ($table as $pid => $st) {
-        $points = $st['wins'] * AMIGA_STANDINGS_WIN_POINTS + $st['draws'] * AMIGA_STANDINGS_DRAW_POINTS;
         $items[] = [
             'player_id' => (int) $pid,
-            'games' => $st['games'],
-            'wins' => $st['wins'],
-            'draws' => $st['draws'],
-            'losses' => $st['losses'],
-            'goals_for' => $st['goals_for'],
-            'goals_against' => $st['goals_against'],
-            'points' => $points,
-            'gd' => $st['goals_for'] - $st['goals_against'],
+            'standing' => $st,
+            'sort_key' => amiga_scoring_league_sort_key($st, $contract),
+            'tie_key' => amiga_scoring_league_position_tie_key($st, $contract),
+            'points' => amiga_scoring_standing_points($st, $contract),
         ];
     }
 
     usort(
         $items,
         static function (array $a, array $b): int {
-            return [$b['points'], $b['gd'], $b['goals_for'], $b['games']]
-                <=> [$a['points'], $a['gd'], $a['goals_for'], $a['games']];
+            return $a['sort_key'] <=> $b['sort_key'];
         }
     );
 
@@ -233,20 +271,21 @@ function amiga_ops_standings_assign_positions(array $table): array
     $pos = 0;
     $prevKey = null;
     foreach ($items as $rankIdx => $row) {
-        $key = [$row['points'], $row['gd'], $row['goals_for']];
+        $key = $row['tie_key'];
         if ($key !== $prevKey) {
             $pos = $rankIdx + 1;
             $prevKey = $key;
         }
+        $st = $row['standing'];
         $out[] = [
             'player_id' => $row['player_id'],
             'position' => $pos,
-            'games' => $row['games'],
-            'wins' => $row['wins'],
-            'draws' => $row['draws'],
-            'losses' => $row['losses'],
-            'goals_for' => $row['goals_for'],
-            'goals_against' => $row['goals_against'],
+            'games' => $st['games'],
+            'wins' => $st['wins'],
+            'draws' => $st['draws'],
+            'losses' => $st['losses'],
+            'goals_for' => $st['goals_for'],
+            'goals_against' => $st['goals_against'],
             'points' => $row['points'],
         ];
     }
@@ -255,14 +294,15 @@ function amiga_ops_standings_assign_positions(array $table): array
 }
 
 /**
- * @param array<int, array{games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int}> $table
+ * @param array<int, array{games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int, win_points?: int, draw_points?: int}> $table
  * @param list<array<string, mixed>> $games
+ * @param array<string, mixed> $contract
  * @return list<array{player_id: int, position: int, games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int, points: int}>
  */
-function amiga_ops_standings_knockout_positions(array $table, array $games): array
+function amiga_ops_standings_knockout_positions(array $table, array $games, array $contract): array
 {
     if (count($table) !== 2) {
-        return amiga_ops_standings_assign_positions($table);
+        return amiga_ops_standings_assign_positions($table, $contract);
     }
 
     $ids = array_keys($table);
@@ -274,52 +314,82 @@ function amiga_ops_standings_knockout_positions(array $table, array $games): arr
     $gd1 = $s1['goals_for'] - $s1['goals_against'];
     $gd2 = $s2['goals_for'] - $s2['goals_against'];
 
-    $winnerId = null;
-    if ($gd1 > $gd2) {
-        $winnerId = $id1;
-    } elseif ($gd2 > $gd1) {
-        $winnerId = $id2;
-    } elseif ($s1['goals_for'] > $s2['goals_for']) {
-        $winnerId = $id1;
-    } elseif ($s2['goals_for'] > $s1['goals_for']) {
-        $winnerId = $id2;
-    } else {
-        foreach ($games as $g) {
-            $extra = isset($g['extra']) ? (string) $g['extra'] : '';
-            if (trim($extra) === '') {
-                continue;
+    foreach ($contract['steps'] as $step) {
+        if ($step === 'aggregate_goal_difference') {
+            if ($gd1 > $gd2) {
+                return [
+                    amiga_ops_standings_row_with_position($id1, $s1, 1, $contract),
+                    amiga_ops_standings_row_with_position($id2, $s2, 2, $contract),
+                ];
             }
-            $wid = amiga_parse_standings_winner(
-                (int) $g['goals_a'],
-                (int) $g['goals_b'],
-                $extra,
-                (int) $g['player_a_id'],
-                (int) $g['player_b_id']
-            );
-            if ($wid !== null) {
-                $winnerId = $wid;
-                break;
+            if ($gd2 > $gd1) {
+                return [
+                    amiga_ops_standings_row_with_position($id2, $s2, 1, $contract),
+                    amiga_ops_standings_row_with_position($id1, $s1, 2, $contract),
+                ];
+            }
+        } elseif ($step === 'goals_for') {
+            if ($s1['goals_for'] > $s2['goals_for']) {
+                return [
+                    amiga_ops_standings_row_with_position($id1, $s1, 1, $contract),
+                    amiga_ops_standings_row_with_position($id2, $s2, 2, $contract),
+                ];
+            }
+            if ($s2['goals_for'] > $s1['goals_for']) {
+                return [
+                    amiga_ops_standings_row_with_position($id2, $s2, 1, $contract),
+                    amiga_ops_standings_row_with_position($id1, $s1, 2, $contract),
+                ];
+            }
+        } elseif (in_array($step, ['extra_time', 'penalty_shootout', 'golden_goal'], true)) {
+            foreach ($games as $g) {
+                $extra = isset($g['extra']) ? (string) $g['extra'] : '';
+                if (trim($extra) === '') {
+                    continue;
+                }
+                $wid = amiga_parse_standings_winner(
+                    (int) $g['goals_a'],
+                    (int) $g['goals_b'],
+                    $extra,
+                    (int) $g['player_a_id'],
+                    (int) $g['player_b_id']
+                );
+                if ($wid !== null) {
+                    $loserId = $wid === $id1 ? $id2 : $id1;
+
+                    return [
+                        amiga_ops_standings_row_with_position($wid, $table[$wid], 1, $contract),
+                        amiga_ops_standings_row_with_position($loserId, $table[$loserId], 2, $contract),
+                    ];
+                }
+            }
+        } elseif ($step === 'points') {
+            $p1 = amiga_scoring_standing_points($s1, $contract);
+            $p2 = amiga_scoring_standing_points($s2, $contract);
+            if ($p1 > $p2) {
+                return [
+                    amiga_ops_standings_row_with_position($id1, $s1, 1, $contract),
+                    amiga_ops_standings_row_with_position($id2, $s2, 2, $contract),
+                ];
+            }
+            if ($p2 > $p1) {
+                return [
+                    amiga_ops_standings_row_with_position($id2, $s2, 1, $contract),
+                    amiga_ops_standings_row_with_position($id1, $s1, 2, $contract),
+                ];
             }
         }
     }
 
-    if ($winnerId === null) {
-        return amiga_ops_standings_assign_positions($table);
-    }
-
-    $loserId = $winnerId === $id1 ? $id2 : $id1;
-
-    return [
-        amiga_ops_standings_row_with_position($winnerId, $table[$winnerId], 1),
-        amiga_ops_standings_row_with_position($loserId, $table[$loserId], 2),
-    ];
+    return amiga_ops_standings_assign_positions($table, $contract);
 }
 
 /**
- * @param array{games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int} $st
+ * @param array{games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int, win_points?: int, draw_points?: int} $st
+ * @param array<string, mixed> $contract
  * @return array{player_id: int, position: int, games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int, points: int}
  */
-function amiga_ops_standings_row_with_position(int $playerId, array $st, int $position): array
+function amiga_ops_standings_row_with_position(int $playerId, array $st, int $position, array $contract): array
 {
     return [
         'player_id' => $playerId,
@@ -330,23 +400,33 @@ function amiga_ops_standings_row_with_position(int $playerId, array $st, int $po
         'losses' => $st['losses'],
         'goals_for' => $st['goals_for'],
         'goals_against' => $st['goals_against'],
-        'points' => $st['wins'] * AMIGA_STANDINGS_WIN_POINTS + $st['draws'] * AMIGA_STANDINGS_DRAW_POINTS,
+        'points' => amiga_scoring_standing_points($st, $contract),
     ];
 }
 
 /**
  * @param list<array<string, mixed>> $games
+ * @param array{
+ *   default_league: array<string, mixed>,
+ *   default_knockout: array<string, mixed>,
+ *   by_stage_id: array<int, array<string, mixed>>
+ * }|null $scoringContext
  * @return list<array<string, mixed>>
  */
-function amiga_ops_compute_tournament_standings(array $games): array
+function amiga_ops_compute_tournament_standings(array $games, ?array $scoringContext = null): array
 {
     if ($games === []) {
         return [];
     }
 
-    /** @var array<string, array<int, array{games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int}>> $scopes */
+    $tournamentId = (int) $games[0]['tournament_id'];
+    $context = $scoringContext ?? amiga_scoring_default_context($tournamentId);
+
+    /** @var array<string, array<int, array{games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int, win_points?: int, draw_points?: int, loss_points?: int}>> $scopes */
     $scopes = [];
-    /** @var array<string, array<int, array{games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int}>> $knockoutScopes */
+    /** @var array<string, array<string, mixed>> $scopeContracts */
+    $scopeContracts = [];
+    /** @var array<string, array<int, array{games: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int, win_points?: int, draw_points?: int, loss_points?: int}>> $knockoutScopes */
     $knockoutScopes = [];
     /** @var array<string, list<array<string, mixed>>> $knockoutGames */
     $knockoutGames = [];
@@ -369,7 +449,13 @@ function amiga_ops_compute_tournament_standings(array $games): array
         $fixtureScope = amiga_ops_fixture_standings_scope($g, $playerAId, $playerBId);
         if ($fixtureScope !== null) {
             $hasStructured = true;
+            $contract = amiga_scoring_context_contract_for_game(
+                $context,
+                $g,
+                (bool) $fixtureScope['elimination']
+            );
             $scopeKey = $fixtureScope['scope_type'] . "\0" . $fixtureScope['scope_key'];
+            amiga_ops_standings_record_scope_contract($scopeContracts, $scopeKey, $contract);
             if ($fixtureScope['elimination']) {
                 if (!isset($knockoutScopes[$scopeKey])) {
                     $knockoutScopes[$scopeKey] = [];
@@ -378,12 +464,26 @@ function amiga_ops_compute_tournament_standings(array $games): array
                     $knockoutGames[$scopeKey] = [];
                 }
                 $knockoutGames[$scopeKey][] = $g;
-                amiga_ops_standings_apply_game_to_table($knockoutScopes[$scopeKey], $playerAId, $playerBId, $goalsA, $goalsB);
+                amiga_ops_standings_apply_game_to_table(
+                    $knockoutScopes[$scopeKey],
+                    $playerAId,
+                    $playerBId,
+                    $goalsA,
+                    $goalsB,
+                    $contract
+                );
             } else {
                 if (!isset($scopes[$scopeKey])) {
                     $scopes[$scopeKey] = [];
                 }
-                amiga_ops_standings_apply_game_to_table($scopes[$scopeKey], $playerAId, $playerBId, $goalsA, $goalsB);
+                amiga_ops_standings_apply_game_to_table(
+                    $scopes[$scopeKey],
+                    $playerAId,
+                    $playerBId,
+                    $goalsA,
+                    $goalsB,
+                    $contract
+                );
             }
             continue;
         }
@@ -392,6 +492,8 @@ function amiga_ops_compute_tournament_standings(array $games): array
             $phaseStr = amiga_ops_normalize_whitespace((string) $phase);
             $pairKey = amiga_ops_knockout_pair_scope_key($phaseStr, $playerAId, $playerBId);
             $scopeKey = AMIGA_SCOPE_TYPE_KNOCKOUT . "\0" . $pairKey;
+            $contract = $context['default_knockout'];
+            amiga_ops_standings_record_scope_contract($scopeContracts, $scopeKey, $contract);
             if (!isset($knockoutScopes[$scopeKey])) {
                 $knockoutScopes[$scopeKey] = [];
             }
@@ -399,7 +501,14 @@ function amiga_ops_compute_tournament_standings(array $games): array
                 $knockoutGames[$scopeKey] = [];
             }
             $knockoutGames[$scopeKey][] = $g;
-            amiga_ops_standings_apply_game_to_table($knockoutScopes[$scopeKey], $playerAId, $playerBId, $goalsA, $goalsB);
+            amiga_ops_standings_apply_game_to_table(
+                $knockoutScopes[$scopeKey],
+                $playerAId,
+                $playerBId,
+                $goalsA,
+                $goalsB,
+                $contract
+            );
             continue;
         }
 
@@ -408,10 +517,19 @@ function amiga_ops_compute_tournament_standings(array $games): array
             continue;
         }
         $scopeKey = $scope['scope_type'] . "\0" . $scope['scope_key'];
+        $contract = $context['default_league'];
+        amiga_ops_standings_record_scope_contract($scopeContracts, $scopeKey, $contract);
         if (!isset($scopes[$scopeKey])) {
             $scopes[$scopeKey] = [];
         }
-        amiga_ops_standings_apply_game_to_table($scopes[$scopeKey], $playerAId, $playerBId, $goalsA, $goalsB);
+        amiga_ops_standings_apply_game_to_table(
+            $scopes[$scopeKey],
+            $playerAId,
+            $playerBId,
+            $goalsA,
+            $goalsB,
+            $contract
+        );
     }
 
     if ($hasNullPhase && !$hasStructured) {
@@ -421,6 +539,7 @@ function amiga_ops_compute_tournament_standings(array $games): array
             $filtered[$leagueKey] = $scopes[$leagueKey];
         }
         $scopes = $filtered;
+        $scopeContracts[$leagueKey] = $context['default_league'];
     } elseif ($hasNullPhase && $hasStructured) {
         $leagueAggregate = [];
         foreach ($scopes as $key => $table) {
@@ -433,7 +552,17 @@ function amiga_ops_compute_tournament_standings(array $games): array
             }
             foreach ($table as $pid => $st) {
                 if (!isset($leagueAggregate[$pid])) {
-                    $leagueAggregate[$pid] = ['games' => 0, 'wins' => 0, 'draws' => 0, 'losses' => 0, 'goals_for' => 0, 'goals_against' => 0];
+                    $leagueAggregate[$pid] = [
+                        'games' => 0,
+                        'wins' => 0,
+                        'draws' => 0,
+                        'losses' => 0,
+                        'goals_for' => 0,
+                        'goals_against' => 0,
+                        'win_points' => $st['win_points'] ?? AMIGA_SCORING_WIN_POINTS,
+                        'draw_points' => $st['draw_points'] ?? AMIGA_SCORING_DRAW_POINTS,
+                        'loss_points' => $st['loss_points'] ?? AMIGA_SCORING_LOSS_POINTS,
+                    ];
                 }
                 $leagueAggregate[$pid]['games'] += $st['games'];
                 $leagueAggregate[$pid]['wins'] += $st['wins'];
@@ -445,6 +574,7 @@ function amiga_ops_compute_tournament_standings(array $games): array
         }
         if ($leagueAggregate !== []) {
             $scopes[AMIGA_SCOPE_TYPE_LEAGUE . "\0"] = $leagueAggregate;
+            $scopeContracts[AMIGA_SCOPE_TYPE_LEAGUE . "\0"] = $context['default_league'];
         }
     }
 
@@ -452,7 +582,6 @@ function amiga_ops_compute_tournament_standings(array $games): array
         $scopes[$key] = $table;
     }
 
-    $tournamentId = (int) $games[0]['tournament_id'];
     $rows = [];
     ksort($scopes);
     foreach ($scopes as $key => $table) {
@@ -460,10 +589,15 @@ function amiga_ops_compute_tournament_standings(array $games): array
             continue;
         }
         [$stype, $skey] = explode("\0", $key, 2);
+        $contract = $scopeContracts[$key] ?? (
+            $stype === AMIGA_SCOPE_TYPE_KNOCKOUT
+                ? $context['default_knockout']
+                : $context['default_league']
+        );
         if ($stype === AMIGA_SCOPE_TYPE_KNOCKOUT) {
-            $ranked = amiga_ops_standings_knockout_positions($table, $knockoutGames[$key] ?? []);
+            $ranked = amiga_ops_standings_knockout_positions($table, $knockoutGames[$key] ?? [], $contract);
         } else {
-            $ranked = amiga_ops_standings_assign_positions($table);
+            $ranked = amiga_ops_standings_assign_positions($table, $contract);
         }
         foreach ($ranked as $r) {
             $rows[] = [
@@ -614,7 +748,8 @@ function amiga_ops_standings_apply_game(mysqli $con, array $game): void
     }
 
     $tournamentGames = amiga_ops_standings_load_tournament_games($con, $tournamentId);
-    $rows = amiga_ops_compute_tournament_standings($tournamentGames);
+    $scoringContext = amiga_scoring_load_context_for_tournament($con, $tournamentId);
+    $rows = amiga_ops_compute_tournament_standings($tournamentGames, $scoringContext);
     amiga_ops_standings_replace_tournament($con, $tournamentId, $rows);
     amiga_ops_catalog_stats_refresh_tournament($con, $tournamentId);
 }

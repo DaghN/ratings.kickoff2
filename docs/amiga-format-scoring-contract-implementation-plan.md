@@ -1,6 +1,6 @@
 # Amiga format scoring contract — implementation plan (agent slices)
 
-**Status:** **SC-3 shipped (Jul 2026)** — Python standings executor reads `ScoringContext` / stage contracts; PHP still hardcoded (SC-4).
+**Status:** **SC-4 shipped (Jul 2026)** — PHP standings executor reads `ScoringContext` / stage contracts (parity with SC-3 Python).
 
 **Policy (locked):** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md)
 
@@ -37,7 +37,7 @@ See policy **SC1–SC18** and §3 step enums / `platform_default_v1` chains.
 | **SC-1** | Repo seed `platform_default_v1` (relational); copy-on-create hooks at stage/tournament materialize | Matches policy §3 |
 | **SC-2** | Python contract reader + `verify-scoring-contract` (structural) | D14 verify intent |
 | **SC-3** | Python standings executor reads contracts (replace hardcoded 3-1-0 / KO chain) | `tournament_standings.py` |
-| **SC-4** | PHP contract reader + executor parity with SC-3 | `amiga_post_game_standings.php` |
+| **SC-4** | PHP contract reader + executor parity with SC-3 | `amiga_post_game_standings.php` · `amiga_scoring_contract.php` |
 | **SC-5** | PHP↔Python parity oracle CLI on shared fixtures + contracts | D17 |
 | **SC-6** | Catalog backfill: explicit contract rows on all tournaments/stages | Bridge retirement path |
 | **SC-7** | D6 finalize freeze writes frozen snapshot columns | `finalize_tournament.py` + PHP |
@@ -143,16 +143,28 @@ Load L4b contracts from DB; fail on malformed rows (D14 structural verify).
 
 ---
 
-## SC-4 / SC-5 — PHP executor + parity (sketch)
+## SC-4 — PHP executor reads contracts (shipped Jul 2026)
 
 ### Goal
 
-`compute_tournament_standings` / `amiga_ops_compute_tournament_standings` dispatch on DB contract, not constants.
+`amiga_ops_compute_tournament_standings` dispatches points + tie-break/KO chains from L4b contracts (parity with SC-3 Python).
+
+### Delivered
+
+- [x] `amiga_scoring_load_context_for_tournament()` + synthetic contracts + legacy KO bridge in `amiga_scoring_contract.php`
+- [x] `amiga_ops_compute_tournament_standings($games, $scoringContext)` — contract-driven league sort + KO resolution
+- [x] `amiga_ops_standings_apply_game()` loads context from DB
+- [x] Game SQL includes `stage_id` (post-game + RTB broadcast fixture adapter)
+- [x] `amiga_running_tournament_standings_rows()` loads DB contracts for live hub preview
 
 ### Verification
 
-- [ ] `standings-parity` Access sweep still 0 FAIL (engine may change only where contract matches old hardcode).
-- [ ] SC-5 PHP↔Python oracle green on sample + live-ops tournaments.
+- [x] `standings-parity --sweep` **FAIL=0** on `ko2amiga_work` (Python path unchanged; PHP parity oracle = SC-5)
+- [ ] SC-5 PHP↔Python oracle on shared fixtures + contracts
+
+---
+
+## SC-5 — PHP↔Python parity oracle (sketch)
 
 ---
 
