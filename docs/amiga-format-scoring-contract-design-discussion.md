@@ -1,6 +1,6 @@
 # Amiga format scoring contract — design discussion plan (Jul 2026)
 
-**Status:** **In discussion** — Session C in progress (**D10**, **D12** locked); D13–D14 open.  
+**Status:** **In discussion** — Session C in progress (**D10**, **D12**, **D13** locked); D14 open.  
 **Purpose:** Working reference for a dedicated design chat that resolves intent about **L4 structure vs L5 standings**, **scoring contracts**, and **where format ground truth lives** — before policy updates and code.
 
 **Authority when implemented:** Will supersede or amend scattered rules in [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md), [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md), [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings, and [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) §9 — only after decisions here are locked.
@@ -46,6 +46,7 @@ Record of agreed intent. Serialization shape (D13–D14) follows in Session C.
 | **D9** | Executor scoring primitives | **Locked** — see §2.7 |
 | **D10** | Phase parser fallback retirement | **Locked** — see §2.8 |
 | **D12** | `extra` / match extensions | **Locked** — see §2.9 |
+| **D13** | Scoring contract serialization | **Locked** — see §2.10 |
 | **D11** | Disposition register | **Locked** — git routing/materializer only; never scoring rules; not used at simul. |
 | **D16** | Export self-containment | **Locked (intent)** — staging dump includes explicit tournament + stage scoring ground; import site does not require git templates to rebuild standings. |
 
@@ -244,6 +245,20 @@ Post-retirement unlinked games = data corruption (verify/ops), not a separate D1
 
 **Out of this register (implementation slice):** column DDL, import backfill, ops entry, deterministic `knockout_tie` resolution chain over structured fields, step enums, golden goal, pre-structure fallback behaviour. League tables continue to use regulation goals unless a future format explicitly requests otherwise.
 
+### 2.10 Scoring contract serialization (D13 locked)
+
+**Canonical runtime ground = relational L4b** on `tournaments` + `tournament_stages` — typed columns and/or small normalized tables. **Not** JSON-canonical scoring contracts with a later port to DB.
+
+| ID | Rule |
+|----|------|
+| **D13a** | Relational L4b is **runtime authority** at simul. `tournament_format_templates.spec_json` and git presets remain **authoring/presets only** — copy into DB rows on create/backfill (same pattern as topology materialize). |
+| **D13b** | **Reject JSON-first** scoring ground with a planned migration to relational — implement relational shape in the scoring-contract slice. |
+| **D13c** | **Two grains:** tournament row (defaults + finalize snapshot) and stage row (runtime authority per module, D5). |
+| **D13d** | **Tie-break order** and similar ordered rule chains are **relational** (e.g. child rows per stage with sequence + step enum) — not an ordered JSON array inside a blob. Exact DDL = implementation slice + D14 step enum. |
+| **D13e** | **D6 freeze** = copy **relational contract fields** onto the tournament frozen snapshot (columns) at finalize — not freeze a JSON blob. |
+
+**Deferred (slice / D14):** exact column names, whether contract is columns-on-row vs `scoring_contract` + `tiebreak_step` tables, backfill from hardcoded 3-1-0, export-pack column list.
+
 ---
 
 ## 3. Vocabulary (working definitions)
@@ -363,7 +378,7 @@ Work through in order. Mark **Status:** `open` | `draft` | `locked` in chat; upd
 
 | ID | Decision | Question |
 |----|----------|----------|
-| **D13** | Serialization shape | JSON blocks vs normalized tables vs hybrid (incl. audit-filter columns). |
+| **D13** | Scoring contract serialization | **locked** — §2.10 (relational L4b; no JSON-canonical; D6 freeze columns) |
 | **D14** | Schema versioning | `scoring_schema_version`, closed tie-break step enum, verify CLI. |
 
 ### Tier 6 — Runtime and product
@@ -390,7 +405,7 @@ Take **one tier per discussion block** where possible. Record outcomes inline un
 
 ### Session C — Legacy + format (D10–D14)
 
-**Progress (2026-07-09):** **D10**, **D12** locked (§2.8–§2.9). **Next:** D13, D14.
+**Progress (2026-07-09):** **D10**, **D12**, **D13** locked (§2.8–§2.10). **Next:** D14.
 
 ### Session D — Runtime (D15–D17)
 
@@ -443,7 +458,7 @@ Facts for discussion — not targets:
 
 | Date | Change |
 |------|--------|
-| 2026-07-09 | **D12 locked** — match extensions §2.9: structured L3 target; `extra` witness; retire text parse (slice for DDL/backfill). |
+| 2026-07-09 | **D13 locked** — relational L4b §2.10; no JSON-canonical; D6 freeze as columns; tie-break chains relational (D13d). |
 | 2026-07-09 | **D10 locked** — phase fallback §2.8: NULL `fixture_id` only; 100% linkage + parity audit → delete executor branch. |
 | 2026-07-09 | **Session B complete** — D7–D9 locked. |
 | 2026-07-09 | **§2.6** — Event stats vs module standings: separate writers/tables; D8 excludes event rollup. |
