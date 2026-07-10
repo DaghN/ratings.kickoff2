@@ -198,6 +198,69 @@ SUPPLEMENT_RATIONALE: dict[str, str] = {
 }
 
 
+@dataclass(frozen=True)
+class ScoreCorrection:
+    """
+    Patch one existing Access Scores row at L3 import (SC-11 structured extensions).
+
+    Keys on ``source_scores_id`` (= Access Scores.ID). Regulation goals and ``extra`` witness
+    text replace Access values; ``goals_et_*`` / ``pens_*`` are ET-period and shootout cols only.
+    """
+
+    source_scores_id: int
+    tournament: str
+    team_a: str
+    team_b: str
+    goals_a: int
+    goals_b: int
+    extra: str | None
+    goals_et_a: int | None = None
+    goals_et_b: int | None = None
+    pens_a: int | None = None
+    pens_b: int | None = None
+
+
+# Access Scores rows wrong or missing ET/pens witness — forum-backed corrections.
+SCORE_CORRECTIONS: tuple[ScoreCorrection, ...] = (
+    ScoreCorrection(
+        source_scores_id=1189,
+        tournament="Kristiansand",
+        team_a="Aasmund F",
+        team_b="Glenn L",
+        goals_a=0,
+        goals_b=0,
+        extra="(1-0) aet",
+        goals_et_a=1,
+        goals_et_b=0,
+    ),
+    ScoreCorrection(
+        source_scores_id=1188,
+        tournament="Kristiansand",
+        team_a="Oskar B",
+        team_b="Glenn L",
+        goals_a=0,
+        goals_b=0,
+        extra="(0-0) 7-8pen",
+        goals_et_a=0,
+        goals_et_b=0,
+        pens_a=7,
+        pens_b=8,
+    ),
+)
+
+SCORE_CORRECTION_RATIONALE: dict[int, str] = {
+    1189: (
+        "Kristiansand (Netcom Cup 2002) semi: Access Scores has 1–1 with Extra NULL; forum "
+        "(https://ko-gathering.com/forum/viewtopic.php?p=48040#p48040) records 0–0 (1–0 aet). "
+        "SC-11: regulation 0–0; goals_et_a/b = ET period only (1–0 Aasmund F)."
+    ),
+    1188: (
+        "Kristiansand bronze: Access has 0–0 with Extra NULL; forum records 1–1 (0–0, 7–8 on pens) "
+        "with Glenn L (player B) winning bronze. SC-11: regulation 0–0; pens 7–8 (Oskar B vs Glenn L)."
+    ),
+}
+
+
 _WORLD_CUP_CITY_SUFFIX = re.compile(r"^(World Cup\s+\S+)\s+\([^)]+\)$")
 
 
@@ -459,4 +522,65 @@ def supplemental_scores_manifest() -> list[dict[str, str | int]]:
             "reason": SUPPLEMENT_RATIONALE.get(name, ""),
         }
         for name, count in sorted(by_tournament.items())
+    ]
+
+
+def apply_score_corrections(scores: list[Any]) -> list[dict[str, str | int | None]]:
+    """
+    Patch in-memory Access Scores rows before MySQL insert.
+
+    ``scores`` entries must expose ``source_id``, ``team_a``, ``team_b``, ``goals_a``,
+    ``goals_b``, ``extra``, and optional extension attrs (mutated via ``object.__setattr__``).
+    """
+    if not SCORE_CORRECTIONS:
+        return []
+
+    by_id = {int(s.source_id): s for s in scores}
+    applied: list[dict[str, str | int | None]] = []
+
+    for corr in SCORE_CORRECTIONS:
+        row = by_id.get(corr.source_scores_id)
+        if row is None:
+            raise ValueError(
+                f"score correction source_scores_id={corr.source_scores_id} not in witness Scores"
+            )
+        access_goals = f"{row.goals_a}-{row.goals_b}"
+        access_extra = row.extra
+        object.__setattr__(row, "goals_a", corr.goals_a)
+        object.__setattr__(row, "goals_b", corr.goals_b)
+        object.__setattr__(row, "extra", corr.extra)
+        object.__setattr__(row, "goals_et_a", corr.goals_et_a)
+        object.__setattr__(row, "goals_et_b", corr.goals_et_b)
+        object.__setattr__(row, "pens_a", corr.pens_a)
+        object.__setattr__(row, "pens_b", corr.pens_b)
+        applied.append(
+            {
+                "source_scores_id": corr.source_scores_id,
+                "tournament": corr.tournament,
+                "team_a": corr.team_a,
+                "team_b": corr.team_b,
+                "field": "scores_row",
+                "access": f"goals={access_goals} extra={access_extra!r}",
+                "canonical": (
+                    f"goals={corr.goals_a}-{corr.goals_b} extra={corr.extra!r} "
+                    f"et={corr.goals_et_a}-{corr.goals_et_b} pens={corr.pens_a}-{corr.pens_b}"
+                ),
+                "reason": SCORE_CORRECTION_RATIONALE.get(corr.source_scores_id, ""),
+            }
+        )
+
+    return applied
+
+
+def score_corrections_manifest() -> list[dict[str, str | int | None]]:
+    """Summary rows for import_manifest.json (one entry per corrected Scores row)."""
+    return [
+        {
+            "source_scores_id": corr.source_scores_id,
+            "tournament": corr.tournament,
+            "team_a": corr.team_a,
+            "team_b": corr.team_b,
+            "reason": SCORE_CORRECTION_RATIONALE.get(corr.source_scores_id, ""),
+        }
+        for corr in SCORE_CORRECTIONS
     ]

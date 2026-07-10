@@ -9,12 +9,14 @@ from scripts.amiga.tournament_format import TournamentFormatInference
 from scripts.amiga.import_corrections import (
     IMPORT_CATALOG_SPLIT_SOURCE_ID_BASE,
     IMPORT_SUPPLEMENT_SCORES_ID_BASE,
+    SCORE_CORRECTIONS,
     SUPPLEMENTAL_SCORES,
     WORLD_CUP_VENUES,
     apply_catalog_corrections,
     apply_catalog_split_format_overrides,
     apply_catalog_splits,
     apply_player_country_corrections,
+    apply_score_corrections,
     catalog_name_after_corrections,
     catalog_splits_manifest,
     supplemental_scores_manifest,
@@ -131,6 +133,24 @@ class ImportCorrectionsTests(unittest.TestCase):
         self.assertFalse(team.has_cup)
         self.assertEqual(len(applied), 1)
         self.assertEqual(applied[0]["tournament"], "Groningen VII Cup")
+
+    def test_kristiansand_score_corrections(self) -> None:
+        scores = [
+            AccessScore(1189, "Aasmund F", "Glenn L", 1, 1, "Kristiansand", None, None),
+            AccessScore(1188, "Oskar B", "Glenn L", 0, 0, "Kristiansand", None, None),
+            AccessScore(1, "A", "B", 0, 0, "Other", None, None),
+        ]
+        applied = apply_score_corrections(scores)
+        self.assertEqual(len(applied), len(SCORE_CORRECTIONS))
+        semi = next(s for s in scores if s.source_id == 1189)
+        self.assertEqual((semi.goals_a, semi.goals_b), (0, 0))
+        self.assertEqual(semi.extra, "(1-0) aet")
+        self.assertEqual((semi.goals_et_a, semi.goals_et_b), (1, 0))
+        bronze = next(s for s in scores if s.source_id == 1188)
+        self.assertEqual((bronze.pens_a, bronze.pens_b), (7, 8))
+        self.assertEqual(bronze.extra, "(0-0) 7-8pen")
+        other = next(s for s in scores if s.source_id == 1)
+        self.assertIsNone(other.goals_et_a)
 
 
 if __name__ == "__main__":

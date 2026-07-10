@@ -145,6 +145,8 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-10 | **L3 import SC-11 Kristiansand** — `SCORE_CORRECTIONS` in `import_corrections.py`: g1189 `1–1`→`0–0`+ET, g1188 pens `7–8`; structured cols at `import-witness`; inventory + import-layer docs. |
+| 2026-07-10 | **Full simul on ko2amiga_work** — L5 replay ~26 min; goals drift fixed (`SUM(GoalsFor)` 196301); Kristiansand 54 + Milan V 145 finishes OK; L3/L4 preserved. Verify failed **only** `verify-scoring-contract` (SC-7 missing on manual-materialize stages — expected). |
 | 2026-07-10 | **Tier E full-ladder policy + Milan V** — honours/runbook: any override ⇒ all `1..N` rows; **145** expanded to 8 rows (was Sandro-only). **Kristiansand g1189 Type B drift:** `SUM(GoalsFor)` 196303 vs fresh games 196301 (−2); only Aasmund + Glenn +1 each — ground/ratings synced; **full simul replay needed**. |
 | 2026-07-10 | **SC-11 ET parser v2 + re-backfill** — witness `e.t.`/`a.e.t.` default = **post-ET total** (subtract regulation → `goals_et_*`); bulk backfill 103 games; **verified register** skips human-checked rows (`match_extensions_verified_register.json`). |
 | 2026-07-10 | **SC-11 extension handoff v2** — Access `extra` verbatim + forum URLs/snippets from disposition/review queue; `extension_review_handoff.py`. |

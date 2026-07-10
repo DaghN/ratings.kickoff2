@@ -18,9 +18,10 @@
 | World Cup host city + nation | Calendar-first game ordering / synthetic `game_date` |
 | Catalog splits for Scores-only labels | Format-flag inference (`has_league` / `has_cup`) |
 | Supplemental games missing from Scores | L4 structure / disposition overlays |
-| Player name merges (automatic + manual) | L5 replay / derived recompute |
-| Player nationality overrides | Tier E finish overrides (table exists; **0 rows** on day 0) |
-| Country token alias normalizations | Editing `koatd.mdb` in place |
+| **Scores row corrections** (regulation / ET / pens) | L5 replay / derived recompute |
+| Player name merges (automatic + manual) | Tier E finish overrides (table exists; **0 rows** on day 0) |
+| Player nationality overrides | Editing `koatd.mdb` in place |
+| Country token alias normalizations | |
 
 ---
 
@@ -108,11 +109,24 @@ Synthetic rows use reserved `source_scores_id` ≥ 500,000,000 (`IMPORT_SUPPLEME
 
 ---
 
-## 5. Player identity merges
+## 5. Scores row corrections — wrong or missing ET / pens (Kristiansand)
+
+Access `Scores` sometimes has wrong regulation goals or **NULL `Extra`** when forum evidence records extra time or penalties. Import patches these at L2→L3 (SC-11 structured cols on `amiga_games`) — same values previously hand-patched on `ko2amiga_work`.
+
+| `source_scores_id` | Event | Access | Canonical import | Evidence |
+|--------------------|-------|--------|------------------|----------|
+| **1189** | Kristiansand semi (Aasmund F vs Glenn L) | `1–1`, Extra NULL | Reg `0–0`; `extra` `(1-0) aet`; `goals_et_a/b` = `1`/`0` (ET period only) | [Forum p=48040](https://ko-gathering.com/forum/viewtopic.php?p=48040#p48040) |
+| **1188** | Kristiansand bronze (Oskar B vs Glenn L) | `0–0`, Extra NULL | Reg `0–0`; `extra` `(0-0) 7-8pen`; `goals_et` `0–0`; `pens_a/b` = `7`/`8` (Glenn wins bronze as player B) | Same forum thread |
+
+**Note:** Other ET/pens games in the catalog keep Access `Extra` witness text; `backfill-match-extensions` derives structured cols at ops time unless a row lands here. Only add `SCORE_CORRECTIONS` when Access is wrong or silent and evidence is human-verified.
+
+---
+
+## 6. Player identity merges
 
 All player name fixes run in `scripts/amiga/player_names.py` during L2→L3 import. Every merge is logged in `import_manifest.json` → `transforms.name_merges` (also `data/amiga/exports/name_merges.json`).
 
-### 5.1 Automatic rule (spacing / case / abbreviation artefacts)
+### 6.1 Automatic rule (spacing / case / abbreviation artefacts)
 
 Access sometimes spells the same player differently. Import groups variants that share an **identity key** after:
 
@@ -128,7 +142,7 @@ Access sometimes spells the same player differently. Import groups variants that
 
 **Manual spelling aliases** (`PLAYER_NAME_ALIASES` in `import_corrections.py`) run *before* grouping and **force** the canonical spelling when they apply.
 
-### 5.2 All merge groups on current corpus (5 total)
+### 6.2 All merge groups on current corpus (5 total)
 
 | Canonical | Access variants | Games per variant | How decided |
 |-----------|-----------------|-------------------|-------------|
@@ -144,7 +158,7 @@ On the current koatd drop, **Oliver ST → Oliver St** is the only purely automa
 
 ---
 
-## 6. Player nationality — missing from L2 identity extract
+## 7. Player nationality — missing from L2 identity extract
 
 L2 `witness_player_identity` had no country row (or empty). Manual override at L3 (`PLAYER_COUNTRY_OVERRIDES`):
 
@@ -157,7 +171,7 @@ L2 `witness_player_identity` had no country row (or empty). Manual override at L
 
 ---
 
-## 7. Country token fixes (Access shorthand → registry official name)
+## 8. Country token fixes (Access shorthand → registry official name)
 
 Applied via `country_registry.json` legacy aliases at import (`import_country_registry.py`). Only aliases that actually appear in the corpus fire; the registry defines rules for future hits.
 
@@ -170,7 +184,7 @@ Registry aliases defined: `N. Ireland` → Northern Ireland; `UAE` → United Ar
 
 ---
 
-## 8. Scores tournament aliases — fragmented Access labels
+## 9. Scores tournament aliases — fragmented Access labels
 
 These fix Access storing KO stages or side brackets as **separate tournament names** instead of phases under the parent. Games merge into the parent; duplicate catalog rows are **skipped** when they exist (`scores_only_catalog_aliases()` in `tournament_names.py`).
 
@@ -198,6 +212,7 @@ Access had a **separate catalog row** for the 2005 KOA Cup consolation bracket. 
 | Catalog field overrides (name / date / country) | 49 manifest rows (mostly WC renames + 3 special fixes) |
 | Catalog splits | 2 |
 | Supplemental games | 10 (1 tournament) |
+| Scores row corrections (ET / pens) | 2 (Kristiansand g1188–89) |
 | Player country overrides | 4 |
 | Player name merges | 5 groups (1 automatic spacing/case, 4 manual spelling aliases) |
 | Country token normalizations | 2 |
@@ -210,7 +225,7 @@ Access had a **separate catalog row** for the 2005 KOA Cup consolation bracket. 
 
 | Fix type | Module |
 |----------|--------|
-| Manual catalog / player / supplement facts | `scripts/amiga/import_corrections.py` |
+| Manual catalog / player / supplement / score-correction facts | `scripts/amiga/import_corrections.py` |
 | Scores tournament string aliases | `scripts/amiga/tournament_names.py` |
 | Player identity merges | `scripts/amiga/player_names.py` |
 | Country token canonicalization | `scripts/amiga/import_country_registry.py` + `data/amiga/country_registry.json` |

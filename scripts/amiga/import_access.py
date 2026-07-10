@@ -26,6 +26,7 @@ from scripts.amiga.import_corrections import (
     apply_catalog_split_format_overrides,
     apply_catalog_splits,
     apply_player_country_corrections,
+    apply_score_corrections,
     catalog_splits_manifest,
     supplemental_scores_manifest,
 )
@@ -95,6 +96,10 @@ class AccessScore:
     raw_tournament: str
     phase: str | None
     extra: str | None
+    goals_et_a: int | None = None
+    goals_et_b: int | None = None
+    pens_a: int | None = None
+    pens_b: int | None = None
 
 
 def connect_access(mdb: Path) -> pyodbc.Connection:
@@ -221,6 +226,7 @@ class WitnessPrepared:
     country_token_normalizations: list[dict[str, str]]
     catalog_splits: list[dict[str, str | int | float]]
     score_supplements: list[dict[str, object]]
+    score_corrections: list[dict[str, object]]
     skipped_catalog: list[str]
     format_by_name: dict
 
@@ -258,6 +264,20 @@ def _prepare_witness_core(
         log.info("Appended %s synthetic catalog split(s) from import_corrections.py", len(catalog_splits))
         for entry in catalog_splits:
             log.info("  → %s (parent %s, source_id %s)", entry["tournament"], entry["parent"], entry["source_id"])
+    score_corrections = apply_score_corrections(scores)
+    if score_corrections:
+        log.info(
+            "Applied %s Scores row correction(s) from import_corrections.py",
+            len(score_corrections),
+        )
+        for entry in score_corrections:
+            log.info(
+                "  → g%s %s: %s → %s",
+                entry["source_scores_id"],
+                entry["tournament"],
+                entry["access"],
+                entry["canonical"],
+            )
     scores = merge_supplemental_scores(scores)
     score_supplements = supplemental_scores_manifest()
     if score_supplements:
@@ -360,6 +380,7 @@ def _prepare_witness_core(
         country_token_normalizations=country_token_normalizations,
         catalog_splits=catalog_splits_manifest(),
         score_supplements=score_supplements,
+        score_corrections=score_corrections,
         skipped_catalog=skipped_catalog,
         format_by_name=format_by_name,
     )
@@ -488,6 +509,10 @@ def persist_witness_to_mysql(
                 "goals_a": s.goals_a,
                 "goals_b": s.goals_b,
                 "extra": s.extra,
+                "goals_et_a": s.goals_et_a,
+                "goals_et_b": s.goals_et_b,
+                "pens_a": s.pens_a,
+                "pens_b": s.pens_b,
             }
         )
 
@@ -509,10 +534,11 @@ def persist_witness_to_mysql(
             """
             INSERT INTO amiga_games
               (source_scores_id, game_date, player_a_id, player_b_id, tournament_id, fixture_id,
-               phase, goals_a, goals_b, extra)
+               phase, goals_a, goals_b, extra, goals_et_a, goals_et_b, pens_a, pens_b)
             VALUES
               (%(source_scores_id)s, %(game_date)s, %(player_a_id)s, %(player_b_id)s,
-               %(tournament_id)s, %(fixture_id)s, %(phase)s, %(goals_a)s, %(goals_b)s, %(extra)s)
+               %(tournament_id)s, %(fixture_id)s, %(phase)s, %(goals_a)s, %(goals_b)s, %(extra)s,
+               %(goals_et_a)s, %(goals_et_b)s, %(pens_a)s, %(pens_b)s)
             """,
             [
                 {
@@ -563,6 +589,7 @@ def persist_witness_to_mysql(
         country_registry=registry_manifest_metadata(),
         catalog_splits=prepared.catalog_splits,
         score_supplements=prepared.score_supplements,
+        score_corrections=prepared.score_corrections,
         structure_specs=structure_specs_manifest(structure_result) if structure_result else [],
     )
     manifest_path = default_manifest_path(_REPO)

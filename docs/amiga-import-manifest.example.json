@@ -71,6 +71,28 @@
         "games_added": 10,
         "reason": "Access catalog row (2012-08-12, 5 players) but zero Scores rows; complete round-robin from KO Gathering forum thread."
       }
+    ],
+    "score_corrections": [
+      {
+        "source_scores_id": 1189,
+        "tournament": "Kristiansand",
+        "team_a": "Aasmund F",
+        "team_b": "Glenn L",
+        "field": "scores_row",
+        "access": "goals=1-1 extra=None",
+        "canonical": "goals=0-0 extra='(1-0) aet' et=1-0 pens=None-None",
+        "reason": "Forum semi 0-0 (1-0 aet); Access regulation 1-1 wrong; SC-11 ET-period cols."
+      },
+      {
+        "source_scores_id": 1188,
+        "tournament": "Kristiansand",
+        "team_a": "Oskar B",
+        "team_b": "Glenn L",
+        "field": "scores_row",
+        "access": "goals=0-0 extra=None",
+        "canonical": "goals=0-0 extra='(0-0) 7-8pen' et=0-0 pens=7-8",
+        "reason": "Forum bronze pens 7-8 (Glenn wins); Access Extra NULL."
+      }
     ]
   },
   "registry": {

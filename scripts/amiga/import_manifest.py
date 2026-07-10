@@ -44,6 +44,7 @@ def build_manifest(
     country_registry: dict[str, int | str] | None = None,
     catalog_splits: list[dict[str, str | int | float]] | None = None,
     score_supplements: list[dict[str, str | int]] | None = None,
+    score_corrections: list[dict[str, str | int]] | None = None,
     structure_specs: list[dict[str, object]] | None = None,
 ) -> dict[str, Any]:
     if source is None:
@@ -62,6 +63,7 @@ def build_manifest(
             "country_token_normalizations": country_token_normalizations or [],
             "catalog_splits": catalog_splits or [],
             "score_supplements": score_supplements or [],
+            "score_corrections": score_corrections or [],
             "structure_specs": structure_specs or [],
         },
         "registry": {

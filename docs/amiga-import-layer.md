@@ -95,7 +95,7 @@ L0 koatd.mdb
 
 | Module | What it does |
 |--------|----------------|
-| [`import_corrections.py`](../scripts/amiga/import_corrections.py) | Known-wrong Access catalog fields — **one row per tournament**, with rationale; **World Cup host city + country** (retire Access `WC` placeholder); **supplemental Scores rows** when Access catalog exists but games are missing; **player nationality** when L2 `witness_player_identity` is missing or wrong; **player name spelling aliases** (e.g. Joerg → Jorg) |
+| [`import_corrections.py`](../scripts/amiga/import_corrections.py) | Known-wrong Access catalog fields — **one row per tournament**, with rationale; **World Cup host city + country** (retire Access `WC` placeholder); **supplemental Scores rows** when Access catalog exists but games are missing; **`SCORE_CORRECTIONS`** when Access Scores regulation/ET/pens is wrong or NULL (forum-verified); **player nationality** when L2 `witness_player_identity` is missing or wrong; **player name spelling aliases** (e.g. Joerg → Jorg) |
 
 Add manual overrides only when:
 
@@ -119,6 +119,7 @@ Each import writes **`data/amiga/exports/import_manifest.json`** (gitignored; re
 | `transforms.country_token_normalizations` | Legacy alias → registry `official_name` at L3 import (`import_country_registry.py`) |
 | `registry.country_registry` | Registry `version` + path snapshot at import time |
 | `transforms.score_supplements` | Games appended from external evidence (tournament, count, reason) |
+| `transforms.score_corrections` | Existing Scores rows patched (source_scores_id, access vs canonical, reason) |
 | `transforms.structure_specs` | Registered structure specs applied (or skipped) during import |
 | `registry` | Module pointers for reviewers |
 
@@ -172,7 +173,7 @@ Exits non-zero if a new inversion appears that is **not** covered by `import_cor
 
 ## Agent policy
 
-- **New Access quirk:** prefer automatic rule in the right module; use `import_corrections.py` only for one-off catalog facts.
+- **New Access quirk:** prefer automatic rule in the right module; use `import_corrections.py` only for one-off catalog facts or forum-verified Scores corrections (`SCORE_CORRECTIONS`).
 - **Never** patch derived tables to paper over import issues.
 - **Never** fix chart/replay order in JS/PHP while leaving import wrong.
 - Document every manual override in this file’s registry table when adding to `import_corrections.py`.
