@@ -37,6 +37,7 @@ _KOA_ROUND_GROUP_RE = re.compile(
     re.IGNORECASE,
 )
 _PLACES_RE = re.compile(r"^Places\s+(\d+(?:-\d+)?)$", re.IGNORECASE)
+_PLAYOUTS_BAND_RE = re.compile(r"^Playouts(?:\s+\d+(?:-\d+)?|\s+Group)?$", re.IGNORECASE)
 _PLACE_FINAL_RE = re.compile(r"^\d+(?:st|nd|rd|th)\s+Place\s+Finals?$", re.IGNORECASE)
 _PLAY_OUTS_RE = re.compile(r"^play\s*outs?$", re.IGNORECASE)
 _KNOCKOUT_LABELS = frozenset(
@@ -51,6 +52,7 @@ _KNOCKOUT_LABELS = frozenset(
         "11th place final",
         "13th place final",
         "15th place final",
+        "game of shame",
     }
 )
 # Singular and minor variants (Scores.Phase often omits the trailing "s").
@@ -79,6 +81,8 @@ def is_knockout_phase(phase: str | None) -> bool:
     if _QUARTER_SEMI_FINAL_RE.match(label):
         return True
     if _PLACES_RE.match(label):
+        return True
+    if _PLAYOUTS_BAND_RE.match(label):
         return True
     if _PLAY_OUTS_RE.match(label):
         return True

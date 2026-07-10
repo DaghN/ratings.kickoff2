@@ -147,8 +147,9 @@ class ImportCorrectionsTests(unittest.TestCase):
         self.assertEqual(semi.extra, "(1-0) aet")
         self.assertEqual((semi.goals_et_a, semi.goals_et_b), (1, 0))
         bronze = next(s for s in scores if s.source_id == 1188)
+        self.assertEqual((bronze.goals_a, bronze.goals_b), (1, 1))
         self.assertEqual((bronze.pens_a, bronze.pens_b), (7, 8))
-        self.assertEqual(bronze.extra, "(0-0) 7-8pen")
+        self.assertEqual(bronze.extra, "1-1, (0-0, 7-8 on pens)")
         other = next(s for s in scores if s.source_id == 1)
         self.assertIsNone(other.goals_et_a)
 

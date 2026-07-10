@@ -238,9 +238,9 @@ SCORE_CORRECTIONS: tuple[ScoreCorrection, ...] = (
         tournament="Kristiansand",
         team_a="Oskar B",
         team_b="Glenn L",
-        goals_a=0,
-        goals_b=0,
-        extra="(0-0) 7-8pen",
+        goals_a=1,
+        goals_b=1,
+        extra="1-1, (0-0, 7-8 on pens)",
         goals_et_a=0,
         goals_et_b=0,
         pens_a=7,
@@ -250,13 +250,14 @@ SCORE_CORRECTIONS: tuple[ScoreCorrection, ...] = (
 
 SCORE_CORRECTION_RATIONALE: dict[int, str] = {
     1189: (
-        "Kristiansand (Netcom Cup 2002) semi: Access Scores has 1–1 with Extra NULL; forum "
-        "(https://ko-gathering.com/forum/viewtopic.php?p=48040#p48040) records 0–0 (1–0 aet). "
-        "SC-11: regulation 0–0; goals_et_a/b = ET period only (1–0 Aasmund F)."
+        "Kristiansand semi: Access Scores has 1–1 with Extra NULL (bronze reg 1–1 was swapped onto "
+        "this row). Forum records 0–0 (1–0 aet). SC-11: regulation 0–0; goals_et_a/b = ET period only "
+        "(1–0 Aasmund F)."
     ),
     1188: (
-        "Kristiansand bronze: Access has 0–0 with Extra NULL; forum records 1–1 (0–0, 7–8 on pens) "
-        "with Glenn L (player B) winning bronze. SC-11: regulation 0–0; pens 7–8 (Oskar B vs Glenn L)."
+        "Kristiansand bronze: Access has 0–0 with Extra NULL (regulation 1–1 was wrongly stored on "
+        "semi g1189). Forum (https://ko-gathering.com/forum/viewtopic.php?p=48040#p48040): "
+        "1–1, (0–0, 7–8 on pens); Glenn L (player B) wins bronze. SC-11: reg 1–1; ET period 0–0; pens 7–8."
     ),
 }
 

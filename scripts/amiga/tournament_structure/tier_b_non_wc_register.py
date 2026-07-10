@@ -82,9 +82,6 @@ NON_WC_STRUCTURE_REVIEW_IDS: frozenset[int] = (
 # Fix ``tournament_phases.py`` before materialize — **slice 6a** (not slice 6 bulk).
 NON_WC_PARSER_FIX_FIRST_IDS: frozenset[int] = frozenset({
     48,   # Groningen VII — Playouts; Semi Final vs Semi Finals
-    152,  # Homburg II — Playouts
-    198,  # Milan XVII — Playouts 5-7
-    267,  # Seeshaupt — Game of Shame + round
     269,  # Cologne I — Place N Final variants
     284,  # Athens LIII — Places 5-8, Playouts Group, Playoffs Group
 })

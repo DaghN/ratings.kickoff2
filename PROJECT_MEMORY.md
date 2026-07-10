@@ -145,7 +145,12 @@
 
 | Date | Note |
 |------|------|
-| 2026-07-10 | **L3 import SC-11 Kristiansand** — `SCORE_CORRECTIONS` in `import_corrections.py`: g1189 `1–1`→`0–0`+ET, g1188 pens `7–8`; structured cols at `import-witness`; inventory + import-layer docs. |
+| 2026-07-10 | **Event-stats Finish sort** — numeric `data-k2-sort-value` from `event_finish_position` (fixes 10 before 1 on asc); player tournament history table too. |
+| 2026-07-10 | **Homburg II (152) manual materialize** — 15 stages / 66g; **Group A/B** + Playouts 5-8 + placement finals; Tier E finish 1–10 (forum t=10006; Final agg 4–4). |
+| 2026-07-10 | **Milan XVII (198) manual materialize** — `Playouts 5-7` parser; 11 stages / 36g; **Group A** · **Group B** split + NULL RR `phase_label`; Tier B finish 1–7. |
+| 2026-07-10 | **Seeshaupt (267) manual materialize** — parser `Game of Shame` KO; 3 stages / 12g; **League** · **Game of Shame** · **Final**; SC-11 g10546; Tier E finish 1 Thorsten · 2 Robert · 3 Eric · 4 Thomas · 5 Norbert. |
+| 2026-07-10 | **SC-11 materialized tail verified** — **111** g3192–93; **145** g5159/5178/5180/5187 + **Gianni T champion** (4-leg Final 2–2, g5180 pens for title). |
+| 2026-07-10 | **L3 import SC-11 Kristiansand** — `SCORE_CORRECTIONS` g1189+g1188; structured cols at `import-witness`; inventory + import-layer docs. |
 | 2026-07-10 | **Full simul on ko2amiga_work** — L5 replay ~26 min; goals drift fixed (`SUM(GoalsFor)` 196301); Kristiansand 54 + Milan V 145 finishes OK; L3/L4 preserved. Verify failed **only** `verify-scoring-contract` (SC-7 missing on manual-materialize stages — expected). |
 | 2026-07-10 | **Tier E full-ladder policy + Milan V** — honours/runbook: any override ⇒ all `1..N` rows; **145** expanded to 8 rows (was Sandro-only). **Kristiansand g1189 Type B drift:** `SUM(GoalsFor)` 196303 vs fresh games 196301 (−2); only Aasmund + Glenn +1 each — ground/ratings synced; **full simul replay needed**. |
 | 2026-07-10 | **SC-11 ET parser v2 + re-backfill** — witness `e.t.`/`a.e.t.` default = **post-ET total** (subtract regulation → `goals_et_*`); bulk backfill 103 games; **verified register** skips human-checked rows (`match_extensions_verified_register.json`). |

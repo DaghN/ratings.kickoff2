@@ -610,7 +610,7 @@
     },
     "152": {
       "handler": "structure_spec",
-      "notes": "10p; 2\u00d75 double-RR groups + KO incl. Playouts + 5th/7th/9th placement finals; German Championship 2005 \u2014 format sibling to id 137. Forum: https://ko-gathering.com/forum/viewtopic.php?t=10006"
+      "notes": "10p; 2\u00d75 double-RR groups + KO incl. Playouts + 5th/7th/9th placement finals; German Championship 2005 \u2014 format sibling to id 137. Forum: https://ko-gathering.com/forum/viewtopic.php?t=10006. Jul 2026: manual materialize; Group A/B; Tier E full ladder 1\u201310 (forum; Final agg 4\u20134 Michael O champion)."
     },
     "153": {
       "handler": "pure_rr",
@@ -794,7 +794,7 @@
     },
     "198": {
       "handler": "structure_spec",
-      "notes": "7p; 2 groups (4+3) double-RR + KO incl. Playouts 5-7 + placement finals (g7956\u2013991)."
+      "notes": "7p; 2 groups (4+3) double-RR + KO incl. Playouts 5-7 + placement finals (g7949\u20137984). Jul 2026: manual materialize; Group A/B split; Tier B finish 1 Luigi \u00b7 2 Gianni \u00b7 3 Marco \u00b7 4 Mario \u00b7 5 Alessandro \u00b7 6 Fabio \u00b7 7 Maurizio."
     },
     "199": {
       "handler": "pure_rr",
@@ -1070,7 +1070,7 @@
     },
     "267": {
       "handler": "structure_spec",
-      "notes": "5p single-RR league (10g) + Game of Shame + final; AET g10553 (g10542\u2013553)."
+      "notes": "5p single-RR league (10g) + Game of Shame + final; AET g10546. Jul 2026: manual materialize on work; stages League + Game of Shame + Final; Tier E full ladder 1-5 (Game of Shame finish)."
     },
     "268": {
       "handler": "pure_rr",

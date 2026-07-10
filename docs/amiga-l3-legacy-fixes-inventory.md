@@ -115,8 +115,8 @@ Access `Scores` sometimes has wrong regulation goals or **NULL `Extra`** when fo
 
 | `source_scores_id` | Event | Access | Canonical import | Evidence |
 |--------------------|-------|--------|------------------|----------|
-| **1189** | Kristiansand semi (Aasmund F vs Glenn L) | `1–1`, Extra NULL | Reg `0–0`; `extra` `(1-0) aet`; `goals_et_a/b` = `1`/`0` (ET period only) | [Forum p=48040](https://ko-gathering.com/forum/viewtopic.php?p=48040#p48040) |
-| **1188** | Kristiansand bronze (Oskar B vs Glenn L) | `0–0`, Extra NULL | Reg `0–0`; `extra` `(0-0) 7-8pen`; `goals_et` `0–0`; `pens_a/b` = `7`/`8` (Glenn wins bronze as player B) | Same forum thread |
+| **1189** | Kristiansand semi (Aasmund F vs Glenn L) | `1–1`, Extra NULL (belongs on g1188) | Reg `0–0`; `extra` `(1-0) aet`; `goals_et_a/b` = `1`/`0` (ET period only) | [Forum p=48040](https://ko-gathering.com/forum/viewtopic.php?p=48040#p48040) |
+| **1188** | Kristiansand bronze (Oskar B vs Glenn L) | `0–0`, Extra NULL (reg **1–1** was on semi g1189) | Reg **`1–1`**; `extra` `1-1, (0-0, 7-8 on pens)`; `goals_et` `0–0`; `pens_a/b` = `7`/`8` (Glenn wins bronze as player B) | Same forum thread |
 
 **Note:** Other ET/pens games in the catalog keep Access `Extra` witness text; `backfill-match-extensions` derives structured cols at ops time unless a row lands here. Only add `SCORE_CORRECTIONS` when Access is wrong or silent and evidence is human-verified.
 

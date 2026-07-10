@@ -41,6 +41,19 @@ class KnockoutPhaseDetectionTests(unittest.TestCase):
         scope5 = parse_phase("5th Place Finals")
         self.assertEqual(scope5.scope_key, "5th Place Final")
 
+    def test_game_of_shame_is_knockout(self) -> None:
+        self.assertTrue(is_knockout_phase("Game of Shame"))
+        scope = parse_phase("Game of Shame")
+        self.assertEqual(scope.scope_type, ScopeType.KNOCKOUT)
+        self.assertEqual(scope.scope_key, "Game of Shame")
+
+    def test_playouts_band_is_knockout(self) -> None:
+        self.assertTrue(is_knockout_phase("Playouts 5-7"))
+        self.assertTrue(is_knockout_phase("Playouts Group"))
+        scope = parse_phase("Playouts 5-7")
+        self.assertEqual(scope.scope_type, ScopeType.KNOCKOUT)
+        self.assertEqual(scope.scope_key, "Playouts 5-7")
+
 
 if __name__ == "__main__":
     unittest.main()

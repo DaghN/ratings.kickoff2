@@ -452,6 +452,18 @@ function amiga_profile_tournament_finish_rank_label(array $row): string
     return $label;
 }
 
+/**
+ * Numeric sort key for Finish column (event_finish_position); unknown → last on asc.
+ *
+ * @param array<string, mixed> $row
+ */
+function amiga_profile_tournament_finish_sort_value(array $row): string
+{
+    $finish = amiga_profile_row_event_finish($row);
+
+    return $finish !== null ? (string) $finish : '999999';
+}
+
 function amiga_profile_tournament_wdl_cell(int $value, string $tone): string
 {
     if ($value === 0) {
@@ -558,7 +570,7 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
 			<th<?php echo k2_table_sortable_th_attr(9, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Average goals scored per game in this event.">GF/g</th>
 			<th<?php echo k2_table_sortable_th_attr(10, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Average goals conceded per game in this event.">GA/g</th>
 			<th<?php echo k2_table_sortable_th_attr(11, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Result points across all games in this event (3 per win, 1 per draw). Phase league tables use amiga_tournament_standings.">Pts</th>
-			<th<?php echo k2_table_sortable_th_attr(12, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="text">Finish</th>
+			<th<?php echo k2_table_sortable_th_attr(12, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">Finish</th>
 			<th<?php echo k2_table_sortable_th_attr(13, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Elo rating before this event.">Rating</th>
 			<th<?php echo k2_table_sortable_th_attr(14, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Rating points gained or lost in this event.">Adj.</th>
 			<th<?php echo k2_table_sortable_th_attr(15, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Elo rating after this event.">New rating</th>
@@ -593,7 +605,7 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
 			<td<?php echo k2_table_body_td_attr(9, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_avg_goals_cell($t['avg_goals_for'] ?? null, $games); ?></td>
 			<td<?php echo k2_table_body_td_attr(10, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_avg_goals_cell($t['avg_goals_against'] ?? null, $games); ?></td>
 			<td<?php echo k2_table_body_td_attr(11, $anchorCol, $defaultSortCol); ?>><?php echo $points; ?></td>
-			<td<?php echo k2_table_body_td_attr(12, $anchorCol, $defaultSortCol); ?>><?php echo htmlspecialchars($finishRank, ENT_QUOTES, 'UTF-8'); ?></td>
+			<td<?php echo k2_table_body_td_attr(12, $anchorCol, $defaultSortCol); ?> data-k2-sort-value="<?php echo k2_h(amiga_profile_tournament_finish_sort_value($t)); ?>"><?php echo htmlspecialchars($finishRank, ENT_QUOTES, 'UTF-8'); ?></td>
 			<td<?php echo k2_table_body_td_attr(13, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_cell($t['rating_before'] ?? null); ?></td>
 			<td<?php echo k2_table_body_td_attr(14, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_delta_cell($t['rating_delta'] ?? null); ?></td>
 			<td<?php echo k2_table_body_td_attr(15, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_cell($t['rating_after'] ?? null); ?></td>
@@ -727,9 +739,9 @@ function amiga_tournament_render_event_stats_table(array $rows, bool $isWorldCup
 			<th<?php echo k2_table_sortable_th_attr(10, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Average goals conceded per game in this event.">GA/g</th>
 			<th<?php echo k2_table_sortable_th_attr(11, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Result points across all games in this event (3 per win, 1 per draw). Phase league tables use amiga_tournament_standings.">Pts</th>
 			<?php if ($isWorldCup) { ?>
-			<th<?php echo k2_table_sortable_th_attr(12, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="text" data-k2-help="World Cup podium from event finish (1st–3rd); medal word is display only.">Medal</th>
+			<th<?php echo k2_table_sortable_th_attr(12, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="World Cup podium from event finish (1st–3rd); medal word is display only.">Medal</th>
 			<?php } else { ?>
-			<th<?php echo k2_table_sortable_th_attr(12, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="text">Finish</th>
+			<th<?php echo k2_table_sortable_th_attr(12, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">Finish</th>
 			<?php } ?>
 			<th<?php echo k2_table_sortable_th_attr(13, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Elo rating before this event.">Rating</th>
 			<th<?php echo k2_table_sortable_th_attr(14, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number" data-k2-help="Rating points gained or lost in this event.">Adjustment</th>
@@ -750,13 +762,7 @@ function amiga_tournament_render_event_stats_table(array $rows, bool $isWorldCup
         $goalsAgainst = (int) ($row['goals_against'] ?? 0);
         $goalDiff = $goalsFor - $goalsAgainst;
         $points = (int) ($row['event_points'] ?? 0);
-        $wcMedalSortValue = '';
-        if ($isWorldCup) {
-            $wcFinish = amiga_profile_row_event_finish($row);
-            if ($wcFinish !== null && $wcFinish >= 1 && $wcFinish <= 3) {
-                $wcMedalSortValue = amiga_participation_wc_podium_word_from_finish($wcFinish);
-            }
-        }
+        $finishSortValue = amiga_profile_tournament_finish_sort_value($row);
         $playerCountry = (string) ($row['player_country'] ?? '');
         ?>
 		<tr>
@@ -772,7 +778,7 @@ function amiga_tournament_render_event_stats_table(array $rows, bool $isWorldCup
 			<td<?php echo k2_table_body_td_attr(9, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_avg_goals_cell($row['avg_goals_for'] ?? null, $games); ?></td>
 			<td<?php echo k2_table_body_td_attr(10, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_avg_goals_cell($row['avg_goals_against'] ?? null, $games); ?></td>
 			<td<?php echo k2_table_body_td_attr(11, $anchorCol, $defaultSortCol); ?>><?php echo $points; ?></td>
-			<td<?php echo k2_table_body_td_attr(12, $anchorCol, $defaultSortCol); ?><?php if ($isWorldCup) { ?> data-k2-sort-value="<?php echo k2_h($wcMedalSortValue); ?>"<?php } ?>><?php
+			<td<?php echo k2_table_body_td_attr(12, $anchorCol, $defaultSortCol); ?> data-k2-sort-value="<?php echo k2_h($finishSortValue); ?>"><?php
             if ($isWorldCup) {
                 echo amiga_profile_wc_podium_medal_cell($row);
             } else {

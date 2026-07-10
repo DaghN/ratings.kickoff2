@@ -81,7 +81,7 @@
         "field": "scores_row",
         "access": "goals=1-1 extra=None",
         "canonical": "goals=0-0 extra='(1-0) aet' et=1-0 pens=None-None",
-        "reason": "Forum semi 0-0 (1-0 aet); Access regulation 1-1 wrong; SC-11 ET-period cols."
+        "reason": "Forum semi 0-0 (1-0 aet); Access reg 1-1 belonged on bronze g1188; SC-11 ET-period cols."
       },
       {
         "source_scores_id": 1188,
@@ -90,8 +90,8 @@
         "team_b": "Glenn L",
         "field": "scores_row",
         "access": "goals=0-0 extra=None",
-        "canonical": "goals=0-0 extra='(0-0) 7-8pen' et=0-0 pens=7-8",
-        "reason": "Forum bronze pens 7-8 (Glenn wins); Access Extra NULL."
+        "canonical": "goals=1-1 extra='1-1, (0-0, 7-8 on pens)' et=0-0 pens=7-8",
+        "reason": "Forum bronze 1-1 (0-0 ET, 7-8 pens); Access reg 1-1 was on semi g1189; Glenn wins bronze."
       }
     ]
   },
