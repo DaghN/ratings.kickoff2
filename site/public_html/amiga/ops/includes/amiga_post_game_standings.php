@@ -434,13 +434,6 @@ function amiga_ops_compute_tournament_standings(array $games, ?array $scoringCon
     $hasStructured = false;
 
     foreach ($games as $g) {
-        $phase = $g['phase'] ?? null;
-        if ($phase === null || trim((string) $phase) === '') {
-            $hasNullPhase = true;
-        } else {
-            $hasStructured = true;
-        }
-
         $playerAId = (int) $g['player_a_id'];
         $playerBId = (int) $g['player_b_id'];
         $goalsA = (int) $g['goals_a'];
@@ -486,6 +479,13 @@ function amiga_ops_compute_tournament_standings(array $games, ?array $scoringCon
                 );
             }
             continue;
+        }
+
+        $phase = $g['phase'] ?? null;
+        if ($phase === null || trim((string) $phase) === '') {
+            $hasNullPhase = true;
+        } else {
+            $hasStructured = true;
         }
 
         if (amiga_ops_is_knockout_phase($phase !== null ? (string) $phase : null)) {

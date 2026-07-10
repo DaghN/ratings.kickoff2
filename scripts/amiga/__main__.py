@@ -584,6 +584,14 @@ def main(argv: list[str] | None = None) -> int:
         help="Structural oracle for L4b stage scoring contracts",
     )
 
+    p_php_standings = sub.add_parser(
+        "verify-php-standings-parity",
+        help="PHP vs Python standings executor parity (SC-5)",
+    )
+    p_php_standings.add_argument("--tournament-id", type=int, default=None)
+    p_php_standings.add_argument("--sample", type=int, default=5)
+    p_php_standings.add_argument("--sweep", action="store_true")
+
     sub.add_parser(
         "verify-tournament-formats",
         help="Assert imported tournaments with games have league/cup format flags",
@@ -988,6 +996,18 @@ def main(argv: list[str] | None = None) -> int:
         from scripts.amiga.verify_scoring_contract import main as verify_scoring_contract_main
 
         return verify_scoring_contract_main()
+
+    if args.cmd == "verify-php-standings-parity":
+        from scripts.amiga.verify_php_standings_parity import main as verify_php_standings_parity_main
+
+        parity_argv: list[str] = []
+        if args.tournament_id is not None:
+            parity_argv.extend(["--tournament-id", str(args.tournament_id)])
+        if args.sample != 5:
+            parity_argv.extend(["--sample", str(args.sample)])
+        if args.sweep:
+            parity_argv.append("--sweep")
+        return verify_php_standings_parity_main(parity_argv)
 
     if args.cmd == "verify-running-tournament-boundary":
         from scripts.amiga.verify_running_tournament_boundary import main as verify_running_tournament_boundary_main

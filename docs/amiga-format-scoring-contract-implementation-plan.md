@@ -1,6 +1,6 @@
 # Amiga format scoring contract — implementation plan (agent slices)
 
-**Status:** **SC-4 shipped (Jul 2026)** — PHP standings executor reads `ScoringContext` / stage contracts (parity with SC-3 Python).
+**Status:** **SC-5 shipped (Jul 2026)** — PHP↔Python standings executor parity oracle in modern verify suite.
 
 **Policy (locked):** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md)
 
@@ -137,7 +137,7 @@ Load L4b contracts from DB; fail on malformed rows (D14 structural verify).
 ### Verification
 
 - [x] `standings-parity --sweep` **FAIL=0** on `ko2amiga_work`
-- [ ] SC-5 PHP↔Python oracle (SC-4 first)
+- [x] SC-5 PHP↔Python oracle (`verify-php-standings-parity`)
 
 **Not in SC-3:** PHP executor (`amiga_post_game_standings.php`), catalog backfill (SC-6).
 
@@ -164,7 +164,25 @@ Load L4b contracts from DB; fail on malformed rows (D14 structural verify).
 
 ---
 
-## SC-5 — PHP↔Python parity oracle (sketch)
+## SC-5 — PHP↔Python parity oracle (shipped Jul 2026)
+
+### Goal
+
+Automated verify runs both executors on shared inputs (games + contracts); fails on row diff (D17).
+
+### Delivered
+
+- [x] `scripts/oneoff/amiga_standings_build_parity.php` — PHP CLI probe (JSON rows)
+- [x] `scripts/amiga/verify_php_standings_parity.py` — `verify-php-standings-parity` CLI (`--sample`, `--sweep`, `--tournament-id`)
+- [x] Wired into `modern/verify_suite.py` (after `verify-scoring-contract`)
+- [x] PHP phase-routing parity fixes uncovered by sweep:
+  - `amiga_ops_is_knockout_phase`: singular `Quarter Final` / `Semi Final` (matches Python `_QUARTER_SEMI_FINAL_RE`)
+  - `hasNullPhase` only when fixture path not taken (matches Python loop order)
+
+### Verification
+
+- [x] `verify-php-standings-parity --sweep` green on `ko2amiga_work`
+- [x] `standings-parity --sweep` still **FAIL=0** (Python path unchanged)
 
 ---
 

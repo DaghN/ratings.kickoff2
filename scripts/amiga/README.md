@@ -149,6 +149,10 @@ python -m scripts.amiga replay --limit 500
 python -m scripts.amiga standings-parity --tournament "London XXIII"
 python -m scripts.amiga standings-parity --sweep
 
+# PHP vs Python standings executor parity (SC-5; work DB + Laragon PHP):
+python -m scripts.amiga verify-php-standings-parity --sample 5
+python -m scripts.amiga verify-php-standings-parity --sweep
+
 # Schema inventory from Access (archaeology)
 python scripts/amiga/discover_access_schema.py
 

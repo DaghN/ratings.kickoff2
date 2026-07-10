@@ -20,6 +20,7 @@ from scripts.amiga.verify_realm_snapshots import main as verify_realm_snapshots_
 from scripts.amiga.verify_community_stats import main as verify_community_stats_main
 from scripts.amiga.verify_world_cup_stats import main as verify_world_cup_stats_main
 from scripts.amiga.verify_php_community_parity import main as verify_php_community_parity_main
+from scripts.amiga.verify_php_standings_parity import main as verify_php_standings_parity_main
 from scripts.amiga.verify_hof_peak_rating_holder import main as verify_hof_peak_rating_holder_main
 from scripts.amiga.verify_hof_geo_year import main as verify_hof_geo_year_main
 from scripts.amiga.verify_hof_holder_projection import main as verify_hof_holder_projection_main
@@ -56,6 +57,7 @@ MODERN_VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
     ("verify-player-create", verify_player_create_main),
     ("verify-running-tournament-boundary", verify_running_tournament_boundary_main),
     ("verify-scoring-contract", verify_scoring_contract_main),
+    ("verify-php-standings-parity", verify_php_standings_parity_main),
     ("verify-tournament-formats", verify_tournament_formats_work_main),
 ]
 

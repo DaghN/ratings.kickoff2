@@ -41,6 +41,9 @@ function amiga_ops_is_knockout_phase(?string $phase): bool
     if (preg_match('/^\d+(?:st|nd|rd|th)\s+Place\s+Final$/i', $label) === 1) {
         return true;
     }
+    if (preg_match('/^(?:quarter|semi)\s+finals?$/i', $label) === 1) {
+        return true;
+    }
 
     return false;
 }

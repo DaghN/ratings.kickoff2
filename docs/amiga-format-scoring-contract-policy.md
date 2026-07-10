@@ -119,5 +119,5 @@
 - **Read first:** this policy + structure policy T1–T14 for modules vs structure.
 - **Do not** add per-tournament scoring rules only in Python/PHP constants after backfill ships.
 - **Do not** extend `parse_standings_winner` regex (SC11).
-- **Verify:** structural contract verify + PHP↔Python parity oracle (when implemented) in modern verify suite on work DB.
+- **Verify:** structural contract verify + **PHP↔Python parity oracle** (`verify-php-standings-parity`) in modern verify suite on work DB.
 - **Steve / migration:** new L4b DDL = Part B when schema ships.

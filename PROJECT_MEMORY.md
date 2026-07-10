@@ -92,7 +92,7 @@
 
 - **Amiga live ops (Jul 2026):** **RTB shipped (RTB-1–RTB-9)** — running scores until organizer **Finish and make official** (promote + finalize + lifecycle `completed` in one Table-tab action). Policy: [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md) rev. 2.
 
-- **Amiga format scoring contract (Jul 2026):** **SC-4 shipped** — PHP standings executor reads `ScoringContext` (parity with SC-3 Python); RTB broadcast path loads DB contracts. **Next:** SC-5 (PHP↔Python oracle). Policy [`amiga-format-scoring-contract-policy.md`](docs/amiga-format-scoring-contract-policy.md) · plan [`amiga-format-scoring-contract-implementation-plan.md`](docs/amiga-format-scoring-contract-implementation-plan.md).
+- **Amiga format scoring contract (Jul 2026):** **SC-5 shipped** — `verify-php-standings-parity` CLI + modern verify suite; sweep green on `ko2amiga_work`. **Next:** SC-6 (catalog backfill). Policy [`amiga-format-scoring-contract-policy.md`](docs/amiga-format-scoring-contract-policy.md) · plan [`amiga-format-scoring-contract-implementation-plan.md`](docs/amiga-format-scoring-contract-implementation-plan.md).
 
 - **Amiga modern ground (Jul 2026):** **Cutover bootstrap complete** (D0 → PROMOTE-1 + DOC-1 + CODE-1). **Staged prod / local repair shop:** [`amiga-staging-authority-policy.md`](docs/amiga-staging-authority-policy.md). **PULL-1a/1b shipped** — `pull_ko2amiga_from_staging.ps1` + `run_export_ko2amiga.php` (verified pull Jul 2026). Daily loop: pull → repair → push (`export_ko2amiga_work.ps1` after simul when needed). [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md).
 
@@ -145,6 +145,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-10 | **SC-5 shipped** — `verify-php-standings-parity` CLI + probe; modern verify suite; PHP phase-routing parity fixes (`Semi Final` singular KO; null-phase only when no fixture); sweep green. **Next:** SC-6. |
 | 2026-07-10 | **SC-4 shipped** — PHP `amiga_ops_compute_tournament_standings` reads `ScoringContext`; `amiga_scoring_contract.php` reader/context helpers; RTB broadcast loads DB contracts; `standings-parity --sweep` FAIL=0. **Next:** SC-5. |
 | 2026-07-10 | **SC-3 shipped** — Python `compute_tournament_standings` reads `ScoringContext`; legacy KO bridge; `standings-parity --sweep` FAIL=0. **Next:** SC-4. |
 | 2026-07-10 | **SC-2 shipped** — `StageScoringContract` reader + `verify-scoring-contract` CLI (modern simul suite). **Next:** SC-3. |
