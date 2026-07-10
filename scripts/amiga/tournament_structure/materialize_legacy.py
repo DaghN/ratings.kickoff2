@@ -18,7 +18,7 @@ from typing import Any
 import pymysql
 from pymysql.cursors import DictCursor
 
-from scripts.amiga.config import load_amiga_db_config
+from scripts.amiga.config import load_amiga_db_config, require_amiga_ground_database
 from scripts.amiga.tournament_fixtures import create_stage
 from scripts.amiga.tournament_phases import ScopeType, parse_phase
 from scripts.amiga.tournament_structure.specs import STAGE_TYPE_KNOCKOUT, STAGE_TYPE_ROUND_ROBIN
@@ -77,8 +77,7 @@ class MaterializeResult:
 
 def _connect() -> pymysql.connections.Connection:
     cfg = load_amiga_db_config()
-    if cfg.database != "ko2amiga_db":
-        raise SystemExit(f"Refusing materialize: expected ko2amiga_db, got {cfg.database!r}")
+    require_amiga_ground_database(cfg, operation="materialize")
     conn = pymysql.connect(
         host=cfg.host,
         port=cfg.port,

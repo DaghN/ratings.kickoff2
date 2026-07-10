@@ -11,6 +11,18 @@ from scripts.k2_rating_core.config import DbConfig, _parse_php_config
 _REPO = Path(__file__).resolve().parents[2]
 _LOCAL = _REPO / "site" / "config" / "ko2amiga_config.local.php"
 
+# Living repair shop + frozen oracle (see amiga-modern-ground-platform.md).
+AMIGA_GROUND_DATABASES: frozenset[str] = frozenset({"ko2amiga_db", "ko2amiga_work"})
+
+
+def require_amiga_ground_database(cfg: DbConfig, *, operation: str) -> None:
+    if cfg.database in AMIGA_GROUND_DATABASES:
+        return
+    allowed = ", ".join(sorted(AMIGA_GROUND_DATABASES))
+    raise SystemExit(
+        f"Refusing {operation}: database must be one of {allowed}, got {cfg.database!r}"
+    )
+
 
 def load_amiga_db_config() -> DbConfig:
     if not _LOCAL.is_file():

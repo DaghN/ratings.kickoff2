@@ -314,6 +314,8 @@ python -m scripts.amiga tournament-structure verify-disposition-register
 python -m scripts.amiga tournament-structure preview-pure-knockout --tournament-id <id>
 python -m scripts.amiga tournament-structure materialize-pure-knockout --tournament-id <id> [--replace]
 python -m scripts.amiga tournament-structure materialize --tournament-id <id> [--dry-run] [--replace]
+# Living ground: `ko2amiga_config.local.php` → `ko2amiga_work` (or `KO2AMIGA_DATABASE=ko2amiga_work`).
+# After materialize on work: `backfill-standings-stage-id --tournament-id <id>` then `verify-standings-stage-id`.
 python -m scripts.amiga tournament-structure dematerialize --tournament-id <id>
 python -m scripts.amiga tournament-structure verify-legacy --tournament-id <id> [--check-standings]
 python -m scripts.amiga tournament-structure audit-inventory [--tier A|B|C|D] [--json] [--out path.json]

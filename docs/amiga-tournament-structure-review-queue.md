@@ -92,7 +92,7 @@ Regenerate after code changes: `generate-disposition-register` (overwrites propo
 - **158** Stoke Cup → `pure_knockout` — 15p single-elim; 7 R1 ties + 1 bye (James B); phase "Round 1" not league (g5639–5652).
 - **166** Milan XII → `structure_spec` — 8p double-RR league + 2-leg semis + 3-leg final; phase "Finals" plural (g5961–63).
 - **171** Copenhagen Cup → `pure_knockout` — 8p from QF + full placement bracket; AET g6723 (g6715–6726).
-- **173** Frankfurt → `structure_spec` — 4p double-RR league + 2-leg semis/3rd/final (g6781–88).
+- **173** Frankfurt → `structure_spec` — 4p double-RR league + 2-leg semis/3rd/final (g6781–88). **Jul 2026:** cleared `NON_WC_SLICE6_CUP_REVIEW_IDS`; legacy materialize on `ko2amiga_work`.
 - **174** London Marathon → `pure_rr` — 22p near-complete single RR (230/231g); James L–Vagelis D unplayed.
 - **176** Milan XIV → `structure_spec` — 6p double-RR league + 2-leg semis/3rd/final (g7121–28).
 - **187** Hertford IV — split **deferred** (24g league + 4g cup; forum t=12376; cup g7579, 7567, 7563, 7582); stays `pending_review`.

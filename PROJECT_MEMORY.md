@@ -145,6 +145,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-10 | **Frankfurt (173) legacy materialize** — cleared slice-6 cup review; `materialize_legacy` allows `ko2amiga_work`; 5 stages / 20 fixtures / 20 `fixture_id` links; `backfill-standings-stage-id` + `verify-standings-stage-id` OK on work. |
 | 2026-07-10 | **Scoring contract SC-11 session** — structured L3 ET/pens (`012_match_extensions.sql`); Python+PHP resolver; RTB dual-write + promote; backfill 103/108; `verify-match-extensions` in simul suite; Access `Scores.Extra` audit (`WG` = literal token only, 3 rows WC IV); SC-10 still blocked on fixture linkage. Docs: plan, policy, data contract, schema discovery, RTB, design §2.9. |
 | 2026-07-10 | **SC-9 shipped** — L5 `stage_id` column + dual-write; backfill 605 tournaments; `verify-standings-stage-id --sweep` OK. **Next:** SC-10. |
 | 2026-07-10 | **SC-8 shipped** — RTB broadcast compute + tournament_lib broadcast routing; live hub KO bracket; `verify-rtb-standings-parity`. **Next:** SC-9. |
