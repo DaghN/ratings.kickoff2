@@ -145,6 +145,12 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-10 | **Slice 6a parser (partial)** — `tournament_phases.py` + PHP ops: **Play Outs**, **Finals** plural, **Nth Place Finals**; `materialize_legacy` NULLs KO `phase_label`; `participation_placement` finals normalize; **145** + **166** graduated `NON_WC_PARSER_FIX_FIRST_IDS`; unit tests. |
+| 2026-07-10 | **Milan V (145) materialize** — parser fix Play Outs/Finals plural; 11 stages / 54g; groups + QF/SF/Play Outs/placement finals; Tier B 1–7 + Tier E **8 Sandro T** (withdrew). |
+| 2026-07-10 | **Milan XII (166) manual materialize** — 8p double RR + KO; 4 stages / 63 fixtures; **League** · **Semi Finals** · **Final** (3 legs); `has_league=1` `has_cup=1`; KO `phase_label` NULL (witness **Finals**); Tier B finish **1 Gianni · 2 Luigi · 3 Marco/Mario**. |
+| 2026-07-10 | **Athens IV Cup (74) manual materialize** — lucky-loser 6p cup; **Quarter Finals** + Semi Finals + Final; `has_league=0` `has_cup=1`; Tier A finish. |
+| 2026-07-10 | **Kristiansand (54) SC-11 patch** — g1189 ET `1-0`; g1188 pens **7–8** (Glenn bronze winner); finish **3 Glenn · 4 Oskar** corrected. |
+| 2026-07-10 | **Kristiansand (54) manual materialize** — 2×4 groups + full placement KO chain; 10 stages / 32 fixtures; `has_league=1` `has_cup=1`; Tier B finish 1–8 matches forum. |
 | 2026-07-10 | **Milan IV (134) manual materialize** — 7p league + playoffs (7 KO games); 5 stages / 50 fixtures; **League** · **Semi Finals** · **3rd Place Final** · **Final**; `has_league=1` `has_cup=1`; Tier B finish refreshed. |
 | 2026-07-10 | **Milan XIV (176) manual materialize** — cleared slice-6 cup review; Venice-style 6p double RR + KO; 5 stages / 38 fixtures; **League** · **Semi Finals** · **3rd Place Final** · **Final**; Tier B finish refreshed. |
 | 2026-07-10 | **Rome (29) manual materialize** — 6p double RR + two-leg final; 2 stages / 32 fixtures; **League** · **Final**; `has_league=1` `has_cup=1`; Tier B finish refreshed. |

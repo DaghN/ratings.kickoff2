@@ -84,6 +84,8 @@ WHERE tournament_id = 173 AND stage_key = 'round-1';
 
 **KO display names (manual):** witness `Round 1` on a pure cup often means QF — prefer stage name **`Quarter Finals`** when bracket size fits (604: 8p → 4 ties). Plural **`Semi Finals`** matches catalog majority over `Semi Final`. Leave `g.phase` as witness; edit `tournament_stages.name` only.
 
+**KO `phase_label` (finish):** standings scope uses `fixture_phase_label` before stage name. Witness labels that do not normalize to honours tiers break finish — e.g. **`Finals`** (plural) is not **`final`**. For manual KO materialize: set `tournament_fixtures.phase_label = NULL` on knockout fixtures (or rely on `materialize_legacy` which now NULLs KO `phase_label`); then `backfill-standings-stage-id` + `refresh-event-finish-snapshots`. Example: Milan XII **166** (g5954–56).
+
 ### 5. Standings + structure verify
 
 ```powershell

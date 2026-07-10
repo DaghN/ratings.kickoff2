@@ -467,6 +467,10 @@ def materialize_legacy_fixtures(
             phase_label = game.get("phase")
             if phase_label is not None:
                 phase_label = str(phase_label).strip() or None
+            # KO standings scope prefers stage display name (Final, Semi Finals, …).
+            # Witness g.phase may not normalize (e.g. "Finals" plural) — leave phase_label NULL.
+            if bucket.stage_type == STAGE_TYPE_KNOCKOUT:
+                phase_label = None
             fixture_key = f"legacy-g{int(game['id'])}"
             fixture_id = _import_create_fixture(
                 conn,

@@ -36,6 +36,10 @@ def _normalize_knockout_label(label: str) -> str:
     text = re.sub(r"\s+", " ", str(label or "").strip().lower())
     if _QUARTER_SEMI_SINGULAR_RE.match(text):
         return text + "s" if not text.endswith("s") else text
+    if text == "finals":
+        return "final"
+    if re.match(r"^(\d+)(?:st|nd|rd|th)\s+place\s+finals$", text):
+        return re.sub(r"finals$", "final", text)
     return text
 
 

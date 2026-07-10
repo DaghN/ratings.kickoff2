@@ -217,7 +217,7 @@
     },
     "54": {
       "handler": "structure_spec",
-      "notes": "8p; 2\u00d74 group RR (12g each) + KO playoffs (loser semis, game of shame, 5th, semis, bronze, final \u2014 g1183\u201390). AET/pens not in KOATD/DB (g1189 semi 1\u20131 vs forum 0\u20130 aet; g1188 bronze 0\u20130 only). Forum: https://ko-gathering.com/forum/viewtopic.php?p=48040#p48040"
+      "notes": "8p; 2\u00d74 group RR (g1159\u201382) + KO playoffs (g1183\u201390). Jul 2026: manual materialize; SC-11 ET/pens on g1188\u201389 (forum). Forum: https://ko-gathering.com/forum/viewtopic.php?p=48040#p48040"
     },
     "55": {
       "handler": "pure_rr",
@@ -297,7 +297,7 @@
     },
     "74": {
       "handler": "structure_spec",
-      "notes": "6p post-league cup; R1 (3g g953\u201355) + lucky loser (best GD among losers) \u2192 semis + final (g956\u201358); George/Apostolos meet twice. KOATD NULL phase. Forum: https://ko-gathering.com/forum/viewtopic.php?t=2668&hilit=Athens+IV"
+      "notes": "6p lucky-loser cup (g965\u201370): QF \u00d73, lucky loser (best GD) \u2192 SF + F. Jul 2026: manual materialize; stage QF named Quarter Finals; has_league=0 has_cup=1. Forum: https://ko-gathering.com/forum/viewtopic.php?t=2668&hilit=Athens+IV"
     },
     "75": {
       "handler": "pure_knockout",
@@ -582,7 +582,7 @@
     },
     "145": {
       "handler": "structure_spec",
-      "notes": "8p; 2\u00d74 groups (Sandro T withdrew after groups) + variable-leg KO incl. Play Outs + placement finals; AET/pens on 4g (g5166, g5185\u201387, g5194). Forum Carnival Cup = KOA Milan V. Forum: https://ko-gathering.com/forum/viewtopic.php?t=9365&start=13"
+      "notes": "8p; 2\u00d74 groups (Sandro T withdrew after groups) + variable-leg KO incl. Play Outs + placement finals; AET/pens g5159, g5178, g5180, g5187. Jul 2026 materialize; Tier E Sandro T=8."
     },
     "146": {
       "handler": "pure_rr",
@@ -666,7 +666,7 @@
     },
     "166": {
       "handler": "structure_spec",
-      "notes": "8p double-RR league (56g) + 2-leg semis + 3-leg final; KOATD phase \"Finals\" plural (g5961\u201363)."
+      "notes": "8p double-RR league (56g) + 2-leg semis + 3-leg final (no 3rd); Jul 2026 manual materialize; KO phase_label NULL (witness Finals plural on g5954\u201356)."
     },
     "167": {
       "handler": "pure_rr",

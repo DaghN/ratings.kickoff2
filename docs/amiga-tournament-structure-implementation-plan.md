@@ -268,12 +268,15 @@ Separate slice **after slice 6 bulk** (or parallel only if Dagh asks). Fix `tour
 
 **Ids:** 48, 145, 152, 166, 198, 267, 269, 284 — see handoff 018 table.
 
+**Jul 2026 progress:** **145** (Milan V) + **166** (Milan XII) graduated — Play Outs, Finals plural, Nth Place Finals in Python + PHP; `materialize_legacy` NULLs KO `phase_label`; both manual-materialized on `ko2amiga_work`. **Remaining parser queue:** 48, 152, 198, 267, 269, 284 (Playouts, Places/Positions, …).
+
 ### Tasks
 
-- [ ] Parser patches (Playouts, Play Outs, Places/Positions, Place N Final, Finals plural, …)
-- [ ] Re-curate; update register
-- [ ] `materialize-tier-b-non-wc` or per-id materialize for **graduated** ids only
-- [ ] `verify-legacy --check-standings` per event
+- [x] Parser patches — **partial** (Play Outs, Finals plural, Nth Place Finals; KO `phase_label` NULL on legacy materialize)
+- [x] Re-curate; update register — **145**, **166** removed from `NON_WC_PARSER_FIX_FIRST_IDS`
+- [x] Per-id materialize for graduated ids — **145**, **166** on work
+- [ ] `verify-legacy --check-standings` per graduated event (spot-check)
+- [ ] Remaining ids: 48, 152, 198, 267, 269, 284
 
 ### STOP GATE E′
 

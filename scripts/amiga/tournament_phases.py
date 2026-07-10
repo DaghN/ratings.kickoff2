@@ -37,7 +37,8 @@ _KOA_ROUND_GROUP_RE = re.compile(
     re.IGNORECASE,
 )
 _PLACES_RE = re.compile(r"^Places\s+(\d+(?:-\d+)?)$", re.IGNORECASE)
-_PLACE_FINAL_RE = re.compile(r"^\d+(?:st|nd|rd|th)\s+Place\s+Final$", re.IGNORECASE)
+_PLACE_FINAL_RE = re.compile(r"^\d+(?:st|nd|rd|th)\s+Place\s+Finals?$", re.IGNORECASE)
+_PLAY_OUTS_RE = re.compile(r"^play\s*outs?$", re.IGNORECASE)
 _KNOCKOUT_LABELS = frozenset(
     {
         "quarter finals",
@@ -79,6 +80,10 @@ def is_knockout_phase(phase: str | None) -> bool:
         return True
     if _PLACES_RE.match(label):
         return True
+    if _PLAY_OUTS_RE.match(label):
+        return True
+    if label.lower() == "finals":
+        return True
     if _PLACE_FINAL_RE.match(label):
         return True
     return False
@@ -91,6 +96,16 @@ def knockout_pair_scope_key(phase: str, player_a_id: int, player_b_id: int) -> s
     return f"{phase}|{lo}-{hi}"
 
 
+def _canonical_knockout_scope_key(label: str) -> str:
+    """Normalize witness KO labels for standings scope keys."""
+    if label.lower() == "finals":
+        return "Final"
+    m = re.match(r"^(\d+(?:st|nd|rd|th))\s+Place\s+Finals$", label, re.IGNORECASE)
+    if m:
+        return f"{m.group(1)} Place Final"
+    return label
+
+
 def parse_phase(phase: str | None) -> PhaseScope:
     """Map a game phase label to a standings aggregation scope."""
     if not phase or not str(phase).strip():
@@ -99,7 +114,7 @@ def parse_phase(phase: str | None) -> PhaseScope:
     label = _normalize_whitespace(str(phase))
 
     if is_knockout_phase(label):
-        return PhaseScope(ScopeType.KNOCKOUT, label)
+        return PhaseScope(ScopeType.KNOCKOUT, _canonical_knockout_scope_key(label))
 
     m = _GROUP_RE.match(label)
     if m:
