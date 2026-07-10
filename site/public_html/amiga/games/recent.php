@@ -31,8 +31,6 @@ foreach ($recentTournaments as $tournamentRow) {
     ];
 }
 
-mysqli_close($con);
-
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_games_hub_shell_start.inc.php';
 ?>
 	<div class="k2-games-list">
@@ -44,7 +42,9 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_games_hub_shell_start.inc.p
         'default_sort_dir' => 'desc',
         'skip_initial_sort' => true,
         'empty_message' => 'No rated games in this tournament.',
+        'con' => $con,
     ]);
 } ?>
 	</div>
+<?php mysqli_close($con); ?>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_games_hub_shell_end.inc.php'; ?>

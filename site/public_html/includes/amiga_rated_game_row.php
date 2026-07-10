@@ -77,20 +77,35 @@ function amiga_rated_game_tournament_cell(array $row): string
  */
 function amiga_rated_game_phase_cell(array $row, ?mysqli $con = null): string
 {
+    $display = trim((string) ($row['phase'] ?? ''));
+    if ($display === '') {
+        return k2_fmt_dash();
+    }
     $tournamentId = (int) ($row['tournament_id'] ?? 0);
-    $phase = trim((string) ($row['phase'] ?? ''));
+    $stageId = (int) ($row['stage_id'] ?? 0);
+    $witness = array_key_exists('phase_witness', $row)
+        ? trim((string) ($row['phase_witness'] ?? ''))
+        : $display;
     $game = k2_player_game_normalize_row($row);
-    if ($phase !== '' && $tournamentId > 0 && $con !== null) {
-        return amiga_tournament_phase_link(
+    if ($con !== null && $tournamentId > 0) {
+        $scope = amiga_tournament_resolve_game_phase_scope(
             $con,
             $tournamentId,
-            $phase,
+            $stageId,
+            $witness,
             (int) $game['idA'],
-            (int) $game['idB']
+            (int) $game['idB'],
         );
+        if ($scope !== null) {
+            $href = amiga_tournament_url($tournamentId, $scope['scope_type'], $scope['scope_key']);
+            $help = $scope['scope_type'] === 'knockout' ? 'Elimination tie' : 'Phase standings';
+
+            return '<a href="' . k2_h($href) . '" data-k2-help="' . k2_h($help) . '" data-k2-tooltip-hide-title="1">'
+                . k2_h($display) . '</a>';
+        }
     }
 
-    return $phase !== '' ? k2_h($phase) : k2_fmt_dash();
+    return k2_h($display);
 }
 
 /**

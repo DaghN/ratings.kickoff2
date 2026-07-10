@@ -2042,6 +2042,55 @@ function amiga_tournament_phase_link(
 }
 
 /**
+ * Resolve standings scope for a game row — prefer `stage_id`, else L3 witness phase.
+ *
+ * @return array{scope_type: string, scope_key: string}|null
+ */
+function amiga_tournament_resolve_game_phase_scope(
+    mysqli $con,
+    int $tournamentId,
+    int $stageId,
+    string $witnessPhase,
+    int $playerAId = 0,
+    int $playerBId = 0,
+): ?array {
+    if ($tournamentId < 1) {
+        return null;
+    }
+    if ($stageId > 0) {
+        $stmt = mysqli_prepare(
+            $con,
+            'SELECT scope_type, scope_key FROM amiga_tournament_standings
+             WHERE tournament_id = ? AND stage_id = ?
+             LIMIT 1'
+        );
+        if ($stmt !== false) {
+            mysqli_stmt_bind_param($stmt, 'ii', $tournamentId, $stageId);
+            mysqli_stmt_execute($stmt);
+            $res = mysqli_stmt_get_result($stmt);
+            $row = $res ? mysqli_fetch_assoc($res) : false;
+            if ($res) {
+                mysqli_free_result($res);
+            }
+            mysqli_stmt_close($stmt);
+            if (is_array($row)) {
+                return [
+                    'scope_type' => (string) $row['scope_type'],
+                    'scope_key' => (string) $row['scope_key'],
+                ];
+            }
+        }
+    }
+
+    $witnessPhase = trim($witnessPhase);
+    if ($witnessPhase === '') {
+        return null;
+    }
+
+    return amiga_tournament_resolve_phase_scope($con, $tournamentId, $witnessPhase, $playerAId, $playerBId);
+}
+
+/**
  * Tournament catalog for index page (chrono desc).
  *
  * @return list<array<string, mixed>>
@@ -2637,7 +2686,7 @@ function amiga_tournament_render_standings_table(array $rows, bool $isKnockoutVi
 /**
  * @param list<array<string, mixed>> $rows from amiga_tournament_games_rows()
  */
-function amiga_tournament_render_games_table(array $rows): void
+function amiga_tournament_render_games_table(array $rows, ?mysqli $con = null): void
 {
     require_once __DIR__ . '/k2_table_helpers.php';
     require_once __DIR__ . '/k2_rated_game_row.php';
@@ -2710,7 +2759,7 @@ function amiga_tournament_render_games_table(array $rows): void
 	<?php foreach ($rows as $row) {
         $processed = k2_rated_game_is_processed($row);
         $game = k2_player_game_normalize_row($row);
-        $phase = trim((string) ($row['phase'] ?? ''));
+        $phaseCell = amiga_rated_game_phase_cell($row, $con);
         $countryA = trim((string) ($row['country_a'] ?? ''));
         $countryB = trim((string) ($row['country_b'] ?? ''));
         $dash = k2_fmt_dash();
@@ -2766,7 +2815,7 @@ function amiga_tournament_render_games_table(array $rows): void
 		<tr data-k2-sort-tie-value="<?php echo (int) $game['id']; ?>">
 			<td<?php echo k2_table_body_td_attr($idCol, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php echo amiga_rated_game_id_html((int) $game['id']); ?></td>
 			<?php if ($showPhase) { ?>
-			<td<?php echo k2_table_body_td_attr($phaseCol, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php echo $phase !== '' ? k2_h($phase) : $dash; ?></td>
+			<td<?php echo k2_table_body_td_attr($phaseCol, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php echo $phaseCell; ?></td>
 			<?php } ?>
 			<td<?php echo k2_table_body_td_attr($teamACol, $anchorCol, $defaultSortCol, 'k2-table-cell--right k2-amiga-tgame-team k2-amiga-tgame-team--a'); ?>><?php echo $teamACell; ?></td>
 			<td<?php echo k2_table_body_td_attr($goalsACol, $anchorCol, $defaultSortCol, $goalsAClass); ?>><?php echo $goalsACell; ?></td>

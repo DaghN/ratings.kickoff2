@@ -1,8 +1,10 @@
 # Amiga tournament structure — review queue
 
-**Workflow:** [`amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md)  
-**Handlers:** [`amiga-tournament-structure-handlers.md`](amiga-tournament-structure-handlers.md)  
+**Manual materialize (forward):** [**runbook**](amiga-tournament-structure-manual-materialize-runbook.md) — one tournament at a time; log decisions below.  
+**Handlers reference:** [`amiga-tournament-structure-handlers.md`](amiga-tournament-structure-handlers.md)  
 **Register:** `scripts/amiga/tournament_structure/disposition_register.json`
+
+Legacy disposition review starter (bulk bootstrap): [`amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md)
 
 ---
 
@@ -21,7 +23,9 @@ Disposition review pauses on affected parents until the gate in the split starte
 
 ---
 
-## Status (bootstrap Jun 2026)
+## Status (bootstrap Jun 2026 — bulk mostly done)
+
+**Forward:** remaining catalog ids → [manual materialize runbook](amiga-tournament-structure-manual-materialize-runbook.md). Bulk handler counts below are **historical bootstrap**, not “still to bulk.”
 
 | Handler | Count | Action |
 |---------|------:|--------|
@@ -92,7 +96,7 @@ Regenerate after code changes: `generate-disposition-register` (overwrites propo
 - **158** Stoke Cup → `pure_knockout` — 15p single-elim; 7 R1 ties + 1 bye (James B); phase "Round 1" not league (g5639–5652).
 - **166** Milan XII → `structure_spec` — 8p double-RR league + 2-leg semis + 3-leg final; phase "Finals" plural (g5961–63).
 - **171** Copenhagen Cup → `pure_knockout` — 8p from QF + full placement bracket; AET g6723 (g6715–6726).
-- **173** Frankfurt → `structure_spec` — 4p double-RR league + 2-leg semis/3rd/final (g6781–88). **Jul 2026:** cleared `NON_WC_SLICE6_CUP_REVIEW_IDS`; legacy materialize on `ko2amiga_work`.
+- **173** Frankfurt → `structure_spec` — 4p double-RR league + 2-leg semis/3rd/final (g6781–88). **Jul 2026:** cleared `NON_WC_SLICE6_CUP_REVIEW_IDS`; legacy materialize on `ko2amiga_work`; RR stage `round-1` display name **`Round 1 - League`** (manual; witness `g.phase` stays `Round 1`).
 - **174** London Marathon → `pure_rr` — 22p near-complete single RR (230/231g); James L–Vagelis D unplayed.
 - **176** Milan XIV → `structure_spec` — 6p double-RR league + 2-leg semis/3rd/final (g7121–28).
 - **187** Hertford IV — split **deferred** (24g league + 4g cup; forum t=12376; cup g7579, 7567, 7563, 7582); stays `pending_review`.

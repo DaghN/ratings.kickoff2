@@ -47,8 +47,6 @@ $hubCounts = amiga_games_hub_status_counts($con, $ctx, $hasActiveFilters ? null 
 $k2AmigaGamesHubTotal = $hubCounts['total'];
 $k2AmigaGamesRecentCount = $hubCounts['recent'];
 
-mysqli_close($con);
-
 $shownCount = count($games);
 $firstShown = $totalMatches > 0 ? $offset + 1 : 0;
 $lastShown = $offset + $shownCount;
@@ -101,6 +99,8 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_games_hub_shell_start.inc.p
 		<?php amiga_realm_games_hub_render_table($games, [
             'server_state' => $state,
             'empty_message' => $emptyMessage,
+            'con' => $con,
         ]); ?>
 	</div>
+<?php mysqli_close($con); ?>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_games_hub_shell_end.inc.php'; ?>

@@ -19,7 +19,8 @@ function amiga_realm_games_hub_lean_select_sql(): string
 {
     return 'SELECT g.id AS id, g.game_date AS `Date`, g.player_a_id AS idA, pa.name AS NameA, '
         . 'g.player_b_id AS idB, pb.name AS NameB, g.tournament_id AS tournament_id, t.name AS tournament_name, '
-        . 't.country AS tournament_country, g.phase AS phase, g.goals_a AS GoalsA, g.goals_b AS GoalsB, '
+        . 't.country AS tournament_country, '
+        . amiga_game_phase_select_sql() . ', g.goals_a AS GoalsA, g.goals_b AS GoalsB, '
         . 'gr.rating_a AS RatingA, gr.rating_b AS RatingB, gr.rating_difference AS RatingDifference, '
         . 'gr.expected_score_a AS ExpectedScoreA, gr.expected_score_b AS ExpectedScoreB, gr.actual_score AS ActualScore, '
         . 'gr.adjustment_a AS AdjustmentA, gr.adjustment_b AS AdjustmentB, gr.new_rating_a AS NewRatingA, '
@@ -29,7 +30,9 @@ function amiga_realm_games_hub_lean_select_sql(): string
 
 function amiga_realm_games_hub_lean_from_sql(): string
 {
-    return 'FROM amiga_games g ' . amiga_realm_games_hub_lean_join_sql();
+    return 'FROM amiga_games g '
+        . amiga_realm_games_hub_lean_join_sql()
+        . amiga_rated_games_fixture_stage_join_sql();
 }
 
 function amiga_realm_games_hub_lean_join_sql(): string

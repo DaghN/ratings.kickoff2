@@ -4,39 +4,46 @@
  */
 declare(strict_types=1);
 
+function k2_amiga_export_manifest_path(): string
+{
+    return dirname(__DIR__, 2) . '/data/amiga/staging_export_tables.json';
+}
+
 function k2_amiga_export_table_list(): array
 {
-    return [
-        'tournament_format_templates',
-        'tournaments',
-        'amiga_players',
-        'tournament_entrants',
-        'tournament_stages',
-        'tournament_stage_players',
-        'tournament_fixtures',
-        'amiga_games',
-        'amiga_game_ratings',
-        'amiga_player_event_snapshots',
-        'amiga_player_current',
-        'amiga_player_elo_rank_at_event',
-        'amiga_player_matchup_at_event',
-        'amiga_player_matchup_summary',
-        'amiga_tournament_standings',
-        'amiga_tournament_catalog_stats',
-        'amiga_generalstats',
-        'amiga_realm_snapshots',
-        'amiga_community_stats',
-        'amiga_community_stats_snapshots',
-        'amiga_community_stat_facts',
-        'amiga_world_cup_stats',
-        'amiga_tournament_finish_override',
-        'amiga_player_slice_totals',
-        'amiga_player_slice_at_event',
-        'amiga_country_slice_totals',
-        'amiga_country_slice_at_event',
-        'amiga_wc_hof_snapshots',
-        'amiga_wc_hof_present',
-    ];
+    static $cached = null;
+    if (is_array($cached)) {
+        return $cached;
+    }
+
+    $manifestPath = k2_amiga_export_manifest_path();
+    if (!is_file($manifestPath)) {
+        throw new RuntimeException(
+            'Missing staging export manifest: ' . $manifestPath
+            . ' (run: python -m scripts.amiga write-staging-export-tables)'
+        );
+    }
+
+    $raw = file_get_contents($manifestPath);
+    if ($raw === false) {
+        throw new RuntimeException('Could not read staging export manifest: ' . $manifestPath);
+    }
+
+    $payload = json_decode($raw, true);
+    if (!is_array($payload) || !isset($payload['tables']) || !is_array($payload['tables']) || $payload['tables'] === []) {
+        throw new RuntimeException('Invalid staging export manifest JSON: ' . $manifestPath);
+    }
+
+    $tables = [];
+    foreach ($payload['tables'] as $table) {
+        if (!is_string($table) || $table === '') {
+            throw new RuntimeException('Invalid table name in staging export manifest: ' . $manifestPath);
+        }
+        $tables[] = $table;
+    }
+
+    $cached = $tables;
+    return $cached;
 }
 
 function k2_amiga_export_table_exists(mysqli $con, string $table): bool

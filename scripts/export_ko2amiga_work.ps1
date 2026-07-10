@@ -8,5 +8,11 @@ Set-Location $RepoRoot
 python -m scripts.amiga promote-video-deploy
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+python -m scripts.amiga write-staging-export-tables
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+python -m scripts.amiga audit-staging-export --database ko2amiga_work
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
 . (Join-Path $PSScriptRoot 'lib\Export-Ko2AmigaStaging.ps1')
 Export-Ko2AmigaStagingDatabase -SourceDatabase 'ko2amiga_work'

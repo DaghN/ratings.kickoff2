@@ -73,9 +73,14 @@ Work manifest: `data/amiga/work/tournament_videos.json` (gitignored). Oracle sna
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_work.ps1
+# preflight inside script: write-staging-export-tables + audit-staging-export
+python -m scripts.amiga audit-staging-export --database ko2amiga_work   # manual gate
+python -m scripts.amiga write-staging-export-tables                     # refresh JSON only
 # one-time local PHP -> ko2amiga_work:
 powershell -ExecutionPolicy Bypass -File scripts\promote_ko2amiga_work_local.ps1
 ```
+
+Table list: `scripts/amiga/staging_export_tables.py` → committed `site/public_html/data/amiga/staging_export_tables.json` (push `Export-Ko2AmigaStaging.ps1` + pull `amiga_staging_export_lib.php`). Validated against `schema_bundles` DDL — export **fails** if a new product table is missing. Runbook: [`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md) § export registry.
 
 Oracle archaeology only: `export_ko2amiga_db.ps1` (frozen `ko2amiga_db` after legacy `prove`).
 
@@ -306,7 +311,7 @@ Participation **roster = `amiga_games`**; finish from `participation_placement.p
 
 **Event snapshots:** `024` in fresh bundle. Policy: [`docs/amiga-event-snapshot-policy.md`](../docs/amiga-event-snapshot-policy.md).
 
-**Tournament structure (Jun 2026):** Disposition register **603/603** — [`amiga-tournament-structure-handlers.md`](../docs/amiga-tournament-structure-handlers.md). Review: [`disposition-REVIEW-STARTER`](../docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md).
+**Tournament structure (Jun 2026):** Disposition register **603/603** — [`amiga-tournament-structure-handlers.md`](../docs/amiga-tournament-structure-handlers.md). **Manual materialize (long tail):** [`amiga-tournament-structure-manual-materialize-runbook.md`](../docs/amiga-tournament-structure-manual-materialize-runbook.md).
 
 ```powershell
 python -m scripts.amiga tournament-structure generate-disposition-register

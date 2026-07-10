@@ -1,8 +1,11 @@
 # Amiga tournament structure — handler contracts
 
 **Authority:** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) §4–5  
+**Forward ritual (long tail):** [**manual materialize runbook**](amiga-tournament-structure-manual-materialize-runbook.md) — **start here** for one tournament at a time (Jul 2026).  
 **Register:** `scripts/amiga/tournament_structure/disposition_register.json` (generated + hand-edited)  
-**Review workflow:** [`orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md)
+**Decision log:** [`amiga-tournament-structure-review-queue.md`](amiga-tournament-structure-review-queue.md)
+
+Bulk `apply-structure --from-disposition` remains for **replay / simul / oracle** and the mostly-finished catalog mass — not the default for new triage.
 
 ---
 
@@ -14,16 +17,32 @@ Every catalog `tournament_id` has **one row** in the disposition register:
 { "handler": "pure_knockout", "notes": "15p bye cup" }
 ```
 
-Import dispatches `handler` → shared script. **No implicit defaults.**
+**`handler`** = bulk routing hint + format class. **`notes`** = human oddities (one line).  
+**May materialize?** → see [runbook § Gates](amiga-tournament-structure-manual-materialize-runbook.md#gates-cheat-sheet) — **not** handler alone (tier-B review frozensets can still block).
 
-| Handler | Module | Review question |
-|---------|--------|-----------------|
-| `pure_rr` | `materialize_legacy` (NULL-phase path) | Does RR math pass? |
+| Handler | Typical materialize path | Review question |
+|---------|--------------------------|-----------------|
+| `pure_rr` | `materialize` (legacy) | Does RR / phase bucket match? |
 | `pure_knockout` | [`pure_knockout.py`](../scripts/amiga/tournament_structure/pure_knockout.py) | Does preview match reality? |
-| `structure_spec` | `apply.py` + spec slug | Needs curated spec |
-| `wc_deferred` | skip structure + log | WC track later |
-| `pending_review` | skip structure + log | Not settled |
+| `structure_spec` | Legacy `materialize` **or** `apply.py` + registry spec | Multi-stage; registry spec rare — bulk skips without active spec |
+| `wc_deferred` | WC track later | Not slice-6 manual |
+| `pending_review` | None until triaged | Not settled |
 | `no_games` | skip | Empty event |
+
+---
+
+## Manual materialize (default for remaining catalog)
+
+**Runbook:** [`amiga-tournament-structure-manual-materialize-runbook.md`](amiga-tournament-structure-manual-materialize-runbook.md)
+
+```powershell
+python -m scripts.amiga tournament-structure materialize --tournament-id <id> --dry-run
+python -m scripts.amiga tournament-structure materialize --tournament-id <id> [--replace]
+python -m scripts.amiga backfill-standings-stage-id --tournament-id <id>
+python -m scripts.amiga verify-standings-stage-id --tournament-id <id>
+```
+
+Living ground: **`ko2amiga_work`**.
 
 ---
 
@@ -31,41 +50,26 @@ Import dispatches `handler` → shared script. **No implicit defaults.**
 
 **Contract:** [`amiga-tournament-structure-pure-knockout-handler.md`](amiga-tournament-structure-pure-knockout-handler.md)
 
-**Preview (review chat):**
-
 ```powershell
 python -m scripts.amiga tournament-structure preview-pure-knockout --tournament-id <id>
-```
-
-**Apply (dev / single-id repair — bulk via `prove` / `apply-structure`):**
-
-```powershell
 python -m scripts.amiga tournament-structure materialize-pure-knockout --tournament-id <id> [--replace]
 ```
 
 ---
 
-## Pure round-robin
+## Pure round-robin (NULL-phase tier A)
 
 **Contract:** Policy T11 — NULL phase + complete k-leg RR + equal per-player games.
-
-**Preview:**
 
 ```powershell
 python -m scripts.amiga tournament-structure verify-legacy --tournament-id <id>
 ```
 
-Tier **A** in audit output → candidate for `pure_rr` register row.
+Tier **A** in audit output → often already bulk-materialized; remaining NULL-phase edge cases → [runbook](amiga-tournament-structure-manual-materialize-runbook.md).
 
 ---
 
 ## Disposition register maintenance
-
-**Generate bootstrap (all ids, proposed handlers):**
-
-```powershell
-python -m scripts.amiga tournament-structure generate-disposition-register --out scripts/amiga/tournament_structure/disposition_register.json
-```
 
 **Verify coverage:**
 
@@ -73,11 +77,15 @@ python -m scripts.amiga tournament-structure generate-disposition-register --out
 python -m scripts.amiga tournament-structure verify-disposition-register
 ```
 
-After review: edit JSON row `handler` field (or re-run generator after code changes).
+**Generate bootstrap (overwrites proposals — merge hand `notes` carefully):**
+
+```powershell
+python -m scripts.amiga tournament-structure generate-disposition-register --out scripts/amiga/tournament_structure/disposition_register.json
+```
+
+After review: edit JSON row `handler` + `notes`; log line in [review queue](amiga-tournament-structure-review-queue.md).
 
 ### `notes` field (human oddities)
-
-**Handler** = format type. **`notes`** = why this row is non-obvious (one line).
 
 | Dagh says | handler | notes |
 |-----------|---------|-------|
@@ -85,13 +93,16 @@ After review: edit JSON row `handler` field (or re-run generator after code chan
 | KO cup, one bye R1 | `pure_knockout` | `15p single-elim, 1 bye` |
 | Groups then KO | `structure_spec` | `4×4 groups → knockout` |
 
-Skip `notes` on boring bulk marathons. Overwrite bootstrap boilerplate when promoting from `pending_review`.
+Overwrite bootstrap boilerplate when promoting from `pending_review`.
 
 ---
 
-## Superseded (interim)
+## Bulk / oracle (demoted — not daily triage)
 
-Import closure shipped (ground layers slice 6). Remaining interim artefacts:
+| Tool | Role |
+|------|------|
+| `apply-structure --from-disposition` | Simul / prove replay after L3 witness |
+| `materialize-tier-a` / `materialize-tier-b-non-wc` | Historical dev repair CLIs |
+| `tier_b_non_wc_register.py` frozensets | **Materialize gates** until merged into disposition (see runbook §2) |
 
-- `tier_b_non_wc_register.py` frozensets — migrate into disposition JSON
-- `materialize-tier-a` / `materialize-tier-b-non-wc` bulk CLIs — dev repair only
+Future optional: `materialize` field on disposition rows — [runbook anti-patterns](amiga-tournament-structure-manual-materialize-runbook.md#anti-patterns).

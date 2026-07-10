@@ -69,6 +69,10 @@ from scripts.amiga.modern.video_catalog import (
 from scripts.amiga.verify_export_pack import verify_export_pack
 from scripts.amiga.verify_structure import verify_structure
 from scripts.amiga.audit_catalog_dates import main as audit_catalog_dates_main
+from scripts.amiga.staging_export_tables import (
+    main_audit_staging_export,
+    main_write_staging_export_tables,
+)
 from scripts.amiga.tournament_structure.audit import main as audit_suspicious_marathons_main
 from scripts.amiga.tournament_structure.materialize_legacy import main as tournament_structure_main
 from scripts.amiga.tournament_structure.verify import main as structure_main
@@ -650,6 +654,26 @@ def main(argv: list[str] | None = None) -> int:
         help="Scan Access for chrono/date inversions; fail if uncorrected",
     )
 
+    sub.add_parser(
+        "write-staging-export-tables",
+        help="Write site/public_html/data/amiga/staging_export_tables.json from registry",
+    )
+
+    p_audit_staging_export = sub.add_parser(
+        "audit-staging-export",
+        help="Preflight: registry vs schema bundles + JSON manifest + work DB tables",
+    )
+    p_audit_staging_export.add_argument(
+        "--database",
+        default="ko2amiga_work",
+        help="MySQL schema to check (default: ko2amiga_work)",
+    )
+    p_audit_staging_export.add_argument(
+        "--skip-db",
+        action="store_true",
+        help="Registry/JSON checks only (no live DB)",
+    )
+
     p_structure = sub.add_parser(
         "structure",
         help="Tournament structure spec registry (list / verify)",
@@ -1168,6 +1192,15 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "audit-catalog-dates":
         return audit_catalog_dates_main()
+
+    if args.cmd == "write-staging-export-tables":
+        return main_write_staging_export_tables()
+
+    if args.cmd == "audit-staging-export":
+        audit_argv: list[str] = ["--database", args.database]
+        if args.skip_db:
+            audit_argv.append("--skip-db")
+        return main_audit_staging_export(audit_argv)
 
     if args.cmd == "structure":
         return structure_main(args.structure_args or ["list"])

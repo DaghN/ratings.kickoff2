@@ -14,6 +14,29 @@ function amiga_game_chronology_order_sql(string $direction = 'ASC'): string
     return "g.game_date {$dir}, g.id {$dir}";
 }
 
+/** Fixture + stage joins for display phase on `amiga_games` rows. */
+function amiga_rated_games_fixture_stage_join_sql(): string
+{
+    return 'LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id '
+        . 'LEFT JOIN tournament_stages s ON s.id = f.stage_id ';
+}
+
+/**
+ * SELECT columns: UI phase (stage name first), L3 witness phase, stage id for standings links.
+ */
+function amiga_game_phase_select_sql(): string
+{
+    return "COALESCE(NULLIF(TRIM(s.name), ''), g.phase) AS phase, "
+        . 'g.phase AS phase_witness, '
+        . 's.id AS stage_id';
+}
+
+/** SQL expression for sorting/filtering by display phase. */
+function amiga_game_display_phase_expr_sql(): string
+{
+    return "COALESCE(NULLIF(TRIM(s.name), ''), g.phase)";
+}
+
 /**
  * Subquery alias `r` with column names compatible with legacy ratedresults consumers.
  *
@@ -55,7 +78,9 @@ FROM (
         g.player_b_id AS idB,
         pb.name AS NameB,
         g.tournament_id,
-        g.phase,
+        g.phase AS phase_witness,
+        s.id AS stage_id,
+        COALESCE(NULLIF(TRIM(s.name), ''), g.phase) AS phase,
         g.goals_a AS GoalsA,
         g.goals_b AS GoalsB,
         gr.rating_a AS RatingA,
@@ -89,7 +114,9 @@ FROM (
     INNER JOIN amiga_game_ratings gr ON gr.game_id = g.id
     INNER JOIN amiga_players pa ON pa.id = g.player_a_id
     INNER JOIN amiga_players pb ON pb.id = g.player_b_id
-    LEFT JOIN tournaments t ON t.id = g.tournament_id{$playerWhere}
+    LEFT JOIN tournaments t ON t.id = g.tournament_id
+    LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id
+    LEFT JOIN tournament_stages s ON s.id = f.stage_id{$playerWhere}
 ) r
 SQL;
 }

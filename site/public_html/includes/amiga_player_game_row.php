@@ -42,13 +42,13 @@ function amiga_player_game_row_html(
     array $row,
     int $playerId,
     int $sortedColIndex = 0,
+    ?mysqli $con = null,
 ): string
 {
     $processed = k2_rated_game_is_processed($row);
     $game = k2_player_game_normalize_row($row);
     $tournamentId = (int) ($row['tournament_id'] ?? 0);
     $tournamentName = trim((string) ($row['tournament_name'] ?? ''));
-    $phase = trim((string) ($row['phase'] ?? ''));
     $isPlayerA = $game['idA'] === $playerId;
     $goalsFor = $isPlayerA ? $game['GoalsA'] : $game['GoalsB'];
     $goalsAgainst = $isPlayerA ? $game['GoalsB'] : $game['GoalsA'];
@@ -89,7 +89,7 @@ function amiga_player_game_row_html(
     } else {
         $tournamentCell = $tournamentName !== '' ? k2_h($tournamentName) : $dash;
     }
-    $phaseCell = $phase !== '' ? k2_h($phase) : $dash;
+    $phaseCell = amiga_rated_game_phase_cell($row, $con);
 
     $goalsA = (int) $game['GoalsA'];
     $goalsB = (int) $game['GoalsB'];

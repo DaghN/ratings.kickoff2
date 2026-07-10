@@ -704,7 +704,7 @@ function amiga_realm_games_all_fetch_page(mysqli $con, array $state, AmigaSnapsh
             'team_a' => 'pa.name',
             'team_b' => 'pb.name',
             'tournament' => 't.name',
-            'phase' => 'g.phase',
+            'phase' => amiga_game_display_phase_expr_sql(),
             'result' => 'gr.actual_score',
             'goals_for' => 'g.goals_a',
             'against' => 'g.goals_b',
@@ -716,19 +716,8 @@ function amiga_realm_games_all_fetch_page(mysqli $con, array $state, AmigaSnapsh
         $sortKey = $state['sort'];
         $leanSort = $leanSortMap[$sortKey] ?? 'g.id';
         $where = '1=1' . amiga_realm_games_all_lean_player_and_cutoff_sql($state, $ctx, $types, $params);
-        $sql = 'SELECT g.id AS id, g.game_date AS `Date`, g.player_a_id AS idA, pa.name AS NameA, '
-            . 'g.player_b_id AS idB, pb.name AS NameB, g.tournament_id AS tournament_id, t.name AS tournament_name, '
-            . 't.country AS tournament_country, g.phase AS phase, g.goals_a AS GoalsA, g.goals_b AS GoalsB, '
-            . 'gr.rating_a AS RatingA, gr.rating_b AS RatingB, gr.rating_difference AS RatingDifference, '
-            . 'gr.expected_score_a AS ExpectedScoreA, gr.expected_score_b AS ExpectedScoreB, gr.actual_score AS ActualScore, '
-            . 'gr.adjustment_a AS AdjustmentA, gr.adjustment_b AS AdjustmentB, gr.new_rating_a AS NewRatingA, '
-            . 'gr.new_rating_b AS NewRatingB, gr.sum_of_goals AS SumOfGoals, gr.goal_difference AS GoalDifference, '
-            . 'pa.country AS country_a, pb.country AS country_b '
-            . 'FROM amiga_games g '
-            . 'INNER JOIN amiga_game_ratings gr ON gr.game_id = g.id '
-            . 'INNER JOIN amiga_players pa ON pa.id = g.player_a_id '
-            . 'INNER JOIN amiga_players pb ON pb.id = g.player_b_id '
-            . 'LEFT JOIN tournaments t ON t.id = g.tournament_id '
+        $sql = amiga_realm_games_hub_lean_select_sql()
+            . amiga_realm_games_hub_lean_from_sql()
             . 'WHERE ' . $where
             . ' ORDER BY ' . $leanSort . ' ' . $dirSql . ', g.id DESC '
             . 'LIMIT ' . (int) $limit . ' OFFSET ' . (int) $offset;

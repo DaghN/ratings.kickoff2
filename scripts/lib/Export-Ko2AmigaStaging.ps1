@@ -23,21 +23,18 @@ function Export-Ko2AmigaStagingDatabase {
     New-Item -ItemType Directory -Force -Path $ArchiveDir | Out-Null
     $Stamp = Get-Date -Format 'yyyy-MM-dd'
 
-    $Tables = @(
-        'tournament_format_templates', 'tournaments', 'amiga_players',
-        'tournament_entrants', 'tournament_stages', 'tournament_stage_players', 'tournament_fixtures',
-        'amiga_games', 'amiga_game_ratings',
-        'amiga_player_event_snapshots', 'amiga_player_current', 'amiga_player_elo_rank_at_event',
-        'amiga_player_matchup_at_event', 'amiga_player_matchup_summary',
-        'amiga_tournament_standings', 'amiga_tournament_catalog_stats',
-        'amiga_generalstats', 'amiga_realm_snapshots',
-        'amiga_community_stats', 'amiga_community_stats_snapshots', 'amiga_community_stat_facts',
-        'amiga_world_cup_stats',
-        'amiga_tournament_finish_override',
-        'amiga_player_slice_totals', 'amiga_player_slice_at_event',
-        'amiga_country_slice_totals', 'amiga_country_slice_at_event',
-        'amiga_wc_hof_snapshots', 'amiga_wc_hof_present'
-    )
+    $ManifestJsonPath = Join-Path $RepoRoot 'site\public_html\data\amiga\staging_export_tables.json'
+    if (-not (Test-Path $ManifestJsonPath)) {
+        Write-Error "Missing staging export manifest: $ManifestJsonPath (run: python -m scripts.amiga write-staging-export-tables)"
+    }
+    $manifestPayload = Get-Content -LiteralPath $ManifestJsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    if (-not $manifestPayload.tables) {
+        Write-Error "Invalid staging export manifest (no tables): $ManifestJsonPath"
+    }
+    $Tables = @($manifestPayload.tables)
+    if ($Tables.Count -lt 1) {
+        Write-Error "Staging export manifest has empty table list: $ManifestJsonPath"
+    }
 
     $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
 
@@ -103,6 +100,10 @@ function Export-Ko2AmigaStagingDatabase {
     $stagesFile = Join-Path $OutDir 'ko2amiga_07_stages.sql'
     Write-DumpFile $stagesFile @('--no-create-info', $SourceDatabase, 'tournament_stages')
     $parts.Add('ko2amiga_07_stages.sql')
+
+    $scoringStepsFile = Join-Path $OutDir 'ko2amiga_07a_stage_scoring_steps.sql'
+    Write-DumpFile $scoringStepsFile @('--no-create-info', $SourceDatabase, 'tournament_stage_scoring_steps')
+    $parts.Add('ko2amiga_07a_stage_scoring_steps.sql')
 
     $stagePlayersFile = Join-Path $OutDir 'ko2amiga_08_stage_players.sql'
     Write-DumpFile $stagePlayersFile @('--no-create-info', $SourceDatabase, 'tournament_stage_players')

@@ -358,7 +358,7 @@ $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : 
     </tr>
     <?php } ?>
     <?php foreach ($games as $game) { ?>
-    <?php echo amiga_player_game_row_html($game, $playerId, $sortedColIndex); ?>
+    <?php echo amiga_player_game_row_html($game, $playerId, $sortedColIndex, $con); ?>
     <?php } ?>
 </tbody>
 

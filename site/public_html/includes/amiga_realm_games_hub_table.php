@@ -27,12 +27,14 @@ const AMIGA_REALM_GAMES_HUB_DATE_SORT_COL_RANKED = 2;
  *   default_sort_dir?: string,
  *   empty_message?: string,
  *   skip_initial_sort?: bool,
+ *   con?: ?mysqli,
  * } $opts
  */
 function amiga_realm_games_hub_render_table(array $rows, array $opts = []): void
 {
     $showRank = (bool) ($opts['show_rank'] ?? false);
     $serverState = $opts['server_state'] ?? null;
+    $hubCon = ($opts['con'] ?? null) instanceof mysqli ? $opts['con'] : null;
     $serverSorted = is_array($serverState);
     $defaultSortCol = (int) ($opts['default_sort_col'] ?? ($showRank ? AMIGA_REALM_GAMES_HUB_DATE_SORT_COL_RANKED : AMIGA_REALM_GAMES_HUB_DATE_SORT_COL));
     $defaultSortDir = (string) ($opts['default_sort_dir'] ?? 'desc');
@@ -158,6 +160,7 @@ function amiga_realm_games_hub_render_table(array $rows, array $opts = []): void
             $adjLoseCol,
             $anchorCol,
             $sortedColIndex,
+            $hubCon,
         );
     } ?>
 	</tbody>
@@ -223,6 +226,7 @@ function amiga_realm_games_hub_render_row(
     int $adjLoseCol,
     int $anchorCol,
     int $sortedColIndex,
+    ?mysqli $con = null,
 ): void {
     $processed = k2_rated_game_is_processed($row);
     $game = k2_player_game_normalize_row($row);
@@ -279,7 +283,7 @@ function amiga_realm_games_hub_render_row(
     $tournamentCell = $tournamentId > 0 && $tournamentName !== ''
         ? '<span class="k2-amiga-tgame-side k2-amiga-tgame-side--tournament">' . $hostFlag . amiga_tournament_link($tournamentId, $tournamentName) . '</span>'
         : $dash;
-    $phaseCell = amiga_rated_game_phase_cell($row, null);
+    $phaseCell = amiga_rated_game_phase_cell($row, $con);
 
     $goalsAClass = $aWin ? 'k2-amiga-tgame-goal--win' : '';
     $goalsBClass = 'k2-table-cell--left' . ($bWin ? ' k2-amiga-tgame-goal--win' : '');

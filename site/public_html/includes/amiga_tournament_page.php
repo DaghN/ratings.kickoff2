@@ -662,7 +662,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
 
   <?php
 
-      amiga_tournament_render_games_table($tournamentGamesRows);
+      amiga_tournament_render_games_table($tournamentGamesRows, $con);
 
   } ?>
 

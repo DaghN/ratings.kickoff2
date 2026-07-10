@@ -7,6 +7,7 @@
                   "ko2amiga_05_finish_override.sql",
                   "ko2amiga_06_entrants.sql",
                   "ko2amiga_07_stages.sql",
+                  "ko2amiga_07a_stage_scoring_steps.sql",
                   "ko2amiga_08_stage_players.sql",
                   "ko2amiga_09_fixtures.sql",
                   "ko2amiga_10_games_1_5000.sql",
@@ -41,7 +42,7 @@
                   "ko2amiga_39_wc_hof_snapshots.sql",
                   "ko2amiga_40_wc_hof_present.sql"
               ],
-    "generated":  "2026-07-08 08:40:17",
+    "generated":  "2026-07-10 05:53:32",
     "source_database":  "ko2amiga_work",
     "staging_database":  "ko2amiga_db"
 }

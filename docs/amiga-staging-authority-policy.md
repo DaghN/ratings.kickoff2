@@ -179,7 +179,7 @@ Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
 
 1. **Staged prod, local repair** — do not assign “local is ahead of staging” features without pull/push vocabulary.
 2. **Pull from staged** — Dagh says “pull staged Amiga” (or similar) → **run** `pull_ko2amiga_from_staging.ps1 -Force`; not simul unless asked.
-3. **Export to staged** — run `export_ko2amiga_work.ps1` only when work reflects the repair you intend; remind Dagh if staging had community activity since last pull.
+3. **Export to staged** — run `export_ko2amiga_work.ps1` only when work reflects the repair you intend; script regenerates + audits `staging_export_tables.json` against `schema_bundles` before dump (blocks incomplete push). Remind Dagh if staging had community activity since last pull.
 4. **Destructive import** — staging browser import still **wipes** unstaged ground; see handoff doc every time.
 5. **Forward authority** — [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0 for simul/work; this doc for **staging sync roles**.
 
@@ -201,6 +201,7 @@ Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
 
 | Date | Change |
 |------|--------|
+| 2026-07-10 | **Export table registry** — `staging_export_tables.py` + JSON manifest; push/pull read same list; `export_ko2amiga_work.ps1` audit preflight (incl. `tournament_stage_scoring_steps`). |
 | 2026-07-08 | **Agent pull ritual** — `kool-workspace.mdc` + `AGENTS.md`: trigger phrases → `pull_ko2amiga_from_staging.ps1 -Force`. |
 | 2026-07-08 | **PULL-1 verified** — full staging → `ko2amiga_work` pull green; export-v4 mysqldump stderr fix; simul opt-in on pull script. |
 | 2026-07-08 | **PULL-1b** — `run_export_ko2amiga.php` + `_export/` staging pull dump (preview/generate/download). |
