@@ -42,6 +42,15 @@ if ($tournament === null) {
 
 $participants = amiga_live_tournament_participants($con, $id);
 $leagueTable = amiga_live_tournament_league_table_rows($con, $id);
+$knockoutScopes = amiga_tournament_list_scopes($con, $id, 'knockout');
+$bracketData = [
+    'main' => [],
+    'placement_final' => [],
+    'placement_bracket' => [],
+];
+if ($knockoutScopes !== []) {
+    $bracketData = amiga_tournament_knockout_bracket_data($con, $id, $knockoutScopes);
+}
 $fixtureGroups = amiga_live_tournament_fixture_groups($con, $id);
 $liveGameCount = amiga_tournament_game_count($con, $id);
 mysqli_close($con);
@@ -110,6 +119,11 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_hero.php';
   <?php amiga_tournament_render_standings_table($leagueTable['rows'], false); ?>
 </section>
 <?php } ?>
+
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_bracket.php';
+amiga_tournament_render_bracket($bracketData);
+?>
 
 <?php foreach ($fixtureGroups as $group) {
     $stage = $group['stage'];

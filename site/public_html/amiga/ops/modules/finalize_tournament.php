@@ -17,6 +17,7 @@ require_once __DIR__ . '/../includes/amiga_community_stats_lib.php';
 require_once __DIR__ . '/../includes/amiga_world_cup_stats_lib.php';
 require_once __DIR__ . '/../includes/amiga_wc_hof_lib.php';
 require_once dirname(__DIR__, 3) . '/includes/amiga_performance_rating.php';
+require_once dirname(__DIR__, 3) . '/includes/amiga_scoring_contract.php';
 
 const AMIGA_FINALIZE_LOCK_NAME = 'amiga_finalize_tournament';
 
@@ -668,6 +669,8 @@ function amiga_finalize_tournament(
             throw new RuntimeException('execute tournament finalize flag: ' . $flagStmt->error);
         }
         $flagStmt->close();
+
+        amiga_scoring_freeze_contracts_for_tournament($con, $tournamentId, $finalizedAt);
 
         amiga_ops_standings_apply_game($con, $games[array_key_last($games)]);
 

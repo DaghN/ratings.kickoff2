@@ -59,7 +59,7 @@
 
 ### `knockout_tie` steps (enum)
 
-`aggregate_goal_difference` · `extra_time` · `penalty_shootout` · `golden_goal`
+`aggregate_goal_difference` · `goals_for` (catalog legacy KO chain only — not in `platform_default_v1` default) · `extra_time` · `penalty_shootout` · `golden_goal`
 
 ### `platform_default_v1` (default chains)
 
@@ -99,7 +99,7 @@
 
 **Today:** 3-1-0 + GD/GF/games and KO aggregate GD/GF + `extra` text parse are **hardcoded** in `tournament_standings.py` / `amiga_post_game_standings.php`. Explicit relational contracts **not yet shipped**.
 
-**Bridge:** `platform_default_v1` copies into DB on **stage/tournament create** (SC-1). Legacy catalog NULL → executor uses in-memory `default_scoring_context()` / `LEGACY_KNOCKOUT_BRIDGE_STEPS` until SC-6. **Python executor** reads contracts (SC-3); **PHP** still hardcoded until SC-4.
+**Bridge:** `platform_default_v1` copies into DB on **stage/tournament create** (SC-1). **Catalog backfill (SC-6)** writes explicit rows on all tournaments/stages; catalog KO stages store the legacy GF chain for Access parity. Live-ops new knockouts still get `platform_default_v1` (extra_time, not GF). Executors read DB contracts (SC-3 / SC-4).
 
 ---
 

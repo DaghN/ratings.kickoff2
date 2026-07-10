@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from dataclasses import dataclass
 from typing import Any, Final
 
@@ -30,6 +32,7 @@ LEAGUE_TABLE_STEPS: Final[frozenset[str]] = frozenset({
 
 KNOCKOUT_TIE_STEPS: Final[frozenset[str]] = frozenset({
     "aggregate_goal_difference",
+    "goals_for",
     "extra_time",
     "penalty_shootout",
     "golden_goal",
@@ -484,3 +487,264 @@ def ensure_stage_scoring_contract(
                 (stage_id, sequence_no, step),
             )
     return True
+
+
+def ensure_catalog_stage_scoring_contract(
+    conn: pymysql.connections.Connection,
+    stage_id: int,
+) -> bool:
+    """SC-6 catalog backfill: explicit L4b rows; KO stages keep legacy GF chain for parity."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT tournament_id, stage_type, scoring_primitive
+            FROM tournament_stages
+            WHERE id = %s
+            """,
+            (stage_id,),
+        )
+        row = cur.fetchone()
+        if row is None:
+            raise ValueError(f"stage_id={stage_id} not found")
+        if row["scoring_primitive"] is not None:
+            return False
+
+        stage_type = str(row["stage_type"])
+        if stage_type not in VALID_STAGE_TYPES:
+            return False
+
+        tournament_id = int(row["tournament_id"])
+        primitive = primitive_for_stage_type(stage_type)
+        if primitive == KNOCKOUT_TIE_PRIMITIVE:
+            steps = LEGACY_KNOCKOUT_BRIDGE_STEPS
+        else:
+            steps = default_steps_for_primitive(primitive)
+
+        ensure_tournament_scoring_defaults(conn, tournament_id)
+
+        cur.execute(
+            """
+            UPDATE tournament_stages
+            SET scoring_primitive = %s,
+                scoring_schema_version = %s,
+                scoring_win_points = %s,
+                scoring_draw_points = %s,
+                scoring_loss_points = %s
+            WHERE id = %s
+              AND scoring_primitive IS NULL
+            """,
+            (primitive, SCORING_SCHEMA_VERSION, WIN_POINTS, DRAW_POINTS, LOSS_POINTS, stage_id),
+        )
+        if cur.rowcount == 0:
+            return False
+
+        for sequence_no, step in enumerate(steps, start=1):
+            cur.execute(
+                """
+                INSERT INTO tournament_stage_scoring_steps (stage_id, sequence_no, step)
+                VALUES (%s, %s, %s)
+                """,
+                (stage_id, sequence_no, step),
+            )
+    return True
+
+
+def count_scoring_contract_backfill_candidates(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int | None = None,
+) -> dict[str, int]:
+    """Count tournaments/stages that SC-6 backfill would touch."""
+    params: list[int] = []
+    tour_sql = "SELECT COUNT(*) AS n FROM tournaments WHERE scoring_win_points_default IS NULL"
+    stage_sql = (
+        "SELECT COUNT(*) AS n FROM tournament_stages "
+        "WHERE scoring_primitive IS NULL AND stage_type IN ('round_robin', 'knockout')"
+    )
+    if tournament_id is not None:
+        tour_sql += " AND id = %s"
+        stage_sql += " AND tournament_id = %s"
+        params = [tournament_id]
+
+    with conn.cursor() as cur:
+        cur.execute(tour_sql, params or None)
+        tour_n = int(cur.fetchone()["n"])
+        cur.execute(stage_sql, params or None)
+        stage_n = int(cur.fetchone()["n"])
+
+    return {"tournaments": tour_n, "stages": stage_n}
+
+
+def backfill_scoring_contracts(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int | None = None,
+    dry_run: bool = False,
+) -> dict[str, int]:
+    """Write explicit L4b contracts on catalog tournaments/stages (SC-6)."""
+    stats = {"tournaments": 0, "stages": 0, "skipped_tournament": 0, "skipped_stage": 0}
+
+    tour_params: list[int] = []
+    tour_sql = "SELECT id FROM tournaments"
+    if tournament_id is not None:
+        tour_sql += " WHERE id = %s"
+        tour_params = [tournament_id]
+
+    with conn.cursor() as cur:
+        cur.execute(tour_sql, tour_params or None)
+        tournament_ids = [int(row["id"]) for row in cur.fetchall()]
+
+    for tid in tournament_ids:
+        if dry_run:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT scoring_win_points_default FROM tournaments WHERE id = %s",
+                    (tid,),
+                )
+                row = cur.fetchone()
+            if row and row["scoring_win_points_default"] is None:
+                stats["tournaments"] += 1
+            else:
+                stats["skipped_tournament"] += 1
+            continue
+
+        if ensure_tournament_scoring_defaults(conn, tid):
+            stats["tournaments"] += 1
+        else:
+            stats["skipped_tournament"] += 1
+
+    stage_params: list[int] = []
+    stage_sql = (
+        "SELECT id FROM tournament_stages "
+        "WHERE scoring_primitive IS NULL AND stage_type IN ('round_robin', 'knockout')"
+    )
+    if tournament_id is not None:
+        stage_sql += " AND tournament_id = %s"
+        stage_params = [tournament_id]
+
+    with conn.cursor() as cur:
+        cur.execute(stage_sql, stage_params or None)
+        stage_ids = [int(row["id"]) for row in cur.fetchall()]
+
+    for stage_id in stage_ids:
+        if dry_run:
+            stats["stages"] += 1
+            continue
+        if ensure_catalog_stage_scoring_contract(conn, stage_id):
+            stats["stages"] += 1
+        else:
+            stats["skipped_stage"] += 1
+
+    if not dry_run:
+        conn.commit()
+
+    return stats
+
+
+def freeze_scoring_contracts_for_tournament(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+    frozen_at: datetime,
+) -> dict[str, int | bool]:
+    """SC-7: copy effective L4b contract onto frozen columns at finalize."""
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT scoring_frozen_at FROM tournaments WHERE id = %s",
+            (tournament_id,),
+        )
+        row = cur.fetchone()
+        if row is None:
+            raise ValueError(f"tournament_id={tournament_id} not found")
+        if row["scoring_frozen_at"] is not None:
+            return {"tournament": 0, "stages": 0, "skipped": True}
+
+        cur.execute(
+            """
+            UPDATE tournaments
+            SET frozen_scoring_schema_version = %s,
+                scoring_frozen_at = %s
+            WHERE id = %s
+            """,
+            (SCORING_SCHEMA_VERSION, frozen_at, tournament_id),
+        )
+        tournament_updated = int(cur.rowcount)
+
+        cur.execute(
+            """
+            UPDATE tournament_stages
+            SET frozen_scoring_primitive = scoring_primitive,
+                frozen_scoring_schema_version = scoring_schema_version,
+                frozen_scoring_win_points = scoring_win_points,
+                frozen_scoring_draw_points = scoring_draw_points,
+                frozen_scoring_loss_points = scoring_loss_points
+            WHERE tournament_id = %s
+              AND scoring_primitive IS NOT NULL
+            """,
+            (tournament_id,),
+        )
+        stages_updated = int(cur.rowcount)
+
+    return {
+        "tournament": tournament_updated,
+        "stages": stages_updated,
+        "skipped": False,
+    }
+
+
+def count_scoring_freeze_backfill_candidates(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int | None = None,
+) -> int:
+    params: list[int] = []
+    sql = (
+        "SELECT COUNT(*) AS n FROM tournaments "
+        "WHERE rating_finalized = 1 AND scoring_frozen_at IS NULL"
+    )
+    if tournament_id is not None:
+        sql += " AND id = %s"
+        params = [tournament_id]
+    with conn.cursor() as cur:
+        cur.execute(sql, params or None)
+        return int(cur.fetchone()["n"])
+
+
+def backfill_scoring_freeze_for_finalized(
+    conn: pymysql.connections.Connection,
+    *,
+    tournament_id: int | None = None,
+    dry_run: bool = False,
+) -> dict[str, int]:
+    """SC-7 catalog repair: freeze scoring contracts on already-finalized tournaments."""
+    params: list[int] = []
+    sql = (
+        "SELECT id, rating_finalized_at FROM tournaments "
+        "WHERE rating_finalized = 1 AND scoring_frozen_at IS NULL"
+    )
+    if tournament_id is not None:
+        sql += " AND id = %s"
+        params = [tournament_id]
+
+    with conn.cursor() as cur:
+        cur.execute(sql, params or None)
+        rows = cur.fetchall()
+
+    stats = {"tournaments": 0, "stages": 0}
+    for row in rows:
+        tid = int(row["id"])
+        if dry_run:
+            stats["tournaments"] += 1
+            continue
+        frozen_at = row.get("rating_finalized_at")
+        if frozen_at is None:
+            frozen_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        result = freeze_scoring_contracts_for_tournament(conn, tid, frozen_at)
+        if result.get("skipped"):
+            continue
+        stats["tournaments"] += int(result["tournament"])
+        stats["stages"] += int(result["stages"])
+
+    if not dry_run:
+        conn.commit()
+
+    return stats

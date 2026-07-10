@@ -152,6 +152,16 @@ python -m scripts.amiga standings-parity --sweep
 # PHP vs Python standings executor parity (SC-5; work DB + Laragon PHP):
 python -m scripts.amiga verify-php-standings-parity --sample 5
 python -m scripts.amiga verify-php-standings-parity --sweep
+python -m scripts.amiga verify-rtb-standings-parity --sample 5
+python -m scripts.amiga verify-rtb-standings-parity --sweep
+
+# L4b scoring contract catalog backfill (SC-6; work DB):
+python -m scripts.amiga backfill-scoring-contracts --dry-run
+python -m scripts.amiga backfill-scoring-contracts
+
+# L4b scoring contract freeze on finalized tournaments (SC-7; catalog repair):
+python -m scripts.amiga freeze-scoring-contracts --dry-run
+python -m scripts.amiga freeze-scoring-contracts
 
 # Schema inventory from Access (archaeology)
 python scripts/amiga/discover_access_schema.py

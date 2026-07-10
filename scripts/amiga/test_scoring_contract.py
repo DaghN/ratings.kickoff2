@@ -110,6 +110,23 @@ class ScoringContractValidateTests(unittest.TestCase):
         )
         self.assertTrue(any("not allowed for primitive" in err for err in errors))
 
+    def test_catalog_legacy_knockout_chain_valid(self) -> None:
+        from scripts.amiga.scoring_contract import LEGACY_KNOCKOUT_BRIDGE_STEPS
+
+        contract = StageScoringContract(
+            stage_id=2,
+            tournament_id=10,
+            stage_key="qf",
+            stage_type="knockout",
+            primitive=KNOCKOUT_TIE_PRIMITIVE,
+            schema_version=SCORING_SCHEMA_VERSION,
+            win_points=3,
+            draw_points=1,
+            loss_points=0,
+            steps=LEGACY_KNOCKOUT_BRIDGE_STEPS,
+        )
+        self.assertEqual(validate_stage_scoring_contract(contract), [])
+
 
 if __name__ == "__main__":
     unittest.main()

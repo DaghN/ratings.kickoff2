@@ -720,6 +720,11 @@ function amiga_tournament_has_implicit_league_table(mysqli $con, int $tournament
  */
 function amiga_tournament_list_scopes(mysqli $con, int $tournamentId, string $scopeType = 'league'): array
 {
+    require_once __DIR__ . '/amiga_running_tournament_lib.php';
+    if (amiga_running_tournament_broadcast_mode($con, $tournamentId)) {
+        return amiga_running_tournament_list_scopes($con, $tournamentId, $scopeType);
+    }
+
     static $cache = [];
     $cacheKey = $tournamentId . '|' . $scopeType;
     if (isset($cache[$cacheKey])) {
@@ -795,6 +800,11 @@ function amiga_tournament_standings_rows(
     string $scopeType = 'league',
     string $scopeKey = ''
 ): array {
+    require_once __DIR__ . '/amiga_running_tournament_lib.php';
+    if (amiga_running_tournament_broadcast_mode($con, $tournamentId)) {
+        return amiga_running_tournament_standings_scope_rows($con, $tournamentId, $scopeType, $scopeKey);
+    }
+
     static $cache = [];
     $cacheKey = $tournamentId . '|' . $scopeType . '|' . $scopeKey;
     if (isset($cache[$cacheKey])) {
@@ -2123,6 +2133,11 @@ function amiga_tournament_parse_knockout_scope_key(string $scopeKey): ?array
  */
 function amiga_tournament_knockout_fixture_games(mysqli $con, int $tournamentId, string $scopeKey): array
 {
+    require_once __DIR__ . '/amiga_running_tournament_lib.php';
+    if (amiga_running_tournament_broadcast_mode($con, $tournamentId)) {
+        return amiga_running_tournament_knockout_fixture_games($con, $tournamentId, $scopeKey);
+    }
+
     $parsed = amiga_tournament_parse_knockout_scope_key($scopeKey);
     if ($parsed === null || $tournamentId < 1) {
         return [];

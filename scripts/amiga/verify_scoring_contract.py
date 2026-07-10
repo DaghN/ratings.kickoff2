@@ -87,6 +87,54 @@ def verify_scoring_contract(conn: pymysql.connections.Connection) -> list[str]:
             continue
         errors.extend(validate_stage_scoring_contract(contract))
 
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT id, tournament_id, stage_key, stage_type
+            FROM tournament_stages
+            WHERE stage_type IN ('round_robin', 'knockout')
+              AND scoring_primitive IS NULL
+            ORDER BY id
+            """
+        )
+        for row in cur.fetchall():
+            errors.append(
+                f"stage_id={row['id']} tournament_id={row['tournament_id']} "
+                f"stage_key={row['stage_key']!r}: missing scoring contract (SC-6 backfill)"
+            )
+
+        cur.execute(
+            """
+            SELECT id, name
+            FROM tournaments
+            WHERE rating_finalized = 1
+              AND scoring_frozen_at IS NULL
+            ORDER BY id
+            """
+        )
+        for row in cur.fetchall():
+            errors.append(
+                f"tournament_id={row['id']} name={row['name']!r}: "
+                "rating_finalized without scoring freeze (SC-7)"
+            )
+
+        cur.execute(
+            """
+            SELECT s.id, s.tournament_id, s.stage_key
+            FROM tournament_stages s
+            INNER JOIN tournaments t ON t.id = s.tournament_id
+            WHERE t.rating_finalized = 1
+              AND s.scoring_primitive IS NOT NULL
+              AND s.frozen_scoring_primitive IS NULL
+            ORDER BY s.id
+            """
+        )
+        for row in cur.fetchall():
+            errors.append(
+                f"stage_id={row['id']} tournament_id={row['tournament_id']} "
+                f"stage_key={row['stage_key']!r}: missing frozen scoring contract (SC-7)"
+            )
+
     return errors
 
 

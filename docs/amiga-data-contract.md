@@ -70,7 +70,7 @@ Computed from ground truth by chronological replay or per-game ops. **Always reb
 |------|--------|
 | Per-game Elo | Ratings before/after, adjustments, outcome flags |
 | Player career stats | W/D/L, goals, peaks, opponent networks — **not match streaks** (see § Match streaks; columns exist but are not product truth) |
-| Tournament standings | L5 projection from L3 games + L4 topology + **L4b scoring contract** — [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md). **Python + PHP executors:** read contracts (SC-3 / SC-4); legacy NULL stages use in-memory bridge until SC-6 backfill. |
+| Tournament standings | L5 projection from L3 games + L4 topology + **L4b scoring contract** — [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md). **Python + PHP executors:** read DB contracts (SC-3 / SC-4); catalog backfill **SC-6** on work DB. |
 | Future aggregates | H2H summaries, period activity, etc. — when needed |
 
 **Rule:** After one new canonical game, derived tables must match what a full replay from empty would produce.
@@ -335,7 +335,7 @@ Twenty nullable columns on **`amiga_player_event_snapshots`** and **`amiga_playe
 - **Goals:** Regulation `goals_a` / `goals_b` only for `league` tables (Elo uses the same). `extra` column stores Access `Scores.Extra` (ET/penalties text); does not affect Elo.
 - **Knockout tie winner** (per pair scope, all legs in that phase between the two players): (1) higher aggregate goal difference; (2) if tied, higher aggregate goals scored; (3) if still tied, `parse_standings_winner` on any leg with non-empty `extra` (penalties); (4) if unresolved, UI shows “Tie unresolved” and falls back to derived `position` order. Same rules in `scripts/amiga/tournament_standings.py` (`_knockout_positions`) and `includes/amiga_tournament_lib.php` (`amiga_tournament_knockout_resolve_winner`). Website knockout view lists per-leg fixtures via `amiga_tournament_knockout_fixture_games`.
 - **Parity:** Access `Tables` / `World Cup * Tables` are reference only — `python -m scripts.amiga standings-parity` (spot check) or `standings-parity --sweep` (full report → `data/amiga/exports/standings_parity_report.json`). Player names normalized via `normalize_display_name` at compare time; Silver/Bronze cup groups map to Access `Group A`…`H` labels.
-- **PHP incremental:** per-game rebuild from rated `amiga_games` for the touched tournament (`amiga_post_game_standings.php`); contract-driven league sort + KO step chain (SC-4); legacy NULL contracts use `LEGACY_KNOCKOUT_BRIDGE_STEPS` until SC-6.
+- **PHP incremental:** per-game rebuild from rated `amiga_games` for the touched tournament (`amiga_post_game_standings.php`); contract-driven league sort + KO step chain (SC-4); explicit L4b rows from SC-1 create or SC-6 catalog backfill.
 - **Future gaps:** full knockout bracket advancement; cross-stage promotion (Tier 4).
 
 ---

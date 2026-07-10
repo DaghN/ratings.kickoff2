@@ -130,6 +130,216 @@ function amiga_running_tournament_games(mysqli $con, int $tournamentId): array
 }
 
 /**
+ * Contract-driven standings rows from played fixtures (not persisted — RTB Lane B).
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_running_tournament_compute_standings(mysqli $con, int $tournamentId): array
+{
+    static $cache = [];
+    if (isset($cache[$tournamentId])) {
+        return $cache[$tournamentId];
+    }
+
+    require_once __DIR__ . '/../amiga/ops/includes/amiga_post_game_standings.php';
+
+    $games = amiga_running_tournament_games($con, $tournamentId);
+    if ($games === []) {
+        $cache[$tournamentId] = [];
+
+        return [];
+    }
+    $scoringContext = amiga_scoring_load_context_for_tournament($con, $tournamentId);
+    $cache[$tournamentId] = amiga_ops_compute_tournament_standings($games, $scoringContext);
+
+    return $cache[$tournamentId];
+}
+
+/**
+ * @param list<array<string, mixed>> $computed
+ * @return list<int>
+ */
+function amiga_running_tournament_enrich_player_ids(array $computed): array
+{
+    return array_values(array_unique(array_map(
+        static fn (array $row): int => (int) $row['player_id'],
+        $computed
+    )));
+}
+
+/**
+ * @param list<int> $playerIds
+ * @return array<int, array{name: string, country: string}>
+ */
+function amiga_running_tournament_player_names(mysqli $con, array $playerIds): array
+{
+    $names = [];
+    if ($playerIds === []) {
+        return $names;
+    }
+    $placeholders = implode(',', array_fill(0, count($playerIds), '?'));
+    $types = str_repeat('i', count($playerIds));
+    $stmt = mysqli_prepare($con, "SELECT id, name, country FROM amiga_players WHERE id IN ({$placeholders})");
+    if ($stmt === false) {
+        return $names;
+    }
+    mysqli_stmt_bind_param($stmt, $types, ...$playerIds);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    if ($res) {
+        while ($nameRow = mysqli_fetch_assoc($res)) {
+            $names[(int) $nameRow['id']] = [
+                'name' => (string) $nameRow['name'],
+                'country' => $nameRow['country'] !== null ? (string) $nameRow['country'] : '',
+            ];
+        }
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+
+    return $names;
+}
+
+/**
+ * Broadcast standings for one scope (not persisted).
+ *
+ * @return list<array{position:int,games:int,wins:int,draws:int,losses:int,goals_for:int,goals_against:int,points:int,player_id:int,player_name:string,country:string}>
+ */
+function amiga_running_tournament_standings_scope_rows(
+    mysqli $con,
+    int $tournamentId,
+    string $scopeType,
+    string $scopeKey
+): array {
+    $computed = amiga_running_tournament_compute_standings($con, $tournamentId);
+    if ($computed === []) {
+        return [];
+    }
+    $scopeRows = array_values(array_filter(
+        $computed,
+        static fn (array $row): bool => ($row['scope_type'] ?? '') === $scopeType
+            && (string) ($row['scope_key'] ?? '') === $scopeKey
+    ));
+    if ($scopeRows === []) {
+        return [];
+    }
+
+    $names = amiga_running_tournament_player_names(
+        $con,
+        amiga_running_tournament_enrich_player_ids($scopeRows)
+    );
+
+    $rows = [];
+    foreach ($scopeRows as $row) {
+        $pid = (int) $row['player_id'];
+        $playerMeta = $names[$pid] ?? null;
+        $rows[] = [
+            'position' => (int) $row['position'],
+            'games' => (int) $row['games'],
+            'wins' => (int) $row['wins'],
+            'draws' => (int) $row['draws'],
+            'losses' => (int) $row['losses'],
+            'goals_for' => (int) $row['goals_for'],
+            'goals_against' => (int) $row['goals_against'],
+            'points' => (int) $row['points'],
+            'player_id' => $pid,
+            'player_name' => is_array($playerMeta) ? $playerMeta['name'] : ('Player #' . $pid),
+            'country' => is_array($playerMeta) ? $playerMeta['country'] : '',
+        ];
+    }
+
+    return $rows;
+}
+
+/**
+ * @return list<string>
+ */
+function amiga_running_tournament_list_scopes(mysqli $con, int $tournamentId, string $scopeType): array
+{
+    $computed = amiga_running_tournament_compute_standings($con, $tournamentId);
+    $keys = [];
+    foreach ($computed as $row) {
+        if (($row['scope_type'] ?? '') !== $scopeType) {
+            continue;
+        }
+        $key = (string) ($row['scope_key'] ?? '');
+        if (!in_array($key, $keys, true)) {
+            $keys[] = $key;
+        }
+    }
+    sort($keys, SORT_STRING);
+
+    return $keys;
+}
+
+/**
+ * Played fixture legs for a knockout scope while running (no amiga_games).
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_running_tournament_knockout_fixture_games(
+    mysqli $con,
+    int $tournamentId,
+    string $scopeKey
+): array {
+    require_once __DIR__ . '/../amiga/ops/includes/amiga_tournament_phases.php';
+
+    $parsed = amiga_tournament_parse_knockout_scope_key($scopeKey);
+    if ($parsed === null) {
+        return [];
+    }
+    $phase = $parsed['phase'];
+    $lo = $parsed['player_lo'];
+    $hi = $parsed['player_hi'];
+    $games = amiga_running_tournament_games($con, $tournamentId);
+    $rows = [];
+    foreach ($games as $g) {
+        $playerAId = (int) $g['player_a_id'];
+        $playerBId = (int) $g['player_b_id'];
+        $ids = [$playerAId, $playerBId];
+        sort($ids, SORT_NUMERIC);
+        if ($ids !== [$lo, $hi]) {
+            continue;
+        }
+        $label = trim((string) (
+            ($g['fixture_phase_label'] ?? '')
+            ?: ($g['stage_name'] ?? '')
+            ?: ($g['stage_key'] ?? '')
+            ?: 'Fixture'
+        ));
+        if (strtolower($g['stage_type'] ?? '') !== 'knockout' && !amiga_ops_is_knockout_phase($label)) {
+            continue;
+        }
+        $pairKey = amiga_ops_knockout_pair_scope_key($label, $playerAId, $playerBId);
+        if ($pairKey !== $scopeKey) {
+            continue;
+        }
+        $rows[] = [
+            'id' => (int) ($g['fixture_id'] ?? 0),
+            'source_scores_id' => (int) ($g['fixture_id'] ?? 0),
+            'game_date' => null,
+            'player_a_id' => $playerAId,
+            'player_b_id' => $playerBId,
+            'goals_a' => (int) $g['goals_a'],
+            'goals_b' => (int) $g['goals_b'],
+            'extra' => $g['extra'] ?? null,
+            'phase' => $label,
+            'player_a_name' => null,
+            'player_b_name' => null,
+        ];
+    }
+
+    usort(
+        $rows,
+        static function (array $a, array $b): int {
+            return [$a['source_scores_id'], $a['id']] <=> [$b['source_scores_id'], $b['id']];
+        }
+    );
+
+    return $rows;
+}
+
+/**
  * Merge broadcast/official league standings with full roster (zero-game players at tied rank).
  *
  * @param list<array{position:int,games:int,wins:int,draws:int,losses:int,goals_for:int,goals_against:int,points:int,player_id:int,player_name:string,country?:string}> $standingsRows
@@ -284,69 +494,7 @@ function amiga_live_tournament_league_table_rows(mysqli $con, int $tournamentId)
  */
 function amiga_running_tournament_standings_rows(mysqli $con, int $tournamentId): array
 {
-    require_once __DIR__ . '/../amiga/ops/includes/amiga_post_game_standings.php';
-    require_once __DIR__ . '/amiga_scoring_contract.php';
-
-    $games = amiga_running_tournament_games($con, $tournamentId);
-    if ($games === []) {
-        return [];
-    }
-    $scoringContext = amiga_scoring_load_context_for_tournament($con, $tournamentId);
-    $computed = amiga_ops_compute_tournament_standings($games, $scoringContext);
-    $leagueRows = [];
-    foreach ($computed as $row) {
-        if (($row['scope_type'] ?? '') !== 'league' || (string) ($row['scope_key'] ?? '') !== '') {
-            continue;
-        }
-        $leagueRows[] = $row;
-    }
-    if ($leagueRows === []) {
-        return [];
-    }
-
-    $playerIds = array_values(array_unique(array_map(static fn(array $r): int => (int) $r['player_id'], $leagueRows)));
-    $names = [];
-    if ($playerIds !== []) {
-        $placeholders = implode(',', array_fill(0, count($playerIds), '?'));
-        $types = str_repeat('i', count($playerIds));
-        $stmt = mysqli_prepare($con, "SELECT id, name, country FROM amiga_players WHERE id IN ({$placeholders})");
-        if ($stmt !== false) {
-            mysqli_stmt_bind_param($stmt, $types, ...$playerIds);
-            mysqli_stmt_execute($stmt);
-            $res = mysqli_stmt_get_result($stmt);
-            if ($res) {
-                while ($nameRow = mysqli_fetch_assoc($res)) {
-                    $names[(int) $nameRow['id']] = [
-                        'name' => (string) $nameRow['name'],
-                        'country' => $nameRow['country'] !== null ? (string) $nameRow['country'] : '',
-                    ];
-                }
-                mysqli_free_result($res);
-            }
-            mysqli_stmt_close($stmt);
-        }
-    }
-
-    $rows = [];
-    foreach ($leagueRows as $row) {
-        $pid = (int) $row['player_id'];
-        $playerMeta = $names[$pid] ?? null;
-        $rows[] = [
-            'position' => (int) $row['position'],
-            'games' => (int) $row['games'],
-            'wins' => (int) $row['wins'],
-            'draws' => (int) $row['draws'],
-            'losses' => (int) $row['losses'],
-            'goals_for' => (int) $row['goals_for'],
-            'goals_against' => (int) $row['goals_against'],
-            'points' => (int) $row['points'],
-            'player_id' => $pid,
-            'player_name' => is_array($playerMeta) ? $playerMeta['name'] : ('Player #' . $pid),
-            'country' => is_array($playerMeta) ? $playerMeta['country'] : '',
-        ];
-    }
-
-    return $rows;
+    return amiga_running_tournament_standings_scope_rows($con, $tournamentId, 'league', '');
 }
 
 function amiga_running_tournament_fixture_has_result(array $fixture): bool

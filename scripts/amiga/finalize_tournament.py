@@ -30,6 +30,7 @@ from scripts.amiga.replay import (
 )
 from scripts.amiga.tournament_catalog_stats import refresh_catalog_stats_for_tournament
 from scripts.amiga.tournament_standings import rebuild_standings_for_tournament
+from scripts.amiga.scoring_contract import freeze_scoring_contracts_for_tournament
 from scripts.k2_rating_core.constants import START_RATING
 from scripts.k2_rating_core.apply_game import apply_game_row
 from scripts.amiga.matchup_cumulative import (
@@ -639,6 +640,7 @@ def finalize_tournament(
             """,
             (finalized_at, tournament_id),
         )
+        freeze_scoring_contracts_for_tournament(conn, tournament_id, finalized_at)
 
     conn.commit()
 

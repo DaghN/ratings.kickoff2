@@ -1,6 +1,6 @@
 # Amiga format scoring contract — implementation plan (agent slices)
 
-**Status:** **SC-5 shipped (Jul 2026)** — PHP↔Python standings executor parity oracle in modern verify suite.
+**Status:** **SC-8 shipped (Jul 2026)** — RTB broadcast uses contract-driven fixture compute; live hub knockout bracket; `verify-rtb-standings-parity` oracle.
 
 **Policy (locked):** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md)
 
@@ -40,8 +40,8 @@ See policy **SC1–SC18** and §3 step enums / `platform_default_v1` chains.
 | **SC-4** | PHP contract reader + executor parity with SC-3 | `amiga_post_game_standings.php` · `amiga_scoring_contract.php` |
 | **SC-5** | PHP↔Python parity oracle CLI on shared fixtures + contracts | D17 |
 | **SC-6** | Catalog backfill: explicit contract rows on all tournaments/stages | Bridge retirement path |
-| **SC-7** | D6 finalize freeze writes frozen snapshot columns | `finalize_tournament.py` + PHP |
-| **SC-8** | RTB broadcast uses contract reader (fixtures adapter); live hub KO | D15; `amiga_running_tournament_lib.php` |
+| **SC-7** | D6 finalize freeze writes frozen snapshot columns | `finalize_tournament.py` + PHP · `freeze-scoring-contracts` CLI |
+| **SC-8** | RTB broadcast uses contract reader (fixtures adapter); live hub KO | D15; `amiga_running_tournament_lib.php` · `verify-rtb-standings-parity` |
 | **SC-9** | L5 `stage_id` column + dual-write; readers join stage | D7 / D9-pre |
 | **SC-10** | Phase parser executor branch removal | After 100% `fixture_id` + audit (SC10 policy) |
 | **SC-11** | Structured L3 match extensions (ET/pens cols) + KO steps | Separate from SC-0–9; policy SC11 |
@@ -159,8 +159,8 @@ Load L4b contracts from DB; fail on malformed rows (D14 structural verify).
 
 ### Verification
 
-- [x] `standings-parity --sweep` **FAIL=0** on `ko2amiga_work` (Python path unchanged; PHP parity oracle = SC-5)
-- [ ] SC-5 PHP↔Python oracle on shared fixtures + contracts
+- [x] `standings-parity --sweep` **FAIL=0** on `ko2amiga_work`
+- [x] SC-5 PHP↔Python oracle (`verify-php-standings-parity`)
 
 ---
 
@@ -183,6 +183,74 @@ Automated verify runs both executors on shared inputs (games + contracts); fails
 
 - [x] `verify-php-standings-parity --sweep` green on `ko2amiga_work`
 - [x] `standings-parity --sweep` still **FAIL=0** (Python path unchanged)
+
+---
+
+## SC-6 — Catalog backfill (shipped Jul 2026)
+
+### Goal
+
+Every catalog tournament/stage has explicit relational L4b contract rows; retire NULL `scoring_primitive` bridge on `round_robin` / `knockout` stages.
+
+### Delivered
+
+- [x] `ensure_catalog_stage_scoring_contract()` — league = `platform_default_v1`; catalog KO = stored `LEGACY_KNOCKOUT_BRIDGE_STEPS` (GD → GF → pens) for Access parity
+- [x] `backfill_scoring_contracts()` + CLI `backfill-scoring-contracts` (`--dry-run`, `--tournament-id`)
+- [x] `goals_for` allowed on `knockout_tie` step enum (structural verify; not in live-ops `platform_default_v1` default chain)
+- [x] `verify-scoring-contract` fails on NULL `scoring_primitive` for `round_robin` / `knockout` stages
+
+### Verification
+
+- [x] `backfill-scoring-contracts` on `ko2amiga_work`: **605** tournaments + **605** stages
+- [x] `verify-scoring-contract` OK
+- [x] `verify-php-standings-parity --sweep` green
+- [x] `standings-parity --sweep` **FAIL=0**
+
+**Not in SC-6:** finalize freeze columns (SC-7); legacy `stage_type` values outside `round_robin` / `knockout`.
+
+---
+
+## SC-7 — Finalize freeze (shipped Jul 2026)
+
+### Goal
+
+At tournament finalize, copy effective L4b contract onto frozen snapshot columns (D6 / SC6 policy).
+
+### Delivered
+
+- [x] `freeze_scoring_contracts_for_tournament()` — Python + PHP (`amiga_scoring_freeze_contracts_for_tournament`)
+- [x] Hooked in `finalize_tournament.py` + `finalize_tournament.php` (same transaction as `rating_finalized`)
+- [x] Tournament: `frozen_scoring_schema_version`, `scoring_frozen_at`
+- [x] Stages: copy `scoring_*` → `frozen_scoring_*` for stages with explicit contracts
+- [x] `freeze-scoring-contracts` CLI for catalog repair (`rating_finalized=1`, `scoring_frozen_at IS NULL`)
+- [x] `verify-scoring-contract` fails on missing freeze for finalized tournaments/stages
+
+### Verification
+
+- [x] `freeze-scoring-contracts` on `ko2amiga_work`: **605** tournaments + **605** stage rows
+- [x] `verify-scoring-contract` OK
+
+---
+
+## SC-8 — RTB broadcast + live hub KO (shipped Jul 2026)
+
+### Goal
+
+Running-tournament broadcast (fixtures lane) uses the same contract reader + standings executor as official `amiga_games` path; does not persist L5. Live hub shows league + knockout bracket (policy SC14 / D15).
+
+### Delivered
+
+- [x] `amiga_running_tournament_compute_standings()` — fixture adapter + `ScoringContext`
+- [x] `amiga_running_tournament_standings_scope_rows()` / `list_scopes()` / knockout fixture legs
+- [x] `amiga_tournament_standings_rows()` / `list_scopes()` / `knockout_fixture_games()` delegate in broadcast mode
+- [x] `live-tournament.php` — knockout bracket via `amiga_tournament_render_bracket()`
+- [x] `verify-rtb-standings-parity` — Python↔PHP fixture compute; fixture vs `amiga_games`/L5 on finalized live-ops (SKIP when none on work DB)
+- [x] `running_tournament_games()` includes `stage_id` (parity with PHP)
+
+### Verification
+
+- [x] `verify-rtb-standings-parity --sweep` SKIP on `ko2amiga_work` (no live-ops fixtures corpus)
+- [x] `verify-scoring-contract` OK · `verify-php-standings-parity` OK
 
 ---
 

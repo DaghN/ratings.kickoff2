@@ -592,6 +592,28 @@ def main(argv: list[str] | None = None) -> int:
     p_php_standings.add_argument("--sample", type=int, default=5)
     p_php_standings.add_argument("--sweep", action="store_true")
 
+    p_rtb_standings = sub.add_parser(
+        "verify-rtb-standings-parity",
+        help="RTB fixture broadcast vs amiga_games/L5 parity (SC-8)",
+    )
+    p_rtb_standings.add_argument("--tournament-id", type=int, default=None)
+    p_rtb_standings.add_argument("--sample", type=int, default=5)
+    p_rtb_standings.add_argument("--sweep", action="store_true")
+
+    p_backfill_scoring = sub.add_parser(
+        "backfill-scoring-contracts",
+        help="SC-6 explicit L4b contracts on catalog tournaments/stages",
+    )
+    p_backfill_scoring.add_argument("--tournament-id", type=int, default=None)
+    p_backfill_scoring.add_argument("--dry-run", action="store_true")
+
+    p_freeze_scoring = sub.add_parser(
+        "freeze-scoring-contracts",
+        help="SC-7 freeze L4b contracts on already-finalized tournaments",
+    )
+    p_freeze_scoring.add_argument("--tournament-id", type=int, default=None)
+    p_freeze_scoring.add_argument("--dry-run", action="store_true")
+
     sub.add_parser(
         "verify-tournament-formats",
         help="Assert imported tournaments with games have league/cup format flags",
@@ -1008,6 +1030,38 @@ def main(argv: list[str] | None = None) -> int:
         if args.sweep:
             parity_argv.append("--sweep")
         return verify_php_standings_parity_main(parity_argv)
+
+    if args.cmd == "verify-rtb-standings-parity":
+        from scripts.amiga.verify_rtb_standings_parity import main as verify_rtb_standings_parity_main
+
+        rtb_argv: list[str] = []
+        if args.tournament_id is not None:
+            rtb_argv.extend(["--tournament-id", str(args.tournament_id)])
+        if args.sample != 5:
+            rtb_argv.extend(["--sample", str(args.sample)])
+        if args.sweep:
+            rtb_argv.append("--sweep")
+        return verify_rtb_standings_parity_main(rtb_argv)
+
+    if args.cmd == "backfill-scoring-contracts":
+        from scripts.amiga.backfill_scoring_contracts import main as backfill_scoring_contracts_main
+
+        backfill_argv: list[str] = []
+        if args.tournament_id is not None:
+            backfill_argv.extend(["--tournament-id", str(args.tournament_id)])
+        if args.dry_run:
+            backfill_argv.append("--dry-run")
+        return backfill_scoring_contracts_main(backfill_argv)
+
+    if args.cmd == "freeze-scoring-contracts":
+        from scripts.amiga.freeze_scoring_contracts import main as freeze_scoring_contracts_main
+
+        freeze_argv: list[str] = []
+        if args.tournament_id is not None:
+            freeze_argv.extend(["--tournament-id", str(args.tournament_id)])
+        if args.dry_run:
+            freeze_argv.append("--dry-run")
+        return freeze_scoring_contracts_main(freeze_argv)
 
     if args.cmd == "verify-running-tournament-boundary":
         from scripts.amiga.verify_running_tournament_boundary import main as verify_running_tournament_boundary_main
