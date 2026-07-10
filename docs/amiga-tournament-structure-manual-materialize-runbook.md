@@ -98,6 +98,34 @@ python -m scripts.amiga standings-parity --tournament-id {id} --sweep --only-fai
 
 Browser spot-check: standings scopes + games tab.
 
+### 5b. SC-11 extension review (ET and/or penalties)
+
+Any game with `extra` suggesting extra time or penalties needs **human review** — pens-only witness often still followed ET (parenthetical may be post-ET or ET-period score). **Workflow and what counts as verified:** [`match_extensions_verified_register.json`](../scripts/amiga/match_extensions_verified_register.json) `workflow` section (parser/backfill = guess only; register entry = verified). Bulk `backfill-match-extensions` skips ids already in `games`.
+
+**Agent handoff (each game):** tournament games URL, `game_id`, `source_scores_id`, players, phase, **verbatim `access_witness_extra`**, structured cols (parser guess), and **forum context** (URLs from disposition/review queue, game-specific hints if documented) — see register `workflow.agent_handoff`. CLI: `list-extension-review`.
+
+```powershell
+python -m scripts.amiga list-extension-review --tournament-id {id}
+python -m scripts.amiga backfill-match-extensions   # starting guess for goals_et_* / pens_* — not verification
+```
+
+After correcting `goals_et_*` / `pens_*` on a game: `backfill-standings-stage-id --tournament-id {id}` + `refresh-event-finish-snapshots` when knockout finish may change. Then add the game to the verified register.
+
+**Ground score corrections (Type B):** changing regulation `goals_a` / `goals_b` on `amiga_games` also invalidates L5 derived truth that was built from the old result — `amiga_game_ratings.sum_of_goals`, per-player career `GoalsFor` / `GoalsAgainst`, realm goal totals, participation `goals_for`, standings, snapshots, etc. **`refresh-event-finish-snapshots` alone is not enough.** Run a **full simul replay** on work after ground is correct (`modern/replay` path per [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md)). Spot-check: `SUM(amiga_player_current.GoalsFor)` vs fresh tally from `amiga_games` (should match `SUM(goals_a)+SUM(goals_b)`).
+
+### 5c. Tier E finish overrides (when derivation is wrong)
+
+Use only when tiers A–D cannot express the institutional finish ladder ([`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) Tier E).
+
+| Rule | Detail |
+|------|--------|
+| **Full ladder** | If *any* override row exists for `{id}`, insert **all** entrants at positions `1..N` — not a single patched slot |
+| **Source** | Derive once (or witness/forum), human-verify the full order, then write every row |
+| **Table** | `amiga_tournament_finish_override` (L3; survives simul) |
+| **After insert** | `refresh-event-finish-snapshots --tournament-id {id}` (honours on snapshots); full simul if other derived tables may be stale |
+
+Example (145 Milan V): eight rows — Gianni 1 … Marco 7, Sandro 8 (withdrew after groups).
+
 ### 6. Record (same session)
 
 | What | Where |

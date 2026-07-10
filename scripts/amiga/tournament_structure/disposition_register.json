@@ -862,7 +862,7 @@
     },
     "215": {
       "handler": "structure_spec",
-      "notes": "12p single-RR league (66g) + 2-leg KO incl. Places 5-8 + placement finals; AET g8931 (g8908\u2013931)."
+      "notes": "12p single-RR league (66g) + 2-leg KO incl. Places 5-8 + placement finals; AET g8924. Jul 2026 materialize; 13 stages / 90g; Tier B finish 1\u201312."
     },
     "216": {
       "handler": "pure_rr",
@@ -1106,7 +1106,7 @@
     },
     "276": {
       "handler": "structure_spec",
-      "notes": "8p single-RR league (28g) + 2-leg KO incl. Places 5-8 + placement finals (g10996\u201311047)."
+      "notes": "8p single-RR league (28g) + 2-leg KO incl. Places 5-8 + placement finals. Jul 2026 materialize; 13 stages / 52g; Tier B finish 1\u20138."
     },
     "277": {
       "handler": "pure_rr",

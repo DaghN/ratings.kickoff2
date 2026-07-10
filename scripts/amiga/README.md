@@ -166,6 +166,8 @@ python -m scripts.amiga verify-standings-stage-id --sweep
 python -m scripts.amiga backfill-match-extensions
 python -m scripts.amiga backfill-match-extensions --dry-run
 python -m scripts.amiga verify-match-extensions
+python -m scripts.amiga list-extension-review
+python -m scripts.amiga list-extension-review --tournament-id 145
 
 # L4b scoring contract catalog backfill (SC-6; work DB):
 python -m scripts.amiga backfill-scoring-contracts --dry-run

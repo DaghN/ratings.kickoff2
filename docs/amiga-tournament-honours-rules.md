@@ -130,6 +130,10 @@ Covers kitchen marathons, single-phase round-robins.
 
 `amiga_tournament_finish_override` (`tournament_id`, `player_id`, `event_finish_position`) — L3 DDL `sql/ground/002_tournament_finish_override.sql`. Overrides win over tiers A–D.
 
+**Ops rule (Jul 2026): full ladder or none.** If a tournament needs *any* Tier E row, insert **one row per entrant** — positions `1..N`, no gaps, no duplicates. Do **not** mix “derive 1–(N−1) + patch one slot” (e.g. Milan V had been Sandro-only at 8; expanded to full eight rows). Partial tables rely on derivation merge quirks and can produce duplicate finish ranks; a full table is the canonical honours ladder in ground and survives simul without coupling to tier A–D logic.
+
+**Verify habit:** when `COUNT(*) > 0` for a tournament, expect `COUNT(*) = entrant_count` and unique positions `1..N`.
+
 ---
 
 ## 4. Career rollups (`amiga_player_current` honours block)

@@ -145,8 +145,12 @@
 
 | Date | Note |
 |------|------|
-| 2026-07-10 | **Slice 6a parser (partial)** — `tournament_phases.py` + PHP ops: **Play Outs**, **Finals** plural, **Nth Place Finals**; `materialize_legacy` NULLs KO `phase_label`; `participation_placement` finals normalize; **145** + **166** graduated `NON_WC_PARSER_FIX_FIRST_IDS`; unit tests. |
-| 2026-07-10 | **Milan V (145) materialize** — parser fix Play Outs/Finals plural; 11 stages / 54g; groups + QF/SF/Play Outs/placement finals; Tier B 1–7 + Tier E **8 Sandro T** (withdrew). |
+| 2026-07-10 | **Tier E full-ladder policy + Milan V** — honours/runbook: any override ⇒ all `1..N` rows; **145** expanded to 8 rows (was Sandro-only). **Kristiansand g1189 Type B drift:** `SUM(GoalsFor)` 196303 vs fresh games 196301 (−2); only Aasmund + Glenn +1 each — ground/ratings synced; **full simul replay needed**. |
+| 2026-07-10 | **SC-11 ET parser v2 + re-backfill** — witness `e.t.`/`a.e.t.` default = **post-ET total** (subtract regulation → `goals_et_*`); bulk backfill 103 games; **verified register** skips human-checked rows (`match_extensions_verified_register.json`). |
+| 2026-07-10 | **SC-11 extension handoff v2** — Access `extra` verbatim + forum URLs/snippets from disposition/review queue; `extension_review_handoff.py`. |
+| 2026-07-10 | **Kelkheim VII (215) materialize** — 12p league + full placement KO (Langenfeld family); 13 stages / 90g; AET final g8924; Tier B finish 1 Stefan · 2 Michael O · 3–12 full ladder. |
+| 2026-07-10 | **Langenfeld (276) materialize** — 8p league + full placement KO; 13 stages / 52g; Tier B finish 1–8 (Oliver champion). |
+| 2026-07-10 | **Milan V (145) materialize** — parser fix Play Outs/Finals plural; 11 stages / 54g; groups + QF/SF/Play Outs/placement finals; Tier E **full ladder 1–8** (Sandro withdrew). |
 | 2026-07-10 | **Milan XII (166) manual materialize** — 8p double RR + KO; 4 stages / 63 fixtures; **League** · **Semi Finals** · **Final** (3 legs); `has_league=1` `has_cup=1`; KO `phase_label` NULL (witness **Finals**); Tier B finish **1 Gianni · 2 Luigi · 3 Marco/Mario**. |
 | 2026-07-10 | **Athens IV Cup (74) manual materialize** — lucky-loser 6p cup; **Quarter Finals** + Semi Finals + Final; `has_league=0` `has_cup=1`; Tier A finish. |
 | 2026-07-10 | **Kristiansand (54) SC-11 patch** — g1189 ET `1-0`; g1188 pens **7–8** (Glenn bronze winner); finish **3 Glenn · 4 Oskar** corrected. |

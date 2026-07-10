@@ -60,8 +60,8 @@ Access stores **free text only** — no lookup table, field description, or enum
 
 | Pattern | Examples | Meaning |
 |---------|----------|---------|
-| Extra time score | `5-4 e.t.`, `1-0 a.e.t.`, `(1-2 a.e.t.)` | ET goals (player-A oriented in parser) |
-| Penalties | `(4-4) 5-3 p.k.`, `(5-4 pen.)`, `4-1 p.k.` | Shootout result after draw |
+| Extra time score | `5-4 e.t.`, `1-0 a.e.t.`, `(6-5 a.e.t.)` | Usually **score after extra time** (reg + ET combined); subtract regulation for `goals_et_*`. Sometimes ET-period only — **human verify**; Workflow and agent handoff (tournament games URL, game id, players, phase): [`match_extensions_verified_register.json`](../scripts/amiga/match_extensions_verified_register.json) `workflow`. |
+| Penalties | `(4-4) 5-3 p.k.`, `(5-4 pen.)`, `(0-0) 7-8pen`, `4-1 p.k.` | Shootout after a draw. Parenthetical before pens (e.g. `(0-0)`) is often **post-ET score** or **ET-period score** when regulation differs — KO pens almost always follow extra time even when witness omits `e.t.`. **Human verify** ET + pens together; register entry = verified (parser/backfill alone is not). |
 | **Unconfirmed** | `WG` (3 rows) | Literal token only — **Access does not define this**. All three: **World Cup IV**, phase `KOA Cup - Round 1`, game ids 4918–4920 (`source_scores_id`); regulation scores are decisive (not draws). Do **not** assume golden goal without original KOA app confirmation. |
 | Parser gaps (SC-11) | `(12-13 p.k.)`, `4-1 p.k.` | Pens-only witness on regulation draws — not yet extracted to `pens_a`/`pens_b` (games 13432, 16977) |
 

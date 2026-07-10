@@ -51,7 +51,7 @@ def verify_match_extensions(conn: pymysql.connections.Connection) -> list[str]:
     with conn.cursor() as cur:
         cur.execute(
             """
-            SELECT id, extra, goals_et_a, goals_et_b, pens_a, pens_b
+            SELECT id, extra, goals_a, goals_b, goals_et_a, goals_et_b, pens_a, pens_b
             FROM amiga_games
             WHERE extra IS NOT NULL AND TRIM(extra) <> ''
             """
@@ -59,7 +59,11 @@ def verify_match_extensions(conn: pymysql.connections.Connection) -> list[str]:
         rows = list(cur.fetchall())
 
     for row in rows:
-        structured = extract_structured_from_extra(row["extra"])
+        structured = extract_structured_from_extra(
+            row["extra"],
+            goals_a=row["goals_a"],
+            goals_b=row["goals_b"],
+        )
         if structured is None:
             continue
         for field in ("goals_et_a", "goals_et_b", "pens_a", "pens_b"):

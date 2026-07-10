@@ -633,6 +633,13 @@ def main(argv: list[str] | None = None) -> int:
         help="SC-11 structured match extensions oracle",
     )
 
+    p_list_ext_review = sub.add_parser(
+        "list-extension-review",
+        help="SC-11 games needing human ET/pens witness review",
+    )
+    p_list_ext_review.add_argument("--tournament-id", type=int, default=None)
+    p_list_ext_review.add_argument("--include-verified", action="store_true")
+
     p_backfill_scoring = sub.add_parser(
         "backfill-scoring-contracts",
         help="SC-6 explicit L4b contracts on catalog tournaments/stages",
@@ -1137,6 +1144,16 @@ def main(argv: list[str] | None = None) -> int:
         from scripts.amiga.verify_match_extensions import main as verify_match_extensions_main
 
         return verify_match_extensions_main([])
+
+    if args.cmd == "list-extension-review":
+        from scripts.amiga.list_extension_review_candidates import main as list_extension_review_main
+
+        review_argv: list[str] = []
+        if args.tournament_id is not None:
+            review_argv.extend(["--tournament-id", str(args.tournament_id)])
+        if args.include_verified:
+            review_argv.append("--include-verified")
+        return list_extension_review_main(review_argv)
 
     if args.cmd == "backfill-scoring-contracts":
         from scripts.amiga.backfill_scoring_contracts import main as backfill_scoring_contracts_main

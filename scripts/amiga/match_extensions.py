@@ -61,8 +61,33 @@ class StructuredMatchExtension:
     pens_b: int | None = None
 
 
-def extract_structured_from_extra(extra: str | None) -> StructuredMatchExtension | None:
-    """Parse witness extra text into structured ET / pens (player-A oriented)."""
+def _goals_et_from_post_et_total(
+    post_a: int,
+    post_b: int,
+    reg_a: int,
+    reg_b: int,
+) -> tuple[int, int] | None:
+    """Derive ET-period goals from post-ET witness total minus regulation."""
+    et_a = post_a - reg_a
+    et_b = post_b - reg_b
+    if et_a < 0 or et_b < 0:
+        return None
+    return et_a, et_b
+
+
+def extract_structured_from_extra(
+    extra: str | None,
+    *,
+    goals_a: int | None = None,
+    goals_b: int | None = None,
+) -> StructuredMatchExtension | None:
+    """Parse witness extra text into structured ET / pens (player-A oriented).
+
+    ET witness (``e.t.`` / ``a.e.t.``): default = **score after extra time** (reg + ET).
+    Subtract ``goals_a``/``goals_b`` regulation when present. If subtraction is
+    negative, fall back to ET-period-only reading (rare).     Human overrides (ET and/or penalties — see verified register):
+    ``match_extensions_verified_register.json``.
+    """
     if extra is None:
         return None
     text = str(extra).strip()
@@ -73,11 +98,13 @@ def extract_structured_from_extra(extra: str | None) -> StructuredMatchExtension
     pens_b: int | None = None
     goals_et_a: int | None = None
     goals_et_b: int | None = None
+    pen_match: re.Match[str] | None = None
 
     for pat in _PEN_PATTERNS:
         m = pat.search(text)
         if not m:
             continue
+        pen_match = m
         groups = m.groups()
         if len(groups) == 4:
             pens_a, pens_b = int(groups[2]), int(groups[3])
@@ -85,12 +112,35 @@ def extract_structured_from_extra(extra: str | None) -> StructuredMatchExtension
             pens_a, pens_b = int(groups[0]), int(groups[1])
         break
 
+    if pen_match is not None:
+        groups = pen_match.groups()
+        if len(groups) == 4 and goals_a is not None and goals_b is not None:
+            post_a, post_b = int(groups[0]), int(groups[1])
+            diff = _goals_et_from_post_et_total(
+                post_a, post_b, int(goals_a), int(goals_b)
+            )
+            if diff is not None:
+                goals_et_a, goals_et_b = diff
+            else:
+                # e.g. (0-0) before pens on a 1-1 draw — ET-period score, not full-time
+                goals_et_a, goals_et_b = post_a, post_b
+
     if pens_a is None:
         for pat in _ET_PATTERNS:
             m = pat.search(text)
             if not m:
                 continue
-            goals_et_a, goals_et_b = int(m.group(1)), int(m.group(2))
+            post_a, post_b = int(m.group(1)), int(m.group(2))
+            if goals_a is not None and goals_b is not None:
+                diff = _goals_et_from_post_et_total(
+                    post_a, post_b, int(goals_a), int(goals_b)
+                )
+                if diff is not None:
+                    goals_et_a, goals_et_b = diff
+                else:
+                    goals_et_a, goals_et_b = post_a, post_b
+            else:
+                goals_et_a, goals_et_b = post_a, post_b
             break
 
     if pens_a is None and goals_et_a is None:
@@ -166,3 +216,21 @@ def resolve_game_extension_winner(
         player_a_id,
         player_b_id,
     )
+
+
+_EXTENSION_WITNESS_HINT = re.compile(
+    r"(?:a\.)?e\.?\s*t\.?|pen(?:alties)?|p\.?\s*k\.?",
+    re.I,
+)
+
+
+def witness_indicates_extension(extra: str | None) -> bool:
+    """True when witness text suggests extra time and/or penalty shootout."""
+    if extra is None:
+        return False
+    text = str(extra).strip()
+    if not text:
+        return False
+    if extract_structured_from_extra(text) is not None:
+        return True
+    return bool(_EXTENSION_WITNESS_HINT.search(text))

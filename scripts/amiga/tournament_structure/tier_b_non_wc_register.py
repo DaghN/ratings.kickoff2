@@ -50,9 +50,7 @@ NON_WC_SLICE6_CUP_REVIEW_IDS: frozenset[int] = frozenset({
     171,  # Copenhagen Cup — placement band
     189,  # Manchester II Cup — 15p bye; Round 1 → league
     192,  # Hertford V Cup — extra Round 1 games
-    215,  # Kelkheim VII — placement marathon
     248,  # Athens XXXVIII Cup — not n-1
-    276,  # Langenfeld — Round 1 league + Places 5-8
     316,  # Birmingham VIII Gold — Round 1 → league despite 8p/7g
     317,  # Birmingham VIII Silver — bye; Round 1 → league
     329,  # Athens LXI Cup — placement

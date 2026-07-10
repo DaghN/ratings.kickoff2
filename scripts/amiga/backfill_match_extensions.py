@@ -11,6 +11,7 @@ from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.match_extensions import extract_structured_from_extra
+from scripts.amiga.match_extensions_verified import load_verified_game_ids
 
 _UPDATE_GAME = """
 UPDATE amiga_games
@@ -42,12 +43,19 @@ def backfill_match_extensions(
     *,
     dry_run: bool = False,
 ) -> dict[str, int]:
-    stats = {"games_seen": 0, "games_updated": 0, "fixtures_updated": 0, "unparsed": 0}
+    stats = {
+        "games_seen": 0,
+        "games_updated": 0,
+        "fixtures_updated": 0,
+        "unparsed": 0,
+        "skipped_verified": 0,
+    }
+    skip_ids = load_verified_game_ids()
 
     with conn.cursor() as cur:
         cur.execute(
             """
-            SELECT id, extra
+            SELECT id, extra, goals_a, goals_b
             FROM amiga_games
             WHERE extra IS NOT NULL AND TRIM(extra) <> ''
             """
@@ -56,7 +64,15 @@ def backfill_match_extensions(
 
     for row in games:
         stats["games_seen"] += 1
-        structured = extract_structured_from_extra(row["extra"])
+        game_id = int(row["id"])
+        if game_id in skip_ids:
+            stats["skipped_verified"] += 1
+            continue
+        structured = extract_structured_from_extra(
+            row["extra"],
+            goals_a=row["goals_a"],
+            goals_b=row["goals_b"],
+        )
         if structured is None:
             stats["unparsed"] += 1
             continue
@@ -123,7 +139,8 @@ def main(argv: list[str] | None = None) -> int:
     prefix = "dry-run: " if args.dry_run else ""
     print(
         f"{prefix}backfill-match-extensions games_seen={stats['games_seen']} "
-        f"games_updated={stats['games_updated']} fixtures_updated={stats['fixtures_updated']} "
+        f"games_updated={stats['games_updated']} skipped_verified={stats['skipped_verified']} "
+        f"fixtures_updated={stats['fixtures_updated']} "
         f"unparsed={stats['unparsed']}"
     )
     return 0
