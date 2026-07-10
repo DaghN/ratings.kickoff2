@@ -48,7 +48,6 @@ NON_WC_SLICE6_CUP_REVIEW_IDS: frozenset[int] = frozenset({
     156,  # Milan X — groups
     158,  # Stoke Cup — 15p bye; Round 1 → league (parser)
     171,  # Copenhagen Cup — placement band
-    176,  # Milan XIV — long Round 1 league
     189,  # Manchester II Cup — 15p bye; Round 1 → league
     192,  # Hertford V Cup — extra Round 1 games
     215,  # Kelkheim VII — placement marathon

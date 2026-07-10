@@ -75,8 +75,8 @@ python -m scripts.amiga tournament-structure materialize --tournament-id {id} --
 **Labeled phases** (Frankfurt): materialize bootstraps stage `name` from game `phase` text; KO ties → one stage per pair (policy T3). **Then triage display names manually** — `tournament_stages.name` is UI authority; leave `g.phase` as witness.
 
 ```sql
--- Example (Frankfurt 173): disambiguate RR "Round 1" from KO Round 1 elsewhere
-UPDATE tournament_stages SET name = 'Round 1 - League'
+-- Example (Frankfurt 173 / Venice 64): single RR block in league+cup → display name League
+UPDATE tournament_stages SET name = 'League'
 WHERE tournament_id = 173 AND stage_key = 'round-1';
 ```
 
@@ -129,7 +129,7 @@ Browser spot-check: standings scopes + games tab.
 - Cleared from `NON_WC_SLICE6_CUP_REVIEW_IDS`
 - `materialize --tournament-id 173 --replace` → 5 stages, 20 fixtures, 20 links
 - `verify-standings-stage-id` OK after `backfill-standings-stage-id`
-- RR stage display name **`Round 1 - League`** (`stage_key` `round-1`; witness `g.phase` unchanged)
+- RR stage display name **`League`** when one RR block in league+cup (`stage_key` often `round-1` or `overall`; witness `g.phase` unchanged). Use **`Round N - League`** only when multiple RR stages need ordinals.
 
 ---
 

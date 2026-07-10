@@ -77,17 +77,17 @@ Regenerate after code changes: `generate-disposition-register` (overwrites propo
 
 - **17** Milan XXXIX → `pure_rr` — Double RR; Sandro T left early — 5 games unplayed (withdrawal).
 - **22** Athens XCI → `structure_spec` (`league_placement`) — 12p league RR → two-leg placement finals (11th through Final).
-- **29** Rome → `structure_spec` (`league_placement`) — 6p double RR + two-leg Final (g224–225); KOATD NULL phase.
+- **29** Rome → `structure_spec` (`league_placement`) — 6p double RR (g194–223) + two-leg Final (g224–225); NULL witness phases. **Jul 2026:** manual materialize; stages **`League`** · **`Final`**; `has_league=1` `has_cup=1`; Tier B finish 1 Gianluca · 2 Alessandro Co · 3 Giacomo · 4 Franco · 5 Filippo · 6 Fabio.
 - **48** Groningen VII → `structure_spec` (no spec_slug) — 46g main after cup split to 604; format uncertain.
 - **54** Kristiansand → `structure_spec` (no spec_slug) — 2×4 groups + KO playoffs; forum p=48040; AET/pens not in DB.
 - **62** Gloucester III → `pure_rr` — 10p double RR (90g); Team split to id 605.
-- **64** Venice → `structure_spec` (no spec_slug) — 4p two-leg league + KO cup; forum p=63225.
+- **64** Venice → `structure_spec` (no spec_slug) — 4p two-leg league (g1451–62) + KO semis 2v3/1v4, 3rd-place, two-leg final (g1463–69); NULL witness phases; forum p=63225. **Jul 2026:** manual materialize (T11 blocked legacy auto); 5 stages — **`League`** · **`Semi Finals`** (×2) · **`3rd Place Final`** · **`Final`**; `has_league=1` `has_cup=1`; Tier B finish 1 Franco · 2 Filippo · 3 Francesco · 4 Luciano.
 - **74** Athens IV Cup → `structure_spec` (no spec_slug) — lucky-loser cup; forum t=2668.
 - **75** Gloucester I Cup → `pure_knockout` — 24p single-elim, 8 byes R1.
 - **89** Milan → `structure_spec` (no spec_slug) — 2×8 uneven groups + two-leg KO playoffs.
 - **108** Grimstad II → `pure_rr` — forum Grimstad 1; G E Land–Kjetil M 3×; forum t=6550.
-- **110** Kristiansand II → `structure_spec` — 8p league (28g); cup on id 111; forum p=106321.
-- **111** Kristiansand II Cup → `structure_spec` — playoffs (g3245–52); league on id 110; forum p=106321.
+- **110** Kristiansand II → `structure_spec` — 8p league (28g) **seeding only**; cup playoffs on id **111** (separate catalog event); forum p=106321. **Jul 2026:** legacy `materialize --replace`; stage **`League`**; `has_league=1` `has_cup=0`; Tier C league finish (no cup merge onto 110).
+- **111** Kristiansand II Cup → `pure_knockout` — **two mini-cups** seeded from league **110** bands: places **1–4** (g3195–98) + places **5–8** (g3191–94); each 4p KO (2 SF + 3rd-place + F). NULL witness phases; g3192/g3193 `extra` ET+pens. **Jul 2026:** materialize + manual stage names. **Cup finish (111 only, Tier E on work):** 1 Klaus · 2 Glenn · 3 Kjetil · 4 Aasmund · 5 Oskar · 6 Jon · 7 Jens (pens) · 8 Espen. **110** = league seeding only (Tier C; no override).
 - **121** Norwegian Champs → `structure_spec` — 4 groups + R2 play-in + KO; forum p=106321.
 - **134** Milan IV → `structure_spec` — 42g + 8g playoffs (g4142–49); forum t=7561.
 - **145** Milan V → `structure_spec` — 2×4 groups (Sandro T withdrew) + variable-leg KO + placement finals; AET/pens g5166, g5185–87, g5194; forum Carnival Cup t=9365.
@@ -96,10 +96,10 @@ Regenerate after code changes: `generate-disposition-register` (overwrites propo
 - **158** Stoke Cup → `pure_knockout` — 15p single-elim; 7 R1 ties + 1 bye (James B); phase "Round 1" not league (g5639–5652).
 - **166** Milan XII → `structure_spec` — 8p double-RR league + 2-leg semis + 3-leg final; phase "Finals" plural (g5961–63).
 - **171** Copenhagen Cup → `pure_knockout` — 8p from QF + full placement bracket; AET g6723 (g6715–6726).
-- **173** Frankfurt → `structure_spec` — 4p double-RR league + 2-leg semis/3rd/final (g6781–88). **Jul 2026:** cleared `NON_WC_SLICE6_CUP_REVIEW_IDS`; legacy materialize on `ko2amiga_work`; RR stage `round-1` display name **`Round 1 - League`** (manual; witness `g.phase` stays `Round 1`).
+- **173** Frankfurt → `structure_spec` — 4p double-RR league + 2-leg semis/3rd/final (g6781–88). **Jul 2026:** cleared `NON_WC_SLICE6_CUP_REVIEW_IDS`; legacy materialize on `ko2amiga_work`; RR stage `round-1` display name **`League`** (witness `g.phase` stays `Round 1`).
 - **604** Groningen VII Cup → `pure_knockout` — 8p single-elim, 2-leg ties; import split from id **48**. **Jul 2026:** `materialize-pure-knockout --replace`; stage names **`Quarter Finals`** / **`Semi Finals`** / **`Final`** (witness `Round 1` / `Semi Final` unchanged).
 - **174** London Marathon → `pure_rr` — 22p near-complete single RR (230/231g); James L–Vagelis D unplayed.
-- **176** Milan XIV → `structure_spec` — 6p double-RR league + 2-leg semis/3rd/final (g7121–28).
+- **176** Milan XIV → `structure_spec` — 6p double-RR league (g7104–33) + 2-leg semis/3rd/final (g7134–41). **Jul 2026:** cleared `NON_WC_SLICE6_CUP_REVIEW_IDS`; manual materialize; **`League`** · **`Semi Finals`** (×2) · **`3rd Place Final`** · **`Final`**; `has_league=1` `has_cup=1`; Tier B finish 1 Gianni · 2 Luigi · 3 Marco · 4 Alessandro V · 5 Maurizio · 6 Sandro.
 - **187** Hertford IV — split **deferred** (24g league + 4g cup; forum t=12376; cup g7579, 7567, 7563, 7582); stays `pending_review`.
 - **189** Manchester II Cup → `pure_knockout` — 15p single-elim; 7 R1 + bye (Steve C); pens g7689, 7692; league on id 188.
 - **192** Hertford V Cup → `pure_knockout` — 4p; 2-leg semis (phase "Round 1") + 2-leg 3rd/final (g7768–775); league on id 191.

@@ -710,3 +710,57 @@ def run_participation_refresh_tournament(
     finally:
         conn.close()
 
+
+def refresh_event_finish_snapshots_for_tournament(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+    *,
+    dry_run: bool = False,
+) -> int:
+    """
+    Rewrite ``event_finish_position`` + ``is_winner`` on existing event snapshots.
+
+    Uses ``derive_event_finish_position`` (tiers A–E incl. ``amiga_tournament_finish_override``).
+    For already-finalized tournaments when L3 overrides change without full re-finalize.
+    """
+    participation_rows = build_participation_rows_for_tournament(conn, tournament_id)
+    if not participation_rows:
+        return 0
+    if dry_run:
+        return len(participation_rows)
+
+    updated = 0
+    with conn.cursor() as cur:
+        for row in participation_rows:
+            player_id = int(row["player_id"])
+            finish = row.get("event_finish_position")
+            is_winner = 1 if finish == 1 else 0
+            cur.execute(
+                """
+                UPDATE amiga_player_event_snapshots
+                SET event_finish_position = %s,
+                    is_winner = %s
+                WHERE tournament_id = %s AND player_id = %s
+                """,
+                (finish, is_winner, tournament_id, player_id),
+            )
+            updated += int(cur.rowcount)
+    conn.commit()
+    log.info(
+        "refresh_event_finish_snapshots_for_tournament: tournament_id=%s rows=%s updated=%s",
+        tournament_id,
+        len(participation_rows),
+        updated,
+    )
+    return updated
+
+
+def run_refresh_event_finish_snapshots(tournament_id: int, *, dry_run: bool = False) -> int:
+    conn = _connect()
+    try:
+        return refresh_event_finish_snapshots_for_tournament(
+            conn, tournament_id, dry_run=dry_run
+        )
+    finally:
+        conn.close()
+

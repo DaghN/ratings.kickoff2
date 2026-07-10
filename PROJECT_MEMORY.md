@@ -145,12 +145,18 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-10 | **Milan XIV (176) manual materialize** — cleared slice-6 cup review; Venice-style 6p double RR + KO; 5 stages / 38 fixtures; **League** · **Semi Finals** · **3rd Place Final** · **Final**; Tier B finish refreshed. |
+| 2026-07-10 | **Rome (29) manual materialize** — 6p double RR + two-leg final; 2 stages / 32 fixtures; **League** · **Final**; `has_league=1` `has_cup=1`; Tier B finish refreshed. |
+| 2026-07-10 | **Frankfurt (173) stage display name** — `Round 1 - League` → **`League`** on `ko2amiga_work` (align with Venice 64; witness `g.phase` stays `Round 1`). |
+| 2026-07-10 | **Venice (64) manual materialize** — NULL-phase league+cup (Frankfurt-style); 5 stages / 19 fixtures; stage names **League** · **Semi Finals** · **3rd Place Final** · **Final**; `has_league=1` `has_cup=1`; `backfill-standings-stage-id` + verify OK; Tier B finish refreshed. |
+| 2026-07-10 | **Kristiansand II Cup (111) materialize** — `materialize-pure-knockout --force`; 8 KO stages; two mini-cup stage names; `has_league=0` `has_cup=1`. **110** = league seeding only (Tier C finish); no combined override. |
+| 2026-07-10 | **Kristiansand II (110) materialize** — legacy `materialize --replace`; 1 stage / 28 fixtures / 28 links; stage name **`League`**; `has_league=1` `has_cup=0` (league-only; cup playoffs on id 111); `backfill-standings-stage-id` + verify OK. |
 | 2026-07-10 | **Staging export prepared** — `export_ko2amiga_work.ps1` green: 41 parts (~71 MB), 27,418 games, `07a` scoring steps; manifest `2026-07-10 05:53` — WinSCP + browser import pending. |
 | 2026-07-10 | **Staging export table registry** — `scripts/amiga/staging_export_tables.py` + `data/amiga/staging_export_tables.json`; push/pull read JSON; `export_ko2amiga_work.ps1` runs write + audit preflight; adds `tournament_stage_scoring_steps` part (`07a`). |
 | 2026-07-10 | **Groningen VII Cup (604) pure knockout** — `materialize-pure-knockout`; 7 KO stages / 14 fixtures; display names Quarter Finals · Semi Finals · Final (witness Round 1 / Semi Final kept). |
 | 2026-07-10 | **Bulk stage rename Overall → League** — 503 single-stage null-phase RR marathons on `ko2amiga_work` (`stage_key` `overall` unchanged; witness `g.phase` NULL). |
 | 2026-07-10 | **Stage-first game phase column** — `amiga_rated_games_from_sql()` + lean hub SQL: `COALESCE(s.name, g.phase)`; `phase_witness` + `stage_id` for standings links; tournament / player / realm games tables wired. |
-| 2026-07-10 | **Frankfurt (173) stage display name** — `tournament_stages.name` `Round 1` → **`Round 1 - League`** on `ko2amiga_work` (manual triage; `g.phase` witness unchanged). |
+| 2026-07-10 | **Frankfurt (173) stage display name** — `tournament_stages.name` `Round 1` → **`League`** on `ko2amiga_work` (Jul 2026: was briefly `Round 1 - League`; witness `g.phase` unchanged). |
 | 2026-07-10 | **Manual materialize runbook** — [`amiga-tournament-structure-manual-materialize-runbook.md`](docs/amiga-tournament-structure-manual-materialize-runbook.md); handlers + review-queue + data contract demote bulk-first; Frankfurt (173) template. |
 | 2026-07-10 | **Frankfurt (173) legacy materialize** — cleared slice-6 cup review; `materialize_legacy` allows `ko2amiga_work`; 5 stages / 20 fixtures / 20 `fixture_id` links; `backfill-standings-stage-id` + `verify-standings-stage-id` OK on work. |
 | 2026-07-10 | **Scoring contract SC-11 session** — structured L3 ET/pens (`012_match_extensions.sql`); Python+PHP resolver; RTB dual-write + promote; backfill 103/108; `verify-match-extensions` in simul suite; Access `Scores.Extra` audit (`WG` = literal token only, 3 rows WC IV); SC-10 still blocked on fixture linkage. Docs: plan, policy, data contract, schema discovery, RTB, design §2.9. |

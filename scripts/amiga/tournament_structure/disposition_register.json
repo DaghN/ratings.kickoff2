@@ -117,7 +117,7 @@
     "29": {
       "handler": "structure_spec",
       "spec_slug": "league_placement",
-      "notes": "6p double RR + two-leg Final (g224\u2013225: Alessandro Co\u2013Gianluca T 2\u20135, 6\u20131); KOATD NULL phase."
+      "notes": "6p double RR + two-leg Final (g224\u2013225: Alessandro Co\u2013Gianluca T 2\u20135, 6\u20131); KOATD NULL phase. Jul 2026: manual materialize on work; stages League + Final; has_league=1 has_cup=1."
     },
     "30": {
       "handler": "pure_rr",
@@ -257,7 +257,7 @@
     },
     "64": {
       "handler": "structure_spec",
-      "notes": "4p two-leg league (12g g1451\u201362) + KO semis 2v3/1v4, 3rd-place, two-leg final (g1463\u201369); KOATD NULL phase. Forum: https://ko-gathering.com/forum/viewtopic.php?p=63225&hilit=Venice#p63225"
+      "notes": "4p two-leg league (12g g1451\u201362) + KO semis 2v3/1v4, 3rd-place, two-leg final (g1463\u201369); KOATD NULL phase. Forum: https://ko-gathering.com/forum/viewtopic.php?p=63225&hilit=Venice#p63225. Jul 2026: manual materialize on work; stages League + Semi Finals + 3rd Place Final + Final; has_league=1 has_cup=1."
     },
     "65": {
       "handler": "pure_rr",
@@ -444,8 +444,8 @@
       "notes": "8p single RR league (28g); cup playoffs on id 111 (8g). Forum one event: https://ko-gathering.com/forum/viewtopic.php?p=106321#p106321"
     },
     "111": {
-      "handler": "structure_spec",
-      "notes": "Cup playoffs (8g g3245\u201352); league on id 110. AET/pens not in DB. Forum: https://ko-gathering.com/forum/viewtopic.php?p=106321#p106321"
+      "handler": "pure_knockout",
+      "notes": "Cup playoffs (8g); league on id 110. Jul 2026 materialized on work; null witness phases; QF/SF tiebreak/3rd/Final display names."
     },
     "112": {
       "handler": "pure_rr",
@@ -706,7 +706,7 @@
     },
     "176": {
       "handler": "structure_spec",
-      "notes": "6p double-RR league (30g) + 2-leg semis/3rd/final (g7121\u201328)."
+      "notes": "6p double-RR league (30g g7104\u201333) + 2-leg semis/3rd/final (g7134\u201341). Jul 2026: cleared slice-6 cup review; manual materialize on work; has_league=1 has_cup=1."
     },
     "177": {
       "handler": "pure_rr",

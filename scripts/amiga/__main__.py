@@ -25,7 +25,10 @@ from scripts.amiga.import_prune import (
 from scripts.amiga.prove import run_prove
 from scripts.amiga.replay import run_replay
 from scripts.amiga.honours_parity_sample import main as honours_parity_sample_main
-from scripts.amiga.player_tournament_participation import run_participation_refresh_tournament
+from scripts.amiga.player_tournament_participation import (
+    run_participation_refresh_tournament,
+    run_refresh_event_finish_snapshots,
+)
 from scripts.amiga.tournament_builder import main as tournament_builder_main
 from scripts.amiga.tournament_format import main as tournament_format_main
 from scripts.amiga.tournament_fixtures import main as tournament_fixtures_main
@@ -713,6 +716,13 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_part_tournament.add_argument("--dry-run", action="store_true")
 
+    p_finish_snap = sub.add_parser(
+        "refresh-event-finish-snapshots",
+        help="Rewrite event_finish_position on snapshots from tiers A–E (+ Tier E overrides)",
+    )
+    p_finish_snap.add_argument("--tournament-id", type=int, required=True)
+    p_finish_snap.add_argument("--dry-run", action="store_true")
+
     p_honours = sub.add_parser(
         "honours-parity-sample",
         help="Reference report: derived WC medals vs Access added_players (top 20)",
@@ -1242,6 +1252,18 @@ def main(argv: list[str] | None = None) -> int:
             args.tournament_id,
             part_rows,
             totals_players,
+        )
+        return 0
+
+    if args.cmd == "refresh-event-finish-snapshots":
+        updated = run_refresh_event_finish_snapshots(
+            args.tournament_id,
+            dry_run=args.dry_run,
+        )
+        log.info(
+            "refresh-event-finish-snapshots complete: tournament_id=%s updated=%s",
+            args.tournament_id,
+            updated,
         )
         return 0
 
