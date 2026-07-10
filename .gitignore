@@ -24,8 +24,13 @@ site/public_html/ops/config/dispatch-http.ini
 /data/amiga/exports/*
 !/data/amiga/exports/.gitkeep
 
-# Day 0 L3 witness archive (git-tracked sealed ground)
-!data/amiga/day0/**/*.sql
+# Day 0 L3 witness archive (git-tracked sealed ground; SQL allowlisted below *.sql)
+
+# Amiga work checkpoints (milestone git backups — opt-in per sealed folder)
+data/amiga/checkpoints/**
+!data/amiga/checkpoints/README.md
+!data/amiga/checkpoints/work-2026-07-11-tail/
+!data/amiga/checkpoints/work-2026-07-11-tail/**
 data/amiga/modern/simul-last.json
 data/amiga/modern/staging-sync-last.json
 data/amiga/pulls/*.sql
@@ -44,6 +49,8 @@ data/amiga/oracle/
 !scripts/ladder/sql/**/*.sql
 !scripts/amiga/sql/**/*.sql
 !schema/**/*.sql
+!data/amiga/day0/**/*.sql
+!data/amiga/checkpoints/work-2026-07-11-tail/**/*.sql
 
 # Laragon Apache shim build artifacts
 laragon/*.exe

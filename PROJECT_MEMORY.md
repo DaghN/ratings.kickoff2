@@ -145,6 +145,9 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-11 | **Amiga work git checkpoint** — sealed `data/amiga/checkpoints/work-2026-07-11-tail/` (~71 MB full export + companion JSON); `scripts/seal_amiga_work_checkpoint.ps1`; not pushed to staging. |
+| 2026-07-11 | **Milan X (156) manual materialize** — 2×5 groups + two-leg QF/SF + **3-leg** 3rd/Final; 10 stages / 58g; playoff sequence reordered; Angelo S NULL finish. |
+| 2026-07-11 | **Norwegian Champs (121) Tier E finish** — banded placement: **=5** QF losers · **=9** Qual. losers · **=13** group-only (not 5–8 / 9–12 / 13–15 distinct ranks). |
 | 2026-07-10 | **Tournament page nav unified** — all events use **Stages** top tab + sub-nav (WC pattern); bracket renders only on Bracket sub-tab; `standings.php` → 302 `stages.php`. |
 | 2026-07-11 | **Groningen VII (48) Tier E finish override** — full ladder 1–9 in `amiga_tournament_finish_override` (auto derivation duplicated positions after group splits); snapshots refreshed. |
 | 2026-07-10 | **Groningen VII (48) Round 2 group split** — **Round 2 - Group D** (Kees V · Sjoerd K · Luitzen B) **· Group E** (Mark P · Riemer P · Evert V); script `split_groningen_vii_round2_groups.py`. |

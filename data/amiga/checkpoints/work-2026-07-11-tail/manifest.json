@@ -1,0 +1,47 @@
+{
+    "checkpoint_id":  "work-2026-07-11-tail",
+    "tier":  "full",
+    "sealed_utc":  "2026-07-10T23:56:49Z",
+    "label":  "Structure tail materialize (48/121/156 + derived L5)",
+    "source_database":  "ko2amiga_work",
+    "git_commit_at_seal":  "66bb6526",
+    "export":  {
+                   "parts_bytes":  74280774,
+                   "parts_bytes_mb":  70.84,
+                   "generated":  "2026-07-11 01:56:11",
+                   "parts_count":  41
+               },
+    "counts":  {
+                   "amiga_tournament_finish_override":  55,
+                   "amiga_player_event_snapshots":  4535,
+                   "tournament_stages":  764,
+                   "tournaments":  605,
+                   "amiga_players":  469,
+                   "amiga_games":  27418,
+                   "tournament_fixtures":  16824
+               },
+    "simul_last":  {
+                       "git_head":  "e152b0daa09a5f8ec52e26c2daed7b4193d99c3b",
+                       "duration_sec":  1347.95,
+                       "note":  "Structure edits after this simul are included in SQL; re-simul if restoring onto empty DB without L5 parts.",
+                       "finished_utc":  "2026-07-09T23:20:32.529839Z"
+                   },
+    "companion_files":  [
+                            "tournament_videos.json",
+                            "tournament_videos_review.csv",
+                            "disposition_register.json",
+                            "match_extensions_verified_register.json",
+                            "video_game_links.csv"
+                        ],
+    "restore":  {
+                    "mysql_cli":  "Import each ko2amiga_*.sql in manifest order into fresh ko2amiga_work (or use staging browser import after copying parts to _import/)",
+                    "after_import":  "Point ko2amiga_config.local.php at ko2amiga_work; spot-check tournament pages; run python -m scripts.amiga simul only if L5 tables were omitted or derived looks stale",
+                    "target_database":  "ko2amiga_work",
+                    "import_parts_in_order":  "ko2amiga_manifest.json parts[]"
+                },
+    "notes":  [
+                  "Milestone git backup — not staged prod authority (see docs/amiga-staging-authority-policy.md SS-6).",
+                  "Tail events in this checkpoint include Groningen VII (48/604), Norwegian Champs (121), Milan X (156) structure work.",
+                  "Not pushed to staging at seal time."
+              ]
+}

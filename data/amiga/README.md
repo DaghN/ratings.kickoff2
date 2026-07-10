@@ -50,6 +50,8 @@ data/amiga/exports/
   name_merges.json       # legacy slice; also embedded in manifest
 ```
 
+**Milestone work checkpoints (git):** [`checkpoints/README.md`](checkpoints/README.md) — sealed full `ko2amiga_work` exports + companion JSON. Seal: `scripts\seal_amiga_work_checkpoint.ps1 -Label <name>`.
+
 See [`docs/amiga-import-layer.md`](../../docs/amiga-import-layer.md) and example [`docs/amiga-import-manifest.example.json`](../../docs/amiga-import-manifest.example.json).
 
 ---

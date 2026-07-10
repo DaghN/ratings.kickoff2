@@ -133,7 +133,8 @@ Two layers (intent, not shipped as full admin product):
 | Mechanism | Role |
 |-----------|------|
 | **Export parts + `ko2amiga_manifest.json`** after a verified push | Same artifacts as staging import; tag or commit manifest; SQL parts often gitignored + WinSCP — optional tagged dump for milestones. |
-| **Periodic mysqldump** of staging `ko2amiga_db` | Disaster recovery; store outside repo or as release artifact if large. |
+| **Work checkpoints (git)** | Milestone seals of local **`ko2amiga_work`** — `data/amiga/checkpoints/work-YYYY-MM-DD-<label>/` + `scripts/seal_amiga_work_checkpoint.ps1`; opt-in gitignore allowlist per folder ([`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md)). |
+| **Periodic mysqldump** of staging `ko2amiga_db` | Disaster recovery; store outside repo or as release artifact if large. **Not automated yet.** |
 | **`data/amiga/day0/`** | Bootstrap witness only — not staged prod backup. |
 
 Agents: do not treat local work as the backup of staged unless a pull just happened and simul is green.
