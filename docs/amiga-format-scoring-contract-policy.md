@@ -37,7 +37,7 @@
 | **SC8** | **Standings executor** | One module: load contract → route games → apply primitive → write/return L5a. **Not:** promotion, honours, Elo, event rollup, topology. |
 | **SC9** | **Executor primitives (v1)** | `league_table`, `knockout_tie` only. New primitives require explicit policy amendment. |
 | **SC10** | **Phase parser fallback** | `parse_phase()` in executor **only when `fixture_id IS NULL`** (per-game). Remove executor branch after **100% fixture linkage + parity audit**. |
-| **SC11** | **Match extensions** | ET/pens target **structured L3** fields; `extra` = witness text. Retire text penalty parse when structured coverage + audit pass. |
+| **SC11** | **Match extensions** | **Shipped (Jul 2026)** — structured L3 ET/pens cols; `extra` = witness; executor prefers structured fields; text parse transitional only (do not extend). Witness token audit: [`amiga-schema-discovery.md`](amiga-schema-discovery.md) § `Scores.Extra` tokens. |
 | **SC12** | **Event stats separate** | Event-wide rollup + Event stats tab = finalize participation writer — **not** standings executor. |
 | **SC13** | **Event finish separate** | `event_finish_position` = honours rules reading L5a — not rollup math. |
 | **SC14** | **RTB alignment** | Broadcast (fixtures) and official (`amiga_games`) use **same contracts + executor**; broadcast **does not persist L5**. Live hub **league + KO** in scope. |
@@ -109,7 +109,7 @@
 |-------|--------|
 | L4a / L4b doc split label only | Design **D3** |
 | Promotion override storage | **D18** / structure graph track |
-| Match extension DDL + structured ET/pens | Implementation slice (see SC11) |
+| Match extension DDL + structured ET/pens | **Shipped (SC-11)** — `sql/structure/012_match_extensions.sql` |
 | Exact contract DDL table names | **Shipped** — `sql/structure/011_tournament_scoring_contract.sql` |
 
 ---

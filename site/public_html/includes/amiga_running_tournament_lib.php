@@ -85,7 +85,8 @@ function amiga_running_tournament_games(mysqli $con, int $tournamentId): array
     $stmt = mysqli_prepare(
         $con,
         'SELECT f.id AS fixture_id, f.player_a_id, f.player_b_id, f.goals_a, f.goals_b, '
-        . 'f.extra, f.phase_label AS phase, f.phase_label AS fixture_phase_label, '
+        . 'f.extra, f.goals_et_a, f.goals_et_b, f.pens_a, f.pens_b, '
+        . 'f.phase_label AS phase, f.phase_label AS fixture_phase_label, '
         . 'f.leg_no, s.id AS stage_id, s.tournament_id, s.stage_key, s.name AS stage_name, s.stage_type, s.track_key '
         . 'FROM tournament_fixtures f '
         . 'INNER JOIN tournament_stages s ON s.id = f.stage_id '
@@ -112,6 +113,10 @@ function amiga_running_tournament_games(mysqli $con, int $tournamentId): array
                 'goals_a' => (int) $row['goals_a'],
                 'goals_b' => (int) $row['goals_b'],
                 'extra' => $row['extra'],
+                'goals_et_a' => $row['goals_et_a'] !== null ? (int) $row['goals_et_a'] : null,
+                'goals_et_b' => $row['goals_et_b'] !== null ? (int) $row['goals_et_b'] : null,
+                'pens_a' => $row['pens_a'] !== null ? (int) $row['pens_a'] : null,
+                'pens_b' => $row['pens_b'] !== null ? (int) $row['pens_b'] : null,
                 'phase' => $row['phase'],
                 'fixture_phase_label' => $row['fixture_phase_label'],
                 'leg_no' => (int) $row['leg_no'],
@@ -242,6 +247,7 @@ function amiga_running_tournament_standings_scope_rows(
             'goals_for' => (int) $row['goals_for'],
             'goals_against' => (int) $row['goals_against'],
             'points' => (int) $row['points'],
+            'stage_id' => isset($row['stage_id']) && $row['stage_id'] !== null ? (int) $row['stage_id'] : null,
             'player_id' => $pid,
             'player_name' => is_array($playerMeta) ? $playerMeta['name'] : ('Player #' . $pid),
             'country' => is_array($playerMeta) ? $playerMeta['country'] : '',

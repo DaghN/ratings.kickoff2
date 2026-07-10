@@ -246,7 +246,9 @@ Post-retirement unlinked games = data corruption (verify/ops), not a separate D1
 
 **Legacy:** Text-based penalty parsing in the standings executor (`parse_standings_winner` / PHP parity) is **transitional**. Do **not** extend it. **Retire** when structured fields cover the catalog and a parity audit passes (same retirement habit as D10).
 
-**Out of this register (implementation slice):** column DDL, import backfill, ops entry, deterministic `knockout_tie` resolution chain over structured fields, step enums, golden goal, pre-structure fallback behaviour. League tables continue to use regulation goals unless a future format explicitly requests otherwise.
+**Shipped (SC-11, Jul 2026):** `012_match_extensions.sql` on `amiga_games` + `tournament_fixtures`; `match_extensions.py` / `amiga_match_extensions.php`; backfill + `verify-match-extensions`; 103/108 witness rows structured on work DB. Five unparsed witness tokens documented in schema discovery (`WG` meaning unconfirmed in Access; two pen-only formats).
+
+**Out of this register (remaining):** retire text parse when coverage audit passes; decode `WG` if product confirms; golden-goal structured col if needed.
 
 ### 2.10 Scoring contract serialization (D13 locked)
 

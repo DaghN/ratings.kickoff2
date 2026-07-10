@@ -1,6 +1,6 @@
 # Amiga format scoring contract — implementation plan (agent slices)
 
-**Status:** **SC-8 shipped (Jul 2026)** — RTB broadcast uses contract-driven fixture compute; live hub knockout bracket; `verify-rtb-standings-parity` oracle.
+**Status:** **SC-11 shipped (Jul 2026)** — structured L3 ET/pens cols on `amiga_games` + `tournament_fixtures`; executor prefers structured fields, `extra` witness fallback. **Next:** SC-10 (blocked on structure/materialize).
 
 **Policy (locked):** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md)
 
@@ -42,9 +42,9 @@ See policy **SC1–SC18** and §3 step enums / `platform_default_v1` chains.
 | **SC-6** | Catalog backfill: explicit contract rows on all tournaments/stages | Bridge retirement path |
 | **SC-7** | D6 finalize freeze writes frozen snapshot columns | `finalize_tournament.py` + PHP · `freeze-scoring-contracts` CLI |
 | **SC-8** | RTB broadcast uses contract reader (fixtures adapter); live hub KO | D15; `amiga_running_tournament_lib.php` · `verify-rtb-standings-parity` |
-| **SC-9** | L5 `stage_id` column + dual-write; readers join stage | D7 / D9-pre |
+| **SC-9** | L5 `stage_id` column + dual-write; readers join stage | D7 / D9-pre · `048_standings_stage_id.sql` |
 | **SC-10** | Phase parser executor branch removal | After 100% `fixture_id` + audit (SC10 policy) |
-| **SC-11** | Structured L3 match extensions (ET/pens cols) + KO steps | Separate from SC-0–9; policy SC11 |
+| **SC-11** | Structured L3 match extensions (ET/pens cols) + KO steps | **Shipped Jul 2026** — policy SC11 |
 
 **Suggested order:** SC-0 → SC-1 → SC-2 → SC-3 → SC-5 → SC-4 → SC-6 → SC-7 → SC-8 → SC-9 → SC-10. **SC-11** parallel when match-extension slice is scheduled.
 
@@ -254,12 +254,97 @@ Running-tournament broadcast (fixtures lane) uses the same contract reader + sta
 
 ---
 
+## SC-9 — L5 stage_id dual-write (shipped Jul 2026)
+
+### Goal
+
+Persist canonical module key `stage_id` on L5 rows alongside legacy `scope_type`/`scope_key` (D7 / D9-pre). Fixture-backed scopes get `stage_id` from `game → fixture → stage`; synthetic league rollup and phase-parser scopes stay NULL until SC-10.
+
+### Delivered
+
+- [x] `scripts/amiga/sql/derived/048_standings_stage_id.sql` — nullable `stage_id` + FK + index
+- [x] Python + PHP standings executor emit `stage_id` on compute rows; INSERT dual-writes
+- [x] `amiga_tournament_standings_rows()` LEFT JOINs `tournament_stages` for stage metadata
+- [x] `backfill-standings-stage-id` CLI (rebuild all tournaments with games)
+- [x] `verify-standings-stage-id` oracle (DB vs compute `stage_id` parity)
+
+### Verification
+
+- [x] `apply_schema_derived` on `ko2amiga_work`
+- [x] `backfill-standings-stage-id`: **605** tournaments, **7882** rows
+- [x] `verify-standings-stage-id --sweep` OK (605 tournaments)
+- [x] `verify-php-standings-parity` OK
+
+---
+
+## SC-11 — Structured L3 match extensions (shipped Jul 2026)
+
+### Goal
+
+ET/penalty outcomes on `amiga_games` and `tournament_fixtures` as nullable structured cols (`goals_et_a/b`, `pens_a/b`); `extra` remains witness text; KO executor prefers structured fields, falls back to text parse (policy SC11 / D12). Do **not** extend regex parse.
+
+### Delivered
+
+**DDL & bundles**
+
+- [x] `scripts/amiga/sql/structure/012_match_extensions.sql` — nullable `SMALLINT` cols after `extra` on both tables
+- [x] `scripts/amiga/schema_bundles.py` — wired in `STRUCTURE_SQL`
+
+**Core logic (Python + PHP parity)**
+
+- [x] `scripts/amiga/match_extensions.py` — `extract_structured_from_extra`, `resolve_game_extension_winner`, `parse_standings_winner` (moved here from `tournament_standings.py` to break circular import)
+- [x] `site/public_html/includes/amiga_match_extensions.php` — mirror helpers
+
+**Executors & writers**
+
+- [x] `scripts/amiga/tournament_standings.py` — `GAME_SELECT` includes extension cols; KO steps call `resolve_game_extension_winner`
+- [x] `site/public_html/amiga/ops/includes/amiga_post_game_standings.php` — same
+- [x] `site/public_html/includes/amiga_running_tournament_lib.php` — fixture adapter includes extension cols
+- [x] `site/public_html/amiga/ops/fixtures.php` — `record_result` dual-writes structured cols from `extra`; undo clears them
+- [x] `scripts/amiga/promote_running_tournament.py` — promote copies fixture extension cols → `amiga_games`
+
+**CLI, verify, tests**
+
+- [x] `scripts/amiga/backfill_match_extensions.py` — `backfill-match-extensions` (`--dry-run`)
+- [x] `scripts/amiga/verify_match_extensions.py` — `verify-match-extensions` (no nested argparse — safe when dispatched from `__main__`)
+- [x] `scripts/amiga/modern/verify_suite.py` — step after `verify-standings-stage-id`
+- [x] `scripts/amiga/test_match_extensions.py` — unit tests (3)
+
+### Verification (ko2amiga_work)
+
+- [x] `apply_schema_structure` clean
+- [x] `backfill-match-extensions`: **103/108** games structured; **5** unparsed — 3× literal `WG` (Access meaning unconfirmed; WC IV KOA Cup only) + 2× pen-only witness formats (`(12-13 p.k.)`, `4-1 p.k.`)
+- [x] `verify-match-extensions` OK
+- [x] `verify-php-standings-parity` OK
+- [x] `standings-parity --sweep` **FAIL=0**
+- [x] `verify-scoring-contract` OK
+
+### Witness audit (same session)
+
+Access `Scores.Extra` has **no data dictionary** — free text only (~88 distinct tokens in `koatd.mdb`). Token inventory + `WG` caveat: [`amiga-schema-discovery.md`](amiga-schema-discovery.md) § `Scores.Extra` tokens.
+
+**Not in SC-11:** retire text parse entirely; parser for pens-only `(12-13 p.k.)` / `4-1 p.k.`; decode `WG` (pending KOA confirmation).
+
+---
+
+## Track status (Jul 2026)
+
+| Slice | Status |
+|-------|--------|
+| SC-0 … SC-9 | **Shipped** |
+| SC-11 | **Shipped** (this session) |
+| SC-10 | **Blocked** — phase-parser executor branch removal needs ~100% `fixture_id` linkage + audit; **515/605** tournaments fully fixture-linked; **90** zero linkage (all **23** WCs + review queue); ~**58%** of games have `fixture_id` |
+
+**Next scoring-contract work:** SC-10 when structure/materialize track clears linkage. **Parallel:** structure track for WC + tier-C tournaments.
+
+---
+
 ## Out of scope (this plan)
 
 - Promotion graph storage (**D18**)
 - Full catalog L4 materialize (structure track)
 - Head-to-head implementation until contract + audit identify tournaments needing it in chain
-- Golden goal structured L3 until product case exists
+- Golden goal / `WG` token — meaning not defined in Access; see schema discovery § `Scores.Extra` tokens
 
 ---
 

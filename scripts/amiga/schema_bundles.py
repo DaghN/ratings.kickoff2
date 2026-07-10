@@ -25,6 +25,7 @@ STRUCTURE_SQL: tuple[Path, ...] = (
     _SQL_ROOT / "structure" / "009_tournament_finalize_markers.sql",
     _SQL_ROOT / "structure" / "010_is_world_cup.sql",
     _SQL_ROOT / "structure" / "011_tournament_scoring_contract.sql",
+    _SQL_ROOT / "structure" / "012_match_extensions.sql",
 )
 
 DERIVED_SQL: tuple[Path, ...] = (
@@ -56,6 +57,7 @@ DERIVED_SQL: tuple[Path, ...] = (
     _SQL_ROOT / "derived" / "045_perfect_event.sql",
     _SQL_ROOT / "derived" / "046_wc_hof.sql",
     _SQL_ROOT / "derived" / "047_is_world_cup_snapshots.sql",
+    _SQL_ROOT / "derived" / "048_standings_stage_id.sql",
 )
 
 # Legacy flat paths (archaeology / one-off scripts — not apply_schema).

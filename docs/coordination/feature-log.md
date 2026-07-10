@@ -73,6 +73,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Activity recent daily chart | L0 | — | — | — | — | — | Read-time |
 | Activity charts v2 (single module) | — | — | — | — | — | — | **Shipped** — [`activity-charts.md`](../activity-charts.md) |
 | Amiga Activity charts sub-hub (6 wings, 49 panels) | L0 | — | — | — | — | — | **Shipped — v1 shippable Jul 2026** — `/amiga/activity/` base track (slices 0–10) + Nations player grains + Texture low-scoring (Q-TEX-014) + WC Q-WC-012 (7 panels); wing copy locked (policy §5.0); TT via `as=` — [`amiga-activity-charts-policy.md`](../amiga-activity-charts-policy.md) |
+| Amiga format scoring contract (SC-0–SC-11) | L0 | — | — | — | — | — | **Shipped Jul 2026** — L4b DDL + executor + PHP parity + freeze + RTB + L5 `stage_id` + structured match extensions; SC-10 blocked on fixture linkage — [`amiga-format-scoring-contract-policy.md`](../amiga-format-scoring-contract-policy.md) |
 | Persistent tint preference | — | — | — | — | — | — | Client-only |
 | Six-hour tint schedule | — | — | — | — | — | — | `k2-tint-schedule.js` |
 | Header realm switcher | — | — | — | — | — | — | **Re-shipped Jun 2026** — `realm_switcher.php` beside wordmark; Online ↔ `/status.php`, Amiga 500 ↔ `/amiga/rating.php` |

@@ -46,13 +46,26 @@ This maps to the ground-layer pipeline ([`amiga-ground-layers-policy.md`](amiga-
 | `B` | SMALLINT | Goals for Team B |
 | `Tournament` | VARCHAR(50) | FK-ish string → `Tournament players.Tournament` |
 | `Phase` | VARCHAR(50) | Bracket phase label; **NULL on 16,786 rows (~61%)** |
-| `Extra` | VARCHAR(50) | Rare metadata; mostly NULL |
+| `Extra` | VARCHAR(50) | Rare witness text; **108** non-null rows in catalog (~88 distinct tokens in `koatd.mdb`); see § `Scores.Extra` tokens below |
 
 **Quality:** no NULL goals; **2,694 draws** (`A = B`).
 
 **Tournament linkage:** 27,327 rows join to `Tournament players` on `Tournament` name; **81 rows** use tournament names absent from the catalog (mostly Milan X sub-events split into separate pseudo-tournaments — see § Data quirks).
 
 **Phase examples (when set):** `Round 1 - Group A`, `Quarter Finals`, `Semi Finals`, `Final`, `Silver Cup - Group G`, etc.
+
+### `Scores.Extra` tokens (Jul 2026 audit)
+
+Access stores **free text only** — no lookup table, field description, or enum in `koatd.mdb`. Import copies verbatim to `amiga_games.extra` (witness; not compute authority once SC-11 structured cols exist).
+
+| Pattern | Examples | Meaning |
+|---------|----------|---------|
+| Extra time score | `5-4 e.t.`, `1-0 a.e.t.`, `(1-2 a.e.t.)` | ET goals (player-A oriented in parser) |
+| Penalties | `(4-4) 5-3 p.k.`, `(5-4 pen.)`, `4-1 p.k.` | Shootout result after draw |
+| **Unconfirmed** | `WG` (3 rows) | Literal token only — **Access does not define this**. All three: **World Cup IV**, phase `KOA Cup - Round 1`, game ids 4918–4920 (`source_scores_id`); regulation scores are decisive (not draws). Do **not** assume golden goal without original KOA app confirmation. |
+| Parser gaps (SC-11) | `(12-13 p.k.)`, `4-1 p.k.` | Pens-only witness on regulation draws — not yet extracted to `pens_a`/`pens_b` (games 13432, 16977) |
+
+**SC-11 backfill:** 103/108 non-empty `extra` rows structured; 5 unparsed (3× `WG` + 2× pen-format gaps above).
 
 ### Proposed mapping → online vocabulary (`ratedresults`)
 
@@ -64,7 +77,7 @@ This maps to the ground-layer pipeline ([`amiga-ground-layers-policy.md`](amiga-
 | *(none)* | `Date` | **Synthetic** — see § Chronology |
 | `Tournament` | FK → `tournaments` table | Don't leave as free text in v2 |
 | `Phase` | `phase` on game or tournament stage | Amiga-only column |
-| `Extra` | nullable metadata | Low priority |
+| `Extra` | `extra` witness text on `amiga_games` | Copied verbatim; see [`amiga-schema-discovery.md`](amiga-schema-discovery.md) § `Scores.Extra` tokens |
 
 Derived Elo columns (`RatingA`, `NewRatingA`, …) are **not stored** in Access — compute via replay, same as online.
 

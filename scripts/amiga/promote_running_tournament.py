@@ -41,7 +41,8 @@ def running_tournament_games(conn: pymysql.connections.Connection, tournament_id
         cur.execute(
             """
             SELECT f.id AS fixture_id, f.player_a_id, f.player_b_id, f.goals_a, f.goals_b,
-                   f.extra, f.phase_label AS phase, f.phase_label AS fixture_phase_label,
+                   f.extra, f.goals_et_a, f.goals_et_b, f.pens_a, f.pens_b,
+                   f.phase_label AS phase, f.phase_label AS fixture_phase_label,
                    f.leg_no, s.id AS stage_id, s.tournament_id, s.stage_key, s.name AS stage_name,
                    s.stage_type, s.track_key
             FROM tournament_fixtures f
@@ -65,6 +66,10 @@ def running_tournament_games(conn: pymysql.connections.Connection, tournament_id
                 "goals_a": int(row["goals_a"]),
                 "goals_b": int(row["goals_b"]),
                 "extra": row["extra"],
+                "goals_et_a": row["goals_et_a"],
+                "goals_et_b": row["goals_et_b"],
+                "pens_a": row["pens_a"],
+                "pens_b": row["pens_b"],
                 "phase": row["phase"],
                 "fixture_phase_label": row["fixture_phase_label"],
                 "leg_no": int(row["leg_no"]),
@@ -155,10 +160,11 @@ def promote_running_tournament(
                     """
                     INSERT INTO amiga_games
                       (source_scores_id, game_date, player_a_id, player_b_id, tournament_id, fixture_id,
-                       phase, goals_a, goals_b, extra)
+                       phase, goals_a, goals_b, extra, goals_et_a, goals_et_b, pens_a, pens_b)
                     VALUES
                       (%(source_scores_id)s, %(game_date)s, %(player_a_id)s, %(player_b_id)s,
-                       %(tournament_id)s, %(fixture_id)s, %(phase)s, %(goals_a)s, %(goals_b)s, %(extra)s)
+                       %(tournament_id)s, %(fixture_id)s, %(phase)s, %(goals_a)s, %(goals_b)s, %(extra)s,
+                       %(goals_et_a)s, %(goals_et_b)s, %(pens_a)s, %(pens_b)s)
                     """,
                     {
                         "source_scores_id": source_scores_id,
@@ -173,6 +179,10 @@ def promote_running_tournament(
                         "extra": fixture["extra"].strip()
                         if fixture.get("extra") and str(fixture["extra"]).strip()
                         else None,
+                        "goals_et_a": fixture.get("goals_et_a"),
+                        "goals_et_b": fixture.get("goals_et_b"),
+                        "pens_a": fixture.get("pens_a"),
+                        "pens_b": fixture.get("pens_b"),
                     },
                 )
                 game_ids.append(int(cur.lastrowid))

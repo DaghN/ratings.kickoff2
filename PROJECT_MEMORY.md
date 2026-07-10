@@ -92,7 +92,7 @@
 
 - **Amiga live ops (Jul 2026):** **RTB shipped (RTB-1–RTB-9)** — running scores until organizer **Finish and make official** (promote + finalize + lifecycle `completed` in one Table-tab action). Policy: [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md) rev. 2.
 
-- **Amiga format scoring contract (Jul 2026):** **SC-8 shipped** — RTB broadcast contract-driven standings (fixtures adapter); live hub KO bracket; `verify-rtb-standings-parity`. **Next:** SC-9 (L5 `stage_id` + dual-write). Policy [`amiga-format-scoring-contract-policy.md`](docs/amiga-format-scoring-contract-policy.md) · plan [`amiga-format-scoring-contract-implementation-plan.md`](docs/amiga-format-scoring-contract-implementation-plan.md).
+- **Amiga format scoring contract (Jul 2026):** **SC-0–SC-9 + SC-11 shipped** — L4b relational contracts, PHP↔Python executor parity, RTB broadcast, L5 `stage_id`, structured ET/pens on games + fixtures (`012_match_extensions.sql`). **SC-10 blocked** on structure/materialize (~58% games `fixture_id`). Witness audit: `Scores.Extra` token inventory; `WG` unconfirmed in Access. Policy [`amiga-format-scoring-contract-policy.md`](docs/amiga-format-scoring-contract-policy.md) · plan [`amiga-format-scoring-contract-implementation-plan.md`](docs/amiga-format-scoring-contract-implementation-plan.md).
 
 - **Amiga modern ground (Jul 2026):** **Cutover bootstrap complete** (D0 → PROMOTE-1 + DOC-1 + CODE-1). **Staged prod / local repair shop:** [`amiga-staging-authority-policy.md`](docs/amiga-staging-authority-policy.md). **PULL-1a/1b shipped** — `pull_ko2amiga_from_staging.ps1` + `run_export_ko2amiga.php` (verified pull Jul 2026). Daily loop: pull → repair → push (`export_ko2amiga_work.ps1` after simul when needed). [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md).
 
@@ -145,6 +145,8 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-10 | **Scoring contract SC-11 session** — structured L3 ET/pens (`012_match_extensions.sql`); Python+PHP resolver; RTB dual-write + promote; backfill 103/108; `verify-match-extensions` in simul suite; Access `Scores.Extra` audit (`WG` = literal token only, 3 rows WC IV); SC-10 still blocked on fixture linkage. Docs: plan, policy, data contract, schema discovery, RTB, design §2.9. |
+| 2026-07-10 | **SC-9 shipped** — L5 `stage_id` column + dual-write; backfill 605 tournaments; `verify-standings-stage-id --sweep` OK. **Next:** SC-10. |
 | 2026-07-10 | **SC-8 shipped** — RTB broadcast compute + tournament_lib broadcast routing; live hub KO bracket; `verify-rtb-standings-parity`. **Next:** SC-9. |
 | 2026-07-10 | **SC-7 shipped** — `freeze_scoring_contracts_for_tournament` in Python + PHP finalize; `freeze-scoring-contracts` catalog repair (605); verify-scoring-contract extended. **Next:** SC-8. |
 | 2026-07-10 | **SC-6 shipped** — `backfill-scoring-contracts` on `ko2amiga_work` (605 tournaments + stages); catalog KO stores legacy GF chain; verify-scoring + PHP parity + Access sweep green. **Next:** SC-7. |

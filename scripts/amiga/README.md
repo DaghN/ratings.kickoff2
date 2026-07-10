@@ -154,6 +154,13 @@ python -m scripts.amiga verify-php-standings-parity --sample 5
 python -m scripts.amiga verify-php-standings-parity --sweep
 python -m scripts.amiga verify-rtb-standings-parity --sample 5
 python -m scripts.amiga verify-rtb-standings-parity --sweep
+python -m scripts.amiga backfill-standings-stage-id
+python -m scripts.amiga verify-standings-stage-id --sweep
+
+# SC-11 structured match extensions (ET/pens cols; work DB):
+python -m scripts.amiga backfill-match-extensions
+python -m scripts.amiga backfill-match-extensions --dry-run
+python -m scripts.amiga verify-match-extensions
 
 # L4b scoring contract catalog backfill (SC-6; work DB):
 python -m scripts.amiga backfill-scoring-contracts --dry-run

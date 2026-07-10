@@ -21,6 +21,7 @@ from scripts.amiga.scoring_contract import (
     default_scoring_context,
     load_scoring_context_for_tournament,
 )
+from scripts.amiga.match_extensions import parse_standings_winner, resolve_game_extension_winner
 from scripts.amiga.tournament_phases import (
     PhaseScope,
     ScopeType,
@@ -34,7 +35,9 @@ log = logging.getLogger(__name__)
 
 GAME_SELECT = """
     SELECT g.id, g.tournament_id, g.player_a_id, g.player_b_id,
-           g.goals_a, g.goals_b, g.phase, g.extra, g.source_scores_id,
+           g.goals_a, g.goals_b, g.phase, g.extra,
+           g.goals_et_a, g.goals_et_b, g.pens_a, g.pens_b,
+           g.source_scores_id,
            g.fixture_id,
            f.phase_label AS fixture_phase_label,
            s.id AS stage_id,
@@ -102,43 +105,6 @@ def regulation_outcome(
     if goals_a < goals_b:
         return loss_pts, win_pts, -1
     return draw_pts, draw_pts, 0
-
-
-def parse_standings_winner(
-    goals_a: int,
-    goals_b: int,
-    extra: str | None,
-    player_a_id: int,
-    player_b_id: int,
-) -> int | None:
-    """Resolve match winner for knockouts (regulation or Extra). None = unresolved draw."""
-    if goals_a > goals_b:
-        return player_a_id
-    if goals_b > goals_a:
-        return player_b_id
-    if not extra or not str(extra).strip():
-        return None
-    text = str(extra).strip().lower()
-    # Penalties: ``(4-4) 5-3 p.k.``, ``(5-4 pen.)``, ``(0-0) 7-6pen``
-    pen_patterns = [
-        r"\((\d+)\s*-\s*(\d+)\)\s*(\d+)\s*-\s*(\d+)\s*(?:p\.?k\.?|pen)",
-        r"\((\d+)\s*-\s*(\d+)\)\s*(\d+)\s*-\s*(\d+)",
-        r"(\d+)\s*-\s*(\d+)\s*pen",
-    ]
-    for pat in pen_patterns:
-        m = re.search(pat, text)
-        if m:
-            groups = m.groups()
-            if len(groups) == 4:
-                pen_a, pen_b = int(groups[2]), int(groups[3])
-            else:
-                pen_a, pen_b = int(groups[0]), int(groups[1])
-            if pen_a > pen_b:
-                return player_a_id
-            if pen_b > pen_a:
-                return player_b_id
-    # Extra time with different score: ``7-7 e.t.`` is still a draw — unresolved.
-    return None
 
 
 def _standing_for_table(
@@ -268,13 +234,9 @@ def _knockout_positions(
         elif step in ("extra_time", "penalty_shootout", "golden_goal"):
             if games:
                 for g in games:
-                    extra = g.get("extra")
-                    if not extra or not str(extra).strip():
-                        continue
-                    wid = parse_standings_winner(
-                        int(g["goals_a"]),
-                        int(g["goals_b"]),
-                        str(extra),
+                    wid = resolve_game_extension_winner(
+                        g,
+                        step,
                         int(g["player_a_id"]),
                         int(g["player_b_id"]),
                     )
@@ -310,6 +272,37 @@ def _assign_positions(
 def _fixture_label(g: dict[str, Any]) -> str:
     label = g.get("fixture_phase_label") or g.get("stage_name") or g.get("stage_key") or "Fixture"
     return str(label).strip() or "Fixture"
+
+
+def _game_stage_id(g: dict[str, Any]) -> int | None:
+    raw = g.get("stage_id")
+    if raw is None:
+        return None
+    try:
+        sid = int(raw)
+    except (TypeError, ValueError):
+        return None
+    return sid if sid > 0 else None
+
+
+def _record_scope_stage_id(
+    scope_stage_ids: dict[tuple[ScopeType, str], int | None],
+    scope_key: tuple[ScopeType, str],
+    stage_id: int | None,
+) -> None:
+    if stage_id is None:
+        return
+    existing = scope_stage_ids.get(scope_key)
+    if existing is None:
+        scope_stage_ids[scope_key] = stage_id
+        return
+    if existing != stage_id:
+        log.warning(
+            "compute_tournament_standings: mixed stage_id for scope %s (had %s, got %s)",
+            scope_key,
+            existing,
+            stage_id,
+        )
 
 
 def _fixture_scope(
@@ -358,6 +351,7 @@ def compute_tournament_standings(
     scope_contracts: dict[tuple[ScopeType, str], StageScoringContract] = {}
     knockout_scopes: dict[tuple[ScopeType, str], dict[int, PlayerStanding]] = {}
     knockout_games: dict[tuple[ScopeType, str], list[dict[str, Any]]] = defaultdict(list)
+    scope_stage_ids: dict[tuple[ScopeType, str], int | None] = {}
     has_null_phase = False
     has_structured = False
 
@@ -394,6 +388,7 @@ def compute_tournament_standings(
             contract = context.contract_for_game(g, is_elimination=is_elimination)
             scope_key = (scope.scope_type, scope.scope_key)
             _record_scope_contract(scope_key, contract)
+            _record_scope_stage_id(scope_stage_ids, scope_key, _game_stage_id(g))
             has_structured = True
             if is_elimination:
                 knockout_games[scope_key].append(g)
@@ -489,6 +484,7 @@ def compute_tournament_standings(
         if league_aggregate:
             scopes[(ScopeType.LEAGUE, "")] = league_aggregate
             scope_contracts[(ScopeType.LEAGUE, "")] = context.default_league
+            scope_stage_ids[(ScopeType.LEAGUE, "")] = None
 
     for (stype, skey), table in knockout_scopes.items():
         scopes[(stype, skey)] = table
@@ -512,6 +508,7 @@ def compute_tournament_standings(
                     "player_id": pid,
                     "scope_type": stype.value,
                     "scope_key": skey,
+                    "stage_id": scope_stage_ids.get((stype, skey)),
                     "position": pos,
                     "games": st.games,
                     "wins": st.wins,
@@ -527,7 +524,9 @@ def compute_tournament_standings(
 
 GAME_SELECT_FOR_TOURNAMENT = """
     SELECT g.id, g.tournament_id, g.player_a_id, g.player_b_id,
-           g.goals_a, g.goals_b, g.phase, g.extra, g.source_scores_id,
+           g.goals_a, g.goals_b, g.phase, g.extra,
+           g.goals_et_a, g.goals_et_b, g.pens_a, g.pens_b,
+           g.source_scores_id,
            g.fixture_id,
            f.phase_label AS fixture_phase_label,
            s.id AS stage_id,
@@ -541,11 +540,11 @@ GAME_SELECT_FOR_TOURNAMENT = """
 
 _STANDINGS_INSERT_SQL = """
     INSERT INTO amiga_tournament_standings (
-        tournament_id, player_id, scope_type, scope_key,
+        tournament_id, player_id, scope_type, scope_key, stage_id,
         position, games, wins, draws, losses,
         goals_for, goals_against, points
     ) VALUES (
-        %(tournament_id)s, %(player_id)s, %(scope_type)s, %(scope_key)s,
+        %(tournament_id)s, %(player_id)s, %(scope_type)s, %(scope_key)s, %(stage_id)s,
         %(position)s, %(games)s, %(wins)s, %(draws)s, %(losses)s,
         %(goals_for)s, %(goals_against)s, %(points)s
     )

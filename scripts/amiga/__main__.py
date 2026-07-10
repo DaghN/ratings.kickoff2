@@ -600,6 +600,32 @@ def main(argv: list[str] | None = None) -> int:
     p_rtb_standings.add_argument("--sample", type=int, default=5)
     p_rtb_standings.add_argument("--sweep", action="store_true")
 
+    p_backfill_stage = sub.add_parser(
+        "backfill-standings-stage-id",
+        help="SC-9 rebuild L5 standings to populate stage_id",
+    )
+    p_backfill_stage.add_argument("--tournament-id", type=int, default=None)
+    p_backfill_stage.add_argument("--dry-run", action="store_true")
+
+    p_verify_stage = sub.add_parser(
+        "verify-standings-stage-id",
+        help="SC-9 L5 stage_id dual-write oracle",
+    )
+    p_verify_stage.add_argument("--tournament-id", type=int, default=None)
+    p_verify_stage.add_argument("--sample", type=int, default=10)
+    p_verify_stage.add_argument("--sweep", action="store_true")
+
+    p_backfill_ext = sub.add_parser(
+        "backfill-match-extensions",
+        help="SC-11 backfill structured ET/pens from witness extra text",
+    )
+    p_backfill_ext.add_argument("--dry-run", action="store_true")
+
+    sub.add_parser(
+        "verify-match-extensions",
+        help="SC-11 structured match extensions oracle",
+    )
+
     p_backfill_scoring = sub.add_parser(
         "backfill-scoring-contracts",
         help="SC-6 explicit L4b contracts on catalog tournaments/stages",
@@ -1042,6 +1068,41 @@ def main(argv: list[str] | None = None) -> int:
         if args.sweep:
             rtb_argv.append("--sweep")
         return verify_rtb_standings_parity_main(rtb_argv)
+
+    if args.cmd == "backfill-standings-stage-id":
+        from scripts.amiga.backfill_standings_stage_id import main as backfill_standings_stage_id_main
+
+        backfill_stage_argv: list[str] = []
+        if args.tournament_id is not None:
+            backfill_stage_argv.extend(["--tournament-id", str(args.tournament_id)])
+        if args.dry_run:
+            backfill_stage_argv.append("--dry-run")
+        return backfill_standings_stage_id_main(backfill_stage_argv)
+
+    if args.cmd == "verify-standings-stage-id":
+        from scripts.amiga.verify_standings_stage_id import main as verify_standings_stage_id_main
+
+        verify_stage_argv: list[str] = []
+        if args.tournament_id is not None:
+            verify_stage_argv.extend(["--tournament-id", str(args.tournament_id)])
+        if args.sample != 10:
+            verify_stage_argv.extend(["--sample", str(args.sample)])
+        if args.sweep:
+            verify_stage_argv.append("--sweep")
+        return verify_standings_stage_id_main(verify_stage_argv)
+
+    if args.cmd == "backfill-match-extensions":
+        from scripts.amiga.backfill_match_extensions import main as backfill_match_extensions_main
+
+        ext_argv: list[str] = []
+        if args.dry_run:
+            ext_argv.append("--dry-run")
+        return backfill_match_extensions_main(ext_argv)
+
+    if args.cmd == "verify-match-extensions":
+        from scripts.amiga.verify_match_extensions import main as verify_match_extensions_main
+
+        return verify_match_extensions_main([])
 
     if args.cmd == "backfill-scoring-contracts":
         from scripts.amiga.backfill_scoring_contracts import main as backfill_scoring_contracts_main

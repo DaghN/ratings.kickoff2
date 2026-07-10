@@ -115,7 +115,8 @@ Implementation will add running result columns on `tournament_fixtures` (or equi
 | Field | Purpose |
 |-------|---------|
 | `goals_a`, `goals_b` | Result |
-| `extra` | ET / pens note (nullable) |
+| `extra` | ET / pens witness (nullable) |
+| `goals_et_a`, `goals_et_b`, `pens_a`, `pens_b` | Structured match extensions when parseable from `extra` (SC-11; dual-written on `record-result`) |
 | `result_recorded_at` | Optional display ordering within tournament (global `game_date` still assigned at promote) |
 | `status = played` | Already exists |
 
@@ -174,7 +175,7 @@ All must pass; otherwise refuse with an actionable message (no partial commit):
 
 For each **played** fixture in the running package, insert one `amiga_games` row:
 
-- `player_a_id`, `player_b_id`, `goals_a`, `goals_b`, `extra`, `phase` from fixture/stage
+- `player_a_id`, `player_b_id`, `goals_a`, `goals_b`, `extra`, `goals_et_a`, `goals_et_b`, `pens_a`, `pens_b`, `phase` from fixture/stage
 - `tournament_id`, `fixture_id`
 - `source_scores_id`, `game_date` — **allocated in promote transaction** (append to global canon chronology)
 

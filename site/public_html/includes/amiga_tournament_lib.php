@@ -813,9 +813,12 @@ function amiga_tournament_standings_rows(
 
     $sql = 'SELECT s.position, s.games, s.wins, s.draws, s.losses,
                    s.goals_for, s.goals_against, s.points,
+                   s.stage_id,
+                   st.stage_key, st.name AS stage_name, st.stage_type,
                    p.id AS player_id, p.name AS player_name, p.country
             FROM amiga_tournament_standings s
             INNER JOIN amiga_players p ON p.id = s.player_id
+            LEFT JOIN tournament_stages st ON st.id = s.stage_id
             WHERE s.tournament_id = ? AND s.scope_type = ? AND s.scope_key = ?
             ORDER BY s.position ASC, s.points DESC, (s.goals_for - s.goals_against) DESC';
     $stmt = mysqli_prepare($con, $sql);

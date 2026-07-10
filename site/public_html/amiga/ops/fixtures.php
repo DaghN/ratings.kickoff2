@@ -14,6 +14,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_player_naming.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_running_tournament_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_scoring_contract.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_match_extensions.php';
 require_once __DIR__ . '/modules/process_completed_game.php';
 require_once __DIR__ . '/modules/finalize_tournament.php';
 require_once __DIR__ . '/includes/amiga_promote_running_tournament.php';
@@ -2552,17 +2553,23 @@ function amiga_fixture_record_result(mysqli $con, int $fixtureId, int $goalsA, i
 
     $extraValue = trim((string) ($extra ?? ''));
     $extraValue = $extraValue === '' ? null : $extraValue;
+    $structured = amiga_extract_structured_from_extra($extraValue);
+    $goalsEtA = $structured['goals_et_a'] ?? null;
+    $goalsEtB = $structured['goals_et_b'] ?? null;
+    $pensA = $structured['pens_a'] ?? null;
+    $pensB = $structured['pens_b'] ?? null;
 
     $con->begin_transaction();
     try {
         $stmt = $con->prepare(
             "UPDATE tournament_fixtures SET goals_a = ?, goals_b = ?, extra = ?, "
+            . "goals_et_a = ?, goals_et_b = ?, pens_a = ?, pens_b = ?, "
             . "result_recorded_at = UTC_TIMESTAMP(), status = 'played' WHERE id = ?"
         );
         if ($stmt === false) {
             throw new RuntimeException('prepare fixture result update: ' . $con->error);
         }
-        $stmt->bind_param('iisi', $goalsA, $goalsB, $extraValue, $fixtureId);
+        $stmt->bind_param('iisiiiii', $goalsA, $goalsB, $extraValue, $goalsEtA, $goalsEtB, $pensA, $pensB, $fixtureId);
         if (!$stmt->execute()) {
             throw new RuntimeException('execute fixture result update: ' . $stmt->error);
         }
@@ -2802,6 +2809,7 @@ function amiga_fixture_undo_unprocessed_result(mysqli $con, int $fixtureId): voi
     try {
         $stmt = $con->prepare(
             "UPDATE tournament_fixtures SET goals_a = NULL, goals_b = NULL, extra = NULL, "
+            . "goals_et_a = NULL, goals_et_b = NULL, pens_a = NULL, pens_b = NULL, "
             . "result_recorded_at = NULL, status = 'scheduled' WHERE id = ?"
         );
         if ($stmt === false) {
