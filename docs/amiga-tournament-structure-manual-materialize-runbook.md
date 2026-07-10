@@ -82,6 +82,8 @@ WHERE tournament_id = 173 AND stage_key = 'round-1';
 
 **Bulk null-phase marathons (Jul 2026):** 503 single-stage tier-A events had materialize default `Overall` — renamed to **`League`** on work (`stage_key` stays `overall`; only when `stage_count = 1` and `stage_type = round_robin`).
 
+**KO display names (manual):** witness `Round 1` on a pure cup often means QF — prefer stage name **`Quarter Finals`** when bracket size fits (604: 8p → 4 ties). Plural **`Semi Finals`** matches catalog majority over `Semi Final`. Leave `g.phase` as witness; edit `tournament_stages.name` only.
+
 ### 5. Standings + structure verify
 
 ```powershell

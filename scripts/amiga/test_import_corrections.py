@@ -5,12 +5,14 @@ from __future__ import annotations
 import unittest
 
 from scripts.amiga.import_access import AccessScore, merge_supplemental_scores
+from scripts.amiga.tournament_format import TournamentFormatInference
 from scripts.amiga.import_corrections import (
     IMPORT_CATALOG_SPLIT_SOURCE_ID_BASE,
     IMPORT_SUPPLEMENT_SCORES_ID_BASE,
     SUPPLEMENTAL_SCORES,
     WORLD_CUP_VENUES,
     apply_catalog_corrections,
+    apply_catalog_split_format_overrides,
     apply_catalog_splits,
     apply_player_country_corrections,
     catalog_name_after_corrections,
@@ -106,6 +108,29 @@ class ImportCorrectionsTests(unittest.TestCase):
         self.assertEqual(len(applied), 1)
         manifest = catalog_splits_manifest()
         self.assertEqual(manifest[0]["tournament"], "Groningen VII Cup")
+
+    def test_catalog_split_format_override_cup_only(self) -> None:
+        format_by_name = {
+            "Groningen VII Cup": TournamentFormatInference(
+                has_league=True,
+                has_cup=True,
+                game_count=14,
+            ),
+            "Gloucester III Team": TournamentFormatInference(
+                has_league=True,
+                has_cup=False,
+                game_count=10,
+            ),
+        }
+        applied = apply_catalog_split_format_overrides(format_by_name)
+        cup = format_by_name["Groningen VII Cup"]
+        self.assertFalse(cup.has_league)
+        self.assertTrue(cup.has_cup)
+        team = format_by_name["Gloucester III Team"]
+        self.assertTrue(team.has_league)
+        self.assertFalse(team.has_cup)
+        self.assertEqual(len(applied), 1)
+        self.assertEqual(applied[0]["tournament"], "Groningen VII Cup")
 
 
 if __name__ == "__main__":

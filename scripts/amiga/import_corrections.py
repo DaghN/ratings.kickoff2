@@ -5,7 +5,10 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from scripts.amiga.tournament_format import TournamentFormatInference
 
 # Reserved source_scores_id range for import supplements (Access max ~28k; live ops use >= 1e9).
 IMPORT_SUPPLEMENT_SCORES_ID_BASE = 500_000_000
@@ -299,6 +302,43 @@ def catalog_splits_manifest() -> list[dict[str, str | int | float]]:
         }
         for split in IMPORT_CATALOG_SPLITS
     ]
+
+
+def apply_catalog_split_format_overrides(
+    format_by_name: dict[str, TournamentFormatInference],
+) -> list[dict[str, str | bool]]:
+    """
+    Force league/cup flags for synthetic catalog splits.
+
+    Phase inference treats witness ``Round 1`` as league scope; cup splits such as
+    Groningen VII Cup are pure knockout and must stay cup-only for index filters.
+    """
+    from scripts.amiga.tournament_format import TournamentFormatInference
+
+    applied: list[dict[str, str | bool]] = []
+    for split in IMPORT_CATALOG_SPLITS:
+        inf = format_by_name.get(split.name)
+        if inf is None:
+            continue
+        has_league = not split.is_cup
+        has_cup = split.is_cup
+        if inf.has_league == has_league and inf.has_cup == has_cup:
+            continue
+        format_by_name[split.name] = TournamentFormatInference(
+            has_league=has_league,
+            has_cup=has_cup,
+            game_count=inf.game_count,
+        )
+        applied.append(
+            {
+                "tournament": split.name,
+                "from_league": inf.has_league,
+                "from_cup": inf.has_cup,
+                "to_league": has_league,
+                "to_cup": has_cup,
+            }
+        )
+    return applied
 
 
 def apply_player_country_corrections(countries: dict[str, str]) -> list[dict[str, str]]:

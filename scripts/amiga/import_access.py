@@ -23,6 +23,7 @@ from scripts.amiga.import_corrections import (
     IMPORT_SUPPLEMENT_SCORES_ID_BASE,
     SUPPLEMENTAL_SCORES,
     apply_catalog_corrections,
+    apply_catalog_split_format_overrides,
     apply_catalog_splits,
     apply_player_country_corrections,
     catalog_splits_manifest,
@@ -283,6 +284,21 @@ def _prepare_witness_core(
 
     tour_by_name = {t["name"]: t for t in tournaments}
     format_by_name = infer_legacy_tournament_formats(tournaments, scores)
+    catalog_split_format_overrides = apply_catalog_split_format_overrides(format_by_name)
+    if catalog_split_format_overrides:
+        log.info(
+            "Applied %s catalog split format override(s) from import_corrections.py",
+            len(catalog_split_format_overrides),
+        )
+        for entry in catalog_split_format_overrides:
+            log.info(
+                "  → %s: league %s→%s, cup %s→%s",
+                entry["tournament"],
+                entry["from_league"],
+                entry["to_league"],
+                entry["from_cup"],
+                entry["to_cup"],
+            )
 
     def sort_key(s: AccessScore) -> tuple:
         parent = resolve_tournament_name(s.raw_tournament)

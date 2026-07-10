@@ -97,6 +97,7 @@ Regenerate after code changes: `generate-disposition-register` (overwrites propo
 - **166** Milan XII → `structure_spec` — 8p double-RR league + 2-leg semis + 3-leg final; phase "Finals" plural (g5961–63).
 - **171** Copenhagen Cup → `pure_knockout` — 8p from QF + full placement bracket; AET g6723 (g6715–6726).
 - **173** Frankfurt → `structure_spec` — 4p double-RR league + 2-leg semis/3rd/final (g6781–88). **Jul 2026:** cleared `NON_WC_SLICE6_CUP_REVIEW_IDS`; legacy materialize on `ko2amiga_work`; RR stage `round-1` display name **`Round 1 - League`** (manual; witness `g.phase` stays `Round 1`).
+- **604** Groningen VII Cup → `pure_knockout` — 8p single-elim, 2-leg ties; import split from id **48**. **Jul 2026:** `materialize-pure-knockout --replace`; stage names **`Quarter Finals`** / **`Semi Finals`** / **`Final`** (witness `Round 1` / `Semi Final` unchanged).
 - **174** London Marathon → `pure_rr` — 22p near-complete single RR (230/231g); James L–Vagelis D unplayed.
 - **176** Milan XIV → `structure_spec` — 6p double-RR league + 2-leg semis/3rd/final (g7121–28).
 - **187** Hertford IV — split **deferred** (24g league + 4g cup; forum t=12376; cup g7579, 7567, 7563, 7582); stays `pending_review`.

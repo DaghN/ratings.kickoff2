@@ -147,6 +147,7 @@
 |------|------|
 | 2026-07-10 | **Staging export prepared** — `export_ko2amiga_work.ps1` green: 41 parts (~71 MB), 27,418 games, `07a` scoring steps; manifest `2026-07-10 05:53` — WinSCP + browser import pending. |
 | 2026-07-10 | **Staging export table registry** — `scripts/amiga/staging_export_tables.py` + `data/amiga/staging_export_tables.json`; push/pull read JSON; `export_ko2amiga_work.ps1` runs write + audit preflight; adds `tournament_stage_scoring_steps` part (`07a`). |
+| 2026-07-10 | **Groningen VII Cup (604) pure knockout** — `materialize-pure-knockout`; 7 KO stages / 14 fixtures; display names Quarter Finals · Semi Finals · Final (witness Round 1 / Semi Final kept). |
 | 2026-07-10 | **Bulk stage rename Overall → League** — 503 single-stage null-phase RR marathons on `ko2amiga_work` (`stage_key` `overall` unchanged; witness `g.phase` NULL). |
 | 2026-07-10 | **Stage-first game phase column** — `amiga_rated_games_from_sql()` + lean hub SQL: `COALESCE(s.name, g.phase)`; `phase_witness` + `stage_id` for standings links; tournament / player / realm games tables wired. |
 | 2026-07-10 | **Frankfurt (173) stage display name** — `tournament_stages.name` `Round 1` → **`Round 1 - League`** on `ko2amiga_work` (manual triage; `g.phase` witness unchanged). |
