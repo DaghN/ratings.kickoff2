@@ -145,6 +145,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-10 | **Milan IV (134) manual materialize** — 7p league + playoffs (7 KO games); 5 stages / 50 fixtures; **League** · **Semi Finals** · **3rd Place Final** · **Final**; `has_league=1` `has_cup=1`; Tier B finish refreshed. |
 | 2026-07-10 | **Milan XIV (176) manual materialize** — cleared slice-6 cup review; Venice-style 6p double RR + KO; 5 stages / 38 fixtures; **League** · **Semi Finals** · **3rd Place Final** · **Final**; Tier B finish refreshed. |
 | 2026-07-10 | **Rome (29) manual materialize** — 6p double RR + two-leg final; 2 stages / 32 fixtures; **League** · **Final**; `has_league=1` `has_cup=1`; Tier B finish refreshed. |
 | 2026-07-10 | **Frankfurt (173) stage display name** — `Round 1 - League` → **`League`** on `ko2amiga_work` (align with Venice 64; witness `g.phase` stays `Round 1`). |

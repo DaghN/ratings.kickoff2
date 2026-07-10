@@ -537,7 +537,7 @@
     },
     "134": {
       "handler": "structure_spec",
-      "notes": "7p; 42g pre-playoff (g4100\u2013141) + 8g playoffs (g4142\u201349: two-leg semis, 3rd-place + final \u2014 forum-labelled, score-matched); KOATD NULL phase. Forum: https://ko-gathering.com/forum/viewtopic.php?t=7561"
+      "notes": "7p double-RR league (g4099\u201340, 42g) + 8g playoffs (g4141\u201348: two-leg semis incl. g4141 as semi 2v3 leg 1, 3rd + final). Jul 2026: manual materialize on work; has_league=1 has_cup=1. Forum: https://ko-gathering.com/forum/viewtopic.php?t=7561"
     },
     "135": {
       "handler": "pure_rr",
