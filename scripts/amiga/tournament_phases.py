@@ -37,9 +37,9 @@ _KOA_ROUND_GROUP_RE = re.compile(
     re.IGNORECASE,
 )
 _PLACES_RE = re.compile(r"^Places\s+(\d+(?:-\d+)?)$", re.IGNORECASE)
-_PLAYOUTS_BAND_RE = re.compile(r"^Playouts(?:\s+\d+(?:-\d+)?|\s+Group)?$", re.IGNORECASE)
+_PLAYOUTS_BAND_RE = re.compile(r"^Playouts\s+(?:\d+(?:-\d+)?|Group)$", re.IGNORECASE)
 _PLACE_FINAL_RE = re.compile(r"^\d+(?:st|nd|rd|th)\s+Place\s+Finals?$", re.IGNORECASE)
-_PLAY_OUTS_RE = re.compile(r"^play\s*outs?$", re.IGNORECASE)
+_PLAY_OUTS_RE = re.compile(r"^play\s+outs?$", re.IGNORECASE)
 _KNOCKOUT_LABELS = frozenset(
     {
         "quarter finals",
@@ -55,8 +55,8 @@ _KNOCKOUT_LABELS = frozenset(
         "game of shame",
     }
 )
-# Singular and minor variants (Scores.Phase often omits the trailing "s").
-_QUARTER_SEMI_FINAL_RE = re.compile(r"^(?:quarter|semi)\s+finals?$", re.IGNORECASE)
+# Singular, plural, and hyphen variants (Scores.Phase: Semi Final, Semi-Final, Semi Finals).
+_QUARTER_SEMI_FINAL_RE = re.compile(r"^(?:quarter|semi)[\s-]finals?$", re.IGNORECASE)
 
 
 def _normalize_whitespace(label: str) -> str:

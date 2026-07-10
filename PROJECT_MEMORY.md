@@ -145,6 +145,11 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-10 | **Tournament page nav unified** — all events use **Stages** top tab + sub-nav (WC pattern); bracket renders only on Bracket sub-tab; `standings.php` → 302 `stages.php`. |
+| 2026-07-11 | **Groningen VII (48) Tier E finish override** — full ladder 1–9 in `amiga_tournament_finish_override` (auto derivation duplicated positions after group splits); snapshots refreshed. |
+| 2026-07-10 | **Groningen VII (48) Round 2 group split** — **Round 2 - Group D** (Kees V · Sjoerd K · Luitzen B) **· Group E** (Mark P · Riemer P · Evert V); script `split_groningen_vii_round2_groups.py`. |
+| 2026-07-10 | **Groningen VII (48) Round 1 group split** — **Round 1 - Group A/B/C** (3×3 double RR, 6g each); script `split_groningen_vii_round1_groups.py`; Tier B finish unchanged 1–9. |
+| 2026-07-10 | **Groningen VII (48) manual materialize** — `Semi-Final` parser; **League 7-9** (witness `Playouts`); KO semis + placement finals; Tier B finish 1–9. |
 | 2026-07-10 | **Event-stats Finish sort** — numeric `data-k2-sort-value` from `event_finish_position` (fixes 10 before 1 on asc); player tournament history table too. |
 | 2026-07-10 | **Homburg II (152) manual materialize** — 15 stages / 66g; **Group A/B** + Playouts 5-8 + placement finals; Tier E finish 1–10 (forum t=10006; Final agg 4–4). |
 | 2026-07-10 | **Milan XVII (198) manual materialize** — `Playouts 5-7` parser; 11 stages / 36g; **Group A** · **Group B** split + NULL RR `phase_label`; Tier B finish 1–7. |

@@ -34,9 +34,8 @@ function bootstrap_tournament(mysqli $con, int $id, string $pageView): float
     amiga_tournament_list_league_labeled_scopes($con, $id);
     amiga_tournament_standings_rows($con, $id, 'league', '');
     amiga_tournament_standings_rows($con, $id, $scopeType, $scopeKey);
-    $isWorldCupEvent = amiga_tournament_is_world_cup($tournament);
-    $isStagesContentView = $pageView === 'stages' || ($pageView === 'standings' && !$isWorldCupEvent);
-    if ($knockoutScopes !== [] && $isStagesContentView) {
+    $isKnockoutView = $scopeType === 'knockout';
+    if ($knockoutScopes !== [] && $isKnockoutView) {
         amiga_tournament_knockout_bracket_data($con, $id, $knockoutScopes);
     }
     amiga_tournament_participation_rows($con, $id);
@@ -58,7 +57,7 @@ $cutoffs = ['present' => '', 'year:2024' => 'year:2024', 'month:2014-07' => 'mon
 $libFixtures = [
     ['id' => $ordinaryId, 'view' => 'event-stats'],
     ['id' => $ordinaryId, 'view' => 'games'],
-    ['id' => $ordinaryId, 'view' => 'standings'],
+    ['id' => $ordinaryId, 'view' => 'stages'],
     ['id' => $wcId, 'view' => 'stages'],
 ];
 
@@ -96,7 +95,7 @@ echo "\n=== Curl census (5 Track D URLs) ===\n";
 $paths = [
     '/amiga/tournament/event-stats.php?id=' . $ordinaryId,
     '/amiga/tournament/games.php?id=' . $ordinaryId,
-    '/amiga/tournament/standings.php?id=' . $ordinaryId,
+    '/amiga/tournament/stages.php?id=' . $ordinaryId,
     '/amiga/tournament/stages.php?id=' . $wcId,
     '/amiga/tournaments.php',
 ];

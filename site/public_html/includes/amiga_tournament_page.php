@@ -78,8 +78,7 @@ echo match ($tournamentPageView) {
     'event-stats' => ' — Event stats',
     'games' => ' — Games',
     'videos' => ' — Videos',
-    'stages' => ' — Stages',
-    'standings' => ' — Standings',
+    'stages', 'standings' => ' — Stages',
     default => '',
 };
 
@@ -174,7 +173,7 @@ $leagueLabeledScopes = amiga_tournament_list_league_labeled_scopes($con, $id);
 
 $knockoutScopes = amiga_tournament_list_scopes($con, $id, 'knockout');
 
-$needsStandingsRows = $pageView === 'stages' || $pageView === 'standings';
+$needsStandingsRows = $pageView === 'stages';
 
 $needsParticipationRows = $pageView === 'event-stats';
 
@@ -281,7 +280,7 @@ if ($pageView === 'games' && $hasGamesTab) {
 
 $isWorldCupEvent = amiga_tournament_is_world_cup($tournament);
 
-$hasStagesTab = $isWorldCupEvent && ($hasLeagueStandingsNav || $hasBracket);
+$hasStagesTab = $hasLeagueStandingsNav || $hasBracket;
 
 $stagesEntryUrl = amiga_tournament_href(amiga_tournament_stages_entry_url($id, $showLeagueTableTab, $leagueLabeledScopes, $hasBracket));
 
@@ -364,14 +363,14 @@ if ($hasVideosTab) {
 
 }
 
-$isStagesContentView = $pageView === 'stages' || ($pageView === 'standings' && !$isWorldCupEvent);
+$isStagesContentView = $pageView === 'stages';
 
 $bracketData = [
     'main' => [],
     'placement_final' => [],
     'placement_bracket' => [],
 ];
-if ($hasBracket && $isStagesContentView) {
+if ($hasBracket && $isKnockoutView) {
     $bracketData = amiga_tournament_knockout_bracket_data($con, $id, $knockoutScopes);
 }
 
@@ -449,12 +448,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
           $scopeType,
           $scopeKey,
           $isKnockoutView,
-          $isWorldCupEvent,
       ): void {
           if ($showLeagueTableTab) {
               $leagueTableActive = $scopeType === 'league' && $scopeKey === '' && $pageView === 'stages';
               ?>
-      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'league', '', $isWorldCupEvent))); ?>" class="k2-player-nav__btn<?php echo $leagueTableActive ? ' is-active' : ''; ?>"<?php
+      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'league', ''))); ?>" class="k2-player-nav__btn<?php echo $leagueTableActive ? ' is-active' : ''; ?>"<?php
               echo $leagueTableActive ? ' aria-current="page"' : '';
               ?>>League table</a>
               <?php
@@ -462,7 +460,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
           foreach ($leagueLabeledScopes as $lk) {
               $active = $scopeType === 'league' && $scopeKey === $lk && $pageView === 'stages';
               ?>
-      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'league', $lk, $isWorldCupEvent))); ?>" class="k2-player-nav__btn<?php echo $active ? ' is-active' : ''; ?>"<?php
+      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'league', $lk))); ?>" class="k2-player-nav__btn<?php echo $active ? ' is-active' : ''; ?>"<?php
               echo $active ? ' aria-current="page"' : '';
               ?>><?php echo k2_h($lk); ?></a>
               <?php
@@ -470,7 +468,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
           if ($hasBracket) {
               $bracketScopeKey = $knockoutScopes[0] ?? '';
               ?>
-      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'knockout', $bracketScopeKey, $isWorldCupEvent))); ?>" class="k2-player-nav__btn<?php echo $isKnockoutView && $pageView === 'stages' ? ' is-active' : ''; ?>">Bracket</a>
+      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'knockout', $bracketScopeKey))); ?>" class="k2-player-nav__btn<?php echo $isKnockoutView && $pageView === 'stages' ? ' is-active' : ''; ?>">Bracket</a>
               <?php
           }
       };
@@ -487,59 +485,24 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
       <?php
       };
 
-      if ($isWorldCupEvent) {
-          $eventStatsNav();
-          if ($hasGamesTab) {
-              $gamesActive = $pageView === 'games';
-              ?>
+      $eventStatsNav();
+      if ($hasGamesTab) {
+          $gamesActive = $pageView === 'games';
+          ?>
       <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_games_url($id))); ?>" class="k2-player-nav__btn<?php echo $gamesActive ? ' is-active' : ''; ?>"<?php
-              echo $gamesActive ? ' aria-current="page"' : '';
-              ?>>Games</a>
-              <?php
-          }
-          if ($hasStagesTab) {
-              $stagesActive = $pageView === 'stages';
-              ?>
-      <a href="<?php echo k2_h($stagesEntryUrl); ?>" class="k2-player-nav__btn<?php echo $stagesActive ? ' is-active' : ''; ?>"<?php
-              echo $stagesActive ? ' aria-current="page"' : '';
-              ?>>Stages</a>
-              <?php
-          }
-          $videosNav();
-      } else {
-          $eventStatsNav();
-          if ($showLeagueTableTab) {
-              $leagueTableActive = $scopeType === 'league' && $scopeKey === '' && $pageView === 'standings';
-              ?>
-      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'league', '', false))); ?>" class="k2-player-nav__btn<?php echo $leagueTableActive ? ' is-active' : ''; ?>"<?php
-              echo $leagueTableActive ? ' aria-current="page"' : '';
-              ?>>League table</a>
-              <?php
-          }
-          foreach ($leagueLabeledScopes as $lk) {
-              $active = $scopeType === 'league' && $scopeKey === $lk && $pageView === 'standings';
-              ?>
-      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'league', $lk, false))); ?>" class="k2-player-nav__btn<?php echo $active ? ' is-active' : ''; ?>"<?php
-              echo $active ? ' aria-current="page"' : '';
-              ?>><?php echo k2_h($lk); ?></a>
-              <?php
-          }
-          if ($hasBracket) {
-              $bracketScopeKey = $knockoutScopes[0] ?? '';
-              ?>
-      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'knockout', $bracketScopeKey, false))); ?>" class="k2-player-nav__btn<?php echo $isKnockoutView && $pageView === 'standings' ? ' is-active' : ''; ?>">Bracket</a>
-              <?php
-          }
-          if ($hasGamesTab) {
-              $gamesActive = $pageView === 'games';
-              ?>
-      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_games_url($id))); ?>" class="k2-player-nav__btn<?php echo $gamesActive ? ' is-active' : ''; ?>"<?php
-              echo $gamesActive ? ' aria-current="page"' : '';
-              ?>>Games</a>
-              <?php
-          }
-          $videosNav();
+          echo $gamesActive ? ' aria-current="page"' : '';
+          ?>>Games</a>
+          <?php
       }
+      if ($hasStagesTab) {
+          $stagesActive = $pageView === 'stages';
+          ?>
+      <a href="<?php echo k2_h($stagesEntryUrl); ?>" class="k2-player-nav__btn<?php echo $stagesActive ? ' is-active' : ''; ?>"<?php
+          echo $stagesActive ? ' aria-current="page"' : '';
+          ?>>Stages</a>
+          <?php
+      }
+      $videosNav();
       ?>
 
     </div>
@@ -550,7 +513,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
 
 </nav>
 
-<?php if ($isWorldCupEvent && $pageView === 'stages' && ($hasLeagueStandingsNav || $hasBracket)) { ?>
+<?php if ($pageView === 'stages' && ($hasLeagueStandingsNav || $hasBracket)) { ?>
 
 <nav class="k2-amiga-tournament-nav k2-amiga-tournament-stages-nav k2-player-nav-bar" data-k2-carry-scroll aria-label="Tournament stages">
 
@@ -688,9 +651,9 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
 
 <?php } elseif ($isStagesContentView) { ?>
 
-<?php if ($hasBracket) {
+<?php if ($hasBracket && $isKnockoutView) {
 
-    amiga_tournament_render_bracket($bracketData, $isKnockoutView ? $scopeKey : '');
+    amiga_tournament_render_bracket($bracketData, $scopeKey);
 
 } ?>
 

@@ -26,8 +26,8 @@ function bootstrap_tournament(mysqli $con, int $id, string $pageView): float
     $rows = amiga_tournament_standings_rows($con, $id, $scopeType, $scopeKey);
     $isWorldCupEvent = amiga_tournament_is_world_cup($tournament);
     $hasBracket = $knockoutScopes !== [];
-    $isStagesContentView = $pageView === 'stages' || ($pageView === 'standings' && !$isWorldCupEvent);
-    if ($hasBracket && $isStagesContentView) {
+    $isKnockoutView = $scopeType === 'knockout';
+    if ($hasBracket && $isKnockoutView) {
         amiga_tournament_knockout_bracket_data($con, $id, $knockoutScopes);
     }
     amiga_tournament_participation_rows($con, $id);
@@ -52,7 +52,7 @@ $con->query("SET time_zone = '+00:00'");
 $fixtures = [
     ['id' => 589, 'view' => 'event-stats'],
     ['id' => 589, 'view' => 'games'],
-    ['id' => 589, 'view' => 'standings'],
+    ['id' => 589, 'view' => 'stages'],
     ['id' => 603, 'view' => 'stages'],
 ];
 

@@ -1,5 +1,10 @@
 <?php
 declare(strict_types=1);
 
-$k2AmigaTournamentView = 'standings';
-require $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_page.php';
+$query = $_SERVER['QUERY_STRING'] ?? '';
+$target = '/amiga/tournament/stages.php';
+if ($query !== '') {
+    $target .= '?' . $query;
+}
+header('Location: ' . $target, true, 302);
+exit;

@@ -33,6 +33,7 @@ class KnockoutPhaseDetectionTests(unittest.TestCase):
 
     def test_play_outs_and_plural_finals(self) -> None:
         self.assertTrue(is_knockout_phase("Play Outs"))
+        self.assertFalse(is_knockout_phase("Playouts"))
         scope = parse_phase("Finals")
         self.assertEqual(scope.scope_type, ScopeType.KNOCKOUT)
         self.assertEqual(scope.scope_key, "Final")
@@ -48,11 +49,21 @@ class KnockoutPhaseDetectionTests(unittest.TestCase):
         self.assertEqual(scope.scope_key, "Game of Shame")
 
     def test_playouts_band_is_knockout(self) -> None:
+        self.assertFalse(is_knockout_phase("Playouts"))
         self.assertTrue(is_knockout_phase("Playouts 5-7"))
+        self.assertTrue(is_knockout_phase("Playouts 5-8"))
         self.assertTrue(is_knockout_phase("Playouts Group"))
-        scope = parse_phase("Playouts 5-7")
+        scope = parse_phase("Playouts")
+        self.assertEqual(scope.scope_type, ScopeType.LEAGUE)
+        self.assertEqual(scope.scope_key, "Playouts")
+        scope_band = parse_phase("Playouts 5-7")
+        self.assertEqual(scope_band.scope_type, ScopeType.KNOCKOUT)
+
+    def test_semi_final_hyphen_is_knockout(self) -> None:
+        self.assertTrue(is_knockout_phase("Semi-Final"))
+        scope = parse_phase("Semi-Final")
         self.assertEqual(scope.scope_type, ScopeType.KNOCKOUT)
-        self.assertEqual(scope.scope_key, "Playouts 5-7")
+        self.assertEqual(scope.scope_key, "Semi-Final")
 
 
 if __name__ == "__main__":

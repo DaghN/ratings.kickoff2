@@ -193,7 +193,7 @@
     },
     "48": {
       "handler": "structure_spec",
-      "notes": "9p; groups R1+R2, playouts + placement finals (46g after cup split to id 604). Format still uncertain. Forum search only: https://ko-gathering.com/forum/viewtopic.php?t=1746&start=78 \u2014 real result thread not found yet."
+      "notes": "9p; groups R1 (A/B/C) + R2 (D/E), witness Playouts = League 7-9 (3p double RR) + KO (46g after cup split to id 604). Jul 2026: manual materialize; Tier E finish override 1\u20139 (derivation breaks on multi-group ladder)."
     },
     "49": {
       "handler": "pure_rr",

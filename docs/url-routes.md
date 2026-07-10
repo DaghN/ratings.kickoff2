@@ -198,8 +198,8 @@ Per-event pages use **foldered tabs** (not `?view=`). Entity id stays in query; 
 | Route key | Path | Tab |
 |-----------|------|-----|
 | `amiga-tournament-event-stats` | `/amiga/tournament/event-stats.php` | Event stats (default landing) |
-| `amiga-tournament-standings` | `/amiga/tournament/standings.php` | League table / groups / bracket (ordinary events) |
-| `amiga-tournament-stages` | `/amiga/tournament/stages.php` | Stages + sub-nav (World Cups) |
+| `amiga-tournament-standings` | `/amiga/tournament/standings.php` | **302 →** `stages.php` (legacy bookmarks) |
+| `amiga-tournament-stages` | `/amiga/tournament/stages.php` | Stages tab + sub-nav (all events with league/KO scopes) |
 | `amiga-tournament-games` | `/amiga/tournament/games.php` | Games |
 | `amiga-tournament-videos` | `/amiga/tournament/videos/games.php` | Videos — Games (default; when manifest has rows for `id`) |
 | `amiga-tournament-videos-games` | `/amiga/tournament/videos/games.php` | Videos — Games |

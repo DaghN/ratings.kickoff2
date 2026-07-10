@@ -166,8 +166,7 @@ function amiga_tournament_path_for_view(?string $view): string
     return match ($view) {
         'games' => '/amiga/tournament/games.php',
         'videos' => AMIGA_TOURNAMENT_VIDEOS_PATH_GAMES,
-        'stages' => '/amiga/tournament/stages.php',
-        'standings' => '/amiga/tournament/standings.php',
+        'stages', 'standings' => '/amiga/tournament/stages.php',
         'event-stats', null => '/amiga/tournament/event-stats.php',
         default => '/amiga/tournament/event-stats.php',
     };
@@ -885,7 +884,7 @@ function amiga_tournament_url(int $id, string $scopeType = 'league', string $sco
     }
 
     if ($view === null && ($scopeType === 'knockout' || ($scopeType === 'league' && $scopeKey !== ''))) {
-        $view = 'standings';
+        $view = 'stages';
     } elseif ($view === null) {
         $view = 'event-stats';
     }
@@ -1162,14 +1161,16 @@ function amiga_tournament_games_rows(mysqli $con, int $tournamentId, int $player
     return $cache[$cacheKey];
 }
 
-/** Standings/stages sub-nav link — folder path per mode (WC → stages.php, else standings.php). */
+/** Standings/stages sub-nav link — always `stages.php` (WC and ordinary events). */
 function amiga_tournament_standings_nav_url(
     int $id,
     string $scopeType = 'league',
     string $scopeKey = '',
     bool $isWorldCup = false,
 ): string {
-    return amiga_tournament_url($id, $scopeType, $scopeKey, $isWorldCup ? 'stages' : 'standings');
+    unset($isWorldCup);
+
+    return amiga_tournament_url($id, $scopeType, $scopeKey, 'stages');
 }
 
 /**
@@ -1184,7 +1185,7 @@ function amiga_tournament_legacy_view_redirect(array $query): void
     $scopeKey = isset($query['scope_key']) ? (string) $query['scope_key'] : '';
     $viewRaw = (string) ($query['view'] ?? '');
     $view = match ($viewRaw) {
-        'event-stats', 'games', 'stages', 'standings', 'videos' => $viewRaw,
+        'event-stats', 'games', 'stages', 'standings', 'videos' => $viewRaw === 'standings' ? 'stages' : $viewRaw,
         default => 'event-stats',
     };
     $carry = $query;
@@ -1209,23 +1210,9 @@ function amiga_tournament_apply_entry_redirects(
     string $pageView,
     array $query,
 ): void {
-    $isWorldCup = $tournament !== null && amiga_tournament_is_world_cup($tournament);
+    unset($tournament, $query);
 
-    if ($canonicalScope['redirect'] && !in_array($pageView, ['event-stats', 'games', 'videos'], true)) {
-        header(
-            'Location: ' . amiga_tournament_href(amiga_tournament_url(
-                $id,
-                $canonicalScope['scope_type'],
-                $canonicalScope['scope_key'],
-                $isWorldCup ? 'stages' : 'standings',
-            )),
-            true,
-            302,
-        );
-        exit;
-    }
-
-    if ($isWorldCup && $pageView === 'standings') {
+    if ($pageView === 'standings') {
         header(
             'Location: ' . amiga_tournament_href(amiga_tournament_url(
                 $id,
@@ -1239,13 +1226,13 @@ function amiga_tournament_apply_entry_redirects(
         exit;
     }
 
-    if (!$isWorldCup && $pageView === 'stages') {
+    if ($canonicalScope['redirect'] && !in_array($pageView, ['event-stats', 'games', 'videos'], true)) {
         header(
             'Location: ' . amiga_tournament_href(amiga_tournament_url(
                 $id,
                 $canonicalScope['scope_type'],
                 $canonicalScope['scope_key'],
-                'standings',
+                'stages',
             )),
             true,
             302,
