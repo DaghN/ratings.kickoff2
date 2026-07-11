@@ -145,6 +145,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-11 | **Seeshaupt II (338) pure knockout** — 6p RR-as-**League** + placement finals; 4 stages / 18g; Tier E **1–6**; `has_league=1` `has_cup=1`. |
 | 2026-07-11 | **Copenhagen III Cup (341) Tier E fix** — correct player_id mapping; QF losers **=5** (Jacob K / Torgny A / Niki B / Dennis N) · QF Qual. **=9**; refresh snapshots. |
 | 2026-07-11 | **Copenhagen III Cup (341) pure knockout** — 12p play-in; **QF Qualifiers** display; g13426/g13432 SC-11; Tier E **1,2,3,4,5×4,9×4**; `has_league=0` `has_cup=1`. |
 | 2026-07-11 | **Athens LXI Cup (329) pure knockout** — 7p two-leg + bye; g13079 SC-11 post-ET 7-6 (ET 4-3); Tier E **1,2,3,4,5,5,5**; `has_league=0` `has_cup=1`. |

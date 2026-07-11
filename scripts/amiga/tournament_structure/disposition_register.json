@@ -1353,8 +1353,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "338": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "6p single RR \u2192 display League (15g) + 5th/3rd/Final; finish 1\u20136 from placement finals"
     },
     "339": {
       "handler": "pure_rr",
