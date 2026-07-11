@@ -23,7 +23,7 @@
 | Single game | `/amiga/game.php?id={amiga_games.id}` |
 | Tournament index | `/amiga/tournaments.php` |
 | Tournament standings | `/amiga/tournament.php?id={tournaments.id}` |
-| Tournament event stats | `/amiga/tournament/event-stats.php?id={tournaments.id}` — participation roster (all phases); **`#` rank** (autorank on default Pts sort) + inline player flag + **Perf. rating** |
+| Tournament event stats | `/amiga/tournament/event-stats.php?id={tournaments.id}` — participation roster (all phases); **`#` rank** (autorank on default Finish asc sort) + inline player flag + **Perf. rating** |
 | Tournament games | `/amiga/tournament/games.php?id={tournaments.id}` — all games in event; player filter dropdown (A–Z) |
 
 ## What v0 shows

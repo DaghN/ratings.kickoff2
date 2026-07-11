@@ -336,6 +336,17 @@
       "pens_a": 7,
       "pens_b": 8,
       "note": "Volkenrath IV 5th Place Final; Thorsten B (A) vs Cornelius H (B); reg 2-2, ET 3-3 (post-ET 5-5), pens 7-8 Cornelius 5th; Access Scores.Extra verbatim"
+    },
+    "19543": {
+      "verified_at": "2026-07-11",
+      "tournament_id": 521,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "1-1",
+      "witness": "3-1 a.e.t.",
+      "goals_et_a": 2,
+      "goals_et_b": 0,
+      "note": "Oldenburg II Places 9-12 semi; Thorsten B (A) vs Cornelius H (B); post-ET 3-1 Thorsten advances; Access Scores.Extra verbatim"
     }
   }
 }

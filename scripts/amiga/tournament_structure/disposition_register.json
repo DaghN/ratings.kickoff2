@@ -2085,8 +2085,8 @@
       "notes": "NULL phase + single round-robin schedule"
     },
     "521": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "2\u00d78p groups + cross QF + Places 9-16/5-8 + main KO; g19543 AET; finish 1\u201316"
     },
     "522": {
       "handler": "pure_rr",
@@ -2213,8 +2213,8 @@
       "notes": "NULL phase + single round-robin schedule"
     },
     "553": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "9p League + 2-leg QF/SF/F + Places 5-8; display Round 1 - League; finish 1\u20139"
     },
     "554": {
       "handler": "wc_deferred",

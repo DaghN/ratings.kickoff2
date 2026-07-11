@@ -145,6 +145,9 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-11 | **Hanau III (553) structure spec** — 9p **Round 1 - League** + 2-leg QF/SF/F + **Places 5-8**; Tier E **1–9**; slice-6 cup review register **cleared**; `has_league=1` `has_cup=1`. |
+| 2026-07-12 | **Amiga tournament event-stats default sort** — Finish col 12 ascending (1st, 2nd, 3rd…); SSR `ORDER BY event_finish_position` matches client default. |
+| 2026-07-11 | **Oldenburg II (521) structure spec** — 2×8p **Round 1 - Group A/B** + cross QF + **Places 9-16/5-8** + main KO; **SC-11 g19543** Places 9-12 AET 3-1; Tier E **1–16**; `has_league=1` `has_cup=1`. |
 | 2026-07-11 | **Volkenrath IV (570) structure spec** — 8p **League** + QF + **Places 5-8** + placement KO; **SC-11 g21914** 5th pens (reg 2-2, ET 3-3, pens 7-8 Cornelius); Tier E **1–8**; `has_league=1` `has_cup=1`. |
 | 2026-07-11 | **Seeshaupt V (518) structure spec** — 2×6p **Round 1 - Group A/B** + top-2 cross semis + 3rd/Final; Tier E **1 Frank F · 2 Thorsten B · 3 Klaus Le · 4 Robert St · =5 Andreas M/Jorg D · =7 Jorg A/Herbert K · =9 Tim R/Thomas H · =11 Norbert K/Markus B**; `has_league=1` `has_cup=1`. |
 | 2026-07-11 | **Wiesbaden XII (465) structure spec** — 2×4p **Round 1 - Group A/B** + **Gold/Silver** R2 + KO (QF cross, Gold 1–2 bye SF) + 5th/3rd/7th; Tier E **1 Frank F · 2 Thorsten B · 3 Carsten P · 4 Horst L · 5 Cornelius H · 6 Michael L · 7 Jorg S · 8 Jorg D**; `has_league=1` `has_cup=1`. |

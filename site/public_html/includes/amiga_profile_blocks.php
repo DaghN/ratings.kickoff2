@@ -18,7 +18,7 @@ require_once __DIR__ . '/k2_amiga_country_flag.php';
 require_once __DIR__ . '/amiga_wc_podium_th.php';
 
 const AMIGA_TOURNAMENT_EVENT_STATS_ANCHOR_COL = 1;
-const AMIGA_TOURNAMENT_EVENT_STATS_DEFAULT_SORT_COL = 11;
+const AMIGA_TOURNAMENT_EVENT_STATS_DEFAULT_SORT_COL = 12;
 const AMIGA_PLAYER_TOURNAMENT_HISTORY_ANCHOR_COL = 1;
 const AMIGA_PLAYER_TOURNAMENT_HISTORY_DEFAULT_SORT_COL = 0;
 /** Date col — quiet body on default load only (no game ID). */
@@ -719,7 +719,7 @@ function amiga_tournament_render_event_stats_table(array $rows, bool $isWorldCup
 
     $anchorCol = AMIGA_TOURNAMENT_EVENT_STATS_ANCHOR_COL;
     $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_TOURNAMENT_EVENT_STATS_DEFAULT_SORT_COL);
-    $defaultSortDir = k2_table_default_sort_dir_from_request('desc');
+    $defaultSortDir = k2_table_default_sort_dir_from_request('asc');
     $tableClass = k2_table_ranked_sortable_class('k2-table--tournament-event-stats');
     ?>
 <?php k2_table_wrap_open(true); ?>

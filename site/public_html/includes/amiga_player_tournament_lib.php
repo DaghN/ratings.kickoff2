@@ -397,9 +397,8 @@ function amiga_tournament_participation_rows(mysqli $con, int $tournamentId): ar
             INNER JOIN tournaments t ON t.id = p.tournament_id
             WHERE p.tournament_id = ?
               AND ' . amiga_tournament_public_visibility_where('t') . '
-            ORDER BY p.event_points DESC,
-                     (p.goals_for - p.goals_against) DESC,
-                     p.goals_for DESC,
+            ORDER BY (p.event_finish_position IS NULL OR p.event_finish_position < 1),
+                     p.event_finish_position ASC,
                      pl.name ASC';
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
