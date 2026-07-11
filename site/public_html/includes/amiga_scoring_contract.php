@@ -584,6 +584,34 @@ function amiga_scoring_contract_ensure_stage(mysqli $con, int $stageId, string $
 }
 
 /**
+ * Copy live L4b contract onto frozen columns for stages missing a snapshot.
+ */
+function amiga_scoring_sync_unfrozen_stage_contracts(mysqli $con, int $tournamentId): int
+{
+    $stmt = $con->prepare(
+        'UPDATE tournament_stages SET '
+        . 'frozen_scoring_primitive = scoring_primitive, '
+        . 'frozen_scoring_schema_version = scoring_schema_version, '
+        . 'frozen_scoring_win_points = scoring_win_points, '
+        . 'frozen_scoring_draw_points = scoring_draw_points, '
+        . 'frozen_scoring_loss_points = scoring_loss_points '
+        . 'WHERE tournament_id = ? '
+        . 'AND scoring_primitive IS NOT NULL '
+        . 'AND frozen_scoring_primitive IS NULL'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare scoring sync unfrozen stages: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute scoring sync unfrozen stages: ' . $stmt->error);
+    }
+    $stagesUpdated = $stmt->affected_rows;
+    $stmt->close();
+    return $stagesUpdated;
+}
+
+/**
  * @return array{tournament: int, stages: int, skipped: bool}
  */
 function amiga_scoring_freeze_contracts_for_tournament(
@@ -608,42 +636,25 @@ function amiga_scoring_freeze_contracts_for_tournament(
     if ($row === null) {
         throw new RuntimeException('tournament_id=' . $tournamentId . ' not found');
     }
-    if ($row['scoring_frozen_at'] !== null) {
-        return ['tournament' => 0, 'stages' => 0, 'skipped' => true];
-    }
+    $alreadyFrozen = $row['scoring_frozen_at'] !== null;
 
-    $schemaVersion = AMIGA_SCORING_SCHEMA_VERSION;
-    $stmt = $con->prepare(
-        'UPDATE tournaments SET frozen_scoring_schema_version = ?, scoring_frozen_at = ? WHERE id = ?'
-    );
-    if ($stmt === false) {
-        throw new RuntimeException('prepare scoring freeze tournament: ' . $con->error);
+    $stagesUpdated = amiga_scoring_sync_unfrozen_stage_contracts($con, $tournamentId);
+    $tournamentUpdated = 0;
+    if (!$alreadyFrozen) {
+        $schemaVersion = AMIGA_SCORING_SCHEMA_VERSION;
+        $stmt = $con->prepare(
+            'UPDATE tournaments SET frozen_scoring_schema_version = ?, scoring_frozen_at = ? WHERE id = ?'
+        );
+        if ($stmt === false) {
+            throw new RuntimeException('prepare scoring freeze tournament: ' . $con->error);
+        }
+        $stmt->bind_param('isi', $schemaVersion, $frozenAt, $tournamentId);
+        if (!$stmt->execute()) {
+            throw new RuntimeException('execute scoring freeze tournament: ' . $con->error);
+        }
+        $tournamentUpdated = $stmt->affected_rows;
+        $stmt->close();
     }
-    $stmt->bind_param('isi', $schemaVersion, $frozenAt, $tournamentId);
-    if (!$stmt->execute()) {
-        throw new RuntimeException('execute scoring freeze tournament: ' . $con->error);
-    }
-    $tournamentUpdated = $stmt->affected_rows;
-    $stmt->close();
-
-    $stmt = $con->prepare(
-        'UPDATE tournament_stages SET '
-        . 'frozen_scoring_primitive = scoring_primitive, '
-        . 'frozen_scoring_schema_version = scoring_schema_version, '
-        . 'frozen_scoring_win_points = scoring_win_points, '
-        . 'frozen_scoring_draw_points = scoring_draw_points, '
-        . 'frozen_scoring_loss_points = scoring_loss_points '
-        . 'WHERE tournament_id = ? AND scoring_primitive IS NOT NULL'
-    );
-    if ($stmt === false) {
-        throw new RuntimeException('prepare scoring freeze stages: ' . $con->error);
-    }
-    $stmt->bind_param('i', $tournamentId);
-    if (!$stmt->execute()) {
-        throw new RuntimeException('execute scoring freeze stages: ' . $stmt->error);
-    }
-    $stagesUpdated = $stmt->affected_rows;
-    $stmt->close();
 
     return [
         'tournament' => $tournamentUpdated,

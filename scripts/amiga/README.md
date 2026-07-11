@@ -37,7 +37,7 @@ python -m scripts.amiga simul
 python scripts/audit_amiga_modern_compartment.py   # MG11 gate before modern/ edits
 ```
 
-On **`ko2amiga_work`**: preflight → `apply_schema` (migrate) → L4 disposition (first run) → `clear_derived` + full replay → **video align + verify** (default; `--skip-video` to opt out) → 22-step verify suite. **Preflight/postcheck:** L3 ground must exist and stay **unchanged during simul**; counts may grow above day 0 after forward append (day 0 pin is **`seed-work`** only). Work DB routing: `KO2AMIGA_DATABASE=ko2amiga_work`. Last run: `data/amiga/modern/simul-last.json` (gitignored). **Legacy `prove` on `ko2amiga_db` is frozen** — forward sign-off = simul.
+On **`ko2amiga_work`**: preflight → `apply_schema` (migrate) → L4 disposition (first run) → `clear_derived` + full replay → **video align + verify** (default; `--skip-video` to opt out) → 22-step verify suite. **`clear_derived`** clears L5 derived tables and resets `rating_finalized` **and** L4b scoring freeze markers so replay re-freezes from live stage contracts. **Preflight/postcheck:** L3 ground must exist and stay **unchanged during simul**; counts may grow above day 0 after forward append (day 0 pin is **`seed-work`** only). Work DB routing: `KO2AMIGA_DATABASE=ko2amiga_work`. Last run: `data/amiga/modern/simul-last.json` (gitignored). **Legacy `prove` on `ko2amiga_db` is frozen** — forward sign-off = simul.
 
 **P-1 parity (oracle vs work):**
 
@@ -185,6 +185,7 @@ python -m scripts.amiga backfill-scoring-contracts
 # L4b scoring contract freeze on finalized tournaments (SC-7; catalog repair):
 python -m scripts.amiga freeze-scoring-contracts --dry-run
 python -m scripts.amiga freeze-scoring-contracts
+# Repairs missing tournament markers and partial stage snapshots (already-frozen events).
 
 # Schema inventory from Access (archaeology)
 python scripts/amiga/discover_access_schema.py

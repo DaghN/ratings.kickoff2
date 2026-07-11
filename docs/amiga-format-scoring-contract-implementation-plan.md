@@ -218,17 +218,19 @@ At tournament finalize, copy effective L4b contract onto frozen snapshot columns
 
 ### Delivered
 
-- [x] `freeze_scoring_contracts_for_tournament()` — Python + PHP (`amiga_scoring_freeze_contracts_for_tournament`)
+- [x] `freeze_scoring_contracts_for_tournament()` — Python + PHP (`amiga_scoring_freeze_contracts_for_tournament` + `amiga_scoring_sync_unfrozen_stage_contracts`)
 - [x] Hooked in `finalize_tournament.py` + `finalize_tournament.php` (same transaction as `rating_finalized`)
 - [x] Tournament: `frozen_scoring_schema_version`, `scoring_frozen_at`
 - [x] Stages: copy `scoring_*` → `frozen_scoring_*` for stages with explicit contracts
-- [x] `freeze-scoring-contracts` CLI for catalog repair (`rating_finalized=1`, `scoring_frozen_at IS NULL`)
+- [x] `freeze-scoring-contracts` CLI for catalog repair (missing tournament marker **or** partial stage snapshots)
 - [x] `verify-scoring-contract` fails on missing freeze for finalized tournaments/stages
+- [x] **Jul 2026 replay hygiene** — `modern/clear_derived` clears `scoring_frozen_at` + stage `frozen_scoring_*`; `freeze_scoring_contracts_for_tournament()` always syncs stages missing frozen cols (idempotent; preserves existing `scoring_frozen_at` on living-ground edits)
 
 ### Verification
 
 - [x] `freeze-scoring-contracts` on `ko2amiga_work`: **605** tournaments + **605** stage rows
 - [x] `verify-scoring-contract` OK
+- [x] `test_scoring_contract.py` — freeze idempotent + sync helpers
 
 ---
 

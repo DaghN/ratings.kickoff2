@@ -641,6 +641,29 @@ def backfill_scoring_contracts(
     return stats
 
 
+def sync_unfrozen_stage_scoring_contracts(
+    conn: pymysql.connections.Connection,
+    tournament_id: int,
+) -> int:
+    """Copy live L4b contract onto frozen columns for stages missing a snapshot."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            UPDATE tournament_stages
+            SET frozen_scoring_primitive = scoring_primitive,
+                frozen_scoring_schema_version = scoring_schema_version,
+                frozen_scoring_win_points = scoring_win_points,
+                frozen_scoring_draw_points = scoring_draw_points,
+                frozen_scoring_loss_points = scoring_loss_points
+            WHERE tournament_id = %s
+              AND scoring_primitive IS NOT NULL
+              AND frozen_scoring_primitive IS NULL
+            """,
+            (tournament_id,),
+        )
+        return int(cur.rowcount)
+
+
 def freeze_scoring_contracts_for_tournament(
     conn: pymysql.connections.Connection,
     tournament_id: int,
@@ -655,34 +678,22 @@ def freeze_scoring_contracts_for_tournament(
         row = cur.fetchone()
         if row is None:
             raise ValueError(f"tournament_id={tournament_id} not found")
-        if row["scoring_frozen_at"] is not None:
-            return {"tournament": 0, "stages": 0, "skipped": True}
+        already_frozen = row["scoring_frozen_at"] is not None
 
-        cur.execute(
-            """
-            UPDATE tournaments
-            SET frozen_scoring_schema_version = %s,
-                scoring_frozen_at = %s
-            WHERE id = %s
-            """,
-            (SCORING_SCHEMA_VERSION, frozen_at, tournament_id),
-        )
-        tournament_updated = int(cur.rowcount)
-
-        cur.execute(
-            """
-            UPDATE tournament_stages
-            SET frozen_scoring_primitive = scoring_primitive,
-                frozen_scoring_schema_version = scoring_schema_version,
-                frozen_scoring_win_points = scoring_win_points,
-                frozen_scoring_draw_points = scoring_draw_points,
-                frozen_scoring_loss_points = scoring_loss_points
-            WHERE tournament_id = %s
-              AND scoring_primitive IS NOT NULL
-            """,
-            (tournament_id,),
-        )
-        stages_updated = int(cur.rowcount)
+    stages_updated = sync_unfrozen_stage_scoring_contracts(conn, tournament_id)
+    tournament_updated = 0
+    if not already_frozen:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE tournaments
+                SET frozen_scoring_schema_version = %s,
+                    scoring_frozen_at = %s
+                WHERE id = %s
+                """,
+                (SCORING_SCHEMA_VERSION, frozen_at, tournament_id),
+            )
+            tournament_updated = int(cur.rowcount)
 
     return {
         "tournament": tournament_updated,
@@ -695,18 +706,31 @@ def count_scoring_freeze_backfill_candidates(
     conn: pymysql.connections.Connection,
     *,
     tournament_id: int | None = None,
-) -> int:
+) -> dict[str, int]:
     params: list[int] = []
-    sql = (
+    tour_sql = (
         "SELECT COUNT(*) AS n FROM tournaments "
         "WHERE rating_finalized = 1 AND scoring_frozen_at IS NULL"
     )
+    stage_sql = (
+        "SELECT COUNT(*) AS n FROM tournament_stages s "
+        "INNER JOIN tournaments t ON t.id = s.tournament_id "
+        "WHERE t.rating_finalized = 1 "
+        "AND s.scoring_primitive IS NOT NULL "
+        "AND s.frozen_scoring_primitive IS NULL"
+    )
     if tournament_id is not None:
-        sql += " AND id = %s"
+        tour_sql += " AND id = %s"
+        stage_sql += " AND s.tournament_id = %s"
         params = [tournament_id]
+
     with conn.cursor() as cur:
-        cur.execute(sql, params or None)
-        return int(cur.fetchone()["n"])
+        cur.execute(tour_sql, params or None)
+        tournaments = int(cur.fetchone()["n"])
+        cur.execute(stage_sql, params or None)
+        stages = int(cur.fetchone()["n"])
+
+    return {"tournaments": tournaments, "stages": stages}
 
 
 def backfill_scoring_freeze_for_finalized(
@@ -715,15 +739,22 @@ def backfill_scoring_freeze_for_finalized(
     tournament_id: int | None = None,
     dry_run: bool = False,
 ) -> dict[str, int]:
-    """SC-7 catalog repair: freeze scoring contracts on already-finalized tournaments."""
+    """SC-7 catalog repair: freeze markers + stage snapshots on finalized tournaments."""
     params: list[int] = []
     sql = (
-        "SELECT id, rating_finalized_at FROM tournaments "
-        "WHERE rating_finalized = 1 AND scoring_frozen_at IS NULL"
+        "SELECT DISTINCT t.id, t.rating_finalized_at "
+        "FROM tournaments t "
+        "LEFT JOIN tournament_stages s ON s.tournament_id = t.id "
+        "WHERE t.rating_finalized = 1 "
+        "AND ("
+        "t.scoring_frozen_at IS NULL "
+        "OR (s.scoring_primitive IS NOT NULL AND s.frozen_scoring_primitive IS NULL)"
+        ")"
     )
     if tournament_id is not None:
-        sql += " AND id = %s"
+        sql += " AND t.id = %s"
         params = [tournament_id]
+    sql += " ORDER BY t.id"
 
     with conn.cursor() as cur:
         cur.execute(sql, params or None)
@@ -739,8 +770,6 @@ def backfill_scoring_freeze_for_finalized(
         if frozen_at is None:
             frozen_at = datetime.now(timezone.utc).replace(tzinfo=None)
         result = freeze_scoring_contracts_for_tournament(conn, tid, frozen_at)
-        if result.get("skipped"):
-            continue
         stats["tournaments"] += int(result["tournament"])
         stats["stages"] += int(result["stages"])
 

@@ -44,7 +44,11 @@ def main(argv: list[str] | None = None) -> int:
             conn, tournament_id=args.tournament_id
         )
         if args.dry_run:
-            print(f"dry-run: would freeze tournaments={candidates}")
+            print(
+                "dry-run: would freeze "
+                f"tournaments={candidates['tournaments']} "
+                f"stages={candidates['stages']}"
+            )
             return 0
 
         stats = backfill_scoring_freeze_for_finalized(

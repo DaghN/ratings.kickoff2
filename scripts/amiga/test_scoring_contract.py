@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import unittest
+from datetime import datetime
+from unittest.mock import MagicMock
 
 from scripts.amiga.scoring_contract import (
     KNOCKOUT_TIE_DEFAULT_STEPS,
@@ -13,7 +15,9 @@ from scripts.amiga.scoring_contract import (
     SCORING_SCHEMA_VERSION,
     StageScoringContract,
     default_steps_for_primitive,
+    freeze_scoring_contracts_for_tournament,
     primitive_for_stage_type,
+    sync_unfrozen_stage_scoring_contracts,
     validate_stage_scoring_contract,
 )
 
@@ -126,6 +130,48 @@ class ScoringContractValidateTests(unittest.TestCase):
             steps=LEGACY_KNOCKOUT_BRIDGE_STEPS,
         )
         self.assertEqual(validate_stage_scoring_contract(contract), [])
+
+
+class FreezeScoringContractTests(unittest.TestCase):
+    def _cursor(self, *, fetchone=None, rowcount: int = 0) -> MagicMock:
+        cur = MagicMock()
+        cur.fetchone.return_value = fetchone
+        cur.rowcount = rowcount
+        return cur
+
+    def test_sync_unfrozen_stage_scoring_contracts_returns_rowcount(self) -> None:
+        conn = MagicMock()
+        conn.cursor.return_value.__enter__.return_value = self._cursor(rowcount=3)
+
+        updated = sync_unfrozen_stage_scoring_contracts(conn, 89)
+
+        self.assertEqual(updated, 3)
+        sql = conn.cursor.return_value.__enter__.return_value.execute.call_args[0][0]
+        self.assertIn("frozen_scoring_primitive IS NULL", sql)
+
+    def test_freeze_new_tournament_sets_marker_and_syncs_stages(self) -> None:
+        conn = MagicMock()
+        select_cur = self._cursor(fetchone={"scoring_frozen_at": None})
+        sync_cur = self._cursor(rowcount=11)
+        marker_cur = self._cursor(rowcount=1)
+        conn.cursor.return_value.__enter__.side_effect = [select_cur, sync_cur, marker_cur]
+
+        frozen_at = datetime(2026, 7, 11, 12, 0, 0)
+        result = freeze_scoring_contracts_for_tournament(conn, 89, frozen_at)
+
+        self.assertEqual(result, {"tournament": 1, "stages": 11, "skipped": False})
+
+    def test_freeze_already_frozen_syncs_stages_only(self) -> None:
+        conn = MagicMock()
+        frozen_at = datetime(2026, 7, 9, 22, 59, 15)
+        select_cur = self._cursor(fetchone={"scoring_frozen_at": frozen_at})
+        sync_cur = self._cursor(rowcount=1)
+        conn.cursor.return_value.__enter__.side_effect = [select_cur, sync_cur]
+
+        result = freeze_scoring_contracts_for_tournament(conn, 89, datetime(2026, 7, 11, 12, 0, 0))
+
+        self.assertEqual(result, {"tournament": 0, "stages": 1, "skipped": False})
+        self.assertEqual(conn.cursor.return_value.__enter__.call_count, 2)
 
 
 if __name__ == "__main__":

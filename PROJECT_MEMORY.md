@@ -146,6 +146,8 @@
 | Date | Note |
 |------|------|
 | 2026-07-11 | **Amiga work git checkpoint (CHECKPOINT-1)** — `seal_amiga_work_checkpoint.ps1` + sealed `data/amiga/checkpoints/work-2026-07-11-tail/` (~71 MB); docs/runbooks updated; not pushed to staging. |
+| 2026-07-11 | **SC-7 replay hygiene** — `clear_derived` clears scoring freeze markers; idempotent stage freeze sync on finalize/repair; tests in `test_scoring_contract.py`. |
+| 2026-07-11 | **Amiga simul (ko2amiga_work)** — L5 replay OK (605 events / 27418g); SC-7 stage freeze repair (177 stages); Milan 89 standings + parity OK; full verify stops on WC VI (206) PHP standings parity (pre-existing). |
 | 2026-07-11 | **Milan I (89) Group B extra stage** — L4 `round-1-group-b-extra` for g2394–2398; UI Phase from stage name only (never L2→L3 phase override); witness `amiga_games.phase` stays `Round 1 - Group B`. |
 | 2026-07-11 | **Milan I (89) Tier E sparse finish** — FFZ idd=175: 1–4 podium · **=5** QF losers · 8 group-only NULL; sparse override semantics + snapshots refreshed; `ko2amiga_05_finish_override.sql` export. |
 | 2026-07-11 | **Milan (89) manual materialize** — uneven Groups A/B + two-leg KO; 10 stages / 81g. |
