@@ -1973,8 +1973,8 @@
       "notes": "NULL phase + single round-robin schedule"
     },
     "493": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "6p cup with QF bye; witness Round 1 = QF; SF \u00b7 Final; 5g"
     },
     "494": {
       "handler": "pure_rr",

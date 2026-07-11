@@ -58,7 +58,6 @@ NON_WC_SLICE6_CUP_REVIEW_IDS: frozenset[int] = frozenset({
     463,  # Dudley XX Cup — extra games
     465,  # Wiesbaden XII — groups + gold/silver
     471,  # Seeshaupt IV — extra games
-    493,  # Birmingham XXVII — bye; Round 1 → league
     518,  # Seeshaupt V — groups
     519,  # Birmingham XXXIII — bye; Round 1 → league
     521,  # Oldenburg II — full group cup + many placement finals
