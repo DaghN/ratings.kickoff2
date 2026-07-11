@@ -345,6 +345,7 @@ def materialize_legacy_fixtures(
     *,
     dry_run: bool = False,
     replace: bool = False,
+    force: bool = False,
 ) -> MaterializeResult:
     """Create stages + one fixture per legacy game; link ``amiga_games.fixture_id``."""
     tournament = _load_tournament(conn, tournament_id)
@@ -400,11 +401,27 @@ def materialize_legacy_fixtures(
         tier = classify_null_phase_tournament(games)
         if tier != AUTO_RR:
             legs = round_robin_legs(games)
-            raise StructureReviewRequired(
-                f"tournament_id={tournament_id} ({tournament['name']!r}) has NULL phases and "
-                f"is not a complete multi-leg round-robin schedule "
-                f"(legs={legs!r}) — needs_structure_review (policy T11). "
-                "Add a StructureSpec or classify manually; do not auto-infer knockout."
+            if not force:
+                raise StructureReviewRequired(
+                    f"tournament_id={tournament_id} ({tournament['name']!r}) has NULL phases and "
+                    f"is not a complete multi-leg round-robin schedule "
+                    f"(legs={legs!r}) — needs_structure_review (policy T11). "
+                    "Add a StructureSpec or classify manually; do not auto-infer knockout."
+                )
+            counts = _player_game_counts(games)
+            spread = max(counts.values()) - min(counts.values())
+            if spread > 1:
+                raise StructureReviewRequired(
+                    f"tournament_id={tournament_id} ({tournament['name']!r}) force refused: "
+                    f"per-player game spread={spread} (>1) — not a near-complete RR withdrawal."
+                )
+            log.warning(
+                "materialize_legacy force: tournament_id=%s incomplete NULL-phase RR "
+                "(legs=%r, players=%s, games=%s)",
+                tournament_id,
+                legs,
+                len(counts),
+                len(games),
             )
 
     bucket_map: dict[tuple[str, str], StageBucket] = {}
@@ -660,6 +677,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Delete existing stages/fixtures for this tournament first",
     )
+    p_mat.add_argument(
+        "--force",
+        action="store_true",
+        help="Apply despite T11 incomplete near-complete NULL-phase RR (human-approved)",
+    )
     p_mat.add_argument("--json", action="store_true")
 
     p_dem = sub.add_parser(
@@ -681,6 +703,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.tournament_id,
                 dry_run=args.dry_run,
                 replace=args.replace,
+                force=args.force,
             )
         elif args.cmd == "dematerialize":
             result = dematerialize_legacy_fixtures(

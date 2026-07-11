@@ -697,8 +697,8 @@
       "notes": "4p double-RR league (12g) + 2-leg semis/3rd/final (g6781\u201388)."
     },
     "174": {
-      "handler": "pending_review",
-      "notes": "NULL phase + not complete RR (register fix Jun 2026)"
+      "handler": "pure_rr",
+      "notes": "22p near-complete single RR (230/231g); James L\u2013Vagelis D unplayed; finish from league table"
     },
     "175": {
       "handler": "pure_rr",
@@ -1177,8 +1177,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "294": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "6p League + Fun Cup (3p) + KO semis/3rd/final; finish 1\u20137"
     },
     "295": {
       "handler": "pure_rr",
@@ -1625,8 +1625,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "406": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "7p League + R2 top-3 playoff + 4th Place Final + Game of Shame; g15613 pens; finish 1\u20137"
     },
     "407": {
       "handler": "pure_rr",

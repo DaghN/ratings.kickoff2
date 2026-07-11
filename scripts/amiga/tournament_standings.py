@@ -163,6 +163,64 @@ def _apply_game(
     _ = pts_a, pts_b  # points derived from W/D/L counts
 
 
+def _apply_game_to_player_table(
+    table: dict[int, PlayerStanding],
+    player_a_id: int,
+    player_b_id: int,
+    goals_a: int,
+    goals_b: int,
+    *,
+    contract: StageScoringContract,
+) -> None:
+    pa = _standing_for_table(table, player_a_id, contract)
+    pb = _standing_for_table(table, player_b_id, contract)
+    _pts_a, _pts_b, outcome = regulation_outcome(goals_a, goals_b, contract=contract)
+    pa.games += 1
+    pb.games += 1
+    pa.goals_for += goals_a
+    pa.goals_against += goals_b
+    pb.goals_for += goals_b
+    pb.goals_against += goals_a
+    if outcome == 1:
+        pa.wins += 1
+        pb.losses += 1
+    elif outcome == -1:
+        pa.losses += 1
+        pb.wins += 1
+    else:
+        pa.draws += 1
+        pb.draws += 1
+
+
+def _mutual_mini_table(
+    player_ids: set[int],
+    games: list[dict[str, Any]],
+    contract: StageScoringContract,
+) -> dict[int, PlayerStanding]:
+    """Mini-league among ``player_ids`` from mutual fixtures only."""
+    mini: dict[int, PlayerStanding] = {}
+    for pid in player_ids:
+        mini[pid] = PlayerStanding(
+            win_points=contract.win_points,
+            draw_points=contract.draw_points,
+            loss_points=contract.loss_points,
+        )
+    for g in games:
+        player_a_id = int(g["player_a_id"])
+        player_b_id = int(g["player_b_id"])
+        if player_a_id not in player_ids or player_b_id not in player_ids:
+            continue
+        _apply_game_to_player_table(
+            mini,
+            player_a_id,
+            player_b_id,
+            int(g["goals_a"]),
+            int(g["goals_b"]),
+            contract=contract,
+        )
+    return mini
+
+
 def _league_metric(st: PlayerStanding, step: str) -> int | None:
     if step == "points":
         return st.points
@@ -179,9 +237,20 @@ def _league_metric(st: PlayerStanding, step: str) -> int | None:
     return None
 
 
-def _league_sort_key(st: PlayerStanding, contract: StageScoringContract) -> tuple:
+def _league_sort_key(
+    st: PlayerStanding,
+    contract: StageScoringContract,
+    *,
+    mini: dict[int, PlayerStanding] | None = None,
+    player_id: int | None = None,
+) -> tuple:
     parts: list[int] = []
     for step in contract.steps:
+        if step == "head_to_head":
+            if mini is not None and player_id is not None and player_id in mini:
+                m = mini[player_id]
+                parts.extend([-m.points, -m.goal_difference, -m.goals_for])
+            continue
         metric = _league_metric(st, step)
         if metric is None:
             continue
@@ -191,11 +260,22 @@ def _league_sort_key(st: PlayerStanding, contract: StageScoringContract) -> tupl
     return tuple(parts)
 
 
-def _league_position_tie_key(st: PlayerStanding, contract: StageScoringContract) -> tuple:
+def _league_position_tie_key(
+    st: PlayerStanding,
+    contract: StageScoringContract,
+    *,
+    mini: dict[int, PlayerStanding] | None = None,
+    player_id: int | None = None,
+) -> tuple:
     parts: list[int] = []
     for step in contract.steps:
         if step == "games_played":
             break
+        if step == "head_to_head":
+            if mini is not None and player_id is not None and player_id in mini:
+                m = mini[player_id]
+                parts.extend([-m.points, -m.goal_difference, -m.goals_for])
+            continue
         metric = _league_metric(st, step)
         if metric is None:
             continue
@@ -249,19 +329,59 @@ def _knockout_positions(
             if s2.points > s1.points:
                 return [(id2, s2, 1), (id1, s1, 2)]
 
-    return _assign_positions(table, contract)
+    return _assign_positions(table, contract, games=games)
 
 
 def _assign_positions(
     table: dict[int, PlayerStanding],
     contract: StageScoringContract,
+    *,
+    games: list[dict[str, Any]] | None = None,
 ) -> list[tuple[int, PlayerStanding, int]]:
-    ranked = sorted(table.items(), key=lambda item: _league_sort_key(item[1], contract))
+    use_h2h = "head_to_head" in contract.steps and games
+    if use_h2h:
+        sorted_by_pts = sorted(table.items(), key=lambda item: (-item[1].points, item[0]))
+        ordered: list[tuple[int, PlayerStanding]] = []
+        idx = 0
+        while idx < len(sorted_by_pts):
+            pts = sorted_by_pts[idx][1].points
+            chunk: list[tuple[int, PlayerStanding]] = []
+            while idx < len(sorted_by_pts) and sorted_by_pts[idx][1].points == pts:
+                chunk.append(sorted_by_pts[idx])
+                idx += 1
+            if len(chunk) == 1:
+                ordered.extend(chunk)
+                continue
+            tied_ids = {pid for pid, _ in chunk}
+            mini = _mutual_mini_table(tied_ids, games, contract)
+            chunk.sort(
+                key=lambda item: _league_sort_key(
+                    item[1],
+                    contract,
+                    mini=mini,
+                    player_id=item[0],
+                ),
+            )
+            ordered.extend(chunk)
+        ranked = ordered
+    else:
+        ranked = sorted(
+            table.items(),
+            key=lambda item: _league_sort_key(item[1], contract, player_id=item[0]),
+        )
+
     out: list[tuple[int, PlayerStanding, int]] = []
     pos = 0
     prev_key: tuple | None = None
     for rank_idx, (pid, st) in enumerate(ranked, start=1):
-        key = _league_position_tie_key(st, contract)
+        chunk_pts = st.points
+        chunk_ids = {p for p, s in ranked if s.points == chunk_pts}
+        mini = (
+            _mutual_mini_table(chunk_ids, games, contract)
+            if use_h2h and len(chunk_ids) > 1
+            else None
+        )
+        key = _league_position_tie_key(st, contract, mini=mini, player_id=pid)
         if key != prev_key:
             pos = rank_idx
             prev_key = key
@@ -351,6 +471,7 @@ def compute_tournament_standings(
     scope_contracts: dict[tuple[ScopeType, str], StageScoringContract] = {}
     knockout_scopes: dict[tuple[ScopeType, str], dict[int, PlayerStanding]] = {}
     knockout_games: dict[tuple[ScopeType, str], list[dict[str, Any]]] = defaultdict(list)
+    scope_league_games: dict[tuple[ScopeType, str], list[dict[str, Any]]] = defaultdict(list)
     scope_stage_ids: dict[tuple[ScopeType, str], int | None] = {}
     has_null_phase = False
     has_structured = False
@@ -403,6 +524,7 @@ def compute_tournament_standings(
                     league_only=False,
                 )
             else:
+                scope_league_games[scope_key].append(g)
                 _apply_game(
                     scopes,
                     scope,
@@ -442,6 +564,8 @@ def compute_tournament_standings(
         scope_key = (scope.scope_type, scope.scope_key)
         contract = context.default_league
         _record_scope_contract(scope_key, contract)
+        if scope.scope_type == ScopeType.LEAGUE:
+            scope_league_games[scope_key].append(g)
         _apply_game(
             scopes,
             scope,
@@ -458,6 +582,7 @@ def compute_tournament_standings(
             k: v for k, v in scopes.items() if k == (ScopeType.LEAGUE, "")
         }
         scope_contracts[(ScopeType.LEAGUE, "")] = context.default_league
+        scope_league_games[(ScopeType.LEAGUE, "")] = list(games)
     elif has_null_phase and has_structured:
         # Mixed: synthesize league + '' aggregating all labeled league-scope games.
         league_aggregate: dict[int, PlayerStanding] = {}
@@ -500,7 +625,11 @@ def compute_tournament_standings(
         if stype == ScopeType.KNOCKOUT:
             ranked = _knockout_positions(table, knockout_games.get((stype, skey), []), contract)
         else:
-            ranked = _assign_positions(table, contract)
+            ranked = _assign_positions(
+                table,
+                contract,
+                games=scope_league_games.get((stype, skey)),
+            )
         for pid, st, pos in ranked:
             rows.append(
                 {

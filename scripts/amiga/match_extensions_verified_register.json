@@ -312,6 +312,17 @@
       "goals_et_a": 0,
       "goals_et_b": 3,
       "note": "Athens XXXVIII Cup Final; Stelios T (A) vs Filippos M (B); post-ET 3-6, ET period 0-3 Filippos champion; Dagh approved Jul 2026"
+    },
+    "15613": {
+      "verified_at": "2026-07-11",
+      "tournament_id": 406,
+      "extension_kinds": ["pens"],
+      "interpretation": "pens_after_reg_draw",
+      "regulation": "1-1",
+      "witness": "(2-0 pen.)",
+      "pens_a": 2,
+      "pens_b": 0,
+      "note": "Seeshaupt III Game of Shame; Herbert K (A) vs Norbert K (B); pens 2-0 Herbert; Dagh approved Jul 2026"
     }
   }
 }

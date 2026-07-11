@@ -63,6 +63,7 @@ Expect **stages/fixtures = 0** for first materialize (or use `--replace` to rebu
 cd <repo>
 python -m scripts.amiga tournament-structure materialize --tournament-id {id} --dry-run
 python -m scripts.amiga tournament-structure materialize --tournament-id {id} --replace
+# Near-complete NULL-phase RR (one missing pairing / ±1 game per player): add --force after human sign-off (e.g. id 174).
 ```
 
 | Handler in disposition | Typical CLI |

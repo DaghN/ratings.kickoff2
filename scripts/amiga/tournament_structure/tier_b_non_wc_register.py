@@ -26,9 +26,7 @@ DEFERRED_WORLD_CUP_TOURNAMENT_IDS: frozenset[int] = frozenset({
 
 # Original slice 6b manual review (pre–cup-audit curation).
 NON_WC_ORIGINAL_STRUCTURE_REVIEW_IDS: frozenset[int] = frozenset({
-    294,  # Langenfeld II — Fun Cup
     352,  # Wiesbaden V — Playout Group
-    406,  # Seeshaupt III — Game of Shame
     409,  # Hamburg V — Fun Cup
     440,  # Frankfurt II — Gold Cup / Silver Cup (event-wide labels, not groups)
     477,  # Osnabruck II — Fun Cup

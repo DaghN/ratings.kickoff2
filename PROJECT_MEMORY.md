@@ -145,6 +145,9 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-11 | **Seeshaupt III (406) structure spec** — 7p League + R2 playoff + 4th Place + Game of Shame; g15613 SC-11 pens; Tier E **1–7**; `has_league=1` `has_cup=1`. |
+| 2026-07-11 | **Langenfeld II (294) structure spec** — 6p League + Fun Cup + KO; display **League**; Tier E **1–7** (Wolfgang H Fun Cup-only); `has_league=1` `has_cup=1`. |
+| 2026-07-11 | **London Marathon (174) pure RR** — 22p single RR (230/231g); James L–Vagelis D unplayed; `materialize --force`; display **League**; Tier B **1 Gianni T · 2 Nikos A · 3 Robert S · 4 Steve C** (GD tiebreak). |
 | 2026-07-11 | **Athens XXXVIII Cup (248) pure knockout** — 7p two-leg + bye; **Quarter Finals** display; 3-leg SF `--force`; g10159 SC-11 post-ET 3-6 (ET 0-3); Tier E **1,2,3,3,5,5,5**; `has_league=0` `has_cup=1`. |
 | 2026-07-11 | **Seeshaupt II (338) pure knockout** — 6p RR-as-**League** + placement finals; 4 stages / 18g; Tier E **1–6**; `has_league=1` `has_cup=1`. |
 | 2026-07-11 | **Copenhagen III Cup (341) Tier E fix** — correct player_id mapping; QF losers **=5** (Jacob K / Torgny A / Niki B / Dennis N) · QF Qual. **=9**; refresh snapshots. |
