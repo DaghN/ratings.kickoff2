@@ -301,6 +301,17 @@
       "pens_a": 12,
       "pens_b": 13,
       "note": "Copenhagen III Cup Final; Dagh N (A) vs John H (B); pens 12-13 John champion; Dagh approved Jul 2026"
+    },
+    "10159": {
+      "verified_at": "2026-07-11",
+      "tournament_id": 248,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "3-3",
+      "witness": "3-6 e.t.",
+      "goals_et_a": 0,
+      "goals_et_b": 3,
+      "note": "Athens XXXVIII Cup Final; Stelios T (A) vs Filippos M (B); post-ET 3-6, ET period 0-3 Filippos champion; Dagh approved Jul 2026"
     }
   }
 }

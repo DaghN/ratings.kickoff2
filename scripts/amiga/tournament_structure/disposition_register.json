@@ -993,8 +993,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "248": {
-      "handler": "pending_review",
-      "notes": "pure_knockout preflight failed \u2014 pending review (register fix Jun 2026)"
+      "handler": "pure_knockout",
+      "notes": "7p two-leg cup + bye; 3-leg SF; g10159 post-ET 3-6 (ET 0-3); finish 1\u20133 + =5"
     },
     "249": {
       "handler": "pure_rr",
