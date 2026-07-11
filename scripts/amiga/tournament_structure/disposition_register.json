@@ -1861,8 +1861,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "465": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "2\u00d74p groups + Gold/Silver R2 + KO + 5th/3rd/7th; finish 1\u20138"
     },
     "466": {
       "handler": "pure_rr",
@@ -2073,8 +2073,8 @@
       "notes": "NULL phase + 3\u00d7 round-robin schedule"
     },
     "518": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "2\u00d76p groups + top-2 cross semis + 3rd/Final; finish 1\u20134 + =5/7/9/11"
     },
     "519": {
       "handler": "pure_knockout",
@@ -2281,8 +2281,8 @@
       "notes": "WC track"
     },
     "570": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "8p League + QF + Places 5-8 + placement KO; g21914 pens; finish 1\u20138"
     },
     "571": {
       "handler": "pure_rr",

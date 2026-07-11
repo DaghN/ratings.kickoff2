@@ -145,6 +145,9 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-11 | **Volkenrath IV (570) structure spec** — 8p **League** + QF + **Places 5-8** + placement KO; **SC-11 g21914** 5th pens (reg 2-2, ET 3-3, pens 7-8 Cornelius); Tier E **1–8**; `has_league=1` `has_cup=1`. |
+| 2026-07-11 | **Seeshaupt V (518) structure spec** — 2×6p **Round 1 - Group A/B** + top-2 cross semis + 3rd/Final; Tier E **1 Frank F · 2 Thorsten B · 3 Klaus Le · 4 Robert St · =5 Andreas M/Jorg D · =7 Jorg A/Herbert K · =9 Tim R/Thomas H · =11 Norbert K/Markus B**; `has_league=1` `has_cup=1`. |
+| 2026-07-11 | **Wiesbaden XII (465) structure spec** — 2×4p **Round 1 - Group A/B** + **Gold/Silver** R2 + KO (QF cross, Gold 1–2 bye SF) + 5th/3rd/7th; Tier E **1 Frank F · 2 Thorsten B · 3 Carsten P · 4 Horst L · 5 Cornelius H · 6 Michael L · 7 Jorg S · 8 Jorg D**; `has_league=1` `has_cup=1`. |
 | 2026-07-11 | **Voitsberg I (345) structure spec** — 5p double-RR **League** + KO; **4th Place Final** (RR 4v5) before 3rd; Tier E **1 Thorsten B · 2 Harald B · 3 Michael Ma · 4 Michael F · 5 Wolfgang M**; `has_league=1` `has_cup=1`. |
 | 2026-07-11 | **Seeshaupt III (406) structure spec** — 7p League + R2 playoff + 4th Place + Game of Shame; g15613 SC-11 pens; Tier E **1–7**; `has_league=1` `has_cup=1`. |
 | 2026-07-11 | **Langenfeld II (294) structure spec** — 6p League + Fun Cup + KO; display **League**; Tier E **1–7** (Wolfgang H Fun Cup-only); `has_league=1` `has_cup=1`. |

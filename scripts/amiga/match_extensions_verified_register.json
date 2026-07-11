@@ -323,6 +323,19 @@
       "pens_a": 2,
       "pens_b": 0,
       "note": "Seeshaupt III Game of Shame; Herbert K (A) vs Norbert K (B); pens 2-0 Herbert; Dagh approved Jul 2026"
+    },
+    "21914": {
+      "verified_at": "2026-07-11",
+      "tournament_id": 570,
+      "extension_kinds": ["et", "pens"],
+      "interpretation": "pens_after_et",
+      "regulation": "2-2",
+      "witness": "(5-5) 7-8 p.k.",
+      "goals_et_a": 3,
+      "goals_et_b": 3,
+      "pens_a": 7,
+      "pens_b": 8,
+      "note": "Volkenrath IV 5th Place Final; Thorsten B (A) vs Cornelius H (B); reg 2-2, ET 3-3 (post-ET 5-5), pens 7-8 Cornelius 5th; Access Scores.Extra verbatim"
     }
   }
 }
