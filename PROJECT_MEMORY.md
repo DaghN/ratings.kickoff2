@@ -145,6 +145,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-11 | **Birmingham XXVII (493) pure knockout** — 6p SF bye (Rick S); Round 1 → **Quarter Finals** display; 5 stages / 5g; Tier B finish 1 Jon G · 2 Steve E · 3 Rick S/Tom P · 5–6 QF losers; `has_league=0` `has_cup=1`. |
 | 2026-07-11 | **Birmingham XXVIII (500) pure knockout** — 6p QF bye (Tom P); 5 stages / 5g; Tier E finish **1 Simon K · 2 Steve E · 3 Garry C · 3 Tom P · 5 John M · 5 Thomas J**; `has_league=0` `has_cup=1`. |
 | 2026-07-11 | **Birmingham XLV (568) pure knockout** — 4 stages (Semi Finals ×2 · 3rd · Final); g21621 SC-11 ET 2-2 pens 8-7; Tier B finish 1–4; `has_league=0` `has_cup=1`. |
 | 2026-07-11 | **Birmingham XXXVII (535) pure knockout** — 3 stages (2× **Semi Finals** + Final); g20217 SC-11 ET 0-0 pens 1-0; Tier E finish **1 Brian C · 2 Gary T · 3 Glen H · 3 John M**; `has_league=0` `has_cup=1`. |

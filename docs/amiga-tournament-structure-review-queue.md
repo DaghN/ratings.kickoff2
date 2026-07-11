@@ -115,6 +115,7 @@ Regenerate after code changes: `generate-disposition-register` (overwrites propo
 - **535** Birmingham XXXVII → `pure_knockout` — 4p cup; 2× **Semi Finals** (witness `Round 1`) + **Final**; g20217 reg 0-0, ET 0-0, pens 1-0 (Gary T); Access `(0-0) 1-0 p.k.`. **Jul 2026:** cleared cup-review block; `materialize-pure-knockout`; 3 stages / 3g; `has_league=0` `has_cup=1`; Tier E finish **1 Brian C · 2 Gary T · 3 Glen H · 3 John M**.
 - **568** Birmingham XLV → `pure_knockout` — 4p cup; **Semi Finals** (×2) · **3rd Place Final** · **Final**; g21621 reg 5-5, ET 2-2, pens 8-7 (Steve E champion); Access `(7-7) 8-7 p.k.`. **Jul 2026:** `materialize-pure-knockout`; 4 stages / 4g; `has_league=0` `has_cup=1`; Tier B finish **1 Steve E · 2 Garry C · 3 Simon K · 4 Todd H**.
 - **500** Birmingham XXVIII → `pure_knockout` — 6p cup, QF bye (Tom P); **Quarter Finals** (×2) · **Semi Finals** (×2) · **Final**; no ET/pens. **Jul 2026:** `materialize-pure-knockout`; 5 stages / 5g; `has_league=0` `has_cup=1`; Tier E finish **1 Simon K · 2 Steve E · 3 Garry C · 3 Tom P · 5 John M · 5 Thomas J** (QF losers tied at 5).
+- **493** Birmingham XXVII → `pure_knockout` — 6p cup, SF bye (Rick S); witness **Round 1** → display **Quarter Finals**; **Semi Finals** (×2) · **Final**; 5g. **Jul 2026:** `materialize-pure-knockout`; 5 stages / 5g; `has_league=0` `has_cup=1`; Tier B finish **1 Jon G · 2 Steve E · 3 Rick S · 3 Tom P · 5 Dan N · 6 Garry C**.
 
 ---
 
