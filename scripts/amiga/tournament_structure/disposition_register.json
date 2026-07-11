@@ -1269,8 +1269,8 @@
       "notes": "C: manual structure review (audit flag)"
     },
     "317": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "7p silver cup; 3\u00d7 QF \u00b7 2\u00d7 SF \u00b7 Final; SF bye Garry C; Tier E 1,2,3,3,5,5,5"
     },
     "318": {
       "handler": "pure_rr",
@@ -1657,8 +1657,8 @@
       "notes": "audit: obvious 2^n cup"
     },
     "414": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "6p silver cup; 3\u00d7 QF \u00b7 1 SF \u00b7 Final; Tier E finish 1 Mandhir \u00b7 2 Andy H \u00b7 3 Graham S \u00b7 4 Andy E/Grant/Ren"
     },
     "415": {
       "handler": "pure_rr",
@@ -1809,8 +1809,8 @@
       "notes": "NULL phase + single round-robin schedule"
     },
     "452": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "6p gold cup; QF \u00b7 SF \u00b7 Final; Tier E finish 1 Jon G \u00b7 2 Steve E \u00b7 3 Simon K/Steve C \u00b7 5 Garry C/Robert S"
     },
     "453": {
       "handler": "pure_knockout",
@@ -2077,8 +2077,8 @@
       "notes": "C: manual structure review (audit flag)"
     },
     "519": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "6p cup with bye; witness Round 1 = QF; SF \u00b7 Final; 5g"
     },
     "520": {
       "handler": "pure_rr",
@@ -2177,8 +2177,8 @@
       "notes": "NULL phase + single round-robin schedule"
     },
     "544": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "7p cup; 3\u00d7 QF \u00b7 2\u00d7 SF \u00b7 Final; SF bye Mark W; g20404 ET 1-0 Garry C"
     },
     "545": {
       "handler": "pure_rr",

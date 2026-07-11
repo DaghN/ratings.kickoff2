@@ -145,7 +145,12 @@
 
 | Date | Note |
 |------|------|
-| 2026-07-11 | **Birmingham XXVII (493) pure knockout** — 6p SF bye (Rick S); Round 1 → **Quarter Finals** display; 5 stages / 5g; Tier B finish 1 Jon G · 2 Steve E · 3 Rick S/Tom P · 5–6 QF losers; `has_league=0` `has_cup=1`. |
+| 2026-07-11 | **Birmingham VIII Silver Cup (317) pure knockout** — 7p SF bye Garry C; Tier E **1,2,3,3,5,5,5**; `has_league=0` `has_cup=1`. |
+| 2026-07-11 | **Bournemouth II (544) pure knockout** — 7p; plural QF/SF stage names; Tier E finish **1 Garry C · 2 Dagh N · 3 Andy G · 3 Mark W · 5 Simon K · 5 Steve C · 5 Steve E**; `has_league=0` `has_cup=1`. |
+| 2026-07-11 | **Birmingham XXI Gold Cup (452) pure knockout** — 5 stages / 5g; Tier E finish **1 Jon G · 2 Steve E · 3 Simon K · 3 Steve C · 5 Garry C · 5 Robert S**; `has_league=0` `has_cup=1`. |
+| 2026-07-11 | **Birmingham XIV Silver Cup (414) pure knockout** — 3× QF · 1 SF · Final; Tier E finish **1 Mandhir S · 2 Andy H · 3 Graham S · 4 Andy E/Grant N/Ren A**; `has_league=0` `has_cup=1`. |
+| 2026-07-11 | **Birmingham XXXIII (519) pure knockout** — 6p SF bye (Tom P); 5 stages / 5g; Tier E finish **1 Garry C · 2 Simon K · 3 Steve E · 3 Tom P · 5 Brian C · 5 John M**; `has_league=0` `has_cup=1`. |
+| 2026-07-11 | **Birmingham XXVII (493) pure knockout** — 6p SF bye (Rick S); 5 stages / 5g; Tier E finish **1 Jon G · 2 Steve E · 3 Rick S · 3 Tom P · 5 Dan N · 5 Garry C**; `has_league=0` `has_cup=1`. |
 | 2026-07-11 | **Birmingham XXVIII (500) pure knockout** — 6p QF bye (Tom P); 5 stages / 5g; Tier E finish **1 Simon K · 2 Steve E · 3 Garry C · 3 Tom P · 5 John M · 5 Thomas J**; `has_league=0` `has_cup=1`. |
 | 2026-07-11 | **Birmingham XLV (568) pure knockout** — 4 stages (Semi Finals ×2 · 3rd · Final); g21621 SC-11 ET 2-2 pens 8-7; Tier B finish 1–4; `has_league=0` `has_cup=1`. |
 | 2026-07-11 | **Birmingham XXXVII (535) pure knockout** — 3 stages (2× **Semi Finals** + Final); g20217 SC-11 ET 0-0 pens 1-0; Tier E finish **1 Brian C · 2 Gary T · 3 Glen H · 3 John M**; `has_league=0` `has_cup=1`. |

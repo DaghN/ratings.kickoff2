@@ -48,21 +48,16 @@ NON_WC_SLICE6_CUP_REVIEW_IDS: frozenset[int] = frozenset({
     192,  # Hertford V Cup — extra Round 1 games
     248,  # Athens XXXVIII Cup — not n-1
     316,  # Birmingham VIII Gold — Round 1 → league despite 8p/7g
-    317,  # Birmingham VIII Silver — bye; Round 1 → league
     329,  # Athens LXI Cup — placement
     338,  # Seeshaupt II — multi-game Round 1
     341,  # Copenhagen III Cup — Round 1 league
     345,  # Voitsberg I — 5-player oddity
-    414,  # Birmingham XIV Silver — 6p bye (KO labels OK; demoted pending triage)
-    452,  # Birmingham XXI Gold — 6p bye
     463,  # Dudley XX Cup — extra games
     465,  # Wiesbaden XII — groups + gold/silver
     471,  # Seeshaupt IV — extra games
     518,  # Seeshaupt V — groups
-    519,  # Birmingham XXXIII — bye; Round 1 → league
     521,  # Oldenburg II — full group cup + many placement finals
     524,  # Birmingham XXXV — extra games
-    544,  # Bournemouth II — 7p bye
     553,  # Hanau III — placement marathon
     570,  # Volkenrath IV — Round 1 league + Places 5-8
 })

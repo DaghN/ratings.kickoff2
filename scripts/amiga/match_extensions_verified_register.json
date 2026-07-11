@@ -194,6 +194,17 @@
       "pens_a": 8,
       "pens_b": 7,
       "note": "Birmingham XLV Final; Steve E (A) vs Garry C; reg 5-5, ET 2-2 (post-ET 7-7), pens 8-7 Steve champion; Access Scores.Extra verbatim"
+    },
+    "20404": {
+      "verified_at": "2026-07-11",
+      "tournament_id": 544,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "2-2",
+      "witness": "3-2 e.t.",
+      "goals_et_a": 1,
+      "goals_et_b": 0,
+      "note": "Bournemouth II Semi Final; Garry C (A) vs Andy G; post-ET 3-2 Garry advances; Access Scores.Extra verbatim"
     }
   }
 }
