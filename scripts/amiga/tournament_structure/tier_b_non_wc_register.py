@@ -44,8 +44,6 @@ NON_WC_ORIGINAL_STRUCTURE_REVIEW_IDS: frozenset[int] = frozenset({
 NON_WC_SLICE6_CUP_REVIEW_IDS: frozenset[int] = frozenset({
     75,   # Gloucester I Cup — 24p bye; Round 1/2 as league
     89,   # Milan — groups
-    121,  # Norwegian Champs — groups + placement
-    156,  # Milan X — groups
     158,  # Stoke Cup — 15p bye; Round 1 → league (parser)
     171,  # Copenhagen Cup — placement band
     189,  # Manchester II Cup — 15p bye; Round 1 → league

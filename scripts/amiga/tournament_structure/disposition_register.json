@@ -485,7 +485,7 @@
     },
     "121": {
       "handler": "structure_spec",
-      "notes": "15p; 4 groups (A/B/D 4p, C 3p) \u2014 top 3 each; group winners bye, other 8 play R2 (4g) for QF; then KO to final. KOATD labeled phases. Forum: https://ko-gathering.com/forum/viewtopic.php?p=106321#p106321"
+      "notes": "15p; groups + QF Qualifiers + KO. Jul 2026: Tier E bands =5 QF losers, =9 Qual. losers, =13 group-only. Forum: https://ko-gathering.com/forum/viewtopic.php?p=106321#p106321"
     },
     "122": {
       "handler": "pure_rr",
@@ -626,7 +626,7 @@
     },
     "156": {
       "handler": "structure_spec",
-      "notes": "10p; 2\u00d75 double-RR groups + KO; 3rd-place and final 3 legs each (g5513\u201318); Access KO fragments merged via alias (no import split)."
+      "notes": "10p; 2\u00d75 groups + KO (3-leg 3rd/Final). Jul 2026: manual materialize; Tier E =5 QF losers, =9 group non-advancers (Fulvio O, Angelo S)."
     },
     "157": {
       "handler": "pure_rr",
