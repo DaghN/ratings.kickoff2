@@ -112,6 +112,9 @@ Regenerate after code changes: `generate-disposition-register` (overwrites propo
 - **276** Langenfeld → `structure_spec` — 8p single-RR league (28g) + 2-leg KO incl. Places 5-8 + placement finals. **Jul 2026:** cleared slice-6 cup review; `materialize --replace`; 13 stages / 52 fixtures; **League** · **Quarter Finals** (×4) · **Places 5-8** (×2) · **7th/5th Place Final** · **Semi Finals** · **3rd Place Final** · **Final**; `has_league=1` `has_cup=1`; Tier B finish 1 Oliver · 2 Sascha · 3 Frederic · 4 Volker · 5 Uli · 6 Malte · 7 Thomas · 8 Guido.
 - **281** Athens L → `pure_rr` — 7p near-complete single RR (19/21g); Nikos Al missing 2 pairings.
 - **284** Athens LIII → `structure_spec` — 2×7 groups + Playouts/Playoffs groups + KO; AET g11635–36.
+- **535** Birmingham XXXVII → `pure_knockout` — 4p cup; 2× **Semi Finals** (witness `Round 1`) + **Final**; g20217 reg 0-0, ET 0-0, pens 1-0 (Gary T); Access `(0-0) 1-0 p.k.`. **Jul 2026:** cleared cup-review block; `materialize-pure-knockout`; 3 stages / 3g; `has_league=0` `has_cup=1`; Tier E finish **1 Brian C · 2 Gary T · 3 Glen H · 3 John M**.
+- **568** Birmingham XLV → `pure_knockout` — 4p cup; **Semi Finals** (×2) · **3rd Place Final** · **Final**; g21621 reg 5-5, ET 2-2, pens 8-7 (Steve E champion); Access `(7-7) 8-7 p.k.`. **Jul 2026:** `materialize-pure-knockout`; 4 stages / 4g; `has_league=0` `has_cup=1`; Tier B finish **1 Steve E · 2 Garry C · 3 Simon K · 4 Todd H**.
+- **500** Birmingham XXVIII → `pure_knockout` — 6p cup, QF bye (Tom P); **Quarter Finals** (×2) · **Semi Finals** (×2) · **Final**; no ET/pens. **Jul 2026:** `materialize-pure-knockout`; 5 stages / 5g; `has_league=0` `has_cup=1`; Tier E finish **1 Simon K · 2 Steve E · 3 Garry C · 3 Tom P · 5 John M · 5 Thomas J** (QF losers tied at 5).
 
 ---
 

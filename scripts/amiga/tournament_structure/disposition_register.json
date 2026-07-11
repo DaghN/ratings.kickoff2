@@ -2001,8 +2001,8 @@
       "notes": "NULL phase + single round-robin schedule"
     },
     "500": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "6p cup with QF bye (Tom P); QF \u00b7 SF \u00b7 Final; 5g"
     },
     "501": {
       "handler": "pure_rr",
@@ -2141,8 +2141,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "535": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "4p cup; 2\u00d7 Semi Finals + Final; g20217 ET 0-0 pens 1-0 (Gary T); Access Extra p.k."
     },
     "536": {
       "handler": "pure_rr",
@@ -2273,8 +2273,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "568": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "4p cup; Semi Finals \u00b7 3rd Place Final \u00b7 Final; g21621 reg 5-5 ET 2-2 pens 8-7 (Steve E)"
     },
     "569": {
       "handler": "wc_deferred",

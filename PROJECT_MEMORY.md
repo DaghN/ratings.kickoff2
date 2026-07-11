@@ -145,6 +145,9 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-11 | **Birmingham XXVIII (500) pure knockout** — 6p QF bye (Tom P); 5 stages / 5g; Tier E finish **1 Simon K · 2 Steve E · 3 Garry C · 3 Tom P · 5 John M · 5 Thomas J**; `has_league=0` `has_cup=1`. |
+| 2026-07-11 | **Birmingham XLV (568) pure knockout** — 4 stages (Semi Finals ×2 · 3rd · Final); g21621 SC-11 ET 2-2 pens 8-7; Tier B finish 1–4; `has_league=0` `has_cup=1`. |
+| 2026-07-11 | **Birmingham XXXVII (535) pure knockout** — 3 stages (2× **Semi Finals** + Final); g20217 SC-11 ET 0-0 pens 1-0; Tier E finish **1 Brian C · 2 Gary T · 3 Glen H · 3 John M**; `has_league=0` `has_cup=1`. |
 | 2026-07-11 | **Amiga work git checkpoint (CHECKPOINT-1)** — `seal_amiga_work_checkpoint.ps1` + sealed `data/amiga/checkpoints/work-2026-07-11-tail/` (~71 MB); docs/runbooks updated; not pushed to staging. |
 | 2026-07-11 | **Amiga simul green (ko2amiga_work)** — full replay + 24-step verify suite OK after SC-5 PHP phase parser + verify argv/fixes. |
 | 2026-07-11 | **SC-5 PHP phase parser parity** — `amiga_tournament_phases.php` synced with Python (`Game of Shame`, Playouts band, play-outs regex); `verify-php-standings-parity --sweep` green. |

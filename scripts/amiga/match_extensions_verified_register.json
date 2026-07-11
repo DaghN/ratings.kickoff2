@@ -168,6 +168,32 @@
       "goals_et_a": 1,
       "goals_et_b": 0,
       "note": "Seeshaupt Final; Thorsten B (A) vs Robert St (B); ET 1-0; Thorsten champion"
+    },
+    "20217": {
+      "verified_at": "2026-07-11",
+      "tournament_id": 535,
+      "extension_kinds": ["et", "pens"],
+      "interpretation": "pens_after_et",
+      "regulation": "0-0",
+      "witness": "(0-0) 1-0 p.k.",
+      "goals_et_a": 0,
+      "goals_et_b": 0,
+      "pens_a": 1,
+      "pens_b": 0,
+      "note": "Birmingham XXXVII Semi Final; Gary T (A) vs John M; reg 0-0, ET 0-0, pens 1-0 Gary advances; Access Scores.Extra verbatim"
+    },
+    "21621": {
+      "verified_at": "2026-07-11",
+      "tournament_id": 568,
+      "extension_kinds": ["et", "pens"],
+      "interpretation": "pens_after_et",
+      "regulation": "5-5",
+      "witness": "(7-7) 8-7 p.k.",
+      "goals_et_a": 2,
+      "goals_et_b": 2,
+      "pens_a": 8,
+      "pens_b": 7,
+      "note": "Birmingham XLV Final; Steve E (A) vs Garry C; reg 5-5, ET 2-2 (post-ET 7-7), pens 8-7 Steve champion; Access Scores.Extra verbatim"
     }
   }
 }

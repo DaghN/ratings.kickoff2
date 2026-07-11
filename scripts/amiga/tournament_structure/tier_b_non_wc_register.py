@@ -59,15 +59,12 @@ NON_WC_SLICE6_CUP_REVIEW_IDS: frozenset[int] = frozenset({
     465,  # Wiesbaden XII — groups + gold/silver
     471,  # Seeshaupt IV — extra games
     493,  # Birmingham XXVII — bye; Round 1 → league
-    500,  # Birmingham XXVIII — 6p bye
     518,  # Seeshaupt V — groups
     519,  # Birmingham XXXIII — bye; Round 1 → league
     521,  # Oldenburg II — full group cup + many placement finals
     524,  # Birmingham XXXV — extra games
-    535,  # Birmingham XXXVII — Round 1 as league
     544,  # Bournemouth II — 7p bye
     553,  # Hanau III — placement marathon
-    568,  # Birmingham XLV — 4 games for 4 players
     570,  # Volkenrath IV — Round 1 league + Places 5-8
 })
 
