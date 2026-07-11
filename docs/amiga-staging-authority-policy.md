@@ -192,6 +192,7 @@ Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
 |----|------|
 | **PULL-1a** | **Shipped + verified Jul 2026** — `pull_ko2amiga_from_staging.ps1` + `staging-sync-last.json` |
 | **PULL-1b** | **Shipped + verified Jul 2026** — `run_export_ko2amiga.php` (export-v4; JSON + download) |
+| **CHECKPOINT-1** | **Shipped Jul 2026** — `seal_amiga_work_checkpoint.ps1` + `data/amiga/checkpoints/` (milestone git seals) |
 | **SYNC-1** | `staging-sync-last.json` + export gate |
 | **ADMIN-1** | Staged admin page (lock / discard / delete) — after permissions sketch firms up |
 | **PACK-1** | Per-tournament ground pack export (live-ops L6) |
@@ -202,6 +203,7 @@ Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
 
 | Date | Change |
 |------|--------|
+| 2026-07-11 | **CHECKPOINT-1** — `seal_amiga_work_checkpoint.ps1` + `data/amiga/checkpoints/`; first seal `work-2026-07-11-tail`; §7 work git checkpoint row. |
 | 2026-07-10 | **Export table registry** — `staging_export_tables.py` + JSON manifest; push/pull read same list; `export_ko2amiga_work.ps1` audit preflight (incl. `tournament_stage_scoring_steps`). |
 | 2026-07-08 | **Agent pull ritual** — `kool-workspace.mdc` + `AGENTS.md`: trigger phrases → `pull_ko2amiga_from_staging.ps1 -Force`. |
 | 2026-07-08 | **PULL-1 verified** — full staging → `ko2amiga_work` pull green; export-v4 mysqldump stderr fix; simul opt-in on pull script. |

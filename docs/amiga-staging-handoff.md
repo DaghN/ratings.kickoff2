@@ -12,6 +12,14 @@
 
 **Agents — pull staged → local (repair shop):** Run `powershell -ExecutionPolicy Bypass -File scripts\pull_ko2amiga_from_staging.ps1 -Force` when Dagh says **pull staged Amiga** (or: pull Amiga from staged · refresh `ko2amiga_work` from staging). **Execute the script** — do not hand-wave WinSCP/mysqldump. Sync to staging first if export PHP changed: `run_export_ko2amiga.php` + `includes/amiga_staging_export_lib.php` (export build **v4+**). **Does not run simul by default** — `-Simul` only when sign-off needs it. Writes `data/amiga/modern/staging-sync-last.json`. Manual URLs below. Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) §8.
 
+**Work git checkpoint (milestone backup — not staging push):** When forward **`ko2amiga_work`** must be recoverable before push (structure tail, Tier E, etc.), seal a named checkpoint:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\seal_amiga_work_checkpoint.ps1 -Label tail
+```
+
+Writes `data/amiga/checkpoints/work-YYYY-MM-DD-<label>/` (export parts + `manifest.json` + `companion/` JSON snapshots). **Opt-in git:** add a `.gitignore` allowlist for that folder (see [`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md)). **First sealed:** `work-2026-07-11-tail` (~71 MB, commit `14a15d6`). Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) §7.
+
 ---
 
 ## Layout (same as online site)
@@ -25,6 +33,7 @@
 | Database | **`ko2amiga_db`** (separate from online `kooldb*`) |
 | Import payload | `public_html/amiga/_import/ko2amiga_manifest.json` (tracked) + `ko2amiga_01_schema.sql` … part files ending in snapshots/current + derived tables (SQL parts gitignored; WinSCP) (+ optional full `ko2amiga_db.sql`) |
 | Pull export dump | `public_html/amiga/_export/ko2amiga_staging_pull.sql` + `ko2amiga_staging_pull_manifest.json` (gitignored; **overwrite** each generate) |
+| Work git checkpoints | `data/amiga/checkpoints/work-YYYY-MM-DD-<label>/` (milestone seals; SQL opt-in per folder) — [`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md) |
 | **Export table manifest** | `public_html/data/amiga/staging_export_tables.json` (tracked; source = `scripts/amiga/staging_export_tables.py` synced to `schema_bundles`) |
 
 **Export table registry (Jul 2026):** Canonical list = `scripts/amiga/staging_export_tables.py` (`STAGING_EXPORT_TABLES`). Must match product tables from `schema_bundles` DDL (minus retired L4 tables). Committed JSON is consumed by push export (`Export-Ko2AmigaStaging.ps1`) and pull export (`amiga_staging_export_lib.php`). **`export_ko2amiga_work.ps1`** runs `write-staging-export-tables` + `audit-staging-export --database ko2amiga_work` before mysqldump — export **fails** if a new bundle table is missing (prevents pull → small fix → incomplete push loops). Manual: `python -m scripts.amiga audit-staging-export` · `scripts/oneoff/audit_ko2amiga_export_tables.py`.

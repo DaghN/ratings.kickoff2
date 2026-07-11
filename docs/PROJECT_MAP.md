@@ -40,6 +40,8 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | `docs/k2-jukebox-popup.md` | **Gapless audio = popup window** (Turbo removed Jun 2026); FAB launcher + `BroadcastChannel`; centred window + raise/behind toggle |
 | `docs/k2-turbo-page-init-checklist.md` | **Historical (Turbo removed Jun 2026).** Page JS boot now plain full loads — prefer `k2OnPageReady` (shim `js/k2-page-boot.js`) + idempotent guards. Carry-scroll / `#fragment` hash landing live in `includes/k2_carry_scroll_restore.php` (pre-paint cloak) |
 | `data/dumps/` | Local SQL dump (gitignored) |
+| `data/amiga/day0/` | L3 witness archive (git-tracked) |
+| `data/amiga/checkpoints/` | Milestone **`ko2amiga_work`** git seals — [`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md) |
 | `README.md` | Repo entry — links to agents, ops, brief |
 | `PROJECT_BRIEF.md` | Product taste / north star |
 | `PROJECT_MEMORY.md` | **Current focus**, deploy facts, recent log |
@@ -70,7 +72,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | | Local | Staging | Prod |
 |---|--------|---------|------|
 | **Online** | `ko2unity_db` (+ sandbox `ko2unity_work` / `ko2unity_baseline`) | `kooldb1` / `kooldb2` (legacy `kooldb` possible) | Steve-managed |
-| **Amiga (offline)** | **`ko2amiga_work`** local living ground; **`ko2amiga_db`** frozen oracle + staging import name | **Staging push:** `export_ko2amiga_work.ps1` (preflight `staging_export_tables.json`) + WinSCP + browser import — [`amiga-staging-handoff.md`](amiga-staging-handoff.md). **Pull:** `pull_ko2amiga_from_staging.ps1`. **Live ops:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) · drill track [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) | A2 live staging |
+| **Amiga (offline)** | **`ko2amiga_work`** local living ground; **`ko2amiga_db`** frozen oracle + staging import name | **Staging push:** `export_ko2amiga_work.ps1` (preflight `staging_export_tables.json`) + WinSCP + browser import — [`amiga-staging-handoff.md`](amiga-staging-handoff.md). **Pull:** `pull_ko2amiga_from_staging.ps1`. **Work checkpoint:** `seal_amiga_work_checkpoint.ps1` → `data/amiga/checkpoints/` (milestone git). **Live ops:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) · drill track [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) | A2 live staging |
 | Work prepare / simul | [`work-db-prepare.md`](work-db-prepare.md) | Same vocabulary (refresh → migrate → zero derived) | — |
 | Live games | No | **No** | **Yes** |
 | PHP deploy | Laragon | WinSCP sync **`site/public_html/`** | Steve |

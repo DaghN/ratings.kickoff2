@@ -82,6 +82,15 @@ powershell -ExecutionPolicy Bypass -File scripts\promote_ko2amiga_work_local.ps1
 
 Table list: `scripts/amiga/staging_export_tables.py` → committed `site/public_html/data/amiga/staging_export_tables.json` (push `Export-Ko2AmigaStaging.ps1` + pull `amiga_staging_export_lib.php`). Validated against `schema_bundles` DDL — export **fails** if a new product table is missing. Runbook: [`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md) § export registry.
 
+**Work git checkpoint (milestone backup before staging push):**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\seal_amiga_work_checkpoint.ps1 -Label tail
+# -SkipExport if export_ko2amiga_work.ps1 already ran
+```
+
+Seals `data/amiga/checkpoints/work-YYYY-MM-DD-<label>/` — full export parts + companion JSON. Opt-in `.gitignore` allowlist per folder. Convention: [`data/amiga/checkpoints/README.md`](../../data/amiga/checkpoints/README.md).
+
 Oracle archaeology only: `export_ko2amiga_db.ps1` (frozen `ko2amiga_db` after legacy `prove`).
 
 **PULL-1a — staged prod → local repair shop:**

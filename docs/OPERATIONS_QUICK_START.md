@@ -150,6 +150,7 @@ Not online ladder ops. Local build any way you like → export snapshot → sync
 | **Sign-off / derived rebuild** | `python -m scripts.amiga simul` on **`ko2amiga_work`** ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md); video on by default) |
 | **Oracle / Access rebuild** | `setup_ko2amiga_db.ps1` or `python -m scripts.amiga prove` on frozen **`ko2amiga_db`** — archaeology only |
 | **Export SQL (agent runs this)** | `scripts\export_ko2amiga_work.ps1` → `site/public_html/amiga/_import/ko2amiga_*.sql` (promotes work video manifest first) |
+| **Work git checkpoint** | `scripts\seal_amiga_work_checkpoint.ps1 -Label <name>` → `data/amiga/checkpoints/work-YYYY-MM-DD-<label>/` (milestone; opt-in git) — [`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md) |
 | Deploy (Dagh) | WinSCP sync `site/public_html/` |
 | **Staging import (preview)** | https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee |
 | **Staging import (apply)** | same + `&apply=1` |

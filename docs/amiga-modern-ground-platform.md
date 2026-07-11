@@ -283,6 +283,7 @@ Execute in order. Each slice ends with a recorded check.
 | **DOC-1** | Archive Access pipeline docs; agent routing | **Done** — archive index + doc pass 2–3 (55+ historical/sign-off banners on shipped plans/policies) |
 | **CODE-1** | `scripts/amiga/modern/` compartment; legacy import frozen (**MG11** — copy, never mutate) | **Done** — `modern/README.md`; FROZEN headers; `audit_amiga_modern_compartment.py` |
 | **PULL-1** | Staging → `ko2amiga_work` pull automation + export one-shot | **Done** — `pull_ko2amiga_from_staging.ps1` + `run_export_ko2amiga.php`; verified Jul 2026 |
+| **CHECKPOINT-1** | Milestone git seals of `ko2amiga_work` | **Done** — `seal_amiga_work_checkpoint.ps1` + `data/amiga/checkpoints/`; first seal `work-2026-07-11-tail` |
 
 **Out of scope for day-one cutover (follow-on):** **SYNC-1** export gate from `staging-sync-last.json` · ground pack pull · `append-event` CLI · retiring L4 pipeline at 100% structure. Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md).
 
@@ -363,6 +364,7 @@ New evidence **without Access:**
 
 | Date | Change |
 |------|--------|
+| 2026-07-11 | **CHECKPOINT-1** — `seal_amiga_work_checkpoint.ps1` + `data/amiga/checkpoints/`; first seal `work-2026-07-11-tail`. |
 | 2026-07-08 | **PULL-1 done** — `pull_ko2amiga_from_staging.ps1` + `run_export_ko2amiga.php`; verified staging → `ko2amiga_work`. |
 | 2026-07-08 | **L4-1 done** — `verify-structure-work` on `ko2amiga_work`; disposition register complete. |
 | 2026-07-08 | **Simul preflight/postcheck** — living-ground rule: no day 0 count pin; postcheck = L3 unchanged during run. |

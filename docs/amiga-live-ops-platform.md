@@ -313,11 +313,21 @@ Per `tournament_id`, export:
 
 **Uses:** backup before finalize; pull staging community event to local; restore after mistaken delete of **ground only**; handoff between organisers.
 
-### 9.2 Cutoff checkpoint
+### 9.2 Work git checkpoint (full DB milestone)
+
+When forward repair on **`ko2amiga_work`** is not yet on staged prod, seal a recoverable milestone in git:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\seal_amiga_work_checkpoint.ps1 -Label <name>
+```
+
+Output: `data/amiga/checkpoints/work-YYYY-MM-DD-<label>/` — export SQL parts + `manifest.json` + `companion/` (videos, disposition register, …). **Opt-in** `.gitignore` allowlist per folder. Convention: [`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md). Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) §7. **Not** a substitute for staged DR — use when local work is ahead of staging.
+
+### 9.3 Cutoff checkpoint
 
 Snapshot manifest of **entire DB derived state through cutoff N** OR host mysqldump — for disaster recovery faster than 30-minute prove. Heavier than per-tournament pack; optional ops habit before WC.
 
-### 9.3 Ground pack + media
+### 9.4 Ground pack + media
 
 Include Lane C media metadata + file references in the same pack so cancel/repair does not orphan photos on disk.
 
