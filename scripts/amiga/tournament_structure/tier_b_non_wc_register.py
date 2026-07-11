@@ -43,7 +43,6 @@ NON_WC_SLICE6_CUP_REVIEW_IDS: frozenset[int] = frozenset({
     171,  # Copenhagen Cup — placement band
     189,  # Manchester II Cup — 15p bye; Round 1 → league
     192,  # Hertford V Cup — extra Round 1 games
-    345,  # Voitsberg I — 5-player oddity
     465,  # Wiesbaden XII — groups + gold/silver
     518,  # Seeshaupt V — groups
     521,  # Oldenburg II — full group cup + many placement finals

@@ -1381,8 +1381,8 @@
       "notes": "NULL phase + 3\u00d7 round-robin schedule"
     },
     "345": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "5p double-RR League + KO; 4th Place Final (RR 4v5) before 3rd; finish 1\u20135"
     },
     "346": {
       "handler": "pure_rr",

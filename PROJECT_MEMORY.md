@@ -145,6 +145,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-11 | **Voitsberg I (345) structure spec** — 5p double-RR **League** + KO; **4th Place Final** (RR 4v5) before 3rd; Tier E **1 Thorsten B · 2 Harald B · 3 Michael Ma · 4 Michael F · 5 Wolfgang M**; `has_league=1` `has_cup=1`. |
 | 2026-07-11 | **Seeshaupt III (406) structure spec** — 7p League + R2 playoff + 4th Place + Game of Shame; g15613 SC-11 pens; Tier E **1–7**; `has_league=1` `has_cup=1`. |
 | 2026-07-11 | **Langenfeld II (294) structure spec** — 6p League + Fun Cup + KO; display **League**; Tier E **1–7** (Wolfgang H Fun Cup-only); `has_league=1` `has_cup=1`. |
 | 2026-07-11 | **London Marathon (174) pure RR** — 22p single RR (230/231g); James L–Vagelis D unplayed; `materialize --force`; display **League**; Tier B **1 Gianni T · 2 Nikos A · 3 Robert S · 4 Steve C** (GD tiebreak). |
