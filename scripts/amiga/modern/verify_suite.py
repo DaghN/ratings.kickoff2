@@ -60,7 +60,7 @@ MODERN_VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
     ("verify-player-create", verify_player_create_main),
     ("verify-running-tournament-boundary", verify_running_tournament_boundary_main),
     ("verify-scoring-contract", verify_scoring_contract_main),
-    ("verify-php-standings-parity", verify_php_standings_parity_main),
+    ("verify-php-standings-parity", lambda: verify_php_standings_parity_main(["--sweep"])),
     ("verify-rtb-standings-parity", verify_rtb_standings_parity_main),
     ("verify-standings-stage-id", verify_standings_stage_id_main),
     ("verify-match-extensions", verify_match_extensions_main),

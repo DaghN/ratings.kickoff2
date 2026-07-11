@@ -19,6 +19,7 @@ const AMIGA_KNOCKOUT_LABELS = [
     '11th place final',
     '13th place final',
     '15th place final',
+    'game of shame',
 ];
 
 function amiga_ops_normalize_whitespace(string $label): string
@@ -38,13 +39,16 @@ function amiga_ops_is_knockout_phase(?string $phase): bool
     if (preg_match('/^Places\s+\d+(?:-\d+)?$/i', $label) === 1) {
         return true;
     }
+    if (preg_match('/^Playouts\s+(?:\d+(?:-\d+)?|Group)$/i', $label) === 1) {
+        return true;
+    }
     if (preg_match('/^\d+(?:st|nd|rd|th)\s+Place\s+Final$/i', $label) === 1) {
         return true;
     }
-    if (preg_match('/^(?:quarter|semi)\s+finals?$/i', $label) === 1) {
+    if (preg_match('/^(?:quarter|semi)[\s-]finals?$/i', $label) === 1) {
         return true;
     }
-    if (preg_match('/^play\s*outs?$/i', $label) === 1) {
+    if (preg_match('/^play\s+outs?$/i', $label) === 1) {
         return true;
     }
     if (strtolower($label) === 'finals') {
@@ -78,6 +82,18 @@ function amiga_ops_canonical_group_key(?string $prefix, string $group): string
     return 'Group ' . $group;
 }
 
+function amiga_ops_canonical_knockout_scope_key(string $label): string
+{
+    if (strtolower($label) === 'finals') {
+        return 'Final';
+    }
+    if (preg_match('/^(\d+(?:st|nd|rd|th))\s+Place\s+Finals$/i', $label, $m) === 1) {
+        return $m[1] . ' Place Final';
+    }
+
+    return $label;
+}
+
 /**
  * @return array{scope_type: string, scope_key: string}
  */
@@ -90,7 +106,10 @@ function amiga_ops_parse_phase(?string $phase): array
     $label = amiga_ops_normalize_whitespace($phase);
 
     if (amiga_ops_is_knockout_phase($label)) {
-        return ['scope_type' => AMIGA_SCOPE_TYPE_KNOCKOUT, 'scope_key' => $label];
+        return [
+            'scope_type' => AMIGA_SCOPE_TYPE_KNOCKOUT,
+            'scope_key' => amiga_ops_canonical_knockout_scope_key($label),
+        ];
     }
 
     if (preg_match(

@@ -129,7 +129,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--tournament-id", type=int, default=None)
     parser.add_argument("--sample", type=int, default=10)
     parser.add_argument("--sweep", action="store_true")
-    args = parser.parse_args(argv)
+    args = parser.parse_args(argv if argv is not None else [])
 
     cfg = load_amiga_db_config()
     conn = _connect(cfg)

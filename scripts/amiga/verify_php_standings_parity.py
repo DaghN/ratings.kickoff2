@@ -199,7 +199,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--tournament-id", type=int, default=None)
     parser.add_argument("--sample", type=int, default=5, help="Default sample size when not sweeping")
     parser.add_argument("--sweep", action="store_true", help="All tournaments with games")
-    args = parser.parse_args(argv)
+    args = parser.parse_args(argv if argv is not None else [])
 
     php = _find_php()
     if php is None:

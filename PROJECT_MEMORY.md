@@ -146,6 +146,8 @@
 | Date | Note |
 |------|------|
 | 2026-07-11 | **Amiga work git checkpoint (CHECKPOINT-1)** — `seal_amiga_work_checkpoint.ps1` + sealed `data/amiga/checkpoints/work-2026-07-11-tail/` (~71 MB); docs/runbooks updated; not pushed to staging. |
+| 2026-07-11 | **Amiga simul green (ko2amiga_work)** — full replay + 24-step verify suite OK after SC-5 PHP phase parser + verify argv/fixes. |
+| 2026-07-11 | **SC-5 PHP phase parser parity** — `amiga_tournament_phases.php` synced with Python (`Game of Shame`, Playouts band, play-outs regex); `verify-php-standings-parity --sweep` green. |
 | 2026-07-11 | **SC-7 replay hygiene** — `clear_derived` clears scoring freeze markers; idempotent stage freeze sync on finalize/repair; tests in `test_scoring_contract.py`. |
 | 2026-07-11 | **Amiga simul (ko2amiga_work)** — L5 replay OK (605 events / 27418g); SC-7 stage freeze repair (177 stages); Milan 89 standings + parity OK; full verify stops on WC VI (206) PHP standings parity (pre-existing). |
 | 2026-07-11 | **Milan I (89) Group B extra stage** — L4 `round-1-group-b-extra` for g2394–2398; UI Phase from stage name only (never L2→L3 phase override); witness `amiga_games.phase` stays `Round 1 - Group B`. |

@@ -9,7 +9,12 @@ import pymysql
 from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
-from scripts.amiga.match_extensions import extract_structured_from_extra, resolve_game_extension_winner
+from scripts.amiga.match_extensions import (
+    StructuredMatchExtension,
+    extract_structured_from_extra,
+    resolve_game_extension_winner,
+)
+from scripts.amiga.match_extensions_verified import load_verified_register
 from scripts.amiga.scoring_contract import load_scoring_context_for_tournament
 from scripts.amiga.tournament_standings import GAME_SELECT_FOR_TOURNAMENT, compute_tournament_standings
 
@@ -41,6 +46,24 @@ def _column_exists(conn: pymysql.connections.Connection, table: str, column: str
         return cur.fetchone() is not None
 
 
+def _expected_extension_for_row(row: dict) -> StructuredMatchExtension | None:
+    """Parser guess, overridden by human-verified register when present."""
+    games = load_verified_register().get("games") or {}
+    verified = games.get(str(row["id"]))
+    if isinstance(verified, dict):
+        return StructuredMatchExtension(
+            goals_et_a=verified.get("goals_et_a"),
+            goals_et_b=verified.get("goals_et_b"),
+            pens_a=verified.get("pens_a"),
+            pens_b=verified.get("pens_b"),
+        )
+    return extract_structured_from_extra(
+        row["extra"],
+        goals_a=row["goals_a"],
+        goals_b=row["goals_b"],
+    )
+
+
 def verify_match_extensions(conn: pymysql.connections.Connection) -> list[str]:
     errors: list[str] = []
     for table in ("amiga_games", "tournament_fixtures"):
@@ -59,11 +82,7 @@ def verify_match_extensions(conn: pymysql.connections.Connection) -> list[str]:
         rows = list(cur.fetchall())
 
     for row in rows:
-        structured = extract_structured_from_extra(
-            row["extra"],
-            goals_a=row["goals_a"],
-            goals_b=row["goals_b"],
-        )
+        structured = _expected_extension_for_row(row)
         if structured is None:
             continue
         for field in ("goals_et_a", "goals_et_b", "pens_a", "pens_b"):
