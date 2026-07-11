@@ -146,7 +146,11 @@
 | Date | Note |
 |------|------|
 | 2026-07-11 | **Amiga work git checkpoint (CHECKPOINT-1)** — `seal_amiga_work_checkpoint.ps1` + sealed `data/amiga/checkpoints/work-2026-07-11-tail/` (~71 MB); docs/runbooks updated; not pushed to staging. |
-| 2026-07-11 | **Milan X (156) Tier E finish** — **=5** QF losers (Fabio F · Marco D · Marco S · Maurizio L) · **=9** group non-advancers (Fulvio O · Angelo S). |
+| 2026-07-11 | **Milan I (89) Group B extra stage** — L4 `round-1-group-b-extra` for g2394–2398; UI Phase from stage name only (never L2→L3 phase override); witness `amiga_games.phase` stays `Round 1 - Group B`. |
+| 2026-07-11 | **Milan I (89) Tier E sparse finish** — FFZ idd=175: 1–4 podium · **=5** QF losers · 8 group-only NULL; sparse override semantics + snapshots refreshed; `ko2amiga_05_finish_override.sql` export. |
+| 2026-07-11 | **Milan (89) manual materialize** — uneven Groups A/B + two-leg KO; 10 stages / 81g. |
+| 2026-07-11 | **Athens XCI (22) manual materialize** — 12p league + placement finals ladder; 7 stages / 78g; Tier B finish 1–12 (Christopher D champion). |
+| 2026-07-11 | **Milan X (156) Tier E finish** — **=5** QF losers · **=9** group non-advancers (Fulvio O · Angelo S). |
 | 2026-07-11 | **Milan X (156) manual materialize** — 2×5 groups + two-leg QF/SF + **3-leg** 3rd/Final; 10 stages / 58g. |
 | 2026-07-11 | **Norwegian Champs (121) Tier E finish** — banded placement: **=5** QF losers · **=9** Qual. losers · **=13** group-only (not 5–8 / 9–12 / 13–15 distinct ranks). |
 | 2026-07-10 | **Tournament page nav unified** — all events use **Stages** top tab + sub-nav (WC pattern); bracket renders only on Bracket sub-tab; `standings.php` → 302 `stages.php`. |

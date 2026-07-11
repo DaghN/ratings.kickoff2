@@ -26,7 +26,6 @@ DEFERRED_WORLD_CUP_TOURNAMENT_IDS: frozenset[int] = frozenset({
 
 # Original slice 6b manual review (pre–cup-audit curation).
 NON_WC_ORIGINAL_STRUCTURE_REVIEW_IDS: frozenset[int] = frozenset({
-    22,   # Athens XCI — League Stage (odd singleton scope)
     294,  # Langenfeld II — Fun Cup
     352,  # Wiesbaden V — Playout Group
     406,  # Seeshaupt III — Game of Shame
@@ -43,7 +42,6 @@ NON_WC_ORIGINAL_STRUCTURE_REVIEW_IDS: frozenset[int] = frozenset({
 # Dematerialized + materialize refuses until human triage.
 NON_WC_SLICE6_CUP_REVIEW_IDS: frozenset[int] = frozenset({
     75,   # Gloucester I Cup — 24p bye; Round 1/2 as league
-    89,   # Milan — groups
     158,  # Stoke Cup — 15p bye; Round 1 → league (parser)
     171,  # Copenhagen Cup — placement band
     189,  # Manchester II Cup — 15p bye; Round 1 → league

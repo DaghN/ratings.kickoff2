@@ -130,9 +130,11 @@ Covers kitchen marathons, single-phase round-robins.
 
 `amiga_tournament_finish_override` (`tournament_id`, `player_id`, `event_finish_position`) — L3 DDL `sql/ground/002_tournament_finish_override.sql`. Overrides win over tiers A–D.
 
-**Ops rule (Jul 2026): full ladder or none.** If a tournament needs *any* Tier E row, insert **one row per entrant** — positions `1..N`, no gaps, no duplicates. Do **not** mix “derive 1–(N−1) + patch one slot” (e.g. Milan V had been Sandro-only at 8; expanded to full eight rows). Partial tables rely on derivation merge quirks and can produce duplicate finish ranks; a full table is the canonical honours ladder in ground and survives simul without coupling to tier A–D logic.
+**Ops rule (Jul 2026): full ladder or none** — default. If a tournament needs *any* Tier E row, insert **one row per entrant** — positions `1..N`, no gaps, no duplicates. Do **not** mix “derive 1–(N−1) + patch one slot” (e.g. Milan V had been Sandro-only at 8; expanded to full eight rows). A full table is the canonical honours ladder in ground and survives simul without coupling to tier A–D logic.
 
-**Verify habit:** when `COUNT(*) > 0` for a tournament, expect `COUNT(*) = entrant_count` and unique positions `1..N`.
+**Sparse exception (Jul 2026):** when forum evidence gives podium + one shared band only (e.g. **Milan I, id 89** — 1–4 + **=5** QF losers), insert **only** those rows. When `player_ids` is passed to `derive_event_finish_position` / `amiga_participation_derive_event_finish_position`, entrants **not** in the override table get **NULL** (not tier A–D derivation). Use `refresh-event-finish-snapshots --tournament-id N` after L3 edits. Precedent: 89, 156 (=5 / =9 bands).
+
+**Verify habit:** when `COUNT(*) > 0` for a tournament, expect either `COUNT(*) = entrant_count` with unique positions `1..N`, or a documented sparse band (review queue + disposition register).
 
 ---
 

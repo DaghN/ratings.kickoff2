@@ -138,6 +138,8 @@ class ImportCorrectionsTests(unittest.TestCase):
         scores = [
             AccessScore(1189, "Aasmund F", "Glenn L", 1, 1, "Kristiansand", None, None),
             AccessScore(1188, "Oskar B", "Glenn L", 0, 0, "Kristiansand", None, None),
+            AccessScore(2421, "Gianni T", "Marco C", 7, 2, "Milan", None, None),
+            AccessScore(2422, "Gianni T", "Morris C", 0, 5, "Milan", None, None),
             AccessScore(1, "A", "B", 0, 0, "Other", None, None),
         ]
         applied = apply_score_corrections(scores)
@@ -152,6 +154,21 @@ class ImportCorrectionsTests(unittest.TestCase):
         self.assertEqual(bronze.extra, "1-1, (0-0, 7-8 on pens)")
         other = next(s for s in scores if s.source_id == 1)
         self.assertIsNone(other.goals_et_a)
+
+    def test_milan_i_player_assignment_corrections(self) -> None:
+        scores = [
+            AccessScore(1189, "Aasmund F", "Glenn L", 1, 1, "Kristiansand", None, None),
+            AccessScore(1188, "Oskar B", "Glenn L", 0, 0, "Kristiansand", None, None),
+            AccessScore(2421, "Gianni T", "Marco C", 7, 2, "Milan", "Round 1 - Group A", None),
+            AccessScore(2422, "Gianni T", "Morris C", 0, 5, "Milan", "Round 1 - Group A", None),
+        ]
+        apply_score_corrections(scores)
+        g2421 = next(s for s in scores if s.source_id == 2421)
+        self.assertEqual(g2421.team_b, "Marco M")
+        self.assertEqual((g2421.goals_a, g2421.goals_b), (7, 2))
+        g2422 = next(s for s in scores if s.source_id == 2422)
+        self.assertEqual(g2422.team_a, "Filippo D")
+        self.assertEqual((g2422.goals_a, g2422.goals_b), (0, 5))
 
 
 if __name__ == "__main__":

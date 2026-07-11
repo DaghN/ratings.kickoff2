@@ -88,7 +88,7 @@
     "22": {
       "handler": "structure_spec",
       "spec_slug": "league_placement",
-      "notes": "12p league RR \u2192 two-leg placement finals (11th through Final)."
+      "notes": "12p league RR + two-leg placement finals (11th\u2013Final). Jul 2026: manual materialize; display League; Tier B finish 1\u201312."
     },
     "23": {
       "handler": "pure_rr",
@@ -357,7 +357,7 @@
     },
     "89": {
       "handler": "structure_spec",
-      "notes": "16p; 2\u00d78 groups (uneven RR \u2014 A 6\u20138g, B 8\u201311g) + two-leg KO playoffs; KOATD labeled phases."
+      "notes": "16p; uneven 2\u00d78 groups + two-leg KO. Jul 2026: manual materialize; 11 stages / 81g (incl. L4 **Group B extra** stage for forum Extra 5g, g2394\u20132398). Tier E (FFZ idd=175): 1 Gianluca T \u00b7 2 Gianni T \u00b7 3 Luigi F \u00b7 4 Morris C \u00b7 =5 QF losers (Nikos A, Luca C, Pino D, Filippo D); rest NULL. Forum: https://web.archive.org/web/20030704044413/http://www.freeforumzone.com/viewmessaggi.aspx?f=3694&idd=175. Ground: SCORE_CORRECTIONS g2421/g2422. Witness phase unchanged; UI phase from stage name."
     },
     "90": {
       "handler": "pure_rr",

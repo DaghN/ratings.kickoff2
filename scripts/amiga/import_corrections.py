@@ -246,6 +246,24 @@ SCORE_CORRECTIONS: tuple[ScoreCorrection, ...] = (
         pens_a=7,
         pens_b=8,
     ),
+    ScoreCorrection(
+        source_scores_id=2421,
+        tournament="Milan",
+        team_a="Gianni T",
+        team_b="Marco M",
+        goals_a=7,
+        goals_b=2,
+        extra=None,
+    ),
+    ScoreCorrection(
+        source_scores_id=2422,
+        tournament="Milan",
+        team_a="Filippo D",
+        team_b="Morris C",
+        goals_a=0,
+        goals_b=5,
+        extra=None,
+    ),
 )
 
 SCORE_CORRECTION_RATIONALE: dict[int, str] = {
@@ -258,6 +276,18 @@ SCORE_CORRECTION_RATIONALE: dict[int, str] = {
         "Kristiansand bronze: Access has 0–0 with Extra NULL (regulation 1–1 was wrongly stored on "
         "semi g1189). Forum (https://ko-gathering.com/forum/viewtopic.php?p=48040#p48040): "
         "1–1, (0–0, 7–8 on pens); Glenn L (player B) wins bronze. SC-11: reg 1–1; ET period 0–0; pens 7–8."
+    ),
+    2421: (
+        "Milan I (2003) Group A Giornata 4: Access Scores g2421 has Gianni T 7–2 Marco C; forum "
+        "(https://web.archive.org/web/20030704044413/http://www.freeforumzone.com/viewmessaggi.aspx?f=3694&idd=175) "
+        "lists Sandro Torchio twice in Giornata 4 (forum typo — Gianni absent that round) while Marco C appears twice; "
+        "DB already has Gianni elsewhere. Canonical: Gianni T 7–2 Marco M — restores missing Gianni–Marco M pairing "
+        "(7 gp each); Marco C keeps single 0–4 loss to Gianni on g2357."
+    ),
+    2422: (
+        "Milan I (2003) Group A Giornata 5: Access Scores g2422 has Gianni T 0–5 Morris C; forum Giornata 5 "
+        "records Filippo Della Bianca 0–5 Morris Caprio (https://web.archive.org/web/20030704044413/http://www.freeforumzone.com/viewmessaggi.aspx?f=3694&idd=175). "
+        "Gianni 0–5 Morris is implausible; Filippo had no Morris game in Access. Player A only — score unchanged."
     ),
 }
 
@@ -546,7 +576,10 @@ def apply_score_corrections(scores: list[Any]) -> list[dict[str, str | int | Non
                 f"score correction source_scores_id={corr.source_scores_id} not in witness Scores"
             )
         access_goals = f"{row.goals_a}-{row.goals_b}"
+        access_teams = f"{row.team_a} vs {row.team_b}"
         access_extra = row.extra
+        object.__setattr__(row, "team_a", corr.team_a)
+        object.__setattr__(row, "team_b", corr.team_b)
         object.__setattr__(row, "goals_a", corr.goals_a)
         object.__setattr__(row, "goals_b", corr.goals_b)
         object.__setattr__(row, "extra", corr.extra)
@@ -561,7 +594,7 @@ def apply_score_corrections(scores: list[Any]) -> list[dict[str, str | int | Non
                 "team_a": corr.team_a,
                 "team_b": corr.team_b,
                 "field": "scores_row",
-                "access": f"goals={access_goals} extra={access_extra!r}",
+                "access": f"teams={access_teams} goals={access_goals} extra={access_extra!r}",
                 "canonical": (
                     f"goals={corr.goals_a}-{corr.goals_b} extra={corr.extra!r} "
                     f"et={corr.goals_et_a}-{corr.goals_et_b} pens={corr.pens_a}-{corr.pens_b}"

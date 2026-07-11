@@ -378,12 +378,15 @@ def derive_event_finish_position(
     if player_ids is None:
         return finish
 
-    out = {int(pid): finish.get(int(pid)) for pid in player_ids}
-    if overrides:
-        for pid in player_ids:
-            pid_int = int(pid)
-            if pid_int in overrides:
-                out[pid_int] = int(overrides[pid_int])
+    out: dict[int, int | None] = {}
+    for pid in player_ids:
+        pid_int = int(pid)
+        if overrides and pid_int in overrides:
+            out[pid_int] = int(overrides[pid_int])
+        elif overrides:
+            out[pid_int] = None
+        else:
+            out[pid_int] = finish.get(pid_int)
     return out
 
 

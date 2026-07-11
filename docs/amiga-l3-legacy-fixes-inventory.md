@@ -120,6 +120,17 @@ Access `Scores` sometimes has wrong regulation goals or **NULL `Extra`** when fo
 
 **Note:** Other ET/pens games in the catalog keep Access `Extra` witness text; `backfill-match-extensions` derives structured cols at ops time unless a row lands here. Only add `SCORE_CORRECTIONS` when Access is wrong or silent and evidence is human-verified.
 
+### 5.1 Scores row corrections — wrong player assignment (Milan I)
+
+Access `Scores` sometimes assigns the wrong `Team A` / `Team B` while regulation goals are correct. Import patches teams at L2→L3 (`SCORE_CORRECTIONS`); same pattern as Kristiansand goal fixes.
+
+| `source_scores_id` | `amiga_games.id` | Event | Access | Canonical import | Evidence |
+|--------------------|------------------|-------|--------|------------------|----------|
+| **2421** | 2349 | Milan I Group A Giornata 4 | Gianni T 7–2 **Marco C** | Gianni T 7–2 **Marco M** | [FFZ idd=175](https://web.archive.org/web/20030704044413/http://www.freeforumzone.com/viewmessaggi.aspx?f=3694&idd=175) — forum lists Sandro twice + Marco C twice in Giornata 4 (Gianni absent); 7–2 fits Marco M; Marco C keeps single 0–4 loss on g2357 |
+| **2422** | 2350 | Milan I Group A Giornata 5 | **Gianni T** 0–5 Morris C | **Filippo D** 0–5 Morris C | Same FFZ thread — Giornata 5 Filippo 0–5 Morris; Gianni 0–5 implausible; restores Filippo–Morris pairing (7 gp each) |
+
+**Rationale:** Forum Giornata 4 swapped Gianni↔Sandro in the report; Access/DB already had Gianni right elsewhere but duplicated Gianni–Marco C (g2349 + g2357). Moving g2349 opponent to Marco M yields one game per pair in Group A. Standings points unchanged; L5 rebuild deferred until simul.
+
 ---
 
 ## 6. Player identity merges

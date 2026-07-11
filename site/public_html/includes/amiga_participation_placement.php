@@ -438,8 +438,10 @@ function amiga_participation_derive_event_finish_position(
     $out = [];
     foreach ($playerIds as $playerId) {
         $playerId = (int) $playerId;
-        if (isset($overrides[$playerId])) {
+        if ($overrides !== [] && isset($overrides[$playerId])) {
             $out[$playerId] = (int) $overrides[$playerId];
+        } elseif ($overrides !== []) {
+            $out[$playerId] = null;
         } else {
             $out[$playerId] = $finish[$playerId] ?? null;
         }

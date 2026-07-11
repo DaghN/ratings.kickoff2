@@ -213,6 +213,44 @@ class EventFinishPositionTests(unittest.TestCase):
             5,
         )
 
+    def test_tier_e_sparse_override_nulls_unlisted_entrants(self) -> None:
+        rows = [
+            {"scope_type": "league", "scope_key": "Group A", "player_id": 1, "position": 1},
+            {"scope_type": "league", "scope_key": "Group A", "player_id": 2, "position": 2},
+            {"scope_type": "league", "scope_key": "Group B", "player_id": 3, "position": 1},
+            {"scope_type": "league", "scope_key": "Group B", "player_id": 4, "position": 2},
+        ]
+        finish = derive_event_finish_position(
+            rows,
+            tournament_name="Milan I",
+            has_league=True,
+            has_cup=True,
+            player_ids=[1, 2, 3, 4],
+            overrides={1: 1, 2: 2, 3: 5, 4: 5},
+        )
+        self.assertEqual(finish[1], 1)
+        self.assertEqual(finish[2], 2)
+        self.assertEqual(finish[3], 5)
+        self.assertEqual(finish[4], 5)
+
+    def test_tier_e_sparse_override_nulls_missing_entrants(self) -> None:
+        rows = [
+            {"scope_type": "league", "scope_key": "Group A", "player_id": 1, "position": 1},
+            {"scope_type": "league", "scope_key": "Group A", "player_id": 2, "position": 2},
+            {"scope_type": "league", "scope_key": "Group B", "player_id": 3, "position": 1},
+        ]
+        finish = derive_event_finish_position(
+            rows,
+            tournament_name="Milan I",
+            has_league=True,
+            has_cup=True,
+            player_ids=[1, 2, 3],
+            overrides={1: 1, 2: 2},
+        )
+        self.assertEqual(finish[1], 1)
+        self.assertEqual(finish[2], 2)
+        self.assertIsNone(finish[3])
+
     def test_tier_c_london_xxiii_primary_league(self) -> None:
         rows = [
             {"scope_type": "league", "scope_key": "", "player_id": 73, "position": 1},

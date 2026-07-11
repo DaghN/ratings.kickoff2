@@ -95,7 +95,7 @@ L0 koatd.mdb
 
 | Module | What it does |
 |--------|----------------|
-| [`import_corrections.py`](../scripts/amiga/import_corrections.py) | Known-wrong Access catalog fields — **one row per tournament**, with rationale; **World Cup host city + country** (retire Access `WC` placeholder); **supplemental Scores rows** when Access catalog exists but games are missing; **`SCORE_CORRECTIONS`** when Access Scores regulation/ET/pens is wrong or NULL (forum-verified); **player nationality** when L2 `witness_player_identity` is missing or wrong; **player name spelling aliases** (e.g. Joerg → Jorg) |
+| [`import_corrections.py`](../scripts/amiga/import_corrections.py) | Known-wrong Access catalog fields — **one row per tournament**, with rationale; **World Cup host city + country** (retire Access `WC` placeholder); **supplemental Scores rows** when Access catalog exists but games are missing; **`SCORE_CORRECTIONS`** when Access Scores regulation/ET/pens is wrong or NULL, or **wrong Team A/B** (forum-verified); **player nationality** when L2 `witness_player_identity` is missing or wrong; **player name spelling aliases** (e.g. Joerg → Jorg) |
 
 Add manual overrides only when:
 
@@ -209,6 +209,17 @@ When Access uses an alternate spelling for the same person (not caught by case/s
 | Joerg D | Jorg D | Same player; Access umlaut (oe) spelling |
 | Joerg S | Jorg S | Same player; Access umlaut (oe) spelling |
 | Klaus L | Klaus Le | Same player; shorter surname abbreviation |
+
+### Scores row corrections (manual)
+
+Forum- or witness-verified patches to existing Access `Scores` rows at L2→L3 (`SCORE_CORRECTIONS`). Full inventory: [`amiga-l3-legacy-fixes-inventory.md`](amiga-l3-legacy-fixes-inventory.md) §5.
+
+| `source_scores_id` | Tournament | Access | Canonical import | Reason |
+|--------------------|------------|--------|------------------|--------|
+| **1189** | Kristiansand | Aasmund F–Glenn L `1–1`, Extra NULL | Reg `0–0`; `extra` `(1-0) aet`; ET `1–0` Aasmund | [Forum p=48040](https://ko-gathering.com/forum/viewtopic.php?p=48040#p48040) — reg 1–1 belonged on bronze g1188 |
+| **1188** | Kristiansand | Oskar B–Glenn L `0–0`, Extra NULL | Reg **`1–1`**; `extra` `1-1, (0-0, 7-8 on pens)`; pens 7–8 (Glenn bronze) | Same thread — Access swapped semi/bronze regulation scores |
+| **2421** | Milan (`amiga_games` **2349**) | Gianni T 7–2 **Marco C** | Gianni T 7–2 **Marco M** | [FFZ idd=175](https://web.archive.org/web/20030704044413/http://www.freeforumzone.com/viewmessaggi.aspx?f=3694&idd=175) — Giornata 4 forum typo (Sandro twice, Gianni absent; Marco C twice); 7–2 fits Marco M; Marco C keeps 0–4 on g2357 |
+| **2422** | Milan (`amiga_games` **2350**) | **Gianni T** 0–5 Morris C | **Filippo D** 0–5 Morris C | Same FFZ thread — Giornata 5 Filippo 0–5 Morris; Gianni 0–5 implausible; restores 7 gp each in Group A |
 
 ### World Cup host city + country (manual)
 
