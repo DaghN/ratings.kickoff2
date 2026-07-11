@@ -205,6 +205,102 @@
       "goals_et_a": 1,
       "goals_et_b": 0,
       "note": "Bournemouth II Semi Final; Garry C (A) vs Andy G; post-ET 3-2 Garry advances; Access Scores.Extra verbatim"
+    },
+    "18980": {
+      "verified_at": "2026-07-11",
+      "tournament_id": 503,
+      "extension_kinds": ["et", "pens"],
+      "interpretation": "pens_after_et",
+      "regulation": "0-0",
+      "witness": "(0-0) 0-2 p.k",
+      "goals_et_a": 0,
+      "goals_et_b": 0,
+      "pens_a": 0,
+      "pens_b": 2,
+      "note": "Leicester I QF; John M (A) vs Gary T (B); ET 0-0, pens 0-2 Gary advances; Dagh approved Jul 2026"
+    },
+    "18981": {
+      "verified_at": "2026-07-11",
+      "tournament_id": 503,
+      "extension_kinds": ["et", "pens"],
+      "interpretation": "pens_after_et",
+      "regulation": "0-0",
+      "witness": "(0-0) 1-0 p.k",
+      "goals_et_a": 0,
+      "goals_et_b": 0,
+      "pens_a": 1,
+      "pens_b": 0,
+      "note": "Leicester I QF; Matt B (A) vs Arthur V (B); ET 0-0, pens 1-0 Matt advances; Dagh approved Jul 2026"
+    },
+    "18983": {
+      "verified_at": "2026-07-11",
+      "tournament_id": 503,
+      "extension_kinds": ["et", "pens"],
+      "interpretation": "pens_after_et",
+      "regulation": "0-0",
+      "witness": "(0-0) 2-0 p.k",
+      "goals_et_a": 0,
+      "goals_et_b": 0,
+      "pens_a": 2,
+      "pens_b": 0,
+      "note": "Leicester I SF; Simon H (A) vs Gary T (B); ET 0-0, pens 2-0 Simon advances; Dagh approved Jul 2026"
+    },
+    "17737": {
+      "verified_at": "2026-07-11",
+      "tournament_id": 471,
+      "extension_kinds": ["et"],
+      "interpretation": "et_period_only",
+      "regulation": "0-0",
+      "witness": "1-0 a.e.t.",
+      "goals_et_a": 1,
+      "goals_et_b": 0,
+      "note": "Seeshaupt IV SF; Markus B (A) vs Norbert K; ET 1-0 Markus advances; Dagh approved Jul 2026"
+    },
+    "17739": {
+      "verified_at": "2026-07-11",
+      "tournament_id": 471,
+      "extension_kinds": ["et", "pens"],
+      "interpretation": "pens_after_et",
+      "regulation": "0-0",
+      "witness": "(0-0) 3-0 p.k.",
+      "goals_et_a": 0,
+      "goals_et_b": 0,
+      "pens_a": 3,
+      "pens_b": 0,
+      "note": "Seeshaupt IV 3rd Place Final; Norbert K (A) vs Andreas M; ET 0-0, pens 3-0 Norbert; Dagh approved Jul 2026"
+    },
+    "13079": {
+      "verified_at": "2026-07-11",
+      "tournament_id": 329,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "3-3",
+      "witness": "7-6 e.t.",
+      "goals_et_a": 4,
+      "goals_et_b": 3,
+      "note": "Athens LXI Cup 3rd Place Final; Ektoras K (A) vs Kostas O; post-ET 7-6, ET period 4-3; Access Scores.Extra verbatim; Dagh approved Jul 2026"
+    },
+    "13426": {
+      "verified_at": "2026-07-11",
+      "tournament_id": 341,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "1-1",
+      "witness": "(1-2 a.e.t.)",
+      "goals_et_a": 0,
+      "goals_et_b": 1,
+      "note": "Copenhagen III Cup QF; Torgny A (A) vs Nick P (B); post-ET 1-2, ET period 0-1 Nick advances; Dagh approved Jul 2026"
+    },
+    "13432": {
+      "verified_at": "2026-07-11",
+      "tournament_id": 341,
+      "extension_kinds": ["pens"],
+      "interpretation": "pens_after_reg_draw",
+      "regulation": "4-4",
+      "witness": "(12-13 p.k.)",
+      "pens_a": 12,
+      "pens_b": 13,
+      "note": "Copenhagen III Cup Final; Dagh N (A) vs John H (B); pens 12-13 John champion; Dagh approved Jul 2026"
     }
   }
 }

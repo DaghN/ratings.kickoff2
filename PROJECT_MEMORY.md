@@ -145,6 +145,15 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-11 | **Copenhagen III Cup (341) Tier E fix** — correct player_id mapping; QF losers **=5** (Jacob K / Torgny A / Niki B / Dennis N) · QF Qual. **=9**; refresh snapshots. |
+| 2026-07-11 | **Copenhagen III Cup (341) pure knockout** — 12p play-in; **QF Qualifiers** display; g13426/g13432 SC-11; Tier E **1,2,3,4,5×4,9×4**; `has_league=0` `has_cup=1`. |
+| 2026-07-11 | **Athens LXI Cup (329) pure knockout** — 7p two-leg + bye; g13079 SC-11 post-ET 7-6 (ET 4-3); Tier E **1,2,3,4,5,5,5**; `has_league=0` `has_cup=1`. |
+| 2026-07-11 | **Seeshaupt IV (471) Tier E fix** — 5th/6th swapped to match 5th Place Final (g17738): **5 Herbert K · 6 Martin E**; `refresh-event-finish-snapshots`. |
+| 2026-07-11 | **Seeshaupt IV (471) pure knockout** — 2×3p groups + placement KO; Tier E finish 1–6; g17737/g17739 SC-11; `has_league=1` `has_cup=1`. |
+| 2026-07-11 | **Dudley XX Cup (463) pure knockout** — 4p RR-as-League + KO; Tier E finish 1–4 from Final/3rd; `has_league=1` `has_cup=1`. |
+| 2026-07-11 | **Leicester I (503) pure knockout** — 10p Qualifying Round cup; 3 pens ties SC-11; Tier E **1,2,3,3,5,5,5,5,9,9**; `has_league=0` `has_cup=1`. |
+| 2026-07-11 | **Birmingham XXXV (524) pure knockout** — 4p two-leg; Semi Finals · 3rd · Final; Tier B finish 1–4; `has_league=0` `has_cup=1`. |
+| 2026-07-11 | **Birmingham VIII Gold Cup (316) pure knockout** — 8p; 4× QF · 2× SF · Final; Tier E **1,2,3,3,5,5,5,5**; `has_league=0` `has_cup=1`. |
 | 2026-07-11 | **Birmingham VIII Silver Cup (317) pure knockout** — 7p SF bye Garry C; Tier E **1,2,3,3,5,5,5**; `has_league=0` `has_cup=1`. |
 | 2026-07-11 | **Bournemouth II (544) pure knockout** — 7p; plural QF/SF stage names; Tier E finish **1 Garry C · 2 Dagh N · 3 Andy G · 3 Mark W · 5 Simon K · 5 Steve C · 5 Steve E**; `has_league=0` `has_cup=1`. |
 | 2026-07-11 | **Birmingham XXI Gold Cup (452) pure knockout** — 5 stages / 5g; Tier E finish **1 Jon G · 2 Steve E · 3 Simon K · 3 Steve C · 5 Garry C · 5 Robert S**; `has_league=0` `has_cup=1`. |

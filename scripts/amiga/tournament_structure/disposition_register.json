@@ -1265,8 +1265,8 @@
       "notes": "NULL phase + single round-robin schedule"
     },
     "316": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "8p gold cup; 4\u00d7 QF \u00b7 2\u00d7 SF \u00b7 Final; Tier E 1,2,3,3,5,5,5,5"
     },
     "317": {
       "handler": "pure_knockout",
@@ -1317,8 +1317,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "329": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "7p two-leg cup + bye; 3rd Place Final; g13079 post-ET 7-6 (ET 4-3); finish 1\u20134 + =5"
     },
     "330": {
       "handler": "pure_rr",
@@ -1365,8 +1365,8 @@
       "notes": "NULL phase + single round-robin schedule"
     },
     "341": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "12p play-in cup; witness Round 1 \u2192 display QF Qualifiers; g13426 AET; g13432 pens 12-13; finish 1\u20134 + =5 + =9"
     },
     "342": {
       "handler": "pure_rr",
@@ -1853,8 +1853,8 @@
       "notes": "NULL phase + 3\u00d7 round-robin schedule"
     },
     "463": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "4p cup; witness Round 1 = double RR \u2192 display League; SF \u00b7 3rd \u00b7 Final; finish 1\u20134 from podium ties"
     },
     "464": {
       "handler": "pure_rr",
@@ -1885,8 +1885,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "471": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "6p; 2\u00d73 group RR \u2192 Round 1 - Group A/B; placement KO incl. 5th; g17737 ET; g17739 pens; finish 1\u20136"
     },
     "472": {
       "handler": "pure_rr",
@@ -2013,8 +2013,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "503": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "10p cup; Qualifying Round \u00b7 QF \u00b7 SF \u00b7 Final; 3 pens ties; Tier E 1,2,3,3,5,5,5,5,9,9"
     },
     "504": {
       "handler": "pure_rr",
@@ -2097,8 +2097,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "524": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_knockout",
+      "notes": "4p two-leg cup; Semi Finals \u00b7 3rd Place Final \u00b7 Final; 8g"
     },
     "525": {
       "handler": "pure_rr",

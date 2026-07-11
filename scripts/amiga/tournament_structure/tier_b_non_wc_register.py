@@ -33,7 +33,6 @@ NON_WC_ORIGINAL_STRUCTURE_REVIEW_IDS: frozenset[int] = frozenset({
     440,  # Frankfurt II — Gold Cup / Silver Cup (event-wide labels, not groups)
     477,  # Osnabruck II — Fun Cup
     496,  # Rodenbach I — Fun Cup
-    503,  # Leicester I — Qualifying Round
     591,  # Amsterdam I — multi parallel cup tracks (bronze/silver/clogs)
     592,  # Athens LXXXV — 66 NULL + 12 labeled (mixed provenance)
 })
@@ -47,17 +46,11 @@ NON_WC_SLICE6_CUP_REVIEW_IDS: frozenset[int] = frozenset({
     189,  # Manchester II Cup — 15p bye; Round 1 → league
     192,  # Hertford V Cup — extra Round 1 games
     248,  # Athens XXXVIII Cup — not n-1
-    316,  # Birmingham VIII Gold — Round 1 → league despite 8p/7g
-    329,  # Athens LXI Cup — placement
     338,  # Seeshaupt II — multi-game Round 1
-    341,  # Copenhagen III Cup — Round 1 league
     345,  # Voitsberg I — 5-player oddity
-    463,  # Dudley XX Cup — extra games
     465,  # Wiesbaden XII — groups + gold/silver
-    471,  # Seeshaupt IV — extra games
     518,  # Seeshaupt V — groups
     521,  # Oldenburg II — full group cup + many placement finals
-    524,  # Birmingham XXXV — extra games
     553,  # Hanau III — placement marathon
     570,  # Volkenrath IV — Round 1 league + Places 5-8
 })
