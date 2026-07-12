@@ -145,6 +145,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-12 | **Hamburg V (409) structure spec** — 12p **League** + **Fun Cup** + placement KO 1–8; Tom S withdrew (9); Tier E **1–12**; `has_league=1` `has_cup=1`. |
 | 2026-07-12 | **Osnabruck II (477) structure spec** — 9p **League** + **Fun Cup** + 2-leg KO; Tier E **1–9**; `has_league=1` `has_cup=1`. |
 | 2026-07-12 | **Rodenbach I (496) structure spec** — 12p **League** + **Fun Cup** (6p RR) + **Round 2** (3 KO seeding ties — not QF) + main KO; Tier E **1–12**; `has_league=1` `has_cup=1`. |
 | 2026-07-12 | **Slice-6 cup finish audit (75/158/171/189/192/604)** — five cups Tier A OK; **171 Copenhagen** fixed (g6716 AET → Tier E full ladder 1–8, SC-11 g6716); review queue Tier lines added. |

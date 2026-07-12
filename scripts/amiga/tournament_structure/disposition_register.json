@@ -1637,8 +1637,8 @@
       "notes": "NULL phase + single round-robin schedule"
     },
     "409": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "12p League (66g) + Fun Cup (3p dRR) + full placement KO 1\u20138; Tom S withdrew (9); Jul 2026 materialize; Tier E 1\u201312"
     },
     "410": {
       "handler": "pure_rr",

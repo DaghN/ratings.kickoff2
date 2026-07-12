@@ -27,7 +27,6 @@ DEFERRED_WORLD_CUP_TOURNAMENT_IDS: frozenset[int] = frozenset({
 # Original slice 6b manual review (pre–cup-audit curation).
 NON_WC_ORIGINAL_STRUCTURE_REVIEW_IDS: frozenset[int] = frozenset({
     352,  # Wiesbaden V — Playout Group
-    409,  # Hamburg V — Fun Cup
     440,  # Frankfurt II — Gold Cup / Silver Cup (event-wide labels, not groups)
     591,  # Amsterdam I — multi parallel cup tracks (bronze/silver/clogs)
     592,  # Athens LXXXV — 66 NULL + 12 labeled (mixed provenance)
