@@ -153,6 +153,27 @@ class MaterializeLegacyTests(unittest.TestCase):
         ]
         self.assertFalse(_force_ok_incomplete_null_rr(games))
 
+    def test_force_ok_pairing_coverage_double_rr_withdrawals(self) -> None:
+        # 7p: 14 pairings ×3 + 7 pairings ×2 = 56g; spread ≤4 (Ostersund VI / id 323)
+        players = [1, 2, 3, 4, 5, 6, 7]
+        two_meeting_pairs = {
+            (1, 6),
+            (2, 6),
+            (3, 7),
+            (4, 7),
+            (5, 6),
+            (6, 7),
+            (1, 7),
+        }
+        games = []
+        for i, a in enumerate(players):
+            for b in players[i + 1 :]:
+                n = 2 if (a, b) in two_meeting_pairs else 3
+                for _ in range(n):
+                    games.append({"player_a_id": a, "player_b_id": b})
+        self.assertEqual(len(games), 56)
+        self.assertTrue(_force_ok_incomplete_null_rr(games))
+
     def test_null_phase_cup_needs_review(self) -> None:
         # 6 players, 6 games — Athens IV pattern; not auto-classifiable
         games = [

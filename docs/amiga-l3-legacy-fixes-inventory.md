@@ -73,12 +73,17 @@ Scores rows that still use the bare `World Cup N` string are aliased to the suff
 
 ## 3. Tournament catalog splits (one Access row, two real events)
 
-When Access has one `[Tournament players]` row but Scores uses a **second tournament label** for a side competition, import **appends** a synthetic catalog child (reserved `source_id` ≥ 900,000,000). Never inserted in the middle of the catalog.
+When Access has one `[Tournament players]` row but the evening had **two real competitions**, import **appends** a synthetic catalog child (reserved `source_id` ≥ 900,000,000). Never inserted in the middle of the catalog.
+
+**Variant A — separate Scores label** (Groningen, Gloucester): second `Scores.Tournament` string routes to the child catalog name via `IMPORT_CATALOG_SPLITS`.
+
+**Variant B — same Scores label, game partition** (Hertford IV): all games share one `Scores.Tournament` string; cup rows route by `source_scores_id` via `SCORE_TOURNAMENT_PARTITION` in `import_corrections.py`.
 
 | New tournament | Parent | What was wrong in Access |
 |----------------|--------|--------------------------|
 | **Groningen VII Cup** | Groningen VII (id 48) | One catalog row for Groningen VII (2002-07-13); 14 cup games under a separate Scores label (Round 1 / Semi Final / Final). Child appends as id **604**. |
 | **Gloucester III Team** | Gloucester III (id 62) | One catalog row for Gloucester III (10 players, 2002-10-12); 10 extra games under `Gloucester III Team` after the 90-game double round-robin (Scores IDs 1411–1420). Child appends as id **605**. |
+| **Hertford IV Cup** | Hertford IV (id 187) | One catalog row for Hertford IV (2006-07-21); forum documents 24g 4× RR league + 4g KO cup same evening under one Scores label. Cup games partition by ssid **7579–7582**; league **7555–7578** stays on parent. Child appends as id **606**. Forum: [t=12376](https://ko-gathering.com/forum/viewtopic.php?t=12376). |
 
 ---
 

@@ -39,6 +39,8 @@ _KOA_ROUND_GROUP_RE = re.compile(
 _PLACES_RE = re.compile(r"^Places\s+(\d+(?:-\d+)?)$", re.IGNORECASE)
 _PLAYOUTS_BAND_RE = re.compile(r"^Playouts\s+(?:\d+(?:-\d+)?|Group)$", re.IGNORECASE)
 _PLACE_FINAL_RE = re.compile(r"^\d+(?:st|nd|rd|th)\s+Place\s+Finals?$", re.IGNORECASE)
+# Cologne I witness: ``Place 15 Final`` (rank after "Place", not ordinal prefix).
+_PLACE_N_FINAL_RE = re.compile(r"^Place\s+(\d+)\s+Final$", re.IGNORECASE)
 _PLAY_OUTS_RE = re.compile(r"^play\s+outs?$", re.IGNORECASE)
 _KNOCKOUT_LABELS = frozenset(
     {
@@ -61,6 +63,12 @@ _QUARTER_SEMI_FINAL_RE = re.compile(r"^(?:quarter|semi)[\s-]finals?$", re.IGNORE
 
 def _normalize_whitespace(label: str) -> str:
     return re.sub(r"\s+", " ", label.strip())
+
+
+def _ordinal_suffix(n: int) -> str:
+    if 11 <= (n % 100) <= 13:
+        return "th"
+    return {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
 
 
 def _canonical_group_key(prefix: str | None, group: str) -> str:
@@ -90,6 +98,8 @@ def is_knockout_phase(phase: str | None) -> bool:
         return True
     if _PLACE_FINAL_RE.match(label):
         return True
+    if _PLACE_N_FINAL_RE.match(label):
+        return True
     return False
 
 
@@ -107,6 +117,10 @@ def _canonical_knockout_scope_key(label: str) -> str:
     m = re.match(r"^(\d+(?:st|nd|rd|th))\s+Place\s+Finals$", label, re.IGNORECASE)
     if m:
         return f"{m.group(1)} Place Final"
+    m2 = _PLACE_N_FINAL_RE.match(label)
+    if m2:
+        n = int(m2.group(1))
+        return f"{n}{_ordinal_suffix(n)} Place Final"
     return label
 
 

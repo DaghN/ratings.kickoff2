@@ -144,7 +144,25 @@ IMPORT_CATALOG_SPLITS: tuple[CatalogSplit, ...] = (
         is_cup=False,
         player_count=10,
     ),
+    CatalogSplit(
+        name="Hertford IV Cup",
+        parent_name="Hertford IV",
+        source_id=900_000_003,
+        chrono_offset=0.5,
+        is_cup=True,
+        player_count=4,
+    ),
 )
+
+# Same Access Scores.Tournament label; route individual games by source_scores_id (Access Scores.ID).
+SCORE_TOURNAMENT_PARTITION: dict[str, dict[int, str]] = {
+    "Hertford IV": {
+        7579: "Hertford IV Cup",
+        7580: "Hertford IV Cup",
+        7581: "Hertford IV Cup",
+        7582: "Hertford IV Cup",
+    },
+}
 
 CATALOG_SPLIT_RATIONALE: dict[str, str] = {
     "Groningen VII Cup": (
@@ -157,7 +175,21 @@ CATALOG_SPLIT_RATIONALE: dict[str, str] = {
         "but Scores uses label Gloucester III Team for 10 additional games (IDs contiguous "
         "after the 90-game double round-robin). Split via synthetic catalog row; main keeps id 62."
     ),
+    "Hertford IV Cup": (
+        "Access [Tournament players] has one row for Hertford IV (2006-07-21) but the forum "
+        "documents a same-evening league (24g 4× RR) and cup (4g KO). Scores uses one label for "
+        "all 28 games; cup rows partition by source_scores_id 7579–7582. Forum: "
+        "https://ko-gathering.com/forum/viewtopic.php?t=12376"
+    ),
 }
+
+
+def resolve_score_tournament_partition(parent_name: str, source_scores_id: int) -> str:
+    """Route a Scores row to a child catalog when same-label partition applies."""
+    child_map = SCORE_TOURNAMENT_PARTITION.get(parent_name)
+    if child_map is None:
+        return parent_name
+    return child_map.get(source_scores_id, parent_name)
 
 
 @dataclass(frozen=True)
@@ -426,26 +458,45 @@ def apply_catalog_split_format_overrides(
     applied: list[dict[str, str | bool]] = []
     for split in IMPORT_CATALOG_SPLITS:
         inf = format_by_name.get(split.name)
-        if inf is None:
-            continue
-        has_league = not split.is_cup
-        has_cup = split.is_cup
-        if inf.has_league == has_league and inf.has_cup == has_cup:
-            continue
-        format_by_name[split.name] = TournamentFormatInference(
-            has_league=has_league,
-            has_cup=has_cup,
-            game_count=inf.game_count,
-        )
-        applied.append(
-            {
-                "tournament": split.name,
-                "from_league": inf.has_league,
-                "from_cup": inf.has_cup,
-                "to_league": has_league,
-                "to_cup": has_cup,
-            }
-        )
+        if inf is not None:
+            has_league = not split.is_cup
+            has_cup = split.is_cup
+            if inf.has_league != has_league or inf.has_cup != has_cup:
+                format_by_name[split.name] = TournamentFormatInference(
+                    has_league=has_league,
+                    has_cup=has_cup,
+                    game_count=inf.game_count,
+                )
+                applied.append(
+                    {
+                        "tournament": split.name,
+                        "from_league": inf.has_league,
+                        "from_cup": inf.has_cup,
+                        "to_league": has_league,
+                        "to_cup": has_cup,
+                    }
+                )
+
+        if split.parent_name in SCORE_TOURNAMENT_PARTITION and split.is_cup:
+            parent_inf = format_by_name.get(split.parent_name)
+            if parent_inf is not None:
+                has_league = True
+                has_cup = False
+                if parent_inf.has_league != has_league or parent_inf.has_cup != has_cup:
+                    format_by_name[split.parent_name] = TournamentFormatInference(
+                        has_league=has_league,
+                        has_cup=has_cup,
+                        game_count=parent_inf.game_count,
+                    )
+                    applied.append(
+                        {
+                            "tournament": split.parent_name,
+                            "from_league": parent_inf.has_league,
+                            "from_cup": parent_inf.has_cup,
+                            "to_league": has_league,
+                            "to_cup": has_cup,
+                        }
+                    )
     return applied
 
 

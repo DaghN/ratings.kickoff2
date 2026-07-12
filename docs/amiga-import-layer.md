@@ -262,14 +262,25 @@ Supplemental rows use reserved `source_scores_id` ≥ `500_000_000` (see `IMPORT
 
 ### Catalog splits (manual, append-only)
 
-When Access has one `[Tournament players]` row but Scores uses a separate `Tournament` label for a second competition, add an `IMPORT_CATALOG_SPLITS` entry in `import_corrections.py`. Import **appends** the synthetic row at the end of the catalog insert (MySQL id **604+** after Jun 2026 bootstrap); never insert in the middle. Remove the merge alias from `tournament_names.py` so Scores route to the new catalog name.
+When Access has one `[Tournament players]` row but the evening had two real competitions, add an `IMPORT_CATALOG_SPLITS` entry in `import_corrections.py`. Import **appends** the synthetic row at the end of the catalog insert (MySQL id **604+** after Jun 2026 bootstrap); never insert in the middle. For **separate Scores labels**, remove the merge alias from `tournament_names.py` so Scores route to the new catalog name. For **same Scores label** splits, also add `SCORE_TOURNAMENT_PARTITION` (see below).
 
 | Tournament | Parent | `source_id` | Reason |
 |------------|--------|-------------|--------|
 | Groningen VII Cup | Groningen VII (id **48**) | `900_000_001` | Access catalog row only for main event; 14 cup games under separate Scores label (2002-07-13). Child appends as id **604**. |
 | Gloucester III Team | Gloucester III (id **62**) | `900_000_002` | Same-day 10-player event; 90g double RR on parent label + 10g under Team label (Scores IDs 1411–1420). Child appends as id **605**. |
+| Hertford IV Cup | Hertford IV (id **187**) | `900_000_003` | Same Scores label for 28g (24g league + 4g cup); cup ssid **7579–7582** partition to child. Child appends as id **606**. Forum [t=12376](https://ko-gathering.com/forum/viewtopic.php?t=12376). |
 
 Synthetic catalog rows use reserved `tournaments.source_id` ≥ `900_000_000` (see `IMPORT_CATALOG_SPLIT_SOURCE_ID_BASE`).
+
+### Same-label game partition (manual)
+
+When Access uses **one** `Scores.Tournament` string for league + cup games, add `SCORE_TOURNAMENT_PARTITION` in `import_corrections.py`. Keys are Access `Scores.ID` (`source_scores_id`); values are the child catalog name from `IMPORT_CATALOG_SPLITS`. `import_access.py` calls `resolve_score_tournament_partition()` in the game insert loop after `resolve_tournament_name()`.
+
+| Parent label | Partitioned ssids → child |
+|--------------|---------------------------|
+| Hertford IV | **7579, 7580, 7581, 7582** → Hertford IV Cup |
+
+`apply_catalog_split_format_overrides()` forces parent league-only and child cup-only when the parent appears in `SCORE_TOURNAMENT_PARTITION`.
 
 ### Scores tournament aliases (automatic)
 

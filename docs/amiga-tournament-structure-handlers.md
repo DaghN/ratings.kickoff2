@@ -101,7 +101,7 @@ Overwrite bootstrap boilerplate when promoting from `pending_review`.
 
 **Slice 6a** — `materialize` **refuses** ids listed in `tier_b_non_wc_register.py` until witness `g.phase` labels parse as knockout/league correctly.
 
-**Jul 2026 shipped (partial):** Play Outs · Finals (plural → Final scope key) · Nth Place Finals (singular/plural); PHP parity in `amiga_tournament_phases.php`; legacy materialize sets **`phase_label = NULL`** on KO fixtures so finish reads `tournament_stages.name`. Graduated: **145**, **166**. Still blocked: **48**, **152**, **198**, **267**, **269**, **284**.
+**Jul 2026 shipped (partial):** Play Outs · Finals (plural → Final scope key) · Nth Place Finals (singular/plural) · **`Place N Final`** (Cologne witness, e.g. `Place 15 Final`); PHP parity in `amiga_tournament_phases.php`; legacy materialize sets **`phase_label = NULL`** on KO fixtures so finish reads `tournament_stages.name`. Graduated: **145**, **166**, **269**. Still blocked: **48**, **152**, **198**, **267**, **284**.
 
 After parser fix: remove id from frozenset → manual materialize per [runbook](amiga-tournament-structure-manual-materialize-runbook.md) → log in [review queue](amiga-tournament-structure-review-queue.md).
 

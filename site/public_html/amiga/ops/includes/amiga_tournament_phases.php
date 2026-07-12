@@ -57,6 +57,9 @@ function amiga_ops_is_knockout_phase(?string $phase): bool
     if (preg_match('/^\d+(?:st|nd|rd|th)\s+Place\s+Finals?$/i', $label) === 1) {
         return true;
     }
+    if (preg_match('/^Place\s+\d+\s+Final$/i', $label) === 1) {
+        return true;
+    }
 
     return false;
 }
@@ -89,6 +92,22 @@ function amiga_ops_canonical_knockout_scope_key(string $label): string
     }
     if (preg_match('/^(\d+(?:st|nd|rd|th))\s+Place\s+Finals$/i', $label, $m) === 1) {
         return $m[1] . ' Place Final';
+    }
+    if (preg_match('/^Place\s+(\d+)\s+Final$/i', $label, $m2) === 1) {
+        $n = (int) $m2[1];
+        $mod100 = $n % 100;
+        if ($mod100 >= 11 && $mod100 <= 13) {
+            $suffix = 'th';
+        } else {
+            $suffix = match ($n % 10) {
+                1 => 'st',
+                2 => 'nd',
+                3 => 'rd',
+                default => 'th',
+            };
+        }
+
+        return $n . $suffix . ' Place Final';
     }
 
     return $label;

@@ -145,6 +145,11 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-12 | **Cologne I (269) materialize** — 25p German Open; parser `Place N Final`; R1 Group A/B split + R2 KO ties; 36 stages / 245g; Tier E ladder 1–25 (Gianni T champion); work DB only. |
+| 2026-07-12 | **Ostersund VI (323) materialize** — 7p incomplete double-RR **League** (56g); Bjorn P + Kent H withdrew; forum t=14454; `player_count` 5→7; pairing-coverage `--force` guard; Tier B **1 John H (17-0-0) · 2 Jacob K · … · 7 Kent H**; work DB only. |
+| 2026-07-12 | **Gloucester III Team (605) materialize** — 10 KO stages (Match 1–10); 5v5 team tie; Tier E sparse sentinel → all participants NULL finish (no individual podium). |
+| 2026-07-12 | **Hertford IV split shipped (work DB)** — **187** 24g league + child **606** 4g cup (ssid 7579–7582); simul; materialize; `IMPORT_CATALOG_SPLITS` + `SCORE_TOURNAMENT_PARTITION`; disposition + inventory updated. |
+| 2026-07-12 | **Hertford IV (187) split plan** — league 24g + cup 4g → child **606**; implementation plan + starter prompt; execution pending. |
 | 2026-07-12 | **Grimstad II (108) materialize** — 5p near-double-RR **League** (G E Land–Kjetil M 3×); Tier C **1–5**; forum t=6550; work DB only. |
 | 2026-07-12 | **Duesseldorf V (416) materialize** — 4p triple-RR **League** after g15981 ground fix; Tier C **1–4**; cleared `STRUCTURE_REVIEW` audit flag; work DB only. |
 | 2026-07-12 | **Duesseldorf V (416) L3 ground fix** — `SCORE_CORRECTIONS` g15981 (Access): Frederic B 3–2 Volker B not Cornelius H; work `amiga_games` g15974 patched; inventory §5.1. |

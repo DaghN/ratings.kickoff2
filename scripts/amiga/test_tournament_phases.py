@@ -65,6 +65,15 @@ class KnockoutPhaseDetectionTests(unittest.TestCase):
         self.assertEqual(scope.scope_type, ScopeType.KNOCKOUT)
         self.assertEqual(scope.scope_key, "Semi-Final")
 
+    def test_place_n_final_cologne_witness(self) -> None:
+        """Cologne I (269): ``Place 15 Final`` not ``15th Place Final``."""
+        self.assertTrue(is_knockout_phase("Place 15 Final"))
+        scope = parse_phase("Place 5 Final")
+        self.assertEqual(scope.scope_type, ScopeType.KNOCKOUT)
+        self.assertEqual(scope.scope_key, "5th Place Final")
+        scope24 = parse_phase("Place 24 Final")
+        self.assertEqual(scope24.scope_key, "24th Place Final")
+
 
 if __name__ == "__main__":
     unittest.main()

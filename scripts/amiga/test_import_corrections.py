@@ -19,12 +19,48 @@ from scripts.amiga.import_corrections import (
     apply_score_corrections,
     catalog_name_after_corrections,
     catalog_splits_manifest,
+    resolve_score_tournament_partition,
     supplemental_scores_manifest,
     world_cup_catalog_name,
 )
 
 
 class ImportCorrectionsTests(unittest.TestCase):
+    @staticmethod
+    def _catalog_parents_for_all_splits() -> list[dict]:
+        return [
+            {
+                "name": "Groningen VII",
+                "source_id": 23,
+                "chrono": 23.0,
+                "event_date": None,
+                "is_cup": True,
+                "country": "Netherlands",
+                "equal_teams": False,
+                "player_count": 9,
+            },
+            {
+                "name": "Gloucester III",
+                "source_id": 62,
+                "chrono": 37.0,
+                "event_date": None,
+                "is_cup": False,
+                "country": "England",
+                "equal_teams": False,
+                "player_count": 10,
+            },
+            {
+                "name": "Hertford IV",
+                "source_id": 165,
+                "chrono": 154.0,
+                "event_date": None,
+                "is_cup": False,
+                "country": "England",
+                "equal_teams": True,
+                "player_count": 4,
+            },
+        ]
+
     def test_rodenbach_ii_is_complete_round_robin(self) -> None:
         players = {"Frank F", "Horst L", "Joerg D", "Jan K", "Thorsten B"}
         pairs: set[tuple[str, str]] = set()
@@ -87,27 +123,15 @@ class ImportCorrectionsTests(unittest.TestCase):
         )
 
     def test_catalog_split_appends_synthetic_row(self) -> None:
-        tournaments = [
-            {
-                "name": "Groningen VII",
-                "source_id": 23,
-                "chrono": 23.0,
-                "event_date": None,
-                "is_cup": True,
-                "country": "Netherlands",
-                "equal_teams": False,
-                "player_count": 9,
-            }
-        ]
+        tournaments = self._catalog_parents_for_all_splits()
         applied = apply_catalog_splits(tournaments)
-        self.assertEqual(len(tournaments), 2)
-        cup = tournaments[1]
-        self.assertEqual(cup["name"], "Groningen VII Cup")
+        self.assertEqual(len(tournaments), 6)
+        cup = next(t for t in tournaments if t["name"] == "Groningen VII Cup")
         self.assertEqual(cup["source_id"], IMPORT_CATALOG_SPLIT_SOURCE_ID_BASE + 1)
         self.assertEqual(cup["chrono"], 23.5)
         self.assertTrue(cup["is_cup"])
         self.assertEqual(cup["player_count"], 8)
-        self.assertEqual(len(applied), 1)
+        self.assertEqual(len(applied), 3)
         manifest = catalog_splits_manifest()
         self.assertEqual(manifest[0]["tournament"], "Groningen VII Cup")
 
@@ -133,6 +157,56 @@ class ImportCorrectionsTests(unittest.TestCase):
         self.assertFalse(team.has_cup)
         self.assertEqual(len(applied), 1)
         self.assertEqual(applied[0]["tournament"], "Groningen VII Cup")
+
+    def test_hertford_iv_catalog_split_appends_child(self) -> None:
+        tournaments = self._catalog_parents_for_all_splits()
+        applied = apply_catalog_splits(tournaments)
+        cup = next(t for t in tournaments if t["name"] == "Hertford IV Cup")
+        self.assertEqual(cup["source_id"], IMPORT_CATALOG_SPLIT_SOURCE_ID_BASE + 3)
+        self.assertEqual(cup["chrono"], 154.5)
+        self.assertTrue(cup["is_cup"])
+        self.assertEqual(cup["player_count"], 4)
+        self.assertEqual(len(applied), 3)
+        manifest = catalog_splits_manifest()
+        hertford = next(m for m in manifest if m["tournament"] == "Hertford IV Cup")
+        self.assertEqual(hertford["parent"], "Hertford IV")
+        self.assertEqual(hertford["source_id"], IMPORT_CATALOG_SPLIT_SOURCE_ID_BASE + 3)
+
+    def test_hertford_iv_score_partition_routes_cup_ssids(self) -> None:
+        for ssid in (7579, 7580, 7581, 7582):
+            self.assertEqual(
+                resolve_score_tournament_partition("Hertford IV", ssid),
+                "Hertford IV Cup",
+            )
+        for ssid in (7555, 7570, 7578):
+            self.assertEqual(
+                resolve_score_tournament_partition("Hertford IV", ssid),
+                "Hertford IV",
+            )
+        self.assertEqual(resolve_score_tournament_partition("Other", 7579), "Other")
+
+    def test_hertford_iv_format_overrides_league_and_cup_only(self) -> None:
+        format_by_name = {
+            "Hertford IV": TournamentFormatInference(
+                has_league=False,
+                has_cup=True,
+                game_count=28,
+            ),
+            "Hertford IV Cup": TournamentFormatInference(
+                has_league=True,
+                has_cup=True,
+                game_count=0,
+            ),
+        }
+        applied = apply_catalog_split_format_overrides(format_by_name)
+        parent = format_by_name["Hertford IV"]
+        cup = format_by_name["Hertford IV Cup"]
+        self.assertTrue(parent.has_league)
+        self.assertFalse(parent.has_cup)
+        self.assertFalse(cup.has_league)
+        self.assertTrue(cup.has_cup)
+        changed = {entry["tournament"] for entry in applied}
+        self.assertEqual(changed, {"Hertford IV", "Hertford IV Cup"})
 
     def test_kristiansand_score_corrections(self) -> None:
         scores = [

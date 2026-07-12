@@ -749,8 +749,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "187": {
-      "handler": "pending_review",
-      "notes": "Split deferred (import not yet): merged 28g = 24g 4\u00d7 RR league + 4g cup (g7579, 7567, 7563, 7582); Access single Scores label \u2014 needs game-level partition like Groningen 604. Forum: https://ko-gathering.com/forum/viewtopic.php?t=12376"
+      "handler": "pure_rr",
+      "notes": "4p 4\u00d7 RR league (24g ssid 7555\u20137578); cup split to id 606 (ssid 7579\u20137582). Forum: https://ko-gathering.com/forum/viewtopic.php?t=12376. Jul 2026: work DB split + simul + materialize League."
     },
     "188": {
       "handler": "pure_rr",
@@ -1078,7 +1078,7 @@
     },
     "269": {
       "handler": "structure_spec",
-      "notes": "25p; multi-group RR (R1 144g) + Playouts + R2 (16g) + full placement KO through 24th (g10578\u201310822)."
+      "notes": "25p R1 Group A/B (12+13) + Playouts 9p + R2 8 ties + placement KO through 24th; Jul 2026 materialized"
     },
     "270": {
       "handler": "pure_rr",
@@ -1293,8 +1293,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "323": {
-      "handler": "pending_review",
-      "notes": "C: NULL phase + not complete RR (needs_structure_review)"
+      "handler": "pure_rr",
+      "notes": "7p incomplete double-RR League (56g); Bjorn P + Kent H withdrew early; forum t=14454; John H perfect 17-0-0"
     },
     "324": {
       "handler": "pure_rr",
@@ -2421,8 +2421,12 @@
       "notes": "8p single-elim 2-leg cup; import split from Groningen VII (48); Jul 2026 materialize"
     },
     "605": {
-      "handler": "pending_review",
-      "notes": "Import split: Gloucester III Team (10g); Scores-only catalog"
+      "handler": "pure_knockout",
+      "notes": "10g 5v5 team tie (2 rounds \u00d7 5 cross-team matches); import split from Gloucester III (62). Jul 2026: materialize-pure-knockout --force \u2192 10 KO stages (Match 1\u201310); Tier E sparse sentinel (non-entrant override) \u2192 all participants event_finish_position NULL."
+    },
+    "606": {
+      "handler": "pure_knockout",
+      "notes": "4p same-evening cup (4g ssid 7579\u20137582); import split from Hertford IV (187) via SCORE_TOURNAMENT_PARTITION. Forum t=12376. Jul 2026: work DB split + simul + materialize-pure-knockout."
     }
   }
 }

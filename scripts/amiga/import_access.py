@@ -28,6 +28,7 @@ from scripts.amiga.import_corrections import (
     apply_player_country_corrections,
     apply_score_corrections,
     catalog_splits_manifest,
+    resolve_score_tournament_partition,
     supplemental_scores_manifest,
 )
 from scripts.amiga.import_country_registry import (
@@ -489,7 +490,8 @@ def persist_witness_to_mysql(
     game_rows: list[dict] = []
     for s in prepared.scores_sorted:
         parent = resolve_tournament_name(s.raw_tournament)
-        meta = prepared.tour_by_name[parent]
+        catalog_name = resolve_score_tournament_partition(parent, s.source_id)
+        meta = prepared.tour_by_name[catalog_name]
         ev = meta["event_date"]
         base_day = ev.date() if isinstance(ev, datetime) else ev
         if base_day is None:
@@ -504,7 +506,7 @@ def persist_witness_to_mysql(
                 "game_date": game_dt.strftime("%Y-%m-%d %H:%M:%S"),
                 "player_a_id": player_id[s.team_a],
                 "player_b_id": player_id[s.team_b],
-                "tournament_id": tour_id_by_name[parent],
+                "tournament_id": tour_id_by_name[catalog_name],
                 "phase": phase,
                 "goals_a": s.goals_a,
                 "goals_b": s.goals_b,

@@ -133,11 +133,36 @@ def _missing_single_rr_pairings(games: list[dict[str, Any]]) -> set[tuple[int, i
     return expected - played
 
 
+def _pairing_coverage_complete(
+    games: list[dict[str, Any]],
+    *,
+    min_meetings: int = 1,
+) -> bool:
+    """True when every distinct-player pairing meets at least ``min_meetings`` times."""
+    players = sorted(_distinct_player_ids(games))
+    if len(players) < 2:
+        return False
+    meetings: dict[tuple[int, int], int] = {}
+    for game in games:
+        a, b = int(game["player_a_id"]), int(game["player_b_id"])
+        key = (min(a, b), max(a, b))
+        meetings[key] = meetings.get(key, 0) + 1
+    for i, a in enumerate(players):
+        for b in players[i + 1 :]:
+            if meetings.get((a, b), 0) < min_meetings:
+                return False
+    return True
+
+
 def _force_ok_incomplete_null_rr(games: list[dict[str, Any]]) -> bool:
     """Human --force guard for near-complete NULL-phase RR (policy T11)."""
     counts = _player_game_counts(games)
     spread = max(counts.values()) - min(counts.values())
     if spread <= 1:
+        return True
+    if spread <= 4 and _pairing_coverage_complete(games, min_meetings=2):
+        # Uneven leg counts / multiple early exits but every pairing played ≥2×
+        # (e.g. Ostersund VI 323 — forum: 7p, two withdrew remaining games).
         return True
     if spread != 2:
         return False
