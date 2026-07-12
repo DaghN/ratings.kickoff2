@@ -403,7 +403,7 @@ $k2TournamentHeroSummary = [
     'name' => $tName,
     'country' => trim((string) ($tournament['country'] ?? '')),
     'event_date' => $tournament['event_date'] ?? null,
-    'player_count' => (int) ($tournament['player_count'] ?? 0),
+    'player_count' => amiga_tournament_participant_count($con, $id),
     'game_count' => $tournamentGameCount,
 ];
 $k2TournamentHeroWinner = $tournamentWinner;

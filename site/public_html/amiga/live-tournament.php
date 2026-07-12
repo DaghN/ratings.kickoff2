@@ -53,6 +53,7 @@ if ($knockoutScopes !== []) {
 }
 $fixtureGroups = amiga_live_tournament_fixture_groups($con, $id);
 $liveGameCount = amiga_tournament_game_count($con, $id);
+$liveParticipantCount = amiga_tournament_participant_count($con, $id);
 mysqli_close($con);
 
 $k2AmigaHubTabActive = 'live-tournaments';
@@ -65,7 +66,7 @@ $k2TournamentHeroSummary = [
     'name' => $tName,
     'country' => trim((string) ($tournament['country'] ?? '')),
     'event_date' => $tournament['event_date'] ?? null,
-    'player_count' => (int) ($tournament['player_count'] ?? 0),
+    'player_count' => $liveParticipantCount,
     'game_count' => $liveGameCount,
 ];
 $k2TournamentHeroWinner = null;

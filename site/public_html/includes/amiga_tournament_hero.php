@@ -2,7 +2,8 @@
 /**
  * Tournament entity hero — feast grid matching country hero (flag left, name + stats right).
  *
- * Expects $k2TournamentHeroSummary (id, name, country, event_date, player_count, game_count)
+ * Expects $k2TournamentHeroSummary (id, name, country, event_date, player_count, game_count).
+ * player_count = derived participant count (amiga_tournament_participant_count), not Access catalog witness.
  * and optional $k2TournamentHeroWinner (player_id, player_name, player_country).
  * Optional $k2TournamentHeroBadges — list of plain-text badge labels (live view).
  */

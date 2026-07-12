@@ -991,6 +991,99 @@ function amiga_tournament_videos_url(
     return $url;
 }
 
+/**
+ * Product participant count for tournament hero / summary (not Access catalog witness).
+ *
+ * Live ops: registered tournament_entrants (or stage players when entrants empty).
+ * Historical: standing_players → event snapshots → distinct game participants.
+ */
+function amiga_tournament_participant_count(mysqli $con, int $tournamentId): int
+{
+    static $cache = [];
+    if ($tournamentId < 1) {
+        return 0;
+    }
+    if (isset($cache[$tournamentId])) {
+        return $cache[$tournamentId];
+    }
+
+    $liveParticipants = amiga_live_tournament_participants($con, $tournamentId);
+    if ($liveParticipants !== []) {
+        $cache[$tournamentId] = count($liveParticipants);
+
+        return $cache[$tournamentId];
+    }
+
+    $stmt = mysqli_prepare(
+        $con,
+        'SELECT COALESCE(c.standing_players, 0) AS standing_players,
+                COALESCE(c.standing_rows, 0) AS standing_rows
+         FROM amiga_tournament_catalog_stats c
+         WHERE c.tournament_id = ?'
+    );
+    if ($stmt !== false) {
+        mysqli_stmt_bind_param($stmt, 'i', $tournamentId);
+        mysqli_stmt_execute($stmt);
+        $res = mysqli_stmt_get_result($stmt);
+        $row = $res ? mysqli_fetch_assoc($res) : null;
+        if ($res) {
+            mysqli_free_result($res);
+        }
+        mysqli_stmt_close($stmt);
+        if (is_array($row) && (int) ($row['standing_rows'] ?? 0) > 0) {
+            $cache[$tournamentId] = (int) ($row['standing_players'] ?? 0);
+
+            return $cache[$tournamentId];
+        }
+    }
+
+    $stmt = mysqli_prepare(
+        $con,
+        'SELECT COUNT(*) AS n FROM amiga_player_event_snapshots WHERE tournament_id = ?'
+    );
+    if ($stmt !== false) {
+        mysqli_stmt_bind_param($stmt, 'i', $tournamentId);
+        mysqli_stmt_execute($stmt);
+        $res = mysqli_stmt_get_result($stmt);
+        $row = $res ? mysqli_fetch_assoc($res) : null;
+        if ($res) {
+            mysqli_free_result($res);
+        }
+        mysqli_stmt_close($stmt);
+        $snapshotCount = (int) ($row['n'] ?? 0);
+        if ($snapshotCount > 0) {
+            $cache[$tournamentId] = $snapshotCount;
+
+            return $cache[$tournamentId];
+        }
+    }
+
+    $stmt = mysqli_prepare(
+        $con,
+        'SELECT COUNT(DISTINCT player_id) AS n
+         FROM (
+             SELECT player_a_id AS player_id FROM amiga_games WHERE tournament_id = ?
+             UNION
+             SELECT player_b_id AS player_id FROM amiga_games WHERE tournament_id = ?
+         ) g'
+    );
+    if ($stmt === false) {
+        return 0;
+    }
+    mysqli_stmt_bind_param($stmt, 'ii', $tournamentId, $tournamentId);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $row = $res ? mysqli_fetch_assoc($res) : null;
+    if ($res) {
+        mysqli_free_result($res);
+    }
+    mysqli_stmt_close($stmt);
+
+    $cache[$tournamentId] = (int) ($row['n'] ?? 0);
+
+    return $cache[$tournamentId];
+}
+
 /** Indexed lookup — official games, or played fixtures while running (RTB broadcast). */
 function amiga_tournament_game_count(mysqli $con, int $tournamentId): int
 {

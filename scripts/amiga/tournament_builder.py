@@ -814,7 +814,7 @@ def verify_built_tournament(
     row = _load_one(
         conn,
         """
-        SELECT t.id, t.name, t.player_count, t.has_league, t.has_cup, t.lifecycle_status,
+        SELECT t.id, t.name, t.has_league, t.has_cup, t.lifecycle_status,
                t.format_overrides, ft.slug AS template_slug
         FROM tournaments t
         LEFT JOIN tournament_format_templates ft ON ft.id = t.format_template_id
@@ -841,6 +841,15 @@ def verify_built_tournament(
             f"expected {GENERATED_DEFAULT_LIFECYCLE_STATUS!r}"
         )
 
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT COUNT(*) AS n FROM tournament_entrants WHERE tournament_id = %s AND status = 'registered'",
+            (tournament_id,),
+        )
+        entrants = int(cur.fetchone()["n"])
+    if entrants < 1:
+        errors.append("expected at least one registered entrant, found 0")
+
     overrides: dict[str, Any] = {}
     if row.get("format_overrides"):
         overrides = json.loads(str(row["format_overrides"]))
@@ -854,7 +863,7 @@ def verify_built_tournament(
         expected_fixtures = int(overrides.get("fixture_count", 0))
     else:
         legs = int(overrides.get("round_robin_legs", 1))
-        expected_fixtures = expected_round_robin_fixtures(int(row["player_count"] or 0), legs=legs)
+        expected_fixtures = expected_round_robin_fixtures(entrants, legs=legs)
 
     with conn.cursor() as cur:
         cur.execute("SELECT COUNT(*) AS n FROM tournament_stages WHERE tournament_id = %s", (tournament_id,))
@@ -867,14 +876,6 @@ def verify_built_tournament(
             errors.append(f"expected exactly one stage, got {stage_count}")
 
         cur.execute(
-            "SELECT COUNT(*) AS n FROM tournament_entrants WHERE tournament_id = %s AND status = 'registered'",
-            (tournament_id,),
-        )
-        entrants = int(cur.fetchone()["n"])
-        if entrants != int(row["player_count"] or 0):
-            errors.append(f"entrant count {entrants}, expected {row['player_count']}")
-
-        cur.execute(
             """
             SELECT COUNT(*) AS n
             FROM tournament_stage_players sp
@@ -884,8 +885,8 @@ def verify_built_tournament(
             (tournament_id,),
         )
         stage_players = int(cur.fetchone()["n"])
-        if template_slug not in {"double_elimination"} and stage_players != int(row["player_count"] or 0):
-            errors.append(f"stage player count {stage_players}, expected {row['player_count']}")
+        if template_slug not in {"double_elimination"} and stage_players != entrants:
+            errors.append(f"stage player count {stage_players}, expected {entrants}")
 
         cur.execute(
             """

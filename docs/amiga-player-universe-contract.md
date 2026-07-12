@@ -77,8 +77,8 @@ A **rich player universe** for the offline Amiga ladder: career stats and extrem
 |-------|---------------------|
 | `amiga_players` | `id`, `name`, `country`, `display` |
 | `amiga_games` | Canonical results; links `player_a_id`, `player_b_id`, `tournament_id` |
-| `tournaments` | Event catalog; `player_count` is **headcount only**, not a roster |
-| `tournament_entrants` | **Live registration**; empty for historical Access import |
+| `tournaments` | Event catalog; `player_count` is **Access catalog witness** (`[Tournament players].Players` at import) — not product participant count; do not patch to match forum truth |
+| `tournament_entrants` | **Live registration** ground truth for generated events; empty for historical Access import |
 
 ### Derived truth (shipped)
 
@@ -114,6 +114,7 @@ Each surface maps to **one primary derived source** (joins to `amiga_players` / 
 | **Recent tournaments** | profile (5 rows) | `amiga_player_event_snapshots` | finish suffix + Winner + Perf | B (shipped) |
 | **Full tournament history** | `/amiga/player/tournaments.php` | `amiga_player_event_snapshots` | sortable k2-table stack; segment filters World Cups · Perfect run · Wins · Podiums + country/year listboxes | B (shipped) |
 | **Tournament standings / games** | `/amiga/tournament.php` | `amiga_tournament_standings` / `amiga_games` | k2-table render helpers in `amiga_tournament_lib.php` | B (shipped) |
+| **Tournament hero (players stat)** | `/amiga/tournament.php`, `/amiga/live-tournament.php` | `amiga_tournament_participant_count()` — live: `tournament_entrants`; historical: `standing_players` → snapshots → games | Not `tournaments.player_count` (Access witness) | B (shipped Jul 2026) |
 | **Tournament event stats** | `/amiga/tournament.php?view=event-stats` | `amiga_player_event_snapshots` | roster for one event; k2-table SSR | B (shipped) |
 | **Games list** | `/amiga/player/games.php` | `amiga_games` + `amiga_game_ratings` | paginated; OK at scale | A (shipped) |
 | **Single game** | `/amiga/game.php` | `amiga_games` + `amiga_game_ratings` | 1 row by `id` | A (shipped) |

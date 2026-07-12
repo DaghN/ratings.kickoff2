@@ -145,8 +145,10 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-12 | **`player_count` split** — `tournaments.player_count` = Access witness only (323 reverted to 5); hero + live view use `amiga_tournament_participant_count()`; builder verify keys off `tournament_entrants`. |
+| 2026-07-12 | **Cologne I (269) Tier E finish** — full ladder 1–25 in `amiga_tournament_finish_override` (cup 1–16; Playouts 17–23 Laurent L / Volker B …; 24th final Juan S / Desiree R). |
 | 2026-07-12 | **Cologne I (269) materialize** — 25p German Open; parser `Place N Final`; R1 Group A/B split + R2 KO ties; 36 stages / 245g; Tier E ladder 1–25 (Gianni T champion); work DB only. |
-| 2026-07-12 | **Ostersund VI (323) materialize** — 7p incomplete double-RR **League** (56g); Bjorn P + Kent H withdrew; forum t=14454; `player_count` 5→7; pairing-coverage `--force` guard; Tier B **1 John H (17-0-0) · 2 Jacob K · … · 7 Kent H**; work DB only. |
+| 2026-07-12 | **Ostersund VI (323) materialize** — 7p incomplete double-RR **League** (56g); Bjorn P + Kent H withdrew; forum t=14454; Access catalog `player_count`=5; pairing-coverage `--force` guard; Tier B **1 John H (17-0-0) · 2 Jacob K · … · 7 Kent H**; work DB only. |
 | 2026-07-12 | **Gloucester III Team (605) materialize** — 10 KO stages (Match 1–10); 5v5 team tie; Tier E sparse sentinel → all participants NULL finish (no individual podium). |
 | 2026-07-12 | **Hertford IV split shipped (work DB)** — **187** 24g league + child **606** 4g cup (ssid 7579–7582); simul; materialize; `IMPORT_CATALOG_SPLITS` + `SCORE_TOURNAMENT_PARTITION`; disposition + inventory updated. |
 | 2026-07-12 | **Hertford IV (187) split plan** — league 24g + cup 4g → child **606**; implementation plan + starter prompt; execution pending. |
