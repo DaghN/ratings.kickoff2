@@ -32,7 +32,6 @@ NEEDS_STRUCTURE_REVIEW = "needs_structure_review"
 
 # Tournaments that pass coarse RR math but fail audit — tier C until curated.
 STRUCTURE_REVIEW_TOURNAMENT_IDS: frozenset[int] = frozenset({
-    416,  # Duesseldorf V — 3× game total, uneven per-player counts (8/9/9/10)
 })
 
 _GENERATED_BY_PREFIXES = (
@@ -118,6 +117,37 @@ def _player_game_counts(games: list[dict[str, Any]]) -> dict[int, int]:
         for pid in (int(game["player_a_id"]), int(game["player_b_id"])):
             counts[pid] = counts.get(pid, 0) + 1
     return counts
+
+
+def _missing_single_rr_pairings(games: list[dict[str, Any]]) -> set[tuple[int, int]]:
+    """Pairings absent from one full round-robin leg over distinct players."""
+    players = sorted(_distinct_player_ids(games))
+    played: set[tuple[int, int]] = set()
+    for game in games:
+        a, b = int(game["player_a_id"]), int(game["player_b_id"])
+        played.add((min(a, b), max(a, b)))
+    expected: set[tuple[int, int]] = set()
+    for i, a in enumerate(players):
+        for b in players[i + 1 :]:
+            expected.add((a, b))
+    return expected - played
+
+
+def _force_ok_incomplete_null_rr(games: list[dict[str, Any]]) -> bool:
+    """Human --force guard for near-complete NULL-phase RR (policy T11)."""
+    counts = _player_game_counts(games)
+    spread = max(counts.values()) - min(counts.values())
+    if spread <= 1:
+        return True
+    if spread != 2:
+        return False
+    min_count = min(counts.values())
+    min_players = [pid for pid, count in counts.items() if count == min_count]
+    if len(min_players) != 1:
+        return False
+    victim = min_players[0]
+    missing = _missing_single_rr_pairings(games)
+    return bool(missing) and all(victim in pair for pair in missing)
 
 
 def round_robin_legs(games: list[dict[str, Any]]) -> int | None:
@@ -408,19 +438,20 @@ def materialize_legacy_fixtures(
                     f"(legs={legs!r}) — needs_structure_review (policy T11). "
                     "Add a StructureSpec or classify manually; do not auto-infer knockout."
                 )
-            counts = _player_game_counts(games)
-            spread = max(counts.values()) - min(counts.values())
-            if spread > 1:
+            if not _force_ok_incomplete_null_rr(games):
+                counts = _player_game_counts(games)
+                spread = max(counts.values()) - min(counts.values())
                 raise StructureReviewRequired(
                     f"tournament_id={tournament_id} ({tournament['name']!r}) force refused: "
-                    f"per-player game spread={spread} (>1) — not a near-complete RR withdrawal."
+                    f"per-player game spread={spread} — not a near-complete RR withdrawal "
+                    "(±1 game or single early exit with spread=2)."
                 )
             log.warning(
                 "materialize_legacy force: tournament_id=%s incomplete NULL-phase RR "
                 "(legs=%r, players=%s, games=%s)",
                 tournament_id,
                 legs,
-                len(counts),
+                len(_distinct_player_ids(games)),
                 len(games),
             )
 

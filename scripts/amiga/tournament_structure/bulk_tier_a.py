@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 BULK_EXCLUDE_TOURNAMENT_IDS: frozenset[int] = frozenset({
     74,   # Athens IV Cup — tier C cup
     137,  # Homburg — tier D curated
-    416,  # Duesseldorf V — audit flag
+    # STRUCTURE_REVIEW_TOURNAMENT_IDS union handled in materialize_legacy
 })
 
 

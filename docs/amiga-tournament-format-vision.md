@@ -5,7 +5,7 @@
 
 **Handoff prompt for implementation:** [`amiga-tournament-format-handoff-prompt.md`](amiga-tournament-format-handoff-prompt.md) (exploration era) · **current execution:** [`archive/orchestration/agent-handoffs/amiga-tournament-structure-STARTER-PROMPT.md`](archive/orchestration/agent-handoffs/amiga-tournament-structure-STARTER-PROMPT.md)
 
-**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-schema-discovery.md`](amiga-schema-discovery.md) · [`amiga-realm-vision.md`](amiga-realm-vision.md) · [`amiga-track-b-tournament-standings-agent-prompt.txt`](amiga-track-b-tournament-standings-agent-prompt.txt)
+**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-schema-discovery.md`](amiga-schema-discovery.md) · [`amiga-realm-vision.md`](amiga-realm-vision.md) · [`amiga-tournament-structure-display-policy.md`](amiga-tournament-structure-display-policy.md) (locked display end state, Jul 2026) · [`amiga-track-b-tournament-standings-agent-prompt.txt`](amiga-track-b-tournament-standings-agent-prompt.txt)
 
 ---
 

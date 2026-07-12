@@ -432,8 +432,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "108": {
-      "handler": "pending_review",
-      "notes": "NULL phase + not complete RR (register fix Jun 2026)"
+      "handler": "pure_rr",
+      "notes": "5p near-double-RR League (21g); G E Land\u2013Kjetil M 3\u00d7 (forum Grimstad 1, t=6550). Jul 2026: materialize --replace --force; display League; Tier C 1\u20135; has_league=1 has_cup=0."
     },
     "109": {
       "handler": "pure_rr",
@@ -1125,8 +1125,8 @@
       "notes": "WC track"
     },
     "281": {
-      "handler": "pending_review",
-      "notes": "NULL phase + not complete RR (register fix Jun 2026)"
+      "handler": "pure_rr",
+      "notes": "7p single-RR League (19/21g); Nikos Al left early (missing Kostas Ka + Kostas O pairings). Jul 2026: materialize --replace --force; display League; Tier C 1\u20137 from league table; has_league=1 has_cup=0."
     },
     "282": {
       "handler": "pure_rr",
@@ -1597,8 +1597,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "399": {
-      "handler": "pending_review",
-      "notes": "C: NULL phase + not complete RR (needs_structure_review)"
+      "handler": "pure_rr",
+      "notes": "5p double-RR League (19/20g); missing Cornelius H\u2013Carsten P rematch. Jul 2026: materialize --replace --force; display League; Tier C 1\u20135 from league table; has_league=1 has_cup=0."
     },
     "400": {
       "handler": "pure_rr",
@@ -1665,8 +1665,8 @@
       "notes": "NULL phase + 3\u00d7 round-robin schedule"
     },
     "416": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "pure_rr",
+      "notes": "4p triple-RR League (18g). Jul 2026: SCORE_CORRECTIONS g15981 (Frederic B 3\u20132 Volker B); materialize --replace; display League; Tier C 1\u20134; has_league=1 has_cup=0."
     },
     "417": {
       "handler": "pure_rr",

@@ -6,7 +6,7 @@
 
 **Implementation:** [`amiga-format-scoring-contract-implementation-plan.md`](amiga-format-scoring-contract-implementation-plan.md)
 
-**Related:** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (L4a modules) · [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md) (L5 `scope_type`) · [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings · [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) §9 · [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (RTB broadcast) · [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) (event finish)
+**Related:** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (L4a modules) · [`amiga-tournament-structure-display-policy.md`](amiga-tournament-structure-display-policy.md) (structure imprint + viewer end state) · [`amiga-standings-scope-policy.md`](amiga-standings-scope-policy.md) (L5 `scope_type`) · [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings · [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) §9 · [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (RTB broadcast) · [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) (event finish)
 
 ---
 

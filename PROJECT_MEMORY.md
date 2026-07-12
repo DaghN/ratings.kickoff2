@@ -145,6 +145,12 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-12 | **Grimstad II (108) materialize** — 5p near-double-RR **League** (G E Land–Kjetil M 3×); Tier C **1–5**; forum t=6550; work DB only. |
+| 2026-07-12 | **Duesseldorf V (416) materialize** — 4p triple-RR **League** after g15981 ground fix; Tier C **1–4**; cleared `STRUCTURE_REVIEW` audit flag; work DB only. |
+| 2026-07-12 | **Duesseldorf V (416) L3 ground fix** — `SCORE_CORRECTIONS` g15981 (Access): Frederic B 3–2 Volker B not Cornelius H; work `amiga_games` g15974 patched; inventory §5.1. |
+| 2026-07-12 | **Athens L (281) materialize** — 7p incomplete single-RR **League** (Nikos Al left early; 19/21g); `--force` guard extended for single early exit (spread=2); Tier C **1–7**; work DB only. |
+| 2026-07-12 | **Tournament structure display policy** — locked end state: materialize 605 → structure imprint (`round_key`, `bracket_section`) → stage-native knockout UI; [`amiga-tournament-structure-display-policy.md`](docs/amiga-tournament-structure-display-policy.md). |
+| 2026-07-12 | **Tournament Stages sub-nav** — knockout tab label **Bracket** → **Knockouts** (`amiga_tournament_page.php`). |
 | 2026-07-12 | **Athens LXXXV (592) structure spec** — 12p **League** + placement finals; Tier B **1–12**; g23284 ET → Vagelis 11th. |
 | 2026-07-12 | **Amsterdam I (591) structure spec** — 16p R1 groups → **Gold Group** / **Silver Group** / **Bronze Group** + finals + Clogs; Tier E **1–16** (Dagh ladder). |
 | 2026-07-12 | **Frankfurt II (440) structure spec** — 8p **Round 1 - League** + **Round 2 - Gold Cup** / **Round 2 - Silver Cup** (4p dRR each) + cross QF + 2-leg SF + placement finals; Tier B **1–8**; g16975/g16977 SC-11. |

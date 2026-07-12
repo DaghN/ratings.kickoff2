@@ -143,7 +143,7 @@ API returns one point per finalized tournament (not per game). Multi-game tourna
 
 - **Index** — `/amiga/tournaments.php` — Cup/League badges, optional All/Cups/Leagues filter; cup links with knockouts jump to `#bracket`
 - **Tournament detail** — `/amiga/tournament/event-stats.php?id=` (default) · `standings.php` · `stages.php` (WC) · `games.php` — hero + section nav (**Event stats** first); legacy `/amiga/tournament.php?id=` 302s to event-stats; phase scope via `?scope=` / `?scope_key=`; k2-table helpers in `amiga_tournament_lib.php` / `amiga_profile_blocks.php`
-- **Bracket** — phase-grouped columns (Quarter → Semi → Final; placement finals/brackets below); click aggregate score for leg-by-leg tie detail (`scope=knockout&scope_key=…`); `extra` penalties on leg rows
+- **Knockouts** — phase-grouped columns (Quarter → Semi → Final; placement finals/brackets below); click aggregate score for leg-by-leg tie detail (`scope=knockout&scope_key=…`); `extra` penalties on leg rows. **Target (Jul 2026):** stage-native display per [`amiga-tournament-structure-display-policy.md`](amiga-tournament-structure-display-policy.md) — `stage_id` nav, imprinted `round_key` / `bracket_section`; transitional scope URLs until P3.
 - **League marathons** — e.g. London XXIII: overall table only, no empty bracket shell
 
 ## Not shipped (deferred)

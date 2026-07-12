@@ -220,6 +220,7 @@ Forum- or witness-verified patches to existing Access `Scores` rows at L2→L3 (
 | **1188** | Kristiansand | Oskar B–Glenn L `0–0`, Extra NULL | Reg **`1–1`**; `extra` `1-1, (0-0, 7-8 on pens)`; pens 7–8 (Glenn bronze) | Same thread — Access swapped semi/bronze regulation scores |
 | **2421** | Milan (`amiga_games` **2349**) | Gianni T 7–2 **Marco C** | Gianni T 7–2 **Marco M** | [FFZ idd=175](https://web.archive.org/web/20030704044413/http://www.freeforumzone.com/viewmessaggi.aspx?f=3694&idd=175) — Giornata 4 forum typo (Sandro twice, Gianni absent; Marco C twice); 7–2 fits Marco M; Marco C keeps 0–4 on g2357 |
 | **2422** | Milan (`amiga_games` **2350**) | **Gianni T** 0–5 Morris C | **Filippo D** 0–5 Morris C | Same FFZ thread — Giornata 5 Filippo 0–5 Morris; Gianni 0–5 implausible; restores 7 gp each in Group A |
+| **15981** | Duesseldorf V (`amiga_games` **15974**) | Frederic B 3–2 **Cornelius H** | Frederic B 3–2 **Volker B** | [Forum t=15624](https://ko-gathering.com/forum/viewtopic.php?t=15624) — last of 18 triple-RR games; score correct, wrong Team B |
 
 ### World Cup host city + country (manual)
 

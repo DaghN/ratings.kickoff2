@@ -264,6 +264,15 @@ SCORE_CORRECTIONS: tuple[ScoreCorrection, ...] = (
         goals_b=5,
         extra=None,
     ),
+    ScoreCorrection(
+        source_scores_id=15981,
+        tournament="Duesseldorf V",
+        team_a="Frederic B",
+        team_b="Volker B",
+        goals_a=3,
+        goals_b=2,
+        extra=None,
+    ),
 )
 
 SCORE_CORRECTION_RATIONALE: dict[int, str] = {
@@ -288,6 +297,11 @@ SCORE_CORRECTION_RATIONALE: dict[int, str] = {
         "Milan I (2003) Group A Giornata 5: Access Scores g2422 has Gianni T 0–5 Morris C; forum Giornata 5 "
         "records Filippo Della Bianca 0–5 Morris Caprio (https://web.archive.org/web/20030704044413/http://www.freeforumzone.com/viewmessaggi.aspx?f=3694&idd=175). "
         "Gianni 0–5 Morris is implausible; Filippo had no Morris game in Access. Player A only — score unchanged."
+    ),
+    15981: (
+        "Duesseldorf V (2009-10-18): Access Scores g15981 has Frederic B 3–2 Cornelius H; forum final line is "
+        "Frederic B 3–2 Volker B (https://ko-gathering.com/forum/viewtopic.php?t=15624). Score unchanged; "
+        "Team B only — restores 4p triple round-robin (18g, 9 gp each). amiga_games.id=15974."
     ),
 }
 

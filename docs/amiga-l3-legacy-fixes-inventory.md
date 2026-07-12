@@ -128,8 +128,11 @@ Access `Scores` sometimes assigns the wrong `Team A` / `Team B` while regulation
 |--------------------|------------------|-------|--------|------------------|----------|
 | **2421** | 2349 | Milan I Group A Giornata 4 | Gianni T 7–2 **Marco C** | Gianni T 7–2 **Marco M** | [FFZ idd=175](https://web.archive.org/web/20030704044413/http://www.freeforumzone.com/viewmessaggi.aspx?f=3694&idd=175) — forum lists Sandro twice + Marco C twice in Giornata 4 (Gianni absent); 7–2 fits Marco M; Marco C keeps single 0–4 loss on g2357 |
 | **2422** | 2350 | Milan I Group A Giornata 5 | **Gianni T** 0–5 Morris C | **Filippo D** 0–5 Morris C | Same FFZ thread — Giornata 5 Filippo 0–5 Morris; Gianni 0–5 implausible; restores Filippo–Morris pairing (7 gp each) |
+| **15981** | 15974 | Duesseldorf V (18 Oct 2009) | Frederic B 3–2 **Cornelius H** | Frederic B 3–2 **Volker B** | [Forum t=15624](https://ko-gathering.com/forum/viewtopic.php?t=15624) — last of 18 triple-RR games; score correct, wrong Team B |
 
 **Rationale:** Forum Giornata 4 swapped Gianni↔Sandro in the report; Access/DB already had Gianni right elsewhere but duplicated Gianni–Marco C (g2349 + g2357). Moving g2349 opponent to Marco M yields one game per pair in Group A. Standings points unchanged; L5 rebuild deferred until simul.
+
+**Duesseldorf V:** Access stored the final 3–2 on Frederic–Cornelius instead of Frederic–Volker. Forum lists 18 games = complete 4p triple round-robin; wrong opponent caused 8/9/9/10 per-player counts and tier-C structure audit flag. Finish order unchanged (Oliver · Frederic · Volker · Cornelius); L5 rebuild after work DB patch.
 
 ---
 
@@ -224,6 +227,7 @@ Access had a **separate catalog row** for the 2005 KOA Cup consolation bracket. 
 | Catalog splits | 2 |
 | Supplemental games | 10 (1 tournament) |
 | Scores row corrections (ET / pens) | 2 (Kristiansand g1188–89) |
+| Scores row corrections (wrong player) | 3 (Milan g2421–22; Duesseldorf V g15981) |
 | Player country overrides | 4 |
 | Player name merges | 5 groups (1 automatic spacing/case, 4 manual spelling aliases) |
 | Country token normalizations | 2 |

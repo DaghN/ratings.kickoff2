@@ -2,7 +2,7 @@
 
 **Status:** Forward path for the **long tail** (Jul 2026). Bulk `apply-structure --from-disposition` closed most obvious catalog events (~515/605 with fixture linkage on work). **Remaining ids = one tournament at a time.**
 
-**Authority:** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) T3, T8–T11 · **handlers reference:** [`amiga-tournament-structure-handlers.md`](amiga-tournament-structure-handlers.md) · **decision log:** [`amiga-tournament-structure-review-queue.md`](amiga-tournament-structure-review-queue.md)
+**Authority:** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) T3, T8–T11 · **display end state:** [`amiga-tournament-structure-display-policy.md`](amiga-tournament-structure-display-policy.md) · **handlers reference:** [`amiga-tournament-structure-handlers.md`](amiga-tournament-structure-handlers.md) · **decision log:** [`amiga-tournament-structure-review-queue.md`](amiga-tournament-structure-review-queue.md)
 
 **DB:** **`ko2amiga_work`** (living repair shop). `materialize_legacy` accepts `ko2amiga_work` and `ko2amiga_db` ([`scripts/amiga/config.py`](../scripts/amiga/config.py) `AMIGA_GROUND_DATABASES`).
 
@@ -64,6 +64,7 @@ cd <repo>
 python -m scripts.amiga tournament-structure materialize --tournament-id {id} --dry-run
 python -m scripts.amiga tournament-structure materialize --tournament-id {id} --replace
 # Near-complete NULL-phase RR (one missing pairing / ±1 game per player): add --force after human sign-off (e.g. id 174).
+# Single early exit (one player, spread=2, all missing pairings involve that player only): --force also OK (e.g. id 281 Athens L).
 ```
 
 | Handler in disposition | Typical CLI |

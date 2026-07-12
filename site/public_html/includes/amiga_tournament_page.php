@@ -468,7 +468,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
           if ($hasBracket) {
               $bracketScopeKey = $knockoutScopes[0] ?? '';
               ?>
-      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'knockout', $bracketScopeKey))); ?>" class="k2-player-nav__btn<?php echo $isKnockoutView && $pageView === 'stages' ? ' is-active' : ''; ?>">Bracket</a>
+      <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'knockout', $bracketScopeKey))); ?>" class="k2-player-nav__btn<?php echo $isKnockoutView && $pageView === 'stages' ? ' is-active' : ''; ?>">Knockouts</a>
               <?php
           }
       };

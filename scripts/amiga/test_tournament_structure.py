@@ -9,6 +9,7 @@ from scripts.amiga.tournament_structure.registry import all_structure_specs
 from scripts.amiga.tournament_structure.materialize_legacy import (
     AUTO_RR,
     NEEDS_STRUCTURE_REVIEW,
+    _force_ok_incomplete_null_rr,
     classify_null_phase_tournament,
     null_phase_round_robin_bucket,
     round_robin_legs,
@@ -129,6 +130,28 @@ class MaterializeLegacyTests(unittest.TestCase):
             {"player_a_id": 1, "player_b_id": 3},
         ]
         self.assertEqual(classify_null_phase_tournament(games), NEEDS_STRUCTURE_REVIEW)
+
+    def test_force_ok_single_early_withdrawal_spread_two(self) -> None:
+        # 7p RR missing two pairings for one player (Athens L / id 281 pattern)
+        players = [10, 20, 30, 40, 50, 60, 70]
+        skip = {(60, 70), (40, 70)}
+        games = []
+        for i, a in enumerate(players):
+            for b in players[i + 1 :]:
+                if (a, b) in skip or (b, a) in skip:
+                    continue
+                games.append({"player_a_id": a, "player_b_id": b})
+        self.assertEqual(len(games), 19)
+        self.assertTrue(_force_ok_incomplete_null_rr(games))
+
+    def test_force_refused_uneven_multi_player_spread_two(self) -> None:
+        # 4p: three players each played one game vs player 1 only — not single early exit
+        games = [
+            {"player_a_id": 1, "player_b_id": 2},
+            {"player_a_id": 1, "player_b_id": 3},
+            {"player_a_id": 1, "player_b_id": 4},
+        ]
+        self.assertFalse(_force_ok_incomplete_null_rr(games))
 
     def test_null_phase_cup_needs_review(self) -> None:
         # 6 players, 6 games — Athens IV pattern; not auto-classifiable
@@ -339,6 +362,8 @@ class VerifyLegacyTests(unittest.TestCase):
         self.assertIn("2×", detail)
 
     def test_classify_tier_c_manual_review_flag(self) -> None:
+        from unittest.mock import patch
+
         from scripts.amiga.tournament_structure.verify_legacy import TIER_C, classify_legacy_tier
 
         games = [
@@ -346,12 +371,16 @@ class VerifyLegacyTests(unittest.TestCase):
             {"player_a_id": 1, "player_b_id": 3},
             {"player_a_id": 2, "player_b_id": 3},
         ]
-        tier, detail = classify_legacy_tier(
-            games,
-            tournament_name="Duesseldorf V",
-            format_overrides={},
-            tournament_id=416,
-        )
+        with patch(
+            "scripts.amiga.tournament_structure.verify_legacy.STRUCTURE_REVIEW_TOURNAMENT_IDS",
+            frozenset({416}),
+        ):
+            tier, detail = classify_legacy_tier(
+                games,
+                tournament_name="Duesseldorf V",
+                format_overrides={},
+                tournament_id=416,
+            )
         self.assertEqual(tier, TIER_C)
         self.assertIn("audit flag", detail)
 
