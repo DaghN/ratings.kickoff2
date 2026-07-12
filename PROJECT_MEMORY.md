@@ -145,6 +145,9 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-12 | **Slice-6 cup finish bands (75/158/189/604)** — Tier E shared-band overrides: 75 `1,2,=3,=5,=9,=17` (R2=9, R1=17); 158/189 `1,2,=3,=5,=9`; 604 `1,2,=3,=5`. |
+| 2026-07-12 | **Slice-6 cup finish audit (75/158/171/189/192/604)** — five cups Tier A OK; **171 Copenhagen** fixed (g6716 AET → Tier E full ladder 1–8, SC-11 g6716); review queue Tier lines added. |
+| 2026-07-12 | **Structure review register hygiene** — cleared stale slice-6 blockers (75/158/171/189/192); promoted disposition **604**; `audit-review-register` CLI. |
 | 2026-07-11 | **Hanau III (553) structure spec** — 9p **Round 1 - League** + 2-leg QF/SF/F + **Places 5-8**; Tier E **1–9**; slice-6 cup review register **cleared**; `has_league=1` `has_cup=1`. |
 | 2026-07-12 | **Amiga tournament event-stats default sort** — Finish col 12 ascending (1st, 2nd, 3rd…); SSR `ORDER BY event_finish_position` matches client default. |
 | 2026-07-11 | **Oldenburg II (521) structure spec** — 2×8p **Round 1 - Group A/B** + cross QF + **Places 9-16/5-8** + main KO; **SC-11 g19543** Places 9-12 AET 3-1; Tier E **1–16**; `has_league=1` `has_cup=1`. |

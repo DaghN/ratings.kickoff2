@@ -2417,8 +2417,8 @@
       "notes": "WC track"
     },
     "604": {
-      "handler": "pending_review",
-      "notes": "Import split: Groningen VII Cup (14g); Scores-only catalog"
+      "handler": "pure_knockout",
+      "notes": "8p single-elim 2-leg cup; import split from Groningen VII (48); Jul 2026 materialize"
     },
     "605": {
       "handler": "pending_review",

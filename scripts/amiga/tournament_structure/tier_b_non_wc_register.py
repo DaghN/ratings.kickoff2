@@ -8,7 +8,7 @@ Cup safety audit: ``python -m scripts.oneoff.audit_auto_ok_cups``.
 from __future__ import annotations
 
 import re
-from typing import Final
+from typing import Any, Final
 
 _WORLD_CUP_NAME_RE = re.compile(r"^World Cup\s+\S", re.IGNORECASE)
 
@@ -35,15 +35,11 @@ NON_WC_ORIGINAL_STRUCTURE_REVIEW_IDS: frozenset[int] = frozenset({
     592,  # Athens LXXXV — 66 NULL + 12 labeled (mixed provenance)
 })
 
-# Slice 6 bulk mis-curated (Jun 2026 audit) — not obvious 2^n single-elim cups.
-# Dematerialized + materialize refuses until human triage.
-NON_WC_SLICE6_CUP_REVIEW_IDS: frozenset[int] = frozenset({
-    75,   # Gloucester I Cup — 24p bye; Round 1/2 as league
-    158,  # Stoke Cup — 15p bye; Round 1 → league (parser)
-    171,  # Copenhagen Cup — placement band
-    189,  # Manchester II Cup — 15p bye; Round 1 → league
-    192,  # Hertford V Cup — extra Round 1 games
-})
+# Slice 6 cup-audit blockers — ids here refuse ``materialize`` until human triage.
+# **Remove each id after materialize** (runbook § stale register hygiene).
+# Cleared Jul 2026 (already on work DB): 75, 158, 171, 189, 192 (pure knockout cups);
+# labeled-phase tail 465, 518, 570, 521, 553.
+NON_WC_SLICE6_CUP_REVIEW_IDS: frozenset[int] = frozenset()
 
 NON_WC_STRUCTURE_REVIEW_IDS: frozenset[int] = (
     NON_WC_ORIGINAL_STRUCTURE_REVIEW_IDS | NON_WC_SLICE6_CUP_REVIEW_IDS
@@ -99,3 +95,88 @@ def is_slice_6_auto_ok(tournament_id: int, tournament_name: str) -> bool:
     if tournament_id in NON_WC_PARSER_FIX_FIRST_IDS:
         return False
     return tournament_id in NON_WC_TIER_B_AUTO_MATERIALIZE_IDS
+
+
+def _stage_counts_by_tournament(conn) -> dict[int, int]:
+    import pymysql
+
+    with conn.cursor(pymysql.cursors.DictCursor) as cur:
+        cur.execute(
+            """
+            SELECT t.id AS tournament_id,
+                   COUNT(s.id) AS stage_count
+            FROM tournaments t
+            LEFT JOIN tournament_stages s ON s.tournament_id = t.id
+            GROUP BY t.id
+            """
+        )
+        return {int(row["tournament_id"]): int(row["stage_count"]) for row in cur.fetchall()}
+
+
+def audit_stale_structure_review_register(
+    conn,
+    *,
+    register: Any | None = None,
+) -> dict[str, Any]:
+    """Find review frozensets / pending_review rows that no longer block materialize.
+
+    Stale = tournament already has ``tournament_stages`` but still listed as a
+    materialize refusal or disposition ``pending_review``.
+    """
+    from scripts.amiga.tournament_structure.disposition_register import (
+        HANDLER_PENDING_REVIEW,
+        DispositionRegister,
+    )
+
+    reg = register if register is not None else DispositionRegister.load()
+    stage_counts = _stage_counts_by_tournament(conn)
+
+    review_frozenset_materialized: list[dict[str, Any]] = []
+    for tid in sorted(all_structure_review_tournament_ids()):
+        stages = stage_counts.get(tid, 0)
+        if stages <= 0:
+            continue
+        row = reg.get(tid)
+        review_frozenset_materialized.append(
+            {
+                "tournament_id": tid,
+                "name": _catalog_name(conn, tid),
+                "stages": stages,
+                "disposition_handler": row.handler if row else None,
+                "action": "remove from tier_b_non_wc_register / STRUCTURE_REVIEW frozenset",
+            }
+        )
+
+    pending_review_materialized: list[dict[str, Any]] = []
+    for tid, row in sorted(reg.rows.items()):
+        if row.handler != HANDLER_PENDING_REVIEW:
+            continue
+        stages = stage_counts.get(tid, 0)
+        if stages <= 0:
+            continue
+        pending_review_materialized.append(
+            {
+                "tournament_id": tid,
+                "name": _catalog_name(conn, tid),
+                "stages": stages,
+                "disposition_notes": row.notes,
+                "action": "promote disposition handler + review-queue log (already materialized)",
+            }
+        )
+
+    stale_count = len(review_frozenset_materialized) + len(pending_review_materialized)
+    return {
+        "ok": stale_count == 0,
+        "stale_count": stale_count,
+        "review_frozenset_materialized": review_frozenset_materialized,
+        "pending_review_materialized": pending_review_materialized,
+    }
+
+
+def _catalog_name(conn, tournament_id: int) -> str:
+    import pymysql
+
+    with conn.cursor(pymysql.cursors.DictCursor) as cur:
+        cur.execute("SELECT name FROM tournaments WHERE id = %s", (tournament_id,))
+        row = cur.fetchone()
+    return str(row["name"]) if row else f"id={tournament_id}"

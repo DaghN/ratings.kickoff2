@@ -137,6 +137,23 @@ Example (145 Milan V): eight rows — Gianni 1 … Marco 7, Sandro 8 (withdrew a
 
 **Do not** mark “materialized” only in JSON — confirm DB counts.
 
+### 6b. Stale register hygiene (after materialize)
+
+Git registers are **triage memory** — they must not block ids that already have stages on work.
+
+| Symptom | Fix |
+|---------|-----|
+| `materialize` refuses id that **already has** `tournament_stages` | Remove id from `NON_WC_SLICE6_CUP_REVIEW_IDS` / `NON_WC_ORIGINAL_STRUCTURE_REVIEW_IDS` / `STRUCTURE_REVIEW_TOURNAMENT_IDS` in `tier_b_non_wc_register.py` / `materialize_legacy.py` |
+| `disposition_register.json` still `pending_review` but DB has stages | Promote `handler` to shipped value (`pure_knockout`, `structure_spec`, …) + one line in review log |
+| Unclear what is stale | `python -m scripts.amiga tournament-structure audit-review-register` — exit **0** = clean |
+
+**Never** run blind `generate-disposition-register` to “fix” hand-edited `notes` / promoted handlers.
+
+```powershell
+python -m scripts.amiga tournament-structure audit-review-register
+python -m scripts.amiga tournament-structure verify-disposition-register
+```
+
 ### 7. Staging (when ready)
 
 `powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_work.ps1` → WinSCP → import preview/apply. See [`amiga-staging-handoff.md`](amiga-staging-handoff.md).
@@ -148,6 +165,7 @@ Example (145 Milan V): eight rows — Gianni 1 … Marco 7, Sandro 8 (withdrew a
 | Question | Answer |
 |----------|--------|
 | May I run `materialize`? | Id **not** in tier-B / structure review frozensets (§2) |
+| Stale blockers after ship? | `audit-review-register` — remove id from frozenset + promote disposition (§6b) |
 | What does disposition `handler` mean? | Bulk **routing hint** — not materialize permission |
 | `structure_spec` without registry spec? | Use **legacy `materialize`** after triage, not bulk apply |
 | Promotion graph (D18)? | **Not** required for catalog materialize |

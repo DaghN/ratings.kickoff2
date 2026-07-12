@@ -328,6 +328,7 @@ Participation **roster = `amiga_games`**; finish from `participation_placement.p
 ```powershell
 python -m scripts.amiga tournament-structure generate-disposition-register
 python -m scripts.amiga tournament-structure verify-disposition-register
+python -m scripts.amiga tournament-structure audit-review-register
 python -m scripts.amiga tournament-structure preview-pure-knockout --tournament-id <id>
 python -m scripts.amiga tournament-structure materialize-pure-knockout --tournament-id <id> [--replace]
 python -m scripts.amiga tournament-structure materialize --tournament-id <id> [--dry-run] [--replace]

@@ -637,6 +637,40 @@ def _main_verify_disposition_register(argv: list[str]) -> int:
     return 0 if report["ok"] else 1
 
 
+def _main_audit_review_register(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        description="Find materialized tournaments still in structure-review block lists",
+    )
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args(argv)
+
+    from scripts.amiga.tournament_structure.tier_b_non_wc_register import (
+        audit_stale_structure_review_register,
+    )
+
+    conn = _connect()
+    try:
+        report = audit_stale_structure_review_register(conn)
+    finally:
+        conn.close()
+
+    if args.json:
+        print(json.dumps(report, indent=2))
+    else:
+        print(f"stale_count={report['stale_count']} ok={report['ok']}")
+        for row in report["review_frozenset_materialized"]:
+            print(
+                f"  frozenset+materialized: {row['tournament_id']} {row['name']} "
+                f"({row['stages']} stages) — {row['action']}"
+            )
+        for row in report["pending_review_materialized"]:
+            print(
+                f"  pending_review+materialized: {row['tournament_id']} {row['name']} "
+                f"({row['stages']} stages) — {row['action']}"
+            )
+    return 0 if report["ok"] else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     if argv and argv[0] == "verify-legacy":
         from scripts.amiga.tournament_structure.verify_legacy import main_verify_legacy
@@ -662,6 +696,8 @@ def main(argv: list[str] | None = None) -> int:
         return _main_generate_disposition_register(argv[1:])
     if argv and argv[0] == "verify-disposition-register":
         return _main_verify_disposition_register(argv[1:])
+    if argv and argv[0] == "audit-review-register":
+        return _main_audit_review_register(argv[1:])
 
     parser = argparse.ArgumentParser(description="Legacy tournament structure materialize")
     sub = parser.add_subparsers(dest="cmd", required=True)

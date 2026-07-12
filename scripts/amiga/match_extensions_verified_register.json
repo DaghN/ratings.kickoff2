@@ -347,6 +347,17 @@
       "goals_et_a": 2,
       "goals_et_b": 0,
       "note": "Oldenburg II Places 9-12 semi; Thorsten B (A) vs Cornelius H (B); post-ET 3-1 Thorsten advances; Access Scores.Extra verbatim"
+    },
+    "6716": {
+      "verified_at": "2026-07-12",
+      "tournament_id": 171,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "4-4",
+      "witness": "7-6 a.e.t.",
+      "goals_et_a": 3,
+      "goals_et_b": 2,
+      "note": "Copenhagen Cup 5th Place Final; Jesper B (A) vs Dan W (B); post-ET 7-6 Jesper 5th; Tier E finish override until legacy KO bridge gains extra_time step"
     }
   }
 }

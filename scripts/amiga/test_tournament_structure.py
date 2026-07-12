@@ -575,5 +575,15 @@ class DispositionRegisterTests(unittest.TestCase):
             conn.close()
 
 
+class StructureReviewRegisterHygieneTests(unittest.TestCase):
+    def test_shipped_cups_not_in_slice6_blocker_set(self) -> None:
+        from scripts.amiga.tournament_structure.tier_b_non_wc_register import (
+            NON_WC_SLICE6_CUP_REVIEW_IDS,
+        )
+
+        for tid in (75, 158, 171, 189, 192, 465, 518, 570, 521, 553):
+            self.assertNotIn(tid, NON_WC_SLICE6_CUP_REVIEW_IDS)
+
+
 if __name__ == "__main__":
     unittest.main()
