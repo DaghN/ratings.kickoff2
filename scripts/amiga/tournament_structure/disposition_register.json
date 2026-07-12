@@ -1409,8 +1409,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "352": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "12p Round 1 - League (66g) + Playout Group (4p RR, 9\u201312) + placement KO 1\u20138; g13741 Game of Shame; Jul 2026 materialize; Tier E 1\u201312"
     },
     "353": {
       "handler": "pure_rr",
@@ -1761,8 +1761,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "440": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "8p Round 1 - League (28g) + Round 2 Gold/Silver Cup dRR (12g each) + cross QF + 2-leg SF + placement finals; Jul 2026 materialize; Tier B 1\u20138"
     },
     "441": {
       "handler": "pure_rr",
@@ -2365,12 +2365,12 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "591": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "16p R1 groups A/B/C + Gold/Silver/Bronze tracks + Clogs; Gold Group display; Jul 2026 materialize; Tier E 1\u201316"
     },
     "592": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "12p League (66g NULL) + two-leg placement finals 11th\u2013Final; Jul 2026 materialize; Tier B 1\u201312; g23284 ET"
     },
     "593": {
       "handler": "pure_rr",

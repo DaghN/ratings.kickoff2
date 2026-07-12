@@ -358,6 +358,41 @@
       "goals_et_a": 3,
       "goals_et_b": 2,
       "note": "Copenhagen Cup 5th Place Final; Jesper B (A) vs Dan W (B); post-ET 7-6 Jesper 5th; Tier E finish override until legacy KO bridge gains extra_time step"
+    },
+    "16975": {
+      "verified_at": "2026-07-12",
+      "tournament_id": 440,
+      "extension_kinds": ["et", "pens"],
+      "interpretation": "pens_after_et",
+      "regulation": "0-0",
+      "witness": "(1-1) 2-1 p.k.",
+      "goals_et_a": 1,
+      "goals_et_b": 1,
+      "pens_a": 2,
+      "pens_b": 1,
+      "note": "Frankfurt II 7th Place Final; Juan S (A) vs Jan K (B); reg 0-0, ET 1-1, pens 2-1 Juan 7th; Access Scores.Extra verbatim"
+    },
+    "16977": {
+      "verified_at": "2026-07-12",
+      "tournament_id": 440,
+      "extension_kinds": ["pens"],
+      "interpretation": "pens_only_witness",
+      "regulation": "2-2",
+      "witness": "4-1 p.k.",
+      "pens_a": 4,
+      "pens_b": 1,
+      "note": "Frankfurt II 3rd Place Final; Carsten P (A) vs Thorsten B (B); reg 2-2, pens 4-1 Carsten 3rd; Access Scores.Extra verbatim"
+    },
+    "23284": {
+      "verified_at": "2026-07-12",
+      "tournament_id": 592,
+      "extension_kinds": ["et"],
+      "interpretation": "et_period_only",
+      "regulation": "5-3",
+      "witness": "5-4 e.t.",
+      "goals_et_a": 0,
+      "goals_et_b": 1,
+      "note": "Athens LXXXV 11th Place Final leg 2; Kostas L (A) vs Vagelis D (B); reg 5-3, ET 0-1 Vagelis; post-ET 5-4 Vagelis wins 11th on two-leg aggregate (3+4 vs 1+5); Access Scores.Extra verbatim"
     }
   }
 }

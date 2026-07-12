@@ -145,6 +145,10 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-12 | **Athens LXXXV (592) structure spec** — 12p **League** + placement finals; Tier B **1–12**; g23284 ET → Vagelis 11th. |
+| 2026-07-12 | **Amsterdam I (591) structure spec** — 16p R1 groups → **Gold Group** / **Silver Group** / **Bronze Group** + finals + Clogs; Tier E **1–16** (Dagh ladder). |
+| 2026-07-12 | **Frankfurt II (440) structure spec** — 8p **Round 1 - League** + **Round 2 - Gold Cup** / **Round 2 - Silver Cup** (4p dRR each) + cross QF + 2-leg SF + placement finals; Tier B **1–8**; g16975/g16977 SC-11. |
+| 2026-07-12 | **Wiesbaden V (352) structure spec** — 12p **Round 1 - League** + **Playout Group** (9–12) + placement KO **1–8**; g13741 **Game of Shame**; Tier E **1–12**. |
 | 2026-07-12 | **Hamburg V (409) structure spec** — 12p **League** + **Fun Cup** + placement KO 1–8; Tom S withdrew (9); Tier E **1–12**; `has_league=1` `has_cup=1`. |
 | 2026-07-12 | **Osnabruck II (477) structure spec** — 9p **League** + **Fun Cup** + 2-leg KO; Tier E **1–9**; `has_league=1` `has_cup=1`. |
 | 2026-07-12 | **Rodenbach I (496) structure spec** — 12p **League** + **Fun Cup** (6p RR) + **Round 2** (3 KO seeding ties — not QF) + main KO; Tier E **1–12**; `has_league=1` `has_cup=1`. |
