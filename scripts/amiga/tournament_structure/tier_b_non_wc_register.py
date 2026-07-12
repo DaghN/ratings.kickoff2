@@ -29,8 +29,6 @@ NON_WC_ORIGINAL_STRUCTURE_REVIEW_IDS: frozenset[int] = frozenset({
     352,  # Wiesbaden V — Playout Group
     409,  # Hamburg V — Fun Cup
     440,  # Frankfurt II — Gold Cup / Silver Cup (event-wide labels, not groups)
-    477,  # Osnabruck II — Fun Cup
-    496,  # Rodenbach I — Fun Cup
     591,  # Amsterdam I — multi parallel cup tracks (bronze/silver/clogs)
     592,  # Athens LXXXV — 66 NULL + 12 labeled (mixed provenance)
 })

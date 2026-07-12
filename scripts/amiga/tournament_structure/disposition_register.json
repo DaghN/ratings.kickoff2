@@ -1909,8 +1909,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "477": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "9p League (36g) + Fun Cup (5p RR) + 2-leg KO semis/final/3rd; Jul 2026 materialize; Tier E 1\u20139"
     },
     "478": {
       "handler": "pure_rr",
@@ -1985,8 +1985,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "496": {
-      "handler": "pending_review",
-      "notes": "C: manual structure review (audit flag)"
+      "handler": "structure_spec",
+      "notes": "12p League (66g) + Fun Cup (6p RR) + Round 2 (3 KO seeding ties, not QF) + main KO; Jul 2026 materialize; Tier E 1\u201312"
     },
     "497": {
       "handler": "pure_rr",
