@@ -84,6 +84,8 @@ WHERE tournament_id = 173 AND stage_key = 'round-1';
 
 **Bulk null-phase marathons (Jul 2026):** 503 single-stage tier-A events had materialize default `Overall` — renamed to **`League`** on work (`stage_key` stays `overall`; only when `stage_count = 1` and `stage_type = round_robin`).
 
+**Forward kitchen-marathon builder (Jul 2026):** `create_kitchen_marathon_tournament()` now defaults stage **`League`** + NULL `phase_label` (matches bulk-renamed legacy marathons). No post-create rename needed for CLI/oneoff paths. Browser ops (`fixtures.php`) still uses **`League table`** — cosmetic only; display reads `tournament_stages.name` first.
+
 **KO display names (manual):** witness `Round 1` on a pure cup often means QF — prefer stage name **`Quarter Finals`** when bracket size fits (604: 8p → 4 ties). Plural **`Semi Finals`** matches catalog majority over `Semi Final`. Leave `g.phase` as witness; edit `tournament_stages.name` only.
 
 **KO `phase_label` (finish):** standings scope uses `fixture_phase_label` before stage name. Witness labels that do not normalize to honours tiers break finish — e.g. **`Finals`** (plural) is not **`final`**. For manual KO materialize: set `tournament_fixtures.phase_label = NULL` on knockout fixtures (or rely on `materialize_legacy` which now NULLs KO `phase_label`); then `backfill-standings-stage-id` + `refresh-event-finish-snapshots`. Example: Milan XII **166** (g5954–56).

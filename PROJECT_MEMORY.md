@@ -145,6 +145,19 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-13 | **Kitchen-marathon stage naming** — `create_kitchen_marathon_tournament()` defaults stage **`League`** + NULL `phase_label`; Nottingham III (607) patched on work (stage rename + null witness phases). |
+| 2026-07-13 | **Nottingham stream timestamps fix** — forum H:MM was stored as bare minutes (e.g. `86` = 1:26); sidecar + manifest `game_start_sec[]` now YouTube seconds (`×60`); `game_links._parse_start_sec` accepts `H:MM`. |
+| 2026-07-13 | **Amiga stream_map Games index UI** — tournament Videos **Games** wing + player **Videos** wing fan out `game_ids[]` from `stream_map`/`multi`; manifest `game_start_sec[]` on play URLs + `game.php`; Nottingham III (607) **15** games. |
+| 2026-07-13 | **Export to staged ready** — `export_ko2amiga_work.ps1` from green simul: **41** SQL parts + manifest (~71.6 MB), archive `data/amiga/exports/ko2amiga_db-2026-07-13.sql`; work video manifest promoted to `site/public_html/data/amiga/`. |
+| 2026-07-13 | **Nottingham III stream video** — `_cRSiEAhUps` (`stream_map`) + **15** forum timestamps in `video_game_links.csv` (partial 15/56); `seed-video-work --force` + `align-video-work` → work manifest **301** videos; `verify-tournament-videos-work` OK on `ko2amiga_work`. |
+| 2026-07-13 | **Nottingham III (607) + live-ops chrono** — manual add on `ko2amiga_work` (8p dRR, H2H tie-break, play-order game dates); `chrono` repaired **598**; `next_tournament_chrono()` (same-day bump else global append) in `tournament_fixtures.py` + `promote_running_tournament.py`; PHP `head_to_head` standings parity shipped; **simul green** (see row above). |
+| 2026-07-13 | **Amiga news — Active Soccer 3** — opening paragraph “Steam” links to store page (same URL as trailer/footer links). |
+| 2026-07-13 | **Non-WC podium Medal column** — unsortable col right of Finish on regular tournament event stats + player tournaments history; Status league SVG (`k2_status_league_podium_medal`); WC event stats unchanged (Finish-only hybrid). |
+| 2026-07-13 | **WC Tier E finish tail (I–XXI)** — all 21 older WCs overridden from Access `[Tables]`; partial: IV Diego L · II Mark W NULL; XV uses Access `World Cup 2015`; **0 flagged**. |
+| 2026-07-13 | **World Cup XXIII (25) Tier E finish** — full holistic ladder 1–37 in `amiga_tournament_finish_override` (Access `Tables`; 37/37 roster match); snapshots refreshed. |
+| 2026-07-13 | **WC event-stats Medal column retired** — single **Finish** col (Gold/Silver/Bronze 1–3, ordinals 4+); col 12; sorts on `event_finish_position`. |
+| 2026-07-13 | **World Cup XXII (20) Tier E finish** — full holistic ladder 1–35 in `amiga_tournament_finish_override` (Access `Tables` witness); snapshots refreshed; `wc_deferred` structure unchanged. |
+| 2026-07-13 | **Amiga News second post** — Active Soccer 3 launch (Gianluca Troiano, The Fox Software); two Steam screenshots + trailer as native `<video>` figure (Steam CDN mp4, local poster) in `images/amiga/news/`; X embed tried then dropped — [`present-layer-ia.md`](docs/present-layer-ia.md) §5.5. |
 | 2026-07-13 | **Amiga News first post** — Oslo WC 2026 wired (10 Jul); author byline; pulse stubs unchanged — [`present-layer-ia.md`](docs/present-layer-ia.md) §5.5. |
 | 2026-07-12 | **Milan XXXIX (17) materialize** — 13p incomplete double-RR **League** (151/156g); Sandro T left early (5 return legs); incomplete-dRR guard spread≤5; Tier B **1 Fabio F · … · 13 Flavio Z**; work DB only. |
 | 2026-07-12 | **Milan XVIII (214) materialize** — 8p incomplete double-RR **League** (50/56g); Luigi F + Gabriele B left early; incomplete-dRR `--force` guard; Tier B **1 Marco D · … · 8 Gabriele B**; work DB only. |

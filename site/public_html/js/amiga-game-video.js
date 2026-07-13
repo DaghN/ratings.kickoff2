@@ -1,10 +1,13 @@
 (function () {
   "use strict";
 
-  function embedUrl(youtubeId, autoplay) {
+  function embedUrl(youtubeId, startSec, autoplay) {
     var id = encodeURIComponent(youtubeId || "");
     var url = "https://www.youtube-nocookie.com/embed/" + id;
     var params = ["origin=" + encodeURIComponent(window.location.origin || "")];
+    if (startSec > 0) {
+      params.push("start=" + String(startSec));
+    }
     if (autoplay) {
       params.push("autoplay=1");
     }
@@ -14,7 +17,15 @@
     return url;
   }
 
-  function mountEmbed(root, youtubeId, autoplay) {
+  function parseStartSec(raw) {
+    var startSec = parseInt(raw || "0", 10);
+    if (Number.isNaN(startSec) || startSec < 0) {
+      return 0;
+    }
+    return startSec;
+  }
+
+  function mountEmbed(root, youtubeId, startSec, autoplay) {
     var box = root.querySelector(".k2-game-page__video");
     if (!box || !youtubeId) {
       return;
@@ -22,7 +33,7 @@
     box.innerHTML = "";
     var frame = document.createElement("iframe");
     frame.className = "k2-game-page__video-iframe k2-tournament-videos__spotlight-iframe";
-    frame.src = embedUrl(youtubeId, autoplay);
+    frame.src = embedUrl(youtubeId, startSec, autoplay);
     frame.title = root.getAttribute("data-k2-game-video-title") || "Game video";
     frame.setAttribute(
       "allow",
@@ -61,8 +72,9 @@
       if (!youtubeId) {
         return;
       }
+      var startSec = parseStartSec(link.getAttribute("data-start-sec"));
       setActiveLink(menu, link);
-      mountEmbed(root, youtubeId, true);
+      mountEmbed(root, youtubeId, startSec, true);
       var href = link.getAttribute("href");
       if (href) {
         history.replaceState(null, "", href);

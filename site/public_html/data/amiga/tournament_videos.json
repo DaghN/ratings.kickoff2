@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-07-12",
+  "updated_at": "2026-07-13",
   "videos": [
     {
       "youtube_id": "OE_wVb2JheU",
@@ -1841,6 +1841,28 @@
       "game_ids": [
         1711
       ]
+    },
+    {
+      "youtube_id": "6WmRIQvvcP8",
+      "title": "Wonka celebration ko2 athens 2002",
+      "tournament_id": 66,
+      "kind": "atmosphere",
+      "stage": "atmosphere",
+      "leg": null,
+      "score": null,
+      "player_a_id": null,
+      "player_b_id": null,
+      "duration_sec": 26,
+      "sort": 80,
+      "source": "manual",
+      "source_channel": null,
+      "source_playlist": null,
+      "relation_group": null,
+      "relation": null,
+      "featured_final": false,
+      "verified": true,
+      "notes": "WC 2002 Athens Wonka celebration (Dagh add Jul 2026)",
+      "external_url": null
     },
     {
       "youtube_id": "r3VCe2ULxtY",
@@ -7317,6 +7339,63 @@
       "external_url": null,
       "game_ids": [
         24439
+      ]
+    },
+    {
+      "youtube_id": "_cRSiEAhUps",
+      "title": "Kick Off 2 UK Championship 2026 (Nottingham III)",
+      "tournament_id": 607,
+      "kind": "stream",
+      "stage": "stream",
+      "leg": null,
+      "score": null,
+      "player_a_id": null,
+      "player_b_id": null,
+      "duration_sec": null,
+      "sort": 90,
+      "source": "manual",
+      "source_channel": "ko2cv",
+      "source_playlist": null,
+      "relation_group": null,
+      "relation": null,
+      "featured_final": false,
+      "verified": true,
+      "notes": "UK Champs 2026 stream; 15 forum timestamps (H:MM) in video_game_links.csv (partial coverage)",
+      "external_url": null,
+      "game_link_mode": "stream_map",
+      "game_ids": [
+        27419,
+        27453,
+        27432,
+        27436,
+        27445,
+        27454,
+        27439,
+        27470,
+        27438,
+        27425,
+        27473,
+        27449,
+        27471,
+        27428,
+        27467
+      ],
+      "game_start_sec": [
+        780,
+        1680,
+        5160,
+        5880,
+        7020,
+        8280,
+        9840,
+        10560,
+        12420,
+        13140,
+        14280,
+        16500,
+        18180,
+        19260,
+        20160
       ]
     }
   ]

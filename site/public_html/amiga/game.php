@@ -13,11 +13,19 @@ $con->query("SET time_zone = '+00:00'");
 
 $row = $id > 0 ? amiga_rated_game_load($con, $id) : null;
 $gameVideos = $row !== null ? amiga_videos_for_game_id($id) : [];
+$gameVideoRequest = amiga_tournament_videos_wc_request_params();
 $gameVideoActiveIndex = amiga_game_videos_active_index(
     $gameVideos,
-    isset($_GET['v']) ? (string) $_GET['v'] : null,
+    $gameVideoRequest['v'] !== '' ? $gameVideoRequest['v'] : null,
 );
 $gameHasVideos = $gameVideos !== [];
+$gameVideoStartSec = 0;
+if ($gameHasVideos) {
+    $activeVideo = $gameVideos[$gameVideoActiveIndex] ?? $gameVideos[0];
+    $gameVideoStartSec = $gameVideoRequest['start_sec'] > 0
+        ? $gameVideoRequest['start_sec']
+        : (int) ($activeVideo['start_sec'] ?? 0);
+}
 
 $k2ScrollTargetId = '';
 if ($row !== null) {
@@ -90,7 +98,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 </div><!-- .k2-table-wrap -->
 
 <?php if ($row !== null && $gameHasVideos) {
-    amiga_game_videos_render_section($row, $gameVideos, $gameVideoActiveIndex);
+    amiga_game_videos_render_section($row, $gameVideos, $gameVideoActiveIndex, $gameVideoStartSec);
 } ?>
 
 <?php mysqli_close($con); ?>

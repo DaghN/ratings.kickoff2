@@ -15,11 +15,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 	This seems like an exciting departure from our usual more private settings, and not only will it give the visitors at the Expo a chance to spectate the most marvellous game in existence in its best setting, but it will also give us all a chance to speak with the local vikings and see what they really think about us still playing this daft old game, in a World Cup no less! Now, if we could also arrange for Robert to introduce big screen matches throughout the event on loudspeakers, I am sure we could really make a bit of an impression on the locals :D
 </p>
 <figure class="k2-news-post__figure">
-	<img src="/images/amiga/news/wc-2025-milan-big-screen.jpg" width="1200" height="800" alt="Kick Off 2 World Cup 2025 in Milan: spectators in a dimmed room watching a match on a large projection screen." loading="lazy" decoding="async" />
-	<figcaption>Big screen games at the <a href="/amiga/tournament/event-stats.php?id=25#tournament">Kick Off 2 World Cup 2025, Milan</a>. Photo: Alkis.</figcaption>
+	<img src="/images/amiga/news/wc-2025-milan-big-screen-gianni.jpg" width="1200" height="800" alt="Kick Off 2 World Cup 2025 in Milan: Silver Cup final on the big screen, with spectators watching from the tournament room." loading="lazy" decoding="async" />
+	<figcaption>Big screen games at the <a href="/amiga/tournament/event-stats.php?id=25#tournament">Kick Off 2 World Cup 2025, Milan</a>. Photo: Gianni.</figcaption>
 </figure>
 <p class="k2-news-post__prose">
-	The official <a href="https://www.ko2wc.com/" rel="noopener noreferrer">registration page</a> is online as of May 26, 2026, and we already have 12 registrants (as of July 2026), with surely more to come soon. The World Cup usually has about 30 to 40 participants, and no matter how many will come this year, no doubt we will have a blast!
+	The official <a href="https://www.ko2wc.com/" rel="noopener noreferrer">registration page</a> is online as of May 26, 2026, and we already have 12 registrants (as of July 2026), with surely many more to come soon. The World Cup usually has about 30 to 40 participants, and no matter how many will come this year, no doubt we will have a blast!
 </p>
 <p class="k2-news-post__prose">
 	The information hub in the KOA forum for the Oslo World Cup is here:

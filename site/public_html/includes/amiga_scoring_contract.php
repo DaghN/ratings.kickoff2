@@ -414,12 +414,31 @@ function amiga_scoring_league_metric_negated(array $standing, string $step, arra
 }
 
 /**
+ * @param array<int, array{wins: int, draws: int, losses: int, goals_for: int, goals_against: int, games: int, win_points?: int, draw_points?: int, loss_points?: int}>|null $mini
  * @return list<int|float>
  */
-function amiga_scoring_league_sort_key(array $standing, array $contract): array
-{
+function amiga_scoring_league_sort_key(
+    array $standing,
+    array $contract,
+    ?array $mini = null,
+    ?int $playerId = null
+): array {
     $parts = [];
     foreach ($contract['steps'] as $step) {
+        if ($step === 'head_to_head') {
+            if ($mini !== null && $playerId !== null && isset($mini[$playerId])) {
+                $m = $mini[$playerId];
+                $gd = (int) $m['goals_for'] - (int) $m['goals_against'];
+                array_push(
+                    $parts,
+                    -amiga_scoring_standing_points($m, $contract),
+                    -$gd,
+                    -(int) $m['goals_for']
+                );
+            }
+
+            continue;
+        }
         $metric = amiga_scoring_league_metric_negated($standing, $step, $contract);
         if ($metric === null) {
             continue;
@@ -441,14 +460,33 @@ function amiga_scoring_league_sort_key(array $standing, array $contract): array
 }
 
 /**
+ * @param array<int, array{wins: int, draws: int, losses: int, goals_for: int, goals_against: int, games: int, win_points?: int, draw_points?: int, loss_points?: int}>|null $mini
  * @return list<int|float>
  */
-function amiga_scoring_league_position_tie_key(array $standing, array $contract): array
-{
+function amiga_scoring_league_position_tie_key(
+    array $standing,
+    array $contract,
+    ?array $mini = null,
+    ?int $playerId = null
+): array {
     $parts = [];
     foreach ($contract['steps'] as $step) {
         if ($step === 'games_played') {
             break;
+        }
+        if ($step === 'head_to_head') {
+            if ($mini !== null && $playerId !== null && isset($mini[$playerId])) {
+                $m = $mini[$playerId];
+                $gd = (int) $m['goals_for'] - (int) $m['goals_against'];
+                array_push(
+                    $parts,
+                    -amiga_scoring_standing_points($m, $contract),
+                    -$gd,
+                    -(int) $m['goals_for']
+                );
+            }
+
+            continue;
         }
         $metric = amiga_scoring_league_metric_negated($standing, $step, $contract);
         if ($metric === null) {

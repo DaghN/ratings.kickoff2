@@ -71,6 +71,22 @@ Historical bootstrap (Jun 2026): bulk handler assignment closed most tier-A/B; m
 
 ## Review log
 
+### 2026-07-13 — World Cup Tier E holistic finish (I–XXIII)
+
+- **All 23 WCs** on `ko2amiga_work` now have `amiga_tournament_finish_override` from Access `[Tables]` holistic ladder + snapshots refreshed
+- **Access label quirks:** XV (585) = `World Cup 2015` (not `World Cup XV`); X (480) Access `Klaus L` → `Klaus Le` via `PLAYER_NAME_ALIASES`
+- **Partial ladders (no override row — finish NULL):**
+  - **140** World Cup IV (Milan) — **Diego L** (id 96, 2 games) absent from Access (43/44)
+  - **66** World Cup II (Athens) — **Mark W** (id 282, 4 games) absent from Access (25/26)
+- **Flagged:** none
+- Earlier same session: **20** XXII (35 rows) · **25** XXIII (37 rows)
+
+### 2026-07-13 — World Cup XXII (20) + XXIII (25) Tier E holistic finish
+
+- **20** World Cup XXII (Nottingham) → `wc_deferred` (structure not materialized) — **Tier E full ladder 1–35** in `amiga_tournament_finish_override`; witness Access `[Tables]` `Tournament = 'World Cup XXII'`; snapshots refreshed; work DB only
+- **25** World Cup XXIII (Milan) → `wc_deferred` — **Tier E full ladder 1–37** (Access `[Tables]` `World Cup XXIII`; 37/37 roster match — no missing players); snapshots refreshed; work DB only
+- Podium unchanged on both (XXII: Fabio / Gianni / Blazej; XXIII: Dagh / Gianni / Christopher); ranks below podium were NULL under Tier D/M4 — now curated
+
 ### 2026-07-12 — Non-WC materialize tail complete
 
 - **583/606** catalog tournaments have `tournament_stages` on `ko2amiga_work`; **23** without stages = **`wc_deferred`** World Cups only

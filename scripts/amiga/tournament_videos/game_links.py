@@ -77,11 +77,31 @@ def _int_leg(raw: str | None) -> int | None:
     return None
 
 
-def _int_start_sec(raw: str | None) -> int | None:
+def _parse_start_sec(raw: str | None) -> int | None:
+    """YouTube embed offset in seconds.
+
+    Forum stream indexes use wall-clock **H:MM** into the broadcast (e.g. ``1:26``).
+    Sidecar ``start_sec`` accepts ``H:MM`` / ``HH:MM`` or an integer seconds value.
+    """
     val = (raw or "").strip()
+    if not val:
+        return None
+    if ":" in val:
+        parts = val.split(":", 1)
+        if len(parts) != 2 or not parts[0].isdigit() or not parts[1].isdigit():
+            return None
+        hours = int(parts[0])
+        minutes = int(parts[1])
+        if minutes < 0 or minutes >= 60:
+            return None
+        return hours * 3600 + minutes * 60
     if val.isdigit():
         return int(val)
     return None
+
+
+def _int_start_sec(raw: str | None) -> int | None:
+    return _parse_start_sec(raw)
 
 
 def is_stream_map_row(row: dict[str, str]) -> bool:

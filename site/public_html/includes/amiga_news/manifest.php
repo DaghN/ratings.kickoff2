@@ -8,6 +8,13 @@ declare(strict_types=1);
 
 return [
     [
+        'id' => '2026-07-active-soccer-3',
+        'date' => '2026-07-13',
+        'title' => 'Active Soccer 3 by Gianluca Troiano launches on Steam — July 13, 2026',
+        'author' => 'Dagh Nielsen',
+        'file' => '2026-07-active-soccer-3.inc.php',
+    ],
+    [
         'id' => '2026-07-oslo-wc',
         'date' => '2026-07-10',
         'title' => '24th Kick Off 2 World Cup — Oslo, November 14-15, 2026',

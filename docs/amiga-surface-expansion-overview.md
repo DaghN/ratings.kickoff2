@@ -88,7 +88,7 @@ Items below need **no new derived tables** and **no new rebuild writers** unless
 | | |
 |---|---|
 | **Source** | `amiga_player_tournament_participation` indexed by `(tournament_id, player_id)` |
-| **Shipped** | `/amiga/tournament/event-stats.php` — participation roster per event: W-D-L, GF/GA/GD, GF/g, GA/g, Pts, Rating, Adj., New rating, **Perf. rating** ([`amiga-performance-rating.md`](amiga-performance-rating.md)); WC **Medal** column (not group rank) |
+| **Shipped** | `/amiga/tournament/event-stats.php` — participation roster per event: W-D-L, GF/GA/GD, GF/g, GA/g, Pts, **Finish** (WC: Gold/Silver/Bronze + ordinals), Rating, Adj., New rating, **Perf. rating** ([`amiga-performance-rating.md`](amiga-performance-rating.md)) |
 | **Also** | Standings tab(s) from `amiga_tournament_standings`; foldered tabs under `amiga/tournament/` (Jun 2026) |
 | **Also** | **Games** tab (`games.php`) — scoped `amiga_games` read via `idx_amiga_games_tournament`; player filter from participation roster |
 

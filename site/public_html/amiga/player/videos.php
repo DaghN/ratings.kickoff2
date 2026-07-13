@@ -33,13 +33,14 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_routes.php';
 
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 
-if (!amiga_player_has_videos($playerId)) {
+$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
+$con->query("SET time_zone = '+00:00'");
+
+if (!amiga_player_has_videos($playerId, $con)) {
+    mysqli_close($con);
     http_response_code(404);
     exit('Player not found.');
 }
-
-$con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
-$con->query("SET time_zone = '+00:00'");
 
 try {
     $pm = amiga_player_load($con, $playerId);

@@ -147,7 +147,7 @@ function amiga_tournament_videos_render_wc_games_table(
               $spotlightLabel,
               $isActive,
               (int) $entry['game_id'],
-              0,
+              (int) ($entry['start_sec'] ?? 0),
               $spotlightHtml,
           );
       ?></td>

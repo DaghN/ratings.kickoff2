@@ -5,6 +5,7 @@ import unittest
 from scripts.amiga.tournament_videos.game_match import GameRow, match_game
 from scripts.amiga.tournament_videos.game_links import (
     MatchFactLink,
+    _parse_start_sec,
     is_dual_leg_video_row,
     is_game_link_locked,
     is_stream_map_row,
@@ -89,6 +90,12 @@ class ManifestDbTest(unittest.TestCase):
     def test_row_needs_game_link_audit(self) -> None:
         self.assertTrue(row_needs_game_link_audit({"kind": "match", "youtube_id": "x"}))
         self.assertFalse(row_needs_game_link_audit({"kind": "stream", "youtube_id": "x"}))
+
+    def test_parse_start_sec_hm(self) -> None:
+        self.assertEqual(_parse_start_sec("0:13"), 780)
+        self.assertEqual(_parse_start_sec("1:26"), 5160)
+        self.assertEqual(_parse_start_sec("5:36"), 20160)
+        self.assertEqual(_parse_start_sec("5160"), 5160)
 
     def test_manifest_game_start_sec(self) -> None:
         from scripts.amiga.tournament_videos import game_links

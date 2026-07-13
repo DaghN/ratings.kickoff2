@@ -198,7 +198,7 @@ def create_kitchen_marathon_tournament(
         conn,
         tournament_id=tournament_id,
         stage_key="overall",
-        name="Overall",
+        name="League",
         stage_type="round_robin",
         sequence_no=1,
         config={
@@ -224,7 +224,7 @@ def create_kitchen_marathon_tournament(
             player_a_id=fixture.player_a_id,
             player_b_id=fixture.player_b_id,
             leg_no=fixture.leg_no,
-            phase_label="Overall",
+            phase_label=None,
         )
 
     return {

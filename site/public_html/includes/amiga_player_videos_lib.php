@@ -47,13 +47,27 @@ function amiga_player_videos_index_by_player(): array
     return $index;
 }
 
-function amiga_player_has_videos(int $playerId): bool
+function amiga_player_has_videos(int $playerId, ?mysqli $con = null): bool
 {
     if ($playerId < 1) {
         return false;
     }
 
-    return (amiga_player_videos_index_by_player()[$playerId] ?? []) !== [];
+    if ((amiga_player_videos_index_by_player()[$playerId] ?? []) !== []) {
+        return true;
+    }
+
+    if ($con === null) {
+        return false;
+    }
+
+    static $cache = [];
+    if (array_key_exists($playerId, $cache)) {
+        return $cache[$playerId];
+    }
+    $cache[$playerId] = amiga_player_videos_game_index($con, $playerId) !== [];
+
+    return $cache[$playerId];
 }
 
 /** @return list<array<string, mixed>> */
@@ -231,7 +245,10 @@ function amiga_player_videos_game_index(mysqli $con, int $playerId, ?AmigaSnapsh
 
     $pending = [];
     $gameIds = [];
-    foreach (amiga_player_videos_manifest_rows($playerId) as $video) {
+    foreach (amiga_tournament_videos_manifest()['videos'] as $video) {
+        if (!is_array($video) || !amiga_tournament_videos_row_has_game_links($video)) {
+            continue;
+        }
         $yt = (string) ($video['youtube_id'] ?? '');
         if ($yt === '') {
             continue;
@@ -287,6 +304,7 @@ function amiga_player_videos_game_index(mysqli $con, int $playerId, ?AmigaSnapsh
             'tournament_name' => (string) ($tournamentMeta[$tid]['name'] ?? ''),
             'tournament_country' => (string) ($tournamentMeta[$tid]['country'] ?? ''),
             'sort_ts' => amiga_player_videos_sort_timestamp($game, $tournamentMeta),
+            'start_sec' => amiga_tournament_videos_game_start_sec($item['video'], $gid),
         ];
     }
 

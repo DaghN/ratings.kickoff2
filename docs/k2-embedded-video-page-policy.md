@@ -1,6 +1,6 @@
 # K2 embedded video pages — URL and interaction policy
 
-**Status:** **Phase A live (Jun 2026)** — WC tournament Videos tab deep links shipped. **Phase B** (`t=` manifest offsets) deferred. Site uses **normal full page loads** (Turbo removed Jun 2026).
+**Status:** **Phase A live (Jun 2026)** — WC tournament Videos tab deep links shipped. **Manifest `game_start_sec[]` offsets shipped (Jul 2026)** on tournament/player Games play links and `amiga/game.php`. Site uses **normal full page loads** (Turbo removed Jun 2026).
 
 **Purpose:** One expandable policy for pages that combine a **video index** (table or list) with a **shared spotlight player** (single iframe). Catalog/manifest rules stay in [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md).
 
@@ -39,7 +39,7 @@ These apply to every section in the document map unless a surface explicitly ove
 | **`v`** | YouTube video id — **what the spotlight player loads** | Yes for any “watch this clip” deep link |
 | **`game`** | Amiga **rated game id** — which **Games index row** is active (scores, phase, highlight) | Optional — use when sharing “this game” or when multiple rows share the same `v` |
 | **`wing`** | *(retired Jun 2026)* — use folder path (`videos/games.php` vs `videos/atmosphere.php`) | — |
-| **`t`** | Start offset in seconds inside the embed (YouTube `?start=`) | **Phase B** — optional; manifest offsets later |
+| **`t`** | Start offset in seconds inside the embed (YouTube `?start=`) | Optional — manifest `game_start_sec[]` on Games wing + `game.php` when not overridden in URL |
 
 **Playback language is always `v=`.** `game=` disambiguates the index UI only; it does not replace `v=` for the embed.
 

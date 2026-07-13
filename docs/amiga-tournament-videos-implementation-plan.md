@@ -2,7 +2,7 @@
 
 > **Partially complete (Jul 2026):** Catalog + GL game-links **shipped** on oracle path; **forward video** = [`amiga-modern-video-policy.md`](amiga-modern-video-policy.md) (**`align-video-work`**, simul video on by default). **`prove`** / `sync_db_ids` steps below = frozen oracle only. Open: admin bulk-verify, stream-index UI.
 
-**Status:** **In progress (Jun 2026)** — policy locked; **TV-0–TV-4 shipped**; **player profile Videos wing shipped (Jul 2026)**; **TV-2b DB anchor sync shipped (Jul 2026)** — oracle `sync_db_ids` + `verify-tournament-videos` in legacy **`prove`** ([policy §12](amiga-tournament-videos-policy.md)). **Game links GL-0…GL-6 shipped (Jul 2026)** — [`amiga-tournament-videos-game-links-policy.md`](amiga-tournament-videos-game-links-policy.md). **TV-URL** shipped (embedded player + deep links). **TV-FOLDER** shipped (Games/Atmosphere folder modes). Future: admin bulk-verify page; stream index UI when sidecar populated.
+**Status:** **In progress (Jun 2026)** — policy locked; **TV-0–TV-4 shipped**; **player profile Videos wing shipped (Jul 2026)**; **TV-2b DB anchor sync shipped (Jul 2026)** — oracle `sync_db_ids` + `verify-tournament-videos` in legacy **`prove`** ([policy §12](amiga-tournament-videos-policy.md)). **Game links GL-0…GL-6 shipped (Jul 2026)** — [`amiga-tournament-videos-game-links-policy.md`](amiga-tournament-videos-game-links-policy.md). **TV-URL** shipped (embedded player + deep links). **TV-FOLDER** shipped (Games/Atmosphere folder modes). **Stream Games index UI shipped (Jul 2026)** — `stream_map`/`multi` on tournament + player Videos wings; `game_start_sec[]` on play URLs. Future: admin bulk-verify page.
 
 **Policy:** [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md)
 

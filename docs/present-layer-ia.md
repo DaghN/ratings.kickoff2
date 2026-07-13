@@ -152,6 +152,8 @@ Pulse keeps page alive; optional top strip for cross-realm “today”; threshol
 
 **Authoring habit (v1):** add manifest row + post include; body uses `.k2-news-post__prose` (Join prose tokens). Agent-assisted formatting from draft copy is fine; no CMS/DB for v1. **No hub chapter** on News — active **News** tab + post headline carry place; omit `.k2-hub-chapter` on `news.php`.
 
+**Video in a post (opt-in):** native `<video controls preload="none">` inside `.k2-news-post__figure.k2-news-post__figure--video` + figcaption credit; poster image hosted locally in `images/amiga/news/`. Steam trailers have stable direct mp4 URLs at `https://video.akamai.steamstatic.com/store_trailers/{movie_id}/movie_max.mp4` (also `movie480.mp4`; `{movie_id}` from the store `appdetails` API `movies` list) — hotlink these rather than rehosting. Avoid X tweet embeds (widgets.js third-party script; tried and dropped on the Active Soccer 3 post 2026-07-13). First use: Active Soccer 3 post.
+
 ---
 
 ## 6. Misc shelf — bucket, lifecycle, discovery
@@ -372,6 +374,7 @@ Phases **A + C** are the smallest **metadata-complete** slice; **B** makes Misc 
 
 | Date | Change |
 |------|--------|
+| 2026-07-13 | **News second post** — Active Soccer 3 launch; video-figure convention (`.k2-news-post__figure--video`, native `<video>`, Steam CDN trailer mp4 + local poster); X tweet embed tried and dropped; Steam screenshot assets in `images/amiga/news/`. |
 | 2026-07-13 | **News first post** — Oslo WC 2026 (author byline, manifest `author` field); placeholder replaced. |
 | 2026-07-13 | **News v1 shell** — `/amiga/news.php` two-column roll + pulse stubs; manifest + post includes; placeholder welcome post. |
 | 2026-07-01 | Initial intent — News roll, pulse, Misc phased, PL1–PL12, C04 reframe. |

@@ -4994,6 +4994,15 @@ body.k2-site .k2-player-hero__stat-value:not([class*="--"]) a.k2-player-hero__st
 	margin: 0 0 14px;
 }
 
+.k2-news-post__figure video {
+	display: block;
+	width: 100%;
+	height: auto;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: #000;
+}
+
 .k2-news-post__figure img {
 	display: block;
 	width: 100%;

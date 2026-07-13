@@ -207,10 +207,10 @@ Steve’s forum reply: thread covers most of his camcorder tapes; **tape origina
 ### 9.1 Tournament Videos tab
 
 - **Route:** `/amiga/tournament/videos/games.php?id={tournament_id}` (default) · `/amiga/tournament/videos/atmosphere.php?id={tournament_id}` — register in `k2_amiga_routes.php`. Legacy `/amiga/tournament/videos.php` 302s to folder paths.
-- **Layout (all events with manifest rows):** **Games** + **Atmosphere** mode tabs (folder paths), single spotlight embed, sortable index table, `?v=` / optional `game=` deep links — same stack as World Cups (`amiga_tournament_videos_wc_body.inc.php` + `amiga-tournament-videos.js`). Hide **Games** when no match rows; hide **Atmosphere** when no ceremony/coverage rows.
-- **Interaction:** [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) §2 — Back-to-index, share URLs (Phase A); timestamps Phase B.
+- **Layout (all events with manifest rows):** **Games** + **Atmosphere** mode tabs (folder paths), single spotlight embed, sortable index table, `?v=` / optional `game=` / optional `t=` deep links — same stack as World Cups (`amiga_tournament_videos_wc_body.inc.php` + `amiga-tournament-videos.js`). Hide **Games** when no linked games (`kind=match` or `game_link_mode` `multi`/`stream_map` with `game_ids[]`); hide **Atmosphere** when no ceremony/coverage rows.
+- **Interaction:** [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) §2 — Back-to-index, share URLs; manifest `game_start_sec[]` offsets wired on Games wing + `game.php` (Jul 2026).
 - **Nav:** insert **Videos** in `amiga_tournament_page.php` pill row when `amiga_tournament_has_videos($id)`.
-- **Games index:** match rows with linked player names when IDs set; WC knockout ordering when applicable; generic stage/kind sort otherwise.
+- **Games index:** one row per linked `game_id` — match uploads, dual-leg (`multi`), and stream timestamp maps (`stream_map`); player names from DB game row; WC knockout ordering when applicable; generic stage/kind sort otherwise.
 - **Atmosphere index:** ceremony, coverage, stream, and other non-match `kind` rows.
 - **Alternates:** secondary links in table when `relation_group` has non-canonical siblings.
 
@@ -234,7 +234,7 @@ Steve’s forum reply: thread covers most of his camcorder tapes; **tape origina
 ### 9.5 Player profile — Videos wing
 
 - **Route:** `/amiga/player/videos.php?id={player_id}` — `amiga-player-videos` in `k2_amiga_routes.php`.
-- **Nav:** **Videos** pill on player wing nav when `amiga_player_has_videos($id)` (manifest match rows indexed by **`player_a_id` / `player_b_id`** — must match live `amiga_players.id` after sync; §12).
+- **Nav:** **Videos** pill on player wing nav when `amiga_player_has_videos($id)` — manifest `player_a_id` / `player_b_id` on **match** rows **or** any manifest `game_ids[]` row where the player participated (includes `stream_map` / `multi`); DB lookup when only stream links exist.
 - **Index:** cross-tournament game table, **reverse chronological** (game date, tournament chrono fallback); ID · Date · Tournament · game row · play button.
 - **Filter:** opponent listbox above table (same stack as player **Games** — `k2_archive_listbox`, `individual3-filters.js`); options = opponents with ≥1 linked video, **A–Z**, game count in panel meta; `?opponent={id}`.
 - **Time travel:** index rows ≤ active cutoff (tournament event tuple on linked game); opponent facets recomputed on filtered set.
@@ -298,7 +298,7 @@ Re-open either queue only on **new harvest**, **manual adds**, or a **specific m
 | **2 — Read lib + one WC** | PHP lib + Videos tab on **WC XXIII Milan 2025** | Tab renders grouped sections; lazy embed |
 | **3 — Discovery** | Chronology flag + **Has videos** filter | Filter returns only tournaments with clips |
 | **4 — Rollout** | All mapped WCs + major non-WC events from manifest | No regressions on tournaments without video |
-| **5+ — Player / index / game links** | Profile Videos wing, global index, stream splits | Profile wing **shipped**; **GL-0…GL-6** game-link pipeline **shipped** — stream UI index when sidecar curated |
+| **5+ — Player / index / game links** | Profile Videos wing, global index, stream splits | Profile wing **shipped**; **GL-0…GL-6** game-link pipeline **shipped**; **stream Games index UI shipped (Jul 2026)** — `stream_map`/`multi` fan-out on tournament + player Videos wings; `game_start_sec[]` on play links |
 
 **Implementation plan doc:** [`amiga-tournament-videos-implementation-plan.md`](amiga-tournament-videos-implementation-plan.md) — **written Jun 2026**; execute TV-1 onward.
 

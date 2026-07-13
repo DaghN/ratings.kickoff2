@@ -221,9 +221,9 @@ One **`youtube_id`** may map to **many games**. Mechanisms:
 - **Dual-leg (N=2):** same as today’s comma-separated `game_id_guess` / `game_ids[]`; each leg is its own **match fact** (players may swap home/away; score may be empty until known).
 - **Streams (N≫2):** sidecar **`data/amiga/tournament_videos/video_game_links.csv`** — one row per linked game; merged at build time.
 
-**Timestamps (`start_sec`)** are optional metadata for in-video seek ([`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md)); **not required** to list each game in indexes.
+**Timestamps (`start_sec`)** are optional metadata for in-video seek ([`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md)); forum stream indexes use **H:MM** wall-clock into the broadcast — store as `H:MM` or YouTube seconds in `video_game_links.csv` (see `scripts/amiga/tournament_videos/README.md`).
 
-UI note: tournament Videos → Games tab currently partitions `kind=match` only; streams with game maps may need a follow-up UI slice when stream indexes ship (product doc unchanged).
+**UI (shipped Jul 2026):** tournament Videos → Games wing indexes all linked `game_ids[]` (`kind=match`, `game_link_mode` `multi`/`stream_map`); player Videos wing uses the same game-id fan-out filtered by participation.
 
 ---
 

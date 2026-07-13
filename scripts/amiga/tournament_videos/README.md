@@ -84,6 +84,8 @@ Long **`kind=stream`** broadcasts with many linked games use a sidecar file (not
 | `data/amiga/tournament_videos/video_game_links.csv` | One row per linked game (`link_ordinal`, players, score, stage, optional `start_sec`) |
 | `review.csv` → `game_link_mode=stream_map` | Tells sync/verify to load links from sidecar |
 
+**Stream timestamps:** forum indexes use **H:MM** into the broadcast (e.g. `0:13`, `1:26`, `5:36`). Store in sidecar `start_sec` as **`H:MM`** (parsed at build) or as YouTube **seconds** (`total_minutes × 60` — e.g. `1:26` → `5160`). Do not store bare total-minutes as seconds.
+
 Workflow:
 
 1. Set stream row `game_link_mode=stream_map` (and `verified=Y` when curated).

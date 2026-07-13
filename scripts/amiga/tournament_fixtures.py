@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 import json
 import sys
 from typing import Any
@@ -41,6 +41,46 @@ LIVE_SOURCE_SCORES_ID_BASE = 1_000_000_000
 BACKFILL_ENTRANT_NOTE = "backfilled by fixtures backfill-entrants"
 WITHDRAW_ENTRANT_ACTION = "withdrawn by fixtures withdraw-entrant"
 REPLACE_ENTRANT_ACTION = "replaced by fixtures replace-entrant"
+
+
+def next_tournament_chrono(
+    conn: pymysql.connections.Connection,
+    event_date: date | str,
+    *,
+    exclude_tournament_id: int | None = None,
+) -> float:
+    """Next chrono for live-ops promote: bump within same event_date, else global append."""
+    exclude_clause = ""
+    same_day_params: list[Any] = [event_date]
+    if exclude_tournament_id is not None:
+        exclude_clause = " AND id <> %s"
+        same_day_params.append(exclude_tournament_id)
+
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            SELECT COALESCE(MAX(chrono), 0) AS same_day_max
+            FROM tournaments
+            WHERE event_date = %s{exclude_clause}
+            """,
+            tuple(same_day_params),
+        )
+        same_day_max = float(cur.fetchone()["same_day_max"])
+
+        global_params: list[Any] = []
+        global_where = ""
+        if exclude_tournament_id is not None:
+            global_where = " WHERE id <> %s"
+            global_params.append(exclude_tournament_id)
+        cur.execute(
+            f"SELECT COALESCE(MAX(chrono), 0) AS global_max FROM tournaments{global_where}",
+            tuple(global_params),
+        )
+        global_max = float(cur.fetchone()["global_max"])
+
+    if same_day_max > 0:
+        return same_day_max + 1
+    return global_max + 1
 
 
 def _connect() -> pymysql.connections.Connection:

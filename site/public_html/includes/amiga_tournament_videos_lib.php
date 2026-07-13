@@ -297,6 +297,65 @@ function amiga_tournament_videos_section_label(string $key): string
     };
 }
 
+function amiga_tournament_videos_game_link_mode(array $row): string
+{
+    return strtolower(trim((string) ($row['game_link_mode'] ?? '')));
+}
+
+function amiga_tournament_videos_row_has_game_links(array $row): bool
+{
+    if (!is_array($row) || ($row['kind'] ?? '') === 'excluded') {
+        return false;
+    }
+    $gameIds = isset($row['game_ids']) && is_array($row['game_ids']) ? $row['game_ids'] : [];
+    if ($gameIds === []) {
+        return false;
+    }
+    $kind = (string) ($row['kind'] ?? '');
+    $mode = amiga_tournament_videos_game_link_mode($row);
+    if ($kind === 'match') {
+        return true;
+    }
+
+    return in_array($mode, ['multi', 'stream_map'], true);
+}
+
+/**
+ * Manifest rows that contribute to a tournament/player Games index.
+ *
+ * @param list<array<string, mixed>> $rows
+ * @return list<array<string, mixed>>
+ */
+function amiga_tournament_videos_game_link_rows(array $rows): array
+{
+    return array_values(array_filter(
+        $rows,
+        static fn (array $row): bool => amiga_tournament_videos_row_has_game_links($row),
+    ));
+}
+
+function amiga_tournament_videos_game_start_sec(array $video, int $gameId): int
+{
+    $gameIds = isset($video['game_ids']) && is_array($video['game_ids']) ? $video['game_ids'] : [];
+    $starts = isset($video['game_start_sec']) && is_array($video['game_start_sec']) ? $video['game_start_sec'] : [];
+    foreach ($gameIds as $index => $gid) {
+        if ((int) $gid !== $gameId) {
+            continue;
+        }
+        if (!array_key_exists($index, $starts)) {
+            return 0;
+        }
+        $raw = $starts[$index];
+        if ($raw === null || $raw === '') {
+            return 0;
+        }
+
+        return max(0, (int) $raw);
+    }
+
+    return 0;
+}
+
 /** @return array{0: list<array<string, mixed>>, 1: list<array<string, mixed>>} */
 function amiga_tournament_videos_partition(array $rows): array
 {
@@ -345,7 +404,7 @@ function amiga_tournament_videos_wings_for_id(mysqli $con, int $tournamentId): a
 
     $rows = amiga_tournament_videos_for_id($tournamentId);
     [$matchRows, $extrasRows] = amiga_tournament_videos_partition($rows);
-    $gameEntries = amiga_tournament_videos_wc_game_index($con, $tournamentId, $matchRows);
+    $gameEntries = amiga_tournament_videos_wc_game_index($con, $tournamentId);
     $cache[$tournamentId] = [
         'match_rows' => $matchRows,
         'extras_rows' => $extrasRows,
@@ -446,21 +505,24 @@ function amiga_tournament_videos_games_by_ids(mysqli $con, int $tournamentId, ar
 /**
  * One index row per linked game (dual-leg videos → two rows, same youtube_id for now).
  *
- * @param list<array<string, mixed>> $matchVideos
- * @return list<array{game_id: int, youtube_id: string, video: array<string, mixed>, game: array<string, mixed>, sort_bucket: int}>
+ * @param list<array<string, mixed>>|null $linkVideos
+ * @return list<array{game_id: int, youtube_id: string, video: array<string, mixed>, game: array<string, mixed>, sort_bucket: int, start_sec: int}>
  */
-function amiga_tournament_videos_wc_game_index(mysqli $con, int $tournamentId, array $matchVideos): array
+function amiga_tournament_videos_wc_game_index(mysqli $con, int $tournamentId, ?array $linkVideos = null): array
 {
     static $cache = [];
     if ($tournamentId < 1) {
         return [];
     }
-    if (isset($cache[$tournamentId])) {
+    if ($linkVideos === null && isset($cache[$tournamentId])) {
         return $cache[$tournamentId];
     }
 
+    $useDefaultLinkRows = $linkVideos === null;
+    $linkVideos ??= amiga_tournament_videos_game_link_rows(amiga_tournament_videos_for_id($tournamentId));
+
     $pending = [];
-    foreach ($matchVideos as $video) {
+    foreach ($linkVideos as $video) {
         $yt = (string) ($video['youtube_id'] ?? '');
         if ($yt === '') {
             continue;
@@ -502,6 +564,7 @@ function amiga_tournament_videos_wc_game_index(mysqli $con, int $tournamentId, a
             'video' => $item['video'],
             'game' => $gamesById[$gid],
             'sort_bucket' => $item['sort_bucket'],
+            'start_sec' => amiga_tournament_videos_game_start_sec($item['video'], $gid),
         ];
     }
 
@@ -510,7 +573,9 @@ function amiga_tournament_videos_wc_game_index(mysqli $con, int $tournamentId, a
         static fn (array $a, array $b): int => $b['game_id'] <=> $a['game_id'],
     );
 
-    $cache[$tournamentId] = $entries;
+    if ($useDefaultLinkRows) {
+        $cache[$tournamentId] = $entries;
+    }
 
     return $entries;
 }
@@ -595,12 +660,14 @@ function amiga_tournament_videos_wc_games_spotlight_state(
                 'highlight_row' => false,
             ];
         }
+        $entryStartSec = max(0, (int) ($entry['start_sec'] ?? 0));
+        $resolvedStartSec = $startSec > 0 ? $startSec : $entryStartSec;
 
         return [
             'entry' => $entry,
             'youtube_id' => (string) ($entry['youtube_id'] ?? ''),
             'label' => amiga_tournament_videos_wc_game_spotlight_label($entry),
-            'start_sec' => $startSec,
+            'start_sec' => $resolvedStartSec,
             'highlight_row' => true,
         ];
     };
@@ -893,7 +960,7 @@ function amiga_tournament_videos_play_button_html(
 /**
  * Manifest match clips linked to one rated game id (read-only).
  *
- * @return list<array{game_id: int, youtube_id: string, video: array<string, mixed>, sort: int}>
+ * @return list<array{game_id: int, youtube_id: string, video: array<string, mixed>, sort: int, start_sec: int}>
  */
 function amiga_videos_for_game_id(int $gameId): array
 {
@@ -923,6 +990,7 @@ function amiga_videos_for_game_id(int $gameId): array
                 'youtube_id' => $yt,
                 'video' => $video,
                 'sort' => (int) ($video['sort'] ?? 999),
+                'start_sec' => amiga_tournament_videos_game_start_sec($video, $gameId),
             ];
             break;
         }
@@ -951,13 +1019,20 @@ function amiga_game_videos_scroll_target_id(int $videoCount): string
     return AMIGA_GAME_VIDEOS_CAPTION_FRAGMENT;
 }
 
-function amiga_game_videos_url(int $gameId, ?string $youtubeId = null, int $videoCount = 0): string
-{
+function amiga_game_videos_url(
+    int $gameId,
+    ?string $youtubeId = null,
+    int $videoCount = 0,
+    ?int $startSec = null,
+): string {
     require_once __DIR__ . '/k2_amiga_routes.php';
     $params = ['id' => $gameId];
     $yt = amiga_tournament_videos_sanitize_youtube_id($youtubeId ?? '');
     if ($yt !== '') {
         $params['v'] = $yt;
+        if ($startSec !== null && $startSec > 0) {
+            $params['t'] = $startSec;
+        }
         $url = k2_amiga_route('amiga-game', $params);
         if ($videoCount > 0) {
             $url .= '#' . amiga_game_videos_scroll_target_id($videoCount);

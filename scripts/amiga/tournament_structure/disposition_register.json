@@ -79,7 +79,7 @@
     },
     "20": {
       "handler": "wc_deferred",
-      "notes": "WC track"
+      "notes": "WC track; Jul 2026 Tier E finish override 1\u201335 from Access Tables holistic ladder (Nottingham 2024)"
     },
     "21": {
       "handler": "pure_rr",
@@ -100,7 +100,7 @@
     },
     "25": {
       "handler": "wc_deferred",
-      "notes": "WC track"
+      "notes": "WC track; Jul 2026 Tier E finish override 1\u201337 from Access Tables holistic ladder (Milan 2025)"
     },
     "26": {
       "handler": "wc_deferred",

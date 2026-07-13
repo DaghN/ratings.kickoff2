@@ -13,6 +13,7 @@ from scripts.amiga.tournament_fixtures import (
     GENERATED_FIXTURE_PREFIXES,
     _next_append_only_game_date,
     _next_live_source_scores_id,
+    next_tournament_chrono,
 )
 
 log = logging.getLogger(__name__)
@@ -110,12 +111,12 @@ def promote_running_tournament(
         }
 
     if tournament.get("chrono") is None and tournament.get("event_date") is not None:
+        next_chrono = next_tournament_chrono(
+            conn,
+            tournament["event_date"],
+            exclude_tournament_id=tournament_id,
+        )
         with conn.cursor() as cur:
-            cur.execute(
-                "SELECT COALESCE(MAX(chrono), 0) + 1 AS next_chrono FROM tournaments WHERE event_date = %s",
-                (tournament["event_date"],),
-            )
-            next_chrono = float(cur.fetchone()["next_chrono"])
             cur.execute(
                 "UPDATE tournaments SET chrono = %s WHERE id = %s",
                 (next_chrono, tournament_id),

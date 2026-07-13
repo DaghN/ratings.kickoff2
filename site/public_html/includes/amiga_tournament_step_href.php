@@ -180,11 +180,9 @@ function amiga_tournament_step_resolve_videos_url(
         return amiga_tournament_event_stats_url($targetId);
     }
 
-    $rows = amiga_tournament_videos_for_id($targetId);
-    [$matchRows, $extrasRows] = amiga_tournament_videos_partition($rows);
-    $gameEntries = amiga_tournament_videos_wc_game_index($con, $targetId, $matchRows);
-    $hasGamesWing = $gameEntries !== [];
-    $hasAtmosphereWing = $extrasRows !== [];
+    $wings = amiga_tournament_videos_wings_for_id($con, $targetId);
+    $hasGamesWing = $wings['has_games_wing'];
+    $hasAtmosphereWing = $wings['has_atmosphere_wing'];
     $mode = amiga_tournament_videos_resolve_mode($intent['videos_mode'], $hasAtmosphereWing, $hasGamesWing);
 
     return amiga_tournament_videos_url($targetId, $mode);

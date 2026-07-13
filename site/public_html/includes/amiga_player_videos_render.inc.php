@@ -127,7 +127,7 @@ function amiga_player_videos_render_games_table(
               $spotlightLabel,
               $isActive,
               (int) $entry['game_id'],
-              0,
+              (int) ($entry['start_sec'] ?? 0),
               $spotlightHtml,
               $opponentFilter,
           );
