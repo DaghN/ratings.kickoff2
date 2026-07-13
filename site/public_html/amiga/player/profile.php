@@ -33,6 +33,7 @@ $con->query("SET time_zone = '+00:00'");
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_profile_blocks.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_profile_lb_slices.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournament_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 
@@ -51,6 +52,7 @@ $profileMoments = amiga_player_moments_load($con, $id);
 $totalTournaments = $tournamentTotals !== null
     ? (int) ($tournamentTotals['tournaments_played'] ?? 0)
     : count($recentTournaments);
+$profileLbSliceRow = amiga_profile_lb_slices_load($con, $id);
 amiga_player_publish_hero_context($pm, $con);
 mysqli_close($con);
 ?>
@@ -65,6 +67,7 @@ mysqli_close($con);
 $k2AmigaPlayerTabActive = 'profile';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_nav.php';
 
+amiga_profile_render_lb_slices($profileLbSliceRow);
 amiga_profile_render_career($pm);
 if ($tournamentTotals !== null) {
     amiga_profile_render_honours($tournamentTotals, $playerId);

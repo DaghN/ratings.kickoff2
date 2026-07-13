@@ -10,7 +10,7 @@ return [
     [
         'id' => '2026-07-active-soccer-3',
         'date' => '2026-07-13',
-        'title' => 'Active Soccer 3 by Gianluca Troiano launches on Steam — July 13, 2026',
+        'title' => 'Active Soccer 3 by Gianluca Troiano launches on Steam',
         'author' => 'Dagh Nielsen',
         'file' => '2026-07-active-soccer-3.inc.php',
     ],

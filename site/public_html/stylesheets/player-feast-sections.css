@@ -950,3 +950,90 @@ body.k2-site .player-compare-rank-chart__toolbar[data-range-mode="percentile"] .
 .pm3d-h2h-search {
 	margin: 0;
 }
+
+/* Amiga profile — LB wing slices (compact label | value, wrap mosaic) */
+.player-feast-body .k2-amiga-profile-lb-slices {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	align-content: flex-start;
+	gap: var(--k2-nav-gap);
+	padding: 0 1.25rem 1rem;
+}
+
+.player-feast-body .k2-amiga-profile-lb-slice {
+	flex: 0 0 auto;
+	margin: 0;
+}
+
+.player-feast-body .k2-amiga-profile-lb-slice__table {
+	width: max-content;
+	max-width: 100%;
+	margin: 0;
+	border-collapse: collapse;
+	font-variant-numeric: tabular-nums;
+	line-height: 1.25;
+	font-size: 0.75rem;
+	border: 1px solid var(--k2-border-subtle);
+}
+
+.player-feast-body .k2-amiga-profile-lb-slice__label {
+	padding: 0.22rem 0.55rem 0.22rem 0.5rem;
+	text-align: left;
+	vertical-align: middle;
+	white-space: nowrap;
+	font-size: inherit;
+	font-weight: 500;
+	color: var(--k2-text-muted);
+	background: var(--k2-bg-surface);
+	border-bottom: 1px solid var(--k2-border-subtle);
+}
+
+.player-feast-body .k2-amiga-profile-lb-slice__label.k2-table-helped {
+	cursor: help;
+}
+
+.player-feast-body .k2-amiga-profile-lb-slice__label.k2-table-helped:hover,
+.player-feast-body .k2-amiga-profile-lb-slice__label.k2-table-helped:focus-visible {
+	color: var(--k2-text-secondary);
+}
+
+.player-feast-body .k2-amiga-profile-lb-slice__value {
+	padding: 0.22rem 0.5rem 0.22rem 0.55rem;
+	text-align: right;
+	vertical-align: middle;
+	white-space: nowrap;
+	font-size: inherit;
+	font-weight: 500;
+	color: var(--k2-text-secondary);
+	background: transparent;
+	border-left: 1px solid var(--k2-border-subtle);
+	border-bottom: 1px solid var(--k2-border-subtle);
+}
+
+.player-feast-body .k2-amiga-profile-lb-slice__table tbody tr:last-child .k2-amiga-profile-lb-slice__label,
+.player-feast-body .k2-amiga-profile-lb-slice__table tbody tr:last-child .k2-amiga-profile-lb-slice__value {
+	border-bottom: none;
+}
+
+.player-feast-body .k2-amiga-profile-lb-slice__value.k2-table-cell--right {
+	text-align: right;
+}
+
+.player-feast-body .k2-amiga-profile-lb-slice__label.k2-lb-honours-medal-th {
+	text-align: left;
+}
+
+.player-feast-body .k2-amiga-profile-lb-slice__value.k2-lb-honours-medal-td {
+	text-align: right;
+}
+
+.player-feast-body .k2-amiga-profile-lb-slice__table .k2-status-medal__svg {
+	width: 14px;
+	height: auto;
+	vertical-align: middle;
+}
+
+.player-feast-body .k2-amiga-profile-lb-slice__table .k2-country-hero__medal-value {
+	font-size: inherit;
+}

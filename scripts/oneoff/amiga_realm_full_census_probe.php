@@ -41,7 +41,7 @@ $add = static function (string $path, string $group, bool $tt = true) use (&$ent
 
 // Leaderboards
 foreach ([
-    'rating', 'tournament-honours', 'calendar-geo', 'goals', 'double-digits', 'victims', 'peak-rating',
+    'rating', 'goals', 'double-digits', 'victims', 'tournament-honours', 'calendar-geo', 'peak-rating',
 ] as $wing) {
     $add('/amiga/leaderboards/' . $wing . '.php', 'leaderboards');
 }

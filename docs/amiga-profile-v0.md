@@ -11,7 +11,7 @@
 | Hub nav | News · Leaderboards · World Cups · Tournaments · **Countries** · Games · Activity · Hall of Fame · Live (`includes/amiga_hub_nav.php`; default landing `/amiga/news.php`) |
 | **Countries hub** | `/amiga/countries.php` (hub index) · `/amiga/country/roster.php?country={token}` · `/amiga/country/rivals/{h2h,wdl,goals,dds}.php?country={token}` (+ `rival=` on H2H) — country entity **Roster · Rivals** — [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) · Rivals grain [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) §1.1 |
 | Leaderboard (rating) | `/amiga/leaderboards/rating.php` (Leaderboards tab; `/amiga/rating.php` redirects) |
-| Leaderboard wings | Tab order in `amiga_lb_nav.php`: Rating · Tournament honours · Calendar &amp; geography · Goals · DDs &amp; CSs · Victims · Peak · Perf. rating *(World Cups player stats = hub only — not an LB wing)* |
+| Leaderboard wings | Tab order in `amiga_lb_nav.php`: Rating · Goals · DDs &amp; CSs · Victims &amp; Culprits · Tournament honours · Calendar &amp; geography · Peak · Perf. rating *(World Cups player stats = hub only — not an LB wing)* |
 | Tournament honours LB | `/amiga/leaderboards/tournament-honours.php` (all-events medals; WC career stats → World Cups hub → Player stats) |
 | World Cups player stats | `/amiga/world-cups/players/honours.php` (+ Results · Goals · DDs · Opponents) — [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) |
 | Hall of Fame | `/amiga/hall-of-fame.php` |
@@ -28,6 +28,7 @@
 
 ## What v0 shows
 
+- **LB wing slices (Jul 2026)** — seven compact label | value tables (`th scope="row"` + value) in a wrapping mosaic (`flex-wrap`, minimal `max-content` width, `--k2-nav-gap` between tiles); LB column labels + tooltips; present-only (`includes/amiga_profile_lb_slices.php`). Perf. rating omitted. Legacy Career / Honours / Perf highlight below.
 - **Hero** — same feast shell as online (`amiga_player_hero.php`): avatar + name → Profile tab; **rank** from stored `elo_rank` (present: `amiga_player_current`; time travel: `amiga_player_elo_rank_at_event`); rating → Rating LB; **events** (`tournaments_played`) → Tournaments tab **`#k2-player-tournaments-table`**; games → player games tab; **world cups** (WC slice `tournaments_played`, with core stats) → Tournaments World Cups filter + same table anchor; sparse WC medal counts alone after 20px gap; rank · rating · events · games · world cups stat values use link-star + glow; pre-debut at cutoff → — + note (T17). **Name hover glance (Jul 2026):** read-only hero-style popover on Amiga player links site-wide — tier **B** default in `includes/amiga_player_glance_config.php` (`?k2_glance=A|B`); API `api/amiga_player_glance.php`. **Lift shadow:** omnidirectional neutral halo (`--k2-amiga-glance-lift-shadow` in `stylesheets/amiga-player-glance.css`) — zero offset, layered blurs + 1px ring, separate from accent border glow; for separation on busy table backgrounds.
 - **Player nav** — Profile · Opponents · Tournaments · Games · **Videos** (when manifest has clips for player — [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §9.5 · §12)
 - **Career strip** — `amiga_players` + `amiga_player_current` (W/D/L, goals, peak, opp avg)
@@ -95,6 +96,7 @@ Participation **roster and W-D-L/goals** come from **`amiga_games`** — a row e
 - `includes/amiga_player_hero.php`
 - `includes/amiga_player_nav.php`
 - `includes/amiga_profile_blocks.php`
+- `includes/amiga_profile_lb_slices.php` — LB wing column slices (profile lead blocks)
 - `includes/amiga_player_moments_lib.php`
 - `includes/amiga_tournament_lib.php`
 - `includes/amiga_tournament_bracket.php`
