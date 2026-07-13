@@ -42,9 +42,9 @@
 
 - **Amiga time travel (Jul 2026):** **TT ribbon sticky v1** — CSS `position:sticky` on all `as=` pages (sticky on only; no pushpin). **F6 nav track signed off** — narrow snapshot reads + y=0 chrome gate + realm query sweep; Dagh S1/S1b pass — [`tt-chrome-baseline-f6-attempt-log.md`](docs/orchestration/tt-chrome-baseline-f6-attempt-log.md) · [`2026-07-04-003`](docs/orchestration/agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md) · sticky slice [`2026-07-04-018`](docs/orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md).
 
-- **Amiga realm (Jun 2026):** **Games hub shipped** — `/amiga/games/{recent,highlights,all}.php`; TT-sensitive; filters on All games deferred. **Disposition review** — register **605/605**; **44** `pending_review`; [`disposition-REVIEW-STARTER`](docs/orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md).
+- **Amiga realm (Jul 2026):** **Games hub shipped** — `/amiga/games/{recent,highlights,all}.php`. **Tournament structure — non-WC materialize tail complete** on `ko2amiga_work`: **583/606** catalog ids have stages; remaining **23** = `wc_deferred` World Cups only; disposition register **0** `pending_review`; parser queue **empty** (slice **6a**). Forward: **WC structure track** + display imprint P2–P3 — [`amiga-tournament-structure-review-queue.md`](docs/amiga-tournament-structure-review-queue.md) · [`amiga-tournament-structure-display-policy.md`](docs/amiga-tournament-structure-display-policy.md).
 
-- **Amiga rating history (Jun 2026):** **V1** — History hub + time-travel rating LB; News tab = blank placeholder; [`amiga-rating-history-policy.md`](docs/amiga-rating-history-policy.md).
+- **Amiga rating history (Jun 2026):** **V1** — History hub + time-travel rating LB; **News tab shell (Jul 2026)** — roll + pulse stubs, placeholder post; [`amiga-rating-history-policy.md`](docs/amiga-rating-history-policy.md) · [`present-layer-ia.md`](docs/present-layer-ia.md) §5.5.
 
 - **Amiga event snapshots (Jun 2026):** **Complete (slices 0–9)** — `amiga_player_event_snapshots` + `amiga_player_current`; legacy four tables retired; holy loop `python -m scripts.amiga prove` green. Policy [`amiga-event-snapshot-policy.md`](docs/amiga-event-snapshot-policy.md).
 
@@ -88,11 +88,11 @@
 - **Amiga perfect event (Jun 2026):** **Shipped** — SCH-045; honours LB + WC **Perfect** column; catalog filter; HoF **Most perfect events**. [`amiga-perfect-event-policy.md`](docs/amiga-perfect-event-policy.md).
 - **Amiga perf. rating LB (Jun 2026):** **Shipped** — folder `performance-rating/{best,top,perfect}.php` + segment nav; W-D-L columns; Top 100 fixed set; Perfect shows **∞**. [`amiga-performance-rating-leaderboard-policy.md`](docs/amiga-performance-rating-leaderboard-policy.md).
 
-- **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~299** videos; unified embed UI; **C06** dedicated Videos column; **With videos** filter; **player profile Videos wing**. **Jul 2026:** **TV-2b DB anchor sync** — `sync_db_ids` + `verify-tournament-videos` in `prove` ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md) §12).
+- **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~300** videos; unified embed UI; **C06** dedicated Videos column; **With videos** filter; **player profile Videos wing**. **Jul 2026:** **TV-2b DB anchor sync** — `sync_db_ids` + `verify-tournament-videos` in `prove` ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md) §12).
 
 - **Amiga live ops (Jul 2026):** **RTB shipped (RTB-1–RTB-9)** — running scores until organizer **Finish and make official** (promote + finalize + lifecycle `completed` in one Table-tab action). Policy: [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md) rev. 2.
 
-- **Amiga format scoring contract (Jul 2026):** **SC-0–SC-9 + SC-11 shipped** — L4b relational contracts, PHP↔Python executor parity, RTB broadcast, L5 `stage_id`, structured ET/pens on games + fixtures (`012_match_extensions.sql`). **SC-10 blocked** on structure/materialize (~58% games `fixture_id`). Witness audit: `Scores.Extra` token inventory; `WG` unconfirmed in Access. Policy [`amiga-format-scoring-contract-policy.md`](docs/amiga-format-scoring-contract-policy.md) · plan [`amiga-format-scoring-contract-implementation-plan.md`](docs/amiga-format-scoring-contract-implementation-plan.md).
+- **Amiga format scoring contract (Jul 2026):** **SC-0–SC-9 + SC-11 shipped** — L4b relational contracts, PHP↔Python executor parity, RTB broadcast, L5 `stage_id`, structured ET/pens on games + fixtures (`012_match_extensions.sql`). **SC-10:** non-WC games **100%** `fixture_id` on work (Jul 2026); remaining unlinked games = **unmaterialized WCs** (`wc_deferred`). Policy [`amiga-format-scoring-contract-policy.md`](docs/amiga-format-scoring-contract-policy.md) · plan [`amiga-format-scoring-contract-implementation-plan.md`](docs/amiga-format-scoring-contract-implementation-plan.md).
 
 - **Amiga modern ground (Jul 2026):** **Cutover bootstrap complete** (D0 → PROMOTE-1 + DOC-1 + CODE-1). **Staged prod / local repair shop:** [`amiga-staging-authority-policy.md`](docs/amiga-staging-authority-policy.md). **PULL-1a/1b shipped** — `pull_ko2amiga_from_staging.ps1` + `run_export_ko2amiga.php` (verified pull Jul 2026). Daily loop: pull → repair → push (`export_ko2amiga_work.ps1` after simul when needed). [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md).
 
@@ -145,12 +145,16 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-13 | **Amiga News first post** — Oslo WC 2026 wired (10 Jul); author byline; pulse stubs unchanged — [`present-layer-ia.md`](docs/present-layer-ia.md) §5.5. |
+| 2026-07-12 | **Milan XXXIX (17) materialize** — 13p incomplete double-RR **League** (151/156g); Sandro T left early (5 return legs); incomplete-dRR guard spread≤5; Tier B **1 Fabio F · … · 13 Flavio Z**; work DB only. |
+| 2026-07-12 | **Milan XVIII (214) materialize** — 8p incomplete double-RR **League** (50/56g); Luigi F + Gabriele B left early; incomplete-dRR `--force` guard; Tier B **1 Marco D · … · 8 Gabriele B**; work DB only. |
 | 2026-07-12 | **`player_count` split** — `tournaments.player_count` = Access witness only (323 reverted to 5); hero + live view use `amiga_tournament_participant_count()`; builder verify keys off `tournament_entrants`. |
 | 2026-07-12 | **Cologne I (269) Tier E finish** — full ladder 1–25 in `amiga_tournament_finish_override` (cup 1–16; Playouts 17–23 Laurent L / Volker B …; 24th final Juan S / Desiree R). |
 | 2026-07-12 | **Cologne I (269) materialize** — 25p German Open; parser `Place N Final`; R1 Group A/B split + R2 KO ties; 36 stages / 245g; Tier E ladder 1–25 (Gianni T champion); work DB only. |
 | 2026-07-12 | **Ostersund VI (323) materialize** — 7p incomplete double-RR **League** (56g); Bjorn P + Kent H withdrew; forum t=14454; Access catalog `player_count`=5; pairing-coverage `--force` guard; Tier B **1 John H (17-0-0) · 2 Jacob K · … · 7 Kent H**; work DB only. |
 | 2026-07-12 | **Gloucester III Team (605) materialize** — 10 KO stages (Match 1–10); 5v5 team tie; Tier E sparse sentinel → all participants NULL finish (no individual podium). |
-| 2026-07-12 | **Hertford IV split shipped (work DB)** — **187** 24g league + child **606** 4g cup (ssid 7579–7582); simul; materialize; `IMPORT_CATALOG_SPLITS` + `SCORE_TOURNAMENT_PARTITION`; disposition + inventory updated. |
+| 2026-07-12 | **Non-WC structure materialize tail complete** — **583/606** ids have stages on `ko2amiga_work`; remaining **23** = `wc_deferred` WCs; last id **284** Athens LIII (Top-4/Last-3 cross + Tier E 1–14); parser queue **empty**; incomplete-dRR guards (**17**, **214**); `player_count` witness split shipped. |
+| 2026-07-12 | **WC II Athens (66) atmosphere video** — **6WmRIQvvcP8** (*Wonka celebration ko2 athens 2002*) manual row; manifest rebuild; Atmosphere wing on Videos tab. |
 | 2026-07-12 | **Hertford IV (187) split plan** — league 24g + cup 4g → child **606**; implementation plan + starter prompt; execution pending. |
 | 2026-07-12 | **Grimstad II (108) materialize** — 5p near-double-RR **League** (G E Land–Kjetil M 3×); Tier C **1–5**; forum t=6550; work DB only. |
 | 2026-07-12 | **Duesseldorf V (416) materialize** — 4p triple-RR **League** after g15981 ground fix; Tier C **1–4**; cleared `STRUCTURE_REVIEW` audit flag; work DB only. |

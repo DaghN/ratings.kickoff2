@@ -1,7 +1,7 @@
 # Amiga tournament structure — handler contracts
 
 **Authority:** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) §4–5  
-**Forward ritual (long tail):** [**manual materialize runbook**](amiga-tournament-structure-manual-materialize-runbook.md) — **start here** for one tournament at a time (Jul 2026).  
+**Forward ritual:** [**manual materialize runbook**](amiga-tournament-structure-manual-materialize-runbook.md) — **non-WC tail complete** (Jul 2026); remaining structure work = **`wc_deferred`** World Cups (slice **6wc**).  
 **Register:** `scripts/amiga/tournament_structure/disposition_register.json` (generated + hand-edited)  
 **Decision log:** [`amiga-tournament-structure-review-queue.md`](amiga-tournament-structure-review-queue.md)
 
@@ -31,7 +31,9 @@ Every catalog `tournament_id` has **one row** in the disposition register:
 
 ---
 
-## Manual materialize (default for remaining catalog)
+## Manual materialize (WC track — Jul 2026)
+
+**Non-WC catalog:** materialized on `ko2amiga_work` (**583/606** with stages). **23** without stages = `wc_deferred` WCs only.
 
 **Runbook:** [`amiga-tournament-structure-manual-materialize-runbook.md`](amiga-tournament-structure-manual-materialize-runbook.md)
 
@@ -101,7 +103,7 @@ Overwrite bootstrap boilerplate when promoting from `pending_review`.
 
 **Slice 6a** — `materialize` **refuses** ids listed in `tier_b_non_wc_register.py` until witness `g.phase` labels parse as knockout/league correctly.
 
-**Jul 2026 shipped (partial):** Play Outs · Finals (plural → Final scope key) · Nth Place Finals (singular/plural) · **`Place N Final`** (Cologne witness, e.g. `Place 15 Final`); PHP parity in `amiga_tournament_phases.php`; legacy materialize sets **`phase_label = NULL`** on KO fixtures so finish reads `tournament_stages.name`. Graduated: **145**, **166**, **269**. Still blocked: **48**, **152**, **198**, **267**, **284**.
+**Jul 2026 shipped (partial):** Play Outs · Finals (plural → Final scope key) · Nth Place Finals (singular/plural) · **`Place N Final`** (Cologne witness, e.g. `Place 15 Final`); **`Playouts Group` / `Playoffs Group`** = league cross pools (not `Playouts 5-8` KO bands); PHP parity in `amiga_tournament_phases.php`; legacy materialize sets **`phase_label = NULL`** on KO fixtures so finish reads `tournament_stages.name`. Graduated: **145**, **166**, **269**, **284**. Parser queue **empty** (Jul 2026).
 
 After parser fix: remove id from frozenset → manual materialize per [runbook](amiga-tournament-structure-manual-materialize-runbook.md) → log in [review queue](amiga-tournament-structure-review-queue.md).
 

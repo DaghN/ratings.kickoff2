@@ -164,6 +164,14 @@ def _force_ok_incomplete_null_rr(games: list[dict[str, Any]]) -> bool:
         # Uneven leg counts / multiple early exits but every pairing played ≥2×
         # (e.g. Ostersund VI 323 — forum: 7p, two withdrew remaining games).
         return True
+    if spread <= 5 and _pairing_coverage_complete(games, min_meetings=1):
+        if not _pairing_coverage_complete(games, min_meetings=2):
+            player_count = len(_distinct_player_ids(games))
+            single_leg = _full_round_robin_game_count(player_count)
+            # Incomplete multi-leg RR: every pairing met, some return legs missing
+            # (e.g. Milan XVIII 214 — 8p 50/56g; Milan XXXIX 17 — 13p 151/156g).
+            if single_leg > 0 and len(games) > single_leg:
+                return True
     if spread != 2:
         return False
     min_count = min(counts.values())

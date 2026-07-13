@@ -168,7 +168,7 @@ Amiga hub:  … | History | …
 
 ### 5.1 News tab (realm landing)
 
-- **Route:** `/amiga/news.php` — blank placeholder under hub chapter **News** (realm default in present mode). Former top-10 Elo line race charts **removed Jun 2026-24**.
+- **Route:** `/amiga/news.php` — present realm home (T19). **Jul 2026:** two-column shell (news roll + pulse stubs); manifest + post includes under `includes/amiga_news/`; placeholder welcome post. Former top-10 Elo line race charts **removed Jun 2026-24**.
 
 ---
 

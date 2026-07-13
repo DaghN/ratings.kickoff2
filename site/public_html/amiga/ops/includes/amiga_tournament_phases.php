@@ -39,7 +39,7 @@ function amiga_ops_is_knockout_phase(?string $phase): bool
     if (preg_match('/^Places\s+\d+(?:-\d+)?$/i', $label) === 1) {
         return true;
     }
-    if (preg_match('/^Playouts\s+(?:\d+(?:-\d+)?|Group)$/i', $label) === 1) {
+    if (preg_match('/^Playouts\s+\d+(?:-\d+)?$/i', $label) === 1) {
         return true;
     }
     if (preg_match('/^\d+(?:st|nd|rd|th)\s+Place\s+Final$/i', $label) === 1) {

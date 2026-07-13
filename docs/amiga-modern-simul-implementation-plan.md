@@ -37,7 +37,7 @@ S-1 is the first time we prove the **bootstrap path end-to-end**: day 0 L3 → w
 After **S-1.9**, all of the following hold on **`ko2amiga_work`**:
 
 1. **L3 ground unchanged by simul** — tournament / player / game row counts identical before and after the run (living work may exceed day 0).
-2. **L4 structure materialized** — disposition dispatch ran; fixture/stage rows exist for handled tournaments (~515 materialized on oracle; pending_review skipped).
+2. **L4 structure materialized** — disposition dispatch ran; fixture/stage rows exist for handled tournaments (**583/606** on work Jul 2026; **23** `wc_deferred` WCs skipped).
 3. **L5 derived rebuilt** — full chronological replay; `amiga_game_ratings` row count = game count; snapshots/current populated.
 4. **Modern verify suite green** — subset in §6 (no Access-era oracles).
 5. **Legacy tree untouched** — `git diff` shows no edits under legacy prove path except allowed shared DDL (`scripts/amiga/sql/` if needed).
@@ -347,7 +347,7 @@ preflight     WORK_DB exists; L3 has tournaments + games (day 0 manifest = refer
 | Agent edits legacy `replay.py` to “quick fix” work connect | **MG11** + STOP gate `git diff` |
 | `apply_structure` imports `import_access.connect_mysql` in fork | Use `connect_work()` only in modern copy |
 | Verify runs against wrong DB | Env override + preflight assert |
-| L4 disposition failures (44 `pending_review`) | Expected skip; compare fixture counts to oracle order-of-magnitude |
+| L4 disposition failures (`wc_deferred` WCs without stages) | Expected skip until WC track; non-WC **complete** on work Jul 2026 |
 | Replay runtime / laptop sleep | Log progress every 50 tournaments (copy legacy) |
 | DDL drift between work and oracle | Same `schema_bundles`; simul runs `apply_schema` first |
 | Video id mismatch on work | S-1.8 align; P-1 compares to oracle after |

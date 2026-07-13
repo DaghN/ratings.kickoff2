@@ -125,12 +125,12 @@ Stored on **`tournament_stages.config_json`** (v1 preference — avoids DDL unti
 
 | Phase | Goal | Exit criterion |
 |-------|------|----------------|
-| **P1 — Materialize** | 605/605 tournaments have `tournament_stages` (+ fixtures linked) | `COUNT(DISTINCT tournament_id)` from stages = 605; verify green |
+| **P1 — Materialize** | 606/606 tournaments have `tournament_stages` (+ fixtures linked) | `COUNT(DISTINCT tournament_id)` from stages = 606; verify green |
 | **P2 — Structure imprint** | KO (and multi-track) stages have `config_json` structure fields | Backfill CLI + `verify-structure-imprint` oracle; review queue updated for tier C overrides |
 | **P3 — Display v2** | Tournament viewer reads stages + imprint only | Knockouts tab: no `list_scopes(knockout)` for layout; no phase_rank/bucket; `stage_id` URLs |
 | **P4 — Compat sunset** | Remove scope-based layout fallbacks | After P3 stable + bookmarks redirected; SC-10 fixture linkage complete |
 
-**Current gap (Jul 2026):** P1 incomplete (~34 tournaments without stages); P2–P3 not started; transitional bracket UI still in `amiga_tournament_bracket.php` + `amiga_tournament_knockout_bracket_data()`.
+**Current gap (Jul 2026):** P1 **non-WC complete** on `ko2amiga_work` (**583/606** with stages; **23** remaining = `wc_deferred` WCs only). P2–P3 not started; transitional bracket UI still in `amiga_tournament_bracket.php` + `amiga_tournament_knockout_bracket_data()`.
 
 ---
 

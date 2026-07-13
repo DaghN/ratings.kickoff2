@@ -1,6 +1,6 @@
 # Amiga tournament structure — manual materialize runbook
 
-**Status:** Forward path for the **long tail** (Jul 2026). Bulk `apply-structure --from-disposition` closed most obvious catalog events (~515/605 with fixture linkage on work). **Remaining ids = one tournament at a time.**
+**Status:** Forward path for **WC structure** (Jul 2026). **Non-WC materialize tail complete** on `ko2amiga_work` — **583/606** catalog ids have stages; remaining **23** without stages = `wc_deferred` World Cups only. Bulk `apply-structure --from-disposition` closed tier-A/B bootstrap (~515+ with fixture linkage); manual runbook cleared the labeled-phase long tail through **284** Athens LIII.
 
 **Authority:** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) T3, T8–T11 · **display end state:** [`amiga-tournament-structure-display-policy.md`](amiga-tournament-structure-display-policy.md) · **handlers reference:** [`amiga-tournament-structure-handlers.md`](amiga-tournament-structure-handlers.md) · **decision log:** [`amiga-tournament-structure-review-queue.md`](amiga-tournament-structure-review-queue.md)
 

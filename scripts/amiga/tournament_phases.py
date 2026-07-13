@@ -37,7 +37,8 @@ _KOA_ROUND_GROUP_RE = re.compile(
     re.IGNORECASE,
 )
 _PLACES_RE = re.compile(r"^Places\s+(\d+(?:-\d+)?)$", re.IGNORECASE)
-_PLAYOUTS_BAND_RE = re.compile(r"^Playouts\s+(?:\d+(?:-\d+)?|Group)$", re.IGNORECASE)
+# Placement KO bands only (e.g. Playouts 5-8). ``Playouts Group`` = cross RR league (Athens LIII).
+_PLAYOUTS_BAND_RE = re.compile(r"^Playouts\s+\d+(?:-\d+)?$", re.IGNORECASE)
 _PLACE_FINAL_RE = re.compile(r"^\d+(?:st|nd|rd|th)\s+Place\s+Finals?$", re.IGNORECASE)
 # Cologne I witness: ``Place 15 Final`` (rank after "Place", not ordinal prefix).
 _PLACE_N_FINAL_RE = re.compile(r"^Place\s+(\d+)\s+Final$", re.IGNORECASE)

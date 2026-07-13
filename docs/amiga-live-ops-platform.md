@@ -438,8 +438,8 @@ Separate agent track. Does **not** gate Ref-League-A / Ref-Cup-A practice.
 
 | Work | Examples |
 |------|----------|
-| Disposition review | 44 `pending_review` in disposition register |
-| Bulk materialize | Structure plan slices 6–6wc (tier B/C/WC) |
+| Disposition review | **0** `pending_review` (Jul 2026); **23** `wc_deferred` WCs remain for WC track |
+| Bulk materialize | **Non-WC tail complete** on work (Jul 2026); next = slice **6wc** (World Cups) |
 | Prove speed / modes | Full prove ~30 min; Phase 9 L5-only |
 | Format backbone expansion | Swiss product surface, promotion graph, WC generator |
 

@@ -268,7 +268,7 @@ Separate slice **after slice 6 bulk** (or parallel only if Dagh asks). Fix `tour
 
 **Ids:** 48, 145, 152, 166, 198, 267, 269, 284 — see handoff 018 table.
 
-**Jul 2026 progress:** **145** (Milan V) + **166** (Milan XII) + **269** (Cologne I) graduated — Play Outs, Finals plural, Nth Place Finals, **`Place N Final`** in Python + PHP; `materialize_legacy` NULLs KO `phase_label`; manual-materialized on `ko2amiga_work`. **Remaining parser queue:** 48, 152, 198, 267, 284 (Playouts, Places/Positions, …).
+**Jul 2026 progress:** **145** (Milan V) + **166** (Milan XII) + **269** (Cologne I) graduated — Play Outs, Finals plural, Nth Place Finals, **`Place N Final`** in Python + PHP; `materialize_legacy` NULLs KO `phase_label`; manual-materialized on `ko2amiga_work`. **Jul 2026 slice 6a complete:** `Playouts Group` / `Playoffs Group` = league (cross RR); `Playouts 5-8` bands remain KO; **284** Athens LIII materialized — **parser queue empty**.
 
 ### Tasks
 
@@ -276,7 +276,7 @@ Separate slice **after slice 6 bulk** (or parallel only if Dagh asks). Fix `tour
 - [x] Re-curate; update register — **145**, **166** removed from `NON_WC_PARSER_FIX_FIRST_IDS`
 - [x] Per-id materialize for graduated ids — **145**, **166** on work
 - [ ] `verify-legacy --check-standings` per graduated event (spot-check)
-- [ ] Remaining ids: 48, 152, 198, 267, 284
+- [x] **284** Athens LIII — cross groups parser + materialize (Jul 2026); slice **6a parser queue empty**
 
 ### STOP GATE E′
 

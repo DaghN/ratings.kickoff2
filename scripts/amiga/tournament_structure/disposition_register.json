@@ -66,8 +66,8 @@
       "notes": "WC track"
     },
     "17": {
-      "handler": "pending_review",
-      "notes": "NULL phase + not complete RR (register fix Jun 2026)"
+      "handler": "pure_rr",
+      "notes": "13p near-complete double-RR **League** (151/156g, NULL phase); Sandro T left early (5 return legs unplayed). Jul 2026: `materialize --replace --force` (incomplete dRR guard spread\u22645); 1 stage / 151g; Tier B finish 1 Fabio F \u00b7 2 Gianni T \u00b7 3 Christopher D \u00b7 4 Blazej U \u00b7 5 Mario F \u00b7 6 Andy G \u00b7 7 Lorenzo L \u00b7 8 Gabriele G \u00b7 9 Alessandro V \u00b7 10 Sandro T \u00b7 11 Paolo A \u00b7 12 Paolo S \u00b7 13 Flavio Z."
     },
     "18": {
       "handler": "pure_rr",
@@ -857,8 +857,8 @@
       "notes": "NULL phase + 3\u00d7 round-robin schedule"
     },
     "214": {
-      "handler": "pending_review",
-      "notes": "NULL phase + not complete RR (register fix Jun 2026)"
+      "handler": "pure_rr",
+      "notes": "8p near-complete double-RR **League** (50/56g, NULL phase); Luigi F & Gabriele B left early (Maurizio L delay). Jul 2026: `materialize --replace --force` (incomplete dRR guard); 1 stage / 50g; Tier B finish 1 Marco D \u00b7 2 Gianni T \u00b7 3 Sandro T \u00b7 4 Luigi F \u00b7 5 Fabio F \u00b7 6 Maurizio L \u00b7 7 Alessandro V \u00b7 8 Gabriele B."
     },
     "215": {
       "handler": "structure_spec",
@@ -1138,7 +1138,7 @@
     },
     "284": {
       "handler": "structure_spec",
-      "notes": "14p; 2\u00d77 double-RR groups + Playouts Group + Playoffs Group + KO incl. Places 5-8; AET g11635\u201336 (g11516\u201311644)."
+      "notes": "14p; 2\u00d77 double-RR **Group A/B** + **Top-4 Cross** (witness Playoffs Group, 16g) + **Last-3 Cross** (witness Playouts Group, 18g d-leg cross) + KO incl. Places 5-8; Jul 2026: parser fix (cross groups = league); materialize 12 stages / 129g; Tier E **1 Alkis P \u00b7 2 Nikos A \u00b7 3 Spyros P \u00b7 4 Panayotis P \u00b7 5 Ektoras K \u00b7 6 Vasilis K \u00b7 7 George Ka \u00b7 8 Stelios T \u00b7 9 Kostas O \u00b7 10 Filippos M \u00b7 11 Vagelis D \u00b7 12 Yakos T \u00b7 13 Nikos Al \u00b7 14 Kostas Ka**; SC-11 g11635\u201336 (g11628\u201329); non-WC materialize tail complete."
     },
     "285": {
       "handler": "pure_rr",
@@ -1294,7 +1294,7 @@
     },
     "323": {
       "handler": "pure_rr",
-      "notes": "7p incomplete double-RR League (56g); Bjorn P + Kent H withdrew early; forum t=14454; John H perfect 17-0-0"
+      "notes": "7p incomplete double-RR **League** (56g, NULL phase); Bjorn P + Kent H withdrew early; forum t=14454; Access catalog `player_count`=5 (witness only; hero shows derived 7). Jul 2026: `materialize --replace --force` (pairing-coverage guard); 1 stage / 56g; Tier B **1 John H (17-0-0) \u00b7 2 Jacob K \u00b7 3 Niclas L \u00b7 4 Mattias N \u00b7 5 Nick P \u00b7 6 Bjorn P \u00b7 7 Kent H**."
     },
     "324": {
       "handler": "pure_rr",

@@ -52,12 +52,20 @@ class KnockoutPhaseDetectionTests(unittest.TestCase):
         self.assertFalse(is_knockout_phase("Playouts"))
         self.assertTrue(is_knockout_phase("Playouts 5-7"))
         self.assertTrue(is_knockout_phase("Playouts 5-8"))
-        self.assertTrue(is_knockout_phase("Playouts Group"))
+        self.assertFalse(is_knockout_phase("Playouts Group"))
         scope = parse_phase("Playouts")
         self.assertEqual(scope.scope_type, ScopeType.LEAGUE)
         self.assertEqual(scope.scope_key, "Playouts")
         scope_band = parse_phase("Playouts 5-7")
         self.assertEqual(scope_band.scope_type, ScopeType.KNOCKOUT)
+
+    def test_cross_group_phases_are_league(self) -> None:
+        """Athens LIII (284): Top-4 / Last-3 cross pools are RR leagues, not KO."""
+        for label in ("Playouts Group", "Playoffs Group"):
+            self.assertFalse(is_knockout_phase(label))
+            scope = parse_phase(label)
+            self.assertEqual(scope.scope_type, ScopeType.LEAGUE)
+            self.assertEqual(scope.scope_key, label)
 
     def test_semi_final_hyphen_is_knockout(self) -> None:
         self.assertTrue(is_knockout_phase("Semi-Final"))

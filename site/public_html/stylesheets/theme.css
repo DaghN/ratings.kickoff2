@@ -4901,6 +4901,156 @@ body.k2-site .k2-player-hero__stat-value:not([class*="--"]) a.k2-player-hero__st
 	border: 0;
 }
 
+/* —— Amiga News room (present landing) —— */
+.k2-amiga-news-room {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 8px 0 32px;
+}
+
+.k2-amiga-news-room__layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr);
+	gap: 10px 12px;
+	align-items: start;
+}
+
+.k2-amiga-news-room__roll {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	min-width: 0;
+}
+
+.k2-amiga-news-room__roll > .k2-card {
+	margin-bottom: 12px;
+}
+
+.k2-amiga-news-room__roll > .k2-card:last-child {
+	margin-bottom: 0;
+}
+
+.k2-amiga-news-room__empty {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.55;
+	color: var(--k2-text-muted);
+}
+
+.k2-amiga-news-room__pulse {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 0;
+}
+
+.k2-news-post__head {
+	margin-bottom: 10px;
+}
+
+.k2-news-post__title {
+	margin: 0 0 6px;
+	font-size: 1.25rem;
+	font-weight: 600;
+	line-height: 1.3;
+	color: var(--k2-text-primary);
+}
+
+.k2-news-post__meta {
+	margin: 0 0 10px;
+	font-size: 12px;
+	line-height: 1.35;
+	color: var(--k2-text-muted);
+}
+
+.k2-news-post__date {
+	display: inline;
+	margin: 0;
+	font-size: inherit;
+	line-height: inherit;
+	color: inherit;
+}
+
+.k2-news-post__meta-sep {
+	color: var(--k2-text-muted);
+}
+
+.k2-news-post__author {
+	color: var(--k2-text-muted);
+}
+
+.k2-news-post__prose {
+	margin: 0 0 12px;
+	font-size: 14px;
+	line-height: 1.55;
+	color: var(--k2-text-secondary);
+}
+
+.k2-news-post__prose:last-child {
+	margin-bottom: 0;
+}
+
+.k2-news-post__figure {
+	margin: 0 0 14px;
+}
+
+.k2-news-post__figure img {
+	display: block;
+	width: 100%;
+	height: auto;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+}
+
+.k2-news-post__figure figcaption {
+	margin-top: 6px;
+	font-size: 12px;
+	line-height: 1.4;
+	color: var(--k2-text-muted);
+}
+
+.k2-news-post__figure figcaption a {
+	color: var(--k2-link);
+}
+
+.k2-amiga-news-pulse__panel {
+	margin: 0;
+}
+
+.k2-amiga-news-pulse__prose {
+	margin: 0 0 8px;
+	font-size: 13px;
+	line-height: 1.45;
+	color: var(--k2-text-secondary);
+}
+
+.k2-amiga-news-pulse__link {
+	margin: 0;
+	font-size: 11px;
+}
+
+.k2-amiga-news-pulse__links {
+	margin: 0;
+	padding-left: 1.1rem;
+	font-size: 13px;
+	line-height: 1.45;
+	color: var(--k2-text-secondary);
+}
+
+.k2-amiga-news-pulse__links li {
+	margin-bottom: 6px;
+}
+
+.k2-amiga-news-pulse__links li:last-child {
+	margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+	.k2-amiga-news-room__layout {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
 /* â”€â”€ Status room (hub v1.2) â”€â”€ */
 .k2-status-room {
 	max-width: 1200px;

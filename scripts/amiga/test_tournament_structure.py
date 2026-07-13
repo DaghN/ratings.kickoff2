@@ -174,6 +174,44 @@ class MaterializeLegacyTests(unittest.TestCase):
         self.assertEqual(len(games), 56)
         self.assertTrue(_force_ok_incomplete_null_rr(games))
 
+    def test_force_ok_incomplete_double_rr_missing_return_legs(self) -> None:
+        # 8p dRR: 28 pairings, 22×2 + 6×1 = 50g; spread 3 (Milan XVIII / id 214)
+        players = [9, 109, 131, 149, 257, 269, 304, 390]
+        one_leg_pairs = {
+            (9, 131),
+            (9, 257),
+            (109, 257),
+            (131, 149),
+            (131, 390),
+            (257, 304),
+        }
+        games = []
+        for i, a in enumerate(players):
+            for b in players[i + 1 :]:
+                n = 1 if (a, b) in one_leg_pairs else 2
+                for _ in range(n):
+                    games.append({"player_a_id": a, "player_b_id": b})
+        self.assertEqual(len(games), 50)
+        self.assertTrue(_force_ok_incomplete_null_rr(games))
+
+    def test_force_ok_incomplete_double_rr_single_withdrawal_spread_five(self) -> None:
+        # 13p dRR: victim 390 (Sandro) 19g; five opponents each 1 leg short vs 390 = 151g
+        players = list(range(1, 14))
+        victim = 13
+        one_leg_vs_victim = {1, 2, 3, 4, 5}
+        games = []
+        for i, a in enumerate(players):
+            for b in players[i + 1 :]:
+                if a == victim or b == victim:
+                    other = b if a == victim else a
+                    n = 1 if other in one_leg_vs_victim else 2
+                else:
+                    n = 2
+                for _ in range(n):
+                    games.append({"player_a_id": a, "player_b_id": b})
+        self.assertEqual(len(games), 151)
+        self.assertTrue(_force_ok_incomplete_null_rr(games))
+
     def test_null_phase_cup_needs_review(self) -> None:
         # 6 players, 6 games — Athens IV pattern; not auto-classifiable
         games = [

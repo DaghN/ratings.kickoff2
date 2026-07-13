@@ -23,23 +23,25 @@ Disposition review pauses on affected parents until the gate in the split starte
 
 ---
 
-## Status (bootstrap Jun 2026 — bulk mostly done)
+## Status (Jul 2026 — non-WC materialize complete)
 
-**Forward:** remaining catalog ids → [manual materialize runbook](amiga-tournament-structure-manual-materialize-runbook.md). Bulk handler counts below are **historical bootstrap**, not “still to bulk.”
+**Milestone:** Every **non-WC** catalog tournament on `ko2amiga_work` has `tournament_stages`. Remaining **23** without stages = **`wc_deferred`** World Cups (WC structure track).
 
-| Handler | Count | Action |
-|---------|------:|--------|
-| `pure_rr` | 503 | Assigned — verify spot-check only |
-| `pure_knockout` | 11 | Assigned — preview confirmed |
-| `structure_spec` | 24 | Homburg + unsettled multi-stage |
-| `wc_deferred` | 23 | WC track later |
-| **`pending_review`** | **44** | **Review chat — promote handlers** |
+**Forward:** WC materialize (slice **6wc**) · structure imprint P2 · knockout display v2 — not more non-WC tail.
+
+| Handler | Count (606 catalog) | Action |
+|---------|------------------:|--------|
+| `pure_rr` | 512 | Assigned — spot-check only |
+| `pure_knockout` | 33 | Assigned |
+| `structure_spec` | 38 | Assigned |
+| `wc_deferred` | 23 | **WC track** — materialize when promoted |
+| **`pending_review`** | **0** | — |
 
 ```powershell
 python -m scripts.amiga tournament-structure verify-disposition-register --json
 ```
 
-Regenerate after code changes: `generate-disposition-register` (overwrites proposals).
+Historical bootstrap (Jun 2026): bulk handler assignment closed most tier-A/B; manual runbook cleared the long tail through **284** Athens LIII (Jul 2026).
 
 ---
 
@@ -69,13 +71,20 @@ Regenerate after code changes: `generate-disposition-register` (overwrites propo
 
 ## Review log
 
+### 2026-07-12 — Non-WC materialize tail complete
+
+- **583/606** catalog tournaments have `tournament_stages` on `ko2amiga_work`; **23** without stages = **`wc_deferred`** World Cups only
+- Disposition register: **0** `pending_review`; parser queue **empty** (slice **6a** — `Playouts Group` / `Playoffs Group` league)
+- Last non-WC id: **284** Athens LIII — Group A/B + Top-4 Cross + Last-3 Cross + KO; Tier E **1–14**
+- Session tail also shipped: **17** Milan XXXIX · **214** Milan XVIII (incomplete dRR guards) · **323** Ostersund VI · **`player_count` witness split** (hero uses `amiga_tournament_participant_count()`)
+
 ### 2026-06-13 — Disposition register bootstrap
 
 - Generated `disposition_register.json` — **605/605** coverage
 - Pure knockout handler + preview CLI shipped
 - **70** `pending_review` to triage
 
-- **17** Milan XXXIX → `pure_rr` — Double RR; Sandro T left early — 5 games unplayed (withdrawal).
+- **17** Milan XXXIX → `pure_rr` — 13p near-complete double-RR **League** (151/156g, NULL phase); Sandro T left early (5 return legs unplayed). **Jul 2026:** `materialize --replace --force` (incomplete dRR guard spread≤5); 1 stage / 151g; `has_league=1` `has_cup=0`; Tier B finish **1 Fabio F · 2 Gianni T · 3 Christopher D · 4 Blazej U · 5 Mario F · 6 Andy G · 7 Lorenzo L · 8 Gabriele G · 9 Alessandro V · 10 Sandro T · 11 Paolo A · 12 Paolo S · 13 Flavio Z**.
 - **22** Athens XCI → `structure_spec` (`league_placement`) — 12p **League** (66g) + two-leg placement finals (**11th** · **9th** · **7th** · **5th** · **3rd** · **Final**). **Jul 2026:** cleared structure-review block; manual materialize; 7 stages / 78g; display **League**; Tier B finish **1 Christopher D · 2 Alkis P · 3 Andy G · 4 Spyros P · 5 Nikos A · 6 Ektoras K · 7 Panayotis P · 8 George M · 9 George Ka · 10 Kostas O · 11 Vasilis K · 12 Kostas Ka**.
 - **29** Rome → `structure_spec` (`league_placement`) — 6p double RR (g194–223) + two-leg Final (g224–225); NULL witness phases. **Jul 2026:** manual materialize; stages **`League`** · **`Final`**; `has_league=1` `has_cup=1`; Tier B finish 1 Gianluca · 2 Alessandro Co · 3 Giacomo · 4 Franco · 5 Filippo · 6 Fabio.
 - **48** Groningen VII → `structure_spec` — 9p; **Round 1 - Group A/B/C** + **Round 2 - Group D/E** (3×3 double RR each) + **`League 7-9`** (witness `Playouts` = 3p double RR, not KO) + KO (`Semi-Final`); cup split to **604**. **Jul 2026:** parser fix (`Semi-Final` hyphen; bare `Playouts` = league); manual materialize + group splits; **Tier E finish override** (full ladder 1–9 — auto derivation duplicates positions on multi-group format): **1 Mark P · 2 Kees V · 3 Luitzen B · 4 Riemer P · 5 Sjoerd K · 6 Evert V · 7 Niels T · 8 Gunther W · 9 Tim K**.
@@ -108,7 +117,7 @@ Regenerate after code changes: `generate-disposition-register` (overwrites propo
 - **189** Manchester II Cup → `pure_knockout` — 15p single-elim; 7 R1 + bye (Steve C); pens g7689, 7692; league on id 188. **Jul 2026 finish audit:** Tier E **1 Ben G · 2 Steve C · =3 James L / Robert S · =5** (QF losers) **· =9** (R1 losers).
 - **192** Hertford V Cup → `pure_knockout` — 4p; 2-leg semis (phase "Round 1") + 2-leg 3rd/final (g7768–775); league on id 191. **Jul 2026 finish audit:** Tier A **1 Mandhir S · 2 Wayne L · 3 Mark B · 4 Darren G** (2-leg agg on all KO ties).
 - **198** Milan XVII → `structure_spec` — 7p 2 groups (4+3) double-RR + KO incl. Playouts 5-7 + placement finals (g7949–7984). **Jul 2026:** parser fix (`Playouts 5-7` = KO); manual materialize + **Group A/B split** (`round-1-group-a/b`); NULL RR `phase_label` so standings scopes split; 11 stages / 36g; Tier B finish **1 Luigi · 2 Gianni · 3 Marco · 4 Mario · 5 Alessandro · 6 Fabio · 7 Maurizio**.
-- **214** Milan XVIII → `pure_rr` — 8p near-complete double RR (50/56g); Luigi F & Gabriele B left early (Maurizio L delay).
+- **214** Milan XVIII → `pure_rr` — 8p near-complete double-RR **League** (50/56g, NULL phase); Luigi F & Gabriele B left early (Maurizio L delay). **Jul 2026:** `materialize --replace --force` (incomplete dRR guard); 1 stage / 50g; `has_league=1` `has_cup=0`; Tier B finish **1 Marco D · 2 Gianni T · 3 Sandro T · 4 Luigi F · 5 Fabio F · 6 Maurizio L · 7 Alessandro V · 8 Gabriele B**.
 - **215** Kelkheim VII → `structure_spec` — 12p single-RR league (66g) + 2-leg KO incl. Places 5-8 + placement finals; AET g8924 (`4-4 a.e.t` = post-ET leg total). **Jul 2026:** materialize 13 stages / 90g; **SC-11 verified g8924** (`goals_et` 0-1); Tier B finish **1 Michael O · 2 Stefan V** (agg 9-8).
 - **248** Athens XXXVIII Cup → `pure_knockout` — 7p two-leg + bye; witness **Round 1** → **Quarter Finals** (×3) · **Semi Finals** (×2, incl. 3-leg tie g10156–58) · **Final**; g10159 reg 3-3, post-ET 3-6 (ET 0-3). **Jul 2026:** `materialize-pure-knockout --force`; 6 stages / 12g; `has_league=0` `has_cup=1`; Tier E finish **1 Filippos M · 2 Stelios T · 3 Marios M · 3 Antonis T · =5 Nikos Al / Kostas O / Michalis A**.
 - **267** Seeshaupt → `structure_spec` — 5p single-RR league + Game of Shame + final; AET g10546. **Jul 2026:** parser fix (`Game of Shame` = KO); cleared parser-fix block; manual materialize; **`League`** · **`Game of Shame`** · **`Final`**; SC-11 verified g10546; Tier E **1 Thorsten · 2 Robert · 3 Eric · 4 Thomas · 5 Norbert**.
@@ -126,7 +135,7 @@ Regenerate after code changes: `generate-disposition-register` (overwrites propo
 - **281** Athens L → `pure_rr` — 7p single-RR **League** (19/21g); Nikos Al left early (2 unplayed pairings). **Jul 2026:** `materialize --replace --force` (T11 single early exit, spread=2); 1 stage / 19g; display **League** (`overall`); Tier C **1 Ektoras K · 2 Filippos M · 3 George Ka · 4 Kostas O · 5 Marios M · 6 Kostas Ka · 7 Nikos Al**; `has_league=1` `has_cup=0`; standings-parity PASS.
 - **399** Koenigswinter VIII → `pure_rr` — 5p double-RR **League** (19/20g); missing **Cornelius H–Carsten P** rematch. **Jul 2026:** `materialize --replace --force` (T11 near-complete, spread=1); 1 stage / 19g; display **League** (`overall`); Tier C **1 Volker B · 2 Carsten P · 3 Cornelius H · 4 Michael L · 5 Udo T**; `has_league=1` `has_cup=0`; standings-parity PASS.
 - **416** Duesseldorf V → `pure_rr` — 4p triple-RR **League** (18g). **Jul 2026:** `SCORE_CORRECTIONS` g15981 (Frederic B 3–2 Volker B, not Cornelius H); `materialize --replace`; 1 stage / 18g; display **League** (`overall`); Tier C **1 Oliver St · 2 Frederic B · 3 Volker B · 4 Cornelius H**; `has_league=1` `has_cup=0`; standings-parity PASS.
-- **284** Athens LIII → `structure_spec` — 2×7 groups + Playouts/Playoffs groups + KO; AET g11635–36.
+- **284** Athens LIII → `structure_spec` — 14p **Group A/B** (2×7 dRR) + **Top-4 Cross** (witness `Playoffs Group`, 16g) + **Last-3 Cross** (witness `Playouts Group`, 18g double-leg cross) + KO incl. **Places 5-8**. **Jul 2026:** parser fix (`Playouts Group` / `Playoffs Group` = league; `Playouts 5-8` bands still KO); `materialize --replace`; 12 stages / 129g; Tier E **1 Alkis P · 2 Nikos A · 3 Spyros P · 4 Panayotis P · 5 Ektoras K · 6 Vasilis K · 7 George Ka · 8 Stelios T · 9 Kostas O · 10 Filippos M · 11 Vagelis D · 12 Yakos T · 13 Nikos Al · 14 Kostas Ka** (KO 1–8 + bottom-six aggregate 9–14); SC-11 **g11628** Places 5-8 AET · **g11629** 7th AET; `has_league=1` `has_cup=1`; **last non-WC materialize tail**.
 - **535** Birmingham XXXVII → `pure_knockout` — 4p cup; 2× **Semi Finals** (witness `Round 1`) + **Final**; g20217 reg 0-0, ET 0-0, pens 1-0 (Gary T); Access `(0-0) 1-0 p.k.`. **Jul 2026:** cleared cup-review block; `materialize-pure-knockout`; 3 stages / 3g; `has_league=0` `has_cup=1`; Tier E finish **1 Brian C · 2 Gary T · 3 Glen H · 3 John M**.
 - **568** Birmingham XLV → `pure_knockout` — 4p cup; **Semi Finals** (×2) · **3rd Place Final** · **Final**; g21621 reg 5-5, ET 2-2, pens 8-7 (Steve E champion); Access `(7-7) 8-7 p.k.`. **Jul 2026:** `materialize-pure-knockout`; 4 stages / 4g; `has_league=0` `has_cup=1`; Tier B finish **1 Steve E · 2 Garry C · 3 Simon K · 4 Todd H**.
 - **500** Birmingham XXVIII → `pure_knockout` — 6p cup, QF bye (Tom P); **Quarter Finals** (×2) · **Semi Finals** (×2) · **Final**; no ET/pens. **Jul 2026:** `materialize-pure-knockout`; 5 stages / 5g; `has_league=0` `has_cup=1`; Tier E finish **1 Simon K · 2 Steve E · 3 Garry C · 3 Tom P · 5 John M · 5 Thomas J** (QF losers tied at 5).

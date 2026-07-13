@@ -1,6 +1,6 @@
 # Present layer & site completion — editorial IA and shippable intent
 
-**Status:** Intent / policy (Jul 2026). **Site chrome slice shipped (Jul 2026):** global footer (`includes/site_footer.php`) + `/about.php` stub — see PL12–PL13. Remaining completion track: News roll, pulse rail, Misc shelf.
+**Status:** Intent / policy (Jul 2026). **Site chrome shipped (Jul 2026):** global footer + `/about.php` stub — PL12–PL13. **News v1 shell shipped (Jul 2026):** two-column roll + pulse stubs on `/amiga/news.php`; manifest + PHP includes (`includes/amiga_news/`); placeholder post only — Phase A real post still open. Remaining: pulse live widgets, Misc shelf.
 
 **Authority:** Dagh's latest chat wins. This doc sits **below** [`hub-ia-agreement.md`](hub-ia-agreement.md) (hub tab contracts) and [`navigation-model.md`](navigation-model.md) (NM1–NM7 invariants). URL shape defers to [`k2-page-structure-checklist.md`](k2-page-structure-checklist.md) and [`url-routes.md`](url-routes.md).
 
@@ -136,6 +136,21 @@ Status room grid = structural reference (main + satellites).
 ### 5.4 Sparse roll (PL11)
 
 Pulse keeps page alive; optional top strip for cross-realm “today”; threshold **X** not locked.
+
+### 5.5 Implementation (shipped Jul 2026 — shell)
+
+| Piece | Path |
+|-------|------|
+| Page entry | `/amiga/news.php` |
+| Room layout | `includes/amiga_news_room_section.php` |
+| Pulse stubs | `includes/amiga_news_pulse_rail.inc.php` |
+| Manifest | `includes/amiga_news/manifest.php` (newest-first list; optional `author`) |
+| Post bodies | `includes/amiga_news/posts/{slug}.inc.php` |
+| Post images | `images/amiga/news/` (web path `/images/amiga/news/…`) |
+| Renderer | `includes/amiga_news_lib.php` — `k2_amiga_news_render_roll()` |
+| CSS | `theme.css` — `.k2-amiga-news-room*` · `.k2-news-post*` |
+
+**Authoring habit (v1):** add manifest row + post include; body uses `.k2-news-post__prose` (Join prose tokens). Agent-assisted formatting from draft copy is fine; no CMS/DB for v1. **No hub chapter** on News — active **News** tab + post headline carry place; omit `.k2-hub-chapter` on `news.php`.
 
 ---
 
@@ -357,5 +372,7 @@ Phases **A + C** are the smallest **metadata-complete** slice; **B** makes Misc 
 
 | Date | Change |
 |------|--------|
+| 2026-07-13 | **News first post** — Oslo WC 2026 (author byline, manifest `author` field); placeholder replaced. |
+| 2026-07-13 | **News v1 shell** — `/amiga/news.php` two-column roll + pulse stubs; manifest + post includes; placeholder welcome post. |
 | 2026-07-01 | Initial intent — News roll, pulse, Misc phased, PL1–PL12, C04 reframe. |
 | 2026-07-01 | Expanded scope — leaf pages (PL14), footer/about (PL12–PL13, PL15), Misc lifecycle, **path to shippable v1** (§12), PL16 post-ship growth; title broadened to site completion. |

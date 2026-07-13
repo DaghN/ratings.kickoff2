@@ -19,7 +19,7 @@
 | Catalog splits for Scores-only labels | Format-flag inference (`has_league` / `has_cup`) |
 | Supplemental games missing from Scores | L4 structure / disposition overlays |
 | **Scores row corrections** (regulation / ET / pens) | L5 replay / derived recompute |
-| Player name merges (automatic + manual) | Tier E finish overrides (table exists; **0 rows** on day 0) |
+| Player name merges (automatic + manual) | Tier E finish overrides on day-0 seal (**0 rows**; work-DB Tier E = L4 curation — see runbook §5c) |
 | Player nationality overrides | Editing `koatd.mdb` in place |
 | Country token alias normalizations | |
 
@@ -237,7 +237,9 @@ Access had a **separate catalog row** for the 2005 KOA Cup consolation bracket. 
 | Player name merges | 5 groups (1 automatic spacing/case, 4 manual spelling aliases) |
 | Country token normalizations | 2 |
 | Skipped duplicate catalog rows | Milan X KO fragments + World Cup V KOA Cup (when present) |
-| Tier E finish overrides | **0** |
+| Tier E finish overrides | **0** on day-0 seal (L3 import) |
+
+**Work-DB overlay (Jul 2026):** Tier E rows in `amiga_tournament_finish_override` are **L4 curation** after manual materialize (e.g. multi-group formats **48**, **152**, **284** Athens LIII) — not `import_corrections.py` facts. Survives simul; see runbook §5c.
 
 ---
 

@@ -393,6 +393,28 @@
       "goals_et_a": 0,
       "goals_et_b": 1,
       "note": "Athens LXXXV 11th Place Final leg 2; Kostas L (A) vs Vagelis D (B); reg 5-3, ET 0-1 Vagelis; post-ET 5-4 Vagelis wins 11th on two-leg aggregate (3+4 vs 1+5); Access Scores.Extra verbatim"
+    },
+    "11628": {
+      "verified_at": "2026-07-12",
+      "tournament_id": 284,
+      "extension_kinds": ["et"],
+      "interpretation": "et_period_only",
+      "regulation": "3-3",
+      "witness": "3-4 e.t.",
+      "goals_et_a": 0,
+      "goals_et_b": 1,
+      "note": "Athens LIII Places 5-8; George Ka (A) vs Vasilis K (B); reg 3-3, ET 0-1 Vasilis; post-ET 3-4 Vasilis wins placement semi"
+    },
+    "11629": {
+      "verified_at": "2026-07-12",
+      "tournament_id": 284,
+      "extension_kinds": ["et"],
+      "interpretation": "et_period_only",
+      "regulation": "2-2",
+      "witness": "4-2 e.t.",
+      "goals_et_a": 0,
+      "goals_et_b": 2,
+      "note": "Athens LIII 7th Place Final; Stelios T (A) vs George Ka (B); reg 2-2, ET 0-2 George; post-ET 4-2 George 7th"
     }
   }
 }
