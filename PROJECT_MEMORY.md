@@ -145,6 +145,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-13 | **Player profile Videos nav fix** — `profile.php` / `tournaments.php` precompute `$k2AmigaPlayerHasVideos` before `mysqli_close`; `amiga_player_nav.php` reads flag (avoids DB on closed connection for `game_ids[]`-only manifest players). |
 | 2026-07-13 | **Amiga LB wing tab order** — `amiga_lb_nav.php`: Rating · Goals · DDs & CSs · Victims & Culprits · Tournament honours · Calendar & geography · Peak · Perf. rating. |
 | 2026-07-13 | **Kitchen-marathon stage naming** — `create_kitchen_marathon_tournament()` defaults stage **`League`** + NULL `phase_label`; Nottingham III (607) patched on work (stage rename + null witness phases). |
 | 2026-07-13 | **Nottingham stream timestamps fix** — forum H:MM was stored as bare minutes (e.g. `86` = 1:26); sidecar + manifest `game_start_sec[]` now YouTube seconds (`×60`); `game_links._parse_start_sec` accepts `H:MM`. |

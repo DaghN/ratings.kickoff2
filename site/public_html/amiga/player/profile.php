@@ -36,6 +36,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_profile_blocks.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_profile_lb_slices.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournament_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_videos_lib.php';
 
 try {
     $pm = amiga_player_load($con, $id);
@@ -54,6 +55,7 @@ $totalTournaments = $tournamentTotals !== null
     : count($recentTournaments);
 $profileLbSliceRow = amiga_profile_lb_slices_load($con, $id);
 amiga_player_publish_hero_context($pm, $con);
+$k2AmigaPlayerHasVideos = amiga_player_has_videos($id, $con);
 mysqli_close($con);
 ?>
 

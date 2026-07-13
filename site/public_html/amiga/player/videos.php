@@ -41,6 +41,7 @@ if (!amiga_player_has_videos($playerId, $con)) {
     http_response_code(404);
     exit('Player not found.');
 }
+$k2AmigaPlayerHasVideos = true;
 
 try {
     $pm = amiga_player_load($con, $playerId);

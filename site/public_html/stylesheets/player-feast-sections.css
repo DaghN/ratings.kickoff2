@@ -961,9 +961,14 @@ body.k2-site .player-compare-rank-chart__toolbar[data-range-mode="percentile"] .
 	padding: 0 1.25rem 1rem;
 }
 
-.player-feast-body .k2-amiga-profile-lb-slice {
+.player-feast-body .k2-amiga-profile-lb-slice-group {
 	flex: 0 0 auto;
+	width: max-content;
+	max-width: 100%;
 	margin: 0;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	overflow: hidden;
 }
 
 .player-feast-body .k2-amiga-profile-lb-slice__table {
@@ -974,7 +979,7 @@ body.k2-site .player-compare-rank-chart__toolbar[data-range-mode="percentile"] .
 	font-variant-numeric: tabular-nums;
 	line-height: 1.25;
 	font-size: 0.75rem;
-	border: 1px solid var(--k2-border-subtle);
+	border: none;
 }
 
 .player-feast-body .k2-amiga-profile-lb-slice__label {

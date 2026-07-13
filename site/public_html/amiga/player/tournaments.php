@@ -23,6 +23,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_profile_blocks.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournament_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_videos_lib.php';
 
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 
@@ -136,6 +137,7 @@ $filtersActive = amiga_player_tournaments_filters_active(
     $podiumFilter
 );
 amiga_player_publish_hero_context($pm, $con);
+$k2AmigaPlayerHasVideos = amiga_player_has_videos($playerId, $con);
 mysqli_close($con);
 
 ?>

@@ -19,7 +19,10 @@ $k2AmigaPlayerTabs = [
     'tournaments' => ['href' => k2_amiga_route('amiga-player-tournaments', ['id' => $id]), 'label' => 'Tournaments'],
     'games' => ['href' => k2_amiga_route('amiga-player-games', ['id' => $id]), 'label' => 'Games'],
 ];
-if ($id > 0 && amiga_player_has_videos($id, isset($con) && $con instanceof mysqli ? $con : null)) {
+$k2AmigaPlayerShowVideosTab = isset($k2AmigaPlayerHasVideos)
+    ? (bool) $k2AmigaPlayerHasVideos
+    : amiga_player_has_videos($id, isset($con) && $con instanceof mysqli ? $con : null);
+if ($id > 0 && $k2AmigaPlayerShowVideosTab) {
     $k2AmigaPlayerTabs['videos'] = [
         'href' => amiga_player_videos_url($id),
         'label' => 'Videos',
