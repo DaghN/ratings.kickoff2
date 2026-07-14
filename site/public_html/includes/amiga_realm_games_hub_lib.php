@@ -30,9 +30,7 @@ function amiga_realm_games_hub_lean_select_sql(): string
 
 function amiga_realm_games_hub_lean_from_sql(): string
 {
-    return 'FROM amiga_games g '
-        . amiga_realm_games_hub_lean_join_sql()
-        . amiga_rated_games_fixture_stage_join_sql();
+    return 'FROM amiga_games g ' . amiga_realm_games_hub_lean_join_sql();
 }
 
 function amiga_realm_games_hub_lean_join_sql(): string
@@ -40,7 +38,8 @@ function amiga_realm_games_hub_lean_join_sql(): string
     return 'INNER JOIN amiga_game_ratings gr ON gr.game_id = g.id '
         . 'INNER JOIN amiga_players pa ON pa.id = g.player_a_id '
         . 'INNER JOIN amiga_players pb ON pb.id = g.player_b_id '
-        . 'LEFT JOIN tournaments t ON t.id = g.tournament_id ';
+        . 'LEFT JOIN tournaments t ON t.id = g.tournament_id '
+        . amiga_rated_games_fixture_stage_join_sql();
 }
 
 function amiga_realm_games_hub_query_all(mysqli $con, string $sql, string $types = '', array $params = []): array
