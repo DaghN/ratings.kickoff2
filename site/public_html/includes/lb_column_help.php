@@ -660,12 +660,17 @@ function k2_lb_help_amiga_wc_cs_culprits(): string
 
 function k2_lb_help_amiga_wc_opponent_countries_faced(): string
 {
-    return 'Distinct opponent countries you faced in World Cup games, including your own country.';
+    return 'Distinct opponent countries you faced in World Cup games.';
 }
 
 function k2_lb_help_amiga_wc_opponent_countries_beaten(): string
 {
-    return 'Distinct countries that you have beaten an opponent from in World Cup games, including your own country.';
+    return 'Distinct countries that you have beaten an opponent from in World Cup games.';
+}
+
+function k2_lb_help_amiga_wc_opponent_countries_beaten_by(): string
+{
+    return 'Distinct countries that have beaten you in World Cup games.';
 }
 
 function k2_lb_help_amiga_peak_year_games(): string
@@ -680,17 +685,22 @@ function k2_lb_help_amiga_peak_year_tournaments(): string
 
 function k2_lb_help_amiga_countries_played_in(): string
 {
-    return 'Distinct host countries of tournaments you entered, including your own country.';
+    return 'Distinct host countries of tournaments you entered.';
 }
 
 function k2_lb_help_amiga_opponent_countries_faced(): string
 {
-    return 'Distinct opponent countries you faced, including your own country.';
+    return 'Distinct opponent countries you faced in rated games.';
 }
 
 function k2_lb_help_amiga_opponent_countries_beaten(): string
 {
-    return 'Distinct countries that you have beaten an opponent from, including your own country.';
+    return 'Distinct countries that you have beaten an opponent from in rated games.';
+}
+
+function k2_lb_help_amiga_opponent_countries_beaten_by(): string
+{
+    return 'Distinct countries that have beaten you in rated games.';
 }
 
 /** Amiga Opponents country grain W/D/L table. */
@@ -1207,13 +1217,18 @@ function k2_lb_help_amiga_wc_country_clean_sheets_conceded_ratio(): string
 
 function k2_lb_help_amiga_wc_country_opponent_countries_faced(): string
 {
-    return 'Distinct countries faced by any national in World Cup games. '
-        . 'Includes this country when compatriots play each other.';
+    return 'Distinct countries faced by any national in World Cup games '
+        . '(includes this country when compatriots play each other).';
 }
 
 function k2_lb_help_amiga_wc_country_opponent_countries_beaten(): string
 {
     return 'Distinct countries beaten at least once by a national in a World Cup game.';
+}
+
+function k2_lb_help_amiga_wc_country_opponent_countries_beaten_by(): string
+{
+    return 'Distinct countries that have beaten a national at least once in a World Cup game.';
 }
 
 function k2_lb_help_amiga_wc_country_opponents(): string

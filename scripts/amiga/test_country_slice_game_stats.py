@@ -10,7 +10,6 @@ from scripts.amiga.country_slice_game_stats import CountryWorldCupSliceTracker
 class TestCountryWorldCupSliceGameStats(unittest.TestCase):
     def test_dd_victim_without_win(self) -> None:
         tracker = CountryWorldCupSliceTracker(country_token="Italy")
-        tracker.seed_own_country()
         tracker.apply_player_game_perspective(
             opponent_id=2,
             opponent_country_token="England",
@@ -26,7 +25,6 @@ class TestCountryWorldCupSliceGameStats(unittest.TestCase):
 
     def test_domestic_and_international(self) -> None:
         tracker = CountryWorldCupSliceTracker(country_token="Italy")
-        tracker.seed_own_country()
         tracker.apply_player_game_perspective(
             opponent_id=2,
             opponent_country_token="Italy",

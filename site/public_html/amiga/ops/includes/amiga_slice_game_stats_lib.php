@@ -29,6 +29,7 @@ const AMIGA_SLICE_V2_SCALAR_KEYS = [
     'clean_sheets_conceded_ratio',
     'opponent_countries_faced',
     'opponent_countries_beaten',
+    'opponent_countries_beaten_by',
     'different_opponents',
     'different_victims',
     'double_digits_victims',
@@ -48,6 +49,9 @@ final class AmigaWorldCupSliceTracker
 
     /** @var array<string, true> */
     private array $opponentCountriesBeaten = [];
+
+    /** @var array<string, true> */
+    private array $opponentCountriesBeatenBy = [];
 
     /** @var array<int, true> */
     private array $opponents = [];
@@ -81,14 +85,6 @@ final class AmigaWorldCupSliceTracker
         return $tracker;
     }
 
-    public function seedOwnCountry(?string $ownCountry): void
-    {
-        $own = AmigaPlayerGeoYearTracker::normalizeCountry($ownCountry);
-        if ($own !== null) {
-            $this->opponentCountriesFaced[$own] = true;
-        }
-    }
-
     public function applyPerspective(
         int $opponentId,
         ?string $opponentCountry,
@@ -115,6 +111,9 @@ final class AmigaWorldCupSliceTracker
             $this->opponentCountriesFaced[$oppCountry] = true;
             if ($won) {
                 $this->opponentCountriesBeaten[$oppCountry] = true;
+            }
+            if ($lost) {
+                $this->opponentCountriesBeatenBy[$oppCountry] = true;
             }
         }
 
@@ -171,6 +170,7 @@ final class AmigaWorldCupSliceTracker
     {
         $this->row['opponent_countries_faced'] = count($this->opponentCountriesFaced);
         $this->row['opponent_countries_beaten'] = count($this->opponentCountriesBeaten);
+        $this->row['opponent_countries_beaten_by'] = count($this->opponentCountriesBeatenBy);
         $this->row['different_opponents'] = count($this->opponents);
         $this->row['different_victims'] = count($this->victims);
         $this->row['double_digits_victims'] = count($this->ddVictims);
@@ -229,7 +229,6 @@ function amiga_slice_build_v2_oracle_for_player(
     foreach (AMIGA_SLICE_V2_SCALAR_KEYS as $key) {
         $tracker->row[$key] = $empty[$key];
     }
-    $tracker->seedOwnCountry($playerCountries[$playerId] ?? null);
     foreach ($games as $game) {
         $idA = (int) $game['idA'];
         $idB = (int) $game['idB'];

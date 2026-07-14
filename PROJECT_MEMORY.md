@@ -145,13 +145,14 @@
 
 | Date | Note |
 |------|------|
-| 2026-07-14 | **Amiga profile Calendar & geography** — peak games/events years stacked muted below count (drops separate Year rows); shared `amiga_profile_lb_slice_value_stacked()`. |
+| 2026-07-14 | **Amiga geo scalars fix** — remove own-country auto-seed (H5/H6); add `opponent_countries_beaten_by` (H8); career + WC player/country writers; DDL `050`; profile + LB + WC tables; **`simul` OK on `ko2amiga_work`** (28 verify steps, ~28 min). |
 | 2026-07-14 | **Amiga profile Activity dates** — shipped stacked full date (Option B); compare mode removed; labels **Last** tournament/World Cup (pairs with First; matches Countries roster + rating LB). |
 | 2026-07-14 | **Amiga profile Activity panel** — leading mini-panel: last/first tournament + last/first World Cup (snapshot boundary reads; TT ≤ cutoff); `amiga_profile_lb_slices.php`. |
 | 2026-07-14 | **Amiga profile LB layout** — shipped **Option 2** (seven mini-panels, 3-column grid); compare mode + Option 1 removed; `amiga_profile_lb_slices.php` + `player-feast-sections.css`. |
 | 2026-07-14 | **Online profile peak moment card** — Moments mosaic last card from `PeakRating` + `PeakRatingGameID`; link-star peak value links to establishing game; meta = outcome · opponent · date (`player_feast_load_peak_moment()`). |
 | 2026-07-14 | **Amiga profile peak moment ink** — Peak rating score shows numeric value only with `k2-link-star` accent (no "Peak" prefix in value field). |
 | 2026-07-14 | **Amiga profile moments — online parity + peak last** — Best scalp, Biggest draw, Total goals bonanza added (`amiga_player_moments_lib.php`); card order matches online then Peak rating. |
+| 2026-07-14 | **Player tournament history Medal col** — `/amiga/player/tournaments.php`: Status league SVG medals for WC podium rows too (was blank); Finish ordinals unchanged; WC event-stats table unchanged. |
 | 2026-07-14 | **Online profile moments — card header styling** — removed dimmed `.pm3-moment__label` override on `.pm3d-section--moments`; online headers match Amiga (primary text, weight 600 via `player-feast.css` base). |
 | 2026-07-14 | **Amiga profile — legacy blocks removed** — Career/Honours, Performance rating, and Recent tournaments dl/list sections retired from `profile.php`; LB wing mosaic + Moments + charts remain. |
 | 2026-07-14 | **Amiga profile TT — shipped** — slices 0–4: chrome order, LB mosaic + Moments at cutoff, Videos pill via `amiga_player_has_videos(..., ctx)`, `$k2AmigaPlayerTabWiredAtCutoff` on Profile. [`amiga-profile-time-travel-policy.md`](docs/amiga-profile-time-travel-policy.md) · [`amiga-profile-time-travel-implementation-plan.md`](docs/amiga-profile-time-travel-implementation-plan.md). |

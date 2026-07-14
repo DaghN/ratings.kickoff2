@@ -191,7 +191,7 @@ Unchanged from v1 — deepest main-bracket KO round label for display when numer
 |---------|--------------|
 | `/amiga/tournament.php` phase tabs | Standings `position` per scope |
 | Profile recent tournaments | `event_finish_position` ordinal (1st/2nd/3rd) or — (WC included) |
-| `/amiga/player/tournaments.php` | Finish ordinals (all events); **Medal** col right of Finish — Status league SVG for non-WC 1–3 only (unsortable) |
+| `/amiga/player/tournaments.php` | Finish ordinals (all events); **Medal** col right of Finish — Status league SVG for podium 1–3 (all events including WC; unsortable) |
 | `/amiga/tournament.php` non-WC event stats | Finish ordinals (+ Perfect when set); **Medal** col right of Finish — Status league SVG for 1–3 (unsortable) |
 | `/amiga/tournament.php` WC event stats | **Finish** column — Gold/Silver/Bronze (1–3) + ordinals (4th+); no separate Medal col; sorts by `event_finish_position` |
 | Tournament honours LB | `event_*` + `wc_*` from `amiga_player_current` — **shipped** slice 7; snapshot path for time travel |

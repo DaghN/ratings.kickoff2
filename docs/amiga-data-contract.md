@@ -230,7 +230,17 @@ DDL bundles: [`schema_bundles.py`](../scripts/amiga/schema_bundles.py) — `sql/
 
 ### HoF record rise dates (SCH-029)
 
-Ten nullable columns on **`amiga_player_event_snapshots`** and **`amiga_player_current`** (identical set): per metric `{metric}_last_rise_tournament_id` + `{metric}_last_rise_event_date` for `tournaments_played`, `event_gold`, `countries_played_in`, `opponent_countries_faced`, `opponent_countries_beaten`. **`wc_played` rise retired** — `tournaments_played_last_rise_*` on **`amiga_player_slice_*`** (SCH-033). DDL: `sql/derived/029_hof_record_rise_dates.sql`.
+Ten nullable columns on **`amiga_player_event_snapshots`** and **`amiga_player_current`** (identical set): per metric `{metric}_last_rise_tournament_id` + `{metric}_last_rise_event_date` for `tournaments_played`, `event_gold`, `countries_played_in`, `opponent_countries_faced`, `opponent_countries_beaten`. **`opponent_countries_beaten_by`** has no rise pair (display-only scalar; not a HoF row). **`wc_played` rise retired** — `tournaments_played_last_rise_*` on **`amiga_player_slice_*`** (SCH-033). DDL: `sql/derived/029_hof_record_rise_dates.sql`.
+
+### Geography scalars fix + `opponent_countries_beaten_by` (SCH-050, Jul 2026)
+
+**Policy:** [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) **H5–H8** — all four geo counts from **game/event evidence only**; **no** nationality auto-seed on host countries, countries faced, countries beaten, or countries beaten by.
+
+| Column | Tables | Writer |
+|--------|--------|--------|
+| `opponent_countries_beaten_by` | `amiga_player_event_snapshots`, `amiga_player_current`, `amiga_player_slice_{totals,at_event}`, `amiga_country_slice_{totals,at_event}` | Career: `player_geo_year.py` / `amiga_player_geo_year_lib.php`; WC player: `slice_game_stats.py` / `amiga_slice_game_stats_lib.php`; WC country: `country_slice_game_stats.py` / `amiga_country_slice_game_stats_lib.php` |
+
+DDL: `sql/derived/050_geo_opponent_countries_beaten_by.sql` (bundle `050`). **Proof:** `verify-hof-geo-year` + full **`simul`** on **`ko2amiga_work`** (Jul 2026, 28 verify steps OK).
 
 ### Career cumulative rise dates (SCH-030)
 

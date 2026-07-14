@@ -69,6 +69,7 @@ function amiga_ops_snapshot_geo_year_columns(): array
         'countries_played_in',
         'opponent_countries_faced',
         'opponent_countries_beaten',
+        'opponent_countries_beaten_by',
     ];
 }
 

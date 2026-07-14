@@ -175,6 +175,7 @@ function amiga_ops_persist_world_cup_slices(
             'clean_sheets_conceded_ratio' => $totals['clean_sheets_conceded_ratio'] ?? null,
             'opponent_countries_faced' => (int) ($totals['opponent_countries_faced'] ?? 0),
             'opponent_countries_beaten' => (int) ($totals['opponent_countries_beaten'] ?? 0),
+            'opponent_countries_beaten_by' => (int) ($totals['opponent_countries_beaten_by'] ?? 0),
             'different_opponents' => (int) ($totals['different_opponents'] ?? 0),
             'different_victims' => (int) ($totals['different_victims'] ?? 0),
             'double_digits_victims' => (int) ($totals['double_digits_victims'] ?? 0),

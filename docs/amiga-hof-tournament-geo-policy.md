@@ -14,14 +14,15 @@
 | **H2** | Games in one year = sum `games_in_event` across events in that year |
 | **H3** | Tournaments in one year = count of participated events in that year |
 | **H4** | Career honours: `tournaments_played`, `event_gold` (wins), `wc_played` |
-| **H5** | Countries played in = distinct tournament host countries ∪ player own country when set |
-| **H6** | Opponent countries faced = distinct opponent countries from games ∪ player own country when set |
-| **H7** | Opponent countries beaten = distinct opponent countries with ≥1 win (no own-country seed) |
-| **H8** | Country token = `TRIM(value)`; empty/NULL excluded from game-derived sets |
-| **H9** | HoF holders on `amiga_generalstats` + full `amiga_realm_snapshots` row |
-| **H10** | Per-player scalars on `amiga_player_event_snapshots` + `amiga_player_current` |
-| **H11** | Tie policy: strict `>`; equal → lowest `player_id`; year peak tie → earliest calendar year |
-| **H12** | Writer boundary: tournament finalize + full replay only |
+| **H5** | Countries played in = distinct tournament **host** countries on events the player entered (documented `tournaments.country`; no nationality seed) |
+| **H6** | Opponent countries faced = distinct opponent nationalities from rated games only (no nationality seed) |
+| **H7** | Opponent countries beaten = distinct opponent nationalities with ≥1 win (no seed) |
+| **H8** | Opponent countries beaten by = distinct opponent nationalities with ≥1 loss (no seed) |
+| **H9** | Country token = `TRIM(value)`; empty/NULL excluded from game-derived sets |
+| **H10** | HoF holders on `amiga_generalstats` + full `amiga_realm_snapshots` row |
+| **H11** | Per-player scalars on `amiga_player_event_snapshots` + `amiga_player_current` |
+| **H12** | Tie policy: strict `>`; equal → lowest `player_id`; year peak tie → earliest calendar year |
+| **H13** | Writer boundary: tournament finalize + full replay only |
 
 ---
 

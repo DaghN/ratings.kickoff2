@@ -53,8 +53,9 @@ Player WC stats answer *who dominated?* Country stats answer *which nations domi
 | **WCCS9** | **Opponents network** | **Set unions at country grain** from WC games — **not** sum of per-player network counts (avoids double-counting the same opponent faced by two nationals). |
 | **WCCS10** | **DD / CS victims** | **No win required** — match player slice ops: DD victim = opponent when a national scored **≥10**; CS victim = opponent when a national **conceded 0**. See §5.5. |
 | **WCCS11** | **Victims (W column)** | **Win required** — distinct players beaten by any national (same as player `different_victims`). |
-| **WCCS12** | **Own country in faced** | `opponent_countries_faced` includes **own country** when two nationals play each other ([**H6**](amiga-hof-tournament-geo-policy.md) at nation grain). |
-| **WCCS13** | **Beaten countries** | `opponent_countries_beaten` = nations with ≥1 **loss** to a national in a WC game — **no** own-country seed ([**H7**](amiga-hof-tournament-geo-policy.md)). |
+| **WCCS12** | **Geo from games** | `opponent_countries_faced` / `beaten` / `beaten_by` from national player-games only — own country counts only when compatriots actually play ([**H6–H8**](amiga-hof-tournament-geo-policy.md)) |
+| **WCCS13** | **Beaten countries** | `opponent_countries_beaten` = nations with ≥1 **win** by a national in a WC game — **no** own-country seed ([**H7**](amiga-hof-tournament-geo-policy.md)). |
+| **WCCS13b** | **Beaten-by countries** | `opponent_countries_beaten_by` = nations with ≥1 **loss** by a national in a WC game — **no** seed ([**H8**](amiga-hof-tournament-geo-policy.md)). |
 | **WCCS14** | **Performance rating** | Lives on **Results** sub-wing — chess-style TPR treating the nation as one virtual player over all WC **player-games** (§5.2). |
 | **WCCS15** | **Opponent avg rating** | Arithmetic mean of **frozen opponent ratings** across all national **player-games** — Results sub-wing (§5.2). |
 | **WCCS16** | **Win rate** | `(wins + 0.5 × draws) ÷ games` on summed W/D/L — draw counts as half a win. |
@@ -210,8 +211,9 @@ Mirror player WC DDs wing — **sums** of nationals’ counters; ratios ÷ natio
 
 | Slice column | UI label | Definition |
 |--------------|----------|------------|
-| `opponent_countries_faced` | Opp. countries | Distinct opponent **country tokens** from national player-games ∪ **own country** when set (**WCCS12**) |
+| `opponent_countries_faced` | Opp. countries | Distinct opponent **country tokens** from national player-games only (**WCCS12**, no seed) |
 | `opponent_countries_beaten` | Opp. beaten | Distinct opponent country tokens where a national **won** (**WCCS13**) |
+| `opponent_countries_beaten_by` | Opp. beaten by | Distinct opponent country tokens where a national **lost** (**WCCS13b**) |
 | `different_opponents` | Opponents | Distinct **player_ids** faced by any national |
 | `different_victims` | Victims | Distinct player_ids **beaten** by any national |
 | `double_digits_victims` | DD Victims | Distinct player_ids against whom any national scored **≥10** — **any result** (**WCCS10**) |

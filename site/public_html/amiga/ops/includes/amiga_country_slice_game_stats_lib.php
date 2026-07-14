@@ -24,6 +24,9 @@ final class AmigaCountryWorldCupSliceTracker
     /** @var array<string, true> */
     private array $opponentCountriesBeaten = [];
 
+    /** @var array<string, true> */
+    private array $opponentCountriesBeatenBy = [];
+
     /** @var array<int, true> */
     private array $opponents = [];
 
@@ -47,13 +50,6 @@ final class AmigaCountryWorldCupSliceTracker
         $this->row = amiga_country_slice_empty_world_cup();
     }
 
-    public function seedOwnCountry(): void
-    {
-        if ($this->countryToken !== AMIGA_COUNTRY_UNKNOWN_TOKEN) {
-            $this->opponentCountriesFaced[$this->countryToken] = true;
-        }
-    }
-
     public function applyPlayerGamePerspective(
         int $opponentId,
         string $opponentCountryToken,
@@ -64,6 +60,7 @@ final class AmigaCountryWorldCupSliceTracker
         float $opponentRating,
     ): void {
         $won = $actualScore === 1.0;
+        $lost = $actualScore === 0.0;
         $this->sumOpponentRating += $opponentRating;
         $this->perfPairs[] = ['opponent' => $opponentRating, 'score' => $actualScore];
 
@@ -83,6 +80,9 @@ final class AmigaCountryWorldCupSliceTracker
             $this->opponentCountriesFaced[$oppCountry] = true;
             if ($won) {
                 $this->opponentCountriesBeaten[$oppCountry] = true;
+            }
+            if ($lost) {
+                $this->opponentCountriesBeatenBy[$oppCountry] = true;
             }
         }
 
@@ -104,6 +104,7 @@ final class AmigaCountryWorldCupSliceTracker
         $target['international_games'] = (int) ($this->row['international_games'] ?? 0);
         $target['opponent_countries_faced'] = count($this->opponentCountriesFaced);
         $target['opponent_countries_beaten'] = count($this->opponentCountriesBeaten);
+        $target['opponent_countries_beaten_by'] = count($this->opponentCountriesBeatenBy);
         $target['different_opponents'] = count($this->opponents);
         $target['different_victims'] = count($this->victims);
         $target['double_digits_victims'] = count($this->ddVictims);
@@ -150,11 +151,9 @@ function amiga_country_slice_apply_wc_games(
 
         if (!isset($trackers[$tokenA])) {
             $trackers[$tokenA] = new AmigaCountryWorldCupSliceTracker($tokenA);
-            $trackers[$tokenA]->seedOwnCountry();
         }
         if (!isset($trackers[$tokenB])) {
             $trackers[$tokenB] = new AmigaCountryWorldCupSliceTracker($tokenB);
-            $trackers[$tokenB]->seedOwnCountry();
         }
 
         $trackers[$tokenA]->applyPlayerGamePerspective(

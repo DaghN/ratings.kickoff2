@@ -58,6 +58,7 @@ class PlayerGeoYearTracker:
         self._host_countries: dict[int, set[str]] = defaultdict(set)
         self._opponent_faced: dict[int, set[str]] = defaultdict(set)
         self._opponent_beaten: dict[int, set[str]] = defaultdict(set)
+        self._opponent_beaten_by: dict[int, set[str]] = defaultdict(set)
         self._rise_tournament_id: dict[int, dict[str, int | None]] = defaultdict(dict)
         self._rise_event_date: dict[int, dict[str, Any]] = defaultdict(dict)
 
@@ -92,13 +93,8 @@ class PlayerGeoYearTracker:
             games_n = int(games_in_event.get(pid, 0) or 0)
             if games_n <= 0:
                 continue
-            own = normalize_country(player_countries.get(pid))
             if host:
                 self._host_countries[pid].add(host)
-            if own:
-                self._host_countries[pid].add(own)
-                self._opponent_faced[pid].add(own)
-            if year is not None:
                 bucket = self._year_buckets[pid][year]
                 bucket["games"] += games_n
                 bucket["tournaments"] += 1
@@ -120,6 +116,10 @@ class PlayerGeoYearTracker:
                 self._opponent_beaten[id_a].add(country_b)
             elif goals_b > goals_a and country_a:
                 self._opponent_beaten[id_b].add(country_a)
+            if goals_a < goals_b and country_b:
+                self._opponent_beaten_by[id_a].add(country_b)
+            elif goals_b < goals_a and country_a:
+                self._opponent_beaten_by[id_b].add(country_a)
 
         for pid in affected:
             after = self._display_geo_counts(pid, player_countries.get(pid))
@@ -142,6 +142,7 @@ class PlayerGeoYearTracker:
             "countries_played_in": counts["countries_played_in"],
             "opponent_countries_faced": counts["opponent_countries_faced"],
             "opponent_countries_beaten": counts["opponent_countries_beaten"],
+            "opponent_countries_beaten_by": counts["opponent_countries_beaten_by"],
             **_empty_rise_fields(),
         }
         for metric in GEO_RISE_METRICS:
@@ -154,18 +155,12 @@ class PlayerGeoYearTracker:
         return out
 
     def _display_geo_counts(self, player_id: int, own_country: Any) -> dict[str, int]:
-        """Counts matching ``scalars_for`` display (own country seeded when set)."""
-        own = normalize_country(own_country)
-        host = set(self._host_countries.get(player_id, set()))
-        faced = set(self._opponent_faced.get(player_id, set()))
-        beaten = set(self._opponent_beaten.get(player_id, set()))
-        if own:
-            host.add(own)
-            faced.add(own)
+        """Counts matching ``scalars_for`` display (game/event evidence only)."""
         return {
-            "countries_played_in": len(host),
-            "opponent_countries_faced": len(faced),
-            "opponent_countries_beaten": len(beaten),
+            "countries_played_in": len(self._host_countries.get(player_id, set())),
+            "opponent_countries_faced": len(self._opponent_faced.get(player_id, set())),
+            "opponent_countries_beaten": len(self._opponent_beaten.get(player_id, set())),
+            "opponent_countries_beaten_by": len(self._opponent_beaten_by.get(player_id, set())),
         }
 
     def _peak_for(self, player_id: int, key: str) -> tuple[int, int | None]:

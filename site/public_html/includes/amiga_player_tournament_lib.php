@@ -751,7 +751,8 @@ function amiga_calendar_geo_leaderboard_rows(mysqli $con, ?AmigaSnapshotContext 
                    t.peak_year_tournaments_year,
                    t.countries_played_in,
                    t.opponent_countries_faced,
-                   t.opponent_countries_beaten
+                   t.opponent_countries_beaten,
+                   t.opponent_countries_beaten_by
             FROM amiga_player_current t
             INNER JOIN amiga_players p ON p.id = t.player_id
             WHERE t.NumberGames > 0

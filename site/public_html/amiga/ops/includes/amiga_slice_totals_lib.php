@@ -91,6 +91,7 @@ function amiga_slice_empty_world_cup(): array
         'clean_sheets_conceded_ratio' => null,
         'opponent_countries_faced' => 0,
         'opponent_countries_beaten' => 0,
+        'opponent_countries_beaten_by' => 0,
         'different_opponents' => 0,
         'different_victims' => 0,
         'double_digits_victims' => 0,

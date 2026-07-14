@@ -259,6 +259,7 @@ def build_event_snapshot_row(
             "countries_played_in": 0,
             "opponent_countries_faced": 0,
             "opponent_countries_beaten": 0,
+            "opponent_countries_beaten_by": 0,
         }
         for key in GEO_RISE_PLAYER_COLUMNS:
             geo_year_scalars[key] = None

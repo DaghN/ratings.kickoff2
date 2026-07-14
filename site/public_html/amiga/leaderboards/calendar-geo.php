@@ -49,6 +49,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
         <th<?php echo k2_lb_th(7, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_countries_played_in(), ENT_QUOTES, 'UTF-8'); ?>">Host countries</th>
         <th<?php echo k2_lb_th(8, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_opponent_countries_faced(), ENT_QUOTES, 'UTF-8'); ?>">Countries faced</th>
         <th<?php echo k2_lb_th(9, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_opponent_countries_beaten(), ENT_QUOTES, 'UTF-8'); ?>">Countries beaten</th>
+        <th<?php echo k2_lb_th(10, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_opponent_countries_beaten_by(), ENT_QUOTES, 'UTF-8'); ?>">Countries beaten by</th>
     </tr>
 </thead>
 <tbody class="black">
@@ -69,6 +70,7 @@ foreach ($rows as $row) {
         <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo (int) $row['countries_played_in']; ?></td>
         <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo (int) $row['opponent_countries_faced']; ?></td>
         <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo (int) $row['opponent_countries_beaten']; ?></td>
+        <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo (int) ($row['opponent_countries_beaten_by'] ?? 0); ?></td>
     </tr>
     <?php
     $rank++;

@@ -68,6 +68,7 @@ COUNTRY_SLICE_DDS_COLUMNS: tuple[str, ...] = (
 COUNTRY_SLICE_OPPONENTS_COLUMNS: tuple[str, ...] = (
     "opponent_countries_faced",
     "opponent_countries_beaten",
+    "opponent_countries_beaten_by",
     "different_opponents",
     "different_victims",
     "double_digits_victims",

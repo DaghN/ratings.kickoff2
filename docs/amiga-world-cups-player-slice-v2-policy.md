@@ -55,7 +55,7 @@ Those career fields are maintained in **`PlayerState`** / **`PlayerGeoYearTracke
 | **V2P2** | **Goals enrichment** | Add columns through **Max draw** inclusive; align labels with generic Goals LB |
 | **V2P3** | **DDs wing** | Full generic DDs & CSs table (8 data columns + Games), not a subset |
 | **V2P4** | **Opponents wing** | Victims trio + **culprits trio** (see §5.3) — no MGC/BL victims/culprits, no calendar-geo peak years or Hosts |
-| **V2P5** | **Own country in faced** | `opponent_countries_faced` seeds player **own country** when set — same as career [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) **H6** |
+| **V2P5** | **Geo from games** | `opponent_countries_faced` / `beaten` / `beaten_by` from WC games only — **no** nationality seed ([**H6–H8**](amiga-hof-tournament-geo-policy.md)) |
 | **V2P6** | **Beaten set** | `opponent_countries_beaten` = nations with ≥1 **win** in a WC game only — **no** own-country seed ([**H7**](amiga-hof-tournament-geo-policy.md)) |
 | **V2P7** | **Network semantics** | Opponent / victim / DD victim / CS victim counts use **career rules** ([`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) §4) applied to **WC games only** |
 | **V2P8** | **Eligibility** | Rows where slice `tournaments_played ≥ 1` (unchanged from V1) |
@@ -132,8 +132,9 @@ Mirror [`double-digits.php`](../site/public_html/amiga/leaderboards/double-digit
 
 | Slice column | UI label | Career source | Definition (WC games only) |
 |--------------|----------|---------------|----------------------------|
-| `opponent_countries_faced` | Opp. countries | Calendar & geo | Distinct opponent **nations** from WC games ∪ own country when set (**H6**) |
-| `opponent_countries_beaten` | Opp. beaten | Calendar & geo | Distinct opponent nations with ≥1 win (**H7**, no own-country seed) |
+| `opponent_countries_faced` | Opp. countries | Calendar & geo | Distinct opponent **nations** from WC games only (**H6**, no nationality seed) |
+| `opponent_countries_beaten` | Opp. beaten | Calendar & geo | Distinct opponent nations with ≥1 win (**H7**, no seed) |
+| `opponent_countries_beaten_by` | Opp. beaten by | Calendar & geo | Distinct opponent nations with ≥1 loss (**H8**, no seed) |
 | `different_opponents` | Opponents | Victims LB | Distinct **players** faced |
 | `different_victims` | Victims | Victims LB | Distinct opponents with ≥1 win vs player |
 | `double_digits_victims` | DD Victims | Victims LB | Distinct opponents with ≥1 DD win vs player |

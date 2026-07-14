@@ -529,7 +529,8 @@ function amiga_lb_calendar_geo_rows_at_cutoff(mysqli $con, AmigaSnapshotContext 
                    s.peak_year_tournaments_year,
                    s.countries_played_in,
                    s.opponent_countries_faced,
-                   s.opponent_countries_beaten
+                   s.opponent_countries_beaten,
+                   s.opponent_countries_beaten_by
             ' . amiga_lb_snapshot_from_sql('s') . '
             WHERE s.NumberGames > 0
             ORDER BY s.peak_year_games DESC,

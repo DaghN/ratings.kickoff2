@@ -55,6 +55,9 @@ final class AmigaPlayerGeoYearTracker
     /** @var array<int, array<string, true>> */
     private array $opponentBeaten = [];
 
+    /** @var array<int, array<string, true>> */
+    private array $opponentBeatenBy = [];
+
     /** @var array<int, array<string, int|null>> */
     private array $riseTournamentId = [];
 
@@ -124,13 +127,8 @@ final class AmigaPlayerGeoYearTracker
             if ($gamesN <= 0) {
                 continue;
             }
-            $own = self::normalizeCountry($playerCountries[$pid] ?? null);
             if ($host !== null) {
                 $this->hostCountries[$pid][$host] = true;
-            }
-            if ($own !== null) {
-                $this->hostCountries[$pid][$own] = true;
-                $this->opponentFaced[$pid][$own] = true;
             }
             if ($year !== null) {
                 if (!isset($this->yearBuckets[$pid][$year])) {
@@ -160,6 +158,11 @@ final class AmigaPlayerGeoYearTracker
             } elseif ($goalsB > $goalsA && $countryA !== null) {
                 $this->opponentBeaten[$idB][$countryA] = true;
             }
+            if ($goalsA < $goalsB && $countryB !== null) {
+                $this->opponentBeatenBy[$idA][$countryB] = true;
+            } elseif ($goalsB < $goalsA && $countryA !== null) {
+                $this->opponentBeatenBy[$idB][$countryA] = true;
+            }
         }
 
         foreach (array_keys($affected) as $pid) {
@@ -178,23 +181,17 @@ final class AmigaPlayerGeoYearTracker
      * @return array{
      *   countries_played_in: int,
      *   opponent_countries_faced: int,
-     *   opponent_countries_beaten: int
+     *   opponent_countries_beaten: int,
+     *   opponent_countries_beaten_by: int
      * }
      */
     private function displayGeoCounts(int $playerId, ?string $ownCountry): array
     {
-        $own = self::normalizeCountry($ownCountry);
-        $host = $this->hostCountries[$playerId] ?? [];
-        $faced = $this->opponentFaced[$playerId] ?? [];
-        if ($own !== null) {
-            $host[$own] = true;
-            $faced[$own] = true;
-        }
-
         return [
-            'countries_played_in' => count($host),
-            'opponent_countries_faced' => count($faced),
+            'countries_played_in' => count($this->hostCountries[$playerId] ?? []),
+            'opponent_countries_faced' => count($this->opponentFaced[$playerId] ?? []),
             'opponent_countries_beaten' => count($this->opponentBeaten[$playerId] ?? []),
+            'opponent_countries_beaten_by' => count($this->opponentBeatenBy[$playerId] ?? []),
         ];
     }
 
@@ -215,6 +212,7 @@ final class AmigaPlayerGeoYearTracker
             'countries_played_in' => $counts['countries_played_in'],
             'opponent_countries_faced' => $counts['opponent_countries_faced'],
             'opponent_countries_beaten' => $counts['opponent_countries_beaten'],
+            'opponent_countries_beaten_by' => $counts['opponent_countries_beaten_by'],
         ] + amiga_geo_empty_rise_fields();
 
         foreach (AMIGA_GEO_RISE_METRICS as $metric) {

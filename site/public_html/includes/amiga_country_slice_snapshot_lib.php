@@ -59,6 +59,7 @@ function amiga_lb_wc_country_stat_column_names(): array
         'clean_sheets_conceded_ratio',
         'opponent_countries_faced',
         'opponent_countries_beaten',
+        'opponent_countries_beaten_by',
         'different_opponents',
         'different_victims',
         'double_digits_victims',

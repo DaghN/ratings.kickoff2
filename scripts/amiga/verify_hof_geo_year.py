@@ -41,6 +41,7 @@ _GEO_YEAR_COLUMNS = (
     "countries_played_in",
     "opponent_countries_faced",
     "opponent_countries_beaten",
+    "opponent_countries_beaten_by",
 )
 
 _HOF_GEO_HONOURS_PREFIXES = tuple(prefix for _v, _c, prefix in _CAREER_HOLDERS if prefix in {

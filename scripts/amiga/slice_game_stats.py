@@ -27,6 +27,7 @@ V2_SCALAR_KEYS: tuple[str, ...] = (
     "clean_sheets_conceded_ratio",
     "opponent_countries_faced",
     "opponent_countries_beaten",
+    "opponent_countries_beaten_by",
     "different_opponents",
     "different_victims",
     "double_digits_victims",
@@ -56,6 +57,7 @@ class WorldCupSliceTracker:
     row: dict[str, Any] = field(default_factory=empty_world_cup_slice)
     _opponent_countries_faced: set[str] = field(default_factory=set)
     _opponent_countries_beaten: set[str] = field(default_factory=set)
+    _opponent_countries_beaten_by: set[str] = field(default_factory=set)
     _opponents: set[int] = field(default_factory=set)
     _victims: set[int] = field(default_factory=set)
     _dd_victims: set[int] = field(default_factory=set)
@@ -68,11 +70,6 @@ class WorldCupSliceTracker:
     def from_totals_row(cls, row: dict[str, Any] | None) -> WorldCupSliceTracker:
         base = slice_from_totals_row(row) if row else empty_world_cup_slice()
         return cls(row=base)
-
-    def seed_own_country(self, own_country: Any) -> None:
-        own = normalize_country(own_country)
-        if own:
-            self._opponent_countries_faced.add(own)
 
     def apply_perspective(
         self,
@@ -100,6 +97,8 @@ class WorldCupSliceTracker:
             self._opponent_countries_faced.add(opp_country)
             if won:
                 self._opponent_countries_beaten.add(opp_country)
+            if lost:
+                self._opponent_countries_beaten_by.add(opp_country)
 
         if dd_for:
             self.row["double_digits"] = int(self.row["double_digits"]) + 1
@@ -136,6 +135,7 @@ class WorldCupSliceTracker:
     def _sync_network_geo_counts(self) -> None:
         self.row["opponent_countries_faced"] = len(self._opponent_countries_faced)
         self.row["opponent_countries_beaten"] = len(self._opponent_countries_beaten)
+        self.row["opponent_countries_beaten_by"] = len(self._opponent_countries_beaten_by)
         self.row["different_opponents"] = len(self._opponents)
         self.row["different_victims"] = len(self._victims)
         self.row["double_digits_victims"] = len(self._dd_victims)
@@ -188,7 +188,6 @@ def apply_world_cup_tournament_games(
         tracker = _ensure_tracker(pid, slice_accum, slice_trackers, player_countries)
         if pid in slice_accum:
             tracker.row = slice_from_totals_row(slice_accum[pid])
-        tracker.seed_own_country(player_countries.get(pid))
 
     for game in games:
         id_a = int(game["idA"])
@@ -235,7 +234,6 @@ def build_v2_oracle_for_player(
     empty = empty_world_cup_slice()
     for key in V2_SCALAR_KEYS:
         tracker.row[key] = empty[key]
-    tracker.seed_own_country(player_countries.get(player_id))
     for game in games:
         id_a = int(game["idA"])
         id_b = int(game["idB"])

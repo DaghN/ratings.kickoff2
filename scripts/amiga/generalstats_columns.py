@@ -134,6 +134,7 @@ GEO_YEAR_PLAYER_COLUMNS: tuple[str, ...] = (
     "countries_played_in",
     "opponent_countries_faced",
     "opponent_countries_beaten",
+    "opponent_countries_beaten_by",
 )
 
 HONOURS_RISE_PLAYER_COLUMNS: tuple[str, ...] = (

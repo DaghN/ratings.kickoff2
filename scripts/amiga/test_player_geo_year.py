@@ -23,7 +23,7 @@ class PlayerGeoYearTrackerTests(unittest.TestCase):
         self.assertEqual(calendar_year(date(1998, 6, 15)), 1998)
         self.assertIsNone(calendar_year(None))
 
-    def test_own_country_seeded_in_host_and_faced(self) -> None:
+    def test_host_country_from_event_only(self) -> None:
         tracker = PlayerGeoYearTracker()
         tracker.apply_tournament(
             tournament_id=1,
@@ -36,11 +36,12 @@ class PlayerGeoYearTrackerTests(unittest.TestCase):
         )
         scalars = tracker.scalars_for(1, "Denmark")
         self.assertEqual(scalars["countries_played_in"], 1)
-        self.assertEqual(scalars["opponent_countries_faced"], 1)
+        self.assertEqual(scalars["opponent_countries_faced"], 0)
         self.assertEqual(scalars["opponent_countries_beaten"], 0)
+        self.assertEqual(scalars["opponent_countries_beaten_by"], 0)
         self.assertEqual(scalars["peak_year_games"], 5)
         self.assertEqual(scalars["peak_year_games_year"], 1998)
-        self.assertIsNone(scalars["countries_played_in_last_rise_tournament_id"])
+        self.assertEqual(scalars["countries_played_in_last_rise_tournament_id"], 1)
 
     def test_opponent_country_beaten_on_win(self) -> None:
         tracker = PlayerGeoYearTracker()
@@ -55,10 +56,12 @@ class PlayerGeoYearTrackerTests(unittest.TestCase):
         )
         p1 = tracker.scalars_for(1, "Denmark")
         self.assertEqual(p1["opponent_countries_beaten"], 1)
-        self.assertEqual(p1["opponent_countries_faced"], 2)
+        self.assertEqual(p1["opponent_countries_faced"], 1)
+        self.assertEqual(p1["opponent_countries_beaten_by"], 0)
         self.assertEqual(p1["opponent_countries_beaten_last_rise_tournament_id"], 2)
         p2 = tracker.scalars_for(2, "Sweden")
         self.assertEqual(p2["opponent_countries_beaten"], 0)
+        self.assertEqual(p2["opponent_countries_beaten_by"], 1)
         self.assertIsNone(p2["opponent_countries_beaten_last_rise_tournament_id"])
 
     def test_geo_rise_on_new_host_country(self) -> None:
@@ -73,7 +76,7 @@ class PlayerGeoYearTrackerTests(unittest.TestCase):
             player_countries={66: "England"},
         )
         first = tracker.scalars_for(66, "England")
-        self.assertEqual(first["countries_played_in"], 2)
+        self.assertEqual(first["countries_played_in"], 1)
         self.assertEqual(first["countries_played_in_last_rise_tournament_id"], 10)
         self.assertEqual(first["countries_played_in_last_rise_event_date"], date(2023, 11, 18))
 
@@ -87,7 +90,7 @@ class PlayerGeoYearTrackerTests(unittest.TestCase):
             player_countries={66: "England"},
         )
         second = tracker.scalars_for(66, "England")
-        self.assertEqual(second["countries_played_in"], 3)
+        self.assertEqual(second["countries_played_in"], 2)
         self.assertEqual(second["countries_played_in_last_rise_tournament_id"], 25)
         self.assertEqual(second["countries_played_in_last_rise_event_date"], date(2025, 11, 1))
 
@@ -113,7 +116,7 @@ class PlayerGeoYearTrackerTests(unittest.TestCase):
             player_countries={66: "England"},
         )
         at_peak = tracker.scalars_for(66, "England")
-        self.assertEqual(at_peak["countries_played_in"], 3)
+        self.assertEqual(at_peak["countries_played_in"], 2)
         rise_tid = at_peak["countries_played_in_last_rise_tournament_id"]
         rise_date = at_peak["countries_played_in_last_rise_event_date"]
         self.assertEqual(rise_tid, 17)
@@ -128,7 +131,7 @@ class PlayerGeoYearTrackerTests(unittest.TestCase):
             player_countries={66: "England"},
         )
         after = tracker.scalars_for(66, "England")
-        self.assertEqual(after["countries_played_in"], 3)
+        self.assertEqual(after["countries_played_in"], 2)
         self.assertEqual(after["countries_played_in_last_rise_tournament_id"], rise_tid)
         self.assertEqual(after["countries_played_in_last_rise_event_date"], rise_date)
 

@@ -329,6 +329,7 @@ function amiga_wc_players_render_opponents(array $rows, int $playerCount): void
         <th<?php echo k2_lb_th(10, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Clean Sheet culprits" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_cs_culprits(), ENT_QUOTES, 'UTF-8'); ?>">CS Culprits</th>
         <th<?php echo k2_lb_th(11, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_opponent_countries_faced(), ENT_QUOTES, 'UTF-8'); ?>">Countries faced</th>
         <th<?php echo k2_lb_th(12, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_opponent_countries_beaten(), ENT_QUOTES, 'UTF-8'); ?>">Countries beaten</th>
+        <th<?php echo k2_lb_th(13, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_opponent_countries_beaten_by(), ENT_QUOTES, 'UTF-8'); ?>">Countries beaten by</th>
     </tr>
 </thead>
 <tbody class="black">
@@ -353,6 +354,7 @@ function amiga_wc_players_render_opponents(array $rows, int $playerCount): void
         <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo k2_fmt_count($row['clean_sheets_culprits'] ?? 0, $games); ?></td>
         <td<?php echo k2_lb_td(11, $lbSort); ?>><?php echo k2_fmt_count($row['opponent_countries_faced'] ?? 0, $games); ?></td>
         <td<?php echo k2_lb_td(12, $lbSort); ?>><?php echo k2_fmt_count($row['opponent_countries_beaten'] ?? 0, $games); ?></td>
+        <td<?php echo k2_lb_td(13, $lbSort); ?>><?php echo k2_fmt_count($row['opponent_countries_beaten_by'] ?? 0, $games); ?></td>
     </tr>
         <?php
         $rank++;

@@ -22,6 +22,7 @@ class CountryWorldCupSliceTracker:
     row: dict[str, Any] = field(default_factory=empty_country_world_cup_slice)
     _opponent_countries_faced: set[str] = field(default_factory=set)
     _opponent_countries_beaten: set[str] = field(default_factory=set)
+    _opponent_countries_beaten_by: set[str] = field(default_factory=set)
     _opponents: set[int] = field(default_factory=set)
     _victims: set[int] = field(default_factory=set)
     _dd_victims: set[int] = field(default_factory=set)
@@ -29,10 +30,6 @@ class CountryWorldCupSliceTracker:
     _perf_pairs: list[tuple[float, float]] = field(default_factory=list)
     _sum_opponent_rating: float = 0.0
     _player_games_from_loop: int = 0
-
-    def seed_own_country(self) -> None:
-        if self.country_token != "Unknown":
-            self._opponent_countries_faced.add(self.country_token)
 
     def apply_player_game_perspective(
         self,
@@ -46,6 +43,7 @@ class CountryWorldCupSliceTracker:
         opponent_rating: float,
     ) -> None:
         won = actual_score == 1.0
+        lost = actual_score == 0.0
         self._player_games_from_loop += 1
         self._sum_opponent_rating += float(opponent_rating)
         self._perf_pairs.append((float(opponent_rating), float(actual_score)))
@@ -64,6 +62,8 @@ class CountryWorldCupSliceTracker:
             self._opponent_countries_faced.add(opp_country)
             if won:
                 self._opponent_countries_beaten.add(opp_country)
+            if lost:
+                self._opponent_countries_beaten_by.add(opp_country)
 
         if dd_for:
             self.row["double_digits"] = int(self.row.get("double_digits") or 0) + 1
@@ -76,6 +76,7 @@ class CountryWorldCupSliceTracker:
         target["international_games"] = int(self.row.get("international_games") or 0)
         target["opponent_countries_faced"] = len(self._opponent_countries_faced)
         target["opponent_countries_beaten"] = len(self._opponent_countries_beaten)
+        target["opponent_countries_beaten_by"] = len(self._opponent_countries_beaten_by)
         target["different_opponents"] = len(self._opponents)
         target["different_victims"] = len(self._victims)
         target["double_digits_victims"] = len(self._dd_victims)
@@ -115,10 +116,8 @@ def apply_wc_games_to_country_trackers(
 
         if token_a not in trackers:
             trackers[token_a] = CountryWorldCupSliceTracker(country_token=token_a)
-            trackers[token_a].seed_own_country()
         if token_b not in trackers:
             trackers[token_b] = CountryWorldCupSliceTracker(country_token=token_b)
-            trackers[token_b].seed_own_country()
 
         trackers[token_a].apply_player_game_perspective(
             opponent_id=id_b,

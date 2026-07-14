@@ -123,20 +123,6 @@ function amiga_profile_tournament_podium_medal_cell(array $row): string
 }
 
 /**
- * Medal cell for mixed player-history tables — empty on World Cup rows.
- *
- * @param array<string, mixed> $row
- */
-function amiga_profile_tournament_podium_medal_cell_if_regular(array $row): string
-{
-    if (amiga_tournament_is_world_cup($row)) {
-        return '';
-    }
-
-    return amiga_profile_tournament_podium_medal_cell($row);
-}
-
-/**
  * @param array{max_rated_victim: ?array<string, mixed>, moments: list<array<string, mixed>>} $bundle from amiga_player_moments_load()
  */
 function amiga_profile_render_moments(array $bundle, int $playerId = 0): void
@@ -440,7 +426,7 @@ function amiga_profile_render_tournament_history_table(array $tournaments): void
 			<td<?php echo k2_table_body_td_attr(10, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_avg_goals_cell($t['avg_goals_against'] ?? null, $games); ?></td>
 			<td<?php echo k2_table_body_td_attr(11, $anchorCol, $defaultSortCol); ?>><?php echo $points; ?></td>
 			<td<?php echo k2_table_body_td_attr(12, $anchorCol, $defaultSortCol); ?> data-k2-sort-value="<?php echo k2_h(amiga_profile_tournament_finish_sort_value($t)); ?>"><?php echo htmlspecialchars($finishRank, ENT_QUOTES, 'UTF-8'); ?></td>
-			<td<?php echo k2_table_body_td_attr($medalCol, $anchorCol, $defaultSortCol, 'k2-status-table__medal'); ?>><?php echo amiga_profile_tournament_podium_medal_cell_if_regular($t); ?></td>
+			<td<?php echo k2_table_body_td_attr($medalCol, $anchorCol, $defaultSortCol, 'k2-status-table__medal'); ?>><?php echo amiga_profile_tournament_podium_medal_cell($t); ?></td>
 			<td<?php echo k2_table_body_td_attr($ratingCol, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_cell($t['rating_before'] ?? null); ?></td>
 			<td<?php echo k2_table_body_td_attr($adjustCol, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_delta_cell($t['rating_delta'] ?? null); ?></td>
 			<td<?php echo k2_table_body_td_attr($newRatingCol, $anchorCol, $defaultSortCol); ?>><?php echo amiga_profile_tournament_rating_cell($t['rating_after'] ?? null); ?></td>

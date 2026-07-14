@@ -37,7 +37,7 @@ function amiga_profile_lb_slices_load_present(mysqli $con, int $playerId): ?arra
         . ' s.DoubleDigitsCulprits, s.CleanSheetsCulprits, s.MostGoalsScoredCulprits, s.BiggestWinCulprits,'
         . ' s.tournaments_played, s.event_gold, s.event_silver, s.event_bronze, s.event_podiums, s.perfect_events,'
         . ' s.peak_year_games, s.peak_year_games_year, s.peak_year_tournaments, s.peak_year_tournaments_year,'
-        . ' s.countries_played_in, s.opponent_countries_faced, s.opponent_countries_beaten,'
+        . ' s.countries_played_in, s.opponent_countries_faced, s.opponent_countries_beaten, s.opponent_countries_beaten_by,'
         . ' s.PeakRating, s.LowestRating, s.HighestRatedVictim, s.LowestRatedCulprit,'
         . ' s.peak_rating_tournament_id, tpr.event_date AS peak_rating_date, peak_snap.rating_delta AS peak_rating_delta,'
         . ' tpr.name AS peak_rating_tournament_name,'
@@ -872,6 +872,7 @@ function amiga_profile_lb_slice_rows_calendar_geo(array $row): void
     echo amiga_profile_lb_slice_row('Host countries', (string) (int) ($row['countries_played_in'] ?? 0), k2_lb_help_amiga_countries_played_in());
     echo amiga_profile_lb_slice_row('Countries faced', (string) (int) ($row['opponent_countries_faced'] ?? 0), k2_lb_help_amiga_opponent_countries_faced());
     echo amiga_profile_lb_slice_row('Countries beaten', (string) (int) ($row['opponent_countries_beaten'] ?? 0), k2_lb_help_amiga_opponent_countries_beaten());
+    echo amiga_profile_lb_slice_row('Countries beaten by', (string) (int) ($row['opponent_countries_beaten_by'] ?? 0), k2_lb_help_amiga_opponent_countries_beaten_by());
 }
 
 /**
