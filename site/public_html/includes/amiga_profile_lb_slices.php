@@ -43,7 +43,9 @@ function amiga_profile_lb_slices_load_present(mysqli $con, int $playerId): ?arra
         . ' tpr.name AS peak_rating_tournament_name,'
         . ' s.peak_elo_rank, s.peak_elo_rank_tournament_id, tpke.event_date AS peak_elo_rank_date,'
         . ' tpke.name AS peak_elo_rank_tournament_name,'
-        . ' (pr_rank_snap.player_id IS NOT NULL) AS peak_elo_rank_played_in_event'
+        . ' (pr_rank_snap.player_id IS NOT NULL) AS peak_elo_rank_played_in_event,'
+        . ' s.last_tournament_id, s.last_event_date,'
+        . ' lt.name AS last_tournament_name, lt.country AS last_tournament_country'
         . ' FROM amiga_players p'
         . ' INNER JOIN amiga_player_current s ON s.player_id = p.id'
         . ' LEFT JOIN tournaments tpr ON tpr.id = s.peak_rating_tournament_id'
@@ -53,6 +55,7 @@ function amiga_profile_lb_slices_load_present(mysqli $con, int $playerId): ?arra
         . ' LEFT JOIN amiga_player_event_snapshots pr_rank_snap'
         . '   ON pr_rank_snap.player_id = p.id AND pr_rank_snap.tournament_id = s.peak_elo_rank_tournament_id'
         . '  AND pr_rank_snap.NumberGames > 0'
+        . ' LEFT JOIN tournaments lt ON lt.id = s.last_tournament_id'
         . ' WHERE p.id = ?'
         . ' LIMIT 1';
 
@@ -71,7 +74,202 @@ function amiga_profile_lb_slices_load_present(mysqli $con, int $playerId): ?arra
     }
     $stmt->close();
 
-    return $row !== false && $row !== null ? $row : null;
+    if ($row === false || $row === null) {
+        return null;
+    }
+
+    amiga_profile_lb_slices_enrich_activity($con, $playerId, $row);
+
+    return $row;
+}
+
+/**
+ * @param array<string, mixed> $row
+ */
+function amiga_profile_lb_slices_enrich_activity(mysqli $con, int $playerId, array &$row, ?AmigaSnapshotContext $ctx = null): void
+{
+    $ctx ??= amiga_snapshot_context_peek();
+    $cutoff = $ctx instanceof AmigaSnapshotContext && $ctx->isActive() ? $ctx->cutoff() : null;
+
+    if ($cutoff !== null) {
+        $lastId = (int) ($row['tournament_id'] ?? 0);
+        $row['activity_last_tournament'] = amiga_profile_lb_slices_tournament_event_from_id(
+            $con,
+            $lastId,
+            (string) ($row['tournament_name'] ?? '')
+        );
+    } else {
+        $lastId = (int) ($row['last_tournament_id'] ?? 0);
+        if ($lastId > 0) {
+            $row['activity_last_tournament'] = [
+                'tournament_id' => $lastId,
+                'name' => (string) ($row['last_tournament_name'] ?? ''),
+                'country' => (string) ($row['last_tournament_country'] ?? ''),
+                'event_date' => isset($row['last_event_date']) && $row['last_event_date'] !== null
+                    ? (string) $row['last_event_date'] : null,
+            ];
+        } else {
+            $row['activity_last_tournament'] = null;
+        }
+    }
+
+    $row['activity_first_tournament'] = amiga_profile_lb_slices_fetch_boundary_event(
+        $con,
+        $playerId,
+        false,
+        false,
+        $cutoff
+    );
+    $row['activity_last_world_cup'] = amiga_profile_lb_slices_fetch_boundary_event(
+        $con,
+        $playerId,
+        true,
+        true,
+        $cutoff
+    );
+    $row['activity_first_world_cup'] = amiga_profile_lb_slices_fetch_boundary_event(
+        $con,
+        $playerId,
+        false,
+        true,
+        $cutoff
+    );
+}
+
+/**
+ * @return ?array{tournament_id: int, name: string, country: string, event_date: ?string}
+ */
+function amiga_profile_lb_slices_tournament_event_from_id(mysqli $con, int $tournamentId, string $fallbackName = ''): ?array
+{
+    if ($tournamentId < 1) {
+        return null;
+    }
+
+    $stmt = $con->prepare('SELECT name, country, event_date FROM tournaments WHERE id = ? LIMIT 1');
+    if ($stmt === false) {
+        throw new RuntimeException('prepare amiga_profile_lb_slices_tournament_event_from_id: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute amiga_profile_lb_slices_tournament_event_from_id: ' . $stmt->error);
+    }
+    $result = $stmt->get_result();
+    $tRow = $result ? $result->fetch_assoc() : false;
+    if ($result) {
+        $result->free();
+    }
+    $stmt->close();
+
+    if ($tRow === false || $tRow === null) {
+        if ($fallbackName === '') {
+            return null;
+        }
+
+        return [
+            'tournament_id' => $tournamentId,
+            'name' => $fallbackName,
+            'country' => '',
+            'event_date' => null,
+        ];
+    }
+
+    $name = trim((string) ($tRow['name'] ?? ''));
+    if ($name === '') {
+        $name = $fallbackName;
+    }
+
+    $eventDate = $tRow['event_date'] ?? null;
+
+    return [
+        'tournament_id' => $tournamentId,
+        'name' => $name,
+        'country' => (string) ($tRow['country'] ?? ''),
+        'event_date' => $eventDate !== null && $eventDate !== '' ? (string) $eventDate : null,
+    ];
+}
+
+/**
+ * First or last participated event (optionally World Cups only) at present or ≤ cutoff.
+ *
+ * @param ?array{event_date: string, chrono: float|int, tournament_id: int} $cutoff
+ * @return ?array{tournament_id: int, name: string, country: string, event_date: ?string}
+ */
+function amiga_profile_lb_slices_fetch_boundary_event(
+    mysqli $con,
+    int $playerId,
+    bool $last,
+    bool $worldCupOnly,
+    ?array $cutoff = null
+): ?array {
+    if ($playerId < 1) {
+        return null;
+    }
+
+    $sql = 'SELECT snap.tournament_id,'
+        . ' COALESCE(NULLIF(t.name, \'\'), snap.tournament_name) AS name,'
+        . ' COALESCE(t.country, \'\') AS country,'
+        . ' t.event_date AS event_date'
+        . ' FROM amiga_player_event_snapshots snap'
+        . ' INNER JOIN tournaments t ON t.id = snap.tournament_id'
+        . ' WHERE snap.player_id = ? AND snap.NumberGames > 0';
+
+    if ($worldCupOnly) {
+        $sql .= ' AND t.is_world_cup = 1';
+    }
+
+    if ($cutoff !== null) {
+        $sql .= ' AND (snap.event_date, snap.event_chrono, snap.tournament_id) <= (?, ?, ?)';
+    }
+
+    if ($last) {
+        $sql .= ' ORDER BY snap.event_date DESC, snap.event_chrono DESC, snap.tournament_id DESC';
+    } else {
+        $sql .= ' ORDER BY snap.event_date ASC, snap.event_chrono ASC, snap.tournament_id ASC';
+    }
+
+    $sql .= ' LIMIT 1';
+
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare amiga_profile_lb_slices_fetch_boundary_event: ' . $con->error);
+    }
+
+    if ($cutoff !== null) {
+        $eventDate = (string) $cutoff['event_date'];
+        $chrono = (float) $cutoff['chrono'];
+        $tournamentId = (int) $cutoff['tournament_id'];
+        $stmt->bind_param('isdi', $playerId, $eventDate, $chrono, $tournamentId);
+    } else {
+        $stmt->bind_param('i', $playerId);
+    }
+
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute amiga_profile_lb_slices_fetch_boundary_event: ' . $stmt->error);
+    }
+    $result = $stmt->get_result();
+    $row = $result ? $result->fetch_assoc() : false;
+    if ($result) {
+        $result->free();
+    }
+    $stmt->close();
+
+    if ($row === false || $row === null) {
+        return null;
+    }
+
+    $tid = (int) ($row['tournament_id'] ?? 0);
+    if ($tid < 1) {
+        return null;
+    }
+
+    $eventDate = $row['event_date'] ?? null;
+
+    return [
+        'tournament_id' => $tid,
+        'name' => (string) ($row['name'] ?? ''),
+        'country' => (string) ($row['country'] ?? ''),
+        'event_date' => $eventDate !== null && $eventDate !== '' ? (string) $eventDate : null,
+    ];
 }
 
 /**
@@ -97,6 +295,7 @@ function amiga_profile_lb_slices_load_at_cutoff(mysqli $con, int $playerId, Amig
     $row['Country'] = $identity['Country'];
 
     amiga_profile_lb_slices_enrich_peak_context($con, $playerId, $row, $ctx);
+    amiga_profile_lb_slices_enrich_activity($con, $playerId, $row, $ctx);
 
     return $row;
 }
@@ -307,26 +506,192 @@ function amiga_profile_lb_slice_section_header(string $title): void
 }
 
 /**
- * @param array<int, array{title: string, render: callable(): void}> $sections
+ * Seven LB-wing sections keyed for column placement.
+ *
+ * @return array<string, array{title: string, render: callable(): void}>
  */
-function amiga_profile_lb_slice_group(array $sections): void
+function amiga_profile_lb_slice_sections(array $row): array
 {
+    return [
+        'activity' => [
+            'title' => 'Activity',
+            'render' => static fn () => amiga_profile_lb_slice_rows_activity($row),
+        ],
+        'results' => [
+            'title' => 'Results',
+            'render' => static fn () => amiga_profile_lb_slice_rows_rating($row),
+        ],
+        'goals' => [
+            'title' => 'Goals',
+            'render' => static fn () => amiga_profile_lb_slice_rows_goals($row),
+        ],
+        'double-digits' => [
+            'title' => 'DDs & CSs',
+            'render' => static fn () => amiga_profile_lb_slice_rows_double_digits($row),
+        ],
+        'victims' => [
+            'title' => 'Victims & Culprits',
+            'render' => static fn () => amiga_profile_lb_slice_rows_victims($row),
+        ],
+        'honours' => [
+            'title' => 'Tournament honours',
+            'render' => static fn () => amiga_profile_lb_slice_rows_tournament_honours($row),
+        ],
+        'calendar' => [
+            'title' => 'Calendar & geography',
+            'render' => static fn () => amiga_profile_lb_slice_rows_calendar_geo($row),
+        ],
+        'peak' => [
+            'title' => 'Peak rating',
+            'render' => static fn () => amiga_profile_lb_slice_rows_peak_rating($row),
+        ],
+    ];
+}
+
+/**
+ * Balanced three-column plan (~18 / ~19 / ~21 data rows).
+ *
+ * @return array<int, array<int, string>>
+ */
+function amiga_profile_lb_slice_column_plan(): array
+{
+    return [
+        ['activity', 'results', 'goals'],
+        ['double-digits', 'victims'],
+        ['honours', 'calendar', 'peak'],
+    ];
+}
+
+function amiga_profile_lb_slice_render_section_table(string $title, callable $renderRows): void
+{
+    echo '<div class="k2-amiga-profile-lb-slice-block server-records-panel">';
+    echo '<div class="k2-table-wrap">';
     ?>
-<div class="k2-amiga-profile-lb-slice-group server-records-panel">
-	<div class="k2-table-wrap">
-	<table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
-	<tbody class="black">
-	<?php
-    foreach ($sections as $section) {
-        amiga_profile_lb_slice_section_header($section['title']);
-        $section['render']();
+<table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
+<tbody class="black">
+<?php
+    amiga_profile_lb_slice_section_header($title);
+    $renderRows();
+    ?>
+</tbody>
+</table>
+<?php
+    echo "</div></div>\n";
+}
+
+/**
+ * @param array<string, array{title: string, render: callable(): void}> $sectionsByKey
+ * @param array<int, array<int, string>> $columnPlan
+ */
+function amiga_profile_lb_slice_render_columns(array $sectionsByKey, array $columnPlan): void
+{
+    echo '<div class="k2-amiga-profile-lb-slices__grid">';
+    foreach ($columnPlan as $columnKeys) {
+        echo '<div class="k2-amiga-profile-lb-slices__col">';
+        foreach ($columnKeys as $key) {
+            if (!isset($sectionsByKey[$key])) {
+                continue;
+            }
+            $section = $sectionsByKey[$key];
+            amiga_profile_lb_slice_render_section_table($section['title'], $section['render']);
+        }
+        echo '</div>';
     }
-    ?>
-	</tbody>
-	</table>
-	</div>
-</div>
-    <?php
+    echo "</div>\n";
+}
+
+/**
+ * @param ?array{tournament_id: int, name: string, country: string, event_date: ?string} $event
+ */
+function amiga_profile_lb_slice_tournament_value(?array $event): string
+{
+    if ($event === null || (int) ($event['tournament_id'] ?? 0) < 1) {
+        return k2_fmt_dash();
+    }
+
+    $name = trim((string) ($event['name'] ?? ''));
+    if ($name === '') {
+        return k2_fmt_dash();
+    }
+
+    return k2_amiga_lb_tournament_cell(
+        (int) $event['tournament_id'],
+        $name,
+        (string) ($event['country'] ?? '')
+    );
+}
+
+/**
+ * Primary value on first line, optional muted secondary line below (Activity dates, calendar peak years).
+ */
+function amiga_profile_lb_slice_value_stacked(string $primaryHtml, ?string $mutedHtml = null): string
+{
+    $html = '<span class="k2-amiga-profile-activity-value k2-amiga-profile-activity-value--stacked">'
+        . '<span class="k2-amiga-profile-activity-event">' . $primaryHtml . '</span>';
+    if ($mutedHtml !== null && $mutedHtml !== '' && $mutedHtml !== '—') {
+        $html .= '<span class="k2-amiga-profile-activity-date">' . $mutedHtml . '</span>';
+    }
+    $html .= '</span>';
+
+    return $html;
+}
+
+/**
+ * Tournament link on first line, full event date muted below.
+ *
+ * @param ?array{tournament_id: int, name: string, country: string, event_date: ?string} $event
+ */
+function amiga_profile_lb_slice_tournament_value_stacked(?array $event): string
+{
+    $link = amiga_profile_lb_slice_tournament_value($event);
+    if ($link === k2_fmt_dash()) {
+        return $link;
+    }
+    $dateHtml = amiga_profile_format_event_date($event['event_date'] ?? null);
+    $muted = $dateHtml === '—' ? null : $dateHtml;
+
+    return amiga_profile_lb_slice_value_stacked($link, $muted);
+}
+
+/**
+ * @param array<string, mixed> $row
+ */
+function amiga_profile_lb_slice_rows_activity(array $row): void
+{
+    $valueClass = 'k2-amiga-profile-activity-value-cell--stacked';
+
+    echo amiga_profile_lb_slice_row(
+        'Last tournament',
+        amiga_profile_lb_slice_tournament_value_stacked($row['activity_last_tournament'] ?? null),
+        null,
+        null,
+        '',
+        $valueClass
+    );
+    echo amiga_profile_lb_slice_row(
+        'First tournament',
+        amiga_profile_lb_slice_tournament_value_stacked($row['activity_first_tournament'] ?? null),
+        null,
+        null,
+        '',
+        $valueClass
+    );
+    echo amiga_profile_lb_slice_row(
+        'Last World Cup',
+        amiga_profile_lb_slice_tournament_value_stacked($row['activity_last_world_cup'] ?? null),
+        null,
+        null,
+        '',
+        $valueClass
+    );
+    echo amiga_profile_lb_slice_row(
+        'First World Cup',
+        amiga_profile_lb_slice_tournament_value_stacked($row['activity_first_world_cup'] ?? null),
+        null,
+        null,
+        '',
+        $valueClass
+    );
 }
 
 /**
@@ -480,11 +845,30 @@ function amiga_profile_lb_slice_rows_calendar_geo(array $row): void
 {
     $peakGamesYear = $row['peak_year_games_year'] ?? null;
     $peakEventsYear = $row['peak_year_tournaments_year'] ?? null;
+    $stackedClass = 'k2-amiga-profile-activity-value-cell--stacked';
 
-    echo amiga_profile_lb_slice_row('Peak games', '<span class="blue">' . (int) ($row['peak_year_games'] ?? 0) . '</span>', k2_lb_help_amiga_peak_year_games());
-    echo amiga_profile_lb_slice_row('Year', $peakGamesYear !== null ? (string) (int) $peakGamesYear : '—');
-    echo amiga_profile_lb_slice_row('Peak events', (string) (int) ($row['peak_year_tournaments'] ?? 0), k2_lb_help_amiga_peak_year_tournaments());
-    echo amiga_profile_lb_slice_row('Year', $peakEventsYear !== null ? (string) (int) $peakEventsYear : '—');
+    echo amiga_profile_lb_slice_row(
+        'Peak games',
+        amiga_profile_lb_slice_value_stacked(
+            '<span class="blue">' . (int) ($row['peak_year_games'] ?? 0) . '</span>',
+            $peakGamesYear !== null ? k2_h((string) (int) $peakGamesYear) : null
+        ),
+        k2_lb_help_amiga_peak_year_games(),
+        null,
+        '',
+        $stackedClass
+    );
+    echo amiga_profile_lb_slice_row(
+        'Peak events',
+        amiga_profile_lb_slice_value_stacked(
+            (string) (int) ($row['peak_year_tournaments'] ?? 0),
+            $peakEventsYear !== null ? k2_h((string) (int) $peakEventsYear) : null
+        ),
+        k2_lb_help_amiga_peak_year_tournaments(),
+        null,
+        '',
+        $stackedClass
+    );
     echo amiga_profile_lb_slice_row('Host countries', (string) (int) ($row['countries_played_in'] ?? 0), k2_lb_help_amiga_countries_played_in());
     echo amiga_profile_lb_slice_row('Countries faced', (string) (int) ($row['opponent_countries_faced'] ?? 0), k2_lb_help_amiga_opponent_countries_faced());
     echo amiga_profile_lb_slice_row('Countries beaten', (string) (int) ($row['opponent_countries_beaten'] ?? 0), k2_lb_help_amiga_opponent_countries_beaten());
@@ -517,44 +901,12 @@ function amiga_profile_render_lb_slices(?array $row): void
     }
 
     k2_table_js_enqueue();
+
+    $sectionsByKey = amiga_profile_lb_slice_sections($row);
+    $columnPlan = amiga_profile_lb_slice_column_plan();
     ?>
-<div class="k2-amiga-profile-lb-slices">
-    <?php
-    amiga_profile_lb_slice_group([
-        [
-            'title' => 'Results',
-            'render' => static fn () => amiga_profile_lb_slice_rows_rating($row),
-        ],
-        [
-            'title' => 'Goals',
-            'render' => static fn () => amiga_profile_lb_slice_rows_goals($row),
-        ],
-    ]);
-    amiga_profile_lb_slice_group([
-        [
-            'title' => 'DDs & CSs',
-            'render' => static fn () => amiga_profile_lb_slice_rows_double_digits($row),
-        ],
-        [
-            'title' => 'Victims & Culprits',
-            'render' => static fn () => amiga_profile_lb_slice_rows_victims($row),
-        ],
-    ]);
-    amiga_profile_lb_slice_group([
-        [
-            'title' => 'Tournament honours',
-            'render' => static fn () => amiga_profile_lb_slice_rows_tournament_honours($row),
-        ],
-        [
-            'title' => 'Calendar & geography',
-            'render' => static fn () => amiga_profile_lb_slice_rows_calendar_geo($row),
-        ],
-        [
-            'title' => 'Peak rating',
-            'render' => static fn () => amiga_profile_lb_slice_rows_peak_rating($row),
-        ],
-    ]);
-    ?>
-</div>
+<section class="k2-amiga-profile-lb-slices" aria-label="Career stats">
+<?php amiga_profile_lb_slice_render_columns($sectionsByKey, $columnPlan); ?>
+</section>
     <?php
 }

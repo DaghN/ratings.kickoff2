@@ -945,21 +945,43 @@ body.k2-site .player-compare-rank-chart__toolbar[data-range-mode="percentile"] .
 	margin: 0;
 }
 
-/* Amiga profile — LB wing slices (HoF-style label | value, wrap mosaic) */
+/* Amiga profile — LB wing slices (seven mini-panels in three columns) */
 .player-feast-body .k2-amiga-profile-lb-slices {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: flex-start;
-	align-content: flex-start;
-	gap: var(--k2-nav-gap);
+	max-width: var(--k2-max-width, 1200px);
+	margin: 0 auto;
 	padding: 0 1.25rem 1rem;
 }
 
-.player-feast-body .k2-amiga-profile-lb-slices .k2-amiga-profile-lb-slice-group {
-	flex: 0 0 auto;
-	width: max-content;
-	max-width: 100%;
+.player-feast-body .k2-amiga-profile-lb-slices__grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--k2-nav-gap);
+	align-items: start;
+	width: 100%;
+}
+
+.player-feast-body .k2-amiga-profile-lb-slices__col {
+	display: flex;
+	flex-direction: column;
+	gap: var(--k2-nav-gap);
+	min-width: 0;
+	width: 100%;
+}
+
+.player-feast-body .k2-amiga-profile-lb-slices .k2-amiga-profile-lb-slice-block.server-records-panel {
 	margin: 0;
+	width: 100%;
+}
+
+/* Beat theme.css server-records-panel .k2-table-wrap { width: fit-content } */
+body.k2-site.player-feast-body .k2-amiga-profile-lb-slices .k2-amiga-profile-lb-slice-block .k2-table-wrap {
+	width: 100%;
+	max-width: 100%;
+	margin-bottom: 0;
+}
+
+body.k2-site.player-feast-body .k2-amiga-profile-lb-slices .k2-amiga-profile-lb-slice-block .server-records-table {
+	width: 100%;
 }
 
 .player-feast-body .k2-amiga-profile-lb-slices .server-records-table {
@@ -979,4 +1001,26 @@ body.k2-site .player-compare-rank-chart__toolbar[data-range-mode="percentile"] .
 /* Profile slice values stay right-aligned; honours LB medal td defaults to center */
 body.k2-site.player-feast-body .k2-amiga-profile-lb-slices .k2-table.server-records-table.k2-table--calm-stats tbody td.k2-lb-honours-medal-td {
 	text-align: right;
+}
+
+/* Profile slice stacked values — primary line + muted secondary (Activity dates, calendar peak years) */
+.player-feast-body .k2-amiga-profile-lb-slices .k2-amiga-profile-activity-date {
+	color: var(--k2-text-muted);
+	font-weight: 400;
+}
+
+.player-feast-body .k2-amiga-profile-lb-slices .k2-amiga-profile-activity-value--stacked .k2-amiga-profile-activity-date {
+	font-size: 11px;
+}
+
+.player-feast-body .k2-amiga-profile-lb-slices .k2-amiga-profile-activity-value--stacked {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 2px;
+	line-height: 1.25;
+}
+
+.player-feast-body .k2-amiga-profile-lb-slices td.k2-amiga-profile-activity-value-cell--stacked {
+	vertical-align: top;
 }
