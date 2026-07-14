@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-07-13",
+  "updated_at": "2026-07-14",
   "videos": [
     {
       "youtube_id": "OE_wVb2JheU",
@@ -7360,7 +7360,7 @@
       "relation": null,
       "featured_final": false,
       "verified": true,
-      "notes": "UK Champs 2026 stream; 15 forum timestamps (H:MM) in video_game_links.csv (partial coverage)",
+      "notes": "UK Champs 2026 stream; 15 forum timestamps mapped in video_game_links.csv (partial coverage)",
       "external_url": null,
       "game_link_mode": "stream_map",
       "game_ids": [
@@ -7381,21 +7381,21 @@
         27467
       ],
       "game_start_sec": [
-        780,
-        1680,
-        5160,
-        5880,
-        7020,
-        8280,
-        9840,
-        10560,
-        12420,
-        13140,
-        14280,
-        16500,
-        18180,
-        19260,
-        20160
+        13,
+        28,
+        86,
+        98,
+        117,
+        138,
+        164,
+        176,
+        207,
+        219,
+        238,
+        275,
+        303,
+        321,
+        336
       ]
     }
   ]
