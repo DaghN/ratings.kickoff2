@@ -179,6 +179,9 @@ function amiga_ops_persist_world_cup_slices(
             'different_victims' => (int) ($totals['different_victims'] ?? 0),
             'double_digits_victims' => (int) ($totals['double_digits_victims'] ?? 0),
             'clean_sheets_victims' => (int) ($totals['clean_sheets_victims'] ?? 0),
+            'different_culprits' => (int) ($totals['different_culprits'] ?? 0),
+            'double_digits_culprits' => (int) ($totals['double_digits_culprits'] ?? 0),
+            'clean_sheets_culprits' => (int) ($totals['clean_sheets_culprits'] ?? 0),
             'tournaments_played_last_rise_tournament_id' => $totals['tournaments_played_last_rise_tournament_id'] ?? null,
             'tournaments_played_last_rise_event_date' => $totals['tournaments_played_last_rise_event_date'] ?? null,
             // WC HoF (SCH-046): per-event award counters + single-WC peaks.

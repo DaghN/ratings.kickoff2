@@ -297,10 +297,15 @@ function k2_lb_help_active_years(): string
     return 'Distinct calendar years with at least one rated game.';
 }
 
-/** Victims & Culprits wing (ranked5) — plain “you” copy; shared tie line on single-game records. */
-function k2_lb_help_victims_wing_tie(): string
+/** Victims & Culprits wing (ranked5) — plain “you” copy; tie line on single-game record pointers. */
+function k2_lb_help_victims_wing_tie_victim(): string
 {
-    return 'In a tie, the first offender gets the credit.';
+    return 'In a tie, the first culprit gets the credit.';
+}
+
+function k2_lb_help_victims_wing_tie_culprit(): string
+{
+    return 'In a tie, the first victim gets the credit.';
 }
 
 function k2_lb_help_opponents(): string
@@ -340,22 +345,22 @@ function k2_lb_help_cs_culprits(): string
 
 function k2_lb_help_mgc_victims(): string
 {
-    return 'Victims whose most conceded goals game was against you. ' . k2_lb_help_victims_wing_tie();
+    return 'Victims whose most conceded goals game was against you. ' . k2_lb_help_victims_wing_tie_victim();
 }
 
 function k2_lb_help_bl_victims(): string
 {
-    return 'Victims whose biggest loss game was against you. ' . k2_lb_help_victims_wing_tie();
+    return 'Victims whose biggest loss game was against you. ' . k2_lb_help_victims_wing_tie_victim();
 }
 
 function k2_lb_help_mgs_culprits(): string
 {
-    return 'Culprits whose most scored goals game was against you. ' . k2_lb_help_victims_wing_tie();
+    return 'Culprits whose most scored goals game was against you. ' . k2_lb_help_victims_wing_tie_culprit();
 }
 
 function k2_lb_help_bw_culprits(): string
 {
-    return 'Culprits whose biggest win game was against you. ' . k2_lb_help_victims_wing_tie();
+    return 'Culprits whose biggest win game was against you. ' . k2_lb_help_victims_wing_tie_culprit();
 }
 
 function k2_lb_help_win_ratio(): string
@@ -636,6 +641,21 @@ function k2_lb_help_amiga_wc_dd_victims(): string
 function k2_lb_help_amiga_wc_cs_victims(): string
 {
     return 'Opponents you shut out at least once in World Cup games.';
+}
+
+function k2_lb_help_amiga_wc_culprits(): string
+{
+    return 'Different players who have beaten you at least once in World Cup games.';
+}
+
+function k2_lb_help_amiga_wc_dd_culprits(): string
+{
+    return 'Opponents who scored 10 or more against you at least once in World Cup games.';
+}
+
+function k2_lb_help_amiga_wc_cs_culprits(): string
+{
+    return 'Opponents who shut you out at least once in World Cup games.';
 }
 
 function k2_lb_help_amiga_wc_opponent_countries_faced(): string

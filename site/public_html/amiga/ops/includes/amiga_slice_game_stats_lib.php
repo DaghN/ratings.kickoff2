@@ -33,6 +33,9 @@ const AMIGA_SLICE_V2_SCALAR_KEYS = [
     'different_victims',
     'double_digits_victims',
     'clean_sheets_victims',
+    'different_culprits',
+    'double_digits_culprits',
+    'clean_sheets_culprits',
 ];
 
 final class AmigaWorldCupSliceTracker
@@ -57,6 +60,15 @@ final class AmigaWorldCupSliceTracker
 
     /** @var array<int, true> */
     private array $csVictims = [];
+
+    /** @var array<int, true> */
+    private array $culprits = [];
+
+    /** @var array<int, true> */
+    private array $ddCulprits = [];
+
+    /** @var array<int, true> */
+    private array $csCulprits = [];
 
     /**
      * @param array<string, mixed>|null $totalsRow
@@ -95,6 +107,9 @@ final class AmigaWorldCupSliceTracker
         if ($won) {
             $this->victims[$opponentId] = true;
         }
+        if ($lost) {
+            $this->culprits[$opponentId] = true;
+        }
         $oppCountry = AmigaPlayerGeoYearTracker::normalizeCountry($opponentCountry);
         if ($oppCountry !== null) {
             $this->opponentCountriesFaced[$oppCountry] = true;
@@ -109,6 +124,7 @@ final class AmigaWorldCupSliceTracker
         }
         if ($goalsAgainst >= 10) {
             $this->row['double_digits_conceded'] = (int) ($this->row['double_digits_conceded'] ?? 0) + 1;
+            $this->ddCulprits[$opponentId] = true;
         }
         if ($goalsAgainst === 0) {
             $this->row['clean_sheets'] = (int) ($this->row['clean_sheets'] ?? 0) + 1;
@@ -116,6 +132,7 @@ final class AmigaWorldCupSliceTracker
         }
         if ($goalsFor === 0) {
             $this->row['clean_sheets_conceded'] = (int) ($this->row['clean_sheets_conceded'] ?? 0) + 1;
+            $this->csCulprits[$opponentId] = true;
         }
 
         if ($goalsFor >= 1 && $goalsFor > (int) ($this->row['most_goals_scored'] ?? 0)) {
@@ -158,6 +175,9 @@ final class AmigaWorldCupSliceTracker
         $this->row['different_victims'] = count($this->victims);
         $this->row['double_digits_victims'] = count($this->ddVictims);
         $this->row['clean_sheets_victims'] = count($this->csVictims);
+        $this->row['different_culprits'] = count($this->culprits);
+        $this->row['double_digits_culprits'] = count($this->ddCulprits);
+        $this->row['clean_sheets_culprits'] = count($this->csCulprits);
     }
 
     private function recomputeRatios(): void

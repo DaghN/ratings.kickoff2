@@ -87,11 +87,13 @@ try {
 
 amiga_player_publish_hero_context($pm, $con);
 
+$k2AmigaPlayerTabActive = 'opponents';
+$k2AmigaPlayerTabWiredAtCutoff = true;
+
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_wing_hub_nav.inc.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_hero.php';
 
-$k2AmigaPlayerTabActive = 'opponents';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_nav.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_opponents_nav.php';
 

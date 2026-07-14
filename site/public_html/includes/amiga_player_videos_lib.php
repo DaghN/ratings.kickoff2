@@ -47,13 +47,16 @@ function amiga_player_videos_index_by_player(): array
     return $index;
 }
 
-function amiga_player_has_videos(int $playerId, ?mysqli $con = null): bool
+function amiga_player_has_videos(int $playerId, ?mysqli $con = null, ?AmigaSnapshotContext $ctx = null): bool
 {
     if ($playerId < 1) {
         return false;
     }
 
-    if ((amiga_player_videos_index_by_player()[$playerId] ?? []) !== []) {
+    $ctx ??= amiga_snapshot_context_peek();
+    $ttActive = $ctx instanceof AmigaSnapshotContext && $ctx->isActive();
+
+    if (!$ttActive && (amiga_player_videos_index_by_player()[$playerId] ?? []) !== []) {
         return true;
     }
 
@@ -62,12 +65,20 @@ function amiga_player_has_videos(int $playerId, ?mysqli $con = null): bool
     }
 
     static $cache = [];
-    if (array_key_exists($playerId, $cache)) {
-        return $cache[$playerId];
+    $cacheKey = $playerId . ':' . ($ttActive ? 'tt' : 'present');
+    if ($ttActive && $ctx instanceof AmigaSnapshotContext) {
+        $cutoff = $ctx->cutoff();
+        if ($cutoff !== null) {
+            $cacheKey .= ':' . (int) ($cutoff['tournament_id'] ?? 0);
+        }
     }
-    $cache[$playerId] = amiga_player_videos_game_index($con, $playerId) !== [];
+    if (array_key_exists($cacheKey, $cache)) {
+        return $cache[$cacheKey];
+    }
 
-    return $cache[$playerId];
+    $cache[$cacheKey] = amiga_player_videos_game_index($con, $playerId, $ttActive ? $ctx : null) !== [];
+
+    return $cache[$cacheKey];
 }
 
 /** @return list<array<string, mixed>> */

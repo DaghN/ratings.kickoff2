@@ -80,8 +80,6 @@ Do **not** store on `amiga_tournament_standings` (phase-scoped, multiple rows pe
 | Surface | Source |
 |---------|--------|
 | `/amiga/player/tournaments.php` | `amiga_player_tournament_participation` — sortable **Perf. rating** column |
-| Profile highlight | `amiga_player_perf_rating_highlight()` — best event + latest event lines |
-| Profile recent tournaments | `amiga_profile_recent_tournament_extras()` — **Perf NNN** when games ≥ 2 (compact suffix) |
 | `/amiga/tournament.php` | `view=event-stats` — participation roster; **Perf. rating** column |
 | `/amiga/leaderboards/performance-rating/best.php` | Best single-event perf per player (`amiga_lb_performance_rating_rows`) — see [`amiga-performance-rating-leaderboard-policy.md`](amiga-performance-rating-leaderboard-policy.md) |
 | `/amiga/leaderboards/performance-rating/top.php` | Fixed top 100 imperfect event ratings (`amiga_lb_performance_rating_top_rows`) |

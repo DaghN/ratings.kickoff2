@@ -29,6 +29,23 @@ class TestWorldCupSliceGameStats(unittest.TestCase):
         self.assertEqual(tracker.row["clean_sheets"], 1)
         self.assertEqual(tracker.row["double_digits_victims"], 1)
         self.assertEqual(tracker.row["clean_sheets_victims"], 1)
+        self.assertEqual(tracker.row["different_culprits"], 0)
+
+    def test_culprits_on_loss_and_conceded(self) -> None:
+        tracker = WorldCupSliceTracker.from_totals_row(empty_world_cup_slice())
+        tracker.apply_perspective(
+            opponent_id=2,
+            opponent_country="England",
+            goals_for=0,
+            goals_against=10,
+            actual_score=0.0,
+            dd_for=False,
+        )
+        tracker.row["games"] = 1
+        tracker.flush_v2_into(tracker.row)
+        self.assertEqual(tracker.row["different_culprits"], 1)
+        self.assertEqual(tracker.row["double_digits_culprits"], 1)
+        self.assertEqual(tracker.row["clean_sheets_culprits"], 1)
 
     def test_incremental_tournament_apply(self) -> None:
         slice_accum: dict[int, dict] = {1: empty_world_cup_slice(), 2: empty_world_cup_slice()}

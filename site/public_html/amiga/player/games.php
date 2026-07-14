@@ -152,16 +152,17 @@ $games = amiga_games_query_all(
 </head>
 <body class="k2-site k2-player-wing player-feast-body">
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
+<?php
+$k2AmigaPlayerTabActive = 'games';
+$k2AmigaPlayerTabWiredAtCutoff = true;
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php';
+?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_wing_hub_nav.inc.php'; ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_hero.php'; ?>
 
-<?php
-$k2AmigaPlayerTabActive = 'games';
-include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_nav.php';
-?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_nav.php'; ?>
 
 <?php
 $sortState = [

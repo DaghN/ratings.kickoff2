@@ -185,7 +185,8 @@ function player_feast_render_moments(array $pm): void
 {
     $maxVictim = $pm['max_rated_victim'] ?? null;
     $trophies = is_array($pm['trophies'] ?? null) ? $pm['trophies'] : [];
-    if (!is_array($maxVictim) && $trophies === []) {
+    $peakMoment = is_array($pm['peak_moment'] ?? null) ? $pm['peak_moment'] : null;
+    if (!is_array($maxVictim) && $trophies === [] && $peakMoment === null) {
         return;
     }
 
@@ -224,6 +225,21 @@ function player_feast_render_moments(array $pm): void
 				<span class="<?php echo pm_h($t['outcome_class']); ?>"><?php echo pm_h($t['outcome']); ?></span>
 				· vs <?php echo k2_player_link((int) $t['opponent_id'], (string) $t['opponent_name']); ?>
 				· <?php echo pm_h($t['date']); ?>
+			</p>
+		</article>
+        <?php } ?>
+        <?php if ($peakMoment !== null) { ?>
+		<article class="pm3-moment pm3-moment--peak">
+			<span class="pm3-moment__glyph" aria-hidden="true"><?php echo $peakMoment['icon']; ?></span>
+			<span class="pm3-moment__tag"><?php echo pm_h((string) $peakMoment['tag']); ?></span>
+			<h3 class="pm3-moment__label"><?php echo pm_h((string) $peakMoment['label']); ?></h3>
+			<p class="pm3-moment__score">
+				<a href="<?php echo pm_h(k2_game_page_url((int) $peakMoment['game_id'])); ?>"><?php echo (int) $peakMoment['peak_rating']; ?></a>
+			</p>
+			<p class="pm3-moment__meta">
+				<span class="<?php echo pm_h((string) $peakMoment['outcome_class']); ?>"><?php echo pm_h((string) $peakMoment['outcome']); ?></span>
+				· vs <?php echo k2_player_link((int) $peakMoment['opponent_id'], (string) $peakMoment['opponent_name']); ?>
+				· <?php echo pm_h((string) $peakMoment['date']); ?>
 			</p>
 		</article>
         <?php } ?>

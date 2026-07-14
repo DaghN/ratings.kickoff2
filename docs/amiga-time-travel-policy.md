@@ -40,7 +40,7 @@ There is **no** per-page “Current | Historical” split. One chrome control, o
 | **T9** | **History tab removed** | **Jun 2026:** dedicated History hub tab and ladder page retired. Rating at cutoff lives on `/amiga/leaderboards/rating.php?as=`. Legacy `/amiga/history.php` 301 → rating LB (preserves `as=` / `wing`+`at`). |
 | **T10** | **Excluded realms** | Online hub, Amiga **ops**, import tooling — **ignore** `as`; never enter time travel chrome |
 | **T11** | **Streaks** | No time-travel surfaces for match streaks (Amiga product policy — non-authoritative columns) |
-| **T12** | **Profile blocks deferred** | Hero rank/rating/games at cutoff **shipped** (`amiga_player_snapshot_lib.php`). Remaining profile career blocks — phase 2+ |
+| **T12** | **Profile blocks** | Hero rank/rating/games at cutoff **shipped** (`amiga_player_snapshot_lib.php`). **Profile tab full lens** — LB mosaic + Moments + Videos pill: **shipped** Jul 2026-14 — [`amiga-profile-time-travel-policy.md`](amiga-profile-time-travel-policy.md) |
 | **T13** | **Present-only hub tabs** | **News** (present realm landing), **Live tournaments** (last tab in present order), and future editorial hubs (e.g. **Misc**) appear **only** in Present day hub nav. When `as=` is active, **omit** them from the hub bar. Direct requests to those paths **drop `as=`** (302 to present URL). |
 | **T14** | **Mode toggle — asymmetric homes (T19)** | Header **Time travel** from present → **`/amiga/leaderboards/rating.php?as=event:{first}`** always (first ladder event — Event wing). Header **Present day** from time travel → **same page without `as=`** (stable query params kept). Header **Present day** when already present → **`/amiga/news.php`**. |
 | **T19** | **Toggle vs ribbon** | **Present day \| Time travel** = mode boundary (T14). **Time travel** entry from present = fixed rating LB + first event; **Present day** exit from lens = contextual same-page present URL. **Event · Month · Year ribbon** = move through time **inside** the lens while keeping the current view (except event wing on `tournament.php` — §5.1.1). |
@@ -159,13 +159,13 @@ Player pills stay visible under time travel. Target **T15** + **T16**:
 | **Opponents** tables | Shipped — `amiga_matchup_snapshot_lib.php` |
 | **Profile rating chart** | Snapshot events ≤ cutoff; date x-axis ends at cutoff (`amiga_player_rating_history_payload`) | **Shipped** Jun 2026 |
 | **Player Videos** | Game-linked manifest rows ≤ cutoff (`amiga_snapshot_rated_game_cutoff_and_sql` on index load) | **Shipped** Jun 2026 |
-| **Profile** blocks | Career / honours at cutoff — phase 2+ |
+| **Profile** blocks | Career / honours at cutoff | **Shipped** Jul 2026-14 — [`amiga-profile-time-travel-policy.md`](amiga-profile-time-travel-policy.md) · plan [`amiga-profile-time-travel-implementation-plan.md`](amiga-profile-time-travel-implementation-plan.md) (hero + charts Jun 2026; mosaic + moments + Videos pill Jul 2026) |
 
 ### 4.4 Transitional defer (visible but not yet at cutoff)
 
 | Surface | Reason |
 |---------|--------|
-| **Player profile** (blocks) | Hero/career snapshot reads — hero **shipped**; career blocks phase 2+ |
+| **Profile (blocks)** | Hero / career snapshot reads — hero **shipped**; LB mosaic + Moments + Videos pill **shipped** Jul 2026-14 |
 | **Activity** (hub) | Charts not at cutoff yet |
 | **Opponents H2H** | Poster/picker/moments shipped; rank compare at cutoff shipped; rating compare date axis at cutoff **shipped** Jun 2026 |
 
@@ -370,7 +370,7 @@ Time travel does **not** add tables or writers. It only changes **read paths** a
 | Rating LB Δ under `as=` | Column after Elo; wing-step delta; tooltip title **Rating change (time travel mode)** |
 | Hub nav under `as=` | Leaderboards · World Cups · Tournaments · Countries · Games · Activity · HoF (T13b) |
 | Tournaments hub under `as=` | Catalog row count ≤ present; filter URLs carry `as=`; hub chapter shown |
-| Profile with `as` active | Present-day data until wired (T12); target T15 |
+| Profile with `as` active | Full profile-tab lens at cutoff (T12 shipped Jul 2026-14) |
 | LB rating at event X | Matches rating wing at same cutoff (snapshot ladder oracle) |
 | HoF at year Y | Holder fields match `amiga_realm_snapshots` row at resolved cutoff |
 

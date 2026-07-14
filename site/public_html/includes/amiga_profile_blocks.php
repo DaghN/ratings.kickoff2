@@ -1,6 +1,6 @@
 <?php
 /**
- * Amiga profile v0 blocks — career facts from playertable + rating chart shell.
+ * Amiga profile v0 blocks — moments, tournament tables, charts.
  */
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_player_game_row.php';
@@ -10,8 +10,6 @@ require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_player_matchup_lib.php';
 require_once __DIR__ . '/amiga_performance_rating.php';
 require_once __DIR__ . '/amiga_player_moments_lib.php';
-require_once __DIR__ . '/k2_amiga_routes.php';
-require_once __DIR__ . '/amiga_player_tournament_lib.php';
 require_once __DIR__ . '/amiga_participation_placement.php';
 require_once __DIR__ . '/k2_table_helpers.php';
 require_once __DIR__ . '/k2_league_table_render.php';
@@ -28,129 +26,6 @@ const AMIGA_TOURNAMENT_INDEX_ANCHOR_COL = 1;
 const AMIGA_TOURNAMENT_INDEX_DEFAULT_SORT_COL = 0;
 /** Date col — quiet body on default load only (no game ID). */
 const AMIGA_TOURNAMENT_INDEX_QUIET_DATE_COL = 0;
-
-/**
- * @param array<string, mixed> $pm from amiga_player_load()
- */
-function amiga_profile_render_career(array $pm): void
-{
-    ?>
-<section class="k2-amiga-profile-career" style="padding:0 1.25rem 1.5rem">
-	<h3 class="k2-panel-heading">Career</h3>
-	<dl class="k2-amiga-profile-dl" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(9rem,1fr));gap:0.75rem 1.25rem;margin:0">
-		<div><dt style="opacity:0.75;font-size:0.85rem">W – D – L</dt><dd style="margin:0;font-variant-numeric:tabular-nums"><?php
-            echo (int) $pm['wins'] . ' – ' . (int) $pm['draws'] . ' – ' . (int) $pm['losses'];
-        ?></dd></div>
-		<div><dt style="opacity:0.75;font-size:0.85rem">Win %</dt><dd style="margin:0"><?php
-            echo $pm['win_pct'] !== null ? htmlspecialchars((string) $pm['win_pct'], ENT_QUOTES, 'UTF-8') . '%' : '—';
-        ?></dd></div>
-		<div><dt style="opacity:0.75;font-size:0.85rem">Goals</dt><dd style="margin:0;font-variant-numeric:tabular-nums"><?php
-            echo (int) $pm['goals_for'] . ' – ' . (int) $pm['goals_against'];
-        ?></dd></div>
-		<div><dt style="opacity:0.75;font-size:0.85rem">Peak rating</dt><dd style="margin:0"><?php
-            echo $pm['peak_rating'] !== null ? k2_fmt_int($pm['peak_rating']) : '—';
-        ?></dd></div>
-		<div><dt style="opacity:0.75;font-size:0.85rem">Opp. avg.</dt><dd style="margin:0"><?php
-            echo $pm['opp_avg'] !== null ? k2_fmt_int(round($pm['opp_avg'])) : '—';
-        ?></dd></div>
-	</dl>
-</section>
-    <?php
-}
-
-/**
- * @param array<string, mixed>|null $totals from amiga_player_tournament_totals_row()
- */
-function amiga_profile_tournament_totals_show_honours(?array $totals): bool
-{
-    if ($totals === null || (int) ($totals['tournaments_played'] ?? 0) < 1) {
-        return false;
-    }
-
-    $wcTotal = (int) ($totals['wc_gold'] ?? 0)
-        + (int) ($totals['wc_silver'] ?? 0)
-        + (int) ($totals['wc_bronze'] ?? 0);
-
-    return $wcTotal > 0
-        || (int) ($totals['tournaments_won'] ?? 0) > 0
-        || (int) ($totals['event_podiums'] ?? 0) > 0;
-}
-
-/**
- * @param array<string, mixed> $totals
- */
-function amiga_profile_career_wc_honours_label(array $totals): string
-{
-    $parts = [];
-    foreach (['gold', 'silver', 'bronze'] as $medal) {
-        $n = (int) ($totals['wc_' . $medal] ?? 0);
-        if ($n > 0) {
-            $parts[] = $n . ' ' . $medal;
-        }
-    }
-
-    return implode(' · ', $parts);
-}
-
-/**
- * Career tournament honours from amiga_player_current honours columns (no extra query).
- *
- * @param array<string, mixed> $totals from amiga_player_tournament_totals_row() (reads current)
- */
-function amiga_profile_render_honours(array $totals, int $playerId): void
-{
-    if (!amiga_profile_tournament_totals_show_honours($totals)) {
-        return;
-    }
-
-    $wcLabel = amiga_profile_career_wc_honours_label($totals);
-    $hasWcMedals = $wcLabel !== '';
-    $tournamentsWon = (int) ($totals['tournaments_won'] ?? 0);
-    $podiums = (int) ($totals['event_podiums'] ?? 0);
-    $lastEventDate = $totals['last_event_date'] ?? null;
-    ?>
-<section class="k2-amiga-profile-honours" style="padding:0 1.25rem 1.5rem">
-	<h3 class="k2-panel-heading">Honours</h3>
-	<dl class="k2-amiga-profile-dl" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(9rem,1fr));gap:0.75rem 1.25rem;margin:0">
-		<?php if ($hasWcMedals) { ?>
-		<div><dt style="opacity:0.75;font-size:0.85rem">WC medals</dt><dd style="margin:0;font-variant-numeric:tabular-nums"><?php
-            echo htmlspecialchars($wcLabel, ENT_QUOTES, 'UTF-8');
-        ?></dd></div>
-		<?php } ?>
-		<div><dt style="opacity:0.75;font-size:0.85rem">Tournaments won</dt><dd style="margin:0;font-variant-numeric:tabular-nums"><?php echo $tournamentsWon; ?></dd></div>
-		<div><dt style="opacity:0.75;font-size:0.85rem">Podiums</dt><dd style="margin:0;font-variant-numeric:tabular-nums"><?php echo $podiums; ?></dd></div>
-	</dl>
-	<?php if ($lastEventDate !== null && $lastEventDate !== '') { ?>
-	<p style="margin:0.75rem 0 0;opacity:0.75;font-size:0.85rem">Last event <?php echo amiga_profile_format_event_date($lastEventDate); ?></p>
-	<?php } ?>
-	<p style="margin:0.75rem 0 0">
-		<a class="k2-link-star" href="/amiga/leaderboards/tournament-honours.php">Tournament honours leaderboard</a><?php
-        if ($hasWcMedals) {
-            echo ' · <a class="k2-link-star" href="' . k2_h(k2_amiga_route('amiga-world-cups-players-honours')) . '">World Cup player stats</a>';
-        }
-        if ($hasWcMedals && $playerId > 0) {
-            echo ' · <a class="k2-link-star" href="' . k2_h(amiga_player_tournaments_filter_url($playerId, 'world-cup') . amiga_player_tournaments_table_anchor_fragment()) . '">World Cup history</a>';
-        }
-    ?>
-	</p>
-</section>
-    <?php
-}
-
-/**
- * Whether recent-tournament label may append event_points (full-event 3-1-0 tally).
- *
- * League+cup marathons: event_points include cup games — omit pts suffix on profile lines.
- * Phase-scoped league points live in amiga_tournament_standings, not participation.
- */
-function amiga_profile_tournament_label_includes_event_points(array $t): bool
-{
-    if (amiga_tournament_is_world_cup($t)) {
-        return false;
-    }
-
-    return empty($t['has_league']) || empty($t['has_cup']);
-}
 
 /**
  * Canonical holistic finish from a participation row (`position` = event_finish_position).
@@ -262,57 +137,13 @@ function amiga_profile_tournament_podium_medal_cell_if_regular(array $row): stri
 }
 
 /**
- * Profile suffix for one recent tournament row.
- *
- * Holistic finish from event_finish_position (ordinal); event_points when allowed.
- *
- * @param array<string, mixed> $t participation row (name, position = event_finish_position, event_points, has_league, has_cup)
+ * @param array{max_rated_victim: ?array<string, mixed>, moments: list<array<string, mixed>>} $bundle from amiga_player_moments_load()
  */
-function amiga_profile_tournament_result_label(array $t): string
+function amiga_profile_render_moments(array $bundle, int $playerId = 0): void
 {
-    $finish = amiga_profile_row_event_finish($t);
-    if ($finish === null) {
-        return '—';
-    }
-
-    $label = $finish . ordinal_suffix($finish);
-    if (amiga_profile_tournament_label_includes_event_points($t)) {
-        $label .= ' · ' . (int) ($t['event_points'] ?? 0) . ' pts';
-    }
-
-    return $label;
-}
-
-/**
- * Compact suffix for recent-tournament lines (winner badge, perf rating).
- * Does not alter finish / event_points suffix from amiga_profile_tournament_result_label().
- *
- * @param array<string, mixed> $t participation row
- */
-function amiga_profile_recent_tournament_extras(array $t): string
-{
-    $parts = [];
-    if ((int) ($t['is_winner'] ?? 0) === 1) {
-        $parts[] = 'Winner';
-    }
-    if ((int) ($t['is_perfect_event'] ?? 0) === 1) {
-        $parts[] = 'Perfect';
-    }
-    $games = (int) ($t['games'] ?? 0);
-    $perf = $t['performance_rating'] ?? null;
-    if ($games >= 2 && $perf !== null && $perf !== '' && !k2_db_is_null($perf)) {
-        $parts[] = 'Perf ' . k2_fmt_int(round((float) $perf));
-    }
-
-    return $parts === [] ? '' : ' · ' . implode(' · ', $parts);
-}
-
-/**
- * @param list<array<string, mixed>> $moments from amiga_player_moments_load()
- */
-function amiga_profile_render_moments(array $moments, int $playerId = 0): void
-{
-    if ($moments === []) {
+    $maxVictim = is_array($bundle['max_rated_victim'] ?? null) ? $bundle['max_rated_victim'] : null;
+    $moments = is_array($bundle['moments'] ?? null) ? $bundle['moments'] : [];
+    if ($maxVictim === null && $moments === []) {
         return;
     }
     ?>
@@ -320,6 +151,29 @@ function amiga_profile_render_moments(array $moments, int $playerId = 0): void
 	<h3 class="k2-panel-heading">Moments</h3>
 	<div class="pm3-moments pm3-moments--mosaic">
 		<div class="pm3-moments__grid">
+		<?php if ($maxVictim !== null) {
+            $opponentId = (int) ($maxVictim['opponent_id'] ?? 0);
+            $gamesHref = amiga_player_moment_games_href($playerId, $opponentId, (int) ($maxVictim['game_id'] ?? 0));
+            $victimRating = $maxVictim['victim_rating'] ?? null;
+            ?>
+			<article class="pm3-moment pm3-moment--giant">
+				<span class="pm3-moment__glyph" aria-hidden="true">🗡️</span>
+				<span class="pm3-moment__tag">Giant-killing</span>
+				<h3 class="pm3-moment__label">Best scalp<?php
+                    echo $victimRating !== null && (int) $victimRating > 0
+                        ? ' · ' . (int) $victimRating . ' Elo'
+                        : '';
+                ?></h3>
+				<p class="pm3-moment__score">
+					<a class="k2-link-star" href="<?php echo k2_h($gamesHref); ?>"><?php echo k2_h((string) ($maxVictim['score'] ?? '')); ?></a>
+				</p>
+				<p class="pm3-moment__meta">
+					<span class="<?php echo k2_h((string) ($maxVictim['outcome_class'] ?? '')); ?>"><?php echo k2_h((string) ($maxVictim['outcome'] ?? '')); ?></span>
+					· vs <?php echo k2_amiga_player_link($opponentId, (string) ($maxVictim['opponent_name'] ?? '')); ?>
+					· <?php echo k2_h((string) ($maxVictim['date'] ?? '')); ?>
+				</p>
+			</article>
+		<?php } ?>
 		<?php foreach ($moments as $moment) {
             $isEvent = !empty($moment['is_event']);
             $opponentId = (int) ($moment['opponent_id'] ?? 0);
@@ -332,7 +186,11 @@ function amiga_profile_render_moments(array $moments, int $playerId = 0): void
 				<h3 class="pm3-moment__label"><?php echo k2_h((string) ($moment['label'] ?? '')); ?></h3>
 				<?php if ($isEvent) { ?>
 				<p class="pm3-moment__score">
-					<?php echo $peakRating !== null ? 'Peak ' . (int) $peakRating : k2_h((string) ($moment['score'] ?? '')); ?>
+					<?php if ($peakRating !== null) { ?>
+					<span class="k2-link-star"><?php echo (int) $peakRating; ?></span>
+					<?php } else {
+                        echo k2_h((string) ($moment['score'] ?? ''));
+                    } ?>
 				</p>
 				<p class="pm3-moment__meta"><?php
                     echo amiga_tournament_link(
@@ -359,90 +217,6 @@ function amiga_profile_render_moments(array $moments, int $playerId = 0): void
 		<?php } ?>
 		</div>
 	</div>
-</section>
-    <?php
-}
-
-/**
- * @param array{best: ?array<string, mixed>, recent: ?array<string, mixed>} $highlight from amiga_player_perf_rating_highlight()
- */
-function amiga_profile_render_perf_rating_highlight(array $highlight, int $playerId = 0): void
-{
-    $best = is_array($highlight['best'] ?? null) ? $highlight['best'] : null;
-    $recent = is_array($highlight['recent'] ?? null) ? $highlight['recent'] : null;
-    if ($best === null && $recent === null) {
-        return;
-    }
-
-    $help = amiga_perf_rating_column_help();
-    $helpAttr = htmlspecialchars($help, ENT_QUOTES, 'UTF-8');
-    $showRecent = $recent !== null && (
-        $best === null
-        || (int) ($recent['tournament_id'] ?? 0) !== (int) ($best['tournament_id'] ?? 0)
-    );
-    k2_table_js_enqueue();
-    ?>
-<section class="k2-amiga-profile-perf-rating" style="padding:0 1.25rem 1.5rem">
-	<h3 class="k2-panel-heading">Performance rating</h3>
-	<dl class="k2-amiga-profile-dl" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(11rem,1fr));gap:0.75rem 1.25rem;margin:0">
-		<?php if ($best !== null) { ?>
-		<div><dt style="opacity:0.75;font-size:0.85rem" class="k2-table-helped" data-k2-help="<?php echo $helpAttr; ?>" data-k2-tooltip-label="Best event" tabindex="0">Best event</dt><dd style="margin:0;font-variant-numeric:tabular-nums"><?php
-            echo amiga_profile_tournament_rating_cell($best['performance_rating'] ?? null);
-            echo ' · ';
-            echo amiga_tournament_link((int) ($best['tournament_id'] ?? 0), (string) ($best['name'] ?? ''));
-        ?></dd></div>
-		<?php } ?>
-		<?php if ($showRecent) { ?>
-		<div><dt style="opacity:0.75;font-size:0.85rem" class="k2-table-helped" data-k2-help="<?php echo $helpAttr; ?>" data-k2-tooltip-label="Latest event" tabindex="0">Latest event</dt><dd style="margin:0;font-variant-numeric:tabular-nums"><?php
-            echo amiga_profile_tournament_rating_cell($recent['performance_rating'] ?? null);
-            echo ' · ';
-            echo amiga_tournament_link((int) ($recent['tournament_id'] ?? 0), (string) ($recent['name'] ?? ''));
-        ?></dd></div>
-		<?php } ?>
-	</dl>
-	<p style="margin:0.75rem 0 0">
-		<a class="k2-link-star" href="<?php echo k2_h(k2_amiga_route('amiga-lb-performance-rating-best')); ?>">Best event performance leaderboard</a>
-		<?php if ($playerId > 0) { ?>
-		 · <a class="k2-link-star" href="<?php echo k2_h(amiga_player_tournaments_table_url($playerId)); ?>">Full tournament history</a>
-		<?php } ?>
-	</p>
-</section>
-    <?php
-}
-
-/**
- * @param list<array<string, mixed>> $tournaments from amiga_player_tournament_participation_recent()
- */
-function amiga_profile_render_recent_tournaments(array $tournaments, int $playerId = 0, int $totalCount = 0): void
-{
-    if ($tournaments === []) {
-        return;
-    }
-    ?>
-<section class="k2-amiga-profile-tournaments" style="padding:0 1.25rem 1.5rem">
-	<h3 class="k2-panel-heading">Recent tournaments</h3>
-	<ul style="margin:0;padding-left:1.25rem">
-	<?php foreach ($tournaments as $t) { ?>
-		<li><?php
-            echo amiga_tournament_link((int) $t['id'], (string) $t['name']);
-            echo ' — ';
-            echo htmlspecialchars(
-                amiga_profile_tournament_result_label($t) . amiga_profile_recent_tournament_extras($t),
-                ENT_QUOTES,
-                'UTF-8'
-            );
-        ?></li>
-	<?php } ?>
-	</ul>
-	<?php if ($playerId > 0 && $totalCount > count($tournaments)) { ?>
-	<p style="margin:0.75rem 0 0">
-		<a class="k2-link-star" href="<?php echo k2_h(amiga_player_tournaments_table_url($playerId)); ?>">All <?php echo (int) $totalCount; ?> tournaments</a>
-	</p>
-	<?php } elseif ($playerId > 0 && $totalCount > 0) { ?>
-	<p style="margin:0.75rem 0 0">
-		<a class="k2-link-star" href="<?php echo k2_h(amiga_player_tournaments_table_url($playerId)); ?>">Full tournament history</a>
-	</p>
-	<?php } ?>
 </section>
     <?php
 }

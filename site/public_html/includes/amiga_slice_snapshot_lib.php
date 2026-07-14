@@ -38,6 +38,9 @@ function amiga_lb_wc_slice_v2_column_names(): array
         'different_victims',
         'double_digits_victims',
         'clean_sheets_victims',
+        'different_culprits',
+        'double_digits_culprits',
+        'clean_sheets_culprits',
     ];
 }
 

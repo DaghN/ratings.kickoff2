@@ -34,8 +34,6 @@ $con->query("SET time_zone = '+00:00'");
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_profile_blocks.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_profile_lb_slices.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournament_lib.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_videos_lib.php';
 
 try {
@@ -46,17 +44,15 @@ try {
     exit('Player not found.');
 }
 
-$recentTournaments = amiga_player_recent_tournaments($con, $id, 5);
-$tournamentTotals = amiga_player_tournament_totals_row($con, $id);
-$perfHighlight = amiga_player_perf_rating_highlight($con, $id);
-$profileMoments = amiga_player_moments_load($con, $id);
-$totalTournaments = $tournamentTotals !== null
-    ? (int) ($tournamentTotals['tournaments_played'] ?? 0)
-    : count($recentTournaments);
+$profileCtx = amiga_snapshot_context_peek();
+$profileMoments = amiga_player_moments_load($con, $id, $profileCtx);
 $profileLbSliceRow = amiga_profile_lb_slices_load($con, $id);
 amiga_player_publish_hero_context($pm, $con);
-$k2AmigaPlayerHasVideos = amiga_player_has_videos($id, $con);
+$k2AmigaPlayerHasVideos = amiga_player_has_videos($id, $con, $profileCtx);
 mysqli_close($con);
+
+$k2AmigaPlayerTabActive = 'profile';
+$k2AmigaPlayerTabWiredAtCutoff = true;
 ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
@@ -66,17 +62,10 @@ mysqli_close($con);
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_hero.php'; ?>
 
 <?php
-$k2AmigaPlayerTabActive = 'profile';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_nav.php';
 
 amiga_profile_render_lb_slices($profileLbSliceRow);
-amiga_profile_render_career($pm);
-if ($tournamentTotals !== null) {
-    amiga_profile_render_honours($tournamentTotals, $playerId);
-}
-amiga_profile_render_perf_rating_highlight($perfHighlight, $playerId);
 amiga_profile_render_moments($profileMoments, $playerId);
-amiga_profile_render_recent_tournaments($recentTournaments, $playerId, $totalTournaments);
 amiga_profile_render_rating_chart($playerId);
 amiga_profile_render_rank_chart($playerId);
 ?>

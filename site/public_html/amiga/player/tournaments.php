@@ -137,9 +137,11 @@ $filtersActive = amiga_player_tournaments_filters_active(
     $podiumFilter
 );
 amiga_player_publish_hero_context($pm, $con);
-$k2AmigaPlayerHasVideos = amiga_player_has_videos($playerId, $con);
+$k2AmigaPlayerHasVideos = amiga_player_has_videos($playerId, $con, amiga_snapshot_context_peek());
 mysqli_close($con);
 
+$k2AmigaPlayerTabActive = 'tournaments';
+$k2AmigaPlayerTabWiredAtCutoff = true;
 ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>
@@ -148,10 +150,7 @@ mysqli_close($con);
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_hero.php'; ?>
 
-<?php
-$k2AmigaPlayerTabActive = 'tournaments';
-include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_nav.php';
-?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_nav.php'; ?>
 
 <?php
 $k2PlayerTournamentsPlayerId = $playerId;

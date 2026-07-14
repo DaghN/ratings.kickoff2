@@ -26,8 +26,8 @@ function amiga_records_hof_lb_target(string $metric): ?array
         'most_cs' => ['wing' => 'double-digits', 'sort' => 5, 'dir' => 'desc'],
         'most_opponents' => ['wing' => 'victims', 'sort' => 4, 'dir' => 'desc'],
         'most_victims' => ['wing' => 'victims', 'sort' => 5, 'dir' => 'desc'],
-        'most_dd_victims' => ['wing' => 'victims', 'sort' => 6, 'dir' => 'desc'],
-        'most_cs_victims' => ['wing' => 'victims', 'sort' => 7, 'dir' => 'desc'],
+        'most_dd_victims' => ['wing' => 'victims', 'sort' => 7, 'dir' => 'desc'],
+        'most_cs_victims' => ['wing' => 'victims', 'sort' => 11, 'dir' => 'desc'],
         'peak_rating' => ['wing' => 'peak-rating', 'sort' => 4, 'dir' => 'desc'],
         'attack_avg' => ['wing' => 'goals', 'sort' => 6, 'dir' => 'desc'],
         'defense_avg' => ['wing' => 'goals', 'sort' => 7, 'dir' => 'asc'],
@@ -61,8 +61,8 @@ function amiga_records_hof_lb_target(string $metric): ?array
         'wc_cs_ratio' => ['wing' => 'world-cups-dds', 'sort' => 7, 'dir' => 'desc'],
         'wc_opponents' => ['wing' => 'world-cups-opponents', 'sort' => 4, 'dir' => 'desc'],
         'wc_victims' => ['wing' => 'world-cups-opponents', 'sort' => 5, 'dir' => 'desc'],
-        'wc_dd_victims' => ['wing' => 'world-cups-opponents', 'sort' => 6, 'dir' => 'desc'],
-        'wc_cs_victims' => ['wing' => 'world-cups-opponents', 'sort' => 7, 'dir' => 'desc'],
+        'wc_dd_victims' => ['wing' => 'world-cups-opponents', 'sort' => 7, 'dir' => 'desc'],
+        'wc_cs_victims' => ['wing' => 'world-cups-opponents', 'sort' => 9, 'dir' => 'desc'],
     ];
 
     return $map[$metric] ?? null;

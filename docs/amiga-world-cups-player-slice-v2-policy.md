@@ -54,7 +54,7 @@ Those career fields are maintained in **`PlayerState`** / **`PlayerGeoYearTracke
 | **V2P1** | **Five sub-wings** | Honours · Results · Goals · **DDs & CSs** · **Opponents** — fixed set for this track |
 | **V2P2** | **Goals enrichment** | Add columns through **Max draw** inclusive; align labels with generic Goals LB |
 | **V2P3** | **DDs wing** | Full generic DDs & CSs table (8 data columns + Games), not a subset |
-| **V2P4** | **Opponents wing** | **Six** metrics only (see §5.5) — no culprits, no MGC/BL victims, no calendar-geo peak years or Hosts |
+| **V2P4** | **Opponents wing** | Victims trio + **culprits trio** (see §5.3) — no MGC/BL victims/culprits, no calendar-geo peak years or Hosts |
 | **V2P5** | **Own country in faced** | `opponent_countries_faced` seeds player **own country** when set — same as career [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) **H6** |
 | **V2P6** | **Beaten set** | `opponent_countries_beaten` = nations with ≥1 **win** in a WC game only — **no** own-country seed ([**H7**](amiga-hof-tournament-geo-policy.md)) |
 | **V2P7** | **Network semantics** | Opponent / victim / DD victim / CS victim counts use **career rules** ([`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) §4) applied to **WC games only** |
@@ -138,10 +138,13 @@ Mirror [`double-digits.php`](../site/public_html/amiga/leaderboards/double-digit
 | `different_victims` | Victims | Victims LB | Distinct opponents with ≥1 win vs player |
 | `double_digits_victims` | DD Victims | Victims LB | Distinct opponents with ≥1 DD win vs player |
 | `clean_sheets_victims` | CS Victims | Victims LB | Distinct opponents with ≥1 CS win vs player |
+| `different_culprits` | Culprits | Victims LB | Distinct opponents with ≥1 win vs player (**`049`**, Jul 2026) |
+| `double_digits_culprits` | DD Culprits | Victims LB | Distinct opponents with ≥1 DD conceded vs player (**`049`**) |
+| `clean_sheets_culprits` | CS Culprits | Victims LB | Distinct opponents with ≥1 CS conceded vs player (**`049`**) |
 
 **Default sort:** Opponents ↓ (match generic victims LB default on `DifferentOpponents`).
 
-**Explicitly excluded from this wing:** culprits family, MGC/BL victims, peak-year columns, `countries_played_in` (Hosts).
+**Explicitly excluded from this wing:** MGC/BL victims and culprits, peak-year columns, `countries_played_in` (Hosts).
 
 ---
 
@@ -268,7 +271,7 @@ Slices **V2-2–V2-5** may land before UI; do not ship UI without `prove` sign-o
 
 | Topic | Notes |
 |-------|--------|
-| Culprits columns on Opponents wing | Generic victims tab only as inspiration |
+| Culprits columns on Opponents wing | **Shipped** Jul 2026 (`049` DB + Opponents LB UI) |
 | MGC / BL / BW victim or culprit counts | Not requested |
 | `countries_played_in` (Hosts) | Calendar-geo only |
 | Peak calendar-year columns | Calendar-geo only |

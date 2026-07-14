@@ -105,11 +105,13 @@ Each surface maps to **one primary derived source** (joins to `amiga_players` / 
 
 | Surface | Route / entry | Primary read | Secondary | Tier |
 |---------|---------------|--------------|-----------|------|
-| **Hero + rank** | `/amiga/player/profile.php` | `amiga_player_current.elo_rank` | `amiga_player_elo_rank_at_event` at cutoff | A (shipped) |
-| **Career strip** | profile | `amiga_player_current` | — | A (shipped) |
-| **Honours strip** | profile | `amiga_player_current` honours columns | WC medals, wins, podiums | B (shipped) |
-| **Performance rating highlight** | profile | `amiga_player_event_snapshots` | best + latest event | B (shipped) |
-| **Moments / trophy games** | profile | `amiga_player_current` `*GameID` + batched game fetch | `PeakRatingGameID` from replay | A (shipped) |
+| **Hero + rank** | `/amiga/player/profile.php` | Present: `amiga_player_current.elo_rank`; TT: snapshot + `amiga_player_elo_rank_at_event` at cutoff | — | A (shipped) |
+| **LB wing stat mosaic** | profile | Present: `amiga_player_current`; TT: latest `amiga_player_event_snapshots` row ≤ cutoff | peak tournament joins | A (shipped Jul 2026) |
+| **Career strip** | profile | `amiga_player_current` | — | A (retired from UI Jul 2026) |
+| **Honours strip** | profile | `amiga_player_current` honours columns | WC medals, wins, podiums | B (retired from UI Jul 2026) |
+| **Performance rating highlight** | profile | `amiga_player_event_snapshots` | best + latest event | B (retired from UI Jul 2026) |
+| **Moments / trophy games** | profile | Present: `amiga_player_current` `*GameID`; TT: snapshot `*GameID` + batched game fetch ≤ cutoff | bonanza ratio fallback ≤ cutoff | A (shipped Jul 2026) |
+| **Videos nav pill** | profile player nav | Present: manifest shortcut + game index; TT: `amiga_player_videos_game_index(..., ctx)` | — | A (shipped Jul 2026) |
 | **Rating chart** | `api/player_rating_history.php?realm=amiga` | `amiga_player_event_snapshots` → `tournaments` | — | A (shipped) |
 | **Recent tournaments** | profile (5 rows) | `amiga_player_event_snapshots` | finish suffix + Winner + Perf | B (shipped) |
 | **Full tournament history** | `/amiga/player/tournaments.php` | `amiga_player_event_snapshots` | sortable k2-table stack; segment filters World Cups · Perfect run · Wins · Podiums + country/year listboxes | B (shipped) |

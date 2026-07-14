@@ -1,6 +1,6 @@
 <?php
 /**
- * Amiga profile — LB wing stat slices (label | value rows, present-only).
+ * Amiga profile — LB wing stat slices (label | value rows; present or cutoff snapshot).
  */
 declare(strict_types=1);
 
@@ -11,13 +11,15 @@ require_once __DIR__ . '/amiga_wc_lb_lib.php';
 require_once __DIR__ . '/amiga_wc_podium_th.php';
 require_once __DIR__ . '/amiga_profile_blocks.php';
 require_once __DIR__ . '/amiga_lb_peak_rating_lib.php';
+require_once __DIR__ . '/amiga_snapshot_context.php';
+require_once __DIR__ . '/amiga_player_snapshot_lib.php';
 
 /**
  * Present-mode career row for profile LB slices (single indexed read).
  *
  * @return ?array<string, mixed>
  */
-function amiga_profile_lb_slices_load(mysqli $con, int $playerId): ?array
+function amiga_profile_lb_slices_load_present(mysqli $con, int $playerId): ?array
 {
     if ($playerId < 1) {
         return null;
@@ -56,11 +58,11 @@ function amiga_profile_lb_slices_load(mysqli $con, int $playerId): ?array
 
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
-        throw new RuntimeException('prepare amiga_profile_lb_slices_load: ' . $con->error);
+        throw new RuntimeException('prepare amiga_profile_lb_slices_load_present: ' . $con->error);
     }
     $stmt->bind_param('i', $playerId);
     if (!$stmt->execute()) {
-        throw new RuntimeException('execute amiga_profile_lb_slices_load: ' . $stmt->error);
+        throw new RuntimeException('execute amiga_profile_lb_slices_load_present: ' . $stmt->error);
     }
     $result = $stmt->get_result();
     $row = $result ? $result->fetch_assoc() : false;
@@ -72,30 +74,211 @@ function amiga_profile_lb_slices_load(mysqli $con, int $playerId): ?array
     return $row !== false && $row !== null ? $row : null;
 }
 
+/**
+ * Cutoff snapshot row shaped for profile LB slice renderers (PPT2–PPT4).
+ *
+ * @return ?array<string, mixed>
+ */
+function amiga_profile_lb_slices_load_at_cutoff(mysqli $con, int $playerId, AmigaSnapshotContext $ctx): ?array
+{
+    $snap = amiga_player_snapshot_row_at_cutoff($con, $playerId, $ctx);
+    if ($snap === null || (int) ($snap['NumberGames'] ?? 0) <= 0) {
+        return null;
+    }
+
+    $identity = amiga_profile_lb_slices_player_identity($con, $playerId);
+    if ($identity === null) {
+        return null;
+    }
+
+    $row = $snap;
+    $row['ID'] = $playerId;
+    $row['Name'] = $identity['Name'];
+    $row['Country'] = $identity['Country'];
+
+    amiga_profile_lb_slices_enrich_peak_context($con, $playerId, $row, $ctx);
+
+    return $row;
+}
+
+/**
+ * @return ?array{Name: string, Country: string}
+ */
+function amiga_profile_lb_slices_player_identity(mysqli $con, int $playerId): ?array
+{
+    $stmt = $con->prepare('SELECT name, country FROM amiga_players WHERE id = ? LIMIT 1');
+    if ($stmt === false) {
+        throw new RuntimeException('prepare amiga_profile_lb_slices_player_identity: ' . $con->error);
+    }
+    $stmt->bind_param('i', $playerId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute amiga_profile_lb_slices_player_identity: ' . $stmt->error);
+    }
+    $result = $stmt->get_result();
+    $row = $result ? $result->fetch_assoc() : false;
+    if ($result) {
+        $result->free();
+    }
+    $stmt->close();
+    if ($row === false || $row === null) {
+        return null;
+    }
+
+    return [
+        'Name' => (string) ($row['name'] ?? ''),
+        'Country' => (string) ($row['country'] ?? ''),
+    ];
+}
+
+/**
+ * Peak-rating subsection joins — tournament names/dates from snapshot IDs at cutoff.
+ *
+ * @param array<string, mixed> $row
+ */
+function amiga_profile_lb_slices_enrich_peak_context(
+    mysqli $con,
+    int $playerId,
+    array &$row,
+    AmigaSnapshotContext $ctx
+): void {
+    $peakRatingTournamentId = (int) ($row['peak_rating_tournament_id'] ?? 0);
+    if ($peakRatingTournamentId > 0) {
+        $sql = 'SELECT tpr.event_date AS peak_rating_date, tpr.name AS peak_rating_tournament_name,'
+            . ' peak_snap.rating_delta AS peak_rating_delta'
+            . ' FROM tournaments tpr'
+            . ' LEFT JOIN amiga_player_event_snapshots peak_snap'
+            . '   ON peak_snap.player_id = ? AND peak_snap.tournament_id = tpr.id'
+            . ' WHERE tpr.id = ?'
+            . ' LIMIT 1';
+        $stmt = $con->prepare($sql);
+        if ($stmt === false) {
+            throw new RuntimeException('prepare amiga_profile_lb_slices_enrich_peak_context rating: ' . $con->error);
+        }
+        $stmt->bind_param('ii', $playerId, $peakRatingTournamentId);
+        if (!$stmt->execute()) {
+            throw new RuntimeException('execute amiga_profile_lb_slices_enrich_peak_context rating: ' . $stmt->error);
+        }
+        $result = $stmt->get_result();
+        $peakRow = $result ? $result->fetch_assoc() : false;
+        if ($result) {
+            $result->free();
+        }
+        $stmt->close();
+        if ($peakRow !== false && $peakRow !== null) {
+            $row['peak_rating_date'] = $peakRow['peak_rating_date'] ?? null;
+            $row['peak_rating_tournament_name'] = $peakRow['peak_rating_tournament_name'] ?? null;
+            $row['peak_rating_delta'] = $peakRow['peak_rating_delta'] ?? null;
+        }
+    } else {
+        $row['peak_rating_date'] = null;
+        $row['peak_rating_tournament_name'] = null;
+        $row['peak_rating_delta'] = null;
+    }
+
+    $cutoff = $ctx->cutoff();
+    if ($cutoff === null) {
+        $row['peak_elo_rank'] = null;
+        $row['peak_elo_rank_tournament_id'] = null;
+        $row['peak_elo_rank_date'] = null;
+        $row['peak_elo_rank_tournament_name'] = null;
+        $row['peak_elo_rank_played_in_event'] = 0;
+
+        return;
+    }
+
+    $cutoffTournamentId = (int) $cutoff['tournament_id'];
+    $sql = 'SELECT er.peak_elo_rank, er.peak_elo_rank_tournament_id,'
+        . ' tpke.name AS peak_elo_rank_tournament_name, tpke.event_date AS peak_elo_rank_date'
+        . ' FROM amiga_player_elo_rank_at_event er'
+        . ' LEFT JOIN tournaments tpke ON tpke.id = er.peak_elo_rank_tournament_id'
+        . ' WHERE er.player_id = ? AND er.tournament_id = ?'
+        . ' LIMIT 1';
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare amiga_profile_lb_slices_enrich_peak_context rank: ' . $con->error);
+    }
+    $stmt->bind_param('ii', $playerId, $cutoffTournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute amiga_profile_lb_slices_enrich_peak_context rank: ' . $stmt->error);
+    }
+    $result = $stmt->get_result();
+    $rankRow = $result ? $result->fetch_assoc() : false;
+    if ($result) {
+        $result->free();
+    }
+    $stmt->close();
+
+    if ($rankRow === false || $rankRow === null) {
+        $row['peak_elo_rank'] = null;
+        $row['peak_elo_rank_tournament_id'] = null;
+        $row['peak_elo_rank_date'] = null;
+        $row['peak_elo_rank_tournament_name'] = null;
+        $row['peak_elo_rank_played_in_event'] = 0;
+
+        return;
+    }
+
+    $row['peak_elo_rank'] = $rankRow['peak_elo_rank'] ?? null;
+    $row['peak_elo_rank_tournament_id'] = $rankRow['peak_elo_rank_tournament_id'] ?? null;
+    $row['peak_elo_rank_date'] = $rankRow['peak_elo_rank_date'] ?? null;
+    $row['peak_elo_rank_tournament_name'] = $rankRow['peak_elo_rank_tournament_name'] ?? null;
+
+    $peakRankTournamentId = (int) ($row['peak_elo_rank_tournament_id'] ?? 0);
+    $row['peak_elo_rank_played_in_event'] = $peakRankTournamentId > 0
+        && amiga_player_peak_rank_played_in_event($con, $playerId, $peakRankTournamentId)
+        ? 1
+        : 0;
+}
+
+/**
+ * Present or cutoff career row for profile LB mosaic (context from amiga_player_load).
+ *
+ * @return ?array<string, mixed>
+ */
+function amiga_profile_lb_slices_load(mysqli $con, int $playerId, ?AmigaSnapshotContext $ctx = null): ?array
+{
+    if ($playerId < 1) {
+        return null;
+    }
+
+    $ctx ??= amiga_snapshot_context_peek();
+    if ($ctx instanceof AmigaSnapshotContext && $ctx->isActive()) {
+        return amiga_profile_lb_slices_load_at_cutoff($con, $playerId, $ctx);
+    }
+
+    return amiga_profile_lb_slices_load_present($con, $playerId);
+}
+
 function amiga_profile_lb_slice_label(
     string $labelHtml,
     ?string $help = null,
     ?string $tooltipLabel = null,
     string $extraClass = ''
 ): string {
-    $class = 'k2-table-helped k2-amiga-profile-lb-slice__label';
+    $classes = [];
     if ($extraClass !== '') {
-        $class .= ' ' . $extraClass;
+        $classes[] = $extraClass;
     }
-    $attrs = ' scope="row" class="' . htmlspecialchars($class, ENT_QUOTES, 'UTF-8') . '" tabindex="0"';
     if ($help !== null && $help !== '') {
-        $attrs .= ' data-k2-help="' . htmlspecialchars($help, ENT_QUOTES, 'UTF-8') . '"';
+        $classes[] = 'k2-table-helped';
+    }
+    $attrs = '';
+    if ($classes !== []) {
+        $attrs .= ' class="' . htmlspecialchars(implode(' ', $classes), ENT_QUOTES, 'UTF-8') . '"';
+    }
+    if ($help !== null && $help !== '') {
+        $attrs .= ' data-k2-help="' . htmlspecialchars($help, ENT_QUOTES, 'UTF-8') . '" tabindex="0"';
     }
     if ($tooltipLabel !== null && $tooltipLabel !== '') {
         $attrs .= ' data-k2-tooltip-label="' . htmlspecialchars($tooltipLabel, ENT_QUOTES, 'UTF-8') . '"';
     }
 
-    return '<th' . $attrs . '>' . $labelHtml . '</th>';
+    return '<td' . $attrs . '>' . $labelHtml . '</td>';
 }
 
 function amiga_profile_lb_slice_value(string $html, string $extraClass = ''): string
 {
-    $class = 'k2-amiga-profile-lb-slice__value';
+    $class = 'k2-table-cell--right';
     if ($extraClass !== '') {
         $class .= ' ' . $extraClass;
     }
@@ -117,22 +300,31 @@ function amiga_profile_lb_slice_row(
         . '</tr>';
 }
 
+function amiga_profile_lb_slice_section_header(string $title): void
+{
+    $safe = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
+    echo '    <tr class="server-records-section-header"><td colspan="2">' . $safe . "</td></tr>\n";
+}
+
 /**
- * @param callable(): void ...$renderRowBlocks
+ * @param array<int, array{title: string, render: callable(): void}> $sections
  */
-function amiga_profile_lb_slice_group(callable ...$renderRowBlocks): void
+function amiga_profile_lb_slice_group(array $sections): void
 {
     ?>
-<div class="k2-amiga-profile-lb-slice-group">
-	<table class="k2-amiga-profile-lb-slice__table">
+<div class="k2-amiga-profile-lb-slice-group server-records-panel">
+	<div class="k2-table-wrap">
+	<table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
 	<tbody class="black">
 	<?php
-    foreach ($renderRowBlocks as $renderRowBlock) {
-        $renderRowBlock();
+    foreach ($sections as $section) {
+        amiga_profile_lb_slice_section_header($section['title']);
+        $section['render']();
     }
     ?>
 	</tbody>
 	</table>
+	</div>
 </div>
     <?php
 }
@@ -253,12 +445,13 @@ function amiga_profile_lb_slice_rows_victims(array $row): void
 function amiga_profile_lb_slice_rows_tournament_honours(array $row): void
 {
     echo amiga_profile_lb_slice_row('Events', (string) (int) ($row['tournaments_played'] ?? 0), k2_lb_help_amiga_tournament_events());
+    echo amiga_profile_lb_slice_row('Podiums', (string) (int) ($row['event_podiums'] ?? 0), k2_lb_help_amiga_event_podiums());
     echo amiga_profile_lb_slice_row(
         k2_lb_honours_medal_th(1) . '<span class="visually-hidden">Event gold</span>',
         amiga_wc_podium_medal_value_markup((int) ($row['event_gold'] ?? 0), 1),
         k2_lb_help_amiga_event_gold(),
         'Event gold',
-        'k2-lb-honours-medal-th',
+        '',
         'k2-lb-honours-medal-td'
     );
     echo amiga_profile_lb_slice_row(
@@ -266,7 +459,7 @@ function amiga_profile_lb_slice_rows_tournament_honours(array $row): void
         amiga_wc_podium_medal_value_markup((int) ($row['event_silver'] ?? 0), 2),
         k2_lb_help_amiga_event_silver(),
         'Event silver',
-        'k2-lb-honours-medal-th',
+        '',
         'k2-lb-honours-medal-td'
     );
     echo amiga_profile_lb_slice_row(
@@ -274,10 +467,9 @@ function amiga_profile_lb_slice_rows_tournament_honours(array $row): void
         amiga_wc_podium_medal_value_markup((int) ($row['event_bronze'] ?? 0), 3),
         k2_lb_help_amiga_event_bronze(),
         'Event bronze',
-        'k2-lb-honours-medal-th',
+        '',
         'k2-lb-honours-medal-td'
     );
-    echo amiga_profile_lb_slice_row('Podiums', (string) (int) ($row['event_podiums'] ?? 0), k2_lb_help_amiga_event_podiums());
     echo amiga_profile_lb_slice_row('Perfect', (string) (int) ($row['perfect_events'] ?? 0), k2_lb_help_amiga_perfect_events());
 }
 
@@ -306,9 +498,9 @@ function amiga_profile_lb_slice_rows_peak_rating(array $row): void
     $games = (int) ($row['NumberGames'] ?? 0);
 
     echo amiga_profile_lb_slice_row('Peak Rating', amiga_lb_peak_rating_peak_cell_html($row), k2_lb_help_peak());
-    echo amiga_profile_lb_slice_row('Peak date', amiga_profile_format_event_date($row['peak_rating_date'] ?? null), k2_lb_help_peak_rating_date(), '', '', 'k2-table-cell--right');
+    echo amiga_profile_lb_slice_row('Peak date', amiga_profile_format_event_date($row['peak_rating_date'] ?? null), k2_lb_help_peak_rating_date());
     echo amiga_profile_lb_slice_row('Peak rank', amiga_lb_peak_rating_peak_rank_cell_html($row), k2_lb_help_peak_elo_rank());
-    echo amiga_profile_lb_slice_row('Peak rank date', amiga_profile_format_event_date($row['peak_elo_rank_date'] ?? null), k2_lb_help_peak_elo_rank_date(), '', '', 'k2-table-cell--right');
+    echo amiga_profile_lb_slice_row('Peak rank date', amiga_profile_format_event_date($row['peak_elo_rank_date'] ?? null), k2_lb_help_peak_elo_rank_date());
     echo amiga_profile_lb_slice_row('Nadir', k2_fmt_nadir_rating($row['LowestRating'] ?? null), k2_lb_help_nadir());
     echo amiga_profile_lb_slice_row('Opponent Avg.', k2_fmt_lb_stat($row['AverageOpponentRating'] ?? null, $games), k2_lb_help_opponent_avg());
     echo amiga_profile_lb_slice_row('Highest Victim', k2_fmt_lb_stat($row['HighestRatedVictim'] ?? null, $games), k2_lb_help_highest_victim());
@@ -328,19 +520,40 @@ function amiga_profile_render_lb_slices(?array $row): void
     ?>
 <div class="k2-amiga-profile-lb-slices">
     <?php
-    amiga_profile_lb_slice_group(
-        static fn () => amiga_profile_lb_slice_rows_rating($row),
-        static fn () => amiga_profile_lb_slice_rows_goals($row)
-    );
-    amiga_profile_lb_slice_group(
-        static fn () => amiga_profile_lb_slice_rows_double_digits($row),
-        static fn () => amiga_profile_lb_slice_rows_victims($row)
-    );
-    amiga_profile_lb_slice_group(
-        static fn () => amiga_profile_lb_slice_rows_tournament_honours($row),
-        static fn () => amiga_profile_lb_slice_rows_calendar_geo($row),
-        static fn () => amiga_profile_lb_slice_rows_peak_rating($row)
-    );
+    amiga_profile_lb_slice_group([
+        [
+            'title' => 'Results',
+            'render' => static fn () => amiga_profile_lb_slice_rows_rating($row),
+        ],
+        [
+            'title' => 'Goals',
+            'render' => static fn () => amiga_profile_lb_slice_rows_goals($row),
+        ],
+    ]);
+    amiga_profile_lb_slice_group([
+        [
+            'title' => 'DDs & CSs',
+            'render' => static fn () => amiga_profile_lb_slice_rows_double_digits($row),
+        ],
+        [
+            'title' => 'Victims & Culprits',
+            'render' => static fn () => amiga_profile_lb_slice_rows_victims($row),
+        ],
+    ]);
+    amiga_profile_lb_slice_group([
+        [
+            'title' => 'Tournament honours',
+            'render' => static fn () => amiga_profile_lb_slice_rows_tournament_honours($row),
+        ],
+        [
+            'title' => 'Calendar & geography',
+            'render' => static fn () => amiga_profile_lb_slice_rows_calendar_geo($row),
+        ],
+        [
+            'title' => 'Peak rating',
+            'render' => static fn () => amiga_profile_lb_slice_rows_peak_rating($row),
+        ],
+    ]);
     ?>
 </div>
     <?php

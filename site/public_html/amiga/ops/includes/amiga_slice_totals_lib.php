@@ -95,6 +95,9 @@ function amiga_slice_empty_world_cup(): array
         'different_victims' => 0,
         'double_digits_victims' => 0,
         'clean_sheets_victims' => 0,
+        'different_culprits' => 0,
+        'double_digits_culprits' => 0,
+        'clean_sheets_culprits' => 0,
         // WC HoF (SCH-046): per-event award counters + single-WC peaks.
         'best_attack_awards' => 0,
         'best_defense_awards' => 0,

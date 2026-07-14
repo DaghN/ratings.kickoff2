@@ -36,7 +36,8 @@ include __DIR__ . '/../../../config/ko2amiga_config.php';
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $con->query("SET time_zone = '+00:00'");
 
-if (!amiga_player_has_videos($playerId, $con)) {
+$ctx = amiga_snapshot_context_from_request($con);
+if (!amiga_player_has_videos($playerId, $con, $ctx)) {
     mysqli_close($con);
     http_response_code(404);
     exit('Player not found.');
@@ -51,7 +52,6 @@ try {
     exit('Player not found.');
 }
 
-$ctx = amiga_snapshot_context_from_request($con);
 $playerVideoEntriesAll = amiga_player_videos_game_index($con, $playerId, $ctx);
 $opponentFacets = amiga_player_videos_opponent_facets($playerVideoEntriesAll, $playerId);
 $opponentFilter = amiga_player_videos_validate_opponent_filter(

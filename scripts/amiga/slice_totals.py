@@ -63,6 +63,9 @@ def empty_world_cup_slice() -> dict[str, Any]:
         "different_victims": 0,
         "double_digits_victims": 0,
         "clean_sheets_victims": 0,
+        "different_culprits": 0,
+        "double_digits_culprits": 0,
+        "clean_sheets_culprits": 0,
         # WC Hall of Fame slice extensions (SCH-046) — populated by the WC-finalize
         # award/peak writer (WCH-2); default here so persist carries them.
         "best_attack_awards": 0,

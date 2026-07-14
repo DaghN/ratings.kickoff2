@@ -31,6 +31,9 @@ V2_SCALAR_KEYS: tuple[str, ...] = (
     "different_victims",
     "double_digits_victims",
     "clean_sheets_victims",
+    "different_culprits",
+    "double_digits_culprits",
+    "clean_sheets_culprits",
 )
 
 
@@ -57,6 +60,9 @@ class WorldCupSliceTracker:
     _victims: set[int] = field(default_factory=set)
     _dd_victims: set[int] = field(default_factory=set)
     _cs_victims: set[int] = field(default_factory=set)
+    _culprits: set[int] = field(default_factory=set)
+    _dd_culprits: set[int] = field(default_factory=set)
+    _cs_culprits: set[int] = field(default_factory=set)
 
     @classmethod
     def from_totals_row(cls, row: dict[str, Any] | None) -> WorldCupSliceTracker:
@@ -87,6 +93,8 @@ class WorldCupSliceTracker:
         self._opponents.add(opponent_id)
         if won:
             self._victims.add(opponent_id)
+        if lost:
+            self._culprits.add(opponent_id)
         opp_country = normalize_country(opponent_country)
         if opp_country:
             self._opponent_countries_faced.add(opp_country)
@@ -98,11 +106,13 @@ class WorldCupSliceTracker:
             self._dd_victims.add(opponent_id)
         if goals_against >= 10:
             self.row["double_digits_conceded"] = int(self.row["double_digits_conceded"]) + 1
+            self._dd_culprits.add(opponent_id)
         if goals_against == 0:
             self.row["clean_sheets"] = int(self.row["clean_sheets"]) + 1
             self._cs_victims.add(opponent_id)
         if goals_for == 0:
             self.row["clean_sheets_conceded"] = int(self.row["clean_sheets_conceded"]) + 1
+            self._cs_culprits.add(opponent_id)
 
         if goals_for >= 1 and goals_for > int(self.row["most_goals_scored"]):
             self.row["most_goals_scored"] = goals_for
@@ -130,6 +140,9 @@ class WorldCupSliceTracker:
         self.row["different_victims"] = len(self._victims)
         self.row["double_digits_victims"] = len(self._dd_victims)
         self.row["clean_sheets_victims"] = len(self._cs_victims)
+        self.row["different_culprits"] = len(self._culprits)
+        self.row["double_digits_culprits"] = len(self._dd_culprits)
+        self.row["clean_sheets_culprits"] = len(self._cs_culprits)
 
     def _recompute_ratios(self) -> None:
         games = int(self.row.get("games") or 0)

@@ -98,6 +98,13 @@ function player_feast_load_pm(mysqli $con, int $id): array
         $trophies[] = $bonanza;
     }
 
+    $peakMoment = player_feast_load_peak_moment(
+        $con,
+        $id,
+        $peak,
+        $row['PeakRatingGameID'] ?? null
+    );
+
     $peakGap = ($peak !== null && $rating !== null) ? $peak - $rating : 0;
 
     $firstGameResult = k2_player_feast_query(
@@ -182,6 +189,7 @@ function player_feast_load_pm(mysqli $con, int $id): array
         'clean_sheets' => (int) $row['CleanSheets'],
         'winning_streak' => (int) $row['WinningStreak'],
         'trophies' => $trophies,
+        'peak_moment' => $peakMoment,
         'max_rated_victim' => player_feast_load_max_rated_victim(
             $con,
             $id,
@@ -384,5 +392,40 @@ function player_feast_load_max_rated_victim(mysqli $con, int $id, mixed $highest
         : (int) round((float) $highestRatedVictim);
 
     return $parsed;
+}
+
+/**
+ * Career peak moment — playertable PeakRating + PeakRatingGameID (last in mosaic).
+ *
+ * @return array<string, mixed>|null
+ */
+function player_feast_load_peak_moment(mysqli $con, int $id, ?int $peak, mixed $peakGameId): ?array
+{
+    require_once __DIR__ . '/lb_peak_rating_lib.php';
+
+    if ($peak === null || $peak < 1 || !k2_lb_peak_rating_context_enabled($peak, $peakGameId)) {
+        return null;
+    }
+
+    $gameId = (int) $peakGameId;
+    $gRes = k2_player_feast_query(
+        $con,
+        'peak_moment_game',
+        'SELECT id, Date, idA, idB, NameA, NameB, GoalsA, GoalsB, ActualScore, AdjustmentA, AdjustmentB '
+        . "FROM ratedresults WHERE id = $gameId LIMIT 1"
+    );
+    $gRow = $gRes ? mysqli_fetch_assoc($gRes) : null;
+    $gRow = k2_rated_game_row_resolve($con, $gRow);
+    if ($gRow === null) {
+        return null;
+    }
+
+    return array_merge([
+        'key' => 'peak_rating',
+        'icon' => '★',
+        'tag' => 'Peak',
+        'label' => 'Peak rating',
+        'peak_rating' => $peak,
+    ], pm_parse_highlight_row($gRow, $id));
 }
 

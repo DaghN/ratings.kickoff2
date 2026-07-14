@@ -41,6 +41,9 @@ SLICE_STAT_COLUMNS_V2: tuple[str, ...] = (
     "different_victims",
     "double_digits_victims",
     "clean_sheets_victims",
+    "different_culprits",
+    "double_digits_culprits",
+    "clean_sheets_culprits",
 )
 
 # World Cup Hall of Fame slice extensions (SCH-046) — award counters + single-WC

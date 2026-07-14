@@ -21,7 +21,11 @@ $k2AmigaPlayerTabs = [
 ];
 $k2AmigaPlayerShowVideosTab = isset($k2AmigaPlayerHasVideos)
     ? (bool) $k2AmigaPlayerHasVideos
-    : amiga_player_has_videos($id, isset($con) && $con instanceof mysqli ? $con : null);
+    : amiga_player_has_videos(
+        $id,
+        isset($con) && $con instanceof mysqli ? $con : null,
+        amiga_snapshot_context_peek()
+    );
 if ($id > 0 && $k2AmigaPlayerShowVideosTab) {
     $k2AmigaPlayerTabs['videos'] = [
         'href' => amiga_player_videos_url($id),

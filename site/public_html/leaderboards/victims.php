@@ -28,7 +28,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/../config/ko2unitydb_config.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
-$query = 'SELECT id, Name, Rating, NumberGames, DifferentOpponents, DifferentVictims, DoubleDigitsVictims, CleanSheetsVictims, MostGoalsConcededVictims, BiggestLossVictims, DifferentCulprits, DoubleDigitsCulprits, CleanSheetsCulprits, MostGoalsScoredCulprits, BiggestWinCulprits FROM playertable WHERE ' . k2_lb_player_where_sql() . ' ORDER BY DifferentOpponents DESC, rating DESC';
+$query = 'SELECT id, Name, Rating, NumberGames, DifferentOpponents, DifferentVictims, DifferentCulprits, DoubleDigitsVictims, CleanSheetsVictims, MostGoalsConcededVictims, BiggestLossVictims, DoubleDigitsCulprits, CleanSheetsCulprits, MostGoalsScoredCulprits, BiggestWinCulprits FROM playertable WHERE ' . k2_lb_player_where_sql() . ' ORDER BY DifferentOpponents DESC, rating DESC';
 $result = k2_query_or_public_error($con, $query, 'ranked5 leaderboard'); 
 
 mysqli_close($con);
@@ -52,12 +52,12 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <th<?php echo k2_lb_th(3, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_games(), ENT_QUOTES, 'UTF-8'); ?>">Games</th>
         <th<?php echo k2_lb_th(4, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_opponents(), ENT_QUOTES, 'UTF-8'); ?>">Opponents</th>
         <th<?php echo k2_lb_th(5, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_victims(), ENT_QUOTES, 'UTF-8'); ?>">Victims</th>
-        <th<?php echo k2_lb_th(6, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Double Digit victims" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_dd_victims(), ENT_QUOTES, 'UTF-8'); ?>">DD Victims</th>
-        <th<?php echo k2_lb_th(7, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Clean Sheet victims" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_cs_victims(), ENT_QUOTES, 'UTF-8'); ?>">CS Victims</th>
-        <th<?php echo k2_lb_th(8, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Most Goals Conceded victims" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_mgc_victims(), ENT_QUOTES, 'UTF-8'); ?>">MGC Victims</th>
-        <th<?php echo k2_lb_th(9, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Biggest Loss victims" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_bl_victims(), ENT_QUOTES, 'UTF-8'); ?>">BL Victims</th>
-        <th<?php echo k2_lb_th(10, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_culprits(), ENT_QUOTES, 'UTF-8'); ?>">Culprits</th>
-        <th<?php echo k2_lb_th(11, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Double Digit culprits" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_dd_culprits(), ENT_QUOTES, 'UTF-8'); ?>">DD Culprits</th>
+        <th<?php echo k2_lb_th(6, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_culprits(), ENT_QUOTES, 'UTF-8'); ?>">Culprits</th>
+        <th<?php echo k2_lb_th(7, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Double Digit victims" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_dd_victims(), ENT_QUOTES, 'UTF-8'); ?>">DD Victims</th>
+        <th<?php echo k2_lb_th(8, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Double Digit culprits" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_dd_culprits(), ENT_QUOTES, 'UTF-8'); ?>">DD Culprits</th>
+        <th<?php echo k2_lb_th(9, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Most Goals Conceded victims" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_mgc_victims(), ENT_QUOTES, 'UTF-8'); ?>">MGC Victims</th>
+        <th<?php echo k2_lb_th(10, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Biggest Loss victims" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_bl_victims(), ENT_QUOTES, 'UTF-8'); ?>">BL Victims</th>
+        <th<?php echo k2_lb_th(11, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Clean Sheet victims" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_cs_victims(), ENT_QUOTES, 'UTF-8'); ?>">CS Victims</th>
         <th<?php echo k2_lb_th(12, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Clean Sheet culprits" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_cs_culprits(), ENT_QUOTES, 'UTF-8'); ?>">CS Culprits</th>
         <th<?php echo k2_lb_th(13, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Most Goals Scored culprits" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_mgs_culprits(), ENT_QUOTES, 'UTF-8'); ?>">MGS Culprits</th>
         <th<?php echo k2_lb_th(14, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Biggest Win culprits" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_bw_culprits(), ENT_QUOTES, 'UTF-8'); ?>">BW Culprits</th>
@@ -81,10 +81,10 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
         <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo k2_fmt_count($row[5], $row[3]); ?></td>
         <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo k2_fmt_count($row[6], $row[3]); ?></td>
         <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo k2_fmt_count($row[7], $row[3]); ?></td>
-        <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo k2_fmt_count($row[8], $row[3]); ?></td>
+        <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo k2_fmt_count($row[11], $row[3]); ?></td>
         <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo k2_fmt_count($row[9], $row[3]); ?></td>
         <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo k2_fmt_count($row[10], $row[3]); ?></td>
-        <td<?php echo k2_lb_td(11, $lbSort); ?>><?php echo k2_fmt_count($row[11], $row[3]); ?></td>
+        <td<?php echo k2_lb_td(11, $lbSort); ?>><?php echo k2_fmt_count($row[8], $row[3]); ?></td>
         <td<?php echo k2_lb_td(12, $lbSort); ?>><?php echo k2_fmt_count($row[12], $row[3]); ?></td>
         <td<?php echo k2_lb_td(13, $lbSort); ?>><?php echo k2_fmt_count($row[13], $row[3]); ?></td>
         <td<?php echo k2_lb_td(14, $lbSort); ?>><?php echo k2_fmt_count($row[14], $row[3]); ?></td>
