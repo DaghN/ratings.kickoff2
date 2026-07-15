@@ -31,7 +31,7 @@ function amiga_records_hof_lb_target(string $metric): ?array
         'peak_rating' => ['wing' => 'peak-rating', 'sort' => 4, 'dir' => 'desc'],
         'attack_avg' => ['wing' => 'goals', 'sort' => 6, 'dir' => 'desc'],
         'defense_avg' => ['wing' => 'goals', 'sort' => 7, 'dir' => 'asc'],
-        'goal_ratio' => ['wing' => 'goals', 'sort' => 8, 'dir' => 'desc'],
+        'goal_ratio' => ['wing' => 'goals', 'sort' => 9, 'dir' => 'desc'],
         'dd_ratio' => ['wing' => 'double-digits', 'sort' => 6, 'dir' => 'desc'],
         'cs_ratio' => ['wing' => 'double-digits', 'sort' => 7, 'dir' => 'desc'],
         'most_games_in_year' => ['wing' => 'calendar-geo', 'sort' => 3, 'dir' => 'desc'],

@@ -145,6 +145,12 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-15 | **Amiga Goals LB SSR sort + mosaic links** — `goals.php` URL `k2_sort` → SQL ORDER BY + row anchors; profile Goals mosaic GF→Ratio (6 cells); HoF `goal_ratio` sort col 8→9 (Ratio not GD/g). |
+| 2026-07-15 | **Amiga profile mosaic — Opponent Average link** — Results **Opponent Average** → Rating LB Opponent Average column (SSR sort col 8/9 + player row anchor). |
+| 2026-07-15 | **Amiga profile mosaic — Win rate link** — Results **Win rate** → Rating LB SSR-sorted by Win rate col + player row anchor; dynamic col 7/8 (Δ column); `amiga_lb_rating_win_rate_player_href()`. |
+| 2026-07-15 | **Amiga profile mosaic — Draws/Losses links** — Results **Draws** / **Losses** → Games tab `?result=draw` / `?result=loss` + `#matching-games`. |
+| 2026-07-15 | **Amiga profile mosaic — Wins link** — Results **Wins** → Games tab `?result=win` + `#matching-games` (Result filter SSR-active; `as=` preserved). |
+| 2026-07-15 | **Amiga profile mosaic — Games link** — Results table **Games** → player Games tab `#matching-games` (same as hero; `as=` via `k2_amiga_route`); register [`player-profile-stat-links-policy.md`](docs/player-profile-stat-links-policy.md). |
 | 2026-07-15 | **Hero inventory anchors → list status** — Games hero `#matching-games` (online + Amiga); Events/WC `#k2-player-tournaments-table` moved above tournaments status line; `k2_player_matching_games_anchor_fragment()`. |
 | 2026-07-14 | **Amiga geo scalars fix** — remove own-country auto-seed (H5/H6); add `opponent_countries_beaten_by` (H8); career + WC player/country writers; DDL `050`; profile + LB + WC tables; **`simul` OK on `ko2amiga_work`** (28 verify steps, ~28 min). |
 | 2026-07-14 | **Amiga profile Activity dates** — shipped stacked full date (Option B); compare mode removed; labels **Last** tournament/World Cup (pairs with First; matches Countries roster + rating LB). |

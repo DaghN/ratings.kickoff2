@@ -39,7 +39,7 @@ Profile pages are **rich inventory surfaces**. Leaderboards are the **comparison
 | Case | Rule |
 |------|------|
 | **Rank, rating (hero)** | **Leaderboard row** — these numbers *are* ladder claims, not inventories. Link to the rating wing at `#k2-lb-player-{id}` (Amiga: preserve `as=`). |
-| **Derived ratio / average with no list** | **No link** until a meaningful inventory exists (e.g. goals per game, win rate). Leaderboard-only is acceptable when inventory is genuinely thin. |
+| **Derived ratio / average with no list** | **No link** until a meaningful inventory exists (e.g. goals per game). **Leaderboard-only is acceptable when inventory is genuinely thin** — e.g. **win rate** → Rating LB Win rate column (comparison, not inventory). |
 | **Inventory not built yet** | **No link** or plain text until the inventory page ships — do not send users to LB as a stand-in when the user's question is clearly inventory (e.g. DD victims chronology). |
 
 Secondary comparison paths (opening the LB from inside inventory, HoF deep links, Elo column on hub tables) stay on [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) — those are **not** profile hero/mosaic stats.
@@ -59,10 +59,16 @@ Secondary comparison paths (opening the LB from inside inventory, HoF deep links
 | Games | Games tab (`amiga-player-games`) | **Shipped** | Hero `#matching-games` (above list status) |
 | Events | Tournaments tab | **Shipped** | Hero `#k2-player-tournaments-table` (above list status) |
 | World Cups | Tournaments tab, WC filter | **Shipped** | Same status anchor + WC filter |
-| Mosaic — Games | Games tab | **Planned** | Value presently plain text |
+| Mosaic — Games | Games tab | **Shipped** | Same as hero — `#matching-games`; `amiga_profile_lb_slice_player_games_href()` |
+| Mosaic — Wins | Games tab, Result = win | **Shipped** | `?result=win` activates Result listbox + filtered list; `#matching-games` |
+| Mosaic — Draws | Games tab, Result = draw | **Shipped** | `?result=draw` |
+| Mosaic — Losses | Games tab, Result = loss | **Shipped** | `?result=loss` |
+| Mosaic — Win rate | Rating LB, Win rate column | **Shipped** | SSR `k2_sort` (col 7/8) + `#k2-lb-player-{id}`; `amiga_lb_rating_win_rate_player_href()` |
+| Mosaic — Opponent Average | Rating LB, Opponent Average column | **Shipped** | SSR `k2_sort` (col 8/9) + `#k2-lb-player-{id}`; `amiga_lb_rating_opponent_avg_player_href()` |
+| Mosaic — GF · GA · GF/g · GA/g · GD/g · Ratio | Goals LB (cols 4–9) | **Shipped** | SSR sort + `#k2-lb-player-{id}`; GA/g `asc`; `amiga_lb_goals_player_href()` |
 | Mosaic — Events, podiums, medals | Tournament history / filtered views | **Planned** | Mostly plain text today |
 | Mosaic — DD Victims, CS Victims, … | Player victim/culprit chronology (per-type list, first occurrence order) | **Planned** | Inventory-first; not LB |
-| Mosaic — GF, DD count, opponents, … | Filtered games or dedicated lists where they exist | **Planned** / **—** | Ratios → no link until inventory exists |
+| Mosaic — GF, DD count, opponents, … | Filtered games or dedicated lists where they exist | **Planned** / **—** | Other ratios → no link until inventory exists |
 | Mosaic — Peak rating / peak rank values | Establishing tournament or event context | **Partial** | Peak cells may link; rank comparison stays LB-adjacent only where explicitly ladder |
 
 ### Online player profile
