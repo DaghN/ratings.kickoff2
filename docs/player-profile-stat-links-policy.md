@@ -63,8 +63,8 @@ Secondary comparison paths (opening the LB from inside inventory, HoF deep links
 | Mosaic — Wins | Games tab, Result = win | **Shipped** | `?result=win` activates Result listbox + filtered list; `#matching-games` |
 | Mosaic — Draws | Games tab, Result = draw | **Shipped** | `?result=draw` |
 | Mosaic — Losses | Games tab, Result = loss | **Shipped** | `?result=loss` |
-| Mosaic — Win rate | Rating LB, Win rate column | **Shipped** | SSR `k2_sort` (col 7/8) + `#k2-lb-player-{id}`; `amiga_lb_rating_win_rate_player_href()` |
-| Mosaic — Opponent Average | Rating LB, Opponent Average column | **Shipped** | SSR `k2_sort` (col 8/9) + `#k2-lb-player-{id}`; `amiga_lb_rating_opponent_avg_player_href()` |
+| Mosaic — Win rate | Rating LB, Win rate column | **Shipped** | SSR `k2_sort` col 8 + `#k2-lb-player-{id}`; `amiga_lb_rating_win_rate_player_href()` |
+| Mosaic — Opponent Average | Rating LB, Opponent Average column | **Shipped** | SSR `k2_sort` col 9 + `#k2-lb-player-{id}`; `amiga_lb_rating_opponent_avg_player_href()` |
 | Mosaic — GF · GA · GF/g · GA/g · GD/g · Ratio | Goals LB (cols 4–9) | **Shipped** | SSR sort + `#k2-lb-player-{id}`; GA/g `asc`; `amiga_lb_goals_player_href()` |
 | Mosaic — Max GF | Games tab, sort GF desc | **Shipped** | Inventory — peak-scoring game(s); `?sort=goals_for&dir=desc` + `#matching-games`; `amiga_profile_lb_slice_player_games_href()` |
 | Mosaic — Max GA | Games tab, sort GA desc | **Shipped** | `?sort=against&dir=desc` + `#matching-games` |
@@ -80,7 +80,12 @@ Secondary comparison paths (opening the LB from inside inventory, HoF deep links
 | Mosaic — CS Ratio | Double-digits LB col 7 | **Shipped** | SSR sort + player row anchor |
 | Mosaic — DD C Ratio | Double-digits LB col 10 | **Shipped** | SSR sort + player row anchor |
 | Mosaic — CS C Ratio | Double-digits LB col 11 | **Shipped** | SSR sort + player row anchor |
-| Mosaic — Events, podiums, medals | Tournament history / filtered views | **Planned** | Mostly plain text today |
+| Mosaic — Events | Tournaments tab (all events) | **Shipped** | `#k2-player-tournaments-table`; same as hero |
+| Mosaic — Podiums | Tournaments tab, `podium=with-podium` | **Shipped** | Inventory — top-3 finishes |
+| Mosaic — Event gold | Tournaments tab, `winner=with-win` | **Shipped** | Inventory — `is_winner` / finish 1 |
+| Mosaic — Event silver | Tournaments tab, `finish=2` | **Shipped** | URL-only finish filter (no segment tab) |
+| Mosaic — Event bronze | Tournaments tab, `finish=3` | **Shipped** | URL-only finish filter (no segment tab) |
+| Mosaic — Perfect | Tournaments tab, `perfect=with-participant` | **Shipped** | Inventory — perfect-run events |
 | Mosaic — DD Victims, CS Victims, … | Player victim/culprit chronology (per-type list, first occurrence order) | **Planned** | Inventory-first; not LB |
 | Mosaic — GF, DD count, opponents, … | Filtered games or dedicated lists where they exist | **Planned** / **—** | Other ratios → no link until inventory exists |
 | Mosaic — Peak rating / peak rank values | Establishing tournament or event context | **Partial** | Peak cells may link; rank comparison stays LB-adjacent only where explicitly ladder |
@@ -106,7 +111,8 @@ Update this table when a stat gains a link or a new inventory page ships.
 3. **Do not** add LB row links to mosaic values “because HoF does it” — HoF lives in the comparison universe.
 4. **SSR sort + `#k2-lb-player-{id}`** remains valid for **leaderboard** and **hub** drill-downs ([`k2_table_helpers.php`](../site/public_html/includes/k2_table_helpers.php) `k2_lb_sql_order_from_sort`) — not the default for profile stat clicks under this policy. Target wing SSR = Track A ([`k2-lb-ssr-sort-policy.md`](k2-lb-ssr-sort-policy.md)).
 5. **Track B execution handoff:** [`orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md) — one stat at a time; readback before code.
+6. **Amiga rating LB column indices** are fixed (`AMIGA_LB_RATING_COL_*` in `amiga_lb_lib.php`) — Win rate=8, Opp avg=9; do not reintroduce conditional Δ hide/show without re-auditing HoF and comparison hrefs ([`k2-lb-ssr-sort-policy.md`](k2-lb-ssr-sort-policy.md) SSR-13).
 
 ---
 
-*Last updated: Jul 2026 — inventory-first on player profile; leaderboards for comparison; rank/rating remain ladder exceptions.*
+*Last updated: Jul 2026 — inventory-first on player profile; leaderboards for comparison; rank/rating remain ladder exceptions; rating LB fixed column map.*

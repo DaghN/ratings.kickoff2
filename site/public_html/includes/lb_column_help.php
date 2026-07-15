@@ -67,6 +67,11 @@ function k2_lb_help_nadir(): string
     return 'Your career low Elo after 20 rated games. Dash (—) until then.';
 }
 
+function k2_lb_help_amiga_profile_nadir(): string
+{
+    return 'Your career low Elo after 20 rated games. Date below is the tournament day when that nadir was first reached. Dash (—) until then.';
+}
+
 function k2_lb_help_opponent_avg(): string
 {
     return 'Average Elo of opponents you have faced (career).';

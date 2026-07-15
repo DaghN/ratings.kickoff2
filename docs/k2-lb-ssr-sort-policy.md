@@ -1,6 +1,6 @@
 # K2 leaderboard server-side sort (SSR) — policy
 
-**Status:** **Planned** (Jul 2026). Track **A** — leaderboard **page** upgrades only.
+**Status:** **In progress** (Jul 2026). Track **A** — leaderboard **page** upgrades only. **Slice 1 shipped** (Amiga career batch 1); **next:** slice 2 (perf-rating top/perfect).
 
 **Authority:** Dagh's latest message → this doc → [`k2-lb-ssr-sort-implementation-plan.md`](k2-lb-ssr-sort-implementation-plan.md). Table stack contract: [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md). Deep-link column indices (HoF): [`amiga_records_hof_links.php`](../site/public_html/includes/amiga_records_hof_links.php) (Amiga) · [`records_hof_links.php`](../site/public_html/includes/records_hof_links.php) (online). **Profile mosaic link wiring** is **Track B** — [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) — not this track.
 
@@ -34,6 +34,7 @@ Hub leaderboard wings use `k2-table.js` for column sort. When a user lands with 
 | **SSR-10** | **Track B is separate.** Wiring profile mosaic cells (`amiga_lb_*_player_href`, games inventory links) ships in [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) — optional in the same slice only when Dagh asks; not required for HoF parity. |
 | **SSR-11** | **Reference implementations (copy first).** Amiga career: `amiga/leaderboards/goals.php` + `amiga_lb_goals_order_column_map()` in `amiga_lb_lib.php`. Also: `rating.php`, `double-digits.php`. Online: `leaderboards/activity/peaks.php`. |
 | **SSR-12** | **Player row anchors.** HoF uses `#k2-lb-table` (table top). Profile comparison uses `#k2-lb-player-{id}`. Do **not** change HoF anchors to player rows as part of Track A unless Dagh opens a separate product slice. |
+| **SSR-13** | **Amiga rating LB — Δ column always visible.** Fixed 0-based indices in `amiga_lb_lib.php`: `AMIGA_LB_RATING_COL_DELTA`=3, Games=4, Wins=5, Win rate=8, Opp avg=9. HoF `most_games` / `most_wins` / `win_ratio` use 4 / 5 / 8. Cell values still switch by lens (present = WC-start Δ; TT = event Δ) — only column **visibility** is unconditional. |
 
 ---
 
@@ -82,13 +83,19 @@ User clicks another <th>  →  k2-table.js client reorder only (no navigation)
 
 Single-game HoF rows → **Games highlights** — out of scope.
 
+### HoF column parity (Jul 2026 audit)
+
+Static maps in `amiga_records_hof_links.php` / `records_hof_links.php` were checked against live `<th>` order. **Amiga career + WC + online checked maps match** — no href rewrites needed. **Amiga rating** HoF indices assume the always-visible Δ layout (SSR-13). Do not reintroduce conditional Δ hide/show without re-auditing HoF and profile comparison links.
+
 ---
 
 ## 5) Wing register (SSR status)
 
-**Shipped (Amiga career):** `rating.php`, `goals.php`, `double-digits.php`, `victims.php`, `peak-rating.php`, `tournament-honours.php`, `calendar-geo.php`, `performance-rating/best.php`
+**Shipped (Amiga WC player stats):** `world-cups/players/honours.php`, `results.php`, `goals.php`, `dds.php`, `opponents.php` (shared `amiga_wc_players_table.php` + `amiga_slice_snapshot_lib.php`)
 
-**Shipped (online):** `leaderboards/activity/peaks.php`
+**Shipped (Amiga career):** `rating.php`, `goals.php`, `double-digits.php`, `victims.php`, `peak-rating.php`, `tournament-honours.php`, `calendar-geo.php`, `performance-rating/best.php`, `performance-rating/top.php`, `performance-rating/perfect.php` (full perf-rating wing set)
+
+**Shipped (online):** `leaderboards/rating.php`, `goals.php`, `double-digits.php`, `victims.php`, `peak-rating.php`, `activity/peaks.php`
 
 **Legacy (Track A backlog):** see implementation plan § Wing register.
 
@@ -103,6 +110,7 @@ Single-game HoF rows → **Games highlights** — out of scope.
 | Update URL on every header click | Would reload pages; breaks filter toggles and TT |
 | One mega-PR for all ~25 wings | No manual QA gate; Dagh asked for ~5-table slices |
 | Fold profile mosaic wiring into every SSR slice | Track B has its own policy register and inventory-first rules |
+| Conditional hide/show of Amiga rating Δ column | Steady-state always has WC or TT lens; fixed cols simplify HoF + profile links (SSR-13) |
 
 ---
 

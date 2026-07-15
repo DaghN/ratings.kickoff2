@@ -262,3 +262,150 @@ function k2_lb_rating_cell_link(int $playerId, mixed $rating, string $playerName
         . ' data-k2-player-glance-rating="' . $playerId . '">'
         . k2_h($display) . '</a>';
 }
+
+/** Default ORDER BY tail for online rating LB (no leading ORDER BY). */
+function k2_lb_rating_default_order_sql(): string
+{
+    return 'Rating DESC';
+}
+
+/**
+ * Sortable column index → SQL expression for online rating LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function k2_lb_rating_order_column_map(): array
+{
+    return [
+        1 => 'Name',
+        2 => 'Rating',
+        3 => 'NumberGames',
+        4 => 'NumberWins',
+        5 => 'NumberDraws',
+        6 => 'NumberLosses',
+        7 => 'WinRatio',
+        8 => 'DrawRatio',
+        9 => 'LossRatio',
+        10 => 'AverageOpponentRating',
+    ];
+}
+
+/** Default ORDER BY tail for online goals LB (no leading ORDER BY). */
+function k2_lb_goals_default_order_sql(): string
+{
+    return 'GoalsFor DESC, Rating DESC';
+}
+
+/**
+ * Sortable column index → SQL expression for online goals LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function k2_lb_goals_order_column_map(): array
+{
+    $ratio = static fn (string $col): string => "(CASE WHEN `{$col}` IS NULL OR `{$col}` < 0 THEN NULL ELSE `{$col}` END)";
+
+    return [
+        1 => 'Name',
+        2 => 'Rating',
+        3 => 'NumberGames',
+        4 => 'GoalsFor',
+        5 => 'GoalsAgainst',
+        6 => 'AverageGoalsFor',
+        7 => 'AverageGoalsAgainst',
+        8 => $ratio('GoalRatio'),
+        9 => 'MostGoalsScored',
+        10 => 'MostGoalsConceded',
+        11 => 'BiggestWinDifference',
+        12 => 'BiggestLossDifference',
+        13 => 'BiggestSumOfGoals',
+        14 => 'BiggestDrawSum',
+    ];
+}
+
+/** Default ORDER BY tail for online double-digits LB (no leading ORDER BY). */
+function k2_lb_double_digits_default_order_sql(): string
+{
+    return 'DoubleDigits DESC, Rating DESC';
+}
+
+/**
+ * Sortable column index → SQL expression for online double-digits LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function k2_lb_double_digits_order_column_map(): array
+{
+    $ratio = static fn (string $col): string => "(CASE WHEN `{$col}` IS NULL OR `{$col}` < 0 THEN NULL ELSE `{$col}` END)";
+
+    return [
+        1 => 'Name',
+        2 => 'Rating',
+        3 => 'NumberGames',
+        4 => 'DoubleDigits',
+        5 => 'CleanSheets',
+        6 => $ratio('DoubleDigitsRatio'),
+        7 => $ratio('CleanSheetsRatio'),
+        8 => 'DoubleDigitsConceded',
+        9 => 'CleanSheetsConceded',
+        10 => $ratio('DoubleDigitsConcededRatio'),
+        11 => $ratio('CleanSheetsConcededRatio'),
+    ];
+}
+
+/** Default ORDER BY tail for online victims LB (no leading ORDER BY). */
+function k2_lb_victims_default_order_sql(): string
+{
+    return 'DifferentOpponents DESC, Rating DESC';
+}
+
+/**
+ * Sortable column index → SQL expression for online victims LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function k2_lb_victims_order_column_map(): array
+{
+    return [
+        1 => 'Name',
+        2 => 'Rating',
+        3 => 'NumberGames',
+        4 => 'DifferentOpponents',
+        5 => 'DifferentVictims',
+        6 => 'DifferentCulprits',
+        7 => 'DoubleDigitsVictims',
+        8 => 'DoubleDigitsCulprits',
+        9 => 'MostGoalsConcededVictims',
+        10 => 'BiggestLossVictims',
+        11 => 'CleanSheetsVictims',
+        12 => 'CleanSheetsCulprits',
+        13 => 'MostGoalsScoredCulprits',
+        14 => 'BiggestWinCulprits',
+    ];
+}
+
+/** Default ORDER BY tail for online peak-rating LB (no leading ORDER BY). */
+function k2_lb_peak_rating_default_order_sql(): string
+{
+    return 'p.`PeakRating` DESC, p.`Rating` DESC';
+}
+
+/**
+ * Sortable column index → SQL expression for online peak-rating LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function k2_lb_peak_rating_order_column_map(): array
+{
+    return [
+        1 => 'p.`Name`',
+        2 => 'p.`Rating`',
+        3 => 'p.`NumberGames`',
+        4 => 'p.`PeakRating`',
+        5 => 'rr.`Date`',
+        6 => 'p.`LowestRating`',
+        7 => 'p.`AverageOpponentRating`',
+        8 => 'p.`HighestRatedVictim`',
+        9 => 'p.`LowestRatedCulprit`',
+    ];
+}

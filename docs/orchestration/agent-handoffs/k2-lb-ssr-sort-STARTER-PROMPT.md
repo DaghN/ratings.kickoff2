@@ -4,7 +4,7 @@
 **Policy:** [`docs/k2-lb-ssr-sort-policy.md`](../../k2-lb-ssr-sort-policy.md)  
 **Plan:** [`docs/k2-lb-ssr-sort-implementation-plan.md`](../../k2-lb-ssr-sort-implementation-plan.md)  
 **Track B (separate):** Profile mosaic links — [`amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](amiga-profile-mosaic-stat-links-STARTER-PROMPT.md)  
-**Status:** Planned — slices **1–6** not yet executed (Jul 2026). Slices **0** (doc trio) done.
+**Status:** **In progress** (Jul 2026) — slices **0–1** shipped; **next:** slice **2** (perf-rating top + perfect).
 
 ---
 
@@ -18,7 +18,7 @@ You are Dagh's **K2 leaderboard server-side sort (Track A)** agent.
 **Track B (out of scope unless Dagh asks):** profile mosaic stat links — docs/player-profile-stat-links-policy.md.
 
 **Read first (in order):**
-1. docs/k2-lb-ssr-sort-policy.md (SSR-1 through SSR-12)
+1. docs/k2-lb-ssr-sort-policy.md (SSR-1 through SSR-13)
 2. docs/k2-lb-ssr-sort-implementation-plan.md (wing register + current slice)
 3. docs/k2-table-implementation-checklist.md §1 hub LB row
 4. Reference implementation: site/public_html/amiga/leaderboards/goals.php + amiga_lb_goals_order_column_map() in includes/amiga_lb_lib.php
@@ -36,18 +36,18 @@ You are Dagh's **K2 leaderboard server-side sort (Track A)** agent.
 - UTF-8 on Windows: StrReplace on existing PHP; new files via PowerShell UTF-8 — never agent Write on .php
 
 **Already shipped (do not redo):**
-- Amiga: rating.php, goals.php, double-digits.php
+- Amiga: rating.php, goals.php, double-digits.php, victims.php, peak-rating.php, tournament-honours.php, calendar-geo.php, performance-rating/best.php
 - Online: leaderboards/activity/peaks.php
 
 **Slice map (ask Dagh which slice if unclear):**
-| Slice | Wings |
-|-------|-------|
-| 1 | Amiga: victims, peak-rating, tournament-honours, calendar-geo, perf-rating/best |
-| 2 | Amiga: perf-rating/top, perf-rating/perfect (+ shared table lib) |
-| 3 | Amiga WC: world-cups/players honours, results, goals, dds, opponents |
-| 4 | Online: rating, goals, double-digits, victims, peak-rating |
-| 5 | Online: league-honours, milestones, streaks, activity/in-a-row, activity/participation |
-| 6 | Closure — policy Implemented, register complete |
+| Slice | Wings | Status |
+|-------|-------|--------|
+| 1 | Amiga: victims, peak-rating, tournament-honours, calendar-geo, perf-rating/best | **Done** |
+| 2 | Amiga: perf-rating/top, perf-rating/perfect (+ shared table lib) | **Next** |
+| 3 | Amiga WC: world-cups/players honours, results, goals, dds, opponents | Planned |
+| 4 | Online: rating, goals, double-digits, victims, peak-rating | Planned |
+| 5 | Online: league-honours, milestones, streaks, activity/in-a-row, activity/participation | Planned |
+| 6 | Closure — policy Implemented, register complete | Planned |
 
 **Per-wing recipe:**
 1. k2_lb_table_sort_state($defaultCol)
@@ -64,7 +64,7 @@ You are Dagh's **K2 leaderboard server-side sort (Track A)** agent.
 - Amiga: one URL with as=
 
 **First message (CRITICAL):**
-1. Restate mission + which slice Dagh wants (default: slice 1)
+1. Restate mission + which slice Dagh wants (default: slice **2**)
 2. List the 5 target wings and reference files you will copy
 3. **Do not edit code until Dagh says go**
 
@@ -75,4 +75,8 @@ You are Dagh's **K2 leaderboard server-side sort (Track A)** agent.
 
 ## Execution log
 
-_(Agent appends one line per closed slice.)_
+| Date | Slice | Note |
+|------|-------|------|
+| 2026-07-15 | 0 | Doc trio |
+| 2026-07-15 | 1 | Amiga career batch 1 — SSR + column maps |
+| 2026-07-15 | — | Rating LB Δ always visible; fixed `AMIGA_LB_RATING_COL_*` (SSR-13) |

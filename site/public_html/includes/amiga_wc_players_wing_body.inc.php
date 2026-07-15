@@ -8,7 +8,9 @@
 declare(strict_types=1);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_slice_snapshot_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_wc_players_table.php';
 
 $k2AmigaWcPlayersView = $k2AmigaWcPlayersView
@@ -21,9 +23,15 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 $con->query("SET time_zone = '+00:00'");
 $ctx = amiga_lb_context($con);
 
-$rows = amiga_wc_lb_rows_for_view($con, $ctx, $k2AmigaWcPlayersView);
+$defaultSortCol = amiga_lb_wc_players_default_sort_col($k2AmigaWcPlayersView);
+$lbSort = k2_lb_table_sort_state($defaultSortCol);
+$lbDefaultOrder = amiga_lb_wc_slice_order_sql($k2AmigaWcPlayersView, 'wcs');
+$lbOrderMap = amiga_lb_wc_slice_order_column_map($k2AmigaWcPlayersView, 'wcs');
+$lbSqlOrder = k2_lb_sql_order_from_sort($lbSort, $lbOrderMap, $lbDefaultOrder);
+
+$rows = amiga_wc_lb_rows_for_view($con, $ctx, $k2AmigaWcPlayersView, $lbSqlOrder['order_clause']);
 $playerCount = amiga_wc_honours_player_count($con, $ctx);
 
 mysqli_close($con);
 
-amiga_wc_players_render_view($k2AmigaWcPlayersView, $rows, $playerCount);
+amiga_wc_players_render_view($k2AmigaWcPlayersView, $rows, $playerCount, $lbSort, $lbSqlOrder);

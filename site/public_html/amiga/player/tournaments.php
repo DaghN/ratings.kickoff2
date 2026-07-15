@@ -58,6 +58,8 @@ if ($podiumFilter !== 'with-podium') {
     $podiumFilter = '';
 }
 
+$finishFilter = amiga_player_tournaments_valid_finish_filter($_GET['finish'] ?? null);
+
 $allTournamentRows = amiga_player_tournament_participation_all($con, $playerId);
 $catalogCountries = array_keys(amiga_tournament_index_country_counts($allTournamentRows));
 $catalogYears = array_keys(amiga_tournament_index_year_counts($allTournamentRows));
@@ -85,7 +87,8 @@ $countryFacetRows = amiga_player_tournament_participation_filter_events(
     $yearFilter,
     $perfectFilter,
     $winnerFilter,
-    $podiumFilter
+    $podiumFilter,
+    $finishFilter
 );
 $yearFacetRows = amiga_player_tournament_participation_filter_events(
     $allTournamentRows,
@@ -94,7 +97,8 @@ $yearFacetRows = amiga_player_tournament_participation_filter_events(
     0,
     $perfectFilter,
     $winnerFilter,
-    $podiumFilter
+    $podiumFilter,
+    $finishFilter
 );
 $countryCounts = amiga_tournament_index_inject_selected_country(
     amiga_tournament_index_country_counts($countryFacetRows),
@@ -114,7 +118,8 @@ $tournaments = amiga_player_tournament_participation_filter_events(
     $yearFilter,
     $perfectFilter,
     $winnerFilter,
-    $podiumFilter
+    $podiumFilter,
+    $finishFilter
 );
 $tournamentCount = count($tournaments);
 $listSummary = amiga_player_tournaments_list_summary(
@@ -126,6 +131,7 @@ $listSummary = amiga_player_tournaments_list_summary(
     $perfectFilter,
     $winnerFilter,
     $podiumFilter,
+    $finishFilter,
 );
 $tournamentsFilterAction = k2_amiga_route('amiga-player-tournaments');
 $filtersActive = amiga_player_tournaments_filters_active(
@@ -134,7 +140,8 @@ $filtersActive = amiga_player_tournaments_filters_active(
     $yearFilter,
     $perfectFilter,
     $winnerFilter,
-    $podiumFilter
+    $podiumFilter,
+    $finishFilter,
 );
 amiga_player_publish_hero_context($pm, $con);
 $k2AmigaPlayerHasVideos = amiga_player_has_videos($playerId, $con, amiga_snapshot_context_peek());
@@ -158,6 +165,7 @@ $k2PlayerTournamentsEventFilter = $eventFilter;
 $k2PlayerTournamentsPerfectFilter = $perfectFilter;
 $k2PlayerTournamentsWinnerFilter = $winnerFilter;
 $k2PlayerTournamentsPodiumFilter = $podiumFilter;
+$k2PlayerTournamentsFinishFilter = $finishFilter;
 $k2PlayerTournamentsCountryFilter = $countryFilter;
 $k2PlayerTournamentsYearFilter = $yearFilter;
 $k2PlayerTournamentsCountryChoices = $countryChoices;

@@ -83,6 +83,8 @@ Phase 4 — Slices      (execute one slice per session; handoff files)
 | Amiga standings scope | [`amiga-standings-scope-policy.md`](../amiga-standings-scope-policy.md) |
 | Amiga tournament structure | [`amiga-tournament-structure-policy.md`](../amiga-tournament-structure-policy.md) |
 | Online stored truth | Often [`website-data-contract.md`](../website-data-contract.md) + a focused addendum |
+| K2 LB SSR sort (Track A) | [`k2-lb-ssr-sort-policy.md`](../k2-lb-ssr-sort-policy.md) |
+| Amiga profile mosaic stat links (Track B) | [`player-profile-stat-links-policy.md`](../player-profile-stat-links-policy.md) |
 
 ---
 
@@ -112,6 +114,7 @@ Phase 4 — Slices      (execute one slice per session; handoff files)
 | Amiga standings scope | [`amiga-standings-scope-implementation-plan.md`](../amiga-standings-scope-implementation-plan.md) |
 | Amiga tournament structure | [`amiga-tournament-structure-implementation-plan.md`](../amiga-tournament-structure-implementation-plan.md) |
 | Amiga player universe | [`amiga-player-universe-implementation-plan.md`](../amiga-player-universe-implementation-plan.md) |
+| K2 LB SSR sort | [`k2-lb-ssr-sort-implementation-plan.md`](../k2-lb-ssr-sort-implementation-plan.md) |
 
 ---
 
@@ -136,7 +139,7 @@ When a track **closes**, move its starter + slice handoffs to `docs/archive/orch
   - **Start command** (“Do slice 0” unless user specifies otherwise)
 - Mark **COMPLETE** at top when the track finishes (context only — do not restart migration)
 
-**Examples:** [`amiga-event-finish-STARTER-PROMPT.md`](../archive/orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md), [`amiga-standings-scope-STARTER-PROMPT.md`](../archive/orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md)
+**Examples:** [`amiga-event-finish-STARTER-PROMPT.md`](../archive/orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md), [`amiga-standings-scope-STARTER-PROMPT.md`](../archive/orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md), [`k2-lb-ssr-sort-STARTER-PROMPT.md`](agent-handoffs/k2-lb-ssr-sort-STARTER-PROMPT.md), [`amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md)
 
 ---
 

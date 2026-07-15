@@ -30,7 +30,13 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_peak_rating_lib.php';
 
-$result = k2_lb_peak_rating_query($con);
+$colPeak = 4;
+$lbSort = k2_lb_table_sort_state($colPeak);
+$lbDefaultOrder = k2_lb_peak_rating_default_order_sql();
+$lbOrderMap = k2_lb_peak_rating_order_column_map();
+$lbSqlOrder = k2_lb_sql_order_from_sort($lbSort, $lbOrderMap, $lbDefaultOrder);
+
+$result = k2_lb_peak_rating_query($con, $lbSqlOrder['order_clause']);
 $queryError = $result === false;
 mysqli_close($con);
 ?>
@@ -44,9 +50,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
 <p class="server-peak-period-leaderboard-status">Could not load peak ratings.</p>
 <?php } else { ?>
 <?php k2_table_wrap_open(true); ?>
-<?php $lbSort = k2_lb_table_sort_state(4); ?>
-
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $colPeak, 'desc', $lbSqlOrder['ssr_applied_url_sort']); ?>>
 
 <thead>
     <tr>

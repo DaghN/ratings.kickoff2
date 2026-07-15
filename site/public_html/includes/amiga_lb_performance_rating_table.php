@@ -54,8 +54,9 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows, ?ar
     $infinityHelp = amiga_perf_rating_perfect_infinity_help();
     $gamesHelp = 'Games in the listed event.';
 
-    $skipInitialSortAttr = $view === 'best' && $lbSqlOrder !== null
-        ? k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $defaultSortCol, 'desc', $lbSqlOrder['ssr_applied_url_sort'])
+    $defaultSortDir = 'desc';
+    $skipInitialSortAttr = $lbSqlOrder !== null
+        ? k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $defaultSortCol, $defaultSortDir, $lbSqlOrder['ssr_applied_url_sort'])
         : k2_table_skip_initial_sort_attr($defaultSortCol);
 
     k2_table_wrap_open(true);

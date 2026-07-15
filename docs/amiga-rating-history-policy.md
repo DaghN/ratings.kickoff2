@@ -105,7 +105,7 @@ Chevrons: previous / next **calendar year** in the continuous range.
 
 ### 3.6 Δ column (present day — since last World Cup start)
 
-**Surface:** `/amiga/leaderboards/rating.php` when **not** in time travel (`as=` absent).
+**Surface:** `/amiga/leaderboards/rating.php` when **not** in time travel (`as=` absent). The **Δ** column is **always rendered** on the Rating wing (Jul 2026); only cell values and tooltip copy switch between present and time-travel lenses.
 
 | Field | Rule |
 |-------|------|

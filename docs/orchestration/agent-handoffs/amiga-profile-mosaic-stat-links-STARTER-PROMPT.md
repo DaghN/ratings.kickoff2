@@ -3,7 +3,7 @@
 **Use a new chat.** Paste the **COPY INTO NEW CHAT** block below (click copy icon).  
 **Policy (authority + register):** [`docs/player-profile-stat-links-policy.md`](../../player-profile-stat-links-policy.md)  
 **Track A (separate):** LB server-side sort — [`k2-lb-ssr-sort-STARTER-PROMPT.md`](k2-lb-ssr-sort-STARTER-PROMPT.md) (comparison links benefit when target wing is SSR; do not mix tracks unless Dagh asks).  
-**Status:** In progress (Jul 2026) — Results · Goals · DD/CS mosaics largely **Shipped**; Victims · Tournament honours · Calendar · Peak · Activity rows **Planned**.
+**Status:** In progress (Jul 2026) — Results · Goals · DD/CS · **Tournament honours** mosaics **Shipped**; Victims · Calendar · Peak · Activity rows **Planned**.
 
 **Smoke player:** `id=149` on `/amiga/player/profile.php` (present + one `as=` URL when TT-relevant).
 
@@ -26,7 +26,7 @@ You are Dagh's **Amiga profile mosaic stat links (Track B)** agent.
 1. docs/player-profile-stat-links-policy.md — §2 policy + §4 register (Shipped vs Planned)
 2. site/public_html/includes/amiga_profile_lb_slices.php — render rows + enrich_*_link_context helpers
 3. site/public_html/includes/amiga_player_games_lib.php — games tab URL params (gf_min, ga_max, sort, result, as=)
-4. site/public_html/includes/amiga_lb_lib.php — amiga_lb_*_player_href() for comparison links
+4. site/public_html/includes/amiga_lb_lib.php — amiga_lb_*_player_href() for comparison links (rating cols: `AMIGA_LB_RATING_COL_WIN_RATE`=8, `OPP_AVG`=9)
 5. docs/amiga-time-travel-policy.md §3 + docs/with-player-stepper-policy.md — preserve `as=` on all internal links via amiga_url_with_context() / amiga_profile_lb_slice_player_games_href()
 6. docs/k2-table-entity-links-policy.md — k2-link-star styling; #k2-lb-player-{id} vs #matching-games
 
@@ -43,12 +43,12 @@ You are Dagh's **Amiga profile mosaic stat links (Track B)** agent.
 - Results mosaic: Games / Wins / Draws / Losses → Games tab; Win rate & Opponent Average → Rating LB row
 - Goals mosaic: GF–Ratio → Goals LB; Max GF/GA/win/loss/sum/draw → Games tab inventory sorts
 - DD/CS mosaic: DD / CS / DD conceded / CS conceded counts → Games tab URL bounds; four ratio cells → Double-digits LB
+- **Tournament honours mosaic:** Events · Podiums · gold/silver/bronze · Perfect → Tournaments tab filters + `#k2-player-tournaments-table`
 
 **Backlog (policy §4 — pick what Dagh names next):**
 | Section | Cells | Likely destination |
 |---------|-------|-------------------|
 | Victims & Culprits | Opponents, Victims, DD/CS/MGC/BL victims, Culprits, … | **Inventory** — opponent/victim chronology (may need new list surface; not victims LB) |
-| Tournament honours | Events, Podiums, medals, Perfect | Tournaments tab + filters / anchors |
 | Calendar & geography | Peak games/events, host countries, countries faced/beaten | Tournaments tab, countries hub, or filtered games — propose per stat |
 | Peak rating | Peak rating, peak rank, dates, nadir, highest victim, lowest culprit | Partial infra in amiga_lb_peak_rating_lib.php — establishing game / tournament context |
 | Activity (first rows) | Last/first tournament, WC boundaries | Tournament links (stacked cells) — may already have event ids in row |
@@ -79,4 +79,6 @@ _(Agent appends one line per shipped stat or group.)_
 
 | Date | Shipped |
 |------|---------|
+| 2026-07-15 | **Tournament honours mosaic (all 6 cells)** — Events · Podiums · gold (`winner`) · silver (`finish=2`) · bronze (`finish=3`) · Perfect → Tournaments tab + `#k2-player-tournaments-table` |
 | 2026-07-15 | Doc trio context — Results, Goals, DD/CS mosaics shipped in prior sessions (see policy §4) |
+| 2026-07-15 | Rating LB fixed columns (SSR-13) — win rate / opp avg comparison hrefs use cols 8–9 |

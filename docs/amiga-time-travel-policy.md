@@ -195,7 +195,7 @@ Phase 1 proved the **data lens**: one `as=` cutoff, correct snapshot reads, link
 | **Temporal stamp** | LED date banner above the ribbon | Persistent **when** cue — “you are here in time” separate from navigation controls; sci-fi terminal mood (mono kicker + DSEG7 segments + blinking `_`) |
 | **Snapshot ribbon** | Event · Month · Year stepper + picker | Functional **how you move** through time — unchanged phase-1 contract (§5.1) |
 | **Hub section chapter** | `k2-hub-chapter` title + lede on hub tabs | **Always shown** in present day and under `as=` — stamp answers **when**; chapter answers **what section** you are in; lede counts follow cutoff when snapshot-aware |
-| **Rating LB Δ column** | Wing-step Elo change after Elo when `as=` active | Data companion to the stamp — “what moved since the previous step in this mode” |
+| **Rating LB Δ column** | Always-visible column after Elo on Rating wing | Present = Δ since last WC start (§3.6); under `as=` = wing-step Δ (§3.5) — same chrome, lens-dependent values |
 
 **What success looks like**
 
@@ -235,7 +235,7 @@ When inactive: header segment only; no ribbon below/above nav.
 
 **Temporal stamp (when `as=` active, v1 static):** see §5.0 for product intent. Implementation: shared `.k2-amiga-tt-stamp` in `k2-page-nav`, **below wordmark / above snapshot ribbon** on every Amiga page with active time travel. Render: `amiga_time_travel_stamp_render($ctx)` from `amiga_snapshot_chrome_render_active()`; helper in `includes/amiga_time_travel_stamp.php`.
 
-**Rating LB Δ column (when `as=` active):** Leaderboards → Rating only — extra **Δ** column after Elo; wing-step change vs previous snapshot in the active wing (same rules as [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md) §3.5). `amiga_lb_rating_delta_map()` + cell helpers in `amiga_lb_snapshot_lib.php`. Column tooltip: title **Rating change (time travel mode)**; body *Change in Elo rating since the previous snapshot in the chosen mode (year, month, or event).* — `k2_lb_amiga_rating_delta_column_help_attrs()`.
+**Rating LB Δ column (always visible):** Leaderboards → Rating — **Δ** column after Elo on every visit. **Present day:** change since start of most recent World Cup ([`amiga-rating-history-policy.md`](amiga-rating-history-policy.md) §3.6). **When `as=` active:** wing-step change vs previous snapshot in the active wing (§3.5). `amiga_lb_rating_delta_map()` + cell helpers in `amiga_lb_snapshot_lib.php`; fixed column index `AMIGA_LB_RATING_COL_DELTA` in `amiga_lb_lib.php` ([`k2-lb-ssr-sort-policy.md`](k2-lb-ssr-sort-policy.md) SSR-13). Column tooltip switches by lens — TT: **Rating change (time travel mode)**; present: WC-start copy via `k2_lb_amiga_rating_delta_column_help_attrs()`.
 
 #### 5.1.1 Event ribbon layout (shipped Jun 2026)
 

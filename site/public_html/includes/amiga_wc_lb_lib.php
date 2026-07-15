@@ -152,7 +152,7 @@ function amiga_wc_lb_attach_player_meta_at_cutoff(
  *
  * @return list<array<string, mixed>>
  */
-function amiga_wc_lb_rows_for_view(mysqli $con, AmigaSnapshotContext $ctx, string $view): array
+function amiga_wc_lb_rows_for_view(mysqli $con, AmigaSnapshotContext $ctx, string $view, ?string $orderClause = null): array
 {
     $allowed = ['honours', 'results', 'goals', 'dds', 'opponents'];
     if (!in_array($view, $allowed, true)) {
@@ -160,11 +160,11 @@ function amiga_wc_lb_rows_for_view(mysqli $con, AmigaSnapshotContext $ctx, strin
     }
 
     if ($ctx->isActive()) {
-        $sliceRows = amiga_lb_wc_slice_rows_at_cutoff($con, $ctx, $view);
+        $sliceRows = amiga_lb_wc_slice_rows_at_cutoff($con, $ctx, $view, $orderClause);
 
         $rows = amiga_wc_lb_attach_player_meta_at_cutoff($con, $ctx, $sliceRows);
     } else {
-        $sliceRows = amiga_lb_wc_slice_rows_present($con, $view);
+        $sliceRows = amiga_lb_wc_slice_rows_present($con, $view, $orderClause);
 
         $rows = amiga_wc_lb_attach_player_meta_present($con, $sliceRows);
     }

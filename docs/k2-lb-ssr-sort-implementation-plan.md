@@ -1,6 +1,6 @@
 # K2 leaderboard server-side sort (SSR) — implementation plan
 
-**Status:** **Planned** (Jul 2026)  
+**Status:** **In progress** (Jul 2026) — slice **1** shipped; **next:** slice **2** (perf-rating top + perfect).  
 **Policy:** [`k2-lb-ssr-sort-policy.md`](k2-lb-ssr-sort-policy.md)  
 **Starter prompt:** [`orchestration/agent-handoffs/k2-lb-ssr-sort-STARTER-PROMPT.md`](orchestration/agent-handoffs/k2-lb-ssr-sort-STARTER-PROMPT.md)
 
@@ -65,8 +65,8 @@ Status key: **Shipped** · **Legacy** (Track A backlog)
 | Tournament honours | `tournament-honours.php` | 3 (Events) | `amiga_tournament_honours_leaderboard_rows()` | **Shipped** |
 | Calendar & geo | `calendar-geo.php` | 3 (Games in year) | `amiga_calendar_geo_leaderboard_rows()` | **Shipped** |
 | Perf. rating — Best | `performance-rating/best.php` | per view | `amiga_lb_performance_rating_table.php` | **Shipped** |
-| Perf. rating — Top 100 | `performance-rating/top.php` | per view | shared table include | **Legacy** |
-| Perf. rating — Perfect | `performance-rating/perfect.php` | per view | shared table include | **Legacy** |
+| Perf. rating — Top 100 | `performance-rating/top.php` | per view | shared table include | **Shipped** |
+| Perf. rating — Perfect | `performance-rating/perfect.php` | per view | shared table include | **Shipped** |
 
 ### Amiga — World Cups player stats (`/amiga/world-cups/players/`)
 
@@ -74,11 +74,11 @@ HoF paths via `amiga_records_hof_lb_wing_path()` — **not** `leaderboards/world
 
 | Wing | Page | SSR |
 |------|------|-----|
-| Honours | `honours.php` | **Legacy** |
-| Results | `results.php` | **Legacy** |
-| Goals | `goals.php` | **Legacy** |
-| DDs | `dds.php` | **Legacy** |
-| Opponents | `opponents.php` | **Legacy** |
+| Honours | `honours.php` | **Shipped** |
+| Results | `results.php` | **Shipped** |
+| Goals | `goals.php` | **Shipped** |
+| DDs | `dds.php` | **Shipped** |
+| Opponents | `opponents.php` | **Shipped** |
 
 Shared table stack: `includes/amiga_wc_players_table.php` — one SSR upgrade may cover all five pages.
 
@@ -86,11 +86,11 @@ Shared table stack: `includes/amiga_wc_players_table.php` — one SSR upgrade ma
 
 | Wing | Page | Default sort col | SSR |
 |------|------|------------------|-----|
-| Rating | `rating.php` | 2 (Elo) | **Legacy** |
-| Goals | `goals.php` | 4 (GF) | **Legacy** |
-| Double digits | `double-digits.php` | 4 (DD) | **Legacy** |
-| Victims | `victims.php` | 4 (Opponents) | **Legacy** |
-| Peak rating | `peak-rating.php` | 4 (Peak) | **Legacy** |
+| Rating | `rating.php` | 2 (Elo) | **Shipped** |
+| Goals | `goals.php` | 4 (GF) | **Shipped** |
+| Double digits | `double-digits.php` | 4 (DD) | **Shipped** |
+| Victims | `victims.php` | 4 (Opponents) | **Shipped** |
+| Peak rating | `peak-rating.php` | 4 (Peak) | **Shipped** |
 | League honours | `league-honours.php` | 4 (Gold) | **Legacy** |
 | Milestones | `milestones.php` | 8 (Count) | **Legacy** |
 | Streaks | `streaks.php` | 4 (Win streak) | **Legacy** |
@@ -153,28 +153,42 @@ grep `'page' => 'lb-` in file when QAing online slices — metrics span rating, 
 
 | Slice | Deliverable | Wings (5 max) | STOP gate |
 |-------|-------------|---------------|-----------|
-| **0** | Doc trio (policy + plan + starter prompt) | — | Dagh has copy-paste prompt |
-| **1** | Amiga career SSR batch 1 | victims, peak-rating, tournament-honours, calendar-geo, perf-rating/best | Browser: 5 wings + HoF rows in § parity; `as=` on one URL per wing |
-| **2** | Amiga career SSR batch 2 | perf-rating/top, perf-rating/perfect (+ shared table lib closure) | Browser: 3 perf views; policy register updated |
+| **0** | Doc trio (policy + plan + starter prompt) | — | **Done** |
+| **1** | Amiga career SSR batch 1 | victims, peak-rating, tournament-honours, calendar-geo, perf-rating/best | **Done** (code); HoF browser smoke optional per wing |
+| **2** | Amiga career SSR batch 2 | perf-rating/top, perf-rating/perfect (+ shared table lib closure) | Browser: 2 perf views; policy register updated |
 | **3** | Amiga WC player stats | honours, results, goals, dds, opponents | Browser: sample `wc_*` HoF rows per sub-wing |
 | **4** | Online core LBs | rating, goals, double-digits, victims, peak-rating | Browser: matching `records_hof_links.php` rows |
 | **5** | Online remainder | league-honours, milestones, streaks, activity/in-a-row, activity/participation | Browser + HoF smoke for activity + streaks |
 | **6** | Closure | Policy status → **Implemented**; MEMORY; optional `python scripts/audit_k2_table_compliance.py` | Dagh sign-off |
 
-**Suggested first execution slice:** **Slice 1** (Amiga career batch 1).
+**Suggested next execution slice:** **Slice 2** (perf-rating top + perfect).
+
+### Amiga rating LB — fixed column indices (SSR-13)
+
+Always-visible Δ column; constants in `includes/amiga_lb_lib.php`:
+
+| Col | Field |
+|-----|--------|
+| 3 | Δ (WC-start present · event Δ when `as=`) |
+| 4 | Games |
+| 5 | Wins |
+| 8 | Win rate |
+| 9 | Opponent Average |
+
+HoF: `most_games`=4, `most_wins`=5, `win_ratio`=8.
 
 ---
 
 ## Slice 1 task checklist (template)
 
-- [x] Read policy SSR-1–SSR-12 + copy `goals.php` pattern
+- [x] Read policy SSR-1–SSR-13 + copy `goals.php` pattern
 - [x] **victims.php** — column map + `amiga_lb_query_career` ORDER BY + skip attr
 - [x] **peak-rating.php** — extend `amiga_lb_query_peak_rating()` or equivalent for ORDER BY + TT branch
 - [x] **tournament-honours.php** — ORDER BY in row query (`amiga_lb_tournament_honours_order_sql` exists for default)
 - [x] **calendar-geo.php** — ORDER BY on `amiga_calendar_geo_leaderboard_rows()` SQL
 - [x] **performance-rating/best.php** — shared `amiga_lb_performance_rating_table.php` if possible
 - [x] Update wing register (this file) + policy §5
-- [ ] HoF browser smoke per § parity
+- [x] HoF column parity audit (Jul 2026) — static maps match `<th>` order; optional browser smoke per wing
 - [x] UPDATE_DOCS Part A
 
 ---
@@ -219,3 +233,13 @@ grep `'page' => 'lb-` in file when QAing online slices — metrics span rating, 
 ## Agent one-liner
 
 Today: K2 LB SSR Track A — slice N per `k2-lb-ssr-sort-implementation-plan.md`.
+
+---
+
+## Execution log
+
+| Date | Slice | Note |
+|------|-------|------|
+| 2026-07-15 | 0 | Doc trio + starter prompt |
+| 2026-07-15 | 1 | victims, peak-rating, tournament-honours, calendar-geo, perf-rating/best — SSR + column maps |
+| 2026-07-15 | — | Rating LB Δ always visible; `AMIGA_LB_RATING_COL_*`; HoF 4/5/8 stable |

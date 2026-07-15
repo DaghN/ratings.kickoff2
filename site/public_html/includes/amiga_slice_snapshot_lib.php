@@ -81,17 +81,110 @@ function amiga_lb_wc_slice_order_sql(string $view, string $alias = 'wcs'): strin
 }
 
 /**
+ * Sortable column index → SQL expression for WC player LB SSR order (wcs alias).
+ *
+ * Player name and Elo are attached after the slice query — not mapped here.
+ *
+ * @return array<int, string>
+ */
+function amiga_lb_wc_slice_order_column_map(string $view, string $alias = 'wcs'): array
+{
+    $a = $alias;
+    $ratio = static fn (string $col): string => "(CASE WHEN {$a}.{$col} IS NULL OR {$a}.{$col} < 0 THEN NULL ELSE {$a}.{$col} END)";
+    $perGame = static fn (string $num): string => "({$a}.{$num} / NULLIF({$a}.games, 0))";
+    $winRate = "(({$a}.wins + 0.5 * {$a}.draws) / NULLIF({$a}.games, 0))";
+
+    switch ($view) {
+        case 'results':
+            return [
+                3 => "{$a}.tournaments_played",
+                4 => "{$a}.games",
+                5 => "{$a}.wins",
+                6 => "{$a}.draws",
+                7 => "{$a}.losses",
+                8 => "{$a}.points",
+                9 => $perGame('points'),
+                10 => $winRate,
+            ];
+        case 'goals':
+            return [
+                3 => "{$a}.games",
+                4 => "{$a}.goals_for",
+                5 => "{$a}.goals_against",
+                6 => "({$a}.goals_for - {$a}.goals_against)",
+                7 => $perGame('goals_for'),
+                8 => $perGame('goals_against'),
+                9 => "(({$a}.goals_for - {$a}.goals_against) / NULLIF({$a}.games, 0))",
+                10 => $ratio('goal_ratio'),
+                11 => "{$a}.most_goals_scored",
+                12 => "{$a}.most_goals_conceded",
+                13 => "{$a}.biggest_win_difference",
+                14 => "{$a}.biggest_loss_difference",
+                15 => "{$a}.biggest_sum_of_goals",
+                16 => "{$a}.biggest_draw_sum",
+            ];
+        case 'dds':
+            return [
+                3 => "{$a}.games",
+                4 => "{$a}.double_digits",
+                5 => "{$a}.clean_sheets",
+                6 => $ratio('double_digits_ratio'),
+                7 => $ratio('clean_sheets_ratio'),
+                8 => "{$a}.double_digits_conceded",
+                9 => "{$a}.clean_sheets_conceded",
+                10 => $ratio('double_digits_conceded_ratio'),
+                11 => $ratio('clean_sheets_conceded_ratio'),
+            ];
+        case 'opponents':
+            return [
+                3 => "{$a}.games",
+                4 => "{$a}.different_opponents",
+                5 => "{$a}.different_victims",
+                6 => "{$a}.different_culprits",
+                7 => "{$a}.double_digits_victims",
+                8 => "{$a}.double_digits_culprits",
+                9 => "{$a}.clean_sheets_victims",
+                10 => "{$a}.clean_sheets_culprits",
+                11 => "{$a}.opponent_countries_faced",
+                12 => "{$a}.opponent_countries_beaten",
+                13 => "{$a}.opponent_countries_beaten_by",
+            ];
+        case 'honours':
+        default:
+            return [
+                3 => "{$a}.tournaments_played",
+                4 => "{$a}.gold",
+                5 => "{$a}.silver",
+                6 => "{$a}.bronze",
+                7 => "{$a}.podiums",
+            ];
+    }
+}
+
+/** Default sort column (0-based th index) per WC players sub-wing. */
+function amiga_lb_wc_players_default_sort_col(string $view): int
+{
+    return match ($view) {
+        'results' => 8,
+        default => 4,
+    };
+}
+
+/**
  * Present-day WC slice stats for LB wings (eligibility: tournaments_played > 0).
  *
  * Sub-wing tables use k2-table client sort (skip-initial-sort); SQL order must match each wing default.
  *
  * @return list<array<string, mixed>>
  */
-function amiga_lb_wc_slice_rows_present(mysqli $con, string $view = 'honours'): array
+function amiga_lb_wc_slice_rows_present(mysqli $con, string $view = 'honours', ?string $orderClause = null): array
 {
+    $orderClause ??= amiga_lb_wc_slice_order_sql($view, 'wcs');
+
     static $cache = [];
-    if (isset($cache[$view])) {
-        return $cache[$view];
+    $cacheKey = $view . '|' . $orderClause;
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
     }
 
     $sliceKey = amiga_slice_key_world_cup();
@@ -112,7 +205,7 @@ function amiga_lb_wc_slice_rows_present(mysqli $con, string $view = 'honours'): 
             FROM amiga_player_slice_totals wcs
             WHERE wcs.slice_key = ?
               AND wcs.tournaments_played > 0
-            ORDER BY ' . amiga_lb_wc_slice_order_sql($view, 'wcs') . '
+            ORDER BY ' . $orderClause . '
 ';
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
@@ -134,20 +227,20 @@ function amiga_lb_wc_slice_rows_present(mysqli $con, string $view = 'honours'): 
     }
     $stmt->close();
 
-    return $cache[$view] = $rows;
+    return $cache[$cacheKey] = $rows;
 }
 
 /**
  * WC slice stats at cutoff — latest at_event row per player with tournaments_played > 0.
  *
- * Request-scoped cache is keyed by cutoff + sub-wing (sort order is wing-specific).
+ * Request-scoped cache is keyed by cutoff + sub-wing + order (sort order is wing-specific).
  *
  * @return list<array<string, mixed>>
  */
-function amiga_lb_wc_slice_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx, string $view = 'honours'): array
+function amiga_lb_wc_slice_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx, string $view = 'honours', ?string $orderClause = null): array
 {
     if (!$ctx->isActive()) {
-        return amiga_lb_wc_slice_rows_present($con, $view);
+        return amiga_lb_wc_slice_rows_present($con, $view, $orderClause);
     }
 
     $cutoff = $ctx->cutoff();
@@ -155,8 +248,10 @@ function amiga_lb_wc_slice_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx
         return [];
     }
 
+    $orderClause ??= amiga_lb_wc_slice_order_sql($view, 'wcs');
+
     static $cache = [];
-    $cacheKey = $cutoff['event_date'] . '|' . $cutoff['chrono'] . '|' . $cutoff['tournament_id'] . '|' . $view;
+    $cacheKey = $cutoff['event_date'] . '|' . $cutoff['chrono'] . '|' . $cutoff['tournament_id'] . '|' . $view . '|' . $orderClause;
     if (isset($cache[$cacheKey])) {
         return $cache[$cacheKey];
     }
@@ -178,7 +273,7 @@ function amiga_lb_wc_slice_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx
                    ' . amiga_lb_wc_slice_v2_select_sql('wcs') . '
             ' . amiga_lb_wc_player_slice_from_sql('wcs') . '
             WHERE wcs.tournaments_played > 0
-            ORDER BY ' . amiga_lb_wc_slice_order_sql($view, 'wcs') . '
+            ORDER BY ' . $orderClause . '
 ';
 
     $stmt = $con->prepare($sql);

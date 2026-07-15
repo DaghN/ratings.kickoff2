@@ -41,15 +41,26 @@ function amiga_wc_players_render_footnote(int $playerCount): void
     <?php
 }
 
+function amiga_wc_players_table_skip_attr(array $lbSort, int $defaultCol, ?array $lbSqlOrder): string
+{
+    if ($lbSqlOrder === null) {
+        return k2_table_skip_initial_sort_attr($defaultCol);
+    }
+
+    return k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $defaultCol, 'desc', $lbSqlOrder['ssr_applied_url_sort']);
+}
+
 /**
  * @param list<array<string, mixed>> $rows
+ * @param array{sort_col: int, sort_dir: string, anchor: int} $lbSort
+ * @param array{order_clause: string, ssr_applied_url_sort: bool}|null $lbSqlOrder
  */
-function amiga_wc_players_render_honours(array $rows, int $playerCount): void
+function amiga_wc_players_render_honours(array $rows, int $playerCount, array $lbSort, ?array $lbSqlOrder = null): void
 {
-    $lbSort = k2_lb_table_sort_state(4);
+    $defaultCol = 4;
     ?>
 <?php amiga_wc_players_table_shell_open(); ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo amiga_wc_players_table_skip_attr($lbSort, $defaultCol, $lbSqlOrder); ?>>
 <thead>
     <tr>
         <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">Rank</th>
@@ -94,13 +105,15 @@ function amiga_wc_players_render_honours(array $rows, int $playerCount): void
 
 /**
  * @param list<array<string, mixed>> $rows
+ * @param array{sort_col: int, sort_dir: string, anchor: int} $lbSort
+ * @param array{order_clause: string, ssr_applied_url_sort: bool}|null $lbSqlOrder
  */
-function amiga_wc_players_render_results(array $rows, int $playerCount): void
+function amiga_wc_players_render_results(array $rows, int $playerCount, array $lbSort, ?array $lbSqlOrder = null): void
 {
-    $lbSort = k2_lb_table_sort_state(8);
+    $defaultCol = 8;
     ?>
 <?php amiga_wc_players_table_shell_open(); ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(8); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo amiga_wc_players_table_skip_attr($lbSort, $defaultCol, $lbSqlOrder); ?>>
 <thead>
     <tr>
         <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">Rank</th>
@@ -155,13 +168,15 @@ function amiga_wc_players_render_results(array $rows, int $playerCount): void
 
 /**
  * @param list<array<string, mixed>> $rows
+ * @param array{sort_col: int, sort_dir: string, anchor: int} $lbSort
+ * @param array{order_clause: string, ssr_applied_url_sort: bool}|null $lbSqlOrder
  */
-function amiga_wc_players_render_goals(array $rows, int $playerCount): void
+function amiga_wc_players_render_goals(array $rows, int $playerCount, array $lbSort, ?array $lbSqlOrder = null): void
 {
-    $lbSort = k2_lb_table_sort_state(4);
+    $defaultCol = 4;
     ?>
 <?php amiga_wc_players_table_shell_open(); ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo amiga_wc_players_table_skip_attr($lbSort, $defaultCol, $lbSqlOrder); ?>>
 <thead>
     <tr>
         <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">Rank</th>
@@ -249,13 +264,15 @@ function amiga_wc_players_render_goals(array $rows, int $playerCount): void
 
 /**
  * @param list<array<string, mixed>> $rows
+ * @param array{sort_col: int, sort_dir: string, anchor: int} $lbSort
+ * @param array{order_clause: string, ssr_applied_url_sort: bool}|null $lbSqlOrder
  */
-function amiga_wc_players_render_dds(array $rows, int $playerCount): void
+function amiga_wc_players_render_dds(array $rows, int $playerCount, array $lbSort, ?array $lbSqlOrder = null): void
 {
-    $lbSort = k2_lb_table_sort_state(4);
+    $defaultCol = 4;
     ?>
 <?php amiga_wc_players_table_shell_open(); ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo amiga_wc_players_table_skip_attr($lbSort, $defaultCol, $lbSqlOrder); ?>>
 <thead>
     <tr>
         <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">Rank</th>
@@ -307,13 +324,15 @@ function amiga_wc_players_render_dds(array $rows, int $playerCount): void
 
 /**
  * @param list<array<string, mixed>> $rows
+ * @param array{sort_col: int, sort_dir: string, anchor: int} $lbSort
+ * @param array{order_clause: string, ssr_applied_url_sort: bool}|null $lbSqlOrder
  */
-function amiga_wc_players_render_opponents(array $rows, int $playerCount): void
+function amiga_wc_players_render_opponents(array $rows, int $playerCount, array $lbSort, ?array $lbSqlOrder = null): void
 {
-    $lbSort = k2_lb_table_sort_state(4);
+    $defaultCol = 4;
 ?>
 <?php amiga_wc_players_table_shell_open(); ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo amiga_wc_players_table_skip_attr($lbSort, $defaultCol, $lbSqlOrder); ?>>
 <thead>
     <tr>
         <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">Rank</th>
@@ -369,31 +388,33 @@ function amiga_wc_players_render_opponents(array $rows, int $playerCount): void
 
 /**
  * @param list<array<string, mixed>> $rows
+ * @param array{sort_col: int, sort_dir: string, anchor: int} $lbSort
+ * @param array{order_clause: string, ssr_applied_url_sort: bool}|null $lbSqlOrder
  */
-function amiga_wc_players_render_view(string $view, array $rows, int $playerCount): void
+function amiga_wc_players_render_view(string $view, array $rows, int $playerCount, array $lbSort, ?array $lbSqlOrder = null): void
 {
     if ($view === 'honours') {
-        amiga_wc_players_render_honours($rows, $playerCount);
+        amiga_wc_players_render_honours($rows, $playerCount, $lbSort, $lbSqlOrder);
 
         return;
     }
     if ($view === 'results') {
-        amiga_wc_players_render_results($rows, $playerCount);
+        amiga_wc_players_render_results($rows, $playerCount, $lbSort, $lbSqlOrder);
 
         return;
     }
     if ($view === 'goals') {
-        amiga_wc_players_render_goals($rows, $playerCount);
+        amiga_wc_players_render_goals($rows, $playerCount, $lbSort, $lbSqlOrder);
 
         return;
     }
     if ($view === 'dds') {
-        amiga_wc_players_render_dds($rows, $playerCount);
+        amiga_wc_players_render_dds($rows, $playerCount, $lbSort, $lbSqlOrder);
 
         return;
     }
     if ($view === 'opponents') {
-        amiga_wc_players_render_opponents($rows, $playerCount);
+        amiga_wc_players_render_opponents($rows, $playerCount, $lbSort, $lbSqlOrder);
 
         return;
     }

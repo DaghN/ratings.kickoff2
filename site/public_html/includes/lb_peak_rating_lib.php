@@ -14,15 +14,16 @@ require_once __DIR__ . '/k2_safety.php';
 /**
  * @return mysqli_result|false
  */
-function k2_lb_peak_rating_query(mysqli $con)
+function k2_lb_peak_rating_query(mysqli $con, ?string $orderClause = null)
 {
+    $orderClause ??= k2_lb_peak_rating_default_order_sql();
     $where = k2_lb_player_where_sql_for_alias('p');
     $sql = 'SELECT p.`id`, p.`Name`, p.`Rating`, p.`NumberGames`, p.`PeakRating`, p.`LowestRating`, '
         . 'p.`AverageOpponentRating`, p.`HighestRatedVictim`, p.`LowestRatedCulprit`, '
         . 'p.`PeakRatingGameID` AS `peak_rating_game_id`, rr.`Date` AS `peak_rating_date` '
         . 'FROM `playertable` p '
         . 'LEFT JOIN `ratedresults` rr ON rr.`id` = p.`PeakRatingGameID` '
-        . 'WHERE ' . $where . ' ORDER BY p.`PeakRating` DESC, p.`Rating` DESC';
+        . 'WHERE ' . $where . ' ORDER BY ' . $orderClause;
 
     return $con->query($sql);
 }

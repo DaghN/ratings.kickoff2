@@ -10,6 +10,10 @@
 
 ## Current focus
 
+- **Amiga profile (Jul 2026):** **Track B** — mosaic stat links one-at-a-time ([`player-profile-stat-links-policy.md`](docs/player-profile-stat-links-policy.md) · [`amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md)); Results · Goals · DD/CS · **Tournament honours** **shipped**; Victims · geo · peak · activity rows **planned**.
+
+- **K2 LB SSR (Jul 2026):** **Track A** — hub wing URL landing sort ([`k2-lb-ssr-sort-policy.md`](docs/k2-lb-ssr-sort-policy.md) · slice **1** shipped; **next slice 2** perf-rating top/perfect). HoF hrefs verify-only; rating LB Δ always visible (SSR-13).
+
 - **Ladder ops (Jun 2026):** PHP post-game **P0–P7** in `ops/run_process_game.php` + `dispatch.php`. **Staging simul signed off** on `kooldb1` (`run_verify_ops_sim` 0 fail). **Next (Steve):** live cutover when scheduled — [`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md). Discrepancies: [`post-game-contract-vs-oracle-discrepancies.md`](docs/coordination/post-game-contract-vs-oracle-discrepancies.md).
 
 - **Milestones:** Catalog **112**; v0 UI + **`kooldb1` simul proof** done. Live writer = **PHP ops** at cutover (not C++).
@@ -145,6 +149,15 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-15 | **Amiga profile Peak rating panel — stacked dates** — peak rating / peak rank / nadir values with tournament dates muted below (`lowest_rating_tournament_id` join); separate date rows removed. |
+| 2026-07-15 | **Amiga profile Peak rating panel — drop Opponent Avg.** — removed duplicate row from mosaic; Results **Opponent Average** link to Rating LB unchanged. |
+| 2026-07-15 | **Amiga peak-rating LB — drop Opponent Avg.** — column removed; Highest Victim / Lowest Culprit now cols 9–10 (was 10–11); SSR order map updated; no HoF or mosaic hrefs pointed at old indices. |
+| 2026-07-15 | **Amiga profile mosaic — Tournament honours links (Track B)** — all six cells → Tournaments tab inventory (`winner` / `podium` / `perfect` / `finish=2|3` + `#k2-player-tournaments-table`); `amiga_profile_lb_slice_player_tournaments_href()`. |
+| 2026-07-15 | **Docs sweep (Jul 15)** — Track A/B handoffs + K2 LB SSR policy/plan/starter aligned to slice 1 shipped; HoF column audit recorded; rating Δ SSR-13. |
+| 2026-07-15 | **Amiga rating LB — Δ column always visible** — fixed cols 3–9 (`AMIGA_LB_RATING_COL_*`); removed show/hide + dynamic sort-col helpers; HoF 4/5/8 stable. |
+| 2026-07-15 | **K2 LB SSR Track A slice 4** — Online core LBs: rating, goals, double-digits, victims, peak-rating; column maps in `lb_player_filters.php`. |
+| 2026-07-15 | **K2 LB SSR Track A slice 3** — Amiga WC player stats (honours, results, goals, dds, opponents); shared `amiga_wc_players_wing_body.inc.php` + `amiga_lb_wc_slice_order_column_map()` in slice lib. |
+| 2026-07-15 | **K2 LB SSR Track A slice 2** — Amiga perf-rating Top 100 + Perfect SSR; shared `amiga_lb_performance_rating_table.php` + `amiga_lb_performance_rating_event_order_column_map()` closure (all three perf views). |
 | 2026-07-15 | **K2 LB SSR Track A slice 1** — Amiga career batch: victims, peak-rating, tournament-honours, calendar-geo, perf-rating/best; column maps in `amiga_lb_lib.php`; HoF verify-only. |
 | 2026-07-15 | **Track B mosaic handoff prompt** — `docs/orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md` (one stat at a time; policy register). |
 | 2026-07-15 | **K2 LB SSR Track A doc trio** — policy + implementation plan (~5 tables/slice) + starter prompt `docs/orchestration/agent-handoffs/k2-lb-ssr-sort-STARTER-PROMPT.md`; HoF links verify-only. |
@@ -154,8 +167,8 @@
 | 2026-07-15 | **Amiga profile mosaic — Goals peak links** — Max GA / win / loss / sum / draw → Games tab inventory (`against`·`diff`·`sum` sorts; win/loss/draw result filters where needed) + `#matching-games`. |
 | 2026-07-15 | **Amiga profile mosaic — Max GF link** — Goals **Max GF** → Games tab `?sort=goals_for&dir=desc` + `#matching-games` (inventory; SSR sort; `as=` preserved). |
 | 2026-07-15 | **Amiga Goals LB SSR sort + mosaic links** — `goals.php` URL `k2_sort` → SQL ORDER BY + row anchors; profile Goals mosaic GF→Ratio (6 cells); HoF `goal_ratio` sort col 8→9 (Ratio not GD/g). |
-| 2026-07-15 | **Amiga profile mosaic — Opponent Average link** — Results **Opponent Average** → Rating LB Opponent Average column (SSR sort col 8/9 + player row anchor). |
-| 2026-07-15 | **Amiga profile mosaic — Win rate link** — Results **Win rate** → Rating LB SSR-sorted by Win rate col + player row anchor; dynamic col 7/8 (Δ column); `amiga_lb_rating_win_rate_player_href()`. |
+| 2026-07-15 | **Amiga profile mosaic — Opponent Average link** — Results **Opponent Average** → Rating LB Opponent Average column (SSR `k2_sort` col 9 + `#k2-lb-player-{id}`). |
+| 2026-07-15 | **Amiga profile mosaic — Win rate link** — Results **Win rate** → Rating LB SSR `k2_sort` col 8 + player row anchor; `amiga_lb_rating_win_rate_player_href()` (fixed cols; SSR-13). |
 | 2026-07-15 | **Amiga profile mosaic — Draws/Losses links** — Results **Draws** / **Losses** → Games tab `?result=draw` / `?result=loss` + `#matching-games`. |
 | 2026-07-15 | **Amiga profile mosaic — Wins link** — Results **Wins** → Games tab `?result=win` + `#matching-games` (Result filter SSR-active; `as=` preserved). |
 | 2026-07-15 | **Amiga profile mosaic — Games link** — Results table **Games** → player Games tab `#matching-games` (same as hero; `as=` via `k2_amiga_route`); register [`player-profile-stat-links-policy.md`](docs/player-profile-stat-links-policy.md). |

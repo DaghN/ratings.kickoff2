@@ -169,6 +169,14 @@ function amiga_player_tournament_participation_countries(array $rows): array
     return $list;
 }
 
+/** Profile mosaic / deep links: silver = 2, bronze = 3 (`?finish=` on player tournament history). */
+function amiga_player_tournaments_valid_finish_filter(mixed $value): int
+{
+    $finish = filter_var($value, FILTER_VALIDATE_INT);
+
+    return $finish === 2 || $finish === 3 ? (int) $finish : 0;
+}
+
 /**
  * @param list<array<string, mixed>> $rows
  * @param 'all'|'world-cup' $filter
@@ -181,9 +189,13 @@ function amiga_player_tournament_participation_filter_events(
     int $year = 0,
     string $perfectFilter = '',
     string $winnerFilter = '',
-    string $podiumFilter = ''
+    string $podiumFilter = '',
+    int $finishFilter = 0,
 ): array {
     $country = trim($country);
+    if ($finishFilter !== 2 && $finishFilter !== 3) {
+        $finishFilter = 0;
+    }
     if (
         $filter === 'all'
         && $country === ''
@@ -191,13 +203,14 @@ function amiga_player_tournament_participation_filter_events(
         && $perfectFilter === ''
         && $winnerFilter === ''
         && $podiumFilter === ''
+        && $finishFilter === 0
     ) {
         return $rows;
     }
 
     return array_values(array_filter(
         $rows,
-        static function (array $row) use ($filter, $country, $year, $perfectFilter, $winnerFilter, $podiumFilter): bool {
+        static function (array $row) use ($filter, $country, $year, $perfectFilter, $winnerFilter, $podiumFilter, $finishFilter): bool {
             if ($filter === 'world-cup' && !amiga_tournament_is_world_cup($row)) {
                 return false;
             }
@@ -223,6 +236,12 @@ function amiga_player_tournament_participation_filter_events(
                     return false;
                 }
             }
+            if ($finishFilter === 2 || $finishFilter === 3) {
+                $position = $row['position'] ?? $row['event_finish_position'] ?? null;
+                if ($position === null || $position === '' || (int) $position !== $finishFilter) {
+                    return false;
+                }
+            }
 
             return true;
         }
@@ -241,7 +260,11 @@ function amiga_player_tournaments_list_summary(
     string $perfectFilter = '',
     string $winnerFilter = '',
     string $podiumFilter = '',
+    int $finishFilter = 0,
 ): string {
+    if ($finishFilter !== 2 && $finishFilter !== 3) {
+        $finishFilter = 0;
+    }
     if ($count === 0) {
         if (!$hasAnyParticipation) {
             return 'No events on record yet.';
@@ -267,6 +290,12 @@ function amiga_player_tournaments_list_summary(
     }
     if ($podiumFilter === 'with-podium') {
         $preNoun[] = 'podium';
+    }
+    if ($finishFilter === 2) {
+        $preNoun[] = 'silver';
+    }
+    if ($finishFilter === 3) {
+        $preNoun[] = 'bronze';
     }
 
     $suffix = '';
@@ -302,13 +331,19 @@ function amiga_player_tournaments_filters_active(
     string $perfectFilter = '',
     string $winnerFilter = '',
     string $podiumFilter = '',
+    int $finishFilter = 0,
 ): bool {
+    if ($finishFilter !== 2 && $finishFilter !== 3) {
+        $finishFilter = 0;
+    }
+
     return $eventFilter !== 'all'
         || $countryFilter !== ''
         || $yearFilter > 0
         || $perfectFilter !== ''
         || $winnerFilter !== ''
-        || $podiumFilter !== '';
+        || $podiumFilter !== ''
+        || $finishFilter > 0;
 }
 
 function amiga_player_tournaments_reset_url(int $playerId): string
@@ -326,8 +361,12 @@ function amiga_player_tournaments_filter_url(
     int $year = 0,
     string $perfectFilter = '',
     string $winnerFilter = '',
-    string $podiumFilter = ''
+    string $podiumFilter = '',
+    int $finishFilter = 0,
 ): string {
+    if ($finishFilter !== 2 && $finishFilter !== 3) {
+        $finishFilter = 0;
+    }
     $params = ['id' => $playerId];
     if ($filter !== 'all') {
         $params['filter'] = $filter;
@@ -347,6 +386,9 @@ function amiga_player_tournaments_filter_url(
     }
     if ($podiumFilter === 'with-podium') {
         $params['podium'] = 'with-podium';
+    }
+    if ($finishFilter === 2 || $finishFilter === 3) {
+        $params['finish'] = (string) $finishFilter;
     }
 
     return k2_amiga_route('amiga-player-tournaments', array_merge($params, k2_table_sort_query_params()));
@@ -541,13 +583,15 @@ function amiga_lb_performance_rating_rows(mysqli $con, ?AmigaSnapshotContext $ct
  *
  * @return list<array<string, mixed>>
  */
-function amiga_lb_performance_rating_top_rows(mysqli $con, ?AmigaSnapshotContext $ctx = null): array
+function amiga_lb_performance_rating_top_rows(mysqli $con, ?AmigaSnapshotContext $ctx = null, ?string $orderClause = null): array
 {
     if ($ctx !== null && $ctx->isActive()) {
         require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
 
-        return amiga_lb_performance_rating_top_rows_at_cutoff($con, $ctx);
+        return amiga_lb_performance_rating_top_rows_at_cutoff($con, $ctx, $orderClause);
     }
+
+    $orderClause ??= amiga_lb_performance_rating_top_default_order_sql();
 
     $visibility = amiga_tournament_public_visibility_where('t');
     $sql = 'SELECT pl.id AS player_id,
@@ -573,10 +617,7 @@ function amiga_lb_performance_rating_top_rows(mysqli $con, ?AmigaSnapshotContext
               AND part.games >= 2
               AND s.NumberGames > 0
               AND ' . $visibility . '
-            ORDER BY part.performance_rating DESC,
-                     part.games DESC,
-                     part.tournament_id DESC,
-                     part.player_id ASC
+            ORDER BY ' . $orderClause . '
             LIMIT 100';
     $result = mysqli_query($con, $sql);
     if (!$result) {
@@ -596,13 +637,15 @@ function amiga_lb_performance_rating_top_rows(mysqli $con, ?AmigaSnapshotContext
  *
  * @return list<array<string, mixed>>
  */
-function amiga_lb_performance_rating_perfect_rows(mysqli $con, ?AmigaSnapshotContext $ctx = null): array
+function amiga_lb_performance_rating_perfect_rows(mysqli $con, ?AmigaSnapshotContext $ctx = null, ?string $orderClause = null): array
 {
     if ($ctx !== null && $ctx->isActive()) {
         require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
 
-        return amiga_lb_performance_rating_perfect_rows_at_cutoff($con, $ctx);
+        return amiga_lb_performance_rating_perfect_rows_at_cutoff($con, $ctx, $orderClause);
     }
+
+    $orderClause ??= amiga_lb_performance_rating_perfect_default_order_sql();
 
     $visibility = amiga_tournament_public_visibility_where('t');
     $sql = 'SELECT pl.id AS player_id,
@@ -627,10 +670,7 @@ function amiga_lb_performance_rating_perfect_rows(mysqli $con, ?AmigaSnapshotCon
             WHERE part.is_perfect_event = 1
               AND s.NumberGames > 0
               AND ' . $visibility . '
-            ORDER BY part.event_date DESC,
-                     part.event_chrono DESC,
-                     part.tournament_id DESC,
-                     part.player_id ASC';
+            ORDER BY ' . $orderClause;
     $result = mysqli_query($con, $sql);
     if (!$result) {
         return [];

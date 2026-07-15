@@ -16,6 +16,13 @@ function amiga_lb_player_where_sql(): string
     return 's.NumberGames > 0';
 }
 
+/** Amiga rating LB column indices (0-based; Δ column always present). */
+const AMIGA_LB_RATING_COL_DELTA = 3;
+const AMIGA_LB_RATING_COL_GAMES = 4;
+const AMIGA_LB_RATING_COL_WINS = 5;
+const AMIGA_LB_RATING_COL_WIN_RATE = 8;
+const AMIGA_LB_RATING_COL_OPP_AVG = 9;
+
 /** Load time-travel context for leaderboard pages (after DB connect). */
 function amiga_lb_context(mysqli $con): AmigaSnapshotContext
 {
@@ -196,9 +203,8 @@ function amiga_lb_peak_rating_order_column_map(bool $timeTravelActive = false): 
         6 => $timeTravelActive ? 'er.peak_elo_rank' : 's.peak_elo_rank',
         7 => 'tpke.event_date',
         8 => 's.LowestRating',
-        9 => 's.AverageOpponentRating',
-        10 => 's.HighestRatedVictim',
-        11 => 's.LowestRatedCulprit',
+        9 => 's.HighestRatedVictim',
+        10 => 's.LowestRatedCulprit',
     ];
 }
 
@@ -260,15 +266,29 @@ function amiga_lb_performance_rating_best_default_order_sql(): string
     return 'part.performance_rating DESC, part.games DESC, s.Rating DESC, p.id ASC';
 }
 
+/** Default ORDER BY tail for Amiga perf-rating Top 100 LB (no leading ORDER BY). */
+function amiga_lb_performance_rating_top_default_order_sql(): string
+{
+    return 'part.performance_rating DESC, part.games DESC, part.tournament_id DESC, part.player_id ASC';
+}
+
+/** Default ORDER BY tail for Amiga perf-rating Perfect LB (no leading ORDER BY). */
+function amiga_lb_performance_rating_perfect_default_order_sql(): string
+{
+    return 'part.event_date DESC, part.event_chrono DESC, part.tournament_id DESC, part.player_id ASC';
+}
+
 /**
- * Sortable column index → SQL expression for Amiga perf-rating Best LB SSR order.
+ * Sortable column index → SQL expression for Amiga perf-rating Best/Top event rows SSR order.
  *
  * @return array<int, string>
  */
-function amiga_lb_performance_rating_best_order_column_map(): array
+function amiga_lb_performance_rating_event_order_column_map(string $playerAlias = 'p'): array
 {
+    $pl = $playerAlias;
+
     return [
-        1 => 'p.name',
+        1 => "{$pl}.name",
         2 => 's.Rating',
         3 => 'part.performance_rating',
         4 => 'part.games',
@@ -281,12 +301,30 @@ function amiga_lb_performance_rating_best_order_column_map(): array
 }
 
 /**
- * Rating LB delta column state (present-day WC-start Δ or time-travel event Δ).
+ * Sortable column index → SQL expression for Amiga perf-rating Best LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function amiga_lb_performance_rating_best_order_column_map(): array
+{
+    return amiga_lb_performance_rating_event_order_column_map('p');
+}
+
+/**
+ * Sortable column index → SQL expression for Amiga perf-rating Perfect LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function amiga_lb_performance_rating_perfect_order_column_map(string $playerAlias = 'p'): array
+{
+    return amiga_lb_performance_rating_event_order_column_map($playerAlias);
+}
+
+/**
+ * Rating LB Δ cell values (present-day WC-start Δ or time-travel event Δ). Column is always visible.
  *
  * @return array{
- *     show: bool,
  *     show_rating_delta: bool,
- *     show_wc_start_delta: bool,
  *     delta_by_player: array<int, float>,
  *     last_wc_for_delta_help: ?array
  * }
@@ -296,46 +334,21 @@ function amiga_lb_rating_delta_column_bundle(mysqli $con, AmigaSnapshotContext $
     require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
 
     $showRatingDelta = $ctx->isActive();
-    $deltaByPlayer = [];
-    $showWcStartDelta = false;
     $lastWcForDeltaHelp = null;
 
     if ($showRatingDelta) {
         $deltaByPlayer = amiga_lb_rating_delta_map($con, $ctx);
     } else {
         $deltaByPlayer = amiga_lb_wc_start_rating_delta_map($con);
-        if ($deltaByPlayer !== []) {
-            $showWcStartDelta = true;
-            require_once __DIR__ . '/amiga_rating_history_lib.php';
-            $lastWcForDeltaHelp = amiga_rating_history_last_world_cup_tournament($con);
-        }
+        require_once __DIR__ . '/amiga_rating_history_lib.php';
+        $lastWcForDeltaHelp = amiga_rating_history_last_world_cup_tournament($con);
     }
 
     return [
-        'show' => $showRatingDelta || $showWcStartDelta,
         'show_rating_delta' => $showRatingDelta,
-        'show_wc_start_delta' => $showWcStartDelta,
         'delta_by_player' => $deltaByPlayer,
         'last_wc_for_delta_help' => $lastWcForDeltaHelp,
     ];
-}
-
-/** Games column index on the Amiga rating LB (shifts when the Δ column is visible). */
-function amiga_lb_rating_games_sort_col(bool $showDeltaColumn): int
-{
-    return 3 + ($showDeltaColumn ? 1 : 0);
-}
-
-/** Win rate column index on the Amiga rating LB (shifts when the Δ column is visible). */
-function amiga_lb_rating_win_rate_sort_col(bool $showDeltaColumn): int
-{
-    return 7 + ($showDeltaColumn ? 1 : 0);
-}
-
-/** Opponent Average column index on the Amiga rating LB (shifts when the Δ column is visible). */
-function amiga_lb_rating_opponent_avg_sort_col(bool $showDeltaColumn): int
-{
-    return 8 + ($showDeltaColumn ? 1 : 0);
 }
 
 /**
@@ -345,19 +358,10 @@ function amiga_lb_rating_opponent_avg_sort_col(bool $showDeltaColumn): int
  */
 function amiga_lb_rating_games_player_href(int $playerId, ?mysqli $con = null, array $extraQuery = []): string
 {
-    $sortCol = 3;
-    if ($con !== null) {
-        $ctx = amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
-        $delta = amiga_lb_rating_delta_column_bundle($con, $ctx);
-        $sortCol = amiga_lb_rating_games_sort_col($delta['show']);
-    } else {
-        $ctx = amiga_snapshot_context_peek();
-        if ($ctx !== null && $ctx->isActive()) {
-            $sortCol = 4;
-        }
-    }
-
-    $query = array_merge(['k2_sort' => (string) $sortCol, 'k2_dir' => 'desc'], $extraQuery);
+    $query = array_merge(
+        ['k2_sort' => (string) AMIGA_LB_RATING_COL_GAMES, 'k2_dir' => 'desc'],
+        $extraQuery
+    );
 
     return amiga_lb_rating_player_href($playerId, $query);
 }
@@ -369,19 +373,10 @@ function amiga_lb_rating_games_player_href(int $playerId, ?mysqli $con = null, a
  */
 function amiga_lb_rating_win_rate_player_href(int $playerId, ?mysqli $con = null, array $extraQuery = []): string
 {
-    $sortCol = 7;
-    if ($con !== null) {
-        $ctx = amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
-        $delta = amiga_lb_rating_delta_column_bundle($con, $ctx);
-        $sortCol = amiga_lb_rating_win_rate_sort_col($delta['show']);
-    } else {
-        $ctx = amiga_snapshot_context_peek();
-        if ($ctx !== null && $ctx->isActive()) {
-            $sortCol = 8;
-        }
-    }
-
-    $query = array_merge(['k2_sort' => (string) $sortCol, 'k2_dir' => 'desc'], $extraQuery);
+    $query = array_merge(
+        ['k2_sort' => (string) AMIGA_LB_RATING_COL_WIN_RATE, 'k2_dir' => 'desc'],
+        $extraQuery
+    );
 
     return amiga_lb_rating_player_href($playerId, $query);
 }
@@ -393,19 +388,10 @@ function amiga_lb_rating_win_rate_player_href(int $playerId, ?mysqli $con = null
  */
 function amiga_lb_rating_opponent_avg_player_href(int $playerId, ?mysqli $con = null, array $extraQuery = []): string
 {
-    $sortCol = 8;
-    if ($con !== null) {
-        $ctx = amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
-        $delta = amiga_lb_rating_delta_column_bundle($con, $ctx);
-        $sortCol = amiga_lb_rating_opponent_avg_sort_col($delta['show']);
-    } else {
-        $ctx = amiga_snapshot_context_peek();
-        if ($ctx !== null && $ctx->isActive()) {
-            $sortCol = 9;
-        }
-    }
-
-    $query = array_merge(['k2_sort' => (string) $sortCol, 'k2_dir' => 'desc'], $extraQuery);
+    $query = array_merge(
+        ['k2_sort' => (string) AMIGA_LB_RATING_COL_OPP_AVG, 'k2_dir' => 'desc'],
+        $extraQuery
+    );
 
     return amiga_lb_rating_player_href($playerId, $query);
 }

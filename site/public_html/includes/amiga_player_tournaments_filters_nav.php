@@ -7,6 +7,7 @@
  * Set $k2PlayerTournamentsPerfectFilter: '' | with-participant
  * Set $k2PlayerTournamentsWinnerFilter: '' | with-win
  * Set $k2PlayerTournamentsPodiumFilter: '' | with-podium
+ * Set $k2PlayerTournamentsFinishFilter: 0 | 2 | 3 (silver / bronze deep links)
  * Set $k2PlayerTournamentsCountryFilter: '' | host country name
  * Set $k2PlayerTournamentsYearFilter: 0 | calendar year
  * Set $k2PlayerTournamentsCountryChoices / $k2PlayerTournamentsYearChoices
@@ -23,6 +24,10 @@ $k2PlayerTournamentsEventFilter = $k2PlayerTournamentsEventFilter ?? 'all';
 $k2PlayerTournamentsPerfectFilter = $k2PlayerTournamentsPerfectFilter ?? '';
 $k2PlayerTournamentsWinnerFilter = $k2PlayerTournamentsWinnerFilter ?? '';
 $k2PlayerTournamentsPodiumFilter = $k2PlayerTournamentsPodiumFilter ?? '';
+$k2PlayerTournamentsFinishFilter = (int) ($k2PlayerTournamentsFinishFilter ?? 0);
+if ($k2PlayerTournamentsFinishFilter !== 2 && $k2PlayerTournamentsFinishFilter !== 3) {
+    $k2PlayerTournamentsFinishFilter = 0;
+}
 $k2PlayerTournamentsCountryFilter = $k2PlayerTournamentsCountryFilter ?? '';
 $k2PlayerTournamentsYearFilter = (int) ($k2PlayerTournamentsYearFilter ?? 0);
 $k2PlayerTournamentsCountryChoices = $k2PlayerTournamentsCountryChoices ?? [['value' => '', 'label' => '', 'meta' => '']];
@@ -37,7 +42,8 @@ $k2PlayerTournamentsSegmentUrl = static function (
 ) use (
     $k2PlayerTournamentsPlayerId,
     $k2PlayerTournamentsCountryFilter,
-    $k2PlayerTournamentsYearFilter
+    $k2PlayerTournamentsYearFilter,
+    $k2PlayerTournamentsFinishFilter
 ): string {
     return amiga_player_tournaments_filter_url(
         $k2PlayerTournamentsPlayerId,
@@ -46,7 +52,8 @@ $k2PlayerTournamentsSegmentUrl = static function (
         $k2PlayerTournamentsYearFilter,
         $perfectFilter,
         $winnerFilter,
-        $podiumFilter
+        $podiumFilter,
+        $k2PlayerTournamentsFinishFilter
     );
 };
 
@@ -162,6 +169,9 @@ $k2PlayerTournamentsSortParams = k2_table_sort_query_params();
 <?php } ?>
 <?php if ($k2PlayerTournamentsPodiumFilter !== '') { ?>
 		<input type="hidden" name="podium" value="<?php echo htmlspecialchars($k2PlayerTournamentsPodiumFilter, ENT_QUOTES, 'UTF-8'); ?>" />
+<?php } ?>
+<?php if ($k2PlayerTournamentsFinishFilter === 2 || $k2PlayerTournamentsFinishFilter === 3) { ?>
+		<input type="hidden" name="finish" value="<?php echo $k2PlayerTournamentsFinishFilter; ?>" />
 <?php } ?>
 <?php foreach ($k2PlayerTournamentsSortParams as $sortKey => $sortValue) { ?>
 		<input type="hidden" name="<?php echo htmlspecialchars((string) $sortKey, ENT_QUOTES, 'UTF-8'); ?>" value="<?php echo htmlspecialchars((string) $sortValue, ENT_QUOTES, 'UTF-8'); ?>" />

@@ -19,6 +19,7 @@ Full behaviour contract and page inventory: [`k2-table-and-games-plan.md`](k2-ta
 |----------|-------------------------|--------|
 | Hub leaderboard wing (Rank + Player cols) | `includes/k2_lb_sortable_table_head.inc.php` + any `leaderboards/rating.php` | `$k2RankedCloak`; `k2_lb_table_sort_state()` + `k2_lb_th()` / `k2_lb_td()` SSR |
 | Hub LB URL landing sort (`k2_sort` deep links) | `amiga/leaderboards/goals.php` + [`k2-lb-ssr-sort-policy.md`](k2-lb-ssr-sort-policy.md) | `k2_lb_sql_order_from_sort()` + `k2_lb_table_skip_initial_sort_attr_for_ssr()` |
+| Amiga rating LB (Δ always visible) | `amiga/leaderboards/rating.php` + `includes/amiga_lb_lib.php` | Fixed 0-based cols: Δ=3, Games=4, Wins=5, Win rate=8, Opp avg=9 (`AMIGA_LB_RATING_COL_*`); HoF + profile comparison hrefs use these indices — see SSR-13 |
 | Hub LB body | `leaderboards/rating.php` table markup | `k2_table_ranked_leaderboard_class()`; all columns via `k2_lb_th` / `k2_lb_td` |
 | Wide sortable + filter pills (full page reload) | `amiga/tournaments.php` + `amiga_tournament_index_render_table()` in `amiga_profile_blocks.php` | Filter URLs merge `k2_table_sort_query_params()`; **Date** quiet on default load |
 | Amiga player tournament history | `amiga/player/tournaments.php` + `amiga_profile_render_tournament_history_table()` in `amiga_profile_blocks.php` | Same quiet-date pattern as catalog |
