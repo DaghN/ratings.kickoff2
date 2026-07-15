@@ -71,6 +71,12 @@ Shared layout:
 
 Exactly one **`data-k2-anchor-col`** per sortable table ([`k2-table-and-games-plan.md` § Anchor column map](k2-table-and-games-plan.md)). Anchor styling (`k2-table-anchor-cell`) adds **calm-stats emphasis** on the editorial column; it does **not** replace E1 — entity name links still carry `k2-link-star` explicitly.
 
+### Leaderboard player-row scroll targets
+
+Any hub LB (online or Amiga) that may receive **`#k2-lb-player-{id}`** inbound links (profile mosaic, HoF, Elo drill-down) must emit **`k2_lb_player_row_anchor_markup($playerId)`** immediately before the Player cell content (`lb_player_filters.php`). Hash landing = `k2_carry_scroll_restore.php` — do not add page-local hash scroll JS.
+
+**Jul 2026:** All online hub LB wings + league honours + Amiga career LB wings (rating/goals/DD already had anchors; remainder aligned same session).
+
 ---
 
 ## Not entity name links
@@ -153,4 +159,4 @@ Global `body.k2-site .k2-table tbody td a` also styles links link-star — **do 
 
 ---
 
-*Last updated: Jul 2026 — Online + Amiga hub LB Elo columns wired to rating LB row anchors; profile hero rank/rating/games → `#k2-lb-player-{id}`.*
+*Last updated: Jul 2026 — LB player-row anchors on all hub wings (online + Amiga); Elo drill-down + profile comparison links land `#k2-lb-player-{id}`.*

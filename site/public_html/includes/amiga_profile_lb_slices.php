@@ -88,6 +88,10 @@ function amiga_profile_lb_slices_load_present(mysqli $con, int $playerId): ?arra
 
     amiga_profile_lb_slices_enrich_double_digits_lb_link_context($playerId, $row);
 
+    amiga_profile_lb_slices_enrich_calendar_geo_lb_link_context($playerId, $row);
+
+    amiga_profile_lb_slices_enrich_peak_rating_lb_link_context($playerId, $row);
+
     return $row;
 }
 
@@ -194,8 +198,37 @@ function amiga_profile_lb_slices_enrich_double_digits_lb_link_context(int $playe
 
     $row['dd_lb_dd_ratio_href'] = amiga_lb_double_digits_player_href($playerId, 6);
     $row['dd_lb_cs_ratio_href'] = amiga_lb_double_digits_player_href($playerId, 7);
-    $row['dd_lb_dd_conceded_ratio_href'] = amiga_lb_double_digits_player_href($playerId, 10);
-    $row['dd_lb_cs_conceded_ratio_href'] = amiga_lb_double_digits_player_href($playerId, 11);
+    $row['dd_lb_dd_conceded_ratio_href'] = amiga_lb_double_digits_player_href($playerId, 10, 'asc');
+    $row['dd_lb_cs_conceded_ratio_href'] = amiga_lb_double_digits_player_href($playerId, 11, 'asc');
+}
+
+/**
+ * @param array<string, mixed> $row
+ */
+function amiga_profile_lb_slices_enrich_calendar_geo_lb_link_context(int $playerId, array &$row): void
+{
+    if ($playerId < 1) {
+        return;
+    }
+
+    require_once __DIR__ . '/amiga_lb_lib.php';
+
+    $row['calendar_geo_lb_peak_games_href'] = amiga_lb_calendar_geo_player_href($playerId, 3);
+    $row['calendar_geo_lb_peak_events_href'] = amiga_lb_calendar_geo_player_href($playerId, 5);
+}
+
+/**
+ * @param array<string, mixed> $row
+ */
+function amiga_profile_lb_slices_enrich_peak_rating_lb_link_context(int $playerId, array &$row): void
+{
+    if ($playerId < 1) {
+        return;
+    }
+
+    require_once __DIR__ . '/amiga_lb_lib.php';
+
+    $row['peak_rating_lb_nadir_href'] = amiga_lb_peak_rating_player_href($playerId, 8);
 }
 
 /**
@@ -361,6 +394,10 @@ function amiga_profile_lb_slices_load_at_cutoff(mysqli $con, int $playerId, Amig
     amiga_profile_lb_slices_enrich_rating_lb_link_context($con, $playerId, $row, $ctx);
     amiga_profile_lb_slices_enrich_goals_lb_link_context($playerId, $row);
     amiga_profile_lb_slices_enrich_double_digits_lb_link_context($playerId, $row);
+
+    amiga_profile_lb_slices_enrich_calendar_geo_lb_link_context($playerId, $row);
+
+    amiga_profile_lb_slices_enrich_peak_rating_lb_link_context($playerId, $row);
 
     return $row;
 }
@@ -866,6 +903,27 @@ function amiga_profile_lb_slice_link_star_value_html(string $displayHtml, string
     return '<a class="k2-link-star" href="' . k2_h($href) . '">' . $displayHtml . '</a>';
 }
 
+function amiga_profile_lb_slice_link_star_value_stacked_html(
+    string $primaryHtml,
+    ?string $mutedHtml,
+    string $href
+): string {
+    $primary = amiga_profile_lb_slice_link_star_value_html($primaryHtml, $href);
+
+    return amiga_profile_lb_slice_value_stacked($primary, $mutedHtml);
+}
+
+function amiga_profile_lb_slice_link_star_value_stacked(
+    string $primaryDisplay,
+    ?string $mutedHtml,
+    string $href
+): string {
+    return amiga_profile_lb_slice_value_stacked(
+        amiga_profile_lb_slice_link_star_value($primaryDisplay, $href),
+        $mutedHtml
+    );
+}
+
 /**
  * @param array<string, mixed> $row
  */
@@ -1287,27 +1345,46 @@ function amiga_profile_lb_slice_rows_tournament_honours(array $row): void
  */
 function amiga_profile_lb_slice_rows_calendar_geo(array $row): void
 {
+    $playerId = (int) ($row['ID'] ?? 0);
+    $games = (int) ($row['NumberGames'] ?? 0);
     $peakGamesYear = $row['peak_year_games_year'] ?? null;
     $peakEventsYear = $row['peak_year_tournaments_year'] ?? null;
     $stackedClass = 'k2-amiga-profile-activity-value-cell--stacked';
+    $peakGames = (int) ($row['peak_year_games'] ?? 0);
+    $peakEvents = (int) ($row['peak_year_tournaments'] ?? 0);
+
+    $peakGamesHref = '';
+    if ($playerId > 0 && k2_derived_games_started($games) && $peakGames > 0) {
+        $peakGamesHref = (string) ($row['calendar_geo_lb_peak_games_href'] ?? '');
+    }
+    $peakGamesValue = amiga_profile_lb_slice_link_star_value_stacked_html(
+        '<span class="blue">' . $peakGames . '</span>',
+        $peakGamesYear !== null ? k2_h((string) (int) $peakGamesYear) : null,
+        $peakGamesHref
+    );
 
     echo amiga_profile_lb_slice_row(
         'Peak games',
-        amiga_profile_lb_slice_value_stacked(
-            '<span class="blue">' . (int) ($row['peak_year_games'] ?? 0) . '</span>',
-            $peakGamesYear !== null ? k2_h((string) (int) $peakGamesYear) : null
-        ),
+        $peakGamesValue,
         k2_lb_help_amiga_peak_year_games(),
         null,
         '',
         $stackedClass
     );
+
+    $peakEventsHref = '';
+    if ($playerId > 0 && k2_derived_games_started($games) && $peakEvents > 0) {
+        $peakEventsHref = (string) ($row['calendar_geo_lb_peak_events_href'] ?? '');
+    }
+    $peakEventsValue = amiga_profile_lb_slice_link_star_value_stacked_html(
+        (string) $peakEvents,
+        $peakEventsYear !== null ? k2_h((string) (int) $peakEventsYear) : null,
+        $peakEventsHref
+    );
+
     echo amiga_profile_lb_slice_row(
         'Peak events',
-        amiga_profile_lb_slice_value_stacked(
-            (string) (int) ($row['peak_year_tournaments'] ?? 0),
-            $peakEventsYear !== null ? k2_h((string) (int) $peakEventsYear) : null
-        ),
+        $peakEventsValue,
         k2_lb_help_amiga_peak_year_tournaments(),
         null,
         '',
@@ -1324,6 +1401,7 @@ function amiga_profile_lb_slice_rows_calendar_geo(array $row): void
  */
 function amiga_profile_lb_slice_rows_peak_rating(array $row): void
 {
+    $playerId = (int) ($row['ID'] ?? 0);
     $games = (int) ($row['NumberGames'] ?? 0);
     $stackedClass = 'k2-amiga-profile-activity-value-cell--stacked';
 
@@ -1349,19 +1427,48 @@ function amiga_profile_lb_slice_rows_peak_rating(array $row): void
         '',
         $stackedClass
     );
+
+    $nadirDisplay = k2_fmt_nadir_rating($row['LowestRating'] ?? null);
+    $nadirHref = '';
+    if ($playerId > 0 && k2_derived_games_started($games) && $nadirDisplay !== '-') {
+        $nadirHref = (string) ($row['peak_rating_lb_nadir_href'] ?? '');
+    }
     echo amiga_profile_lb_slice_row(
         'Nadir',
-        amiga_profile_lb_slice_value_stacked(
-            k2_fmt_nadir_rating($row['LowestRating'] ?? null),
-            amiga_profile_lb_slice_event_date_stacked_muted($row['lowest_rating_date'] ?? null)
+        amiga_profile_lb_slice_link_star_value_stacked(
+            $nadirDisplay,
+            amiga_profile_lb_slice_event_date_stacked_muted($row['lowest_rating_date'] ?? null),
+            $nadirHref
         ),
         k2_lb_help_amiga_profile_nadir(),
         null,
         '',
         $stackedClass
     );
-    echo amiga_profile_lb_slice_row('Highest Victim', k2_fmt_lb_stat($row['HighestRatedVictim'] ?? null, $games), k2_lb_help_highest_victim());
-    echo amiga_profile_lb_slice_row('Lowest Culprit', k2_fmt_lb_stat($row['LowestRatedCulprit'] ?? null, $games, 5000.0), k2_lb_help_lowest_culprit());
+    echo amiga_profile_lb_slice_row(
+        'Highest Victim',
+        amiga_profile_lb_slice_games_inventory_link(
+            k2_fmt_lb_stat($row['HighestRatedVictim'] ?? null, $games),
+            $playerId,
+            $games,
+            'win',
+            'opp_rating',
+            'desc'
+        ),
+        k2_lb_help_highest_victim()
+    );
+    echo amiga_profile_lb_slice_row(
+        'Lowest Culprit',
+        amiga_profile_lb_slice_games_inventory_link(
+            k2_fmt_lb_stat($row['LowestRatedCulprit'] ?? null, $games, 5000.0),
+            $playerId,
+            $games,
+            'loss',
+            'opp_rating',
+            'asc'
+        ),
+        k2_lb_help_lowest_culprit()
+    );
 }
 
 /**

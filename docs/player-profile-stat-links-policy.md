@@ -78,17 +78,22 @@ Secondary comparison paths (opening the LB from inside inventory, HoF deep links
 | Mosaic — CS conceded | Games tab, hero GF = 0, id desc | **Shipped** | URL-only `?gf_max=0` + `#matching-games` |
 | Mosaic — DD Ratio | Double-digits LB col 6 | **Shipped** | SSR `k2_sort` + `#k2-lb-player-{id}`; `amiga_lb_double_digits_player_href()` |
 | Mosaic — CS Ratio | Double-digits LB col 7 | **Shipped** | SSR sort + player row anchor |
-| Mosaic — DD C Ratio | Double-digits LB col 10 | **Shipped** | SSR sort + player row anchor |
-| Mosaic — CS C Ratio | Double-digits LB col 11 | **Shipped** | SSR sort + player row anchor |
+| Mosaic — DD C Ratio | Double-digits LB col 10 | **Shipped** | SSR `k2_sort` col 10 **`asc`** + `#k2-lb-player-{id}` (lower conceded DD ratio is better) |
+| Mosaic — CS C Ratio | Double-digits LB col 11 | **Shipped** | SSR sort col 11 **`asc`** + player row anchor |
 | Mosaic — Events | Tournaments tab (all events) | **Shipped** | `#k2-player-tournaments-table`; same as hero |
 | Mosaic — Podiums | Tournaments tab, `podium=with-podium` | **Shipped** | Inventory — top-3 finishes |
 | Mosaic — Event gold | Tournaments tab, `winner=with-win` | **Shipped** | Inventory — `is_winner` / finish 1 |
 | Mosaic — Event silver | Tournaments tab, `finish=2` | **Shipped** | URL-only finish filter (no segment tab) |
 | Mosaic — Event bronze | Tournaments tab, `finish=3` | **Shipped** | URL-only finish filter (no segment tab) |
 | Mosaic — Perfect | Tournaments tab, `perfect=with-participant` | **Shipped** | Inventory — perfect-run events |
+| Mosaic — Peak games | Calendar-geo LB col 3 | **Shipped** | SSR `k2_sort` + `#k2-lb-player-{id}`; `amiga_lb_calendar_geo_player_href()` |
+| Mosaic — Peak events | Calendar-geo LB col 5 | **Shipped** | SSR sort + player row anchor |
+| Mosaic — Nadir | Peak-rating LB col 8 | **Shipped** | SSR `k2_sort` col 8 **`desc`** + `#k2-lb-player-{id}` (higher nadir is better) |
+| Mosaic — Highest Victim | Games tab, `result=win`, `sort=opp_rating` **`desc`** | **Shipped** | Opponent pre-game Elo on wins; `#matching-games` |
+| Mosaic — Lowest Culprit | Games tab, `result=loss`, `sort=opp_rating` **`asc`** | **Shipped** | Opponent pre-game Elo on losses; `#matching-games` |
 | Mosaic — DD Victims, CS Victims, … | Player victim/culprit chronology (per-type list, first occurrence order) | **Planned** | Inventory-first; not LB |
 | Mosaic — GF, DD count, opponents, … | Filtered games or dedicated lists where they exist | **Planned** / **—** | Other ratios → no link until inventory exists |
-| Mosaic — Peak rating / peak rank values | Establishing tournament or event context | **Partial** | Peak cells may link; rank comparison stays LB-adjacent only where explicitly ladder |
+| Mosaic — Peak rating / peak rank values | Establishing tournament or event context | **Partial** | Peak rating / peak rank cells → event context; **Nadir** → peak-rating LB (shipped); **Highest Victim / Lowest Culprit** → Games tab (shipped) |
 
 ### Online player profile
 

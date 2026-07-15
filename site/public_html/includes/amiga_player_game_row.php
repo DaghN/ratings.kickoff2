@@ -24,12 +24,27 @@ function amiga_player_game_sort_col_index(string $sortKey): int
         'sum' => 11,
         'rating_a' => 12,
         'rating_b' => 13,
+        'opp_rating' => 12,
         'es' => 14,
         'result' => 15,
         'adjustment' => 16,
     ];
 
     return $map[$sortKey] ?? 0;
+}
+
+/**
+ * Sorted-column emphasis for one row (`opp_rating` highlights the opponent's rating column).
+ *
+ * @param array<string, mixed> $row
+ */
+function amiga_player_game_row_sorted_col_index(string $sortKey, int $playerId, array $row): int
+{
+    if ($sortKey === 'opp_rating') {
+        return (int) ($row['idA'] ?? 0) === $playerId ? 13 : 12;
+    }
+
+    return amiga_player_game_sort_col_index($sortKey);
 }
 
 /** ID column — game link anchor for calm-stats emphasis on first paint. */

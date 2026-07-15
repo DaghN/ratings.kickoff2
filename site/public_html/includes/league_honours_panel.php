@@ -106,7 +106,7 @@ foreach ($cupTabs as $cupId => $label) {
 <?php foreach ($honoursRows as $row) { ?>
 				<tr>
 					<td<?php echo k2_lb_td(0, $lbSort); ?>></td>
-					<td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_player_link($row['id'], $row['name']); ?></td>
+					<td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_lb_player_row_anchor_markup((int) $row['id']); ?><?php echo k2_player_link($row['id'], $row['name']); ?></td>
 					<td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_lb_rating_cell_link((int) $row['id'], $row['rating'], (string) $row['name']); ?></td>
 					<td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo (int) $row['games']; ?></td>
 					<td<?php echo k2_lb_td(4, $lbSort, 'k2-lb-honours-medal-td'); ?>><?php echo amiga_wc_podium_medal_value_markup((int) $row['gold'], 1); ?></td>

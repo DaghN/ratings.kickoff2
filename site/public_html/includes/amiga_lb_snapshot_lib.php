@@ -794,12 +794,14 @@ function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx, ?str
         $sql = $selectBase
             . 'tpr.event_date AS peak_rating_date, s.peak_elo_rank, s.peak_elo_rank_tournament_id, '
             . 'tpke.name AS peak_elo_rank_tournament_name, tpke.event_date AS peak_elo_rank_date, '
+            . 'tlow.event_date AS lowest_rating_date, '
             . '(pr_rank_snap.player_id IS NOT NULL) AS peak_elo_rank_played_in_event '
             . 'FROM amiga_players p '
             . 'INNER JOIN amiga_player_current s ON s.player_id = p.id '
             . 'LEFT JOIN tournaments tpr ON tpr.id = s.peak_rating_tournament_id '
             . $joinPeakSnap
             . 'LEFT JOIN tournaments tpke ON tpke.id = s.peak_elo_rank_tournament_id '
+            . 'LEFT JOIN tournaments tlow ON tlow.id = s.lowest_rating_tournament_id '
             . $peakRankPlayedJoinPresent
             . 'WHERE ' . amiga_lb_player_where_sql() . ' '
             . 'ORDER BY ' . $orderClause;
@@ -815,6 +817,7 @@ function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx, ?str
     $sql = $selectBase
         . 'tpr.event_date AS peak_rating_date, er.peak_elo_rank, er.peak_elo_rank_tournament_id, '
         . 'tpke.name AS peak_elo_rank_tournament_name, tpke.event_date AS peak_elo_rank_date, '
+        . 'tlow.event_date AS lowest_rating_date, '
         . '(pr_rank_snap.player_id IS NOT NULL) AS peak_elo_rank_played_in_event '
         . amiga_lb_snapshot_from_sql('s')
         . ' LEFT JOIN tournaments tpr ON tpr.id = s.peak_rating_tournament_id '
@@ -830,6 +833,7 @@ function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx, ?str
         . '    WHERE er.tournament_id = ?'
         . ') er ON er.player_id = p.id '
         . 'LEFT JOIN tournaments tpke ON tpke.id = er.peak_elo_rank_tournament_id '
+        . 'LEFT JOIN tournaments tlow ON tlow.id = s.lowest_rating_tournament_id '
         . $peakRankPlayedJoinTt
         . 'WHERE ' . amiga_lb_player_where_sql() . ' '
         . 'ORDER BY ' . $orderClause;

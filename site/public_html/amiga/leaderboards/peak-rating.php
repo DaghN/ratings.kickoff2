@@ -57,8 +57,9 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
         <th<?php echo k2_lb_th(6, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_peak_elo_rank(), ENT_QUOTES, 'UTF-8'); ?>">Peak rank</th>
         <th<?php echo k2_lb_th(7, $lbSort, 'k2-table-cell--right'); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_peak_elo_rank_date(), ENT_QUOTES, 'UTF-8'); ?>">Peak rank date</th>
         <th<?php echo k2_lb_th(8, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_nadir(), ENT_QUOTES, 'UTF-8'); ?>">Nadir</th>
-        <th<?php echo k2_lb_th(9, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_highest_victim(), ENT_QUOTES, 'UTF-8'); ?>">Highest Victim</th>
-        <th<?php echo k2_lb_th(10, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_lowest_culprit(), ENT_QUOTES, 'UTF-8'); ?>">Lowest Culprit</th>
+        <th<?php echo k2_lb_th(9, $lbSort, 'k2-table-cell--right'); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_nadir_date(), ENT_QUOTES, 'UTF-8'); ?>">Nadir date</th>
+        <th<?php echo k2_lb_th(10, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_highest_victim(), ENT_QUOTES, 'UTF-8'); ?>">Highest Victim</th>
+        <th<?php echo k2_lb_th(11, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_lowest_culprit(), ENT_QUOTES, 'UTF-8'); ?>">Lowest Culprit</th>
     </tr>
 </thead>
 
@@ -71,7 +72,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     ?>
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
-        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_amiga_lb_player_cell((int) $row['ID'], $playerName, (string) ($row['Country'] ?? '')); ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_lb_player_row_anchor_markup((int) $row['ID']); ?><?php echo k2_amiga_lb_player_cell((int) $row['ID'], $playerName, (string) ($row['Country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_amiga_lb_rating_cell_link((int) $row['ID'], $row['Rating'], $playerName); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo amiga_lb_peak_rating_peak_cell_html($row); ?></td>
@@ -79,8 +80,9 @@ while ($row = mysqli_fetch_assoc($result)) {
         <td<?php echo k2_lb_td(6, $lbSort); ?><?php echo amiga_lb_peak_elo_rank_cell_sort_attrs($row['peak_elo_rank'] ?? null, $row['peak_elo_rank_date'] ?? null); ?>><?php echo amiga_lb_peak_rating_peak_rank_cell_html($row); ?></td>
         <td<?php echo k2_lb_td(7, $lbSort, 'k2-table-cell--right'); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value(['event_date' => $row['peak_elo_rank_date'] ?? null]); ?>"><?php echo amiga_profile_format_event_date($row['peak_elo_rank_date'] ?? null); ?></td>
         <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo k2_fmt_nadir_rating($row['LowestRating']); ?></td>
-        <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo k2_fmt_lb_stat($row['HighestRatedVictim'], $games); ?></td>
-        <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo k2_fmt_lb_stat($row['LowestRatedCulprit'], $games, 5000.0); ?></td>
+        <td<?php echo k2_lb_td(9, $lbSort, 'k2-table-cell--right'); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value(['event_date' => $row['lowest_rating_date'] ?? null]); ?>"><?php echo amiga_profile_format_event_date($row['lowest_rating_date'] ?? null); ?></td>
+        <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo k2_fmt_lb_stat($row['HighestRatedVictim'], $games); ?></td>
+        <td<?php echo k2_lb_td(11, $lbSort); ?>><?php echo k2_fmt_lb_stat($row['LowestRatedCulprit'], $games, 5000.0); ?></td>
     </tr>
     <?php
     $rank++;

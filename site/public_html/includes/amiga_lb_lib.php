@@ -71,6 +71,40 @@ function amiga_lb_goals_player_href(int $playerId, int $sortCol, string $dir = '
     return $path . k2_lb_player_row_anchor_hash($playerId);
 }
 
+/**
+ * Amiga calendar-geo LB URL scrolled to a player's row (profile mosaic peak links).
+ *
+ * @param array<string, scalar> $extraQuery
+ */
+function amiga_lb_calendar_geo_player_href(int $playerId, int $sortCol, string $dir = 'desc', array $extraQuery = []): string
+{
+    $dir = strtolower($dir) === 'asc' ? 'asc' : 'desc';
+    $query = array_merge(['k2_sort' => (string) $sortCol, 'k2_dir' => $dir], $extraQuery);
+    $path = amiga_url_with_context('/amiga/leaderboards/calendar-geo.php', $query);
+    if ($playerId < 1) {
+        return $path . k2_lb_table_anchor_hash();
+    }
+
+    return $path . k2_lb_player_row_anchor_hash($playerId);
+}
+
+/**
+ * Amiga peak-rating LB URL scrolled to a player's row (profile mosaic comparison links).
+ *
+ * @param array<string, scalar> $extraQuery
+ */
+function amiga_lb_peak_rating_player_href(int $playerId, int $sortCol, string $dir = 'desc', array $extraQuery = []): string
+{
+    $dir = strtolower($dir) === 'asc' ? 'asc' : 'desc';
+    $query = array_merge(['k2_sort' => (string) $sortCol, 'k2_dir' => $dir], $extraQuery);
+    $path = amiga_url_with_context('/amiga/leaderboards/peak-rating.php', $query);
+    if ($playerId < 1) {
+        return $path . k2_lb_table_anchor_hash();
+    }
+
+    return $path . k2_lb_player_row_anchor_hash($playerId);
+}
+
 /** Default ORDER BY tail for Amiga goals LB (no leading ORDER BY). */
 function amiga_lb_goals_default_order_sql(): string
 {
@@ -203,8 +237,9 @@ function amiga_lb_peak_rating_order_column_map(bool $timeTravelActive = false): 
         6 => $timeTravelActive ? 'er.peak_elo_rank' : 's.peak_elo_rank',
         7 => 'tpke.event_date',
         8 => 's.LowestRating',
-        9 => 's.HighestRatedVictim',
-        10 => 's.LowestRatedCulprit',
+        9 => 'tlow.event_date',
+        10 => 's.HighestRatedVictim',
+        11 => 's.LowestRatedCulprit',
     ];
 }
 

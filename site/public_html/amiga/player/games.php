@@ -87,6 +87,7 @@ $sortMap = [
     'sum' => 'r.SumOfGoals',
     'rating_a' => 'r.RatingA',
     'rating_b' => 'r.RatingB',
+    'opp_rating' => "CASE WHEN r.idA = $playerIdSql THEN r.RatingB ELSE r.RatingA END",
     'es' => "CASE WHEN r.idA = $playerIdSql THEN r.ExpectedScoreA ELSE r.ExpectedScoreB END",
     'adjustment' => "CASE WHEN r.idA = $playerIdSql THEN r.AdjustmentA ELSE r.AdjustmentB END",
 ];
@@ -201,7 +202,6 @@ $shownCount = count($games);
 $firstShown = $totalMatches > 0 ? $offset + 1 : 0;
 $lastShown = $offset + $shownCount;
 $pagerParams = amiga_games_active_url_params($sortState);
-$sortedColIndex = amiga_player_game_sort_col_index($sortKey);
 
 $resultChoices = $filterChoices['result'];
 $opponentChoices = $filterChoices['opponent'];
@@ -387,7 +387,7 @@ $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : 
     </tr>
     <?php } ?>
     <?php foreach ($games as $game) { ?>
-    <?php echo amiga_player_game_row_html($game, $playerId, $sortedColIndex, $con); ?>
+    <?php echo amiga_player_game_row_html($game, $playerId, amiga_player_game_row_sorted_col_index($sortKey, $playerId, $game), $con); ?>
     <?php } ?>
 </tbody>
 

@@ -81,7 +81,7 @@ include $_SERVER["DOCUMENT_ROOT"] . "/includes/lb_nav.php";
     
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
-        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_player_link($playerId, (string) $row['Name']); ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_lb_player_row_anchor_markup($playerId); ?><?php echo k2_player_link($playerId, (string) $row['Name']); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_lb_rating_cell_link($playerId, $row['Rating'], (string) $row['Name']); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
         <td<?php echo k2_lb_td(4, $lbSort, $peakCtxClass); ?><?php echo $peakCtxAttrs; ?>><span class="blue"><?php echo k2_fmt_peak_rating($row['PeakRating']); ?></span></td>

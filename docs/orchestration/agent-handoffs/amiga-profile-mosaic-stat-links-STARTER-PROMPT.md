@@ -3,7 +3,7 @@
 **Use a new chat.** Paste the **COPY INTO NEW CHAT** block below (click copy icon).  
 **Policy (authority + register):** [`docs/player-profile-stat-links-policy.md`](../../player-profile-stat-links-policy.md)  
 **Track A (separate):** LB server-side sort — [`k2-lb-ssr-sort-STARTER-PROMPT.md`](k2-lb-ssr-sort-STARTER-PROMPT.md) (comparison links benefit when target wing is SSR; do not mix tracks unless Dagh asks).  
-**Status:** In progress (Jul 2026) — Results · Goals · DD/CS · **Tournament honours** mosaics **Shipped**; Victims · Calendar · Peak · Activity rows **Planned**.
+**Status:** In progress (Jul 2026) — Results · Goals · DD/CS · Tournament honours · Calendar peak games/events · **Peak rating (Nadir LB + Highest Victim / Lowest Culprit games)** **Shipped**; Victims · remaining geo · peak rating dates · Activity rows **Planned**.
 
 **Smoke player:** `id=149` on `/amiga/player/profile.php` (present + one `as=` URL when TT-relevant).
 
@@ -44,12 +44,14 @@ You are Dagh's **Amiga profile mosaic stat links (Track B)** agent.
 - Goals mosaic: GF–Ratio → Goals LB; Max GF/GA/win/loss/sum/draw → Games tab inventory sorts
 - DD/CS mosaic: DD / CS / DD conceded / CS conceded counts → Games tab URL bounds; four ratio cells → Double-digits LB
 - **Tournament honours mosaic:** Events · Podiums · gold/silver/bronze · Perfect → Tournaments tab filters + `#k2-player-tournaments-table`
+- **Calendar & geography mosaic:** Peak games · Peak events → Calendar-geo LB cols 3 & 5 + `#k2-lb-player-{id}`
+- **Peak rating mosaic:** Nadir → peak-rating LB col 8 **`desc`**; Highest Victim / Lowest Culprit → Games tab `result=win|loss`, `sort=opp_rating` `desc|asc` + `#matching-games`
 
 **Backlog (policy §4 — pick what Dagh names next):**
 | Section | Cells | Likely destination |
 |---------|-------|-------------------|
 | Victims & Culprits | Opponents, Victims, DD/CS/MGC/BL victims, Culprits, … | **Inventory** — opponent/victim chronology (may need new list surface; not victims LB) |
-| Calendar & geography | Peak games/events, host countries, countries faced/beaten | Tournaments tab, countries hub, or filtered games — propose per stat |
+| Calendar & geography | Host countries, countries faced/beaten | Countries hub, or filtered games — propose per stat |
 | Peak rating | Peak rating, peak rank, dates, nadir, highest victim, lowest culprit | Partial infra in amiga_lb_peak_rating_lib.php — establishing game / tournament context |
 | Activity (first rows) | Last/first tournament, WC boundaries | Tournament links (stacked cells) — may already have event ids in row |
 
@@ -80,5 +82,7 @@ _(Agent appends one line per shipped stat or group.)_
 | Date | Shipped |
 |------|---------|
 | 2026-07-15 | **Tournament honours mosaic (all 6 cells)** — Events · Podiums · gold (`winner`) · silver (`finish=2`) · bronze (`finish=3`) · Perfect → Tournaments tab + `#k2-player-tournaments-table` |
+| 2026-07-15 | **Peak rating mosaic — Highest Victim / Lowest Culprit** — Games tab `result=win|loss`, `sort=opp_rating` `desc|asc`, `#matching-games` |
+| 2026-07-15 | **Calendar & geography — Peak games / Peak events** — Calendar-geo LB cols 3 & 5 + `#k2-lb-player-{id}`; `amiga_lb_calendar_geo_player_href()` |
 | 2026-07-15 | Doc trio context — Results, Goals, DD/CS mosaics shipped in prior sessions (see policy §4) |
 | 2026-07-15 | Rating LB fixed columns (SSR-13) — win rate / opp avg comparison hrefs use cols 8–9 |

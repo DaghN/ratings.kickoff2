@@ -10,7 +10,7 @@
 
 ## Current focus
 
-- **Amiga profile (Jul 2026):** **Track B** — mosaic stat links one-at-a-time ([`player-profile-stat-links-policy.md`](docs/player-profile-stat-links-policy.md) · [`amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md)); Results · Goals · DD/CS · **Tournament honours** **shipped**; Victims · geo · peak · activity rows **planned**.
+- **Amiga profile (Jul 2026):** **Track B** — mosaic stat links one-at-a-time ([`player-profile-stat-links-policy.md`](docs/player-profile-stat-links-policy.md) · [`amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md)); Results · Goals · DD/CS · Tournament honours · Calendar peak games/events · **Peak rating (Nadir LB + Highest Victim / Lowest Culprit games)** **shipped**; Victims · geo country rows · peak rating dates · activity rows **planned**.
 
 - **K2 LB SSR (Jul 2026):** **Track A complete** — all hub wings URL landing sort ([`k2-lb-ssr-sort-policy.md`](docs/k2-lb-ssr-sort-policy.md) **Implemented**). Track **B** = profile mosaic stat links.
 
@@ -149,6 +149,9 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-15 | **Amiga profile mosaic — Highest Victim / Lowest Culprit** — Games tab inventory: `result=win|loss`, new `sort=opp_rating` (`desc`/`asc`), `#matching-games`; policy register updated. |
+| 2026-07-15 | **Amiga peak-rating LB — Nadir date column** — col 9 after Nadir; `tlow.event_date` from `lowest_rating_tournament_id`; SSR sort map cols 10–11 shifted (Highest Victim / Lowest Culprit). |
+| 2026-07-15 | **Amiga career LB row anchors** — `k2_lb_player_row_anchor_markup()` on calendar-geo, tournament-honours, peak-rating, victims (was rating/goals/DD only); profile `#k2-lb-player-{id}` links now land on row. |
 | 2026-07-15 | **Amiga profile Peak rating panel — stacked dates** — peak rating / peak rank / nadir values with tournament dates muted below (`lowest_rating_tournament_id` join); separate date rows removed. |
 | 2026-07-15 | **Amiga profile Peak rating panel — drop Opponent Avg.** — removed duplicate row from mosaic; Results **Opponent Average** link to Rating LB unchanged. |
 | 2026-07-15 | **K2 LB SSR Track A complete (slice 6)** — policy **Implemented**; all hub wings shipped; `audit_k2_table_compliance.py` PASS (0 Tier C). |

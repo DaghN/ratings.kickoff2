@@ -64,7 +64,7 @@ foreach ($leaderRows as $row) {
     ?>
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
-        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_player_link($row['player_id'], $row['player_name']); ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_lb_player_row_anchor_markup((int) $row['player_id']); ?><?php echo k2_player_link($row['player_id'], $row['player_name']); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_lb_rating_cell_link((int) $row['player_id'], $row['rating'], (string) $row['player_name']); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($row['games']); ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><span class="k2-lb-ms-tier--pitch"><?php echo (int) $row['aspirational']; ?></span></td>
