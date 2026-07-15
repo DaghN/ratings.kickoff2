@@ -648,6 +648,19 @@ function ordinal_suffix(int $n): string
     };
 }
 
+function amiga_profile_render_charts(int $playerId): void
+{
+    ?>
+<section class="k2-amiga-profile-charts" aria-label="Charts">
+	<h3 class="k2-panel-heading">Charts</h3>
+<?php
+    amiga_profile_render_rating_chart($playerId);
+    amiga_profile_render_rank_chart($playerId);
+    ?>
+</section>
+    <?php
+}
+
 function amiga_profile_render_rating_chart(int $playerId): void
 {
     require_once __DIR__ . '/amiga_snapshot_context.php';
@@ -657,7 +670,7 @@ function amiga_profile_render_rating_chart(int $playerId): void
         $asAttr = ' data-as="' . htmlspecialchars($asParam, ENT_QUOTES, 'UTF-8') . '"';
     }
     ?>
-<section class="k2-amiga-profile-chart">
+<div class="k2-amiga-profile-chart">
 	<div class="player-rating-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>" data-realm="amiga"<?php echo $asAttr; ?>>
 		<h3 class="k2-panel-heading">Elo rating</h3>
 		<p class="k2-chart-block__hint">Calendar view: end-of-day rating after each tournament day. Tournament # view: one point per finalized event.</p>
@@ -689,7 +702,7 @@ function amiga_profile_render_rating_chart(int $playerId): void
 			</div>
 		</div>
 	</div>
-</section>
+</div>
     <?php
 }
 
@@ -702,7 +715,7 @@ function amiga_profile_render_rank_chart(int $playerId): void
         $asAttr = ' data-as="' . htmlspecialchars($asParam, ENT_QUOTES, 'UTF-8') . '"';
     }
     ?>
-<section class="k2-amiga-profile-chart">
+<div class="k2-amiga-profile-chart">
 	<div class="player-rank-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>" data-realm="amiga"<?php echo $asAttr; ?>>
 		<h3 class="k2-panel-heading">Elo rank</h3>
 		<p class="k2-chart-block__hint">End-of-day rank after each tournament day.</p>
@@ -737,6 +750,6 @@ function amiga_profile_render_rank_chart(int $playerId): void
 			<canvas class="player-rank-canvas" aria-label="Elo rank over time"></canvas>
 		</div>
 	</div>
-</section>
+</div>
     <?php
 }

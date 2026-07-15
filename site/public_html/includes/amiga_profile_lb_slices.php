@@ -609,10 +609,22 @@ function amiga_profile_lb_slice_row(
         . '</tr>';
 }
 
-function amiga_profile_lb_slice_section_header(string $title): void
+function amiga_profile_lb_slice_render_section_table(string $title, callable $renderRows): void
 {
     $safe = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
-    echo '    <tr class="server-records-section-header"><td colspan="2">' . $safe . "</td></tr>\n";
+    echo '<div class="k2-amiga-profile-lb-slice-block server-records-panel">';
+    echo '<h3 class="k2-panel-heading">' . $safe . '</h3>';
+    echo '<div class="k2-table-wrap">';
+    ?>
+<table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
+<tbody class="black">
+<?php
+    $renderRows();
+    ?>
+</tbody>
+</table>
+<?php
+    echo "</div></div>\n";
 }
 
 /**
@@ -670,23 +682,6 @@ function amiga_profile_lb_slice_column_plan(): array
         ['double-digits', 'victims'],
         ['honours', 'calendar', 'peak'],
     ];
-}
-
-function amiga_profile_lb_slice_render_section_table(string $title, callable $renderRows): void
-{
-    echo '<div class="k2-amiga-profile-lb-slice-block server-records-panel">';
-    echo '<div class="k2-table-wrap">';
-    ?>
-<table class="k2-table server-records-table k2-table--calm-stats" data-k2-anchor-col="1">
-<tbody class="black">
-<?php
-    amiga_profile_lb_slice_section_header($title);
-    $renderRows();
-    ?>
-</tbody>
-</table>
-<?php
-    echo "</div></div>\n";
 }
 
 /**

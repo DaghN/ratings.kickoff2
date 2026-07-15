@@ -66,8 +66,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_nav.php';
 
 amiga_profile_render_lb_slices($profileLbSliceRow);
 amiga_profile_render_moments($profileMoments, $playerId);
-amiga_profile_render_rating_chart($playerId);
-amiga_profile_render_rank_chart($playerId);
+amiga_profile_render_charts($playerId);
 ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
