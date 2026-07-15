@@ -698,8 +698,12 @@ function amiga_profile_lb_slice_tournament_value_stacked(?array $event): string
     return amiga_profile_lb_slice_value_stacked($link, $muted);
 }
 
-function amiga_profile_lb_slice_player_games_href(int $playerId, string $resultFilter = 'all'): string
-{
+function amiga_profile_lb_slice_player_games_href(
+    int $playerId,
+    string $resultFilter = 'all',
+    ?string $sortKey = null,
+    ?string $sortDir = null,
+): string {
     require_once __DIR__ . '/amiga_player_games_lib.php';
 
     if ($playerId < 1) {
@@ -711,8 +715,30 @@ function amiga_profile_lb_slice_player_games_href(int $playerId, string $resultF
     if ($resultFilter !== 'all') {
         $params['result'] = $resultFilter;
     }
+    if ($sortKey !== null && $sortKey !== '') {
+        $params['sort'] = $sortKey === 'for' ? 'goals_for' : $sortKey;
+    }
+    if ($sortDir !== null && $sortDir !== '') {
+        $params['dir'] = amiga_games_valid_direction($sortDir);
+    }
 
     return amiga_games_build_url($params) . k2_player_matching_games_anchor_fragment();
+}
+
+function amiga_profile_lb_slice_games_inventory_link(
+    string $display,
+    int $playerId,
+    int $games,
+    string $resultFilter = 'all',
+    ?string $sortKey = null,
+    ?string $sortDir = null,
+): string {
+    $href = '';
+    if ($playerId > 0 && k2_derived_games_started($games) && $display !== '—' && $display !== '-') {
+        $href = amiga_profile_lb_slice_player_games_href($playerId, $resultFilter, $sortKey, $sortDir);
+    }
+
+    return amiga_profile_lb_slice_link_star_value($display, $href);
 }
 
 function amiga_profile_lb_slice_link_star_value(string $display, string $href): string
@@ -898,12 +924,41 @@ function amiga_profile_lb_slice_rows_goals(array $row): void
         $goalsLbLink($ratioCell, 'goals_lb_ratio_href'),
         k2_lb_help_goal_ratio()
     );
-    echo amiga_profile_lb_slice_row('Max GF', k2_fmt_count($row['MostGoalsScored'] ?? null, $games), k2_lb_help_amiga_most_scored());
-    echo amiga_profile_lb_slice_row('Max GA', k2_fmt_count($row['MostGoalsConceded'] ?? null, $games), k2_lb_help_amiga_most_conceded());
-    echo amiga_profile_lb_slice_row('Max win', k2_fmt_count($row['BiggestWinDifference'] ?? null, $games), k2_lb_help_win_margin());
-    echo amiga_profile_lb_slice_row('Max loss', k2_fmt_count($row['BiggestLossDifference'] ?? null, $games), k2_lb_help_loss_margin());
-    echo amiga_profile_lb_slice_row('Max sum', k2_fmt_count($row['BiggestSumOfGoals'] ?? null, $games), k2_lb_help_goal_sum());
-    echo amiga_profile_lb_slice_row('Max draw', $drawCell, k2_lb_help_biggest_draw());
+    $maxGfDisplay = k2_fmt_count($row['MostGoalsScored'] ?? null, $games);
+    echo amiga_profile_lb_slice_row(
+        'Max GF',
+        amiga_profile_lb_slice_games_inventory_link($maxGfDisplay, $playerId, $games, 'all', 'goals_for', 'desc'),
+        k2_lb_help_amiga_most_scored()
+    );
+    $maxGaDisplay = k2_fmt_count($row['MostGoalsConceded'] ?? null, $games);
+    echo amiga_profile_lb_slice_row(
+        'Max GA',
+        amiga_profile_lb_slice_games_inventory_link($maxGaDisplay, $playerId, $games, 'all', 'against', 'desc'),
+        k2_lb_help_amiga_most_conceded()
+    );
+    $maxWinDisplay = k2_fmt_count($row['BiggestWinDifference'] ?? null, $games);
+    echo amiga_profile_lb_slice_row(
+        'Max win',
+        amiga_profile_lb_slice_games_inventory_link($maxWinDisplay, $playerId, $games, 'win', 'diff', 'desc'),
+        k2_lb_help_win_margin()
+    );
+    $maxLossDisplay = k2_fmt_count($row['BiggestLossDifference'] ?? null, $games);
+    echo amiga_profile_lb_slice_row(
+        'Max loss',
+        amiga_profile_lb_slice_games_inventory_link($maxLossDisplay, $playerId, $games, 'loss', 'diff', 'asc'),
+        k2_lb_help_loss_margin()
+    );
+    $maxSumDisplay = k2_fmt_count($row['BiggestSumOfGoals'] ?? null, $games);
+    echo amiga_profile_lb_slice_row(
+        'Max sum',
+        amiga_profile_lb_slice_games_inventory_link($maxSumDisplay, $playerId, $games, 'all', 'sum', 'desc'),
+        k2_lb_help_goal_sum()
+    );
+    echo amiga_profile_lb_slice_row(
+        'Max draw',
+        amiga_profile_lb_slice_games_inventory_link($drawCell, $playerId, $games, 'draw', 'sum', 'desc'),
+        k2_lb_help_biggest_draw()
+    );
 }
 
 /**

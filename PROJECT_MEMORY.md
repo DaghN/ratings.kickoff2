@@ -145,6 +145,8 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-15 | **Amiga profile mosaic — Goals peak links** — Max GA / win / loss / sum / draw → Games tab inventory (`against`·`diff`·`sum` sorts; win/loss/draw result filters where needed) + `#matching-games`. |
+| 2026-07-15 | **Amiga profile mosaic — Max GF link** — Goals **Max GF** → Games tab `?sort=goals_for&dir=desc` + `#matching-games` (inventory; SSR sort; `as=` preserved). |
 | 2026-07-15 | **Amiga Goals LB SSR sort + mosaic links** — `goals.php` URL `k2_sort` → SQL ORDER BY + row anchors; profile Goals mosaic GF→Ratio (6 cells); HoF `goal_ratio` sort col 8→9 (Ratio not GD/g). |
 | 2026-07-15 | **Amiga profile mosaic — Opponent Average link** — Results **Opponent Average** → Rating LB Opponent Average column (SSR sort col 8/9 + player row anchor). |
 | 2026-07-15 | **Amiga profile mosaic — Win rate link** — Results **Win rate** → Rating LB SSR-sorted by Win rate col + player row anchor; dynamic col 7/8 (Δ column); `amiga_lb_rating_win_rate_player_href()`. |
