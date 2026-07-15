@@ -1,6 +1,6 @@
 # Amiga player chronologies — policy
 
-**Status:** **Shipped v1** (Jul 2026) — **Opponents** + **Victims** + **DD/CS/MGC/BL Victims** + **MGS/BW Culprits** pointer kinds. Remaining culprit kinds **Planned**.
+**Status:** **Shipped v1** (Jul 2026) — opponent/victim/culprit kinds + **country unlock** kinds (host / faced / beaten / beaten by). Calendar & geo mosaic inventory complete.
 
 **Parent:** [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) (inventory vs comparison — profile mosaic entry) · [`amiga-profile-v0.md`](amiga-profile-v0.md) · [`navigation-model.md`](navigation-model.md) NM2–NM4
 
@@ -71,12 +71,33 @@ Each **kind** (Opponents, Victims, DD Victims, …) is a separate folder under `
 | `amiga-player-chronologies-bl-victims-made-it` | `/amiga/player/chronologies/bl_victims/made-it.php?id=` | Made it (default) |
 | `amiga-player-chronologies-bl-victims-graphs` | `/amiga/player/chronologies/bl_victims/graphs.php?id=` | Graphs |
 | *(folder default)* | `/amiga/player/chronologies/bl_victims/index.php` | 302 → made-it |
+| `amiga-player-chronologies-culprits-made-it` | `/amiga/player/chronologies/culprits/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-culprits-graphs` | `/amiga/player/chronologies/culprits/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/culprits/index.php` | 302 → made-it |
+| `amiga-player-chronologies-dd-culprits-made-it` | `/amiga/player/chronologies/dd_culprits/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-dd-culprits-graphs` | `/amiga/player/chronologies/dd_culprits/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/dd_culprits/index.php` | 302 → made-it |
+| `amiga-player-chronologies-cs-culprits-made-it` | `/amiga/player/chronologies/cs_culprits/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-cs-culprits-graphs` | `/amiga/player/chronologies/cs_culprits/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/cs_culprits/index.php` | 302 → made-it |
 | `amiga-player-chronologies-mgs-culprits-made-it` | `/amiga/player/chronologies/mgs_culprits/made-it.php?id=` | Made it (default) |
 | `amiga-player-chronologies-mgs-culprits-graphs` | `/amiga/player/chronologies/mgs_culprits/graphs.php?id=` | Graphs |
 | *(folder default)* | `/amiga/player/chronologies/mgs_culprits/index.php` | 302 → made-it |
 | `amiga-player-chronologies-bw-culprits-made-it` | `/amiga/player/chronologies/bw_culprits/made-it.php?id=` | Made it (default) |
 | `amiga-player-chronologies-bw-culprits-graphs` | `/amiga/player/chronologies/bw_culprits/graphs.php?id=` | Graphs |
 | *(folder default)* | `/amiga/player/chronologies/bw_culprits/index.php` | 302 → made-it |
+| `amiga-player-chronologies-host-countries-made-it` | `/amiga/player/chronologies/host_countries/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-host-countries-graphs` | `/amiga/player/chronologies/host_countries/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/host_countries/index.php` | 302 → made-it |
+| `amiga-player-chronologies-countries-faced-made-it` | `/amiga/player/chronologies/countries_faced/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-countries-faced-graphs` | `/amiga/player/chronologies/countries_faced/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/countries_faced/index.php` | 302 → made-it |
+| `amiga-player-chronologies-countries-beaten-made-it` | `/amiga/player/chronologies/countries_beaten/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-countries-beaten-graphs` | `/amiga/player/chronologies/countries_beaten/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/countries_beaten/index.php` | 302 → made-it |
+| `amiga-player-chronologies-countries-beaten-by-made-it` | `/amiga/player/chronologies/countries_beaten_by/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-countries-beaten-by-graphs` | `/amiga/player/chronologies/countries_beaten_by/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/countries_beaten_by/index.php` | 302 → made-it |
 
 Register in [`k2_amiga_routes.php`](../site/public_html/includes/k2_amiga_routes.php). Document in [`url-routes.md`](url-routes.md).
 
@@ -96,10 +117,24 @@ Register in [`k2_amiga_routes.php`](../site/public_html/includes/k2_amiga_routes
 | `amiga_player_chronology_mgc_victims_entry_href($playerId)` | Profile mosaic MGC Victims row |
 | `amiga_player_chronology_bl_victims_href($playerId, $segment)` | Internal segment nav (BL victims) |
 | `amiga_player_chronology_bl_victims_entry_href($playerId)` | Profile mosaic BL Victims row |
+| `amiga_player_chronology_culprits_href($playerId, $segment)` | Internal segment nav (culprits) |
+| `amiga_player_chronology_culprits_entry_href($playerId)` | Profile mosaic Culprits row |
+| `amiga_player_chronology_dd_culprits_href($playerId, $segment)` | Internal segment nav (DD culprits) |
+| `amiga_player_chronology_dd_culprits_entry_href($playerId)` | Profile mosaic DD Culprits row |
+| `amiga_player_chronology_cs_culprits_href($playerId, $segment)` | Internal segment nav (CS culprits) |
+| `amiga_player_chronology_cs_culprits_entry_href($playerId)` | Profile mosaic CS Culprits row |
 | `amiga_player_chronology_mgs_culprits_href($playerId, $segment)` | Internal segment nav (MGS culprits) |
 | `amiga_player_chronology_mgs_culprits_entry_href($playerId)` | Profile mosaic MGS Culprits row |
 | `amiga_player_chronology_bw_culprits_href($playerId, $segment)` | Internal segment nav (BW culprits) |
 | `amiga_player_chronology_bw_culprits_entry_href($playerId)` | Profile mosaic BW Culprits row |
+| `amiga_player_chronology_host_countries_href($playerId, $segment)` | Internal segment nav (host countries) |
+| `amiga_player_chronology_host_countries_entry_href($playerId)` | Profile mosaic Host countries row |
+| `amiga_player_chronology_countries_faced_href($playerId, $segment)` | Internal segment nav (countries faced) |
+| `amiga_player_chronology_countries_faced_entry_href($playerId)` | Profile mosaic Countries faced row |
+| `amiga_player_chronology_countries_beaten_href($playerId, $segment)` | Internal segment nav (countries beaten) |
+| `amiga_player_chronology_countries_beaten_entry_href($playerId)` | Profile mosaic Countries beaten row |
+| `amiga_player_chronology_countries_beaten_by_href($playerId, $segment)` | Internal segment nav (countries beaten by) |
+| `amiga_player_chronology_countries_beaten_by_entry_href($playerId)` | Profile mosaic Countries beaten by row |
 | `amiga_player_chronology_href($playerId, $kind, $segment)` | Generic segment nav |
 | `amiga_player_chronology_spotlight_hash()` | Fragment only |
 
@@ -323,6 +358,85 @@ Rows = culprits X where X's snapshot at cutoff has `BiggestWinVictimID = hero`. 
 
 ---
 
+## 4.12 Reference kind — Culprits (shipped)
+
+### Rule line
+
+Spotlight rule: *Players that **{name}** has lost to at least once* — same link-star name treatment as Victims §4.5.
+
+### Made it table
+
+**One row per distinct culprit** at cutoff — the **first rated loss** vs that opponent.
+
+| Col | Header | Notes |
+|-----|--------|-------|
+| 1 | Culprit | Anchor column |
+| 2 | First loss | Quiet date on default load; hero-loss games only |
+
+**SQL:** `amiga_player_chronology_culprits_load()` — Victims partition + `amiga_player_chronology_hero_loss_sql()`. Parity: row count = `DifferentCulprits`.
+
+### Graphs
+
+Year bar + cumulative (`amiga-chronology-culprits-charts.js`).
+
+### Profile mosaic link
+
+**Culprits row:** `DifferentCulprits` → `amiga_player_chronology_culprits_entry_href()` when count > 0.
+
+---
+
+## 4.13 Reference kind — DD Culprits (shipped)
+
+### Rule line
+
+Spotlight rule: *Players that have scored 10 or more against **{name}** at least once* — matches `DoubleDigitsCulprits` / `dd_losses > 0`. **Not win/loss-gated**.
+
+### Made it table
+
+**One row per distinct DD culprit** — first rated game where hero GA ≥ 10 vs that opponent.
+
+**SQL:** `amiga_player_chronology_dd_culprits_load()` + `amiga_player_chronology_hero_ga_min_sql($playerId, 10)`. Parity: `DoubleDigitsCulprits`.
+
+### Profile mosaic link
+
+**DD Culprits row:** `DoubleDigitsCulprits` → `amiga_player_chronology_dd_culprits_entry_href()` when count > 0.
+
+---
+
+## 4.14 Reference kind — CS Culprits (shipped)
+
+### Rule line
+
+Spotlight rule: *Players that have shut out **{name}** at least once* — matches `CleanSheetsCulprits` / `cs_losses > 0`. **Not win-gated** (0–0 counts).
+
+### Made it table
+
+**One row per distinct CS culprit** — first rated game where hero GF = 0 vs that opponent.
+
+**SQL:** `amiga_player_chronology_cs_culprits_load()` + `amiga_player_chronology_hero_gf_max_sql($playerId, 0)`. Parity: `CleanSheetsCulprits`.
+
+### Profile mosaic link
+
+**CS Culprits row:** `CleanSheetsCulprits` → `amiga_player_chronology_cs_culprits_entry_href()` when count > 0.
+
+---
+
+## 4.15 Reference kinds — Country unlocks (shipped)
+
+**Entity column = Country** (flag + roster link), not player. Folders use underscores (`host_countries`); route keys use hyphens (`host-countries`).
+
+### Host countries
+
+Spotlight: *Host countries where **{name}** has played*. **Event grain** — Made it columns: `#` · Country · First hosted · Event (no scoreboard). SQL: first `amiga_player_event_snapshots` row per `TRIM(country)` with `games > 0`. Parity: `countries_played_in`.
+
+### Countries faced / beaten / beaten by
+
+Spotlight lines as locked in product chat. **Game grain** — same scoreboard stack as Victims; Country anchor. Filters match geo H6–H8 (`GoalsA`/`GoalsB` win/loss; blank nationality skipped). Parity: `opponent_countries_faced` / `beaten` / `beaten_by`.
+
+Loads live in `amiga_player_chronologies_countries_lib.php`.
+
+---
+
 ## 5. Kind register
 
 | Kind | Mosaic source | Made it row | Graphs | Status |
@@ -333,11 +447,15 @@ Rows = culprits X where X's snapshot at cutoff has `BiggestWinVictimID = hero`. 
 | **cs_victims** | CS Victims | First rated game hero GA = 0 per victim | Year bar + cumulative | **Shipped** |
 | **mgc_victims** | MGC Victims | Current victims: credited MGC culprit = hero | Year bar + cumulative (current set) | **Shipped** |
 | **bl_victims** | BL Victims | Current victims: credited BL culprit = hero | Year bar + cumulative (current set) | **Shipped** |
-| **culprits** | Culprits | First loss to culprit | TBD | **Planned** |
-| **dd_culprits** | DD Culprits | … | TBD | **Planned** |
-| **cs_culprits** | CS Culprits | … | TBD | **Planned** |
+| **culprits** | Culprits | First rated loss per culprit | Year bar + cumulative | **Shipped** |
+| **dd_culprits** | DD Culprits | First rated game hero GA ≥ 10 per culprit | Year bar + cumulative | **Shipped** |
+| **cs_culprits** | CS Culprits | First rated game hero GF = 0 per culprit | Year bar + cumulative | **Shipped** |
 | **mgs_culprits** | MGS Culprits | Current culprits: credited MGS victim = hero | Year bar + cumulative (current set) | **Shipped** |
 | **bw_culprits** | BW Culprits | Current culprits: credited BW victim = hero | Year bar + cumulative (current set) | **Shipped** |
+| **host_countries** | Host countries | First event hosted in that country (games > 0) | Year bar + cumulative | **Shipped** |
+| **countries_faced** | Countries faced | First rated game vs that opponent nationality | Year bar + cumulative | **Shipped** |
+| **countries_beaten** | Countries beaten | First rated goals-win vs that nationality | Year bar + cumulative | **Shipped** |
+| **countries_beaten_by** | Countries beaten by | First rated goals-loss vs that nationality | Year bar + cumulative | **Shipped** |
 
 Add a row when a kind ships; do not link mosaic cells until Made it exists ([`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) §3).
 
@@ -363,7 +481,7 @@ Add a row when a kind ships; do not link mosaic cells until Made it exists ([`pl
 - Player wing tab pill for chronologies (mosaic entry only)
 - Links from Made it rows to hub leaderboards
 - Card reflow / mobile column hiding on Made it table
-- Remaining culprit kinds (Different / DD / CS culprits; register only)
+- *(none for first-occurrence culprit kinds — all shipped Jul 2026)*
 - Online realm chronologies (Amiga-only track)
 
 ---
@@ -379,4 +497,4 @@ Add a row when a kind ships; do not link mosaic cells until Made it exists ([`pl
 
 ---
 
-*Last updated: Jul 2026 — MGS/BW Culprits (inverse victim-pointer inventory, `sdii` TT bind) shipped.*
+*Last updated: Jul 2026 — host / faced / beaten / beaten-by country chronologies shipped; Calendar & geo mosaic inventory complete.*

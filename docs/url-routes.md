@@ -154,10 +154,24 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-player-chronologies-mgc-victims-graphs` | `/amiga/player/chronologies/mgc_victims/graphs.php` |
 | `amiga-player-chronologies-bl-victims-made-it` | `/amiga/player/chronologies/bl_victims/made-it.php` (inventory default; `index.php` 302) |
 | `amiga-player-chronologies-bl-victims-graphs` | `/amiga/player/chronologies/bl_victims/graphs.php` |
+| `amiga-player-chronologies-culprits-made-it` | `/amiga/player/chronologies/culprits/made-it.php` (inventory default; `index.php` 302) |
+| `amiga-player-chronologies-culprits-graphs` | `/amiga/player/chronologies/culprits/graphs.php` |
+| `amiga-player-chronologies-dd-culprits-made-it` | `/amiga/player/chronologies/dd_culprits/made-it.php` (inventory default; `index.php` 302) |
+| `amiga-player-chronologies-dd-culprits-graphs` | `/amiga/player/chronologies/dd_culprits/graphs.php` |
+| `amiga-player-chronologies-cs-culprits-made-it` | `/amiga/player/chronologies/cs_culprits/made-it.php` (inventory default; `index.php` 302) |
+| `amiga-player-chronologies-cs-culprits-graphs` | `/amiga/player/chronologies/cs_culprits/graphs.php` |
 | `amiga-player-chronologies-mgs-culprits-made-it` | `/amiga/player/chronologies/mgs_culprits/made-it.php` (inventory default; `index.php` 302) |
 | `amiga-player-chronologies-mgs-culprits-graphs` | `/amiga/player/chronologies/mgs_culprits/graphs.php` |
 | `amiga-player-chronologies-bw-culprits-made-it` | `/amiga/player/chronologies/bw_culprits/made-it.php` (inventory default; `index.php` 302) |
 | `amiga-player-chronologies-bw-culprits-graphs` | `/amiga/player/chronologies/bw_culprits/graphs.php` |
+| `amiga-player-chronologies-host-countries-made-it` | `/amiga/player/chronologies/host_countries/made-it.php` (inventory default; `index.php` 302) |
+| `amiga-player-chronologies-host-countries-graphs` | `/amiga/player/chronologies/host_countries/graphs.php` |
+| `amiga-player-chronologies-countries-faced-made-it` | `/amiga/player/chronologies/countries_faced/made-it.php` (inventory default; `index.php` 302) |
+| `amiga-player-chronologies-countries-faced-graphs` | `/amiga/player/chronologies/countries_faced/graphs.php` |
+| `amiga-player-chronologies-countries-beaten-made-it` | `/amiga/player/chronologies/countries_beaten/made-it.php` (inventory default; `index.php` 302) |
+| `amiga-player-chronologies-countries-beaten-graphs` | `/amiga/player/chronologies/countries_beaten/graphs.php` |
+| `amiga-player-chronologies-countries-beaten-by-made-it` | `/amiga/player/chronologies/countries_beaten_by/made-it.php` (inventory default; `index.php` 302) |
+| `amiga-player-chronologies-countries-beaten-by-graphs` | `/amiga/player/chronologies/countries_beaten_by/graphs.php` |
 | `amiga-world-cups` | `/amiga/world-cups/chronology.php` (Chronology default; `/amiga/world-cups/` 302) |
 | `amiga-world-cups-chronology` | `/amiga/world-cups/chronology.php` (`chronology/index.php` 302 legacy) |
 | `amiga-world-cups-stats` | `/amiga/world-cups/stats/participation.php` (Participation default; `stats.php` + `stats/index.php` 302) |

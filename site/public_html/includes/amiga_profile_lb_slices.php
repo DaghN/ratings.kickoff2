@@ -1286,9 +1286,27 @@ function amiga_profile_lb_slice_rows_victims(array $row): void
         $playerId > 0 && $blVictims > 0 ? amiga_player_chronology_bl_victims_entry_href($playerId) : ''
     );
     echo amiga_profile_lb_slice_row('BL Victims', $blVictimsValue, k2_lb_help_bl_victims(), 'Biggest Loss victims');
-    echo amiga_profile_lb_slice_row('Culprits', k2_fmt_count($row['DifferentCulprits'] ?? null, $games), k2_lb_help_culprits());
-    echo amiga_profile_lb_slice_row('DD Culprits', k2_fmt_count($row['DoubleDigitsCulprits'] ?? null, $games), k2_lb_help_dd_culprits(), 'Double Digit culprits');
-    echo amiga_profile_lb_slice_row('CS Culprits', k2_fmt_count($row['CleanSheetsCulprits'] ?? null, $games), k2_lb_help_cs_culprits(), 'Clean Sheet culprits');
+    $culprits = (int) ($row['DifferentCulprits'] ?? 0);
+    $culpritsDisplay = '<span class="blue">' . k2_fmt_count($row['DifferentCulprits'] ?? null, $games) . '</span>';
+    $culpritsValue = amiga_profile_lb_slice_link_star_value_html(
+        $culpritsDisplay,
+        $playerId > 0 && $culprits > 0 ? amiga_player_chronology_culprits_entry_href($playerId) : ''
+    );
+    echo amiga_profile_lb_slice_row('Culprits', $culpritsValue, k2_lb_help_culprits());
+    $ddCulprits = (int) ($row['DoubleDigitsCulprits'] ?? 0);
+    $ddCulpritsDisplay = '<span class="blue">' . k2_fmt_count($row['DoubleDigitsCulprits'] ?? null, $games) . '</span>';
+    $ddCulpritsValue = amiga_profile_lb_slice_link_star_value_html(
+        $ddCulpritsDisplay,
+        $playerId > 0 && $ddCulprits > 0 ? amiga_player_chronology_dd_culprits_entry_href($playerId) : ''
+    );
+    echo amiga_profile_lb_slice_row('DD Culprits', $ddCulpritsValue, k2_lb_help_dd_culprits(), 'Double Digit culprits');
+    $csCulprits = (int) ($row['CleanSheetsCulprits'] ?? 0);
+    $csCulpritsDisplay = '<span class="blue">' . k2_fmt_count($row['CleanSheetsCulprits'] ?? null, $games) . '</span>';
+    $csCulpritsValue = amiga_profile_lb_slice_link_star_value_html(
+        $csCulpritsDisplay,
+        $playerId > 0 && $csCulprits > 0 ? amiga_player_chronology_cs_culprits_entry_href($playerId) : ''
+    );
+    echo amiga_profile_lb_slice_row('CS Culprits', $csCulpritsValue, k2_lb_help_cs_culprits(), 'Clean Sheet culprits');
     $mgsCulprits = (int) ($row['MostGoalsScoredCulprits'] ?? 0);
     $mgsCulpritsDisplay = '<span class="blue">' . k2_fmt_count($row['MostGoalsScoredCulprits'] ?? null, $games) . '</span>';
     $mgsCulpritsValue = amiga_profile_lb_slice_link_star_value_html(
@@ -1395,6 +1413,7 @@ function amiga_profile_lb_slice_rows_tournament_honours(array $row): void
  */
 function amiga_profile_lb_slice_rows_calendar_geo(array $row): void
 {
+    require_once __DIR__ . '/amiga_player_chronologies_lib.php';
     $playerId = (int) ($row['ID'] ?? 0);
     $games = (int) ($row['NumberGames'] ?? 0);
     $peakGamesYear = $row['peak_year_games_year'] ?? null;
@@ -1440,10 +1459,34 @@ function amiga_profile_lb_slice_rows_calendar_geo(array $row): void
         '',
         $stackedClass
     );
-    echo amiga_profile_lb_slice_row('Host countries', (string) (int) ($row['countries_played_in'] ?? 0), k2_lb_help_amiga_countries_played_in());
-    echo amiga_profile_lb_slice_row('Countries faced', (string) (int) ($row['opponent_countries_faced'] ?? 0), k2_lb_help_amiga_opponent_countries_faced());
-    echo amiga_profile_lb_slice_row('Countries beaten', (string) (int) ($row['opponent_countries_beaten'] ?? 0), k2_lb_help_amiga_opponent_countries_beaten());
-    echo amiga_profile_lb_slice_row('Countries beaten by', (string) (int) ($row['opponent_countries_beaten_by'] ?? 0), k2_lb_help_amiga_opponent_countries_beaten_by());
+    $hostCountries = (int) ($row['countries_played_in'] ?? 0);
+    $hostCountriesDisplay = '<span class="blue">' . (string) $hostCountries . '</span>';
+    $hostCountriesValue = amiga_profile_lb_slice_link_star_value_html(
+        $hostCountriesDisplay,
+        $playerId > 0 && $hostCountries > 0 ? amiga_player_chronology_host_countries_entry_href($playerId) : ''
+    );
+    echo amiga_profile_lb_slice_row('Host countries', $hostCountriesValue, k2_lb_help_amiga_countries_played_in());
+    $countriesFaced = (int) ($row['opponent_countries_faced'] ?? 0);
+    $countriesFacedDisplay = '<span class="blue">' . (string) $countriesFaced . '</span>';
+    $countriesFacedValue = amiga_profile_lb_slice_link_star_value_html(
+        $countriesFacedDisplay,
+        $playerId > 0 && $countriesFaced > 0 ? amiga_player_chronology_countries_faced_entry_href($playerId) : ''
+    );
+    echo amiga_profile_lb_slice_row('Countries faced', $countriesFacedValue, k2_lb_help_amiga_opponent_countries_faced());
+    $countriesBeaten = (int) ($row['opponent_countries_beaten'] ?? 0);
+    $countriesBeatenDisplay = '<span class="blue">' . (string) $countriesBeaten . '</span>';
+    $countriesBeatenValue = amiga_profile_lb_slice_link_star_value_html(
+        $countriesBeatenDisplay,
+        $playerId > 0 && $countriesBeaten > 0 ? amiga_player_chronology_countries_beaten_entry_href($playerId) : ''
+    );
+    echo amiga_profile_lb_slice_row('Countries beaten', $countriesBeatenValue, k2_lb_help_amiga_opponent_countries_beaten());
+    $countriesBeatenBy = (int) ($row['opponent_countries_beaten_by'] ?? 0);
+    $countriesBeatenByDisplay = '<span class="blue">' . (string) $countriesBeatenBy . '</span>';
+    $countriesBeatenByValue = amiga_profile_lb_slice_link_star_value_html(
+        $countriesBeatenByDisplay,
+        $playerId > 0 && $countriesBeatenBy > 0 ? amiga_player_chronology_countries_beaten_by_entry_href($playerId) : ''
+    );
+    echo amiga_profile_lb_slice_row('Countries beaten by', $countriesBeatenByValue, k2_lb_help_amiga_opponent_countries_beaten_by());
 }
 
 /**

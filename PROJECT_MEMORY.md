@@ -10,7 +10,7 @@
 
 ## Current focus
 
-- **Amiga profile (Jul 2026):** **Track B** — mosaic stat links; **Victims panel + MGS/BW Culprits pointer chronologies shipped** — policy [`amiga-player-chronologies-policy.md`](docs/amiga-player-chronologies-policy.md); Different/DD/CS culprit kinds **planned**. **Inverse-count timeline shipped** — sparse changelog `amiga_player_inverse_count_at_event` (3,423 rows); mosaic + Victims LB TT read changelog; `verify-inverse-count-changelog` green — [`amiga-player-inverse-count-timeline-policy.md`](docs/amiga-player-inverse-count-timeline-policy.md).
+- **Amiga profile (Jul 2026):** **Track B** — mosaic stat links; **Player chronologies complete for mosaic inventory** — Victims & Culprits + Calendar & geo country unlocks (host/faced/beaten/beaten by); policy [`amiga-player-chronologies-policy.md`](docs/amiga-player-chronologies-policy.md). **Inverse-count timeline shipped** — sparse changelog `amiga_player_inverse_count_at_event` (3,423 rows); mosaic + Victims LB TT read changelog; `verify-inverse-count-changelog` green — [`amiga-player-inverse-count-timeline-policy.md`](docs/amiga-player-inverse-count-timeline-policy.md).
 
 - **K2 LB SSR (Jul 2026):** **Track A complete** — all hub wings URL landing sort ([`k2-lb-ssr-sort-policy.md`](docs/k2-lb-ssr-sort-policy.md) **Implemented**). Track **B** = profile mosaic stat links.
 
@@ -149,6 +149,8 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-15 | **Amiga country chronologies (Track B)** — `/amiga/player/chronologies/{host_countries,countries_faced,countries_beaten,countries_beaten_by}/`: Country unlock inventories; host = event grain; faced/beaten/beaten-by = game grain (goals H6–H8); mosaic Calendar & geo wired. Parity id=149: 10/20/20/8 present; TT `year:2010` 5/15/15/6. |
+| 2026-07-15 | **Amiga Culprits / DD / CS Culprits chronologies (Track B)** — `/amiga/player/chronologies/{culprits,dd_culprits,cs_culprits}/{made-it,graphs}.php`: first loss / GA≥10 / GF=0 per opponent; mosaic Culprits rows wired. Parity id=149: 30/3/0 present; TT `year:2010` 21/0/0. |
 | 2026-07-15 | **Amiga player chronologies policy** — [`amiga-player-chronologies-policy.md`](docs/amiga-player-chronologies-policy.md): Opponents v1 locked (Made it + Graphs, read-time SQL, mosaic entry, vs Opponents wing); kind register for Victims/Culprits backlog. AGENTS + url-routes + stat-links cross-refs. |
 | 2026-07-15 | **Amiga player country fix — Regis B** — L3 override `Regis B` → France (L2 had Sweden); `ko2amiga_work` ground + simul; inventory [`amiga-l3-legacy-fixes-inventory.md`](docs/amiga-l3-legacy-fixes-inventory.md) §7. |
 | 2026-07-15 | **Amiga MGS/BW Culprits chronologies (Track B)** — `/amiga/player/chronologies/{mgs,bw}_culprits/{made-it,graphs}.php`: inverse victim-pointer inventory (`MostGoalsScoredVictimID` / `BiggestWinVictimID` on culprit snapshots + credited game); TT bind `sdii`; mosaic wired. Parity id=189: 9/9; TT id=73 `year:2010`: mgs 1/1. |

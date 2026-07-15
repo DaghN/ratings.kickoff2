@@ -94,7 +94,10 @@ Secondary comparison paths (opening the LB from inside inventory, HoF deep links
 | Mosaic — Peak Rating | Establishing tournament (`event-stats`) | **Shipped** | `amiga_lb_peak_rating_peak_cell_html()` — tooltip + tournament link; date stacked below |
 | Mosaic — Peak rank | Rating LB at establishing event (`as=` snapshot) | **Shipped** | `amiga_lb_peak_rating_peak_rank_cell_html()` — tooltip + TT rating list; date stacked below |
 | Mosaic — Activity (last/first tournament, last/first WC) | Establishing tournament entity | **Shipped** | `amiga_profile_lb_slice_tournament_value_stacked()` — tournament link + event date below (v0) |
-| Mosaic — Host countries, countries faced/beaten/beaten by | Countries hub or filtered games | **Planned** | Calendar-geo panel remainder — propose per stat |
+| Mosaic — Host countries | Player chronologies — host_countries Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.15 · `amiga_player_chronology_host_countries_entry_href()` |
+| Mosaic — Countries faced | Player chronologies — countries_faced Made it | **Shipped** | §4.15 · `amiga_player_chronology_countries_faced_entry_href()` |
+| Mosaic — Countries beaten | Player chronologies — countries_beaten Made it | **Shipped** | §4.15 · `amiga_player_chronology_countries_beaten_entry_href()` |
+| Mosaic — Countries beaten by | Player chronologies — countries_beaten_by Made it | **Shipped** | §4.15 · `amiga_player_chronology_countries_beaten_by_entry_href()` |
 | Mosaic — Opponents | Player chronologies — opponents Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4 · `amiga_player_chronology_opponents_entry_href()` |
 | Mosaic — Victims | Player chronologies — victims Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.5 · `amiga_player_chronology_victims_entry_href()` |
 | Mosaic — DD Victims | Player chronologies — dd_victims Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.6 · `amiga_player_chronology_dd_victims_entry_href()` |
@@ -103,7 +106,9 @@ Secondary comparison paths (opening the LB from inside inventory, HoF deep links
 | Mosaic — BL Victims | Player chronologies — bl_victims Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.9 · `amiga_player_chronology_bl_victims_entry_href()` |
 | Mosaic — MGS Culprits | Player chronologies — mgs_culprits Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.10 · `amiga_player_chronology_mgs_culprits_entry_href()` |
 | Mosaic — BW Culprits | Player chronologies — bw_culprits Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.11 · `amiga_player_chronology_bw_culprits_entry_href()` |
-| Mosaic — Culprits, DD/CS culprits, … | Player culprit chronology (per-type list) | **Planned** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §5 kind register |
+| Mosaic — Culprits | Player chronologies — culprits Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.12 · `amiga_player_chronology_culprits_entry_href()` |
+| Mosaic — DD Culprits | Player chronologies — dd_culprits Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.13 · `amiga_player_chronology_dd_culprits_entry_href()` |
+| Mosaic — CS Culprits | Player chronologies — cs_culprits Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.14 · `amiga_player_chronology_cs_culprits_entry_href()` |
 
 ### Online player profile
 
@@ -130,4 +135,4 @@ Update this table when a stat gains a link or a new inventory page ships.
 
 ---
 
-*Last updated: Jul 2026 — MGS/BW Culprits chronologies shipped; Different/DD/CS culprit kinds remain planned.*
+*Last updated: Jul 2026 — Calendar & geo country chronologies shipped; Host countries / faced / beaten / beaten by mosaic links complete.*

@@ -20,14 +20,37 @@ const AMIGA_PLAYER_CHRONOLOGY_KIND_DD_VICTIMS = 'dd_victims';
 const AMIGA_PLAYER_CHRONOLOGY_KIND_CS_VICTIMS = 'cs_victims';
 const AMIGA_PLAYER_CHRONOLOGY_KIND_MGC_VICTIMS = 'mgc_victims';
 const AMIGA_PLAYER_CHRONOLOGY_KIND_BL_VICTIMS = 'bl_victims';
+const AMIGA_PLAYER_CHRONOLOGY_KIND_CULPRITS = 'culprits';
+const AMIGA_PLAYER_CHRONOLOGY_KIND_DD_CULPRITS = 'dd_culprits';
+const AMIGA_PLAYER_CHRONOLOGY_KIND_CS_CULPRITS = 'cs_culprits';
 const AMIGA_PLAYER_CHRONOLOGY_KIND_MGS_CULPRITS = 'mgs_culprits';
 const AMIGA_PLAYER_CHRONOLOGY_KIND_BW_CULPRITS = 'bw_culprits';
+const AMIGA_PLAYER_CHRONOLOGY_KIND_HOST_COUNTRIES = 'host_countries';
+const AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_FACED = 'countries_faced';
+const AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_BEATEN = 'countries_beaten';
+const AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_BEATEN_BY = 'countries_beaten_by';
 const AMIGA_PLAYER_CHRONOLOGY_SPOTLIGHT_FRAGMENT = 'k2-amiga-chronology-spotlight';
 
 /** @return list<string> */
 function amiga_player_chronology_valid_kinds(): array
 {
-    return [AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS, AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS, AMIGA_PLAYER_CHRONOLOGY_KIND_DD_VICTIMS, AMIGA_PLAYER_CHRONOLOGY_KIND_CS_VICTIMS, AMIGA_PLAYER_CHRONOLOGY_KIND_MGC_VICTIMS, AMIGA_PLAYER_CHRONOLOGY_KIND_BL_VICTIMS, AMIGA_PLAYER_CHRONOLOGY_KIND_MGS_CULPRITS, AMIGA_PLAYER_CHRONOLOGY_KIND_BW_CULPRITS];
+    return [
+        AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_DD_VICTIMS,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_CS_VICTIMS,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_MGC_VICTIMS,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_BL_VICTIMS,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_CULPRITS,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_DD_CULPRITS,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_CS_CULPRITS,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_MGS_CULPRITS,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_BW_CULPRITS,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_HOST_COUNTRIES,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_FACED,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_BEATEN,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_BEATEN_BY,
+    ];
 }
 
 function amiga_player_chronology_parse_kind(?string $kind): string
@@ -115,8 +138,15 @@ function amiga_player_chronology_href(int $playerId, string $kind, string $segme
         AMIGA_PLAYER_CHRONOLOGY_KIND_CS_VICTIMS => amiga_player_chronology_cs_victims_href($playerId, $segment),
         AMIGA_PLAYER_CHRONOLOGY_KIND_MGC_VICTIMS => amiga_player_chronology_mgc_victims_href($playerId, $segment),
         AMIGA_PLAYER_CHRONOLOGY_KIND_BL_VICTIMS => amiga_player_chronology_bl_victims_href($playerId, $segment),
+        AMIGA_PLAYER_CHRONOLOGY_KIND_CULPRITS => amiga_player_chronology_culprits_href($playerId, $segment),
+        AMIGA_PLAYER_CHRONOLOGY_KIND_DD_CULPRITS => amiga_player_chronology_dd_culprits_href($playerId, $segment),
+        AMIGA_PLAYER_CHRONOLOGY_KIND_CS_CULPRITS => amiga_player_chronology_cs_culprits_href($playerId, $segment),
         AMIGA_PLAYER_CHRONOLOGY_KIND_MGS_CULPRITS => amiga_player_chronology_mgs_culprits_href($playerId, $segment),
         AMIGA_PLAYER_CHRONOLOGY_KIND_BW_CULPRITS => amiga_player_chronology_bw_culprits_href($playerId, $segment),
+        AMIGA_PLAYER_CHRONOLOGY_KIND_HOST_COUNTRIES => amiga_player_chronology_host_countries_href($playerId, $segment),
+        AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_FACED => amiga_player_chronology_countries_faced_href($playerId, $segment),
+        AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_BEATEN => amiga_player_chronology_countries_beaten_href($playerId, $segment),
+        AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_BEATEN_BY => amiga_player_chronology_countries_beaten_by_href($playerId, $segment),
         default => '',
     };
 }
@@ -280,6 +310,175 @@ function amiga_player_chronology_bw_culprits_entry_href(int $playerId): string
 {
     return amiga_player_chronology_entry_href($playerId, AMIGA_PLAYER_CHRONOLOGY_KIND_BW_CULPRITS);
 }
+
+function amiga_player_chronology_culprits_route_key(string $segment): string
+{
+    return $segment === 'graphs'
+        ? 'amiga-player-chronologies-culprits-graphs'
+        : 'amiga-player-chronologies-culprits-made-it';
+}
+
+function amiga_player_chronology_culprits_href(int $playerId, string $segment = 'made-it'): string
+{
+    if ($playerId < 1) {
+        return '';
+    }
+
+    return k2_amiga_route(
+        amiga_player_chronology_culprits_route_key(amiga_player_chronology_parse_segment($segment)),
+        ['id' => $playerId],
+    );
+}
+
+function amiga_player_chronology_culprits_entry_href(int $playerId): string
+{
+    return amiga_player_chronology_entry_href($playerId, AMIGA_PLAYER_CHRONOLOGY_KIND_CULPRITS);
+}
+
+function amiga_player_chronology_dd_culprits_route_key(string $segment): string
+{
+    return $segment === 'graphs'
+        ? 'amiga-player-chronologies-dd-culprits-graphs'
+        : 'amiga-player-chronologies-dd-culprits-made-it';
+}
+
+function amiga_player_chronology_dd_culprits_href(int $playerId, string $segment = 'made-it'): string
+{
+    if ($playerId < 1) {
+        return '';
+    }
+
+    return k2_amiga_route(
+        amiga_player_chronology_dd_culprits_route_key(amiga_player_chronology_parse_segment($segment)),
+        ['id' => $playerId],
+    );
+}
+
+function amiga_player_chronology_dd_culprits_entry_href(int $playerId): string
+{
+    return amiga_player_chronology_entry_href($playerId, AMIGA_PLAYER_CHRONOLOGY_KIND_DD_CULPRITS);
+}
+
+function amiga_player_chronology_cs_culprits_route_key(string $segment): string
+{
+    return $segment === 'graphs'
+        ? 'amiga-player-chronologies-cs-culprits-graphs'
+        : 'amiga-player-chronologies-cs-culprits-made-it';
+}
+
+function amiga_player_chronology_cs_culprits_href(int $playerId, string $segment = 'made-it'): string
+{
+    if ($playerId < 1) {
+        return '';
+    }
+
+    return k2_amiga_route(
+        amiga_player_chronology_cs_culprits_route_key(amiga_player_chronology_parse_segment($segment)),
+        ['id' => $playerId],
+    );
+}
+
+function amiga_player_chronology_cs_culprits_entry_href(int $playerId): string
+{
+    return amiga_player_chronology_entry_href($playerId, AMIGA_PLAYER_CHRONOLOGY_KIND_CS_CULPRITS);
+}
+
+function amiga_player_chronology_host_countries_route_key(string $segment): string
+{
+    return $segment === 'graphs'
+        ? 'amiga-player-chronologies-host-countries-graphs'
+        : 'amiga-player-chronologies-host-countries-made-it';
+}
+
+function amiga_player_chronology_host_countries_href(int $playerId, string $segment = 'made-it'): string
+{
+    if ($playerId < 1) {
+        return '';
+    }
+
+    return k2_amiga_route(
+        amiga_player_chronology_host_countries_route_key(amiga_player_chronology_parse_segment($segment)),
+        ['id' => $playerId],
+    );
+}
+
+function amiga_player_chronology_host_countries_entry_href(int $playerId): string
+{
+    return amiga_player_chronology_entry_href($playerId, AMIGA_PLAYER_CHRONOLOGY_KIND_HOST_COUNTRIES);
+}
+
+function amiga_player_chronology_countries_faced_route_key(string $segment): string
+{
+    return $segment === 'graphs'
+        ? 'amiga-player-chronologies-countries-faced-graphs'
+        : 'amiga-player-chronologies-countries-faced-made-it';
+}
+
+function amiga_player_chronology_countries_faced_href(int $playerId, string $segment = 'made-it'): string
+{
+    if ($playerId < 1) {
+        return '';
+    }
+
+    return k2_amiga_route(
+        amiga_player_chronology_countries_faced_route_key(amiga_player_chronology_parse_segment($segment)),
+        ['id' => $playerId],
+    );
+}
+
+function amiga_player_chronology_countries_faced_entry_href(int $playerId): string
+{
+    return amiga_player_chronology_entry_href($playerId, AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_FACED);
+}
+
+function amiga_player_chronology_countries_beaten_route_key(string $segment): string
+{
+    return $segment === 'graphs'
+        ? 'amiga-player-chronologies-countries-beaten-graphs'
+        : 'amiga-player-chronologies-countries-beaten-made-it';
+}
+
+function amiga_player_chronology_countries_beaten_href(int $playerId, string $segment = 'made-it'): string
+{
+    if ($playerId < 1) {
+        return '';
+    }
+
+    return k2_amiga_route(
+        amiga_player_chronology_countries_beaten_route_key(amiga_player_chronology_parse_segment($segment)),
+        ['id' => $playerId],
+    );
+}
+
+function amiga_player_chronology_countries_beaten_entry_href(int $playerId): string
+{
+    return amiga_player_chronology_entry_href($playerId, AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_BEATEN);
+}
+
+function amiga_player_chronology_countries_beaten_by_route_key(string $segment): string
+{
+    return $segment === 'graphs'
+        ? 'amiga-player-chronologies-countries-beaten-by-graphs'
+        : 'amiga-player-chronologies-countries-beaten-by-made-it';
+}
+
+function amiga_player_chronology_countries_beaten_by_href(int $playerId, string $segment = 'made-it'): string
+{
+    if ($playerId < 1) {
+        return '';
+    }
+
+    return k2_amiga_route(
+        amiga_player_chronology_countries_beaten_by_route_key(amiga_player_chronology_parse_segment($segment)),
+        ['id' => $playerId],
+    );
+}
+
+function amiga_player_chronology_countries_beaten_by_entry_href(int $playerId): string
+{
+    return amiga_player_chronology_entry_href($playerId, AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_BEATEN_BY);
+}
+
 function amiga_player_chronology_kind_label(string $kind): string
 {
     return match (amiga_player_chronology_parse_kind($kind)) {
@@ -289,8 +488,15 @@ function amiga_player_chronology_kind_label(string $kind): string
         AMIGA_PLAYER_CHRONOLOGY_KIND_CS_VICTIMS => 'CS Victims',
         AMIGA_PLAYER_CHRONOLOGY_KIND_MGC_VICTIMS => 'MGC Victims',
         AMIGA_PLAYER_CHRONOLOGY_KIND_BL_VICTIMS => 'BL Victims',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_CULPRITS => 'Culprits',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_DD_CULPRITS => 'DD Culprits',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_CS_CULPRITS => 'CS Culprits',
         AMIGA_PLAYER_CHRONOLOGY_KIND_MGS_CULPRITS => 'MGS Culprits',
         AMIGA_PLAYER_CHRONOLOGY_KIND_BW_CULPRITS => 'BW Culprits',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_HOST_COUNTRIES => 'Host countries',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_FACED => 'Countries faced',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_BEATEN => 'Countries beaten',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_BEATEN_BY => 'Countries beaten by',
         default => 'Chronology',
     };
 }
@@ -310,8 +516,15 @@ function amiga_player_chronology_kind_rule_html(int $playerId, string $playerNam
         AMIGA_PLAYER_CHRONOLOGY_KIND_CS_VICTIMS => 'Players that ' . $nameHtml . ' has shut out at least once',
         AMIGA_PLAYER_CHRONOLOGY_KIND_MGC_VICTIMS => 'Players whose most conceded goals game was against ' . $nameHtml,
         AMIGA_PLAYER_CHRONOLOGY_KIND_BL_VICTIMS => 'Players whose biggest loss game was against ' . $nameHtml,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_CULPRITS => 'Players that ' . $nameHtml . ' has lost to at least once',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_DD_CULPRITS => 'Players that have scored 10 or more against ' . $nameHtml . ' at least once',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_CS_CULPRITS => 'Players that have shut out ' . $nameHtml . ' at least once',
         AMIGA_PLAYER_CHRONOLOGY_KIND_MGS_CULPRITS => 'Culprits whose most scored goals game was against ' . $nameHtml,
         AMIGA_PLAYER_CHRONOLOGY_KIND_BW_CULPRITS => 'Culprits whose biggest win game was against ' . $nameHtml,
+        AMIGA_PLAYER_CHRONOLOGY_KIND_HOST_COUNTRIES => 'Host countries where ' . $nameHtml . ' has played',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_FACED => 'Opponent countries that ' . $nameHtml . ' has faced',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_BEATEN => 'Opponent countries that ' . $nameHtml . ' has beaten',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_COUNTRIES_BEATEN_BY => 'Opponent countries that have beaten ' . $nameHtml,
         default => '',
     };
 }
@@ -331,6 +544,64 @@ function amiga_player_chronology_hero_win_sql(int $playerId, string $alias = 'r'
         . " OR ({$a}.idB = {$pid} AND ABS({$a}.ActualScore) < 0.001))";
 }
 
+/**
+ * Hero loss predicate for rated games (ActualScore).
+ */
+function amiga_player_chronology_hero_loss_sql(int $playerId, string $alias = 'r'): string
+{
+    $pid = (int) $playerId;
+    $a = preg_replace('/[^a-zA-Z0-9_]/', '', $alias);
+    if ($a === '') {
+        $a = 'r';
+    }
+
+    return " AND (({$a}.idA = {$pid} AND ABS({$a}.ActualScore) < 0.001)"
+        . " OR ({$a}.idB = {$pid} AND ABS({$a}.ActualScore - 1.0) < 0.001))";
+}
+
+/**
+ * Hero goals win (geo H7/H8 parity — GoalsA/GoalsB, not ActualScore).
+ */
+function amiga_player_chronology_hero_goals_win_sql(int $playerId, string $alias = 'r'): string
+{
+    $pid = (int) $playerId;
+    $a = preg_replace('/[^a-zA-Z0-9_]/', '', $alias);
+    if ($a === '') {
+        $a = 'r';
+    }
+
+    return " AND (({$a}.idA = {$pid} AND {$a}.GoalsA > {$a}.GoalsB)"
+        . " OR ({$a}.idB = {$pid} AND {$a}.GoalsB > {$a}.GoalsA))";
+}
+
+/**
+ * Hero goals loss (geo H8 parity).
+ */
+function amiga_player_chronology_hero_goals_loss_sql(int $playerId, string $alias = 'r'): string
+{
+    $pid = (int) $playerId;
+    $a = preg_replace('/[^a-zA-Z0-9_]/', '', $alias);
+    if ($a === '') {
+        $a = 'r';
+    }
+
+    return " AND (({$a}.idA = {$pid} AND {$a}.GoalsA < {$a}.GoalsB)"
+        . " OR ({$a}.idB = {$pid} AND {$a}.GoalsB < {$a}.GoalsA))";
+}
+
+/**
+ * Non-empty opponent nationality token (geo H6–H8 skips blank).
+ */
+function amiga_player_chronology_opponent_country_nonempty_sql(int $playerId, string $alias = 'r'): string
+{
+    $pid = (int) $playerId;
+    $a = preg_replace('/[^a-zA-Z0-9_]/', '', $alias);
+    if ($a === '') {
+        $a = 'r';
+    }
+
+    return " AND TRIM(CASE WHEN {$a}.idA = {$pid} THEN IFNULL({$a}.country_b, '') ELSE IFNULL({$a}.country_a, '') END) <> ''";
+}
 
 /**
  * Hero goals-for minimum (e.g. double digits: 10).
@@ -348,6 +619,21 @@ function amiga_player_chronology_hero_gf_min_sql(int $playerId, int $minGoals, s
 }
 
 /**
+ * Hero goals-for maximum (e.g. shut out / CS culprit: GF = 0).
+ */
+function amiga_player_chronology_hero_gf_max_sql(int $playerId, int $maxGoals, string $alias = 'r'): string
+{
+    $pid = (int) $playerId;
+    $max = max(0, (int) $maxGoals);
+    $a = preg_replace('/[^a-zA-Z0-9_]/', '', $alias);
+    if ($a === '') {
+        $a = 'r';
+    }
+
+    return " AND (CASE WHEN {$a}.idA = {$pid} THEN {$a}.GoalsA ELSE {$a}.GoalsB END <= {$max})";
+}
+
+/**
  * Hero goals-against maximum (e.g. clean sheet: 0).
  */
 function amiga_player_chronology_hero_ga_max_sql(int $playerId, int $maxGoals, string $alias = 'r'): string
@@ -360,6 +646,21 @@ function amiga_player_chronology_hero_ga_max_sql(int $playerId, int $maxGoals, s
     }
 
     return " AND (CASE WHEN {$a}.idA = {$pid} THEN {$a}.GoalsB ELSE {$a}.GoalsA END <= {$max})";
+}
+
+/**
+ * Hero goals-against minimum (e.g. DD culprit: opponent scored ≥10).
+ */
+function amiga_player_chronology_hero_ga_min_sql(int $playerId, int $minGoals, string $alias = 'r'): string
+{
+    $pid = (int) $playerId;
+    $min = max(0, (int) $minGoals);
+    $a = preg_replace('/[^a-zA-Z0-9_]/', '', $alias);
+    if ($a === '') {
+        $a = 'r';
+    }
+
+    return " AND (CASE WHEN {$a}.idA = {$pid} THEN {$a}.GoalsB ELSE {$a}.GoalsA END >= {$min})";
 }
 /**
  * First rated meeting per opponent through cutoff (tournament chronology).
@@ -589,6 +890,203 @@ function amiga_player_chronology_cs_victims_chart_payload(
 ): array {
     $payload = amiga_player_chronology_opponents_chart_payload($con, $playerId, $rows, $playerName);
     $payload['kind_label'] = 'CS Victims';
+
+    return $payload;
+}
+/**
+ * First rated loss per culprit through cutoff (tournament chronology).
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_player_chronology_culprits_load(
+    mysqli $con,
+    int $playerId,
+    ?AmigaSnapshotContext $ctx = null,
+): array {
+    if ($playerId < 1) {
+        return [];
+    }
+
+    $ctx ??= amiga_snapshot_context_peek();
+    $pid = (int) $playerId;
+    $types = '';
+    $params = [];
+    $cutoffSql = amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params);
+    $fromSql = amiga_rated_games_from_sql($playerId);
+    $lossSql = amiga_player_chronology_hero_loss_sql($playerId, 'r');
+
+    $sql = 'SELECT numbered.* FROM ('
+        . 'SELECT ranked.*, '
+        . 'ROW_NUMBER() OVER (ORDER BY ranked.tournament_event_date ASC, ranked.tournament_chrono ASC, ranked.tournament_id ASC, ranked.id ASC) AS unlock_rank '
+        . 'FROM ('
+        . 'SELECT inner_r.*, '
+        . "CASE WHEN inner_r.idA = {$pid} THEN inner_r.idB ELSE inner_r.idA END AS opponent_id, "
+        . "CASE WHEN inner_r.idA = {$pid} THEN inner_r.NameB ELSE inner_r.NameA END AS opponent_name, "
+        . "CASE WHEN inner_r.idA = {$pid} THEN inner_r.country_b ELSE inner_r.country_a END AS opponent_country, "
+        . 'ROW_NUMBER() OVER ('
+        . "PARTITION BY CASE WHEN inner_r.idA = {$pid} THEN inner_r.idB ELSE inner_r.idA END "
+        . 'ORDER BY inner_r.tournament_event_date ASC, inner_r.tournament_chrono ASC, inner_r.tournament_id ASC, inner_r.id ASC'
+        . ') AS meeting_rn '
+        . 'FROM (SELECT r.* ' . $fromSql . ' WHERE 1=1' . $cutoffSql . $lossSql . ') inner_r'
+        . ') ranked WHERE ranked.meeting_rn = 1'
+        . ') numbered '
+        . 'ORDER BY numbered.tournament_event_date DESC, numbered.tournament_chrono DESC, numbered.tournament_id DESC, numbered.id DESC';
+
+    $rows = amiga_games_query_all($con, $sql, $types, $params);
+    foreach ($rows as &$row) {
+        $row['unlock_rank'] = (int) ($row['unlock_rank'] ?? 0);
+        $row['first_met_sort'] = amiga_player_chronology_opponents_first_met_sort_value($row);
+        $row['first_met_label'] = amiga_player_chronology_opponents_first_met_label($row);
+    }
+    unset($row);
+
+    return $rows;
+}
+
+/**
+ * @param list<array<string, mixed>> $rows
+ * @return array<string, mixed>
+ */
+function amiga_player_chronology_culprits_chart_payload(
+    mysqli $con,
+    int $playerId,
+    array $rows,
+    string $playerName,
+): array {
+    $payload = amiga_player_chronology_opponents_chart_payload($con, $playerId, $rows, $playerName);
+    $payload['kind_label'] = 'Culprits';
+
+    return $payload;
+}
+
+/**
+ * First rated DD-against game (hero GA >= 10) per culprit through cutoff.
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_player_chronology_dd_culprits_load(
+    mysqli $con,
+    int $playerId,
+    ?AmigaSnapshotContext $ctx = null,
+): array {
+    if ($playerId < 1) {
+        return [];
+    }
+
+    $ctx ??= amiga_snapshot_context_peek();
+    $pid = (int) $playerId;
+    $types = '';
+    $params = [];
+    $cutoffSql = amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params);
+    $fromSql = amiga_rated_games_from_sql($playerId);
+    $ddSql = amiga_player_chronology_hero_ga_min_sql($playerId, 10, 'r');
+
+    $sql = 'SELECT numbered.* FROM ('
+        . 'SELECT ranked.*, '
+        . 'ROW_NUMBER() OVER (ORDER BY ranked.tournament_event_date ASC, ranked.tournament_chrono ASC, ranked.tournament_id ASC, ranked.id ASC) AS unlock_rank '
+        . 'FROM ('
+        . 'SELECT inner_r.*, '
+        . "CASE WHEN inner_r.idA = {$pid} THEN inner_r.idB ELSE inner_r.idA END AS opponent_id, "
+        . "CASE WHEN inner_r.idA = {$pid} THEN inner_r.NameB ELSE inner_r.NameA END AS opponent_name, "
+        . "CASE WHEN inner_r.idA = {$pid} THEN inner_r.country_b ELSE inner_r.country_a END AS opponent_country, "
+        . 'ROW_NUMBER() OVER ('
+        . "PARTITION BY CASE WHEN inner_r.idA = {$pid} THEN inner_r.idB ELSE inner_r.idA END "
+        . 'ORDER BY inner_r.tournament_event_date ASC, inner_r.tournament_chrono ASC, inner_r.tournament_id ASC, inner_r.id ASC'
+        . ') AS meeting_rn '
+        . 'FROM (SELECT r.* ' . $fromSql . ' WHERE 1=1' . $cutoffSql . $ddSql . ') inner_r'
+        . ') ranked WHERE ranked.meeting_rn = 1'
+        . ') numbered '
+        . 'ORDER BY numbered.tournament_event_date DESC, numbered.tournament_chrono DESC, numbered.tournament_id DESC, numbered.id DESC';
+
+    $rows = amiga_games_query_all($con, $sql, $types, $params);
+    foreach ($rows as &$row) {
+        $row['unlock_rank'] = (int) ($row['unlock_rank'] ?? 0);
+        $row['first_met_sort'] = amiga_player_chronology_opponents_first_met_sort_value($row);
+        $row['first_met_label'] = amiga_player_chronology_opponents_first_met_label($row);
+    }
+    unset($row);
+
+    return $rows;
+}
+
+/**
+ * @param list<array<string, mixed>> $rows
+ * @return array<string, mixed>
+ */
+function amiga_player_chronology_dd_culprits_chart_payload(
+    mysqli $con,
+    int $playerId,
+    array $rows,
+    string $playerName,
+): array {
+    $payload = amiga_player_chronology_opponents_chart_payload($con, $playerId, $rows, $playerName);
+    $payload['kind_label'] = 'DD Culprits';
+
+    return $payload;
+}
+
+/**
+ * First rated shut-out game (hero GF = 0) per culprit through cutoff.
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_player_chronology_cs_culprits_load(
+    mysqli $con,
+    int $playerId,
+    ?AmigaSnapshotContext $ctx = null,
+): array {
+    if ($playerId < 1) {
+        return [];
+    }
+
+    $ctx ??= amiga_snapshot_context_peek();
+    $pid = (int) $playerId;
+    $types = '';
+    $params = [];
+    $cutoffSql = amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params);
+    $fromSql = amiga_rated_games_from_sql($playerId);
+    $csSql = amiga_player_chronology_hero_gf_max_sql($playerId, 0, 'r');
+
+    $sql = 'SELECT numbered.* FROM ('
+        . 'SELECT ranked.*, '
+        . 'ROW_NUMBER() OVER (ORDER BY ranked.tournament_event_date ASC, ranked.tournament_chrono ASC, ranked.tournament_id ASC, ranked.id ASC) AS unlock_rank '
+        . 'FROM ('
+        . 'SELECT inner_r.*, '
+        . "CASE WHEN inner_r.idA = {$pid} THEN inner_r.idB ELSE inner_r.idA END AS opponent_id, "
+        . "CASE WHEN inner_r.idA = {$pid} THEN inner_r.NameB ELSE inner_r.NameA END AS opponent_name, "
+        . "CASE WHEN inner_r.idA = {$pid} THEN inner_r.country_b ELSE inner_r.country_a END AS opponent_country, "
+        . 'ROW_NUMBER() OVER ('
+        . "PARTITION BY CASE WHEN inner_r.idA = {$pid} THEN inner_r.idB ELSE inner_r.idA END "
+        . 'ORDER BY inner_r.tournament_event_date ASC, inner_r.tournament_chrono ASC, inner_r.tournament_id ASC, inner_r.id ASC'
+        . ') AS meeting_rn '
+        . 'FROM (SELECT r.* ' . $fromSql . ' WHERE 1=1' . $cutoffSql . $csSql . ') inner_r'
+        . ') ranked WHERE ranked.meeting_rn = 1'
+        . ') numbered '
+        . 'ORDER BY numbered.tournament_event_date DESC, numbered.tournament_chrono DESC, numbered.tournament_id DESC, numbered.id DESC';
+
+    $rows = amiga_games_query_all($con, $sql, $types, $params);
+    foreach ($rows as &$row) {
+        $row['unlock_rank'] = (int) ($row['unlock_rank'] ?? 0);
+        $row['first_met_sort'] = amiga_player_chronology_opponents_first_met_sort_value($row);
+        $row['first_met_label'] = amiga_player_chronology_opponents_first_met_label($row);
+    }
+    unset($row);
+
+    return $rows;
+}
+
+/**
+ * @param list<array<string, mixed>> $rows
+ * @return array<string, mixed>
+ */
+function amiga_player_chronology_cs_culprits_chart_payload(
+    mysqli $con,
+    int $playerId,
+    array $rows,
+    string $playerName,
+): array {
+    $payload = amiga_player_chronology_opponents_chart_payload($con, $playerId, $rows, $playerName);
+    $payload['kind_label'] = 'CS Culprits';
 
     return $payload;
 }
@@ -1141,3 +1639,5 @@ function amiga_player_chronology_amiga_first_rated_year(mysqli $con): ?int
 
     return (int) substr((string) $row['first_date'], 0, 4);
 }
+
+require_once __DIR__ . '/amiga_player_chronologies_countries_lib.php';
