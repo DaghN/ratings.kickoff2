@@ -12,7 +12,7 @@ body.k2-site.k2-player-wing.player-feast-body .k2-player-hero {
 	margin-left: calc(var(--k2-player-hero-glow-inset) + 10px);
 }
 
-/* Content column — max-width/padding on .k2-player-wing in theme.css */
+/* Content column — max-width 1200px; horizontal gutter = body.k2-site padding only */
 
 /* ── Section: title/hint at column edge, content below ── */
 
@@ -945,18 +945,33 @@ body.k2-site .player-compare-rank-chart__toolbar[data-range-mode="percentile"] .
 	margin: 0;
 }
 
-/* Amiga profile — LB wing slices (seven mini-panels in three columns) */
-.player-feast-body .k2-amiga-profile-lb-slices {
+/* Amiga profile — content below player nav: body 20px gutter only (no extra 1.25rem). */
+.player-feast-body .k2-amiga-profile-lb-slices,
+.player-feast-body .k2-amiga-profile-moments,
+.player-feast-body .k2-amiga-profile-chart {
 	max-width: var(--k2-max-width, 1200px);
-	margin: 0 auto;
-	padding: 0 1.25rem 1rem;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.player-feast-body .k2-amiga-profile-lb-slices {
+	padding-bottom: 1rem;
 	--k2-amiga-profile-lb-slice-gap: 28px;
+	--k2-amiga-profile-lb-slice-col-gap: 18px;
+}
+
+.player-feast-body .k2-amiga-profile-moments {
+	padding-bottom: 1.5rem;
+}
+
+.player-feast-body .k2-amiga-profile-chart {
+	padding-bottom: 2rem;
 }
 
 .player-feast-body .k2-amiga-profile-lb-slices__grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: var(--k2-nav-gap);
+	column-gap: var(--k2-amiga-profile-lb-slice-col-gap);
 	align-items: start;
 	width: 100%;
 }

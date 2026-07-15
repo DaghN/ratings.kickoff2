@@ -133,7 +133,7 @@ function amiga_profile_render_moments(array $bundle, int $playerId = 0): void
         return;
     }
     ?>
-<section class="k2-amiga-profile-moments" style="padding:0 1.25rem 1.5rem">
+<section class="k2-amiga-profile-moments">
 	<h3 class="k2-panel-heading">Moments</h3>
 	<div class="pm3-moments pm3-moments--mosaic">
 		<div class="pm3-moments__grid">
@@ -657,7 +657,7 @@ function amiga_profile_render_rating_chart(int $playerId): void
         $asAttr = ' data-as="' . htmlspecialchars($asParam, ENT_QUOTES, 'UTF-8') . '"';
     }
     ?>
-<section class="k2-amiga-profile-chart" style="padding:0 1.25rem 2rem">
+<section class="k2-amiga-profile-chart">
 	<div class="player-rating-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>" data-realm="amiga"<?php echo $asAttr; ?>>
 		<h3 class="k2-panel-heading">Elo rating</h3>
 		<p class="k2-chart-block__hint">Calendar view: end-of-day rating after each tournament day. Tournament # view: one point per finalized event.</p>
@@ -702,7 +702,7 @@ function amiga_profile_render_rank_chart(int $playerId): void
         $asAttr = ' data-as="' . htmlspecialchars($asParam, ENT_QUOTES, 'UTF-8') . '"';
     }
     ?>
-<section class="k2-amiga-profile-chart" style="padding:0 1.25rem 2rem">
+<section class="k2-amiga-profile-chart">
 	<div class="player-rank-chart k2-chart-panel" data-player-id="<?php echo $playerId; ?>" data-realm="amiga"<?php echo $asAttr; ?>>
 		<h3 class="k2-panel-heading">Elo rank</h3>
 		<p class="k2-chart-block__hint">End-of-day rank after each tournament day.</p>
