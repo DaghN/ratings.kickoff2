@@ -15,12 +15,13 @@ require_once __DIR__ . '/amiga_snapshot_context.php';
 require_once __DIR__ . '/amiga_player_load.php';
 
 const AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS = 'opponents';
+const AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS = 'victims';
 const AMIGA_PLAYER_CHRONOLOGY_SPOTLIGHT_FRAGMENT = 'k2-amiga-chronology-spotlight';
 
 /** @return list<string> */
 function amiga_player_chronology_valid_kinds(): array
 {
-    return [AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS];
+    return [AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS, AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS];
 }
 
 function amiga_player_chronology_parse_kind(?string $kind): string
@@ -76,7 +77,41 @@ function amiga_player_chronology_spotlight_hash(): string
 /** Profile mosaic and other entry links — land on spotlight anchor above the card. */
 function amiga_player_chronology_opponents_entry_href(int $playerId): string
 {
-    $href = amiga_player_chronology_opponents_href($playerId);
+    return amiga_player_chronology_entry_href($playerId, AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS);
+}
+
+
+function amiga_player_chronology_victims_route_key(string $segment): string
+{
+    return $segment === 'graphs'
+        ? 'amiga-player-chronologies-victims-graphs'
+        : 'amiga-player-chronologies-victims-made-it';
+}
+
+function amiga_player_chronology_victims_href(int $playerId, string $segment = 'made-it'): string
+{
+    if ($playerId < 1) {
+        return '';
+    }
+
+    return k2_amiga_route(
+        amiga_player_chronology_victims_route_key(amiga_player_chronology_parse_segment($segment)),
+        ['id' => $playerId],
+    );
+}
+
+function amiga_player_chronology_href(int $playerId, string $kind, string $segment = 'made-it'): string
+{
+    return match (amiga_player_chronology_parse_kind($kind)) {
+        AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS => amiga_player_chronology_opponents_href($playerId, $segment),
+        AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS => amiga_player_chronology_victims_href($playerId, $segment),
+        default => '',
+    };
+}
+
+function amiga_player_chronology_entry_href(int $playerId, string $kind): string
+{
+    $href = amiga_player_chronology_href($playerId, $kind);
     if ($href === '') {
         return '';
     }
@@ -84,10 +119,16 @@ function amiga_player_chronology_opponents_entry_href(int $playerId): string
     return $href . amiga_player_chronology_spotlight_hash();
 }
 
+function amiga_player_chronology_victims_entry_href(int $playerId): string
+{
+    return amiga_player_chronology_entry_href($playerId, AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS);
+}
+
 function amiga_player_chronology_kind_label(string $kind): string
 {
     return match (amiga_player_chronology_parse_kind($kind)) {
         AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS => 'Opponents',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS => 'Victims',
         default => 'Chronology',
     };
 }
@@ -102,8 +143,24 @@ function amiga_player_chronology_kind_rule_html(int $playerId, string $playerNam
 
     return match (amiga_player_chronology_parse_kind($kind)) {
         AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS => 'Players that ' . $nameHtml . ' has faced',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS => 'Players that ' . $nameHtml . ' has beaten at least once',
         default => '',
     };
+}
+
+/**
+ * Hero win predicate for rated games (ActualScore).
+ */
+function amiga_player_chronology_hero_win_sql(int $playerId, string $alias = 'r'): string
+{
+    $pid = (int) $playerId;
+    $a = preg_replace('/[^a-zA-Z0-9_]/', '', $alias);
+    if ($a === '') {
+        $a = 'r';
+    }
+
+    return " AND (({$a}.idA = {$pid} AND ABS({$a}.ActualScore - 1.0) < 0.001)"
+        . " OR ({$a}.idB = {$pid} AND ABS({$a}.ActualScore) < 0.001))";
 }
 
 /**
@@ -140,6 +197,56 @@ function amiga_player_chronology_opponents_load(
         . 'ORDER BY inner_r.tournament_event_date ASC, inner_r.tournament_chrono ASC, inner_r.tournament_id ASC, inner_r.id ASC'
         . ') AS meeting_rn '
         . 'FROM (SELECT r.* ' . $fromSql . ' WHERE 1=1' . $cutoffSql . ') inner_r'
+        . ') ranked WHERE ranked.meeting_rn = 1'
+        . ') numbered '
+        . 'ORDER BY numbered.tournament_event_date DESC, numbered.tournament_chrono DESC, numbered.tournament_id DESC, numbered.id DESC';
+
+    $rows = amiga_games_query_all($con, $sql, $types, $params);
+    foreach ($rows as &$row) {
+        $row['unlock_rank'] = (int) ($row['unlock_rank'] ?? 0);
+        $row['first_met_sort'] = amiga_player_chronology_opponents_first_met_sort_value($row);
+        $row['first_met_label'] = amiga_player_chronology_opponents_first_met_label($row);
+    }
+    unset($row);
+
+    return $rows;
+}
+
+/**
+ * First rated win per victim through cutoff (tournament chronology).
+ *
+ * @return list<array<string, mixed>>
+ */
+function amiga_player_chronology_victims_load(
+    mysqli $con,
+    int $playerId,
+    ?AmigaSnapshotContext $ctx = null,
+): array {
+    if ($playerId < 1) {
+        return [];
+    }
+
+    $ctx ??= amiga_snapshot_context_peek();
+    $pid = (int) $playerId;
+    $types = '';
+    $params = [];
+    $cutoffSql = amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params);
+    $fromSql = amiga_rated_games_from_sql($playerId);
+    $winSql = amiga_player_chronology_hero_win_sql($playerId, 'r');
+
+    $sql = 'SELECT numbered.* FROM ('
+        . 'SELECT ranked.*, '
+        . 'ROW_NUMBER() OVER (ORDER BY ranked.tournament_event_date ASC, ranked.tournament_chrono ASC, ranked.tournament_id ASC, ranked.id ASC) AS unlock_rank '
+        . 'FROM ('
+        . 'SELECT inner_r.*, '
+        . "CASE WHEN inner_r.idA = {$pid} THEN inner_r.idB ELSE inner_r.idA END AS opponent_id, "
+        . "CASE WHEN inner_r.idA = {$pid} THEN inner_r.NameB ELSE inner_r.NameA END AS opponent_name, "
+        . "CASE WHEN inner_r.idA = {$pid} THEN inner_r.country_b ELSE inner_r.country_a END AS opponent_country, "
+        . 'ROW_NUMBER() OVER ('
+        . "PARTITION BY CASE WHEN inner_r.idA = {$pid} THEN inner_r.idB ELSE inner_r.idA END "
+        . 'ORDER BY inner_r.tournament_event_date ASC, inner_r.tournament_chrono ASC, inner_r.tournament_id ASC, inner_r.id ASC'
+        . ') AS meeting_rn '
+        . 'FROM (SELECT r.* ' . $fromSql . ' WHERE 1=1' . $cutoffSql . $winSql . ') inner_r'
         . ') ranked WHERE ranked.meeting_rn = 1'
         . ') numbered '
         . 'ORDER BY numbered.tournament_event_date DESC, numbered.tournament_chrono DESC, numbered.tournament_id DESC, numbered.id DESC';
@@ -262,6 +369,22 @@ function amiga_player_chronology_opponents_chart_payload(
     ];
 }
 
+
+/**
+ * @param list<array<string, mixed>> $rows
+ * @return array<string, mixed>
+ */
+function amiga_player_chronology_victims_chart_payload(
+    mysqli $con,
+    int $playerId,
+    array $rows,
+    string $playerName,
+): array {
+    $payload = amiga_player_chronology_opponents_chart_payload($con, $playerId, $rows, $playerName);
+    $payload['kind_label'] = 'Victims';
+
+    return $payload;
+}
 function amiga_player_chronology_amiga_first_rated_year(mysqli $con): ?int
 {
     $res = $con->query(

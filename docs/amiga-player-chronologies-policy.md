@@ -1,6 +1,6 @@
 # Amiga player chronologies — policy
 
-**Status:** **Shipped v1** (Jul 2026) — **Opponents** kind only (Made it + Graphs). Victims / culprits kinds **Planned**.
+**Status:** **Shipped v1** (Jul 2026) — **Opponents** + **Victims** kinds (Made it + Graphs each). DD/CS/… victim kinds · culprits **Planned**.
 
 **Parent:** [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) (inventory vs comparison — profile mosaic entry) · [`amiga-profile-v0.md`](amiga-profile-v0.md) · [`navigation-model.md`](navigation-model.md) NM2–NM4
 
@@ -56,6 +56,9 @@ Each **kind** (Opponents, Victims, DD Victims, …) is a separate folder under `
 | `amiga-player-chronologies-opponents-made-it` | `/amiga/player/chronologies/opponents/made-it.php?id=` | Made it (default) |
 | `amiga-player-chronologies-opponents-graphs` | `/amiga/player/chronologies/opponents/graphs.php?id=` | Graphs |
 | *(folder default)* | `/amiga/player/chronologies/opponents/index.php` | 302 → made-it |
+| `amiga-player-chronologies-victims-made-it` | `/amiga/player/chronologies/victims/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-victims-graphs` | `/amiga/player/chronologies/victims/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/victims/index.php` | 302 → made-it |
 
 Register in [`k2_amiga_routes.php`](../site/public_html/includes/k2_amiga_routes.php). Document in [`url-routes.md`](url-routes.md).
 
@@ -63,8 +66,11 @@ Register in [`k2_amiga_routes.php`](../site/public_html/includes/k2_amiga_routes
 
 | Helper | Use |
 |--------|-----|
-| `amiga_player_chronology_opponents_href($playerId, $segment)` | Internal segment nav |
+| `amiga_player_chronology_opponents_href($playerId, $segment)` | Internal segment nav (opponents) |
 | `amiga_player_chronology_opponents_entry_href($playerId)` | Profile mosaic + external entry (includes `#k2-amiga-chronology-spotlight`) |
+| `amiga_player_chronology_victims_href($playerId, $segment)` | Internal segment nav (victims) |
+| `amiga_player_chronology_victims_entry_href($playerId)` | Profile mosaic Victims row |
+| `amiga_player_chronology_href($playerId, $kind, $segment)` | Generic segment nav |
 | `amiga_player_chronology_spotlight_hash()` | Fragment only |
 
 ---
@@ -108,12 +114,42 @@ Empty state note when zero opponents; charts still span rated era.
 
 ---
 
+## 4.5 Reference kind — Victims (shipped)
+
+### Rule line
+
+Spotlight rule: *Players that **{name}** has beaten at least once* — same link-star name treatment as Opponents §4.1.
+
+### Made it table
+
+**One row per distinct victim** at cutoff — the **first rated win** vs that opponent (tournament event day + game). Same column layout as Opponents §4.2 except:
+
+| Col | Header | Notes |
+|-----|--------|-------|
+| 1 | Victim | Anchor column |
+| 2 | First won | Quiet date on default load; hero-win games only |
+
+**SQL:** `amiga_player_chronology_victims_load()` — same window partition as Opponents, inner filter `amiga_player_chronology_hero_win_sql()` (`ActualScore` win predicate). Parity oracle: row count = `DifferentVictims` on `amiga_player_current`.
+
+### Graphs
+
+| Chart | Description |
+|-------|-------------|
+| New victims per year | Bar chart by calendar year of first win |
+| Cumulative victims | Stepped line — +1 per new victim |
+
+### Profile mosaic link
+
+**Victims row:** `DifferentVictims` count → `amiga_player_chronology_victims_entry_href()` when count > 0.
+
+---
+
 ## 5. Kind register
 
 | Kind | Mosaic source | Made it row | Graphs | Status |
 |------|---------------|-------------|--------|--------|
 | **opponents** | Victims panel · Opponents | First rated meeting per opponent | Year bar + cumulative | **Shipped** |
-| **victims** | Victims | First win vs victim (TBD) | TBD | **Planned** |
+| **victims** | Victims | First rated win per victim | Year bar + cumulative | **Shipped** |
 | **dd_victims** | DD Victims | First DD win vs victim | TBD | **Planned** |
 | **cs_victims** | CS Victims | … | TBD | **Planned** |
 | **mgc_victims** | MGC Victims | … | TBD | **Planned** |
@@ -148,7 +184,7 @@ Add a row when a kind ships; do not link mosaic cells until Made it exists ([`pl
 - Player wing tab pill for chronologies (mosaic entry only)
 - Links from Made it rows to hub leaderboards
 - Card reflow / mobile column hiding on Made it table
-- Victims / culprits kinds (register only)
+- Remaining Victims panel kinds (DD/CS/…) and culprits kinds (register only)
 - Online realm chronologies (Amiga-only track)
 
 ---
@@ -163,4 +199,4 @@ Add a row when a kind ships; do not link mosaic cells until Made it exists ([`pl
 
 ---
 
-*Last updated: Jul 2026 — Opponents v1 shipped; policy locked after look-and-feel sign-off.*
+*Last updated: Jul 2026 — Victims kind shipped (Track B); Opponents + Victims reference kinds locked.*

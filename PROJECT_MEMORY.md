@@ -10,7 +10,7 @@
 
 ## Current focus
 
-- **Amiga profile (Jul 2026):** **Track B** — mosaic stat links one-at-a-time ([`player-profile-stat-links-policy.md`](docs/player-profile-stat-links-policy.md)); **Opponents chronology shipped** — policy [`amiga-player-chronologies-policy.md`](docs/amiga-player-chronologies-policy.md); remaining Victims panel kinds · Calendar geo country rows **planned**.
+- **Amiga profile (Jul 2026):** **Track B** — mosaic stat links one-at-a-time ([`player-profile-stat-links-policy.md`](docs/player-profile-stat-links-policy.md)); **Opponents + Victims chronologies shipped** — policy [`amiga-player-chronologies-policy.md`](docs/amiga-player-chronologies-policy.md); remaining Victims panel kinds (DD/CS/…) · Calendar geo country rows **planned**.
 
 - **K2 LB SSR (Jul 2026):** **Track A complete** — all hub wings URL landing sort ([`k2-lb-ssr-sort-policy.md`](docs/k2-lb-ssr-sort-policy.md) **Implemented**). Track **B** = profile mosaic stat links.
 
@@ -151,6 +151,7 @@
 |------|------|
 | 2026-07-15 | **Amiga player chronologies policy** — [`amiga-player-chronologies-policy.md`](docs/amiga-player-chronologies-policy.md): Opponents v1 locked (Made it + Graphs, read-time SQL, mosaic entry, vs Opponents wing); kind register for Victims/Culprits backlog. AGENTS + url-routes + stat-links cross-refs. |
 | 2026-07-15 | **Amiga player country fix — Regis B** — L3 override `Regis B` → France (L2 had Sweden); `ko2amiga_work` ground + simul; inventory [`amiga-l3-legacy-fixes-inventory.md`](docs/amiga-l3-legacy-fixes-inventory.md) §7. |
+| 2026-07-15 | **Amiga Victims chronology (Track B)** — `/amiga/player/chronologies/victims/{made-it,graphs}.php`: first rated win per victim; spotlight + Made it\|Graphs; profile mosaic Victims → Made it + `#k2-amiga-chronology-spotlight`. Lib/render/page extended; `amiga-chronology-victims-charts.js`. Parity smoke id=149: 161 rows = `DifferentVictims`. |
 | 2026-07-15 | **Amiga Opponents chronology (spike)** — `/amiga/player/chronologies/opponents/{made-it,graphs}.php`: milestone spotlight + Made it\|Graphs segment (carry-scroll); first-meeting table (games-tab scoreline cols); read-time SQL + TT cutoff; profile mosaic Opponents → Made it. Lib: `amiga_player_chronologies_*.php` · `amiga-chronology-opponents-charts.js`. |
 | 2026-07-15 | **Amiga profile layout polish** — full 1200px column; mosaic `h3.k2-panel-heading` titles (not in-table headers); slice gaps 22px/18px; **Charts** section; brighter headings; chart gap 32px (`player-feast-sections.css`, `amiga_profile_lb_slices.php`, `amiga_profile_blocks.php`). |
 | 2026-07-15 | **Amiga profile mosaic docs** — policy register: Peak Rating · Peak rank · Activity tournament rows marked **Shipped** (were wrongly listed as planned); backlog = Victims panel + geo country rows only. |

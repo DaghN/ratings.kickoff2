@@ -144,6 +144,8 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-player-opponents-country-dds` | `/amiga/player/opponents/country/dds.php` |
 | `amiga-player-chronologies-opponents-made-it` | `/amiga/player/chronologies/opponents/made-it.php` (inventory default; `index.php` 302) |
 | `amiga-player-chronologies-opponents-graphs` | `/amiga/player/chronologies/opponents/graphs.php` |
+| `amiga-player-chronologies-victims-made-it` | `/amiga/player/chronologies/victims/made-it.php` (inventory default; `index.php` 302) |
+| `amiga-player-chronologies-victims-graphs` | `/amiga/player/chronologies/victims/graphs.php` |
 | `amiga-world-cups` | `/amiga/world-cups/chronology.php` (Chronology default; `/amiga/world-cups/` 302) |
 | `amiga-world-cups-chronology` | `/amiga/world-cups/chronology.php` (`chronology/index.php` 302 legacy) |
 | `amiga-world-cups-stats` | `/amiga/world-cups/stats/participation.php` (Participation default; `stats.php` + `stats/index.php` 302) |

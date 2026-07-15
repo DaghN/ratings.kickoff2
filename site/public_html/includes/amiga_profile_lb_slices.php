@@ -1246,7 +1246,13 @@ function amiga_profile_lb_slice_rows_victims(array $row): void
     );
 
     echo amiga_profile_lb_slice_row('Opponents', $opponentsValue, k2_lb_help_opponents());
-    echo amiga_profile_lb_slice_row('Victims', k2_fmt_count($row['DifferentVictims'] ?? null, $games), k2_lb_help_victims());
+    $victims = (int) ($row['DifferentVictims'] ?? 0);
+    $victimsDisplay = '<span class="blue">' . k2_fmt_count($row['DifferentVictims'] ?? null, $games) . '</span>';
+    $victimsValue = amiga_profile_lb_slice_link_star_value_html(
+        $victimsDisplay,
+        $playerId > 0 && $victims > 0 ? amiga_player_chronology_victims_entry_href($playerId) : ''
+    );
+    echo amiga_profile_lb_slice_row('Victims', $victimsValue, k2_lb_help_victims());
     echo amiga_profile_lb_slice_row('DD Victims', k2_fmt_count($row['DoubleDigitsVictims'] ?? null, $games), k2_lb_help_dd_victims(), 'Double Digit victims');
     echo amiga_profile_lb_slice_row('CS Victims', k2_fmt_count($row['CleanSheetsVictims'] ?? null, $games), k2_lb_help_cs_victims(), 'Clean Sheet victims');
     echo amiga_profile_lb_slice_row('MGC Victims', k2_fmt_count($row['MostGoalsConcededVictims'] ?? null, $games), k2_lb_help_mgc_victims(), 'Most Goals Conceded victims');

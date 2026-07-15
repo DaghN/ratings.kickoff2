@@ -96,6 +96,7 @@ Secondary comparison paths (opening the LB from inside inventory, HoF deep links
 | Mosaic — Activity (last/first tournament, last/first WC) | Establishing tournament entity | **Shipped** | `amiga_profile_lb_slice_tournament_value_stacked()` — tournament link + event date below (v0) |
 | Mosaic — Host countries, countries faced/beaten/beaten by | Countries hub or filtered games | **Planned** | Calendar-geo panel remainder — propose per stat |
 | Mosaic — Opponents | Player chronologies — opponents Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4 · `amiga_player_chronology_opponents_entry_href()` |
+| Mosaic — Victims | Player chronologies — victims Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.5 · `amiga_player_chronology_victims_entry_href()` |
 | Mosaic — DD Victims, CS Victims, … | Player victim/culprit chronology (per-type list, first occurrence order) | **Planned** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §5 kind register |
 
 ### Online player profile
@@ -123,4 +124,4 @@ Update this table when a stat gains a link or a new inventory page ships.
 
 ---
 
-*Last updated: Jul 2026 — Opponents chronology policy doc; Track B backlog = remaining Victims panel kinds + calendar geo country rows.*
+*Last updated: Jul 2026 — Victims chronology shipped (Track B); DD/CS victim kinds + calendar geo country rows remain planned.*

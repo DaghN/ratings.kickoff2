@@ -35,12 +35,17 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php';
 <link href="/stylesheets/amiga-tournament.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/amiga-tournament.css'); ?>" rel="stylesheet" type="text/css" />
 <?php if ($isMadeIt) { ?>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_sortable_table_assets_head.inc.php'; ?>
-<?php } else { ?>
+<?php } else {
+    $chartsJs = match ($kind) {
+        AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS => 'amiga-chronology-victims-charts.js',
+        default => 'amiga-chronology-opponents-charts.js',
+    };
+?>
 <script src="/js/chart.umd.min.js"></script>
 <script src="/js/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script src="/js/chart-theme.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/chart-theme.js'); ?>"></script>
 <script src="/js/chart-date-range.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/chart-date-range.js'); ?>"></script>
-<script type="text/javascript" src="/js/amiga-chronology-opponents-charts.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/amiga-chronology-opponents-charts.js'); ?>" defer="defer"></script>
+<script type="text/javascript" src="/js/<?php echo k2_h($chartsJs); ?>?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/' . $chartsJs); ?>" defer="defer"></script>
 <?php } ?>
 </head>
 <body class="k2-site k2-player-wing player-feast-body k2-amiga-chronology-page">
@@ -79,6 +84,9 @@ $chartPayload = [];
 if ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS) {
     $chronologyRows = amiga_player_chronology_opponents_load($con, $id, $ctx);
     $chartPayload = amiga_player_chronology_opponents_chart_payload($con, $id, $chronologyRows, $Name);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS) {
+    $chronologyRows = amiga_player_chronology_victims_load($con, $id, $ctx);
+    $chartPayload = amiga_player_chronology_victims_chart_payload($con, $id, $chronologyRows, $Name);
 }
 
 $k2AmigaPlayerHasVideos = amiga_player_has_videos($id, $con, $ctx);
@@ -109,6 +117,10 @@ amiga_player_chronology_render_segment_nav($id, $kind, $segment);
     amiga_player_chronology_render_opponents_made_it($id, $chronologyRows);
 } elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS && $segment === 'graphs') {
     amiga_player_chronology_render_opponents_graphs($chartPayload);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS && $segment === 'made-it') {
+    amiga_player_chronology_render_victims_made_it($id, $chronologyRows);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS && $segment === 'graphs') {
+    amiga_player_chronology_render_victims_graphs($chartPayload);
 } ?>
 </div>
 </main>

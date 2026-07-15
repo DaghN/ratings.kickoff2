@@ -12,6 +12,9 @@ require_once __DIR__ . '/amiga_player_chronologies_lib.php';
 const AMIGA_PLAYER_CHRONOLOGY_OPPONENTS_ANCHOR_COL = 1;
 const AMIGA_PLAYER_CHRONOLOGY_OPPONENTS_FIRST_MET_COL = 2;
 const AMIGA_PLAYER_CHRONOLOGY_OPPONENTS_DEFAULT_SORT_COL = 2;
+const AMIGA_PLAYER_CHRONOLOGY_VICTIMS_ANCHOR_COL = 1;
+const AMIGA_PLAYER_CHRONOLOGY_VICTIMS_FIRST_WON_COL = 2;
+const AMIGA_PLAYER_CHRONOLOGY_VICTIMS_DEFAULT_SORT_COL = 2;
 
 function amiga_player_chronology_render_spotlight(int $playerId, string $playerName, string $kind): void
 {
@@ -30,7 +33,7 @@ function amiga_player_chronology_render_spotlight(int $playerId, string $playerN
 
 function amiga_player_chronology_render_segment_nav(int $playerId, string $kind, string $activeSegment): void
 {
-    if ($kind !== AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS) {
+    if (!in_array(amiga_player_chronology_parse_kind($kind), amiga_player_chronology_valid_kinds(), true)) {
         return;
     }
     $tabs = [
@@ -44,7 +47,7 @@ function amiga_player_chronology_render_segment_nav(int $playerId, string $kind,
         $isActive = $activeSegment === $segmentId;
         ?>
 		<a id="k2-amiga-chronology-tab-<?php echo k2_h($segmentId); ?>"
-			href="<?php echo k2_h(amiga_player_chronology_opponents_href($playerId, $segmentId)); ?>"
+			href="<?php echo k2_h(amiga_player_chronology_href($playerId, $kind, $segmentId)); ?>"
 			class="k2-chrome-tabs__tab<?php echo $isActive ? ' is-active' : ''; ?>"
 			role="tab"
 			<?php echo $isActive ? ' aria-current="page" aria-selected="true" tabindex="0"' : ' aria-selected="false" tabindex="-1"'; ?>><?php echo k2_h($tab['label']); ?></a>
@@ -209,6 +212,97 @@ function amiga_player_chronology_render_opponents_graphs(array $chartPayload): v
 		<p class="k2-chart-block__hint">Steps up by one whenever a new opponent is faced.</p>
 		<p class="k2-amiga-chronology-cumulative-chart-status" style="margin: 0 0 8px 0;">Loading…</p>
 		<canvas width="960" height="271" aria-label="Cumulative opponents over time"></canvas>
+	</div>
+</section>
+    <?php
+}
+
+/**
+ * @param list<array<string, mixed>> $rows
+ */
+function amiga_player_chronology_render_victims_made_it(int $playerId, array $rows): void
+{
+    ?>
+<section class="k2-ms-detail-section k2-amiga-chronology-made-it" aria-labelledby="k2-amiga-chronology-made-it-heading">
+	<h2 class="k2-panel-heading visually-hidden" id="k2-amiga-chronology-made-it-heading">Made it</h2>
+    <?php if ($rows === []) { ?>
+	<p class="k2-ms-meta-hint">No victims yet.</p>
+    <?php } else {
+        amiga_player_chronology_render_victims_table($playerId, $rows);
+    } ?>
+</section>
+    <?php
+}
+
+/**
+ * @param list<array<string, mixed>> $rows
+ */
+function amiga_player_chronology_render_victims_table(int $playerId, array $rows): void
+{
+    require_once __DIR__ . '/k2_table_helpers.php';
+    $firstWonCellClass = k2_table_quiet_date_cell_class(
+        AMIGA_PLAYER_CHRONOLOGY_VICTIMS_FIRST_WON_COL,
+        AMIGA_PLAYER_CHRONOLOGY_VICTIMS_DEFAULT_SORT_COL,
+        AMIGA_PLAYER_CHRONOLOGY_VICTIMS_DEFAULT_SORT_COL,
+        true,
+        'k2-table-cell--left',
+    );
+    ?>
+<div class="k2-table-wrap">
+<table class="k2-table k2-table--numeric-default k2-table--calm-stats k2-table--tournament-games k2-amiga-chronology-victims-table"
+	data-k2-table="sortable"
+	data-k2-anchor-col="<?php echo AMIGA_PLAYER_CHRONOLOGY_VICTIMS_ANCHOR_COL; ?>"
+	data-k2-default-sort="<?php echo AMIGA_PLAYER_CHRONOLOGY_VICTIMS_DEFAULT_SORT_COL; ?>"
+	data-k2-default-direction="desc"<?php echo k2_table_quiet_default_sort_col_attr([AMIGA_PLAYER_CHRONOLOGY_VICTIMS_FIRST_WON_COL]); ?><?php echo k2_table_skip_initial_sort_attr(AMIGA_PLAYER_CHRONOLOGY_VICTIMS_DEFAULT_SORT_COL, 'desc'); ?>
+	data-k2-sort-tie-order="match">
+<thead>
+	<tr>
+		<th data-k2-sort="number" data-k2-help="1 = earliest first win (fixed). Table sort does not renumber; default view is newest first.">#</th>
+		<th class="k2-table-cell--left" data-k2-sort="text">Victim</th>
+		<th class="k2-table-cell--left" data-k2-sort="text" data-k2-help="Date of the first rated win vs this victim (event day only).">First won</th>
+		<th class="k2-table-cell--left k2-table-cell--pad-x-md" data-k2-sort="text" data-k2-help="Tournament or event where the first win took place.">Event</th>
+		<th class="k2-table-cell--right k2-table-cell--pad-left-md" data-k2-sort="text">Team A</th>
+		<th data-k2-sort="number"></th>
+		<th data-k2-sort="number"></th>
+		<th class="k2-table-cell--left" data-k2-sort="text">Team B</th>
+		<th class="k2-table-cell--left k2-table-cell--pad-left-md" data-k2-sort="text">Result</th>
+		<th data-k2-sort="number">Adj.</th>
+	</tr>
+</thead>
+<tbody class="black">
+    <?php foreach ($rows as $row) {
+        echo amiga_player_chronology_opponents_table_row($playerId, $row, $firstWonCellClass);
+    } ?>
+</tbody>
+</table>
+</div>
+    <?php
+}
+
+/**
+ * @param array<string, mixed> $chartPayload
+ */
+function amiga_player_chronology_render_victims_graphs(array $chartPayload): void
+{
+    $json = json_encode($chartPayload, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+    if (!is_string($json)) {
+        $json = '{}';
+    }
+    ?>
+<section class="k2-ms-detail-section k2-ms-detail-charts k2-amiga-chronology-graphs" aria-labelledby="k2-amiga-chronology-graphs-heading">
+	<h2 class="k2-panel-heading visually-hidden" id="k2-amiga-chronology-graphs-heading">Graphs</h2>
+	<p class="k2-ms-detail-charts__empty-note" id="k2-amiga-chronology-charts-empty-note" hidden></p>
+	<script type="application/json" id="k2-amiga-chronology-victims-chart-data"><?php echo $json; ?></script>
+	<div class="k2-amiga-chronology-year-chart k2-ms-detail-chart">
+		<h2 class="k2-panel-heading">New victims per year</h2>
+		<p class="k2-amiga-chronology-year-chart-status" style="margin: 0 0 8px 0;">Loading…</p>
+		<canvas width="960" height="271" aria-label="New victims per calendar year"></canvas>
+	</div>
+	<div class="k2-amiga-chronology-cumulative-chart k2-ms-detail-chart">
+		<h2 class="k2-panel-heading">Cumulative victims</h2>
+		<p class="k2-chart-block__hint">Steps up by one whenever a new victim is beaten.</p>
+		<p class="k2-amiga-chronology-cumulative-chart-status" style="margin: 0 0 8px 0;">Loading…</p>
+		<canvas width="960" height="271" aria-label="Cumulative victims over time"></canvas>
 	</div>
 </section>
     <?php
