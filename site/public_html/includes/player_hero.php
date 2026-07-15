@@ -23,7 +23,9 @@ $heroProfileHref = $heroMsPlayerId > 0 ? k2_player_profile_href($heroMsPlayerId)
 $heroLbRatingHref = $heroMsPlayerId > 0
 	? k2_lb_rating_player_href($heroMsPlayerId)
 	: k2_lb_table_href('lb-rating');
-$heroLbGamesPeakHref = k2_lb_table_href('lb-activity-peaks', ['k2_sort' => '3', 'k2_dir' => 'desc']);
+$heroLbGamesPeakHref = $heroMsPlayerId > 0
+	? k2_lb_activity_peaks_player_href($heroMsPlayerId)
+	: k2_lb_table_href('lb-activity-peaks', ['k2_sort' => '3', 'k2_dir' => 'desc']);
 $heroRankLinked = $heroDisplay && isset($rank);
 $heroMsTierHtml = ($heroMs !== null && $heroMsPlayerId > 0)
 	? k2_milestone_render_hero_tier_counts($heroMs, $heroMsPlayerId)

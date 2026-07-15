@@ -196,7 +196,7 @@ No further repo work on this track.
 - [x] Three sortable tables (segment menu — not stacked on one page)
 - [x] `lb_nav.php` label **Activity**
 - [x] `streaks.php` — remove Days/Weeks columns
-- [x] Profile hero games link → Activity peaks (career games sort)
+- [x] Profile hero games link → Activity peaks (career games sort, `#k2-lb-player-{id}` row anchor)
 - [x] Removed `activity-mode-toggle.js` from Activity wing pages
 
 - [x] Peaks/Participation/In a row tooltips (counts + date ranges; `k2-table.js` HTML help)

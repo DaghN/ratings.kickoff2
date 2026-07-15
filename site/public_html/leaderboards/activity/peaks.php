@@ -74,7 +74,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     ?>
 	<tr>
 		<td<?php echo k2_lb_td(0, $lbSort); ?>></td>
-		<td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_player_link((int) $row['id'], (string) $row['Name']); ?></td>
+		<td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?>><?php echo k2_lb_player_row_anchor_markup((int) $row['id']); ?><?php echo k2_player_link((int) $row['id'], (string) $row['Name']); ?></td>
 		<td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_lb_rating_cell_link((int) $row['id'], $row['Rating'], (string) $row['Name']); ?></td>
 		<td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
 		<?php k2_lb_activity_echo_tooltip_td($peakDayMeta, $peakDayGames); ?>

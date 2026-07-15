@@ -82,6 +82,7 @@ These stay on their existing patterns:
 | Numeric drill-down | Opponents **Games** count → filtered games list (`k2-link-star` on the number — drill-down, not an entity row label) |
 | **Career Elo drill-down (Amiga)** | Hub LB + WC player stats + countries roster **Elo** column → `k2_amiga_lb_rating_cell_link()` → rating LB `#k2-lb-player-{id}` (`k2-link-star`; rating glance: name + flag, rank + rating, footer “Click to view rating leaderboard”) |
 | **Career Elo drill-down (online)** | Hub LB wings + League honours + Status active-players table **Elo** column → `k2_lb_rating_cell_link()` → rating LB `#k2-lb-player-{id}` (`k2-link-star`; rating glance via `data-k2-player-glance-rating`, same footer) |
+| **Profile hero rank / rating / games (online)** | Rank + rating → `k2_lb_rating_player_href()` → rating LB `#k2-lb-player-{id}`; games → `k2_lb_activity_peaks_player_href()` → Activity peaks `#k2-lb-player-{id}` (Games sort) |
 | Calm secondary body links | `k2-table-cell-link` — inherit cell ink (Activity peaks → games) |
 | Filter listbox labels | Text-only country/year pickers — no flags ([`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) CH9) |
 | Hero / prose links | Player hero name, country hero title, hub chapter links — outside table compositors |
@@ -152,4 +153,4 @@ Global `body.k2-site .k2-table tbody td a` also styles links link-star — **do 
 
 ---
 
-*Last updated: Jul 2026 — Online + Amiga hub LB Elo columns wired to rating LB row anchors; profile hero rank/rating → `#k2-lb-player-{id}`.*
+*Last updated: Jul 2026 — Online + Amiga hub LB Elo columns wired to rating LB row anchors; profile hero rank/rating/games → `#k2-lb-player-{id}`.*

@@ -224,6 +224,25 @@ function k2_lb_rating_player_href(int $playerId, array $query = []): string
 }
 
 /**
+ * Activity peaks LB URL that scrolls to a player's row (profile hero games link).
+ *
+ * @param array<string, scalar> $query
+ */
+function k2_lb_activity_peaks_player_href(int $playerId, array $query = []): string
+{
+    if ($query === []) {
+        $query = ['k2_sort' => '3', 'k2_dir' => 'desc'];
+    }
+    $path = k2_route('lb-activity-peaks');
+    $path .= '?' . http_build_query($query);
+    if ($playerId < 1) {
+        return $path . k2_lb_table_anchor_hash();
+    }
+
+    return $path . k2_lb_player_row_anchor_hash($playerId);
+}
+
+/**
  * Hub LB / status table Elo cell → rating LB row anchor (same URL contract as profile hero rating link).
  */
 function k2_lb_rating_cell_link(int $playerId, mixed $rating, string $playerName = ''): string
