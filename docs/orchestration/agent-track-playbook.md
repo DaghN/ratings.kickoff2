@@ -129,7 +129,7 @@ When a track **closes**, move its starter + slice handoffs to `docs/archive/orch
 **Include:**
 
 - Links to policy + plan
-- Fenced **Prompt (copy from here)** block containing:
+- Fenced **COPY INTO NEW CHAT** block in the markdown file containing:
   - **CRITICAL — first reply rule:** no tools on first turn; restate understanding; wait for user confirm before slice 0
   - **Read first** (ordered list)
   - **Operating mode** (one slice at a time, handoffs, STOP gates, UPDATE_DOCS, no git unless asked)

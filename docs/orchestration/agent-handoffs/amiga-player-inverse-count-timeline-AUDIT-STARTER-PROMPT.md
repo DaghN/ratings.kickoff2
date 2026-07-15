@@ -1,6 +1,7 @@
 # Starter prompt — Audit: Amiga inverse-count timeline (proposed policy)
 
-**Use a new chat.** Paste the **COPY INTO NEW CHAT** block below.  
+**Use a new chat.** Paste the **COPY INTO NEW CHAT** block below.
+
 **Policy under audit:** [`docs/amiga-player-inverse-count-timeline-policy.md`](../../amiga-player-inverse-count-timeline-policy.md)  
 **Mission:** **Audit only** — validate analysis, challenge assumptions, confirm or refute proposed sparse changelog. **Do not implement** unless Dagh explicitly says go after audit.
 

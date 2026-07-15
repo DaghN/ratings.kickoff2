@@ -1,6 +1,6 @@
 # Starter prompt — K2 leaderboard server-side sort (Track A)
 
-**Use a new chat.** Paste the **COPY INTO NEW CHAT** block below (click copy icon).  
+**Use a new chat.** Paste the **COPY INTO NEW CHAT** block below.
 **Policy:** [`docs/k2-lb-ssr-sort-policy.md`](../../k2-lb-ssr-sort-policy.md)  
 **Plan:** [`docs/k2-lb-ssr-sort-implementation-plan.md`](../../k2-lb-ssr-sort-implementation-plan.md)  
 **Track B (separate):** Profile mosaic links — [`amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](amiga-profile-mosaic-stat-links-STARTER-PROMPT.md)  

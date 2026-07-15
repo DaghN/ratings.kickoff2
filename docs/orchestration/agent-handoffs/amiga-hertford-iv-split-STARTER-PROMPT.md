@@ -1,6 +1,6 @@
 # Starter prompt — Hertford IV split (187 + synthetic 606)
 
-**Use a new chat.** Paste the **COPY INTO NEW CHAT** block below.  
+**Use a new chat.** Paste the **COPY INTO NEW CHAT** block below.
 **Plan:** [`docs/amiga-hertford-iv-split-implementation-plan.md`](../../amiga-hertford-iv-split-implementation-plan.md)  
 **Status:** Planned — ground surgery + simul + materialize + import partition **not yet executed** (Jul 2026).
 

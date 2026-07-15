@@ -1,6 +1,7 @@
 # Starter prompt — Amiga profile mosaic stat links (Track B)
 
-**Use a new chat.** Paste the **COPY INTO NEW CHAT** block below (click copy icon).  
+**Use a new chat.** Paste the **COPY INTO NEW CHAT** block below.
+
 **Policy (authority + register):** [`docs/player-profile-stat-links-policy.md`](../../player-profile-stat-links-policy.md) · [`docs/amiga-player-chronologies-policy.md`](../../amiga-player-chronologies-policy.md) (inventory page contract)  
 **Track A (separate):** LB server-side sort — [`k2-lb-ssr-sort-STARTER-PROMPT.md`](k2-lb-ssr-sort-STARTER-PROMPT.md) (comparison links benefit when target wing is SSR; do not mix tracks unless Dagh asks).  
 **Status:** In progress (Jul 2026) — Results · Goals · DD/CS · Tournament honours · Calendar (peak games/events) · Peak rating panel · **Activity** tournament boundaries · **Opponents chronology** **Shipped**; **Victims & Culprits** panel counts (except Opponents) · **Calendar geo** country rows **Planned**.

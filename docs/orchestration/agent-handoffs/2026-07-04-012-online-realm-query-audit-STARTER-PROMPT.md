@@ -6,7 +6,7 @@
 
 ---
 
-## Paste this block to start a new agent chat
+## COPY INTO NEW CHAT
 
 ```
 You are running the **Online realm query audit** — audit and ranking only. Do not ship query fixes in this pass unless Dagh explicitly asks after the report.
