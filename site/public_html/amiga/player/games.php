@@ -54,6 +54,10 @@ $goalsScoredFilter = $gameFilters['gf'];
 $goalsConcededFilter = $gameFilters['ga'];
 $goalsSumFilter = $gameFilters['gs'];
 $heroGoalDiffFilter = $gameFilters['gd'];
+$heroGfMinFilter = $gameFilters['gf_min'];
+$heroGfMaxFilter = $gameFilters['gf_max'];
+$heroGaMinFilter = $gameFilters['ga_min'];
+$heroGaMaxFilter = $gameFilters['ga_max'];
 $filterContext = amiga_player_games_filter_context($gameFilters);
 $filterFacets = amiga_player_games_load_filter_facets($con, $playerId, $filterContext, $ctx);
 $filterChoices = amiga_player_games_facet_listbox_choices($con, $filterFacets, $filterContext);
@@ -112,7 +116,11 @@ $whereSql = amiga_games_where_clause(
     $heroGoalDiffFilter,
     $whereTypes,
     $whereParams,
-    $ctx
+    $ctx,
+    $heroGfMinFilter,
+    $heroGfMaxFilter,
+    $heroGaMinFilter,
+    $heroGaMaxFilter
 );
 
 $countRows = amiga_games_query_all(
@@ -183,6 +191,10 @@ $sortState = [
     'ga' => $goalsConcededFilter,
     'gs' => $goalsSumFilter,
     'gd' => $heroGoalDiffFilter,
+    'gf_min' => $heroGfMinFilter,
+    'gf_max' => $heroGfMaxFilter,
+    'ga_min' => $heroGaMinFilter,
+    'ga_max' => $heroGaMaxFilter,
 ];
 $gamesUrlState = $sortState;
 $shownCount = count($games);
@@ -224,6 +236,18 @@ $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : 
             <?php } ?>
             <?php if ($utcDayFilter !== '') { ?>
             <input type="hidden" name="day" value="<?php echo amiga_games_h($utcDayFilter); ?>" />
+            <?php } ?>
+            <?php if ($heroGfMinFilter >= 0) { ?>
+            <input type="hidden" name="gf_min" value="<?php echo (int) $heroGfMinFilter; ?>" />
+            <?php } ?>
+            <?php if ($heroGfMaxFilter >= 0) { ?>
+            <input type="hidden" name="gf_max" value="<?php echo (int) $heroGfMaxFilter; ?>" />
+            <?php } ?>
+            <?php if ($heroGaMinFilter >= 0) { ?>
+            <input type="hidden" name="ga_min" value="<?php echo (int) $heroGaMinFilter; ?>" />
+            <?php } ?>
+            <?php if ($heroGaMaxFilter >= 0) { ?>
+            <input type="hidden" name="ga_max" value="<?php echo (int) $heroGaMaxFilter; ?>" />
             <?php } ?>
         </div>
         <div class="k2-amiga-player-games-filter-rows">
@@ -312,7 +336,11 @@ $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : 
         || $goalsScoredFilter >= 0
         || $goalsConcededFilter >= 0
         || $goalsSumFilter >= 0
-        || $heroGoalDiffFilter !== null;
+        || $heroGoalDiffFilter !== null
+        || $heroGfMinFilter >= 0
+        || $heroGfMaxFilter >= 0
+        || $heroGaMinFilter >= 0
+        || $heroGaMaxFilter >= 0;
     $gamesCountWord = $gamesListFiltered
         ? ('matching game' . ($totalMatches === 1 ? '' : 's'))
         : ('official game' . ($totalMatches === 1 ? '' : 's'));

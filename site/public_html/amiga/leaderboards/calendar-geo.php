@@ -27,7 +27,15 @@ include __DIR__ . '/../../../config/ko2amiga_config.php';
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $con->query("SET time_zone = '+00:00'");
 $ctx = amiga_lb_context($con);
-$rows = amiga_calendar_geo_leaderboard_rows($con, $ctx);
+
+$colPeakGames = 3;
+$lbSort = k2_lb_table_sort_state($colPeakGames);
+$calendarAlias = $ctx->isActive() ? 's' : 't';
+$lbDefaultOrder = amiga_lb_calendar_geo_default_order_sql($calendarAlias);
+$lbOrderMap = amiga_lb_calendar_geo_order_column_map($calendarAlias);
+$lbSqlOrder = k2_lb_sql_order_from_sort($lbSort, $lbOrderMap, $lbDefaultOrder);
+
+$rows = amiga_calendar_geo_leaderboard_rows($con, $ctx, $lbSqlOrder['order_clause']);
 mysqli_close($con);
 
 $k2AmigaLbWingActive = 'calendar-geo';
@@ -35,8 +43,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 ?>
 
 <?php k2_table_wrap_open(true); ?>
-<?php $lbSort = k2_lb_table_sort_state(3); ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(3); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $colPeakGames, 'desc', $lbSqlOrder['ssr_applied_url_sort']); ?>>
 <thead>
     <tr>
         <th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">Rank</th>

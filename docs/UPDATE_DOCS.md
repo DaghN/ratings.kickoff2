@@ -37,7 +37,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | **Status room live polling** | [`status-room-live-policy.md`](status-room-live-policy.md) |
 | **Status room live — local sim** | [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md) (live environment: login, register, games; dispatcher boundary) |
 | Player profile layout / v1 build | `docs/player-profile-feast.md`, `docs/profile-build-playbook.md` (v1 decisions: `docs/archive/profile-content-candidates.md`) |
-| **Player profile stat links (hero + mosaic)** | [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) |
+| **Player profile stat links (hero + mosaic)** | [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) · Track B prompt [`orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md) |
 | Milestones feature (phases, catalog, tier plan) | `docs/milestones-README.md`, `docs/milestones-catalog.md` (regen script), `docs/milestones-project.md`, `docs/milestones-product-spec.md` |
 | Hub tabs / IA | `docs/hub-ia-agreement.md` |
 | **Present layer** (News, pulse rail, Misc, leaf pages, footer/about, shippable checklist) | [`present-layer-ia.md`](present-layer-ia.md) |
@@ -51,6 +51,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | **K2 tooltips** (table headers, chart hovers, control help) | [`k2-tooltip-policy.md`](k2-tooltip-policy.md) |
 | **K2 table entity links** (player/tournament/country names, Amiga inline flags) | [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) |
 | **K2 tables** (sortable, wide, filter reload, table refactor) | **`docs/k2-table-implementation-checklist.md`** (then `docs/k2-table-and-games-plan.md` if needed) |
+| **K2 LB server-side sort (Track A)** — hub wing URL landing `k2_sort` | [`k2-lb-ssr-sort-policy.md`](k2-lb-ssr-sort-policy.md) · plan [`k2-lb-ssr-sort-implementation-plan.md`](k2-lb-ssr-sort-implementation-plan.md) |
 | **K2 quiet date** (first-load date blast; ID default vs fallback tooling) | [`k2-table-quiet-date-column-policy.md`](k2-table-quiet-date-column-policy.md) · plan [`k2-table-quiet-date-unification-plan.md`](k2-table-quiet-date-unification-plan.md) |
 | **K2 page structure** (new page / tab / mode) | **`docs/k2-page-structure-checklist.md`** (then `url-routes.md`, `navigation-model.md`) |
 | Ladder replay scope / reset rules | `docs/replay-v1-scope-and-reset.md` (rare; big replay changes only) |

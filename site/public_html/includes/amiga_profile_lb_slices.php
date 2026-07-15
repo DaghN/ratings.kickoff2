@@ -84,6 +84,8 @@ function amiga_profile_lb_slices_load_present(mysqli $con, int $playerId): ?arra
 
     amiga_profile_lb_slices_enrich_goals_lb_link_context($playerId, $row);
 
+    amiga_profile_lb_slices_enrich_double_digits_lb_link_context($playerId, $row);
+
     return $row;
 }
 
@@ -177,6 +179,23 @@ function amiga_profile_lb_slices_enrich_goals_lb_link_context(int $playerId, arr
     $row['goals_lb_ga_per_game_href'] = amiga_lb_goals_player_href($playerId, 7, 'asc');
     $row['goals_lb_gd_per_game_href'] = amiga_lb_goals_player_href($playerId, 8);
     $row['goals_lb_ratio_href'] = amiga_lb_goals_player_href($playerId, 9);
+}
+
+/**
+ * @param array<string, mixed> $row
+ */
+function amiga_profile_lb_slices_enrich_double_digits_lb_link_context(int $playerId, array &$row): void
+{
+    if ($playerId < 1) {
+        return;
+    }
+
+    require_once __DIR__ . '/amiga_lb_lib.php';
+
+    $row['dd_lb_dd_ratio_href'] = amiga_lb_double_digits_player_href($playerId, 6);
+    $row['dd_lb_cs_ratio_href'] = amiga_lb_double_digits_player_href($playerId, 7);
+    $row['dd_lb_dd_conceded_ratio_href'] = amiga_lb_double_digits_player_href($playerId, 10);
+    $row['dd_lb_cs_conceded_ratio_href'] = amiga_lb_double_digits_player_href($playerId, 11);
 }
 
 /**
@@ -341,6 +360,7 @@ function amiga_profile_lb_slices_load_at_cutoff(mysqli $con, int $playerId, Amig
     amiga_profile_lb_slices_enrich_activity($con, $playerId, $row, $ctx);
     amiga_profile_lb_slices_enrich_rating_lb_link_context($con, $playerId, $row, $ctx);
     amiga_profile_lb_slices_enrich_goals_lb_link_context($playerId, $row);
+    amiga_profile_lb_slices_enrich_double_digits_lb_link_context($playerId, $row);
 
     return $row;
 }
@@ -703,6 +723,10 @@ function amiga_profile_lb_slice_player_games_href(
     string $resultFilter = 'all',
     ?string $sortKey = null,
     ?string $sortDir = null,
+    int $heroGfMin = -1,
+    int $heroGfMax = -1,
+    int $heroGaMin = -1,
+    int $heroGaMax = -1,
 ): string {
     require_once __DIR__ . '/amiga_player_games_lib.php';
 
@@ -721,8 +745,47 @@ function amiga_profile_lb_slice_player_games_href(
     if ($sortDir !== null && $sortDir !== '') {
         $params['dir'] = amiga_games_valid_direction($sortDir);
     }
+    if ($heroGfMin >= 0) {
+        $params['gf_min'] = amiga_games_valid_hero_goals_bound($heroGfMin);
+    }
+    if ($heroGfMax >= 0) {
+        $params['gf_max'] = amiga_games_valid_hero_goals_bound($heroGfMax);
+    }
+    if ($heroGaMin >= 0) {
+        $params['ga_min'] = amiga_games_valid_hero_goals_bound($heroGaMin);
+    }
+    if ($heroGaMax >= 0) {
+        $params['ga_max'] = amiga_games_valid_hero_goals_bound($heroGaMax);
+    }
 
     return amiga_games_build_url($params) . k2_player_matching_games_anchor_fragment();
+}
+
+function amiga_profile_lb_slice_games_score_inventory_link_html(
+    string $countDisplay,
+    string $displayHtml,
+    int $playerId,
+    int $games,
+    int $heroGfMin = -1,
+    int $heroGfMax = -1,
+    int $heroGaMin = -1,
+    int $heroGaMax = -1,
+): string {
+    $href = '';
+    if ($playerId > 0 && k2_derived_games_started($games) && $countDisplay !== '—' && $countDisplay !== '-') {
+        $href = amiga_profile_lb_slice_player_games_href(
+            $playerId,
+            'all',
+            null,
+            null,
+            $heroGfMin,
+            $heroGfMax,
+            $heroGaMin,
+            $heroGaMax
+        );
+    }
+
+    return amiga_profile_lb_slice_link_star_value_html($displayHtml, $href);
 }
 
 function amiga_profile_lb_slice_games_inventory_link(
@@ -967,15 +1030,107 @@ function amiga_profile_lb_slice_rows_goals(array $row): void
 function amiga_profile_lb_slice_rows_double_digits(array $row): void
 {
     $games = (int) ($row['NumberGames'] ?? 0);
+    $playerId = (int) ($row['ID'] ?? 0);
+    require_once __DIR__ . '/amiga_player_games_lib.php';
 
-    echo amiga_profile_lb_slice_row('Double Digits', '<span class="blue">' . k2_fmt_count($row['DoubleDigits'] ?? null, $games) . '</span>', k2_lb_help_double_digits());
-    echo amiga_profile_lb_slice_row('Clean Sheets', k2_fmt_count($row['CleanSheets'] ?? null, $games), k2_lb_help_clean_sheets());
-    echo amiga_profile_lb_slice_row('DD Ratio', k2_fmt_pct_from_ratio($row['DoubleDigitsRatio'] ?? null, $games), k2_lb_help_double_digits_ratio(), 'Double Digits ratio');
-    echo amiga_profile_lb_slice_row('CS Ratio', k2_fmt_pct_from_ratio($row['CleanSheetsRatio'] ?? null, $games), k2_lb_help_clean_sheets_ratio(), 'Clean Sheets ratio');
-    echo amiga_profile_lb_slice_row('DD conceded', '<span class="red">' . k2_fmt_count($row['DoubleDigitsConceded'] ?? null, $games) . '</span>', k2_lb_help_double_digits_conceded());
-    echo amiga_profile_lb_slice_row('CS conceded', k2_fmt_count($row['CleanSheetsConceded'] ?? null, $games), k2_lb_help_clean_sheets_conceded());
-    echo amiga_profile_lb_slice_row('DD C Ratio', k2_fmt_pct_from_ratio($row['DoubleDigitsConcededRatio'] ?? null, $games), k2_lb_help_double_digits_conceded_ratio(), 'DD conceded ratio');
-    echo amiga_profile_lb_slice_row('CS C Ratio', k2_fmt_pct_from_ratio($row['CleanSheetsConcededRatio'] ?? null, $games), k2_lb_help_clean_sheets_conceded_ratio(), 'CS conceded ratio');
+    $ddCountDisplay = k2_fmt_count($row['DoubleDigits'] ?? null, $games);
+    echo amiga_profile_lb_slice_row(
+        'Double Digits',
+        amiga_profile_lb_slice_games_score_inventory_link_html(
+            $ddCountDisplay,
+            '<span class="blue">' . $ddCountDisplay . '</span>',
+            $playerId,
+            $games,
+            AMIGA_PLAYER_GAMES_DOUBLE_DIGITS_GF_MIN
+        ),
+        k2_lb_help_double_digits()
+    );
+    $csCountDisplay = k2_fmt_count($row['CleanSheets'] ?? null, $games);
+    echo amiga_profile_lb_slice_row(
+        'Clean Sheets',
+        amiga_profile_lb_slice_games_score_inventory_link_html(
+            $csCountDisplay,
+            $csCountDisplay,
+            $playerId,
+            $games,
+            -1,
+            -1,
+            -1,
+            0
+        ),
+        k2_lb_help_clean_sheets()
+    );
+    $ddLbRatioLink = static function (string $display, string $hrefKey) use ($row, $playerId, $games): string {
+        $href = '';
+        if ($playerId > 0 && k2_derived_games_started($games) && $display !== '-') {
+            $href = (string) ($row[$hrefKey] ?? '');
+        }
+
+        return amiga_profile_lb_slice_link_star_value($display, $href);
+    };
+    echo amiga_profile_lb_slice_row(
+        'DD Ratio',
+        $ddLbRatioLink(
+            k2_fmt_pct_from_ratio($row['DoubleDigitsRatio'] ?? null, $games),
+            'dd_lb_dd_ratio_href'
+        ),
+        k2_lb_help_double_digits_ratio(),
+        'Double Digits ratio'
+    );
+    echo amiga_profile_lb_slice_row(
+        'CS Ratio',
+        $ddLbRatioLink(
+            k2_fmt_pct_from_ratio($row['CleanSheetsRatio'] ?? null, $games),
+            'dd_lb_cs_ratio_href'
+        ),
+        k2_lb_help_clean_sheets_ratio(),
+        'Clean Sheets ratio'
+    );
+    $ddConcededDisplay = k2_fmt_count($row['DoubleDigitsConceded'] ?? null, $games);
+    echo amiga_profile_lb_slice_row(
+        'DD conceded',
+        amiga_profile_lb_slice_games_score_inventory_link_html(
+            $ddConcededDisplay,
+            '<span class="red">' . $ddConcededDisplay . '</span>',
+            $playerId,
+            $games,
+            -1,
+            -1,
+            AMIGA_PLAYER_GAMES_DOUBLE_DIGITS_GA_MIN
+        ),
+        k2_lb_help_double_digits_conceded()
+    );
+    $csConcededDisplay = k2_fmt_count($row['CleanSheetsConceded'] ?? null, $games);
+    echo amiga_profile_lb_slice_row(
+        'CS conceded',
+        amiga_profile_lb_slice_games_score_inventory_link_html(
+            $csConcededDisplay,
+            $csConcededDisplay,
+            $playerId,
+            $games,
+            -1,
+            0
+        ),
+        k2_lb_help_clean_sheets_conceded()
+    );
+    echo amiga_profile_lb_slice_row(
+        'DD C Ratio',
+        $ddLbRatioLink(
+            k2_fmt_pct_from_ratio($row['DoubleDigitsConcededRatio'] ?? null, $games),
+            'dd_lb_dd_conceded_ratio_href'
+        ),
+        k2_lb_help_double_digits_conceded_ratio(),
+        'DD conceded ratio'
+    );
+    echo amiga_profile_lb_slice_row(
+        'CS C Ratio',
+        $ddLbRatioLink(
+            k2_fmt_pct_from_ratio($row['CleanSheetsConcededRatio'] ?? null, $games),
+            'dd_lb_cs_conceded_ratio_href'
+        ),
+        k2_lb_help_clean_sheets_conceded_ratio(),
+        'CS conceded ratio'
+    );
 }
 
 /**

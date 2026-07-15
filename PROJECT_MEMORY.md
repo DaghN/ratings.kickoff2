@@ -145,6 +145,12 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-15 | **K2 LB SSR Track A slice 1** — Amiga career batch: victims, peak-rating, tournament-honours, calendar-geo, perf-rating/best; column maps in `amiga_lb_lib.php`; HoF verify-only. |
+| 2026-07-15 | **Track B mosaic handoff prompt** — `docs/orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md` (one stat at a time; policy register). |
+| 2026-07-15 | **K2 LB SSR Track A doc trio** — policy + implementation plan (~5 tables/slice) + starter prompt `docs/orchestration/agent-handoffs/k2-lb-ssr-sort-STARTER-PROMPT.md`; HoF links verify-only. |
+| 2026-07-15 | **Amiga DD LB SSR sort + mosaic ratio links** — `double-digits.php` URL `k2_sort` → SQL ORDER BY + row anchors; profile DD/CS ratio cells (4) → comparison LB. |
+| 2026-07-15 | **Amiga profile mosaic — DD/CS inventory links** — Clean Sheets `ga_max=0`, DD conceded `ga_min=10`, CS conceded `gf_max=0` (URL-only bounds on Games tab; id desc). |
+| 2026-07-15 | **Amiga profile mosaic — Double Digits link** — DD count → Games tab `?gf_min=10` + `#matching-games` (URL-only hero GF floor; id desc default; no listbox). |
 | 2026-07-15 | **Amiga profile mosaic — Goals peak links** — Max GA / win / loss / sum / draw → Games tab inventory (`against`·`diff`·`sum` sorts; win/loss/draw result filters where needed) + `#matching-games`. |
 | 2026-07-15 | **Amiga profile mosaic — Max GF link** — Goals **Max GF** → Games tab `?sort=goals_for&dir=desc` + `#matching-games` (inventory; SSR sort; `as=` preserved). |
 | 2026-07-15 | **Amiga Goals LB SSR sort + mosaic links** — `goals.php` URL `k2_sort` → SQL ORDER BY + row anchors; profile Goals mosaic GF→Ratio (6 cells); HoF `goal_ratio` sort col 8→9 (Ratio not GD/g). |

@@ -25,13 +25,19 @@ include __DIR__ . '/../../../config/ko2amiga_config.php';
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $ctx = amiga_lb_context($con);
 
+$colDoubleDigits = 4;
+$lbSort = k2_lb_table_sort_state($colDoubleDigits);
+$lbDefaultOrder = amiga_lb_double_digits_default_order_sql();
+$lbOrderMap = amiga_lb_double_digits_order_column_map();
+$lbSqlOrder = k2_lb_sql_order_from_sort($lbSort, $lbOrderMap, $lbDefaultOrder);
+
 $result = amiga_lb_query_career(
     $con,
     $ctx,
     'SELECT p.id AS ID, p.name AS Name, s.Rating, p.country AS Country, s.NumberGames, s.DoubleDigits, s.CleanSheets, '
     . 's.DoubleDigitsRatio, s.CleanSheetsRatio, s.DoubleDigitsConceded, s.CleanSheetsConceded, '
     . 's.DoubleDigitsConcededRatio, s.CleanSheetsConcededRatio ',
-    'ORDER BY s.DoubleDigits DESC, s.Rating DESC'
+    'ORDER BY ' . $lbSqlOrder['order_clause']
 );
 
 mysqli_close($con);
@@ -40,10 +46,10 @@ $k2AmigaLbWingActive = 'double-digits';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 ?>
 
+<section class="k2-amiga-table-scroll-view">
 <?php k2_table_wrap_open(true); ?>
 
-<?php $lbSort = k2_lb_table_sort_state(4); ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $colDoubleDigits, 'desc', $lbSqlOrder['ssr_applied_url_sort']); ?>>
 
 <thead>
     <tr>
@@ -67,12 +73,13 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 $rank = 1;
 while ($row = mysqli_fetch_assoc($result)) {
     $games = (int) $row['NumberGames'];
+    $playerId = (int) $row['ID'];
     $playerName = (string) $row['Name'];
     ?>
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
-        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_amiga_lb_player_cell((int) $row['ID'], $playerName, (string) ($row['Country'] ?? '')); ?></td>
-        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_amiga_lb_rating_cell_link((int) $row['ID'], $row['Rating'], $playerName); ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_lb_player_row_anchor_markup($playerId); ?><?php echo k2_amiga_lb_player_cell($playerId, $playerName, (string) ($row['Country'] ?? '')); ?></td>
+        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_amiga_lb_rating_cell_link($playerId, $row['Rating'], $playerName); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><span class="blue"><?php echo k2_fmt_count($row['DoubleDigits'], $games); ?></span></td>
         <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo k2_fmt_count($row['CleanSheets'], $games); ?></td>
@@ -92,6 +99,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 </table>
 
 </div>
+</section>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>

@@ -30,7 +30,14 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 $con->query("SET time_zone = '+00:00'");
 $ctx = amiga_lb_context($con);
 
-$honoursRows = amiga_tournament_honours_leaderboard_rows($con, $ctx);
+$colEventGold = 4;
+$lbSort = k2_lb_table_sort_state($colEventGold);
+$honoursAlias = $ctx->isActive() ? 's' : 't';
+$lbDefaultOrder = amiga_lb_tournament_honours_order_sql($honoursAlias);
+$lbOrderMap = amiga_lb_tournament_honours_order_column_map($honoursAlias);
+$lbSqlOrder = k2_lb_sql_order_from_sort($lbSort, $lbOrderMap, $lbDefaultOrder);
+
+$honoursRows = amiga_tournament_honours_leaderboard_rows($con, $ctx, $lbSqlOrder['order_clause']);
 $playerCount = amiga_lb_honours_player_count($con, $ctx);
 amiga_lb_chapter_lede_html_for_request($con, $ctx);
 
@@ -43,8 +50,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 <div class="k2-lb-tournament-honours">
 <?php k2_table_wrap_open(true); ?>
 
-<?php $lbSort = k2_lb_table_sort_state(4); ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $colEventGold, 'desc', $lbSqlOrder['ssr_applied_url_sort']); ?>>
 
 <thead>
     <tr>

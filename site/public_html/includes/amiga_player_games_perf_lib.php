@@ -47,7 +47,11 @@ function amiga_player_games_list_performance_rating(mysqli $con, int $playerId, 
         $filters['gd'],
         $whereTypes,
         $whereParams,
-        $ctx
+        $ctx,
+        $filters['gf_min'],
+        $filters['gf_max'],
+        $filters['ga_min'],
+        $filters['ga_max']
     );
 
     $rows = amiga_games_query_all(

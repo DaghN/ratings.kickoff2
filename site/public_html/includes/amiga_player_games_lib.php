@@ -11,6 +11,12 @@ require_once __DIR__ . '/k2_ratedresults_games_filters.php';
 const AMIGA_PLAYER_GAMES_DEFAULT_SORT = 'id';
 const AMIGA_PLAYER_GAMES_DEFAULT_DIR = 'desc';
 
+/** Hero goals-for minimum for profile inventory deep links (Double Digits = scored ≥ this). */
+const AMIGA_PLAYER_GAMES_DOUBLE_DIGITS_GF_MIN = 10;
+
+/** Hero goals-against minimum for profile inventory deep links (DD conceded = conceded ≥ this). */
+const AMIGA_PLAYER_GAMES_DOUBLE_DIGITS_GA_MIN = 10;
+
 function amiga_games_h(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
@@ -24,6 +30,16 @@ function amiga_games_valid_result(string $value): string
 function amiga_games_valid_direction(string $value): string
 {
     return strtolower($value) === 'asc' ? 'asc' : 'desc';
+}
+
+/** URL-only hero GF/GA bound (`gf_min`, `gf_max`, `ga_min`, `ga_max`); -1 = off. Not wired to listboxes. */
+function amiga_games_valid_hero_goals_bound(int $value): int
+{
+    if ($value < 0) {
+        return -1;
+    }
+
+    return min(127, $value);
 }
 
 function amiga_games_build_url(array $params): string
@@ -171,7 +187,8 @@ function amiga_games_valid_until_year(int $value, array $yearOptions): int
  *     gf: int,
  *     ga: int,
  *     gs: int,
- *     gd: ?int
+ *     gd: ?int,
+ *     gf_min: int
  * }
  */
 function amiga_player_games_filters_from_request(
@@ -203,6 +220,18 @@ function amiga_player_games_filters_from_request(
     $goalsConcededFilter = isset($query['ga']) ? (int) $query['ga'] : -1;
     $goalsSumFilter = isset($query['gs']) ? (int) $query['gs'] : -1;
     $heroGoalDiffFilter = isset($query['gd']) && $query['gd'] !== '' ? (int) $query['gd'] : null;
+    $heroGfMinFilter = isset($query['gf_min'])
+        ? amiga_games_valid_hero_goals_bound((int) $query['gf_min'])
+        : -1;
+    $heroGfMaxFilter = isset($query['gf_max'])
+        ? amiga_games_valid_hero_goals_bound((int) $query['gf_max'])
+        : -1;
+    $heroGaMinFilter = isset($query['ga_min'])
+        ? amiga_games_valid_hero_goals_bound((int) $query['ga_min'])
+        : -1;
+    $heroGaMaxFilter = isset($query['ga_max'])
+        ? amiga_games_valid_hero_goals_bound((int) $query['ga_max'])
+        : -1;
     $countryFilter = isset($query['country']) && is_string($query['country']) ? trim($query['country']) : '';
     $oppCountryFilter = isset($query['opp_country']) && is_string($query['opp_country']) ? trim($query['opp_country']) : '';
 
@@ -221,6 +250,10 @@ function amiga_player_games_filters_from_request(
         'ga' => $goalsConcededFilter,
         'gs' => $goalsSumFilter,
         'gd' => $heroGoalDiffFilter,
+        'gf_min' => $heroGfMinFilter,
+        'gf_max' => $heroGfMaxFilter,
+        'ga_min' => $heroGaMinFilter,
+        'ga_max' => $heroGaMaxFilter,
     ];
 }
 
@@ -277,6 +310,18 @@ function amiga_games_active_url_params(array $state): array
     }
     if (array_key_exists('gd', $state) && $state['gd'] !== null) {
         $params['gd'] = (int) $state['gd'];
+    }
+    if ((int) ($state['gf_min'] ?? -1) >= 0) {
+        $params['gf_min'] = (int) $state['gf_min'];
+    }
+    if ((int) ($state['gf_max'] ?? -1) >= 0) {
+        $params['gf_max'] = (int) $state['gf_max'];
+    }
+    if ((int) ($state['ga_min'] ?? -1) >= 0) {
+        $params['ga_min'] = (int) $state['ga_min'];
+    }
+    if ((int) ($state['ga_max'] ?? -1) >= 0) {
+        $params['ga_max'] = (int) $state['ga_max'];
     }
 
     return $params;
@@ -339,6 +384,10 @@ function amiga_games_where_clause(
     string &$types,
     array &$params,
     ?AmigaSnapshotContext $ctx = null,
+    int $heroGfMinFilter = -1,
+    int $heroGfMaxFilter = -1,
+    int $heroGaMinFilter = -1,
+    int $heroGaMaxFilter = -1,
 ): string {
     $where = ['(r.idA = ? OR r.idB = ?)'];
     $types = 'ii';
@@ -420,6 +469,16 @@ function amiga_games_where_clause(
         $params[] = $goalsScoredFilter;
         $params[] = $playerId;
         $params[] = $goalsScoredFilter;
+    } elseif ($heroGfMaxFilter >= 0) {
+        $playerIdSql = (int) $playerId;
+        $where[] = "(CASE WHEN r.idA = $playerIdSql THEN r.GoalsA ELSE r.GoalsB END <= ?)";
+        $types .= 'i';
+        $params[] = $heroGfMaxFilter;
+    } elseif ($heroGfMinFilter >= 0) {
+        $playerIdSql = (int) $playerId;
+        $where[] = "(CASE WHEN r.idA = $playerIdSql THEN r.GoalsA ELSE r.GoalsB END >= ?)";
+        $types .= 'i';
+        $params[] = $heroGfMinFilter;
     }
 
     if ($goalsConcededFilter >= 0) {
@@ -429,6 +488,16 @@ function amiga_games_where_clause(
         $params[] = $goalsConcededFilter;
         $params[] = $playerId;
         $params[] = $goalsConcededFilter;
+    } elseif ($heroGaMaxFilter >= 0) {
+        $playerIdSql = (int) $playerId;
+        $where[] = "(CASE WHEN r.idA = $playerIdSql THEN r.GoalsB ELSE r.GoalsA END <= ?)";
+        $types .= 'i';
+        $params[] = $heroGaMaxFilter;
+    } elseif ($heroGaMinFilter >= 0) {
+        $playerIdSql = (int) $playerId;
+        $where[] = "(CASE WHEN r.idA = $playerIdSql THEN r.GoalsB ELSE r.GoalsA END >= ?)";
+        $types .= 'i';
+        $params[] = $heroGaMinFilter;
     }
 
     if ($heroGoalDiffFilter !== null) {

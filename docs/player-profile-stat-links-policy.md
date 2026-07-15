@@ -72,6 +72,14 @@ Secondary comparison paths (opening the LB from inside inventory, HoF deep links
 | Mosaic — Max loss | Games tab, Result = loss, sort GD asc | **Shipped** | `?result=loss&sort=diff&dir=asc` + `#matching-games` |
 | Mosaic — Max sum | Games tab, sort Sum desc | **Shipped** | `?sort=sum&dir=desc` + `#matching-games` |
 | Mosaic — Max draw | Games tab, Result = draw, sort Sum desc | **Shipped** | `?result=draw&sort=sum&dir=desc` + `#matching-games` |
+| Mosaic — Double Digits | Games tab, hero GF ≥ 10, id desc | **Shipped** | URL-only `?gf_min=10` + `#matching-games` (no listbox); default sort |
+| Mosaic — Clean Sheets | Games tab, hero GA = 0, id desc | **Shipped** | URL-only `?ga_max=0` + `#matching-games` |
+| Mosaic — DD conceded | Games tab, hero GA ≥ 10, id desc | **Shipped** | URL-only `?ga_min=10` + `#matching-games` |
+| Mosaic — CS conceded | Games tab, hero GF = 0, id desc | **Shipped** | URL-only `?gf_max=0` + `#matching-games` |
+| Mosaic — DD Ratio | Double-digits LB col 6 | **Shipped** | SSR `k2_sort` + `#k2-lb-player-{id}`; `amiga_lb_double_digits_player_href()` |
+| Mosaic — CS Ratio | Double-digits LB col 7 | **Shipped** | SSR sort + player row anchor |
+| Mosaic — DD C Ratio | Double-digits LB col 10 | **Shipped** | SSR sort + player row anchor |
+| Mosaic — CS C Ratio | Double-digits LB col 11 | **Shipped** | SSR sort + player row anchor |
 | Mosaic — Events, podiums, medals | Tournament history / filtered views | **Planned** | Mostly plain text today |
 | Mosaic — DD Victims, CS Victims, … | Player victim/culprit chronology (per-type list, first occurrence order) | **Planned** | Inventory-first; not LB |
 | Mosaic — GF, DD count, opponents, … | Filtered games or dedicated lists where they exist | **Planned** / **—** | Other ratios → no link until inventory exists |
@@ -96,7 +104,8 @@ Update this table when a stat gains a link or a new inventory page ships.
 1. **Ask:** “What question does this click answer?” Inventory → player wing. Comparison → leaderboards (usually **not** from profile stats).
 2. **Preserve time travel:** Amiga inventory links use `amiga_url_with_context()` / wing routes that carry `as=`.
 3. **Do not** add LB row links to mosaic values “because HoF does it” — HoF lives in the comparison universe.
-4. **SSR sort + `#k2-lb-player-{id}`** remains valid for **leaderboard** and **hub** drill-downs ([`k2_table_helpers.php`](../site/public_html/includes/k2_table_helpers.php) `k2_lb_sql_order_from_sort`) — not the default for profile stat clicks under this policy.
+4. **SSR sort + `#k2-lb-player-{id}`** remains valid for **leaderboard** and **hub** drill-downs ([`k2_table_helpers.php`](../site/public_html/includes/k2_table_helpers.php) `k2_lb_sql_order_from_sort`) — not the default for profile stat clicks under this policy. Target wing SSR = Track A ([`k2-lb-ssr-sort-policy.md`](k2-lb-ssr-sort-policy.md)).
+5. **Track B execution handoff:** [`orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md) — one stat at a time; readback before code.
 
 ---
 

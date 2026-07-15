@@ -490,15 +490,17 @@ function amiga_player_perf_rating_highlight(mysqli $con, int $playerId): array
  *
  * @return list<array<string, mixed>>
  */
-function amiga_lb_performance_rating_rows(mysqli $con, ?AmigaSnapshotContext $ctx = null): array
+function amiga_lb_performance_rating_rows(mysqli $con, ?AmigaSnapshotContext $ctx = null, ?string $orderClause = null): array
 {
     if ($ctx !== null && $ctx->isActive()) {
         require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
 
-        return amiga_lb_performance_rating_rows_at_cutoff($con, $ctx);
+        return amiga_lb_performance_rating_rows_at_cutoff($con, $ctx, $orderClause);
     }
 
     require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
+
+    $orderClause ??= amiga_lb_performance_rating_best_default_order_sql();
 
     $sql = 'SELECT p.id AS player_id,
                    p.name AS player_name,
@@ -520,10 +522,7 @@ function amiga_lb_performance_rating_rows(mysqli $con, ?AmigaSnapshotContext $ct
         . amiga_lb_best_perf_event_join_sql('part', false) . '
             INNER JOIN tournaments t ON t.id = part.tournament_id
             WHERE s.NumberGames > 0
-            ORDER BY part.performance_rating DESC,
-                     part.games DESC,
-                     s.Rating DESC,
-                     p.id ASC';
+            ORDER BY ' . $orderClause;
     $result = mysqli_query($con, $sql);
     if (!$result) {
         return [];
@@ -693,13 +692,15 @@ function amiga_player_tournament_totals_row(mysqli $con, int $playerId): ?array
  *
  * @return list<array<string, mixed>>
  */
-function amiga_tournament_honours_leaderboard_rows(mysqli $con, ?AmigaSnapshotContext $ctx = null): array
+function amiga_tournament_honours_leaderboard_rows(mysqli $con, ?AmigaSnapshotContext $ctx = null, ?string $orderClause = null): array
 {
     if ($ctx !== null && $ctx->isActive()) {
         require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
 
-        return amiga_lb_honours_rows_at_cutoff($con, $ctx);
+        return amiga_lb_honours_rows_at_cutoff($con, $ctx, $orderClause);
     }
+
+    $orderClause ??= amiga_lb_tournament_honours_order_sql('t');
 
     $sql = 'SELECT t.player_id,
                    p.name AS player_name,
@@ -714,7 +715,7 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con, ?AmigaSnapshotCo
             FROM amiga_player_current t
             INNER JOIN amiga_players p ON p.id = t.player_id
             WHERE t.tournaments_played > 0
-            ORDER BY ' . amiga_lb_tournament_honours_order_sql('t');
+            ORDER BY ' . $orderClause;
     $result = mysqli_query($con, $sql);
     if (!$result) {
         return [];
@@ -733,13 +734,15 @@ function amiga_tournament_honours_leaderboard_rows(mysqli $con, ?AmigaSnapshotCo
  *
  * @return list<array<string, mixed>>
  */
-function amiga_calendar_geo_leaderboard_rows(mysqli $con, ?AmigaSnapshotContext $ctx = null): array
+function amiga_calendar_geo_leaderboard_rows(mysqli $con, ?AmigaSnapshotContext $ctx = null, ?string $orderClause = null): array
 {
     if ($ctx !== null && $ctx->isActive()) {
         require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
 
-        return amiga_lb_calendar_geo_rows_at_cutoff($con, $ctx);
+        return amiga_lb_calendar_geo_rows_at_cutoff($con, $ctx, $orderClause);
     }
+
+    $orderClause ??= amiga_lb_calendar_geo_default_order_sql('t');
 
     $sql = 'SELECT t.player_id,
                    p.name AS player_name,
@@ -756,9 +759,7 @@ function amiga_calendar_geo_leaderboard_rows(mysqli $con, ?AmigaSnapshotContext 
             FROM amiga_player_current t
             INNER JOIN amiga_players p ON p.id = t.player_id
             WHERE t.NumberGames > 0
-            ORDER BY t.peak_year_games DESC,
-                     t.peak_year_games_year ASC,
-                     t.player_id ASC';
+            ORDER BY ' . $orderClause;
     $result = mysqli_query($con, $sql);
     if (!$result) {
         return [];

@@ -46,6 +46,10 @@ function amiga_player_games_filter_context(array $filters): array
         'ga' => (int) ($filters['ga'] ?? -1),
         'gs' => (int) ($filters['gs'] ?? -1),
         'gd' => array_key_exists('gd', $filters) ? $filters['gd'] : null,
+        'gf_min' => (int) ($filters['gf_min'] ?? -1),
+        'gf_max' => (int) ($filters['gf_max'] ?? -1),
+        'ga_min' => (int) ($filters['ga_min'] ?? -1),
+        'ga_max' => (int) ($filters['ga_max'] ?? -1),
     ];
 }
 
@@ -75,6 +79,10 @@ function amiga_player_games_facet_where(
     $ga = (int) $ctx['ga'];
     $gs = (int) $ctx['gs'];
     $gd = $ctx['gd'];
+    $gfMin = (int) ($ctx['gf_min'] ?? -1);
+    $gfMax = (int) ($ctx['gf_max'] ?? -1);
+    $gaMin = (int) ($ctx['ga_min'] ?? -1);
+    $gaMax = (int) ($ctx['ga_max'] ?? -1);
 
     if ($omitFacet === 'result') {
         $result = 'all';
@@ -120,7 +128,11 @@ function amiga_player_games_facet_where(
         $gd,
         $types,
         $params,
-        $snapshotCtx
+        $snapshotCtx,
+        $gfMin,
+        $gfMax,
+        $gaMin,
+        $gaMax
     );
 }
 
@@ -349,7 +361,8 @@ function amiga_player_games_facet_context_cache_key(int $playerId, array $ctx, ?
         . (string) ($ctx['event'] ?? 'all') . '|' . (string) ($ctx['country'] ?? '') . '|' . (string) ($ctx['opp_country'] ?? '') . '|'
         . (string) ($ctx['day'] ?? '') . '|' . (int) ($ctx['since'] ?? 0) . '|' . (int) ($ctx['until'] ?? 0) . '|' . (int) ($ctx['year'] ?? 0) . '|'
         . (int) ($ctx['gf'] ?? -1) . '|' . (int) ($ctx['ga'] ?? -1) . '|' . (int) ($ctx['gs'] ?? -1) . '|'
-        . ($ctx['gd'] === null ? '' : (string) (int) $ctx['gd']);
+        . ($ctx['gd'] === null ? '' : (string) (int) $ctx['gd']) . '|' . (int) ($ctx['gf_min'] ?? -1) . '|'
+        . (int) ($ctx['gf_max'] ?? -1) . '|' . (int) ($ctx['ga_min'] ?? -1) . '|' . (int) ($ctx['ga_max'] ?? -1);
 }
 
 /**
@@ -421,7 +434,11 @@ function amiga_player_games_filter_context_is_career_wide(array $ctx): bool
         && (int) ($ctx['gf'] ?? -1) === -1
         && (int) ($ctx['ga'] ?? -1) === -1
         && (int) ($ctx['gs'] ?? -1) === -1
-        && ($ctx['gd'] ?? null) === null;
+        && ($ctx['gd'] ?? null) === null
+        && (int) ($ctx['gf_min'] ?? -1) === -1
+        && (int) ($ctx['gf_max'] ?? -1) === -1
+        && (int) ($ctx['ga_min'] ?? -1) === -1
+        && (int) ($ctx['ga_max'] ?? -1) === -1;
 }
 
 /**

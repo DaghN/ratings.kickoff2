@@ -27,7 +27,13 @@ include __DIR__ . '/../../../config/ko2amiga_config.php';
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $ctx = amiga_lb_context($con);
 
-$result = amiga_lb_query_peak_rating($con, $ctx);
+$colPeak = 4;
+$lbSort = k2_lb_table_sort_state($colPeak);
+$lbDefaultOrder = amiga_lb_peak_rating_default_order_sql();
+$lbOrderMap = amiga_lb_peak_rating_order_column_map($ctx->isActive());
+$lbSqlOrder = k2_lb_sql_order_from_sort($lbSort, $lbOrderMap, $lbDefaultOrder);
+
+$result = amiga_lb_query_peak_rating($con, $ctx, $lbSqlOrder['order_clause']);
 amiga_lb_chapter_lede_html_for_request($con, $ctx);
 
 mysqli_close($con);
@@ -38,8 +44,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 
 <?php k2_table_wrap_open(true); ?>
 
-<?php $lbSort = k2_lb_table_sort_state(4); ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $colPeak, 'desc', $lbSqlOrder['ssr_applied_url_sort']); ?>>
 
 <thead>
     <tr>

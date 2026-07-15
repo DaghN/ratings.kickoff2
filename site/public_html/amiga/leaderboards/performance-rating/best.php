@@ -17,12 +17,19 @@ $k2AmigaLbPerfRatingLedeHtml = 'Best single-event performance rating per player.
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $ctx = amiga_lb_context($con);
-$rows = amiga_lb_performance_rating_rows($con, $ctx);
+
+$colPerf = AMIGA_LB_PERF_RATING_COL_PERF;
+$lbSort = k2_lb_table_sort_state($colPerf, AMIGA_LB_PERF_RATING_COL_PERF);
+$lbDefaultOrder = amiga_lb_performance_rating_best_default_order_sql();
+$lbOrderMap = amiga_lb_performance_rating_best_order_column_map();
+$lbSqlOrder = k2_lb_sql_order_from_sort($lbSort, $lbOrderMap, $lbDefaultOrder);
+
+$rows = amiga_lb_performance_rating_rows($con, $ctx, $lbSqlOrder['order_clause']);
 amiga_lb_chapter_lede_html_for_request($con, $ctx);
 mysqli_close($con);
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_performance_rating_shell_start.inc.php';
 
-amiga_lb_performance_rating_render_table('best', $rows);
+amiga_lb_performance_rating_render_table('best', $rows, $lbSqlOrder);
 
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_performance_rating_shell_end.inc.php';

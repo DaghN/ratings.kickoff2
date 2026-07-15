@@ -97,6 +97,190 @@ function amiga_lb_goals_order_column_map(): array
 }
 
 /**
+ * Amiga double-digits LB URL scrolled to a player's row (profile mosaic ratio links).
+ *
+ * @param array<string, scalar> $extraQuery
+ */
+function amiga_lb_double_digits_player_href(int $playerId, int $sortCol, string $dir = 'desc', array $extraQuery = []): string
+{
+    $dir = strtolower($dir) === 'asc' ? 'asc' : 'desc';
+    $query = array_merge(['k2_sort' => (string) $sortCol, 'k2_dir' => $dir], $extraQuery);
+    $path = amiga_url_with_context('/amiga/leaderboards/double-digits.php', $query);
+    if ($playerId < 1) {
+        return $path . k2_lb_table_anchor_hash();
+    }
+
+    return $path . k2_lb_player_row_anchor_hash($playerId);
+}
+
+/** Default ORDER BY tail for Amiga double-digits LB (no leading ORDER BY). */
+function amiga_lb_double_digits_default_order_sql(): string
+{
+    return 's.DoubleDigits DESC, s.Rating DESC, p.id ASC';
+}
+
+/**
+ * Sortable column index → SQL expression for Amiga double-digits LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function amiga_lb_double_digits_order_column_map(): array
+{
+    $ratio = static fn (string $col): string => "(CASE WHEN s.$col IS NULL OR s.$col < 0 THEN NULL ELSE s.$col END)";
+
+    return [
+        1 => 'p.name',
+        2 => 's.Rating',
+        3 => 's.NumberGames',
+        4 => 's.DoubleDigits',
+        5 => 's.CleanSheets',
+        6 => $ratio('DoubleDigitsRatio'),
+        7 => $ratio('CleanSheetsRatio'),
+        8 => 's.DoubleDigitsConceded',
+        9 => 's.CleanSheetsConceded',
+        10 => $ratio('DoubleDigitsConcededRatio'),
+        11 => $ratio('CleanSheetsConcededRatio'),
+    ];
+}
+
+/** Default ORDER BY tail for Amiga victims LB (no leading ORDER BY). */
+function amiga_lb_victims_default_order_sql(): string
+{
+    return 's.DifferentOpponents DESC, s.Rating DESC';
+}
+
+/**
+ * Sortable column index → SQL expression for Amiga victims LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function amiga_lb_victims_order_column_map(): array
+{
+    return [
+        1 => 'p.name',
+        2 => 's.Rating',
+        3 => 's.NumberGames',
+        4 => 's.DifferentOpponents',
+        5 => 's.DifferentVictims',
+        6 => 's.DifferentCulprits',
+        7 => 's.DoubleDigitsVictims',
+        8 => 's.DoubleDigitsCulprits',
+        9 => 's.MostGoalsConcededVictims',
+        10 => 's.BiggestLossVictims',
+        11 => 's.CleanSheetsVictims',
+        12 => 's.CleanSheetsCulprits',
+        13 => 's.MostGoalsScoredCulprits',
+        14 => 's.BiggestWinCulprits',
+    ];
+}
+
+/** Default ORDER BY tail for Amiga peak-rating LB (no leading ORDER BY). */
+function amiga_lb_peak_rating_default_order_sql(): string
+{
+    return 's.PeakRating DESC, s.Rating DESC';
+}
+
+/**
+ * Sortable column index → SQL expression for Amiga peak-rating LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function amiga_lb_peak_rating_order_column_map(bool $timeTravelActive = false): array
+{
+    return [
+        1 => 'p.name',
+        2 => 's.Rating',
+        3 => 's.NumberGames',
+        4 => 's.PeakRating',
+        5 => 'tpr.event_date',
+        6 => $timeTravelActive ? 'er.peak_elo_rank' : 's.peak_elo_rank',
+        7 => 'tpke.event_date',
+        8 => 's.LowestRating',
+        9 => 's.AverageOpponentRating',
+        10 => 's.HighestRatedVictim',
+        11 => 's.LowestRatedCulprit',
+    ];
+}
+
+/**
+ * Sortable column index → SQL expression for Amiga tournament honours LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function amiga_lb_tournament_honours_order_column_map(string $alias = 't'): array
+{
+    $a = $alias;
+
+    return [
+        1 => 'p.name',
+        2 => "{$a}.Rating",
+        3 => "{$a}.tournaments_played",
+        4 => "{$a}.event_gold",
+        5 => "{$a}.event_silver",
+        6 => "{$a}.event_bronze",
+        7 => "{$a}.event_podiums",
+        8 => "{$a}.perfect_events",
+    ];
+}
+
+/** Default ORDER BY tail for Amiga calendar-geo LB (no leading ORDER BY). */
+function amiga_lb_calendar_geo_default_order_sql(string $alias = 't'): string
+{
+    $a = $alias;
+
+    return "{$a}.peak_year_games DESC, {$a}.peak_year_games_year ASC, {$a}.player_id ASC";
+}
+
+/**
+ * Sortable column index → SQL expression for Amiga calendar-geo LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function amiga_lb_calendar_geo_order_column_map(string $alias = 't'): array
+{
+    $a = $alias;
+
+    return [
+        1 => 'p.name',
+        2 => "{$a}.Rating",
+        3 => "{$a}.peak_year_games",
+        4 => "{$a}.peak_year_games_year",
+        5 => "{$a}.peak_year_tournaments",
+        6 => "{$a}.peak_year_tournaments_year",
+        7 => "{$a}.countries_played_in",
+        8 => "{$a}.opponent_countries_faced",
+        9 => "{$a}.opponent_countries_beaten",
+        10 => "{$a}.opponent_countries_beaten_by",
+    ];
+}
+
+/** Default ORDER BY tail for Amiga perf-rating Best LB (no leading ORDER BY). */
+function amiga_lb_performance_rating_best_default_order_sql(): string
+{
+    return 'part.performance_rating DESC, part.games DESC, s.Rating DESC, p.id ASC';
+}
+
+/**
+ * Sortable column index → SQL expression for Amiga perf-rating Best LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function amiga_lb_performance_rating_best_order_column_map(): array
+{
+    return [
+        1 => 'p.name',
+        2 => 's.Rating',
+        3 => 'part.performance_rating',
+        4 => 'part.games',
+        5 => 'part.wins',
+        6 => 'part.draws',
+        7 => 'part.losses',
+        8 => 'part.tournament_name',
+        9 => 'part.event_date',
+    ];
+}
+
+/**
  * Rating LB delta column state (present-day WC-start Δ or time-travel event Δ).
  *
  * @return array{

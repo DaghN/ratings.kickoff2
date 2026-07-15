@@ -232,12 +232,14 @@ function amiga_lb_rated_country_count(mysqli $con, AmigaSnapshotContext $ctx): i
 /**
  * @return list<array<string, mixed>>
  */
-function amiga_lb_performance_rating_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx): array
+function amiga_lb_performance_rating_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx, ?string $orderClause = null): array
 {
     $cutoff = $ctx->cutoff();
     if ($cutoff === null) {
         return [];
     }
+
+    $orderClause ??= amiga_lb_performance_rating_best_default_order_sql();
 
     $sql = 'SELECT p.id AS player_id,
                    p.name AS player_name,
@@ -258,10 +260,7 @@ function amiga_lb_performance_rating_rows_at_cutoff(mysqli $con, AmigaSnapshotCo
         . amiga_lb_best_perf_event_join_sql('part')
         . ' INNER JOIN tournaments t ON t.id = part.tournament_id
             WHERE s.NumberGames > 0
-            ORDER BY part.performance_rating DESC,
-                     part.games DESC,
-                     s.Rating DESC,
-                     p.id ASC';
+            ORDER BY ' . $orderClause;
 
     $stmt = $con->prepare($sql);
     if (!$stmt) {
@@ -449,17 +448,19 @@ function amiga_lb_performance_rating_perfect_rows_at_cutoff(mysqli $con, AmigaSn
 /**
  * @return list<array<string, mixed>>
  */
-function amiga_lb_honours_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx): array
+function amiga_lb_honours_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx, ?string $orderClause = null): array
 {
     $cutoff = $ctx->cutoff();
     if ($cutoff === null) {
         return [];
     }
 
+    $orderClause ??= amiga_lb_tournament_honours_order_sql('s');
+
     /* Request-scoped cache — tournament-honours.php needs rows + player count and
        amiga_lb_honours_player_count() TT path counts these same rows. */
     static $cache = [];
-    $cacheKey = $cutoff['event_date'] . '|' . $cutoff['chrono'] . '|' . $cutoff['tournament_id'];
+    $cacheKey = $cutoff['event_date'] . '|' . $cutoff['chrono'] . '|' . $cutoff['tournament_id'] . '|' . $orderClause;
     if (isset($cache[$cacheKey])) {
         return $cache[$cacheKey];
     }
@@ -476,7 +477,7 @@ function amiga_lb_honours_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx)
                    s.perfect_events
             ' . amiga_lb_snapshot_from_sql('s') . '
             WHERE s.tournaments_played > 0
-            ORDER BY ' . amiga_lb_tournament_honours_order_sql('s');
+            ORDER BY ' . $orderClause;
 
     $stmt = $con->prepare($sql);
     if (!$stmt) {
@@ -512,12 +513,14 @@ function amiga_lb_honours_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx)
 /**
  * @return list<array<string, mixed>>
  */
-function amiga_lb_calendar_geo_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx): array
+function amiga_lb_calendar_geo_rows_at_cutoff(mysqli $con, AmigaSnapshotContext $ctx, ?string $orderClause = null): array
 {
     $cutoff = $ctx->cutoff();
     if ($cutoff === null) {
         return [];
     }
+
+    $orderClause ??= amiga_lb_calendar_geo_default_order_sql('s');
 
     $sql = 'SELECT p.id AS player_id,
                    p.name AS player_name,
@@ -533,9 +536,7 @@ function amiga_lb_calendar_geo_rows_at_cutoff(mysqli $con, AmigaSnapshotContext 
                    s.opponent_countries_beaten_by
             ' . amiga_lb_snapshot_from_sql('s') . '
             WHERE s.NumberGames > 0
-            ORDER BY s.peak_year_games DESC,
-                     s.peak_year_games_year ASC,
-                     p.id ASC';
+            ORDER BY ' . $orderClause;
 
     $stmt = $con->prepare($sql);
     if (!$stmt) {
@@ -774,8 +775,9 @@ function amiga_lb_rating_delta_sort_value(?float $delta): string
  *
  * @return mysqli_result
  */
-function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx): mysqli_result
+function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx, ?string $orderClause = null): mysqli_result
 {
+    $orderClause ??= amiga_lb_peak_rating_default_order_sql();
     $selectBase = 'SELECT p.id AS ID, p.name AS Name, s.Rating, p.country AS Country, s.NumberGames, '
         . 's.PeakRating, s.LowestRating, s.AverageOpponentRating, s.HighestRatedVictim, s.LowestRatedCulprit, '
         . 's.peak_rating_tournament_id, tpr.name AS peak_rating_tournament_name, peak_snap.rating_delta AS peak_rating_delta, ';
@@ -802,7 +804,7 @@ function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx): mys
             . 'LEFT JOIN tournaments tpke ON tpke.id = s.peak_elo_rank_tournament_id '
             . $peakRankPlayedJoinPresent
             . 'WHERE ' . amiga_lb_player_where_sql() . ' '
-            . 'ORDER BY s.PeakRating DESC, s.Rating DESC';
+            . 'ORDER BY ' . $orderClause;
 
         return k2_query_or_public_error($con, $sql, 'amiga peak rating leaderboard');
     }
@@ -832,7 +834,7 @@ function amiga_lb_query_peak_rating(mysqli $con, AmigaSnapshotContext $ctx): mys
         . 'LEFT JOIN tournaments tpke ON tpke.id = er.peak_elo_rank_tournament_id '
         . $peakRankPlayedJoinTt
         . 'WHERE ' . amiga_lb_player_where_sql() . ' '
-        . 'ORDER BY s.PeakRating DESC, s.Rating DESC';
+        . 'ORDER BY ' . $orderClause;
 
     $stmt = $con->prepare($sql);
     if ($stmt === false) {

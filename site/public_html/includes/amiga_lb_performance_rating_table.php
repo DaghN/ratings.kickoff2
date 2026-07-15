@@ -22,8 +22,9 @@ const AMIGA_LB_PERF_RATING_COL_DATE = 9;
 
 /**
  * @param list<array<string, mixed>> $rows
+ * @param array{order_clause: string, ssr_applied_url_sort: bool}|null $lbSqlOrder
  */
-function amiga_lb_performance_rating_render_table(string $view, array $rows): void
+function amiga_lb_performance_rating_render_table(string $view, array $rows, ?array $lbSqlOrder = null): void
 {
     $view = in_array($view, ['best', 'top', 'perfect'], true) ? $view : 'best';
     $isPerfect = $view === 'perfect';
@@ -53,9 +54,13 @@ function amiga_lb_performance_rating_render_table(string $view, array $rows): vo
     $infinityHelp = amiga_perf_rating_perfect_infinity_help();
     $gamesHelp = 'Games in the listed event.';
 
+    $skipInitialSortAttr = $view === 'best' && $lbSqlOrder !== null
+        ? k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $defaultSortCol, 'desc', $lbSqlOrder['ssr_applied_url_sort'])
+        : k2_table_skip_initial_sort_attr($defaultSortCol);
+
     k2_table_wrap_open(true);
     ?>
-<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo $isPerfect ? k2_table_quiet_default_sort_col_attr([AMIGA_LB_PERF_RATING_COL_DATE]) : ''; ?><?php echo k2_table_skip_initial_sort_attr($defaultSortCol); ?>>
+<table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo $isPerfect ? k2_table_quiet_default_sort_col_attr([AMIGA_LB_PERF_RATING_COL_DATE]) : ''; ?><?php echo $skipInitialSortAttr; ?>>
 
 <thead>
     <tr>

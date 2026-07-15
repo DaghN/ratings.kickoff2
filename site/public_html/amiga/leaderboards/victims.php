@@ -25,13 +25,19 @@ include __DIR__ . '/../../../config/ko2amiga_config.php';
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $ctx = amiga_lb_context($con);
 
+$colOpponents = 4;
+$lbSort = k2_lb_table_sort_state($colOpponents);
+$lbDefaultOrder = amiga_lb_victims_default_order_sql();
+$lbOrderMap = amiga_lb_victims_order_column_map();
+$lbSqlOrder = k2_lb_sql_order_from_sort($lbSort, $lbOrderMap, $lbDefaultOrder);
+
 $result = amiga_lb_query_career(
     $con,
     $ctx,
     'SELECT p.id AS ID, p.name AS Name, s.Rating, p.country AS Country, s.NumberGames, s.DifferentOpponents, s.DifferentVictims, '
     . 's.DifferentCulprits, s.DoubleDigitsVictims, s.CleanSheetsVictims, s.MostGoalsConcededVictims, s.BiggestLossVictims, '
     . 's.DoubleDigitsCulprits, s.CleanSheetsCulprits, s.MostGoalsScoredCulprits, s.BiggestWinCulprits ',
-    'ORDER BY s.DifferentOpponents DESC, s.Rating DESC'
+    'ORDER BY ' . $lbSqlOrder['order_clause']
 );
 
 mysqli_close($con);
@@ -42,8 +48,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 
 <?php k2_table_wrap_open(true); ?>
 
-<?php $lbSort = k2_lb_table_sort_state(4); ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $colOpponents, 'desc', $lbSqlOrder['ssr_applied_url_sort']); ?>>
 
 <thead>
     <tr>
