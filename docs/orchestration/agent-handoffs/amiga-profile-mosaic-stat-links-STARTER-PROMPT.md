@@ -3,7 +3,7 @@
 **Use a new chat.** Paste the **COPY INTO NEW CHAT** block below (click copy icon).  
 **Policy (authority + register):** [`docs/player-profile-stat-links-policy.md`](../../player-profile-stat-links-policy.md)  
 **Track A (separate):** LB server-side sort — [`k2-lb-ssr-sort-STARTER-PROMPT.md`](k2-lb-ssr-sort-STARTER-PROMPT.md) (comparison links benefit when target wing is SSR; do not mix tracks unless Dagh asks).  
-**Status:** In progress (Jul 2026) — Results · Goals · DD/CS · Tournament honours · Calendar (peak games/events) · Peak rating panel · **Activity** tournament boundaries **Shipped**; **Victims & Culprits** panel counts · **Calendar geo** country rows **Planned**.
+**Status:** In progress (Jul 2026) — Results · Goals · DD/CS · Tournament honours · Calendar (peak games/events) · Peak rating panel · **Activity** tournament boundaries · **Opponents chronology** **Shipped**; **Victims & Culprits** panel counts (except Opponents) · **Calendar geo** country rows **Planned**.
 
 **Smoke player:** `id=149` on `/amiga/player/profile.php` (present + one `as=` URL when TT-relevant).
 
@@ -51,7 +51,7 @@ You are Dagh's **Amiga profile mosaic stat links (Track B)** agent.
 **Backlog (policy §4 — pick what Dagh names next):**
 | Section | Cells | Likely destination |
 |---------|-------|-------------------|
-| Victims & Culprits | Opponents, Victims, DD/CS/MGC/BL victims, Culprits, … | **Inventory** — opponent/victim chronology (may need new list surface; not victims LB) |
+| Victims & Culprits | Victims, DD/CS/MGC/BL victims, Culprits, … | **Inventory** — `/amiga/player/chronologies/{kind}/made-it.php` (Opponents **shipped**) |
 | Calendar & geography | Host countries, countries faced/beaten/beaten by | Countries hub, or filtered games — propose per stat |
 
 **Implementation patterns (copy nearest shipped cell):**

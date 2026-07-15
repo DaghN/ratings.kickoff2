@@ -1236,8 +1236,16 @@ function amiga_profile_lb_slice_rows_double_digits(array $row): void
 function amiga_profile_lb_slice_rows_victims(array $row): void
 {
     $games = (int) ($row['NumberGames'] ?? 0);
+    $playerId = (int) ($row['ID'] ?? 0);
+    $opponents = (int) ($row['DifferentOpponents'] ?? 0);
+    require_once __DIR__ . '/amiga_player_chronologies_lib.php';
+    $opponentsDisplay = '<span class="blue">' . k2_fmt_count($row['DifferentOpponents'] ?? null, $games) . '</span>';
+    $opponentsValue = amiga_profile_lb_slice_link_star_value_html(
+        $opponentsDisplay,
+        $playerId > 0 && $opponents > 0 ? amiga_player_chronology_opponents_entry_href($playerId) : ''
+    );
 
-    echo amiga_profile_lb_slice_row('Opponents', '<span class="blue">' . k2_fmt_count($row['DifferentOpponents'] ?? null, $games) . '</span>', k2_lb_help_opponents());
+    echo amiga_profile_lb_slice_row('Opponents', $opponentsValue, k2_lb_help_opponents());
     echo amiga_profile_lb_slice_row('Victims', k2_fmt_count($row['DifferentVictims'] ?? null, $games), k2_lb_help_victims());
     echo amiga_profile_lb_slice_row('DD Victims', k2_fmt_count($row['DoubleDigitsVictims'] ?? null, $games), k2_lb_help_dd_victims(), 'Double Digit victims');
     echo amiga_profile_lb_slice_row('CS Victims', k2_fmt_count($row['CleanSheetsVictims'] ?? null, $games), k2_lb_help_cs_victims(), 'Clean Sheet victims');

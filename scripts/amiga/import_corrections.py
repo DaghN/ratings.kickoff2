@@ -69,6 +69,7 @@ PLAYER_COUNTRY_OVERRIDES: dict[str, str] = {
     "Ingvald E": "Norway",
     "Kjetil D": "Norway",
     "Oyvind H": "Norway",
+    "Regis B": "France",
 }
 
 PLAYER_COUNTRY_RATIONALE: dict[str, str] = {
@@ -76,6 +77,7 @@ PLAYER_COUNTRY_RATIONALE: dict[str, str] = {
     "Ingvald E": "Norwegian player; missing from L2 witness_player_identity.",
     "Kjetil D": "Norwegian player; missing from L2 witness_player_identity.",
     "Oyvind H": "Norwegian player; missing from L2 witness_player_identity.",
+    "Regis B": "French player; L2 witness_player_identity had Sweden.",
 }
 
 # Access spelling variant → canonical display name (forced winner in name merge groups).

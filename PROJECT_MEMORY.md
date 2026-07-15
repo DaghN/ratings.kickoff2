@@ -10,7 +10,7 @@
 
 ## Current focus
 
-- **Amiga profile (Jul 2026):** **Track B** — mosaic stat links one-at-a-time ([`player-profile-stat-links-policy.md`](docs/player-profile-stat-links-policy.md) · [`amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md)); Results · Goals · DD/CS · Tournament honours · Calendar peak games/events · Peak rating panel · Activity tournament rows **shipped**; **Victims & Culprits** panel counts · Calendar geo country rows **planned**.
+- **Amiga profile (Jul 2026):** **Track B** — mosaic stat links one-at-a-time ([`player-profile-stat-links-policy.md`](docs/player-profile-stat-links-policy.md)); **Opponents chronology shipped** (`/amiga/player/chronologies/opponents/` Made it + Graphs); remaining Victims panel counts · Calendar geo country rows **planned**.
 
 - **K2 LB SSR (Jul 2026):** **Track A complete** — all hub wings URL landing sort ([`k2-lb-ssr-sort-policy.md`](docs/k2-lb-ssr-sort-policy.md) **Implemented**). Track **B** = profile mosaic stat links.
 
@@ -149,6 +149,8 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-15 | **Amiga player country fix — Regis B** — L3 override `Regis B` → France (L2 had Sweden); `ko2amiga_work` ground + simul; inventory [`amiga-l3-legacy-fixes-inventory.md`](docs/amiga-l3-legacy-fixes-inventory.md) §7. |
+| 2026-07-15 | **Amiga Opponents chronology (spike)** — `/amiga/player/chronologies/opponents/{made-it,graphs}.php`: milestone spotlight + Made it\|Graphs segment (carry-scroll); first-meeting table (games-tab scoreline cols); read-time SQL + TT cutoff; profile mosaic Opponents → Made it. Lib: `amiga_player_chronologies_*.php` · `amiga-chronology-opponents-charts.js`. |
 | 2026-07-15 | **Amiga profile layout polish** — full 1200px column; mosaic `h3.k2-panel-heading` titles (not in-table headers); slice gaps 22px/18px; **Charts** section; brighter headings; chart gap 32px (`player-feast-sections.css`, `amiga_profile_lb_slices.php`, `amiga_profile_blocks.php`). |
 | 2026-07-15 | **Amiga profile mosaic docs** — policy register: Peak Rating · Peak rank · Activity tournament rows marked **Shipped** (were wrongly listed as planned); backlog = Victims panel + geo country rows only. |
 | 2026-07-15 | **Amiga profile mosaic — Highest Victim / Lowest Culprit** — Games tab inventory: `result=win|loss`, new `sort=opp_rating` (`desc`/`asc`), `#matching-games`; policy register updated. |

@@ -1058,3 +1058,28 @@ body.k2-site.player-feast-body .k2-amiga-profile-lb-slices .k2-table.server-reco
 .player-feast-body .k2-amiga-profile-lb-slices td.k2-amiga-profile-activity-value-cell--stacked {
 	vertical-align: top;
 }
+
+/* Amiga player chronologies — spotlight card (milestone-style, link-star glow) */
+.player-feast-body.k2-amiga-chronology-page .k2-amiga-chronology-spotlight-card {
+	--k2-ms-accent: var(--k2-link-star);
+}
+
+.player-feast-body.k2-amiga-chronology-page .k2-amiga-chronology-spotlight-card__title {
+	color: var(--k2-link-star);
+}
+
+.player-feast-body.k2-amiga-chronology-page .k2-amiga-chronology-spotlight-card__rule {
+	color: var(--k2-text-secondary);
+}
+
+.player-feast-body.k2-amiga-chronology-page .k2-amiga-chronology-main {
+	margin-top: var(--k2-nav-gap, 18px);
+}
+
+.player-feast-body.k2-amiga-chronology-page .k2-amiga-chronology-panel-tabs {
+	margin-bottom: var(--k2-nav-gap, 18px);
+}
+
+body.k2-site .k2-amiga-chronology-opponents-table.k2-table--tournament-games .k2-amiga-tgame-team {
+	white-space: nowrap;
+}

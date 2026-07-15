@@ -198,6 +198,7 @@ When a game player has no row in L2 `witness_player_identity` (or Access country
 | Ingvald E | Norway | Missing from L2 witness_player_identity |
 | Kjetil D | Norway | Missing from L2 witness_player_identity |
 | Oyvind H | Norway | Missing from L2 witness_player_identity |
+| Regis B | France | Wrong country in L2 witness_player_identity (Access had Sweden) |
 
 ### Player name spelling aliases (manual)
 

@@ -762,6 +762,7 @@
         pitch: function () { return chartColor('--k2-chart-pitch', '#9ccc65'); },
         chrome: function () { return chartColor('--k2-chart-chrome', '#64b5f6'); },
         holo: function () { return chartColor('--k2-chart-holo', '#b388ff'); },
+        chartAmber: function () { return chartColor('--k2-chart-amber', '#ffb74d'); },
         /** Resolved rgb — Chart.js cannot parse var(--k2-chart-amber) / color-mix tokens. */
         amber: function () { return this.amberSoft(); },
         amberSoft: function () {
@@ -783,6 +784,20 @@
             }
             var mixed = linkStarMixRgb();
             return mixed ? rgbString(mixed) : 'rgb(232, 201, 168)';
+        },
+        /** Active site tint → chart ink (--k2-chart-*), not link-star mix. */
+        tintChartInk: function () {
+            var accent = (document.documentElement.getAttribute('data-k2-accent') || 'amber').toLowerCase();
+            if (accent === 'pitch') {
+                return this.pitch();
+            }
+            if (accent === 'chrome') {
+                return this.chrome();
+            }
+            if (accent === 'holo') {
+                return this.holo();
+            }
+            return this.chartAmber();
         },
         /** @deprecated use accent() */
         realm: function () { return this.accent(); },

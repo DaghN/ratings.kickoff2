@@ -187,6 +187,7 @@ L2 `witness_player_identity` had no country row (or empty). Manual override at L
 | Ingvald E | Norway | Missing from witness identity |
 | Kjetil D | Norway | Missing from witness identity |
 | Oyvind H | Norway | Missing from witness identity |
+| Regis B | France | Wrong country in witness identity (Access/L2 had Sweden) |
 
 ---
 
