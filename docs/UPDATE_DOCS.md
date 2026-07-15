@@ -38,6 +38,7 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | **Status room live — local sim** | [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md) (live environment: login, register, games; dispatcher boundary) |
 | Player profile layout / v1 build | `docs/player-profile-feast.md`, `docs/profile-build-playbook.md` (v1 decisions: `docs/archive/profile-content-candidates.md`) |
 | **Player profile stat links (hero + mosaic)** | [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) · Track B prompt [`orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md) |
+| **Amiga inverse victim/culprit counts (sparse changelog, proposed)** | [`amiga-player-inverse-count-timeline-policy.md`](amiga-player-inverse-count-timeline-policy.md) · audit [`orchestration/agent-handoffs/amiga-player-inverse-count-timeline-AUDIT-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-player-inverse-count-timeline-AUDIT-STARTER-PROMPT.md) |
 | Milestones feature (phases, catalog, tier plan) | `docs/milestones-README.md`, `docs/milestones-catalog.md` (regen script), `docs/milestones-project.md`, `docs/milestones-product-spec.md` |
 | Hub tabs / IA | `docs/hub-ia-agreement.md` |
 | **Present layer** (News, pulse rail, Misc, leaf pages, footer/about, shippable checklist) | [`present-layer-ia.md`](present-layer-ia.md) |

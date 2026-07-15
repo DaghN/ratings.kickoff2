@@ -146,6 +146,18 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-player-chronologies-opponents-graphs` | `/amiga/player/chronologies/opponents/graphs.php` |
 | `amiga-player-chronologies-victims-made-it` | `/amiga/player/chronologies/victims/made-it.php` (inventory default; `index.php` 302) |
 | `amiga-player-chronologies-victims-graphs` | `/amiga/player/chronologies/victims/graphs.php` |
+| `amiga-player-chronologies-dd-victims-made-it` | `/amiga/player/chronologies/dd_victims/made-it.php` (inventory default; `index.php` 302) |
+| `amiga-player-chronologies-dd-victims-graphs` | `/amiga/player/chronologies/dd_victims/graphs.php` |
+| `amiga-player-chronologies-cs-victims-made-it` | `/amiga/player/chronologies/cs_victims/made-it.php` (inventory default; `index.php` 302) |
+| `amiga-player-chronologies-cs-victims-graphs` | `/amiga/player/chronologies/cs_victims/graphs.php` |
+| `amiga-player-chronologies-mgc-victims-made-it` | `/amiga/player/chronologies/mgc_victims/made-it.php` (inventory default; `index.php` 302) |
+| `amiga-player-chronologies-mgc-victims-graphs` | `/amiga/player/chronologies/mgc_victims/graphs.php` |
+| `amiga-player-chronologies-bl-victims-made-it` | `/amiga/player/chronologies/bl_victims/made-it.php` (inventory default; `index.php` 302) |
+| `amiga-player-chronologies-bl-victims-graphs` | `/amiga/player/chronologies/bl_victims/graphs.php` |
+| `amiga-player-chronologies-mgs-culprits-made-it` | `/amiga/player/chronologies/mgs_culprits/made-it.php` (inventory default; `index.php` 302) |
+| `amiga-player-chronologies-mgs-culprits-graphs` | `/amiga/player/chronologies/mgs_culprits/graphs.php` |
+| `amiga-player-chronologies-bw-culprits-made-it` | `/amiga/player/chronologies/bw_culprits/made-it.php` (inventory default; `index.php` 302) |
+| `amiga-player-chronologies-bw-culprits-graphs` | `/amiga/player/chronologies/bw_culprits/graphs.php` |
 | `amiga-world-cups` | `/amiga/world-cups/chronology.php` (Chronology default; `/amiga/world-cups/` 302) |
 | `amiga-world-cups-chronology` | `/amiga/world-cups/chronology.php` (`chronology/index.php` 302 legacy) |
 | `amiga-world-cups-stats` | `/amiga/world-cups/stats/participation.php` (Participation default; `stats.php` + `stats/index.php` 302) |

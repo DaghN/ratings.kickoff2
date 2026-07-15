@@ -38,6 +38,12 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php';
 <?php } else {
     $chartsJs = match ($kind) {
         AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS => 'amiga-chronology-victims-charts.js',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_DD_VICTIMS => 'amiga-chronology-dd-victims-charts.js',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_CS_VICTIMS => 'amiga-chronology-cs-victims-charts.js',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_MGC_VICTIMS => 'amiga-chronology-mgc-victims-charts.js',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_BL_VICTIMS => 'amiga-chronology-bl-victims-charts.js',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_MGS_CULPRITS => 'amiga-chronology-mgs_culprits-charts.js',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_BW_CULPRITS => 'amiga-chronology-bw_culprits-charts.js',
         default => 'amiga-chronology-opponents-charts.js',
     };
 ?>
@@ -87,6 +93,24 @@ if ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS) {
 } elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS) {
     $chronologyRows = amiga_player_chronology_victims_load($con, $id, $ctx);
     $chartPayload = amiga_player_chronology_victims_chart_payload($con, $id, $chronologyRows, $Name);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_DD_VICTIMS) {
+    $chronologyRows = amiga_player_chronology_dd_victims_load($con, $id, $ctx);
+    $chartPayload = amiga_player_chronology_dd_victims_chart_payload($con, $id, $chronologyRows, $Name);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_CS_VICTIMS) {
+    $chronologyRows = amiga_player_chronology_cs_victims_load($con, $id, $ctx);
+    $chartPayload = amiga_player_chronology_cs_victims_chart_payload($con, $id, $chronologyRows, $Name);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_MGC_VICTIMS) {
+    $chronologyRows = amiga_player_chronology_mgc_victims_load($con, $id, $ctx);
+    $chartPayload = amiga_player_chronology_mgc_victims_chart_payload($con, $id, $chronologyRows, $Name);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_BL_VICTIMS) {
+    $chronologyRows = amiga_player_chronology_bl_victims_load($con, $id, $ctx);
+    $chartPayload = amiga_player_chronology_bl_victims_chart_payload($con, $id, $chronologyRows, $Name);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_MGS_CULPRITS) {
+    $chronologyRows = amiga_player_chronology_mgs_culprits_load($con, $id, $ctx);
+    $chartPayload = amiga_player_chronology_mgs_culprits_chart_payload($con, $id, $chronologyRows, $Name);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_BW_CULPRITS) {
+    $chronologyRows = amiga_player_chronology_bw_culprits_load($con, $id, $ctx);
+    $chartPayload = amiga_player_chronology_bw_culprits_chart_payload($con, $id, $chronologyRows, $Name);
 }
 
 $k2AmigaPlayerHasVideos = amiga_player_has_videos($id, $con, $ctx);
@@ -121,6 +145,30 @@ amiga_player_chronology_render_segment_nav($id, $kind, $segment);
     amiga_player_chronology_render_victims_made_it($id, $chronologyRows);
 } elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS && $segment === 'graphs') {
     amiga_player_chronology_render_victims_graphs($chartPayload);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_DD_VICTIMS && $segment === 'made-it') {
+    amiga_player_chronology_render_dd_victims_made_it($id, $chronologyRows);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_DD_VICTIMS && $segment === 'graphs') {
+    amiga_player_chronology_render_dd_victims_graphs($chartPayload);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_CS_VICTIMS && $segment === 'made-it') {
+    amiga_player_chronology_render_cs_victims_made_it($id, $chronologyRows);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_CS_VICTIMS && $segment === 'graphs') {
+    amiga_player_chronology_render_cs_victims_graphs($chartPayload);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_MGC_VICTIMS && $segment === 'made-it') {
+    amiga_player_chronology_render_mgc_victims_made_it($id, $chronologyRows);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_MGC_VICTIMS && $segment === 'graphs') {
+    amiga_player_chronology_render_mgc_victims_graphs($chartPayload);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_BL_VICTIMS && $segment === 'made-it') {
+    amiga_player_chronology_render_bl_victims_made_it($id, $chronologyRows);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_BL_VICTIMS && $segment === 'graphs') {
+    amiga_player_chronology_render_bl_victims_graphs($chartPayload);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_MGS_CULPRITS && $segment === 'made-it') {
+    amiga_player_chronology_render_mgs_culprits_made_it($id, $chronologyRows);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_MGS_CULPRITS && $segment === 'graphs') {
+    amiga_player_chronology_render_mgs_culprits_graphs($chartPayload);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_BW_CULPRITS && $segment === 'made-it') {
+    amiga_player_chronology_render_bw_culprits_made_it($id, $chronologyRows);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_BW_CULPRITS && $segment === 'graphs') {
+    amiga_player_chronology_render_bw_culprits_graphs($chartPayload);
 } ?>
 </div>
 </main>

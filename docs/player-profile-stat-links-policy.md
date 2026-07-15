@@ -97,7 +97,13 @@ Secondary comparison paths (opening the LB from inside inventory, HoF deep links
 | Mosaic — Host countries, countries faced/beaten/beaten by | Countries hub or filtered games | **Planned** | Calendar-geo panel remainder — propose per stat |
 | Mosaic — Opponents | Player chronologies — opponents Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4 · `amiga_player_chronology_opponents_entry_href()` |
 | Mosaic — Victims | Player chronologies — victims Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.5 · `amiga_player_chronology_victims_entry_href()` |
-| Mosaic — DD Victims, CS Victims, … | Player victim/culprit chronology (per-type list, first occurrence order) | **Planned** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §5 kind register |
+| Mosaic — DD Victims | Player chronologies — dd_victims Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.6 · `amiga_player_chronology_dd_victims_entry_href()` |
+| Mosaic — CS Victims | Player chronologies — cs_victims Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.7 · `amiga_player_chronology_cs_victims_entry_href()` |
+| Mosaic — MGC Victims | Player chronologies — mgc_victims Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.8 · `amiga_player_chronology_mgc_victims_entry_href()` |
+| Mosaic — BL Victims | Player chronologies — bl_victims Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.9 · `amiga_player_chronology_bl_victims_entry_href()` |
+| Mosaic — MGS Culprits | Player chronologies — mgs_culprits Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.10 · `amiga_player_chronology_mgs_culprits_entry_href()` |
+| Mosaic — BW Culprits | Player chronologies — bw_culprits Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4.11 · `amiga_player_chronology_bw_culprits_entry_href()` |
+| Mosaic — Culprits, DD/CS culprits, … | Player culprit chronology (per-type list) | **Planned** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §5 kind register |
 
 ### Online player profile
 
@@ -124,4 +130,4 @@ Update this table when a stat gains a link or a new inventory page ships.
 
 ---
 
-*Last updated: Jul 2026 — Victims chronology shipped (Track B); DD/CS victim kinds + calendar geo country rows remain planned.*
+*Last updated: Jul 2026 — MGS/BW Culprits chronologies shipped; Different/DD/CS culprit kinds remain planned.*
