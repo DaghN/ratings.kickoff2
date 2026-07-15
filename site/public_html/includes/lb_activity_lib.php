@@ -536,7 +536,7 @@ function k2_lb_activity_echo_count_td(int $count, ?int $sortTieValue = null): vo
 /**
  * @return mysqli_result|false
  */
-function k2_lb_activity_query_peaks(mysqli $con)
+function k2_lb_activity_query_peaks(mysqli $con, string $orderClause = 'COALESCE(pd.`games`, 0) DESC, p.`Rating` DESC, p.`id` ASC')
 {
     $where = k2_lb_player_where_sql_for_alias('p');
     $sql = 'SELECT p.`id`, p.`Name`, p.`Rating`, p.`NumberGames`, '
@@ -550,7 +550,7 @@ function k2_lb_activity_query_peaks(mysqli $con)
         . 'LEFT JOIN `player_peak_period_games` pm ON pm.`player_id` = p.`id` AND pm.`period_type` = \'month\' '
         . 'LEFT JOIN `player_peak_period_games` py ON py.`player_id` = p.`id` AND py.`period_type` = \'year\' '
         . 'WHERE ' . $where . ' '
-        . 'ORDER BY COALESCE(pd.`games`, 0) DESC, p.`Rating` DESC';
+        . 'ORDER BY ' . $orderClause;
 
     return $con->query($sql);
 }

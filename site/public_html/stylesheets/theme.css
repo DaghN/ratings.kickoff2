@@ -2494,6 +2494,7 @@ body.k2-site .k2-player-games-day-view {
 
 body.k2-site .k2-player-games-day-anchor {
 	height: 0;
+	scroll-margin-top: 12px;
 }
 
 body.k2-site .k2-player-games-filters-anchor {
@@ -2852,6 +2853,8 @@ body.k2-site:has(.k2-amiga-time-travel--active) :is(
 	.k2-countries-scroll-anchor,
 	.k2-lb-player-row-anchor,
 	.k2-player-page-anchor,
+	.k2-player-wing-nav-anchor,
+	.k2-player-games-day-anchor,
 	.k2-game-page-anchor,
 	.k2-player-games-filters-anchor,
 	.k2-player-tournaments-table-anchor
@@ -4326,6 +4329,11 @@ body.k2-site .k2-player-opponents-h2h__search-option:focus-visible .player-searc
 
 /* â”€â”€ Player hero scaffold â”€â”€ */
 body.k2-site .k2-player-page-anchor {
+	height: 0;
+	scroll-margin-top: 12px;
+}
+
+body.k2-site .k2-player-wing-nav-anchor {
 	height: 0;
 	scroll-margin-top: 12px;
 }

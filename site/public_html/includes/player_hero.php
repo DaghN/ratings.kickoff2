@@ -23,9 +23,9 @@ $heroProfileHref = $heroMsPlayerId > 0 ? k2_player_profile_href($heroMsPlayerId)
 $heroLbRatingHref = $heroMsPlayerId > 0
 	? k2_lb_rating_player_href($heroMsPlayerId)
 	: k2_lb_table_href('lb-rating');
-$heroLbGamesPeakHref = $heroMsPlayerId > 0
-	? k2_lb_activity_peaks_player_href($heroMsPlayerId)
-	: k2_lb_table_href('lb-activity-peaks', ['k2_sort' => '3', 'k2_dir' => 'desc']);
+$heroGamesHref = $heroMsPlayerId > 0
+	? k2_route('player-games', ['id' => $heroMsPlayerId]) . k2_player_matching_games_anchor_fragment()
+	: '';
 $heroRankLinked = $heroDisplay && isset($rank);
 $heroMsTierHtml = ($heroMs !== null && $heroMsPlayerId > 0)
 	? k2_milestone_render_hero_tier_counts($heroMs, $heroMsPlayerId)
@@ -75,7 +75,7 @@ k2_player_hero_atomic_paint_open();
 				</div>
 				<div class="k2-player-hero__stat">
 					<span class="k2-player-hero__stat-label">Games</span>
-					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroLbGamesPeakHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $heroGames; ?></a></span>
+					<span class="k2-player-hero__stat-value k2-player-hero__stat-value--accent"><a class="k2-player-hero__stat-link" href="<?php echo htmlspecialchars($heroGamesHref, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $heroGames; ?></a></span>
 				</div>
 				<?php if ($heroMsTierHtml !== '') { ?>
 				<div class="k2-player-hero__stat k2-player-hero__stat--milestones">

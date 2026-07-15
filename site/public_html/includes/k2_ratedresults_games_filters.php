@@ -11,7 +11,7 @@ require_once __DIR__ . '/player_result_streaks.php';
 
 const K2_PLAYER_GAMES_PAGE_SIZE = 500;
 
-/** Hash target: just above player Games filter row (H2H chart deep links). */
+/** Hash target: just above player Games filter row (calendar day links, H2H chart deep links — not hero Games stat). */
 const K2_PLAYER_GAMES_FILTERS_ANCHOR = 'k2-player-games-filters';
 
 function k2_player_games_filters_anchor_fragment(): string

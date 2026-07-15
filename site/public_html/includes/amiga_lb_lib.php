@@ -48,6 +48,76 @@ function amiga_lb_rating_player_href(int $playerId, array $query = []): string
 }
 
 /**
+ * Rating LB delta column state (present-day WC-start Δ or time-travel event Δ).
+ *
+ * @return array{
+ *     show: bool,
+ *     show_rating_delta: bool,
+ *     show_wc_start_delta: bool,
+ *     delta_by_player: array<int, float>,
+ *     last_wc_for_delta_help: ?array
+ * }
+ */
+function amiga_lb_rating_delta_column_bundle(mysqli $con, AmigaSnapshotContext $ctx): array
+{
+    require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
+
+    $showRatingDelta = $ctx->isActive();
+    $deltaByPlayer = [];
+    $showWcStartDelta = false;
+    $lastWcForDeltaHelp = null;
+
+    if ($showRatingDelta) {
+        $deltaByPlayer = amiga_lb_rating_delta_map($con, $ctx);
+    } else {
+        $deltaByPlayer = amiga_lb_wc_start_rating_delta_map($con);
+        if ($deltaByPlayer !== []) {
+            $showWcStartDelta = true;
+            require_once __DIR__ . '/amiga_rating_history_lib.php';
+            $lastWcForDeltaHelp = amiga_rating_history_last_world_cup_tournament($con);
+        }
+    }
+
+    return [
+        'show' => $showRatingDelta || $showWcStartDelta,
+        'show_rating_delta' => $showRatingDelta,
+        'show_wc_start_delta' => $showWcStartDelta,
+        'delta_by_player' => $deltaByPlayer,
+        'last_wc_for_delta_help' => $lastWcForDeltaHelp,
+    ];
+}
+
+/** Games column index on the Amiga rating LB (shifts when the Δ column is visible). */
+function amiga_lb_rating_games_sort_col(bool $showDeltaColumn): int
+{
+    return 3 + ($showDeltaColumn ? 1 : 0);
+}
+
+/**
+ * Amiga rating LB URL sorted by Games, scrolled to a player's row (profile hero games link).
+ *
+ * @param array<string, scalar> $extraQuery
+ */
+function amiga_lb_rating_games_player_href(int $playerId, ?mysqli $con = null, array $extraQuery = []): string
+{
+    $sortCol = 3;
+    if ($con !== null) {
+        $ctx = amiga_snapshot_context_peek() ?? AmigaSnapshotContext::present();
+        $delta = amiga_lb_rating_delta_column_bundle($con, $ctx);
+        $sortCol = amiga_lb_rating_games_sort_col($delta['show']);
+    } else {
+        $ctx = amiga_snapshot_context_peek();
+        if ($ctx !== null && $ctx->isActive()) {
+            $sortCol = 4;
+        }
+    }
+
+    $query = array_merge(['k2_sort' => (string) $sortCol, 'k2_dir' => 'desc'], $extraQuery);
+
+    return amiga_lb_rating_player_href($playerId, $query);
+}
+
+/**
  * Country roster / table Elo cell → rating LB row anchor (same URL contract as profile hero rating link).
  */
 function k2_amiga_lb_rating_cell_link(int $playerId, mixed $rating, string $playerName = ''): string

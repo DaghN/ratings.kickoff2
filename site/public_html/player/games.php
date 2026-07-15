@@ -757,7 +757,7 @@ if ($filterChoices !== null) {
 <div id="day-games" class="k2-player-games-day-anchor" tabindex="-1"></div>
 <?php } ?>
 
-<div id="matching-games" class="k2-player-games-day-anchor" tabindex="-1"></div>
+<div id="<?php echo K2_PLAYER_MATCHING_GAMES_ANCHOR; ?>" class="k2-player-games-day-anchor" tabindex="-1"></div>
 <div class="k2-player-games-status-stack" data-k2-carry-scroll>
 <?php if ($hasPeriodGamesView) { ?>
 <div class="k2-player-games-context">

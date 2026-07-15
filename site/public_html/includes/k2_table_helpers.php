@@ -319,6 +319,50 @@ function k2_table_skip_initial_sort_attr(int $defaultSortCol, string $defaultDir
     return '';
 }
 
+/**
+ * ORDER BY clause (no "ORDER BY" prefix) from URL/default LB sort + per-page column map.
+ *
+ * When the URL carries k2_sort and the column is mapped, SSR owns row order for that request.
+ *
+ * @param array{sort_col: int, sort_dir: string} $lbSort
+ * @param array<int, string> $columnExprs col index => SQL expression without direction
+ * @return array{order_clause: string, ssr_applied_url_sort: bool}
+ */
+function k2_lb_sql_order_from_sort(array $lbSort, array $columnExprs, string $defaultOrderClause): array
+{
+    $urlSort = k2_table_sort_query_params();
+    $col = $lbSort['sort_col'];
+    if ($urlSort === [] || !isset($columnExprs[$col])) {
+        return [
+            'order_clause' => $defaultOrderClause,
+            'ssr_applied_url_sort' => false,
+        ];
+    }
+
+    $dir = strtolower($lbSort['sort_dir']) === 'asc' ? 'ASC' : 'DESC';
+
+    return [
+        'order_clause' => $columnExprs[$col] . ' ' . $dir . ', ' . $defaultOrderClause,
+        'ssr_applied_url_sort' => true,
+    ];
+}
+
+/**
+ * Skip k2-table.js tbody reorder when SSR already applied the URL sort (header/body emphasis via $lbSort).
+ */
+function k2_lb_table_skip_initial_sort_attr_for_ssr(
+    array $lbSort,
+    int $defaultSortCol,
+    string $defaultDir,
+    bool $ssrAppliedUrlSort
+): string {
+    if (k2_table_sort_query_params() !== []) {
+        return $ssrAppliedUrlSort ? ' data-k2-skip-initial-sort="1"' : '';
+    }
+
+    return k2_table_skip_initial_sort_attr($defaultSortCol, $defaultDir);
+}
+
 /** True when ranked client-sort table has no `k2_sort` / `k2_dir` in the request (default sort view). */
 function k2_table_is_default_client_sort_view(): bool
 {

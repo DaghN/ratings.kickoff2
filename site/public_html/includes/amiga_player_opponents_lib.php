@@ -7,6 +7,7 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_amiga_routes.php';
 
 /** @var list<string> */
@@ -123,7 +124,7 @@ function amiga_player_opponents_games_filtered_href(int $playerId, int $opponent
     return amiga_games_build_url([
         'id' => max(0, $playerId),
         'opponent' => max(0, $opponentId),
-    ]) . '#matching-games';
+    ]) . k2_player_matching_games_anchor_fragment();
 }
 
 /** Hero games tab filtered to one opponent country (carries active `as=` when time travelling). */
@@ -135,7 +136,7 @@ function amiga_player_opponents_games_filtered_by_country_href(int $playerId, st
     return amiga_games_build_url([
         'id' => max(0, $playerId),
         'opp_country' => amiga_player_opponents_country_token_from_field($countryToken),
-    ]) . '#matching-games';
+    ]) . k2_player_matching_games_anchor_fragment();
 }
 
 function amiga_player_opponents_games_by_country_cell_html(int $playerId, string $countryToken, int $games): string

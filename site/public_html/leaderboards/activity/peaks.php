@@ -28,7 +28,21 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_activity_lib.php';
 
-$result = k2_lb_activity_query_peaks($con);
+$colPeakDay = 4;
+$lbSort = k2_lb_table_sort_state($colPeakDay);
+$lbDefaultOrder = 'COALESCE(pd.`games`, 0) DESC, p.`Rating` DESC, p.`id` ASC';
+$lbOrderMap = [
+    1 => 'p.`Name`',
+    2 => 'p.`Rating`',
+    3 => 'p.`NumberGames`',
+    4 => 'COALESCE(pd.`games`, 0)',
+    5 => 'COALESCE(pw.`games`, 0)',
+    6 => 'COALESCE(pm.`games`, 0)',
+    7 => 'COALESCE(py.`games`, 0)',
+];
+$lbSqlOrder = k2_lb_sql_order_from_sort($lbSort, $lbOrderMap, $lbDefaultOrder);
+
+$result = k2_lb_activity_query_peaks($con, $lbSqlOrder['order_clause']);
 $queryError = $result === false;
 mysqli_close($con);
 ?>
@@ -45,8 +59,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_activity_nav.php';
 <p class="server-peak-period-leaderboard-status">Could not load activity peaks.</p>
 <?php } else { ?>
 <?php k2_table_wrap_open(true); ?>
-<?php $lbSort = k2_lb_table_sort_state(4); ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $colPeakDay, 'desc', $lbSqlOrder['ssr_applied_url_sort']); ?>>
 <thead>
 	<tr>
 		<th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">#</th>

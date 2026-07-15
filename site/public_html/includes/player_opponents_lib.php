@@ -4,6 +4,7 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_routes.php';
 
 /** @var list<string> */
@@ -76,7 +77,7 @@ function player_opponents_games_filtered_href(int $playerId, int $opponentId): s
     return k2_route('player-games', [
         'id' => max(0, $playerId),
         'opponent' => max(0, $opponentId),
-    ]) . '#matching-games';
+    ]) . k2_player_matching_games_anchor_fragment();
 }
 
 function player_opponents_games_cell_html(int $playerId, int $opponentId, int $games): string

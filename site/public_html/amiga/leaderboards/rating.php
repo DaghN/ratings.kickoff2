@@ -26,30 +26,12 @@ include __DIR__ . '/../../../config/ko2amiga_config.php';
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
 $ctx = amiga_lb_context($con);
 
-$result = amiga_lb_query_career(
-    $con,
-    $ctx,
-    'SELECT p.id AS ID, p.name AS Name, s.Rating, s.NumberGames, s.NumberWins, s.NumberDraws, s.NumberLosses, '
-    . 's.WinRatio, s.DrawRatio, s.LossRatio, s.AverageOpponentRating, p.country AS Country ',
-    'ORDER BY s.Rating DESC'
-);
-$showRatingDelta = $ctx->isActive();
-$showWcStartDelta = !$showRatingDelta;
-$lastWcForDeltaHelp = null;
-if ($showRatingDelta) {
-    $deltaByPlayer = amiga_lb_rating_delta_map($con, $ctx);
-} elseif ($showWcStartDelta) {
-    $deltaByPlayer = amiga_lb_wc_start_rating_delta_map($con);
-    if ($deltaByPlayer === []) {
-        $showWcStartDelta = false;
-    } else {
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_rating_history_lib.php';
-        $lastWcForDeltaHelp = amiga_rating_history_last_world_cup_tournament($con);
-    }
-} else {
-    $deltaByPlayer = [];
-}
-$showDeltaColumn = $showRatingDelta || $showWcStartDelta;
+$deltaBundle = amiga_lb_rating_delta_column_bundle($con, $ctx);
+$showRatingDelta = $deltaBundle['show_rating_delta'];
+$showWcStartDelta = $deltaBundle['show_wc_start_delta'];
+$showDeltaColumn = $deltaBundle['show'];
+$deltaByPlayer = $deltaBundle['delta_by_player'];
+$lastWcForDeltaHelp = $deltaBundle['last_wc_for_delta_help'];
 $deltaLinkTournamentId = null;
 if ($showRatingDelta && $ctx->wing() === 'event') {
     $deltaCutoff = $ctx->cutoff();
@@ -64,10 +46,6 @@ $deltaColumnHelpAttrs = $showRatingDelta
     ? k2_lb_amiga_rating_delta_column_help_attrs()
     : k2_lb_amiga_wc_start_rating_delta_column_help_attrs($lastWcForDeltaHelp);
 
-amiga_lb_chapter_lede_html_for_request($con, $ctx);
-
-mysqli_close($con);
-
 $colElo = 2;
 $colOffset = $showDeltaColumn ? 1 : 0;
 $colDelta = $showDeltaColumn ? 3 : null;
@@ -78,6 +56,32 @@ $colLosses = 6 + $colOffset;
 $colWinRate = 7 + $colOffset;
 $colOppAvg = 8 + $colOffset;
 
+$lbSort = k2_lb_table_sort_state($colElo);
+$lbDefaultOrder = 's.Rating DESC, p.id ASC';
+$lbOrderMap = [
+    1 => 'p.name',
+    $colElo => 's.Rating',
+    $colGames => 's.NumberGames',
+    $colWins => 's.NumberWins',
+    $colDraws => 's.NumberDraws',
+    $colLosses => 's.NumberLosses',
+    $colWinRate => 's.WinRatio',
+    $colOppAvg => 's.AverageOpponentRating',
+];
+$lbSqlOrder = k2_lb_sql_order_from_sort($lbSort, $lbOrderMap, $lbDefaultOrder);
+
+$result = amiga_lb_query_career(
+    $con,
+    $ctx,
+    'SELECT p.id AS ID, p.name AS Name, s.Rating, s.NumberGames, s.NumberWins, s.NumberDraws, s.NumberLosses, '
+    . 's.WinRatio, s.DrawRatio, s.LossRatio, s.AverageOpponentRating, p.country AS Country ',
+    'ORDER BY ' . $lbSqlOrder['order_clause']
+);
+
+amiga_lb_chapter_lede_html_for_request($con, $ctx);
+
+mysqli_close($con);
+
 $k2AmigaLbWingActive = 'rating';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 ?>
@@ -85,8 +89,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 <section class="k2-amiga-table-scroll-view">
 <?php k2_table_wrap_open(true); ?>
 
-<?php $lbSort = k2_lb_table_sort_state($colElo); ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr($colElo); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $colElo, 'desc', $lbSqlOrder['ssr_applied_url_sort']); ?>>
 
 <thead>
     <tr>

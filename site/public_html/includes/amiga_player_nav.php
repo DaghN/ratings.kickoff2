@@ -10,6 +10,7 @@ require_once __DIR__ . '/k2_amiga_routes.php';
 require_once __DIR__ . '/amiga_snapshot_url.php';
 require_once __DIR__ . '/amiga_player_opponents_lib.php';
 require_once __DIR__ . '/amiga_player_videos_lib.php';
+require_once __DIR__ . '/k2_safety.php';
 
 $k2AmigaPlayerTabActive = $k2AmigaPlayerTabActive ?? 'profile';
 $id = isset($id) ? (int) $id : 0;
@@ -33,6 +34,7 @@ if ($id > 0 && $k2AmigaPlayerShowVideosTab) {
     ];
 }
 ?>
+<div id="<?php echo k2_h(K2_PLAYER_WING_NAV_ANCHOR); ?>" class="k2-player-wing-nav-anchor" tabindex="-1"></div>
 <div class="k2-chrome-tabs k2-player-wing-tabs">
 	<nav class="k2-chrome-tabs__bar" data-k2-carry-scroll aria-label="Player sections">
 <?php foreach ($k2AmigaPlayerTabs as $tabId => $tab) {

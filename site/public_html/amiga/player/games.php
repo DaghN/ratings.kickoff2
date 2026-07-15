@@ -291,7 +291,7 @@ $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : 
     </form>
 </div>
 
-<div id="matching-games" class="k2-player-games-day-anchor" tabindex="-1"></div>
+<div id="<?php echo k2_h(K2_PLAYER_MATCHING_GAMES_ANCHOR); ?>" class="k2-player-games-day-anchor" tabindex="-1"></div>
 
 <div class="k2-player-games-status" data-k2-carry-scroll>
     <?php if ($utcDayFilter !== '') { ?>

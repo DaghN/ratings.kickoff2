@@ -12,7 +12,7 @@ require_once __DIR__ . '/amiga_player_current_lib.php';
 require_once __DIR__ . '/amiga_snapshot_context.php';
 require_once __DIR__ . '/amiga_lb_lib.php';
 
-/** Hash target: just above player tournament history table (hero World Cups deep link). */
+/** Hash target: just above player tournament history status line (hero Events / World Cups). */
 const K2_PLAYER_TOURNAMENTS_TABLE_ANCHOR = 'k2-player-tournaments-table';
 
 function amiga_player_tournaments_table_anchor_fragment(): string

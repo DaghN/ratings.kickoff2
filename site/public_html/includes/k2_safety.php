@@ -126,6 +126,22 @@ function k2_query_or_public_error(mysqli $con, string $query, string $context = 
 /** Hash target immediately above `.k2-player-hero` on all player-wing pages (inbound links only). */
 const K2_PLAYER_PAGE_FRAGMENT = 'player';
 
+/** Hash target immediately above `.k2-player-wing-tabs` (hero Games stat → Games wing; shows active pill). */
+const K2_PLAYER_WING_NAV_ANCHOR = 'k2-player-wing-nav';
+
+function k2_player_wing_nav_anchor_fragment(): string
+{
+	return '#' . K2_PLAYER_WING_NAV_ANCHOR;
+}
+
+/** Hash target immediately above player games list status (“Showing … of …”). */
+const K2_PLAYER_MATCHING_GAMES_ANCHOR = 'matching-games';
+
+function k2_player_matching_games_anchor_fragment(): string
+{
+	return '#' . K2_PLAYER_MATCHING_GAMES_ANCHOR;
+}
+
 function k2_player_profile_href(int $id, string $fragment = K2_PLAYER_PAGE_FRAGMENT): string
 {
 	require_once __DIR__ . '/k2_routes.php';

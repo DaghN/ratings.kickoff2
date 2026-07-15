@@ -167,12 +167,11 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournaments_filters_
 ?>
 
 <section class="k2-player-tournaments-table-view">
+<div id="<?php echo k2_h(K2_PLAYER_TOURNAMENTS_TABLE_ANCHOR); ?>" class="k2-player-tournaments-table-anchor" tabindex="-1"></div>
 <div class="k2-player-games-status" data-k2-carry-scroll>
 	<?php echo k2_h($listSummary); ?>
 	<a class="k2-player-games-reset<?php echo $filtersActive ? '' : ' is-idle'; ?>" href="<?php echo k2_h(amiga_player_tournaments_reset_url($playerId)); ?>"<?php echo $filtersActive ? '' : ' aria-disabled="true" tabindex="-1"'; ?>>Reset filters</a>
 </div>
-
-<div id="<?php echo k2_h(K2_PLAYER_TOURNAMENTS_TABLE_ANCHOR); ?>" class="k2-player-tournaments-table-anchor" tabindex="-1"></div>
 
 <?php
 if ($tournaments !== []) {

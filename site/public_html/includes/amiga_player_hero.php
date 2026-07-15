@@ -6,7 +6,6 @@
 require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_amiga_country_flag.php';
 require_once __DIR__ . '/k2_amiga_routes.php';
-require_once __DIR__ . '/k2_ratedresults_games_filters.php';
 require_once __DIR__ . '/amiga_player_tournament_lib.php';
 require_once __DIR__ . '/amiga_lb_lib.php';
 require_once __DIR__ . '/amiga_wc_podium_th.php';
@@ -41,7 +40,7 @@ $heroEventsHref = $heroPlayerId > 0
     ? amiga_player_tournaments_table_url($heroPlayerId)
     : '';
 $heroGamesHref = $heroPlayerId > 0
-    ? k2_amiga_route('amiga-player-games', ['id' => $heroPlayerId]) . k2_player_games_filters_anchor_fragment()
+    ? k2_amiga_route('amiga-player-games', ['id' => $heroPlayerId]) . k2_player_matching_games_anchor_fragment()
     : '';
 $heroWorldCupsHref = $heroPlayerId > 0
     ? amiga_player_tournaments_filter_url($heroPlayerId, 'world-cup') . amiga_player_tournaments_table_anchor_fragment()

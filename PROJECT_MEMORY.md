@@ -145,7 +145,7 @@
 
 | Date | Note |
 |------|------|
-| 2026-07-15 | **Profile hero games link** — Games stat → Activity peaks `#k2-lb-player-{id}` (row anchor, same contract as rank/rating); `k2_lb_activity_peaks_player_href()` + row anchors on peaks table. |
+| 2026-07-15 | **Hero inventory anchors → list status** — Games hero `#matching-games` (online + Amiga); Events/WC `#k2-player-tournaments-table` moved above tournaments status line; `k2_player_matching_games_anchor_fragment()`. |
 | 2026-07-14 | **Amiga geo scalars fix** — remove own-country auto-seed (H5/H6); add `opponent_countries_beaten_by` (H8); career + WC player/country writers; DDL `050`; profile + LB + WC tables; **`simul` OK on `ko2amiga_work`** (28 verify steps, ~28 min). |
 | 2026-07-14 | **Amiga profile Activity dates** — shipped stacked full date (Option B); compare mode removed; labels **Last** tournament/World Cup (pairs with First; matches Countries roster + rating LB). |
 | 2026-07-14 | **Amiga profile Activity panel** — leading mini-panel: last/first tournament + last/first World Cup (snapshot boundary reads; TT ≤ cutoff); `amiga_profile_lb_slices.php`. |
