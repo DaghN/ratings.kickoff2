@@ -95,8 +95,8 @@ Secondary comparison paths (opening the LB from inside inventory, HoF deep links
 | Mosaic — Peak rank | Rating LB at establishing event (`as=` snapshot) | **Shipped** | `amiga_lb_peak_rating_peak_rank_cell_html()` — tooltip + TT rating list; date stacked below |
 | Mosaic — Activity (last/first tournament, last/first WC) | Establishing tournament entity | **Shipped** | `amiga_profile_lb_slice_tournament_value_stacked()` — tournament link + event date below (v0) |
 | Mosaic — Host countries, countries faced/beaten/beaten by | Countries hub or filtered games | **Planned** | Calendar-geo panel remainder — propose per stat |
-| Mosaic — DD Victims, CS Victims, … | Player victim/culprit chronology (per-type list, first occurrence order) | **Planned** | Inventory-first; `/amiga/player/chronologies/{kind}/made-it.php` — Opponents **shipped** Jul 2026 |
-| Mosaic — Opponents | Player chronologies — opponents Made it | **Shipped** | `/amiga/player/chronologies/opponents/made-it.php?id=` + `#k2-amiga-chronology-spotlight`; `amiga_player_chronology_opponents_entry_href()` |
+| Mosaic — Opponents | Player chronologies — opponents Made it | **Shipped** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §4 · `amiga_player_chronology_opponents_entry_href()` |
+| Mosaic — DD Victims, CS Victims, … | Player victim/culprit chronology (per-type list, first occurrence order) | **Planned** | [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) §5 kind register |
 
 ### Online player profile
 
@@ -123,4 +123,4 @@ Update this table when a stat gains a link or a new inventory page ships.
 
 ---
 
-*Last updated: Jul 2026 — Opponents chronology polish (link-star spotlight glow, hash landing, Event column, tint charts); Track B backlog = remaining Victims panel counts + calendar geo country rows.*
+*Last updated: Jul 2026 — Opponents chronology policy doc; Track B backlog = remaining Victims panel kinds + calendar geo country rows.*

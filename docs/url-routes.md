@@ -45,6 +45,7 @@
 | Milestones hub | `milestones/` | `recent.php`, `catalog.php` |
 | Leaderboards | `leaderboards/` | one wing per file |
 | Player opponents | `player/opponents/` | `h2h.php`, `wdl.php`, … |
+| Amiga player chronologies | `amiga/player/chronologies/{kind}/` | `made-it.php`, `graphs.php` — [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) |
 | Player milestones | `player/milestones/` | `garden.php`, `chronology.php` |
 | Amiga tournament Videos (nested under entity tab) | `amiga/tournament/videos/` | `games.php`, `atmosphere.php` |
 
@@ -141,6 +142,8 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-player-opponents-country-wdl` | `/amiga/player/opponents/country/wdl.php` |
 | `amiga-player-opponents-country-goals` | `/amiga/player/opponents/country/goals.php` |
 | `amiga-player-opponents-country-dds` | `/amiga/player/opponents/country/dds.php` |
+| `amiga-player-chronologies-opponents-made-it` | `/amiga/player/chronologies/opponents/made-it.php` (inventory default; `index.php` 302) |
+| `amiga-player-chronologies-opponents-graphs` | `/amiga/player/chronologies/opponents/graphs.php` |
 | `amiga-world-cups` | `/amiga/world-cups/chronology.php` (Chronology default; `/amiga/world-cups/` 302) |
 | `amiga-world-cups-chronology` | `/amiga/world-cups/chronology.php` (`chronology/index.php` 302 legacy) |
 | `amiga-world-cups-stats` | `/amiga/world-cups/stats/participation.php` (Participation default; `stats.php` + `stats/index.php` 302) |

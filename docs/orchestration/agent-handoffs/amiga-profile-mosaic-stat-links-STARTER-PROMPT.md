@@ -1,7 +1,7 @@
 # Starter prompt — Amiga profile mosaic stat links (Track B)
 
 **Use a new chat.** Paste the **COPY INTO NEW CHAT** block below (click copy icon).  
-**Policy (authority + register):** [`docs/player-profile-stat-links-policy.md`](../../player-profile-stat-links-policy.md)  
+**Policy (authority + register):** [`docs/player-profile-stat-links-policy.md`](../../player-profile-stat-links-policy.md) · [`docs/amiga-player-chronologies-policy.md`](../../amiga-player-chronologies-policy.md) (inventory page contract)  
 **Track A (separate):** LB server-side sort — [`k2-lb-ssr-sort-STARTER-PROMPT.md`](k2-lb-ssr-sort-STARTER-PROMPT.md) (comparison links benefit when target wing is SSR; do not mix tracks unless Dagh asks).  
 **Status:** In progress (Jul 2026) — Results · Goals · DD/CS · Tournament honours · Calendar (peak games/events) · Peak rating panel · **Activity** tournament boundaries · **Opponents chronology** **Shipped**; **Victims & Culprits** panel counts (except Opponents) · **Calendar geo** country rows **Planned**.
 
@@ -24,11 +24,12 @@ You are Dagh's **Amiga profile mosaic stat links (Track B)** agent.
 
 **Read first (in order):**
 1. docs/player-profile-stat-links-policy.md — §2 policy + §4 register (Shipped vs Planned)
-2. site/public_html/includes/amiga_profile_lb_slices.php — render rows + enrich_*_link_context helpers
-3. site/public_html/includes/amiga_player_games_lib.php — games tab URL params (gf_min, ga_max, sort, result, as=)
-4. site/public_html/includes/amiga_lb_lib.php — amiga_lb_*_player_href() for comparison links (rating cols: `AMIGA_LB_RATING_COL_WIN_RATE`=8, `OPP_AVG`=9)
-5. docs/amiga-time-travel-policy.md §3 + docs/with-player-stepper-policy.md — preserve `as=` on all internal links via amiga_url_with_context() / amiga_profile_lb_slice_player_games_href()
-6. docs/k2-table-entity-links-policy.md — k2-link-star styling; #k2-lb-player-{id} vs #matching-games
+2. docs/amiga-player-chronologies-policy.md — when wiring victim/culprit chronology kinds (Opponents shipped — reference kind §4)
+3. site/public_html/includes/amiga_profile_lb_slices.php — render rows + enrich_*_link_context helpers
+4. site/public_html/includes/amiga_player_games_lib.php — games tab URL params (gf_min, ga_max, sort, result, as=)
+5. site/public_html/includes/amiga_lb_lib.php — amiga_lb_*_player_href() for comparison links (rating cols: `AMIGA_LB_RATING_COL_WIN_RATE`=8, `OPP_AVG`=9)
+6. docs/amiga-time-travel-policy.md §3 + docs/with-player-stepper-policy.md — preserve `as=` on all internal links via amiga_url_with_context() / amiga_profile_lb_slice_player_games_href()
+7. docs/k2-table-entity-links-policy.md — k2-link-star styling; #k2-lb-player-{id} vs #matching-games
 
 **Locked decisions:**
 - **Inventory-first** on profile mosaic — "what is this number made of?" → player wing (Games tab, tournaments, opponents, chronology), not hub LB.
@@ -51,7 +52,7 @@ You are Dagh's **Amiga profile mosaic stat links (Track B)** agent.
 **Backlog (policy §4 — pick what Dagh names next):**
 | Section | Cells | Likely destination |
 |---------|-------|-------------------|
-| Victims & Culprits | Victims, DD/CS/MGC/BL victims, Culprits, … | **Inventory** — `/amiga/player/chronologies/{kind}/made-it.php` (Opponents **shipped**) |
+| Victims & Culprits | Victims, DD/CS/MGC/BL victims, Culprits, … | **Inventory** — `/amiga/player/chronologies/{kind}/made-it.php` per [`amiga-player-chronologies-policy.md`](../../amiga-player-chronologies-policy.md) §5 (Opponents **shipped** §4) |
 | Calendar & geography | Host countries, countries faced/beaten/beaten by | Countries hub, or filtered games — propose per stat |
 
 **Implementation patterns (copy nearest shipped cell):**
