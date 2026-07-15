@@ -91,9 +91,12 @@ Secondary comparison paths (opening the LB from inside inventory, HoF deep links
 | Mosaic — Nadir | Peak-rating LB col 8 | **Shipped** | SSR `k2_sort` col 8 **`desc`** + `#k2-lb-player-{id}` (higher nadir is better) |
 | Mosaic — Highest Victim | Games tab, `result=win`, `sort=opp_rating` **`desc`** | **Shipped** | Opponent pre-game Elo on wins; `#matching-games` |
 | Mosaic — Lowest Culprit | Games tab, `result=loss`, `sort=opp_rating` **`asc`** | **Shipped** | Opponent pre-game Elo on losses; `#matching-games` |
-| Mosaic — DD Victims, CS Victims, … | Player victim/culprit chronology (per-type list, first occurrence order) | **Planned** | Inventory-first; not LB |
-| Mosaic — GF, DD count, opponents, … | Filtered games or dedicated lists where they exist | **Planned** / **—** | Other ratios → no link until inventory exists |
-| Mosaic — Peak rating / peak rank values | Establishing tournament or event context | **Partial** | Peak rating / peak rank cells → event context; **Nadir** → peak-rating LB (shipped); **Highest Victim / Lowest Culprit** → Games tab (shipped) |
+| Mosaic — Peak Rating | Establishing tournament (`event-stats`) | **Shipped** | `amiga_lb_peak_rating_peak_cell_html()` — tooltip + tournament link; date stacked below |
+| Mosaic — Peak rank | Rating LB at establishing event (`as=` snapshot) | **Shipped** | `amiga_lb_peak_rating_peak_rank_cell_html()` — tooltip + TT rating list; date stacked below |
+| Mosaic — Activity (last/first tournament, last/first WC) | Establishing tournament entity | **Shipped** | `amiga_profile_lb_slice_tournament_value_stacked()` — tournament link + event date below (v0) |
+| Mosaic — Host countries, countries faced/beaten/beaten by | Countries hub or filtered games | **Planned** | Calendar-geo panel remainder — propose per stat |
+| Mosaic — DD Victims, CS Victims, … | Player victim/culprit chronology (per-type list, first occurrence order) | **Planned** | Inventory-first; not victims LB |
+| Mosaic — GF, DD count, opponents, … | Filtered games or dedicated lists where they exist | **Planned** / **—** | Victims-panel counts (e.g. Opponents) until inventory surface exists |
 
 ### Online player profile
 
@@ -120,4 +123,4 @@ Update this table when a stat gains a link or a new inventory page ships.
 
 ---
 
-*Last updated: Jul 2026 — inventory-first on player profile; leaderboards for comparison; rank/rating remain ladder exceptions; rating LB fixed column map.*
+*Last updated: Jul 2026 — Peak rating panel + Activity tournament rows Shipped; Track B backlog = Victims panel counts + calendar geo country rows.*
