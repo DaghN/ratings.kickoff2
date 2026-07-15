@@ -576,6 +576,15 @@ function amiga_ops_persist_tournament_event_snapshots(
         $participantIds
     );
 
+    require_once __DIR__ . '/amiga_inverse_count_changelog_lib.php';
+    amiga_ops_persist_inverse_count_changelog_at_tournament(
+        $con,
+        $tournamentId,
+        $eventDate,
+        $eventChrono,
+        $players
+    );
+
     amiga_ops_persist_world_cup_slices($con, $tournamentId, $eventDate, $eventChrono, $sliceByPlayer);
 
     if (amiga_honours_participation_is_world_cup($participation)) {

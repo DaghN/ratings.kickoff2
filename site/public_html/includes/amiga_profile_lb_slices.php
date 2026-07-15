@@ -13,6 +13,7 @@ require_once __DIR__ . '/amiga_profile_blocks.php';
 require_once __DIR__ . '/amiga_lb_peak_rating_lib.php';
 require_once __DIR__ . '/amiga_snapshot_context.php';
 require_once __DIR__ . '/amiga_player_snapshot_lib.php';
+require_once __DIR__ . '/amiga_inverse_count_lib.php';
 
 /**
  * Present-mode career row for profile LB slices (single indexed read).
@@ -91,6 +92,8 @@ function amiga_profile_lb_slices_load_present(mysqli $con, int $playerId): ?arra
     amiga_profile_lb_slices_enrich_calendar_geo_lb_link_context($playerId, $row);
 
     amiga_profile_lb_slices_enrich_peak_rating_lb_link_context($playerId, $row);
+
+    amiga_inverse_count_overlay_row($con, $playerId, $row, null);
 
     return $row;
 }
@@ -398,6 +401,8 @@ function amiga_profile_lb_slices_load_at_cutoff(mysqli $con, int $playerId, Amig
     amiga_profile_lb_slices_enrich_calendar_geo_lb_link_context($playerId, $row);
 
     amiga_profile_lb_slices_enrich_peak_rating_lb_link_context($playerId, $row);
+
+    amiga_inverse_count_overlay_row($con, $playerId, $row, $ctx);
 
     return $row;
 }

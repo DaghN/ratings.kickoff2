@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated": "2026-07-14T12:05:58Z",
+  "generated": "2026-07-15T20:06:38Z",
   "tables": [
     "tournament_format_templates",
     "tournaments",
@@ -16,6 +16,7 @@
     "amiga_player_event_snapshots",
     "amiga_player_current",
     "amiga_player_elo_rank_at_event",
+    "amiga_player_inverse_count_at_event",
     "amiga_player_matchup_at_event",
     "amiga_player_matchup_summary",
     "amiga_tournament_standings",

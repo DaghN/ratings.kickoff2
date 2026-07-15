@@ -43,6 +43,7 @@ PARITY_TABLES: Final[tuple[str, ...]] = (
     "amiga_player_event_snapshots",
     "amiga_player_current",
     "amiga_player_elo_rank_at_event",
+    "amiga_player_inverse_count_at_event",
     "amiga_player_matchup_at_event",
     "amiga_player_matchup_summary",
     "amiga_tournament_standings",

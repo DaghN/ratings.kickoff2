@@ -60,6 +60,7 @@ DERIVED_SQL: tuple[Path, ...] = (
     _SQL_ROOT / "derived" / "048_standings_stage_id.sql",
     _SQL_ROOT / "derived" / "049_player_slice_wc_culprits.sql",
     _SQL_ROOT / "derived" / "050_geo_opponent_countries_beaten_by.sql",
+    _SQL_ROOT / "derived" / "051_inverse_count_changelog.sql",
 )
 
 # Legacy flat paths (archaeology / one-off scripts — not apply_schema).
@@ -79,6 +80,7 @@ _DERIVED_DROP_ORDER = (
     "amiga_player_slice_totals",
     "amiga_generalstats",
     "amiga_realm_snapshots",
+    "amiga_player_inverse_count_at_event",
     "amiga_player_elo_rank_at_event",
     "amiga_player_matchup_at_event",
     "amiga_player_matchup_summary",

@@ -39,6 +39,7 @@ from scripts.amiga.verify_player_matchups import main as verify_player_matchups_
 from scripts.amiga.verify_player_participation import main as verify_player_participation_main
 from scripts.amiga.verify_rating_events import main as verify_rating_events_main
 from scripts.amiga.verify_event_snapshots import main as verify_event_snapshots_main
+from scripts.amiga.verify_inverse_count_changelog import main as verify_inverse_count_changelog_main
 from scripts.amiga.verify_realm_snapshots import main as verify_realm_snapshots_main
 from scripts.amiga.verify_hof_geo_year import main as verify_hof_geo_year_main
 from scripts.amiga.verify_hof_holder_projection import main as verify_hof_holder_projection_main
@@ -493,6 +494,11 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser(
         "verify-event-snapshots",
         help="Assert event snapshot + current invariants (snapshot policy §8)",
+    )
+
+    sub.add_parser(
+        "verify-inverse-count-changelog",
+        help="Assert inverse victim/culprit changelog vs pointer oracle",
     )
 
     sub.add_parser(
@@ -1025,6 +1031,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "verify-event-snapshots":
         return verify_event_snapshots_main()
+
+    if args.cmd == "verify-inverse-count-changelog":
+        return verify_inverse_count_changelog_main()
 
     if args.cmd == "verify-realm-snapshots":
         return verify_realm_snapshots_main()

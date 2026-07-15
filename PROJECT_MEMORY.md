@@ -10,7 +10,7 @@
 
 ## Current focus
 
-- **Amiga profile (Jul 2026):** **Track B** — mosaic stat links; **Victims panel + MGS/BW Culprits pointer chronologies shipped** — policy [`amiga-player-chronologies-policy.md`](docs/amiga-player-chronologies-policy.md); Different/DD/CS culprit kinds **planned**. **Inverse-count bug (proposed fix):** sparse snapshot S5 cannot hold MGS/BW/MGC/BL inverse columns at TT — [`amiga-player-inverse-count-timeline-policy.md`](docs/amiga-player-inverse-count-timeline-policy.md); audit handoff [`amiga-player-inverse-count-timeline-AUDIT-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/amiga-player-inverse-count-timeline-AUDIT-STARTER-PROMPT.md).
+- **Amiga profile (Jul 2026):** **Track B** — mosaic stat links; **Victims panel + MGS/BW Culprits pointer chronologies shipped** — policy [`amiga-player-chronologies-policy.md`](docs/amiga-player-chronologies-policy.md); Different/DD/CS culprit kinds **planned**. **Inverse-count timeline shipped** — sparse changelog `amiga_player_inverse_count_at_event` (3,423 rows); mosaic + Victims LB TT read changelog; `verify-inverse-count-changelog` green — [`amiga-player-inverse-count-timeline-policy.md`](docs/amiga-player-inverse-count-timeline-policy.md).
 
 - **K2 LB SSR (Jul 2026):** **Track A complete** — all hub wings URL landing sort ([`k2-lb-ssr-sort-policy.md`](docs/k2-lb-ssr-sort-policy.md) **Implemented**). Track **B** = profile mosaic stat links.
 
@@ -441,6 +441,7 @@
 
 | When | Note |
 |------|------|
+| 2026-07-15 | **Amiga inverse-count timeline shipped** — audit confirmed S5 ghost-event root cause; sparse `amiga_player_inverse_count_at_event` (3,423 rows); Python+PHP finalize writers; Victims LB TT join + mosaic overlay; `verify-inverse-count-changelog` OK on `ko2amiga_work`. Least-metrics retire deferred (no Amiga UI). Policy [`amiga-player-inverse-count-timeline-policy.md`](docs/amiga-player-inverse-count-timeline-policy.md). |
 | 2026-07-15 | **Amiga inverse-count timeline (proposed)** — Track B parity: `PlayerState` transfers correct in memory; sparse participant snapshots stale for 4 inverse columns when credit changes in ghost events; proposed sparse changelog (~10–15k rows) + retire `LeastGoalsScoredVictims` / `LeastGoalsConcededCulprits` — policy [`amiga-player-inverse-count-timeline-policy.md`](docs/amiga-player-inverse-count-timeline-policy.md); audit [`amiga-player-inverse-count-timeline-AUDIT-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/amiga-player-inverse-count-timeline-AUDIT-STARTER-PROMPT.md). |
 | 2026-07-04 | **Amiga TT table scroll pad + rating LB footer** — shared `k2-amiga-table-scroll-view` on WC hub + rating LB; rating footer “N rated games in database” removed (count stays in hub chapter lede via `amiga_lb_games_count()`). |
 | 2026-07-04 | **Track I — WC player wings + HoF/chronology glue (TT perf)** — `amiga_lb_wc_slice_*` request cache keyed by cutoff only (removed per-sub-wing ORDER BY duplicate queries); present path one SELECT shared with shell `player_count`. Parity green (`amiga_wc_slice_parity_probe.php`). Curl @ `year:2024`: opponents **1.25→0.50 s**, honours **0.92→0.64 s**, results **1.21→0.50 s**; chronology/HoF unchanged (stats cache already D). |

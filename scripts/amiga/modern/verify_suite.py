@@ -16,6 +16,7 @@ from scripts.amiga.verify_player_matchups import main as verify_player_matchups_
 from scripts.amiga.verify_player_participation import main as verify_player_participation_main
 from scripts.amiga.verify_rating_events import main as verify_rating_events_main
 from scripts.amiga.verify_event_snapshots import main as verify_event_snapshots_main
+from scripts.amiga.verify_inverse_count_changelog import main as verify_inverse_count_changelog_main
 from scripts.amiga.verify_realm_snapshots import main as verify_realm_snapshots_main
 from scripts.amiga.verify_community_stats import main as verify_community_stats_main
 from scripts.amiga.verify_world_cup_stats import main as verify_world_cup_stats_main
@@ -42,6 +43,7 @@ MODERN_VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
     ("verify-is-world-cup", verify_is_world_cup_main),
     ("verify-rating-events", verify_rating_events_main),
     ("verify-event-snapshots", verify_event_snapshots_main),
+    ("verify-inverse-count-changelog", verify_inverse_count_changelog_main),
     ("verify-player-participation", verify_player_participation_main),
     ("verify-player-matchups", verify_player_matchups_main),
     ("verify-player-slice", verify_player_slice_main),

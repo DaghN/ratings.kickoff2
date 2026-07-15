@@ -140,6 +140,7 @@ def replay_all(
     prior_career_best: dict[int, dict[str, Any]] = {}
     event_games: dict[tuple[int, int], int] = {}
     prior_realm_payload: dict[str, Any] = empty_prior_payload()
+    inverse_changelog_prev: dict[tuple[int, str], int] = {}
     games_processed = 0
     events_total = 0
     for idx, tournament_id in enumerate(tournament_ids, start=1):
@@ -159,6 +160,7 @@ def replay_all(
             prior_realm_payload=prior_realm_payload,
             geo_year=geo_year,
             player_countries=player_countries,
+            inverse_changelog_prev=inverse_changelog_prev,
         )
         if result.get("skipped"):
             continue

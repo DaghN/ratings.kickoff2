@@ -6,6 +6,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 
 | Feature | Level | Schema | Ops simul | `kooldb1` proof | Live cutover | Periodic | Notes |
 |---------|-------|--------|-----------|-----------------|--------------|----------|-------|
+| Amiga inverse-count changelog | L1 | `051_inverse_count_changelog` (`amiga_player_inverse_count_at_event`) | — | **Done** local Jul 2026 (`verify-inverse-count-changelog` + replay, 3,423 rows) | **Export ready** (push staged after sync) | — | Ghost-event TT fix for MGS/BW/MGC/BL; mosaic + Victims LB — [`amiga-player-inverse-count-timeline-policy.md`](../amiga-player-inverse-count-timeline-policy.md) |
 | Ladder ops platform (`ops/`, PHP post-game) | — | — | — | **Done** Jun 2026 | **Not executed** | — | P0–P7 + `dispatch.php` + `dispatch_request.php` (HTTP); Steve `CMD=ProcessCompletedGame` |
 | Local dual website (dev + work URLs) | — | — | — | — | — | — | **Jun 2026** — `ratingskickoff.test` → `ko2unity_db`, `work.ratingskickoff.test` → `ko2unity_work`; config router |
 | Amiga jukebox (popup window) | — | — | — | — | — | — | **Jun 2026-26** — gapless MP3 player in a **separate popup window** (`/jukebox.php`); floating **FAB launcher** on all themed pages opens/focuses it; `BroadcastChannel` now-playing mirror; `/audio/amiga/` ~159 MB audio. **Replaced the Turbo Drive approach — Turbo removed site-wide** ([`k2-jukebox-popup.md`](../k2-jukebox-popup.md)) |

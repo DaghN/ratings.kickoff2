@@ -17,6 +17,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_hub_nav.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_snapshot_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_inverse_count_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_country_flag.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
@@ -28,17 +29,51 @@ $ctx = amiga_lb_context($con);
 $colOpponents = 4;
 $lbSort = k2_lb_table_sort_state($colOpponents);
 $lbDefaultOrder = amiga_lb_victims_default_order_sql();
-$lbOrderMap = amiga_lb_victims_order_column_map();
+$lbOrderMap = amiga_lb_victims_order_column_map($ctx->isActive());
 $lbSqlOrder = k2_lb_sql_order_from_sort($lbSort, $lbOrderMap, $lbDefaultOrder);
 
-$result = amiga_lb_query_career(
-    $con,
-    $ctx,
-    'SELECT p.id AS ID, p.name AS Name, s.Rating, p.country AS Country, s.NumberGames, s.DifferentOpponents, s.DifferentVictims, '
-    . 's.DifferentCulprits, s.DoubleDigitsVictims, s.CleanSheetsVictims, s.MostGoalsConcededVictims, s.BiggestLossVictims, '
-    . 's.DoubleDigitsCulprits, s.CleanSheetsCulprits, s.MostGoalsScoredCulprits, s.BiggestWinCulprits ',
-    'ORDER BY ' . $lbSqlOrder['order_clause']
-);
+if ($ctx->isActive()) {
+    $selectSql = 'SELECT p.id AS ID, p.name AS Name, s.Rating, p.country AS Country, s.NumberGames, s.DifferentOpponents, s.DifferentVictims, '
+        . 's.DifferentCulprits, s.DoubleDigitsVictims, s.CleanSheetsVictims, '
+        . 'COALESCE(inv.MostGoalsConcededVictims, 0) AS MostGoalsConcededVictims, '
+        . 'COALESCE(inv.BiggestLossVictims, 0) AS BiggestLossVictims, '
+        . 's.DoubleDigitsCulprits, s.CleanSheetsCulprits, '
+        . 'COALESCE(inv.MostGoalsScoredCulprits, 0) AS MostGoalsScoredCulprits, '
+        . 'COALESCE(inv.BiggestWinCulprits, 0) AS BiggestWinCulprits ';
+    $fromSql = amiga_lb_snapshot_from_sql('s') . "\n" . amiga_inverse_count_latest_join_sql('inv');
+    $whereSql = 's.NumberGames > 0';
+    $cutoff = $ctx->cutoff();
+    if ($cutoff === null) {
+        throw new RuntimeException('Active time travel context missing cutoff.');
+    }
+    $sql = $selectSql . $fromSql . ' WHERE ' . $whereSql . ' ORDER BY ' . $lbSqlOrder['order_clause'];
+    $stmt = $con->prepare($sql);
+    if (!$stmt) {
+        throw new RuntimeException('prepare amiga victims lb: ' . $con->error);
+    }
+    $eventDate = $cutoff['event_date'];
+    $chrono = $cutoff['chrono'];
+    $tournamentId = $cutoff['tournament_id'];
+    // snapshot FROM binds sdi; inverse join binds another sdi
+    $stmt->bind_param('sdisdi', $eventDate, $chrono, $tournamentId, $eventDate, $chrono, $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute amiga victims lb: ' . $stmt->error);
+    }
+    $result = $stmt->get_result();
+    if ($result === false) {
+        throw new RuntimeException('result amiga victims lb: ' . $stmt->error);
+    }
+    $stmt->close();
+} else {
+    $result = amiga_lb_query_career(
+        $con,
+        $ctx,
+        'SELECT p.id AS ID, p.name AS Name, s.Rating, p.country AS Country, s.NumberGames, s.DifferentOpponents, s.DifferentVictims, '
+        . 's.DifferentCulprits, s.DoubleDigitsVictims, s.CleanSheetsVictims, s.MostGoalsConcededVictims, s.BiggestLossVictims, '
+        . 's.DoubleDigitsCulprits, s.CleanSheetsCulprits, s.MostGoalsScoredCulprits, s.BiggestWinCulprits ',
+        'ORDER BY ' . $lbSqlOrder['order_clause']
+    );
+}
 
 mysqli_close($con);
 

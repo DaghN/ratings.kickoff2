@@ -226,6 +226,7 @@ def _persist_event_snapshots(
     event_games: dict[tuple[int, int], int] | None = None,
     geo_year: PlayerGeoYearTracker | None = None,
     player_countries: dict[int, str | None] | None = None,
+    inverse_changelog_prev: dict[tuple[int, str], int] | None = None,
 ) -> int:
     rebuild_standings_for_tournament(conn, tournament_id)
 
@@ -298,6 +299,7 @@ def _persist_event_snapshots(
         event_games_by_player_tournament=event_games,
         geo_year=geo_year,
         player_countries=player_countries,
+        inverse_changelog_prev=inverse_changelog_prev,
     )
     refresh_catalog_stats_for_tournament(conn, tournament_id)
 
@@ -499,6 +501,7 @@ def finalize_tournament(
     prior_realm_payload: dict[str, Any] | None = None,
     geo_year: PlayerGeoYearTracker | None = None,
     player_countries: dict[int, str | None] | None = None,
+    inverse_changelog_prev: dict[tuple[int, str], int] | None = None,
 ) -> dict[str, Any]:
     """
     Finalize one tournament: game ratings + event snapshots + current projection.
@@ -681,6 +684,7 @@ def finalize_tournament(
         event_games=event_games,
         geo_year=geo_year,
         player_countries=player_countries,
+        inverse_changelog_prev=inverse_changelog_prev,
     )
     log.info(
         "finalize_tournament: event snapshots tournament_id=%s rows=%s",

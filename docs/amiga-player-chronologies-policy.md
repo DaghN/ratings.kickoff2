@@ -375,7 +375,7 @@ Add a row when a kind ships; do not link mosaic cells until Made it exists ([`pl
 - **Do not** put anchor col on First met — use Opponent col + quiet-date cols or dates get link-star ink.
 - **Do not** rely on client-only sort for initial row order — SQL `ORDER BY` must match default sort; use `data-k2-skip-initial-sort="1"`.
 - **Do not** use agent `Write` on new PHP under Windows — StrReplace or PowerShell UTF-8 ([`.cursor/rules/utf8-windows.mdc`](../.cursor/rules/utf8-windows.mdc)).
-- **Mosaic aggregate vs Made-it row count:** pointer chronologies are TT-correct; hero snapshot inverse **columns** can be stale (ghost events) until [`amiga-player-inverse-count-timeline-policy.md`](amiga-player-inverse-count-timeline-policy.md) ships — do not “fix” chronology to match wrong mosaic counts.
+- **Mosaic aggregate vs Made-it row count:** pointer chronologies are TT-correct; hero inverse **columns** now read from sparse changelog ([`amiga-player-inverse-count-timeline-policy.md`](amiga-player-inverse-count-timeline-policy.md)) — mosaic/LB should match chronology after ship.
 
 ---
 

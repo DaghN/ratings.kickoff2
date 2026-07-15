@@ -195,8 +195,27 @@ function amiga_lb_victims_default_order_sql(): string
  *
  * @return array<int, string>
  */
-function amiga_lb_victims_order_column_map(): array
+function amiga_lb_victims_order_column_map(bool $timeTravelActive = false): array
 {
+    if ($timeTravelActive) {
+        return [
+            1 => 'p.name',
+            2 => 's.Rating',
+            3 => 's.NumberGames',
+            4 => 's.DifferentOpponents',
+            5 => 's.DifferentVictims',
+            6 => 's.DifferentCulprits',
+            7 => 's.DoubleDigitsVictims',
+            8 => 's.DoubleDigitsCulprits',
+            9 => 'COALESCE(inv.MostGoalsConcededVictims, 0)',
+            10 => 'COALESCE(inv.BiggestLossVictims, 0)',
+            11 => 's.CleanSheetsVictims',
+            12 => 's.CleanSheetsCulprits',
+            13 => 'COALESCE(inv.MostGoalsScoredCulprits, 0)',
+            14 => 'COALESCE(inv.BiggestWinCulprits, 0)',
+        ];
+    }
+
     return [
         1 => 'p.name',
         2 => 's.Rating',

@@ -12,6 +12,7 @@ from scripts.amiga.elo_rank import (
     load_career_ratings_through_tournament,
     persist_elo_ranks_at_tournament,
 )
+from scripts.amiga.inverse_count_changelog import persist_inverse_count_changelog_at_tournament
 from scripts.amiga.honours_totals import (
     empty_honours_totals,
     honours_from_snapshot_row,
@@ -100,6 +101,7 @@ def persist_tournament_event_snapshots(
     event_games_by_player_tournament: dict[tuple[int, int], int] | None = None,
     geo_year: PlayerGeoYearTracker | None = None,
     player_countries: dict[int, str | None] | None = None,
+    inverse_changelog_prev: dict[tuple[int, str], int] | None = None,
 ) -> int:
     """
     Write amiga_player_event_snapshots + amiga_player_current for one finalized event.
@@ -225,6 +227,16 @@ def persist_tournament_event_snapshots(
         event_chrono,
         ranks,
         participant_ids=participant_ids,
+    )
+
+    # Inverse counts can change for non-participants (ghost events) — sparse changelog.
+    persist_inverse_count_changelog_at_tournament(
+        conn,
+        tournament_id,
+        event_date,
+        event_chrono,
+        players,
+        prev_values=inverse_changelog_prev,
     )
 
     log.info(
