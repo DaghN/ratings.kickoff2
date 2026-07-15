@@ -149,6 +149,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-15 | **Amiga profile mosaic headers** — slice title rows: elevated fill + 6px padding / 11px caps (`player-feast-sections.css`; profile-scoped only). |
 | 2026-07-15 | **Amiga profile mosaic docs** — policy register: Peak Rating · Peak rank · Activity tournament rows marked **Shipped** (were wrongly listed as planned); backlog = Victims panel + geo country rows only. |
 | 2026-07-15 | **Amiga profile mosaic — Highest Victim / Lowest Culprit** — Games tab inventory: `result=win|loss`, new `sort=opp_rating` (`desc`/`asc`), `#matching-games`; policy register updated. |
 | 2026-07-15 | **Amiga peak-rating LB — Nadir date column** — col 9 after Nadir; `tlow.event_date` from `lowest_rating_tournament_id`; SSR sort map cols 10–11 shifted (Highest Victim / Lowest Culprit). |
