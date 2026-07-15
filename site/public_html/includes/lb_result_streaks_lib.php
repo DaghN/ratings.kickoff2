@@ -31,11 +31,38 @@ function k2_lb_result_streaks_sql_alias(string $streakType): string
     return 'rs_' . str_replace('_', '', $streakType);
 }
 
+/** Default ORDER BY tail for result streaks LB (no leading ORDER BY). */
+function k2_lb_result_streaks_default_order_sql(): string
+{
+    return 'p.`LongestWinningStreak` DESC, p.`Rating` DESC';
+}
+
+/**
+ * Sortable column index → SQL expression for result streaks LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function k2_lb_result_streaks_order_column_map(): array
+{
+    return [
+        1 => 'p.`Name`',
+        2 => 'p.`Rating`',
+        3 => 'p.`NumberGames`',
+        4 => 'p.`LongestWinningStreak`',
+        5 => 'p.`LongestNonLossStreak`',
+        6 => 'p.`LongestDrawingStreak`',
+        7 => 'p.`LongestNonDrawStreak`',
+        8 => 'p.`LongestLosingStreak`',
+        9 => 'p.`LongestNonWinStreak`',
+    ];
+}
+
 /**
  * @return mysqli_result|false
  */
-function k2_lb_result_streaks_query(mysqli $con)
+function k2_lb_result_streaks_query(mysqli $con, ?string $orderClause = null)
 {
+    $orderClause ??= k2_lb_result_streaks_default_order_sql();
     $where = k2_lb_player_where_sql_for_alias('p');
     $select = 'p.`id`, p.`Name`, p.`Rating`, p.`NumberGames`, '
         . 'p.`LongestWinningStreak`, p.`LongestNonLossStreak`, p.`LongestDrawingStreak`, '
@@ -43,7 +70,7 @@ function k2_lb_result_streaks_query(mysqli $con)
 
     if (!k2_lb_result_streaks_ready($con)) {
         $sql = 'SELECT ' . $select . ' FROM `playertable` p WHERE ' . $where . ' '
-            . 'ORDER BY p.`LongestWinningStreak` DESC, p.`Rating` DESC';
+            . 'ORDER BY ' . $orderClause;
 
         return $con->query($sql);
     }
@@ -61,7 +88,7 @@ function k2_lb_result_streaks_query(mysqli $con)
     }
 
     $sql = 'SELECT ' . $select . ' FROM `playertable` p' . $joins . ' WHERE ' . $where . ' '
-        . 'ORDER BY p.`LongestWinningStreak` DESC, p.`Rating` DESC';
+        . 'ORDER BY ' . $orderClause;
 
     return $con->query($sql);
 }

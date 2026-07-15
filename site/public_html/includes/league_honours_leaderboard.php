@@ -96,6 +96,30 @@ function k2_lb_league_honours_gold_help(array $view): string
     return 'First-place finishes you earned in a ' . $grainWord . ' ' . $kindWord . ' league.';
 }
 
+/** Default ORDER BY tail for league honours LB (no leading ORDER BY). */
+function k2_lb_league_honours_default_order_sql(): string
+{
+    return 'gold DESC, podiums DESC, p.Name ASC';
+}
+
+/**
+ * Sortable column index → SQL expression for league honours LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function k2_lb_league_honours_order_column_map(): array
+{
+    return [
+        1 => 'p.Name',
+        2 => 'p.Rating',
+        3 => 'p.NumberGames',
+        4 => 'gold',
+        5 => 'silver',
+        6 => 'bronze',
+        7 => 'podiums',
+    ];
+}
+
 /**
  * @return array<int, array{
  *   id: int,
@@ -108,26 +132,28 @@ function k2_lb_league_honours_gold_help(array $view): string
  *   podiums: int
  * }>
  */
-function k2_lb_league_honours_rows(mysqli $con, array $view, ?string &$error = null): array
+function k2_lb_league_honours_rows(mysqli $con, array $view, ?string &$error = null, ?string $orderClause = null): array
 {
     if (($view['cup'] ?? 'overall') === 'overall') {
-        return k2_lb_league_honours_rows_overall($con, $error);
+        return k2_lb_league_honours_rows_overall($con, $error, $orderClause);
     }
 
     return k2_lb_league_honours_rows_slice(
         $con,
         (string) $view['cup'],
         (string) ($view['grain'] ?? 'day'),
-        $error
+        $error,
+        $orderClause
     );
 }
 
 /**
  * @return array<int, array{id: int, name: string, rating: float, games: int, gold: int, silver: int, bronze: int, podiums: int}>
  */
-function k2_lb_league_honours_rows_overall(mysqli $con, ?string &$error = null): array
+function k2_lb_league_honours_rows_overall(mysqli $con, ?string &$error = null, ?string $orderClause = null): array
 {
     $error = null;
+    $orderClause ??= k2_lb_league_honours_default_order_sql();
     $where = k2_lb_player_where_sql_for_alias('p');
     $joinTotals = k2_status_table_exists($con, 'player_league_totals')
         ? 'LEFT JOIN player_league_totals t ON t.player_id = p.ID'
@@ -147,7 +173,7 @@ function k2_lb_league_honours_rows_overall(mysqli $con, ?string &$error = null):
         . 'FROM playertable p '
         . $joinTotals . ' '
         . 'WHERE ' . $where . ' '
-        . 'ORDER BY gold DESC, podiums DESC, p.Name ASC';
+        . 'ORDER BY ' . $orderClause;
 
     return k2_lb_league_honours_fetch_players($con, $sql, $error);
 }
@@ -159,9 +185,11 @@ function k2_lb_league_honours_rows_slice(
     mysqli $con,
     string $leagueKind,
     string $periodType,
-    ?string &$error = null
+    ?string &$error = null,
+    ?string $orderClause = null
 ): array {
     $error = null;
+    $orderClause ??= k2_lb_league_honours_default_order_sql();
     if (!in_array($leagueKind, ['activity', 'points'], true)) {
         $error = 'invalid_cup';
 
@@ -174,7 +202,7 @@ function k2_lb_league_honours_rows_slice(
     }
 
     if (!k2_status_table_exists($con, 'player_league_slice_totals')) {
-        return k2_lb_league_honours_rows_overall_zeros($con, $error);
+        return k2_lb_league_honours_rows_overall_zeros($con, $error, $orderClause);
     }
 
     $where = k2_lb_player_where_sql_for_alias('p');
@@ -185,7 +213,7 @@ function k2_lb_league_honours_rows_slice(
         . 'LEFT JOIN player_league_slice_totals s '
         . 'ON s.player_id = p.ID AND s.league_kind = ? AND s.period_type = ? '
         . 'WHERE ' . $where . ' '
-        . 'ORDER BY gold DESC, podiums DESC, p.Name ASC';
+        . 'ORDER BY ' . $orderClause;
 
     $stmt = mysqli_prepare($con, $sql);
     if ($stmt === false) {
@@ -211,13 +239,14 @@ function k2_lb_league_honours_rows_slice(
 /**
  * @return array<int, array{id: int, name: string, rating: float, games: int, gold: int, silver: int, bronze: int, podiums: int}>
  */
-function k2_lb_league_honours_rows_overall_zeros(mysqli $con, ?string &$error = null): array
+function k2_lb_league_honours_rows_overall_zeros(mysqli $con, ?string &$error = null, ?string $orderClause = null): array
 {
     $error = null;
+    $orderClause ??= k2_lb_league_honours_default_order_sql();
     $where = k2_lb_player_where_sql_for_alias('p');
     $sql = 'SELECT p.ID AS id, p.Name AS name, p.Rating AS rating, p.NumberGames AS games, '
         . '0 AS gold, 0 AS silver, 0 AS bronze, 0 AS podiums '
-        . 'FROM playertable p WHERE ' . $where . ' ORDER BY gold DESC, podiums DESC, p.Name ASC';
+        . 'FROM playertable p WHERE ' . $where . ' ORDER BY ' . $orderClause;
 
     return k2_lb_league_honours_fetch_players($con, $sql, $error);
 }

@@ -1,6 +1,6 @@
 # K2 leaderboard server-side sort (SSR) — policy
 
-**Status:** **In progress** (Jul 2026). Track **A** — leaderboard **page** upgrades only. **Slice 1 shipped** (Amiga career batch 1); **next:** slice 2 (perf-rating top/perfect).
+**Status:** **Implemented** (Jul 2026). Track **A** complete — all hub leaderboard wings SSR-sort on URL landing. Track **B** (profile mosaic links) remains separate.
 
 **Authority:** Dagh's latest message → this doc → [`k2-lb-ssr-sort-implementation-plan.md`](k2-lb-ssr-sort-implementation-plan.md). Table stack contract: [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md). Deep-link column indices (HoF): [`amiga_records_hof_links.php`](../site/public_html/includes/amiga_records_hof_links.php) (Amiga) · [`records_hof_links.php`](../site/public_html/includes/records_hof_links.php) (online). **Profile mosaic link wiring** is **Track B** — [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) — not this track.
 
@@ -95,9 +95,9 @@ Static maps in `amiga_records_hof_links.php` / `records_hof_links.php` were chec
 
 **Shipped (Amiga career):** `rating.php`, `goals.php`, `double-digits.php`, `victims.php`, `peak-rating.php`, `tournament-honours.php`, `calendar-geo.php`, `performance-rating/best.php`, `performance-rating/top.php`, `performance-rating/perfect.php` (full perf-rating wing set)
 
-**Shipped (online):** `leaderboards/rating.php`, `goals.php`, `double-digits.php`, `victims.php`, `peak-rating.php`, `activity/peaks.php`
+**Shipped (online):** `leaderboards/rating.php`, `goals.php`, `double-digits.php`, `victims.php`, `peak-rating.php`, `league-honours.php`, `milestones.php`, `streaks.php`, `activity/peaks.php`, `activity/in-a-row.php`, `activity/participation.php`
 
-**Legacy (Track A backlog):** see implementation plan § Wing register.
+**Legacy (Track A backlog):** none — track complete (Jul 2026).
 
 ---
 

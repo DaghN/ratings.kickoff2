@@ -1,7 +1,7 @@
 # K2 leaderboard server-side sort (SSR) — implementation plan
 
-**Status:** **In progress** (Jul 2026) — slice **1** shipped; **next:** slice **2** (perf-rating top + perfect).  
-**Policy:** [`k2-lb-ssr-sort-policy.md`](k2-lb-ssr-sort-policy.md)  
+**Status:** **Complete** (Jul 2026) — slices **0–6** shipped; all hub wings in § Wing register are **Shipped**.  
+**Policy:** [`k2-lb-ssr-sort-policy.md`](k2-lb-ssr-sort-policy.md) — **Implemented**  
 **Starter prompt:** [`orchestration/agent-handoffs/k2-lb-ssr-sort-STARTER-PROMPT.md`](orchestration/agent-handoffs/k2-lb-ssr-sort-STARTER-PROMPT.md)
 
 ---
@@ -51,7 +51,7 @@ Upgrade all hub **leaderboard wing** pages so `?k2_sort=` / `?k2_dir=` drive **S
 
 ## Wing register
 
-Status key: **Shipped** · **Legacy** (Track A backlog)
+Status key: **Shipped** (all hub wings — Track A complete Jul 2026)
 
 ### Amiga — career hub (`/amiga/leaderboards/`)
 
@@ -91,12 +91,12 @@ Shared table stack: `includes/amiga_wc_players_table.php` — one SSR upgrade ma
 | Double digits | `double-digits.php` | 4 (DD) | **Shipped** |
 | Victims | `victims.php` | 4 (Opponents) | **Shipped** |
 | Peak rating | `peak-rating.php` | 4 (Peak) | **Shipped** |
-| League honours | `league-honours.php` | 4 (Gold) | **Legacy** |
-| Milestones | `milestones.php` | 8 (Count) | **Legacy** |
-| Streaks | `streaks.php` | 4 (Win streak) | **Legacy** |
+| League honours | `league-honours.php` | 4 (Gold) | **Shipped** |
+| Milestones | `milestones.php` | 8 (Count) | **Shipped** |
+| Streaks | `streaks.php` | 4 (Win streak) | **Shipped** |
 | Activity — Peaks | `activity/peaks.php` | — | **Shipped** |
-| Activity — In a row | `activity/in-a-row.php` | — | **Legacy** |
-| Activity — Participation | `activity/participation.php` | — | **Legacy** |
+| Activity — In a row | `activity/in-a-row.php` | 4 (Days) | **Shipped** |
+| Activity — Participation | `activity/participation.php` | 3 (Games) | **Shipped** |
 
 ---
 
@@ -155,13 +155,13 @@ grep `'page' => 'lb-` in file when QAing online slices — metrics span rating, 
 |-------|-------------|---------------|-----------|
 | **0** | Doc trio (policy + plan + starter prompt) | — | **Done** |
 | **1** | Amiga career SSR batch 1 | victims, peak-rating, tournament-honours, calendar-geo, perf-rating/best | **Done** (code); HoF browser smoke optional per wing |
-| **2** | Amiga career SSR batch 2 | perf-rating/top, perf-rating/perfect (+ shared table lib closure) | Browser: 2 perf views; policy register updated |
-| **3** | Amiga WC player stats | honours, results, goals, dds, opponents | Browser: sample `wc_*` HoF rows per sub-wing |
-| **4** | Online core LBs | rating, goals, double-digits, victims, peak-rating | Browser: matching `records_hof_links.php` rows |
-| **5** | Online remainder | league-honours, milestones, streaks, activity/in-a-row, activity/participation | Browser + HoF smoke for activity + streaks |
-| **6** | Closure | Policy status → **Implemented**; MEMORY; optional `python scripts/audit_k2_table_compliance.py` | Dagh sign-off |
+| **2** | Amiga career SSR batch 2 | perf-rating/top, perf-rating/perfect (+ shared table lib closure) | **Done** |
+| **3** | Amiga WC player stats | honours, results, goals, dds, opponents | **Done** |
+| **4** | Online core LBs | rating, goals, double-digits, victims, peak-rating | **Done** |
+| **5** | Online remainder | league-honours, milestones, streaks, activity/in-a-row, activity/participation | **Done** (code); HoF browser smoke optional |
+| **6** | Closure | Policy status → **Implemented**; MEMORY; `python scripts/audit_k2_table_compliance.py` | **Done** — audit PASS (0 Tier C) |
 
-**Suggested next execution slice:** **Slice 2** (perf-rating top + perfect).
+**Track A complete.** No further slices unless a new hub wing ships without SSR.
 
 ### Amiga rating LB — fixed column indices (SSR-13)
 
@@ -242,4 +242,9 @@ Today: K2 LB SSR Track A — slice N per `k2-lb-ssr-sort-implementation-plan.md`
 |------|-------|------|
 | 2026-07-15 | 0 | Doc trio + starter prompt |
 | 2026-07-15 | 1 | victims, peak-rating, tournament-honours, calendar-geo, perf-rating/best — SSR + column maps |
+| 2026-07-15 | 2 | perf-rating/top + perfect — shared table lib closure |
+| 2026-07-15 | 3 | Amiga WC player stats — five sub-wings via `amiga_wc_players_table.php` |
+| 2026-07-15 | 4 | Online core LBs — rating, goals, double-digits, victims, peak-rating |
+| 2026-07-15 | 5 | Online remainder — league-honours, milestones, streaks, activity/in-a-row, participation |
+| 2026-07-15 | 6 | Closure — policy Implemented; compliance audit PASS |
 | 2026-07-15 | — | Rating LB Δ always visible; `AMIGA_LB_RATING_COL_*`; HoF 4/5/8 stable |

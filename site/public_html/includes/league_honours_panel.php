@@ -18,6 +18,9 @@ $honoursView = $honoursView ?? k2_lb_league_honours_parse_view();
 $honoursRows = $honoursRows ?? [];
 $queryError = $queryError ?? null;
 $dataReady = $dataReady ?? false;
+$colGold = $colGold ?? 4;
+$lbSort = $lbSort ?? k2_lb_table_sort_state($colGold);
+$lbSqlOrder = $lbSqlOrder ?? null;
 $filterOpts = k2_lb_filter_opts();
 
 $cup = (string) ($honoursView['cup'] ?? 'overall');
@@ -86,8 +89,7 @@ foreach ($cupTabs as $cupId => $label) {
 
 <?php echo k2_lb_table_anchor_markup(); ?>
 <?php k2_table_wrap_open(true); ?>
-<?php $lbSort = k2_lb_table_sort_state(4); ?>
-		<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
+		<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo $lbSqlOrder !== null ? k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $colGold, 'desc', $lbSqlOrder['ssr_applied_url_sort']) : k2_table_skip_initial_sort_attr($colGold); ?>>
 			<thead>
 				<tr>
 					<th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">#</th>

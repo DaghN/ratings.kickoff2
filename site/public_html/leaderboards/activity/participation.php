@@ -28,8 +28,14 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_activity_lib.php';
 
+$colGames = 3;
+$lbSort = k2_lb_table_sort_state($colGames, $colGames);
+$lbDefaultOrder = k2_lb_activity_participation_default_order_sql();
+$lbOrderMap = k2_lb_activity_participation_order_column_map();
+$lbSqlOrder = k2_lb_sql_order_from_sort($lbSort, $lbOrderMap, $lbDefaultOrder);
+
 $participationReady = k2_lb_activity_participation_ready($con);
-$result = $participationReady ? k2_lb_activity_query_participation($con) : false;
+$result = $participationReady ? k2_lb_activity_query_participation($con, $lbSqlOrder['order_clause']) : false;
 $queryError = $participationReady && $result === false;
 mysqli_close($con);
 ?>
@@ -48,8 +54,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_activity_nav.php';
 <p class="server-peak-period-leaderboard-status">Could not load activity participation.</p>
 <?php } else { ?>
 <?php k2_table_wrap_open(true); ?>
-<?php $lbSort = k2_lb_table_sort_state(3, 3); ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(3); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $colGames, 'desc', $lbSqlOrder['ssr_applied_url_sort']); ?>>
 <thead>
 	<tr>
 		<th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">#</th>

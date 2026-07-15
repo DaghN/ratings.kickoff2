@@ -533,6 +533,63 @@ function k2_lb_activity_echo_count_td(int $count, ?int $sortTieValue = null): vo
     echo '</td>';
 }
 
+function k2_lb_activity_participation_longevity_expr(): string
+{
+    return 'CASE WHEN a.`first_rated_day` IS NULL OR a.`last_rated_day` IS NULL THEN NULL '
+        . 'ELSE DATEDIFF(a.`last_rated_day`, a.`first_rated_day`) + 1 END';
+}
+
+/** Default ORDER BY tail for activity participation LB (no leading ORDER BY). */
+function k2_lb_activity_participation_default_order_sql(): string
+{
+    return 'p.`NumberGames` DESC, p.`Rating` DESC';
+}
+
+/**
+ * Sortable column index → SQL expression for activity participation LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function k2_lb_activity_participation_order_column_map(): array
+{
+    return [
+        1 => 'p.`Name`',
+        2 => 'p.`Rating`',
+        3 => 'p.`NumberGames`',
+        4 => 'COALESCE(a.`active_days`, 0)',
+        5 => 'COALESCE(a.`active_weeks`, 0)',
+        6 => 'COALESCE(a.`active_months`, 0)',
+        7 => 'COALESCE(a.`active_years`, 0)',
+        8 => k2_lb_activity_participation_longevity_expr(),
+        9 => 'a.`first_rated_day`',
+        10 => 'a.`last_rated_day`',
+    ];
+}
+
+/** Default ORDER BY tail for activity in-a-row LB (no leading ORDER BY). */
+function k2_lb_activity_in_a_row_default_order_sql(): string
+{
+    return 'COALESCE(psd.`best_streak`, 0) DESC, p.`Rating` DESC';
+}
+
+/**
+ * Sortable column index → SQL expression for activity in-a-row LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function k2_lb_activity_in_a_row_order_column_map(): array
+{
+    return [
+        1 => 'p.`Name`',
+        2 => 'p.`Rating`',
+        3 => 'p.`NumberGames`',
+        4 => 'COALESCE(psd.`best_streak`, 0)',
+        5 => 'COALESCE(psw.`best_streak`, 0)',
+        6 => 'COALESCE(psm.`best_streak`, 0)',
+        7 => 'COALESCE(psy.`best_streak`, 0)',
+    ];
+}
+
 /**
  * @return mysqli_result|false
  */
@@ -558,8 +615,9 @@ function k2_lb_activity_query_peaks(mysqli $con, string $orderClause = 'COALESCE
 /**
  * @return mysqli_result|false
  */
-function k2_lb_activity_query_participation(mysqli $con)
+function k2_lb_activity_query_participation(mysqli $con, ?string $orderClause = null)
 {
+    $orderClause ??= k2_lb_activity_participation_default_order_sql();
     $where = k2_lb_player_where_sql_for_alias('p');
     $reachedCols = k2_lb_activity_participation_reached_columns_ready($con)
         ? 'a.`active_days_reached_at`, a.`active_weeks_reached_at`, '
@@ -574,12 +632,11 @@ function k2_lb_activity_query_participation(mysqli $con)
         . 'COALESCE(a.`active_years`, 0) AS `active_years`, '
         . $reachedCols
         . 'a.`first_rated_day`, a.`last_rated_day`, '
-        . 'CASE WHEN a.`first_rated_day` IS NULL OR a.`last_rated_day` IS NULL THEN NULL '
-        . 'ELSE DATEDIFF(a.`last_rated_day`, a.`first_rated_day`) + 1 END AS `longevity_days` '
+        . k2_lb_activity_participation_longevity_expr() . ' AS `longevity_days` '
         . 'FROM `playertable` p '
         . 'LEFT JOIN `player_activity_participation` a ON a.`player_id` = p.`id` '
         . 'WHERE ' . $where . ' '
-        . 'ORDER BY p.`NumberGames` DESC, p.`Rating` DESC';
+        . 'ORDER BY ' . $orderClause;
 
     return $con->query($sql);
 }
@@ -587,8 +644,9 @@ function k2_lb_activity_query_participation(mysqli $con)
 /**
  * @return mysqli_result|false
  */
-function k2_lb_activity_query_in_a_row(mysqli $con)
+function k2_lb_activity_query_in_a_row(mysqli $con, ?string $orderClause = null)
 {
+    $orderClause ??= k2_lb_activity_in_a_row_default_order_sql();
     $where = k2_lb_player_where_sql_for_alias('p');
     $sql = 'SELECT p.`id`, p.`Name`, p.`Rating`, p.`NumberGames`, '
         . 'COALESCE(psd.`best_streak`, 0) AS `streak_days`, '
@@ -609,7 +667,7 @@ function k2_lb_activity_query_in_a_row(mysqli $con)
         . 'LEFT JOIN `player_play_streaks` psm ON psm.`player_id` = p.`id` AND psm.`streak_type` = \'month\' '
         . 'LEFT JOIN `player_play_streaks` psy ON psy.`player_id` = p.`id` AND psy.`streak_type` = \'year\' '
         . 'WHERE ' . $where . ' '
-        . 'ORDER BY COALESCE(psd.`best_streak`, 0) DESC, p.`Rating` DESC';
+        . 'ORDER BY ' . $orderClause;
 
     return $con->query($sql);
 }

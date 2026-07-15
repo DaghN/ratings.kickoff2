@@ -29,7 +29,13 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_activity_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_play_streaks.php';
 
-$result = k2_lb_activity_query_in_a_row($con);
+$colPlayStreakDays = 4;
+$lbSort = k2_lb_table_sort_state($colPlayStreakDays);
+$lbDefaultOrder = k2_lb_activity_in_a_row_default_order_sql();
+$lbOrderMap = k2_lb_activity_in_a_row_order_column_map();
+$lbSqlOrder = k2_lb_sql_order_from_sort($lbSort, $lbOrderMap, $lbDefaultOrder);
+
+$result = k2_lb_activity_query_in_a_row($con, $lbSqlOrder['order_clause']);
 $queryError = $result === false;
 mysqli_close($con);
 ?>
@@ -46,8 +52,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_activity_nav.php';
 <p class="server-peak-period-leaderboard-status">Could not load play streaks.</p>
 <?php } else { ?>
 <?php k2_table_wrap_open(true); ?>
-<?php $lbSort = k2_lb_table_sort_state(4); ?>
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(4); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class()); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $colPlayStreakDays, 'desc', $lbSqlOrder['ssr_applied_url_sort']); ?>>
 <thead>
 	<tr>
 		<th<?php echo k2_lb_th(0, $lbSort, ''); ?> data-k2-sort="number">#</th>

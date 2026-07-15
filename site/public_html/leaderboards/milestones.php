@@ -26,7 +26,14 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_helpers.ph
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_player_filters.php';
-$leaderRows = k2_milestone_meta_leaderboard_rows($con);
+
+$colMilestones = 8;
+$lbSort = k2_lb_table_sort_state($colMilestones);
+$lbDefaultOrder = k2_milestone_meta_leaderboard_default_order_sql();
+$lbOrderMap = k2_milestone_meta_leaderboard_order_column_map();
+$lbSqlOrder = k2_lb_sql_order_from_sort($lbSort, $lbOrderMap, $lbDefaultOrder);
+
+$leaderRows = k2_milestone_meta_leaderboard_rows($con, $lbSqlOrder['order_clause']);
 mysqli_close($con);
 
 $k2LbWingActive = 'milestones';
@@ -34,9 +41,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_nav.php';
 ?>
 
 <?php k2_table_wrap_open(true); ?>
-<?php $lbSort = k2_lb_table_sort_state(8); ?>
-
-<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class('k2-table--milestones-meta-lb')); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_table_skip_initial_sort_attr(8); ?>>
+<table class="<?php echo k2_h(k2_table_ranked_leaderboard_class('k2-table--milestones-meta-lb')); ?>" data-k2-table="sortable" data-k2-autorank="true" data-k2-anchor-col="<?php echo $lbSort['anchor']; ?>" data-k2-default-sort="<?php echo $lbSort['sort_col']; ?>" data-k2-default-direction="<?php echo k2_h($lbSort['sort_dir']); ?>"<?php echo k2_lb_table_skip_initial_sort_attr_for_ssr($lbSort, $colMilestones, 'desc', $lbSqlOrder['ssr_applied_url_sort']); ?>>
 
 <thead>
     <tr>

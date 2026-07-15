@@ -12,7 +12,7 @@
 
 - **Amiga profile (Jul 2026):** **Track B** — mosaic stat links one-at-a-time ([`player-profile-stat-links-policy.md`](docs/player-profile-stat-links-policy.md) · [`amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md)); Results · Goals · DD/CS · **Tournament honours** **shipped**; Victims · geo · peak · activity rows **planned**.
 
-- **K2 LB SSR (Jul 2026):** **Track A** — hub wing URL landing sort ([`k2-lb-ssr-sort-policy.md`](docs/k2-lb-ssr-sort-policy.md) · slice **1** shipped; **next slice 2** perf-rating top/perfect). HoF hrefs verify-only; rating LB Δ always visible (SSR-13).
+- **K2 LB SSR (Jul 2026):** **Track A complete** — all hub wings URL landing sort ([`k2-lb-ssr-sort-policy.md`](docs/k2-lb-ssr-sort-policy.md) **Implemented**). Track **B** = profile mosaic stat links.
 
 - **Ladder ops (Jun 2026):** PHP post-game **P0–P7** in `ops/run_process_game.php` + `dispatch.php`. **Staging simul signed off** on `kooldb1` (`run_verify_ops_sim` 0 fail). **Next (Steve):** live cutover when scheduled — [`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md). Discrepancies: [`post-game-contract-vs-oracle-discrepancies.md`](docs/coordination/post-game-contract-vs-oracle-discrepancies.md).
 
@@ -151,6 +151,8 @@
 |------|------|
 | 2026-07-15 | **Amiga profile Peak rating panel — stacked dates** — peak rating / peak rank / nadir values with tournament dates muted below (`lowest_rating_tournament_id` join); separate date rows removed. |
 | 2026-07-15 | **Amiga profile Peak rating panel — drop Opponent Avg.** — removed duplicate row from mosaic; Results **Opponent Average** link to Rating LB unchanged. |
+| 2026-07-15 | **K2 LB SSR Track A complete (slice 6)** — policy **Implemented**; all hub wings shipped; `audit_k2_table_compliance.py` PASS (0 Tier C). |
+| 2026-07-15 | **K2 LB SSR Track A slice 5** — Online remainder: league-honours, milestones, streaks, activity/in-a-row, activity/participation; column maps in wing libs + `lb_player_filters.php` where shared. |
 | 2026-07-15 | **Amiga peak-rating LB — drop Opponent Avg.** — column removed; Highest Victim / Lowest Culprit now cols 9–10 (was 10–11); SSR order map updated; no HoF or mosaic hrefs pointed at old indices. |
 | 2026-07-15 | **Amiga profile mosaic — Tournament honours links (Track B)** — all six cells → Tournaments tab inventory (`winner` / `podium` / `perfect` / `finish=2|3` + `#k2-player-tournaments-table`); `amiga_profile_lb_slice_player_tournaments_href()`. |
 | 2026-07-15 | **Docs sweep (Jul 15)** — Track A/B handoffs + K2 LB SSR policy/plan/starter aligned to slice 1 shipped; HoF column audit recorded; rating Δ SSR-13. |

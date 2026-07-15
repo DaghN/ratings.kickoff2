@@ -512,14 +512,41 @@ function k2_milestone_unlock_event_context_html(
     return '—';
 }
 
+/** Default ORDER BY tail for milestones meta LB (no leading ORDER BY). */
+function k2_milestone_meta_leaderboard_default_order_sql(): string
+{
+    return 'total DESC, aspirational DESC, dedicated DESC, accomplished DESC, legendary DESC, p.Name ASC';
+}
+
+/**
+ * Sortable column index → SQL expression for milestones meta LB SSR order.
+ *
+ * @return array<int, string>
+ */
+function k2_milestone_meta_leaderboard_order_column_map(): array
+{
+    return [
+        1 => 'p.Name',
+        2 => 'p.Rating',
+        3 => 'p.NumberGames',
+        4 => 'aspirational',
+        5 => 'dedicated',
+        6 => 'accomplished',
+        7 => 'legendary',
+        8 => 'total',
+    ];
+}
+
 /**
  * @return array<int, array<string, mixed>>
  */
-function k2_milestone_meta_leaderboard_rows(mysqli $con): array
+function k2_milestone_meta_leaderboard_rows(mysqli $con, ?string $orderClause = null): array
 {
     if (!k2_milestone_tables_ready($con)) {
         return [];
     }
+
+    $orderClause ??= k2_milestone_meta_leaderboard_default_order_sql();
 
     if (k2_milestone_totals_read_ready($con)) {
         $sql = "
@@ -537,12 +564,7 @@ function k2_milestone_meta_leaderboard_rows(mysqli $con): array
             LEFT JOIN player_milestone_totals t ON t.player_id = p.ID
             WHERE p.NumberGames >= 1
             ORDER BY
-                total DESC,
-                aspirational DESC,
-                dedicated DESC,
-                accomplished DESC,
-                legendary DESC,
-                p.Name ASC
+                " . $orderClause . "
         ";
     } else {
         $sql = "
@@ -560,14 +582,9 @@ function k2_milestone_meta_leaderboard_rows(mysqli $con): array
             LEFT JOIN player_milestones pm ON pm.player_id = p.ID
             LEFT JOIN milestone_definitions md ON md.milestone_key = pm.milestone_key
             WHERE p.NumberGames >= 1
-            GROUP BY p.ID, p.Name
+            GROUP BY p.ID, p.Name, p.Rating, p.NumberGames
             ORDER BY
-                total DESC,
-                aspirational DESC,
-                dedicated DESC,
-                accomplished DESC,
-                legendary DESC,
-                p.Name ASC
+                " . $orderClause . "
         ";
     }
 

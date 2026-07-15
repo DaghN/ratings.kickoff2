@@ -24,6 +24,7 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 $con->set_charset('utf8mb4');
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/league_honours_leaderboard.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 
 $honoursView = k2_lb_league_honours_parse_view();
 $filterOpts = k2_lb_filter_opts();
@@ -40,8 +41,14 @@ if ($honoursView['cup'] !== 'overall' && !isset($_GET['grain'])) {
     exit;
 }
 
+$colGold = 4;
+$lbSort = k2_lb_table_sort_state($colGold);
+$lbDefaultOrder = k2_lb_league_honours_default_order_sql();
+$lbOrderMap = k2_lb_league_honours_order_column_map();
+$lbSqlOrder = k2_lb_sql_order_from_sort($lbSort, $lbOrderMap, $lbDefaultOrder);
+
 $queryError = null;
-$honoursRows = k2_lb_league_honours_rows($con, $honoursView, $queryError);
+$honoursRows = k2_lb_league_honours_rows($con, $honoursView, $queryError, $lbSqlOrder['order_clause']);
 $dataReady = $honoursView['cup'] === 'overall'
     ? k2_status_table_exists($con, 'player_league_totals')
     : k2_status_table_exists($con, 'player_league_slice_totals');

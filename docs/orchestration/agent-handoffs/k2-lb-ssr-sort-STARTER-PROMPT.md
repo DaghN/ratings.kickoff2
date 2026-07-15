@@ -4,7 +4,7 @@
 **Policy:** [`docs/k2-lb-ssr-sort-policy.md`](../../k2-lb-ssr-sort-policy.md)  
 **Plan:** [`docs/k2-lb-ssr-sort-implementation-plan.md`](../../k2-lb-ssr-sort-implementation-plan.md)  
 **Track B (separate):** Profile mosaic links — [`amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](amiga-profile-mosaic-stat-links-STARTER-PROMPT.md)  
-**Status:** **In progress** (Jul 2026) — slices **0–1** shipped; **next:** slice **2** (perf-rating top + perfect).
+**Status:** **Complete** (Jul 2026) — Track A slices **0–6** shipped; policy **Implemented**.
 
 ---
 
@@ -35,19 +35,20 @@ You are Dagh's **K2 leaderboard server-side sort (Track A)** agent.
 - No git commit --trailer "Co-authored-by: Cursor <cursoragent@cursor.com>" unless Dagh asks
 - UTF-8 on Windows: StrReplace on existing PHP; new files via PowerShell UTF-8 — never agent Write on .php
 
-**Already shipped (do not redo):**
-- Amiga: rating.php, goals.php, double-digits.php, victims.php, peak-rating.php, tournament-honours.php, calendar-geo.php, performance-rating/best.php
-- Online: leaderboards/activity/peaks.php
+**Already shipped (Track A complete — do not redo unless regression):**
+- Amiga career: rating, goals, double-digits, victims, peak-rating, tournament-honours, calendar-geo, performance-rating/best|top|perfect
+- Amiga WC player stats: world-cups/players honours, results, goals, dds, opponents
+- Online: rating, goals, double-digits, victims, peak-rating, league-honours, milestones, streaks, activity/peaks, activity/in-a-row, activity/participation
 
-**Slice map (ask Dagh which slice if unclear):**
+**Slice map (historical — track complete):**
 | Slice | Wings | Status |
 |-------|-------|--------|
-| 1 | Amiga: victims, peak-rating, tournament-honours, calendar-geo, perf-rating/best | **Done** |
-| 2 | Amiga: perf-rating/top, perf-rating/perfect (+ shared table lib) | **Next** |
-| 3 | Amiga WC: world-cups/players honours, results, goals, dds, opponents | Planned |
-| 4 | Online: rating, goals, double-digits, victims, peak-rating | Planned |
-| 5 | Online: league-honours, milestones, streaks, activity/in-a-row, activity/participation | Planned |
-| 6 | Closure — policy Implemented, register complete | Planned |
+| 1 | Amiga career batch 1 | **Done** |
+| 2 | Amiga perf-rating top + perfect | **Done** |
+| 3 | Amiga WC player stats (5 sub-wings) | **Done** |
+| 4 | Online core LBs | **Done** |
+| 5 | Online remainder | **Done** |
+| 6 | Closure | **Done** |
 
 **Per-wing recipe:**
 1. k2_lb_table_sort_state($defaultCol)
@@ -64,8 +65,8 @@ You are Dagh's **K2 leaderboard server-side sort (Track A)** agent.
 - Amiga: one URL with as=
 
 **First message (CRITICAL):**
-1. Restate mission + which slice Dagh wants (default: slice **2**)
-2. List the 5 target wings and reference files you will copy
+1. Confirm Track A is **complete** — only take new work if Dagh reports a regression or a **new** hub wing without SSR
+2. For regressions: identify wing, compare to `goals.php` reference pattern
 3. **Do not edit code until Dagh says go**
 
 **When Dagh says go:** implement the requested slice only; report files changed + HoF URLs to spot-check in browser.
@@ -77,6 +78,7 @@ You are Dagh's **K2 leaderboard server-side sort (Track A)** agent.
 
 | Date | Slice | Note |
 |------|-------|------|
-| 2026-07-15 | 0 | Doc trio |
 | 2026-07-15 | 1 | Amiga career batch 1 — SSR + column maps |
+| 2026-07-15 | 2–5 | Perf-rating top/perfect; WC player stats; online core + remainder |
+| 2026-07-15 | 6 | Closure — policy Implemented; audit PASS |
 | 2026-07-15 | — | Rating LB Δ always visible; fixed `AMIGA_LB_RATING_COL_*` (SSR-13) |
