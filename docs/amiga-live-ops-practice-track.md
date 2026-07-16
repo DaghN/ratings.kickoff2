@@ -1,32 +1,57 @@
 # Amiga live ops — practice track (Jul 2026)
 
-**Status:** **Active** — Dagh runs reference tournaments on staging; pain points drive implementation slices.
+**Status:** **Active** — secretary clarity via **serial feedback** (one issue at a time). Not an open pain inventory.
 
 **Policy parent:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (lanes A/B/C, ALO1–ALO11, infra menu §12.2).
 
-**Organizer UX reference:** [`archive/orchestration/browser-organizer-workflow-checkpoint.md`](archive/orchestration/browser-organizer-workflow-checkpoint.md).
+**Organizer UX reference:** [`archive/orchestration/browser-organizer-workflow-checkpoint.md`](archive/orchestration/browser-organizer-workflow-checkpoint.md) (ideas menu — not a sprint backlog).
 
 **Structure model:** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (stage → fixture → game).
 
 ---
 
-## 1. How we work
+## 1. How we work — serial feedback
 
-1. **Run a reference tournament** on staging (create → play → finalize → website check).
-2. **Log every pain point** in §4 below — one row per friction, not per chat.
-3. **Pick the next slice** from §5 only when a pain point names a missing capability or UX fix.
-4. **Ship the slice** (small, one pain point when possible).
-5. **Re-run the same drill** as the smoke test before starting the next slice.
+**Queue depth = 1.** Do not collect a living list of everything that feels imperfect.
 
-**Do not** implement §12.2 infra phases from the platform doc in numeric order without a drill reason.
+```text
+1. Do ONE step of the happy path (create · players · start · play · table · Make official · website)
+2. Give ONE piece of feedback (one sentence: what blocked or felt wrong)
+3. Fix ONLY that (one chat / one slice)
+4. Re-do the same step (confirm the fix)
+5. Only then: next step, or next one feedback
+```
 
-**Do not** mix **Track C** canon work (disposition, bulk materialize, prove optimization) in the same session as a live drill.
+**Dagh prompt shape:**
+
+> I tried **[step]**. Feedback: **[one issue]**. Fix only that.
+
+After the fix:
+
+> OK / still broken. Next: **[same step again]** or **[next step]**.
+
+### Raise feedback when
+
+- It **blocks** the step, or
+- You are **unsure what to do next**, or
+- You **explicitly** want that one thing improved before continuing
+
+### Do not raise (yet)
+
+Cosmetic “a bit ugly” items you can work around — finish the step first. Purist UI forks (naming edge cases, CR-9 country polish, imprint, Lane C) stay deferred until a serial cycle names them.
+
+### Agent rules
+
+- **One feedback → one fix.** No “while we’re here” extras.
+- Do **not** implement §12.2 infra phases in numeric order without a named feedback cycle.
+- Do **not** mix **Track C** canon (WC materialize, imprint P2–P3, chronologies) in the same session as a live secretary cycle.
+- After ship: Dagh re-does the **same step** before opening a new cycle.
 
 ---
 
 ## 2. Reference formats (v1 live product)
 
-Only these two shapes count as live v1 until both drills are boring.
+Only these two shapes count as live v1 until both are boring.
 
 ### Ref-League-A — round-robin league
 
@@ -43,95 +68,86 @@ Only these two shapes count as live v1 until both drills are boring.
 |-------|-------|
 | Template | Smallest KO — `knockout` ties only (4 or 8 players) |
 | Create | **CLI first** — `python -m scripts.amiga build-tournament create-group-knockout` or equivalent; browser for play/finalize |
-| Unlocks | After Ref-League-A drill is repeatable (Track L step L3) |
+| Unlocks | After Ref-League-A is repeatable (Track L step L3) |
 
 ---
 
-## 3. Drill checklist (copy per run)
+## 3. Happy-path steps (work in order)
 
-Use one block per drill run. Check staging URL and tournament id when done.
+Use these as the **step** name in feedback. Advance only when the current step is boring enough to continue without getting stuck.
 
-```text
-Drill run #: ___
-Format:     Ref-League-A / Ref-Cup-A
-Host:       staging / local
-Date:       ___
-Tournament id (after create): ___
+| # | Step | Success looks like |
+|---|------|--------------------|
+| 1 | **CREATE** | Name, date, country from registry; players by search (not raw ids); optional newcomer create |
+| 2 | **START** | Lifecycle in progress; league listed on Live hub |
+| 3 | **PLAY** | Results on fixtures only; `amiga_games` count for this id stays **0** while running |
+| 4 | **TABLE** | Broadcast standings match expectation |
+| 5 | **MAKE OFFICIAL** | Table tab → **Finish and make official** (promote + finalize) |
+| 6 | **WEBSITE** | Running page while live; historical tournament + rating spot-check after official |
+| 7 | **CLEANUP** | Abandoned never-official workspace removable without orphan L3 games |
 
-[ ] 1. CREATE — name, date, **country from registry select** (used list or More countries…); players by search (not raw ids)
-[ ] 2. START  — lifecycle to in-progress; **check Live hub** lists the league
-[ ] 3. PLAY    — all results on **fixtures only** (Results tab or `fixtures record-result`)
-[ ] 3b. SQL    — `SELECT COUNT(*) FROM amiga_games WHERE tournament_id = ?` → **0** while running
-[ ] 4. TABLE   — broadcast standings on Table tab match expectation
-[ ] 5. MAKE OFFICIAL — Table tab → **Make official** (promote + finalize; N→N+1 ratings + chronology)
-[ ] 6. WEBSITE — running: `/amiga/live-tournament.php?id=N`; after official: historical tournament page + rating LB spot-check
-[ ] 7. CLEANUP — `fixtures cleanup-generated` removes workspace; zero orphan L3 games if never official
+**Make official:** Table tab (promote → `amiga_games`, then `finalize_tournament`). CLI: `python -m scripts.amiga finalize-tournament --tournament-id N`. See [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md).
 
-Pain points this run (→ §4):
--
--
-```
-
-**Make official:** Table tab in organizer (promote running package → `amiga_games`, then `finalize_tournament`). CLI: `python -m scripts.amiga finalize-tournament --tournament-id N`. See [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md).
-
-**WinSCP:** sync `site/public_html/amiga/ops/` before staging drills after local UX fixes.
+**WinSCP:** sync `site/public_html/amiga/ops/` before staging cycles after local UX fixes.
 
 ---
 
-## 4. Pain point log (living)
+## 4. Active cycle (queue depth 1)
 
-Add a row **during or immediately after** each drill. This is the backlog input for agents.
+Only the **current** cycle is live. When fixed and re-checked, clear or archive the row — do not grow an open backlog here.
 
-| Date | Run # | Format | Step | Pain point (what hurt) | Slice / phase | Status |
-|------|-------|--------|------|------------------------|---------------|--------|
-| 2026-07-07 | — | — | enter ops | Tournament id field on password gate confused secretaries | Password-only gate; open leagues from Recent list inside | shipped |
-| 2026-07-07 | — | League | website | Allowlist blocked public live page until manual config | Remove allowlist; start=public (ALO11) | shipped |
-| 2026-07-07 | — | — | enter ops | Staging `/amiga/ops/fixtures.php?once=…` → HTTP 500 before password gate | Fix `amiga_country_slice_game_stats_lib.php` require path | shipped (sync needed) |
+| Field | Value |
+|-------|-------|
+| **Status** | idle — awaiting Dagh’s next one-step feedback |
+| **Format** | Ref-League-A |
+| **Step** | — |
+| **Feedback** | — |
+| **Slice** | — |
 
-**Step** = create · start · play · finalize · website · delete · other
-
-**Slice / phase** = L1 UX · platform §12.2 phase N · ad-hoc — fill when filing work
-
-**Status** = open · in progress · shipped · wontfix
+When a cycle is open, agents read **this table only** — not historical notes — as the work order.
 
 ---
 
-## 5. Slice queue (filed from pain log)
+## 5. Track progress (milestones)
 
-Work items land here when a pain point maps to a concrete deliverable. **Empty until first drill.**
-
-| Id | Pain (from §4) | Deliverable | Platform phase | Drill smoke test |
-|----|----------------|-------------|----------------|------------------|
-| L0-003 | Tournament id on password gate | Password-only gate + in-app Recent leagues | L1 UX | Gate shows password field only |
-| L0-002 | Allowlist blocked public live view | Auto public on `running`; **Make official** UX | ALO11 | Start league → visible on Live hub |
-| L0-001 | fixtures.php HTTP 500 on load (bad `post_game_outcome` path) | Fix require in `amiga_country_slice_game_stats_lib.php` | ad-hoc | Password gate loads on staging |
-
----
-
-## 6. Track progress
+Milestones are **gates**, not a parallel backlog. Advance when Dagh says the prior gate feels boring enough — not by inventorying UX.
 
 | Track L step | Description | Done when |
 |--------------|-------------|-----------|
-| **L0** | First Ref-League-A as-is | §4 has rows; pain log started |
-| **L1** | UX fixes for repeatability | Same league runnable same evening |
-| **L2** | Ref-League-A ×3 | Lifecycle explainable without code |
+| **L0** | First Ref-League-A as-is | One full create → Make official → website on staging |
+| **L1** | UX only from serial feedback on that path | Same league runnable same evening without getting stuck |
+| **L2** | Ref-League-A ×3 | Lifecycle explainable without opening PHP |
 | **L3** | Ref-Cup-A path exists | One cup finalized on staging |
 | **L4** | Ref-Cup-A ×2 | League + cup feel like one product |
 | **L5** | Delete / repair | Training event gone; site coherent; no `prove` |
-| **L6** | Ground pack pull | Staging event on laptop |
+| **L6** | Ground pack pull | Staging event on laptop (finer than full pull) |
 | **L7** | Media on ran event | YouTube URL on staging tournament |
 
-Current step: **L0** (start today).
+**Current gate:** **L0** — start with CREATE on staging; one feedback at a time.
+
+**Explicit defer until a cycle names them:** structure imprint P2–P3, WC materialize, Lane C media DDL, CR-9 country polish, player-create phase 2, cups before L2 boring.
 
 ---
 
-## 7. Agent checklist (start of slice)
+## 6. Agent checklist (start of slice)
 
-- [ ] Read latest rows in §4 — which pain point does this slice fix?
-- [ ] Name reference format + drill step in the handoff / commit message.
-- [ ] Slice scope = **one pain point** when possible.
-- [ ] After ship: Dagh (or agent) **re-runs the drill** that failed before.
-- [ ] Update §4–§6 and platform doc §12.2 row if a phase shipped.
+- [ ] Read §4 **Active cycle** — is there exactly one open feedback?
+- [ ] Scope = **that feedback only** (format + step named in commit / handoff).
+- [ ] No Track C / no second UX issue in the same chat.
+- [ ] After ship: Dagh re-does the **same step**.
+- [ ] Update §4 (clear or set next idle) + §5 if a Track L gate advanced; platform §12.2 only if an infra phase shipped.
+
+---
+
+## 7. Shipped history (archive — not a backlog)
+
+Closed cycles from early drills. Do **not** treat as open work.
+
+| Date | Step | Feedback | Outcome |
+|------|------|----------|---------|
+| 2026-07-07 | enter ops | Tournament id on password gate confused secretaries | Password-only gate + Recent leagues inside — shipped |
+| 2026-07-07 | website | Allowlist blocked public live page | Start=public (ALO11) — shipped |
+| 2026-07-07 | enter ops | Staging fixtures.php HTTP 500 before gate | Require path fix — shipped |
 
 ---
 
@@ -139,6 +155,7 @@ Current step: **L0** (start today).
 
 | Date | Change |
 |------|--------|
-| 2026-07-07 | **RTB shipped** — drill step 3 = fixture-only scores; step 5 = promote + Make official. |
-| 2026-07-07 | Drill checklist + §4 — ALO11 start=public; Make official wording. |
-| 2026-07-07 | Initial practice track — Ref-League-A / Ref-Cup-A, drill loop, pain log, L0 start. |
+| 2026-07-16 | **Serial feedback** replaces pain-log inventory — queue depth 1; §4 active cycle; shipped rows → archive; agent rules updated. |
+| 2026-07-07 | **RTB shipped** — play = fixture-only scores; Make official = promote + finalize. |
+| 2026-07-07 | Drill checklist + ALO11 start=public; Make official wording. |
+| 2026-07-07 | Initial practice track — Ref-League-A / Ref-Cup-A, pain log (retired 2026-07-16), L0 start. |

@@ -94,7 +94,7 @@
 
 - **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~300** videos; unified embed UI; **C06** dedicated Videos column; **With videos** filter; **player profile Videos wing**. **Jul 2026:** **TV-2b DB anchor sync** — `sync_db_ids` + `verify-tournament-videos` in `prove` ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md) §12).
 
-- **Amiga live ops (Jul 2026):** **RTB shipped (RTB-1–RTB-9)** — running scores until organizer **Finish and make official** (promote + finalize + lifecycle `completed` in one Table-tab action). Policy: [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md) rev. 2.
+- **Amiga live ops (Jul 2026):** **RTB shipped (RTB-1–RTB-9)** — running scores until organizer **Finish and make official**. **Practice track = serial feedback** (queue depth 1; not pain-log inventory) — [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md). Policy: [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md) rev. 2.
 
 - **Amiga format scoring contract (Jul 2026):** **SC-0–SC-9 + SC-11 shipped** — L4b relational contracts, PHP↔Python executor parity, RTB broadcast, L5 `stage_id`, structured ET/pens on games + fixtures (`012_match_extensions.sql`). **SC-10:** non-WC games **100%** `fixture_id` on work (Jul 2026); remaining unlinked games = **unmaterialized WCs** (`wc_deferred`). Policy [`amiga-format-scoring-contract-policy.md`](docs/amiga-format-scoring-contract-policy.md) · plan [`amiga-format-scoring-contract-implementation-plan.md`](docs/amiga-format-scoring-contract-implementation-plan.md).
 
@@ -149,6 +149,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-16 | **Amiga live ops — serial feedback** — practice track retires pain-log inventory; queue depth 1 (one step → one feedback → one fix → re-check); platform §12.1 aligned. [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md). |
 | 2026-07-16 | **Amiga work safety v2** — `apply-structure-work` / `simul --apply-structure` destroy consent when L4 exists; single-tournament `--force`; `promote-video-deploy` = snapshot + align + parity; legacy `sync_db_ids`/`build_manifest` refuse on work; export slimmed to promote-only. [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md) §0.1. |
 | 2026-07-16 | **Amiga work safety shipped** — shared-only video sidecar at align; promote/verify `game_start_sec` parity; export snapshot + align→promote; `seed-work`/`--recreate-schema` destroy consent; ground fingerprint; curated structure `--replace` guard; Nottingham stream offsets restored. [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md) §0.1. |
 | 2026-07-16 | **Amiga WC Opponents wing chronologies (complete)** — eight `wc_*` kinds shipped: culprits, DD/CS victims & culprits, countries faced/beaten/beaten-by; WC player-stats Opponents wing cols 6–13 linked; read-time SQL + `world_cup` slice parity; policy §4.0. |

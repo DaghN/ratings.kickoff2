@@ -1,12 +1,12 @@
 # Amiga live operations platform — design (Jul 2026)
 
-**Status:** **Policy locked** — architecture and operational boundaries agreed Jul 2026. **Implementation:** **practice-first** (see §12) — each infra slice ships only when a reference-tournament drill exposes real friction; most Lane B/C verbs not shipped yet. **Active track:** [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md).
+**Status:** **Policy locked** — architecture and operational boundaries agreed Jul 2026. **Implementation:** **practice-first** (see §12) — each infra slice ships from **one** secretary feedback cycle (not an open pain inventory); most Lane B/C verbs not shipped yet. **Active track:** [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md).
 
 **Audience:** Dagh, Cursor agents, future community organisers / secretaries (via ops UI).
 
 **Online analogue:** [`ladder-ops-platform.md`](ladder-ops-platform.md) — online prod/staging = `site/public_html/ops/` + `kooldb*`. Amiga live realm = `site/public_html/amiga/ops/` + `ko2amiga_db` + server filesystem for uploads.
 
-**Related:** [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) (**locked Jul 2026** — living ground, day 0 bootstrap, simul; Lane A local authority defers here) · [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) (reference formats, drill loop, pain-point log — **start here for implementation**) · [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (**locked Jul 2026** — running vs official universe; Make official = only boundary) · [`amiga-running-tournament-boundary-inventory.md`](amiga-running-tournament-boundary-inventory.md) · [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (organizer newcomer naming — **shipped Jul 2026** PC-1–PC-7) · [`amiga-player-create-implementation-plan.md`](amiga-player-create-implementation-plan.md) · [`amiga-data-contract.md`](amiga-data-contract.md) (layers, table register) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) (L5 writers, prove-only repair today) · [`amiga-staging-handoff.md`](amiga-staging-handoff.md) (export/import loop) · [`amiga-ground-stack.md`](amiga-ground-stack.md) (L0–L5 Access era — archive) · [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (stage/fixture/game model) · [`archive/orchestration/browser-organizer-workflow-checkpoint.md`](archive/orchestration/browser-organizer-workflow-checkpoint.md) (organizer UX gaps) · [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) · [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) · [`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)
+**Related:** [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) (**locked Jul 2026** — living ground, day 0 bootstrap, simul; Lane A local authority defers here) · [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) (reference formats, **serial feedback** loop — **start here for implementation**) · [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (**locked Jul 2026** — running vs official universe; Make official = only boundary) · [`amiga-running-tournament-boundary-inventory.md`](amiga-running-tournament-boundary-inventory.md) · [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (organizer newcomer naming — **shipped Jul 2026** PC-1–PC-7) · [`amiga-player-create-implementation-plan.md`](amiga-player-create-implementation-plan.md) · [`amiga-data-contract.md`](amiga-data-contract.md) (layers, table register) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) (L5 writers, prove-only repair today) · [`amiga-staging-handoff.md`](amiga-staging-handoff.md) (export/import loop) · [`amiga-ground-stack.md`](amiga-ground-stack.md) (L0–L5 Access era — archive) · [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (stage/fixture/game model) · [`archive/orchestration/browser-organizer-workflow-checkpoint.md`](archive/orchestration/browser-organizer-workflow-checkpoint.md) (organizer UX gaps) · [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) · [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) · [`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)
 
 ---
 
@@ -372,11 +372,11 @@ Same **philosophy:** stored timeline truth where needed; present rows for hot re
 
 **Policy defines boundaries (ALO1–ALO10). Practice defines priority.**
 
-Do **not** implement §12.2 infra phases in numeric order. Each slice ships when a **reference-tournament drill** (§12.1) hits a concrete pain point, then **re-runs the same drill** as the smoke test before the next slice.
+Do **not** implement §12.2 infra phases in numeric order. Each slice ships from **one** secretary feedback on **one** happy-path step (§12.1), then Dagh **re-does that same step** before the next cycle.
 
-**Living log:** [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) — pain points, slice queue, drill checklist.
+**Living track:** [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) — serial feedback (queue depth 1), active cycle, Track L gates.
 
-### 12.1 Reference formats and drill loop (Track L — live maturity)
+### 12.1 Reference formats and Track L (live maturity)
 
 **v1 live product = two shapes only.** Everything else (Swiss, WC-class, promotion graph, bulk historical materialize) is **Track C — canon** (§12.3), not live v1.
 
@@ -385,22 +385,23 @@ Do **not** implement §12.2 infra phases in numeric order. Each slice ships when
 | **Ref-League-A** | Kitchen marathon — one `round_robin` stage | 4–6 | Browser [`amiga/ops/fixtures.php`](../../site/public_html/amiga/ops/fixtures.php) | All fixtures played → **finalize** → tournament page + rating movement sane |
 | **Ref-Cup-A** | Single elimination (`knockout` ties) | 4 or 8 | CLI initially (`build-tournament create-group-knockout` / smallest KO); browser play + finalize | Winner + honours visible on site |
 
-**Drill loop** (repeat between every implementation slice):
+**Serial feedback loop** (between every implementation slice) — detail in practice track §1:
 
 ```text
-1. Create   → name, date, players (by name search, not raw ids)
-2. Start    → enter all fixture results
-3. Finalize → `run_process_game.php finalize-tournament`
-4. Website  → tournament page, standings, profile/LB spot-check
-5. (Later)  → delete/cancel training event once repair verbs exist
+1. Do ONE happy-path step (create · start · play · table · Make official · website · cleanup)
+2. Give ONE piece of feedback (blocks / unclear next / explicit one improvement)
+3. Fix ONLY that → re-do the same step
+4. Only then: next step or next one feedback
 ```
 
-**Track L order** (gates — do not skip ahead without a drill reason):
+Do **not** keep an open inventory of every friction. Cosmetic workarounds wait until the step is otherwise done.
+
+**Track L order** (gates — do not skip ahead without a feedback reason):
 
 | Step | Work | Infra from §12.2 | Exit |
 |------|------|------------------|------|
-| **L0** | Run **Ref-League-A** on staging **as-is**; log pain in practice track | — | Pain-point log started |
-| **L1** | Organizer UX only where L0 blocked repeat ([`browser-organizer-workflow-checkpoint.md`](archive/orchestration/browser-organizer-workflow-checkpoint.md)) | — | League drill repeatable same evening |
+| **L0** | Run **Ref-League-A** on staging **as-is**; serial feedback only | — | One full create → Make official → website |
+| **L1** | Organizer UX only from named feedback ([`browser-organizer-workflow-checkpoint.md`](archive/orchestration/browser-organizer-workflow-checkpoint.md) = ideas, not backlog) | — | League path repeatable same evening |
 | **L2** | **Ref-League-A ×3** until boring | — | You can narrate lifecycle without opening PHP |
 | **L3** | Minimal **Ref-Cup-A** create path (CLI OK) | — | One cup finalized on staging |
 | **L4** | **Ref-Cup-A ×2** | — | League + cup feel like one product |
@@ -408,13 +409,13 @@ Do **not** implement §12.2 infra phases in numeric order. Each slice ships when
 | **L6** | Pull staging ground you created | Phases **4**, **8** | Ground pack on laptop |
 | **L7** | Media on a tournament you ran | Phases **6–7**, **10** | YouTube URL on staging event |
 
-**Slice sizing:** one agent chat = one pain point → one fix → **same drill re-run**. Not “Phases 1–3 in one go.”
+**Slice sizing:** one agent chat = **one feedback** → one fix → **same step re-done**. Not “Phases 1–3 in one go.” Not a growing pain log.
 
-**Agent gate:** No new Lane B/C verb without naming **which reference format**, **which drill step**, and **which logged pain point** it resolves.
+**Agent gate:** No new Lane B/C verb without naming **which reference format**, **which happy-path step**, and **which single feedback** it resolves.
 
 ### 12.2 Infra capability menu (not default sequence)
 
-Ship when §12.1 unlocks it. Technical exit criteria unchanged; **behavioural** exit = drill re-run green.
+Ship when §12.1 unlocks it. Technical exit criteria unchanged; **behavioural** exit = same-step re-check green after the named feedback.
 
 | Phase | Deliverable | Lane | Unlocks at | Technical exit |
 |-------|-------------|------|------------|----------------|
@@ -432,7 +433,7 @@ Ship when §12.1 unlocks it. Technical exit criteria unchanged; **behavioural** 
 
 **Do not block** Lane B repair on Lane C media DDL — independent once their L-step arrives.
 
-### 12.3 Track C — canon / history (parallel, do not mix with drill sessions)
+### 12.3 Track C — canon / history (parallel, do not mix with secretary cycles)
 
 Separate agent track. Does **not** gate Ref-League-A / Ref-Cup-A practice.
 
@@ -443,15 +444,15 @@ Separate agent track. Does **not** gate Ref-League-A / Ref-Cup-A practice.
 | Prove speed / modes | Full prove ~30 min; Phase 9 L5-only |
 | Format backbone expansion | Swiss product surface, promotion graph, WC generator |
 
-**Rule:** Do not assign “implement Phase 2 project-present” when Dagh says “I’m running my first league today” unless a drill just failed on present projection.
+**Rule:** Do not assign “implement Phase 2 project-present” when Dagh says “I’m creating my first league today” unless that step’s feedback just failed on present projection.
 
 ---
 
 ## 13. Agent policy
 
-- **Live ops implementation** → read [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) first (reference formats, pain log, slice queue); then **this doc** for lanes/repair boundaries.
+- **Live ops implementation** → read [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) first (serial feedback, active cycle §4, Track L gates); then **this doc** for lanes/repair boundaries.
 - **Community tournament / staging mistake / cancel / media upload** → this doc + [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) for what may write L5 today.
-- **Practice-first:** every Lane B/C slice must cite a **logged pain point** + **drill re-run** as smoke test (§12.1). Do not burn through §12.2 phases infra-blind.
+- **Practice-first:** every Lane B/C slice must cite **one** active feedback + **same-step re-check** as smoke test (§12.1). Do not burn through §12.2 phases infra-blind. Do not open a multi-item pain backlog.
 - **Live visibility (ALO11):** no config allowlist — `running` generated events are public on Live hub; finalize = **Make official** in organizer UX.
 - **Do not** instruct full `prove` as the first fix for staging-only ground errors.
 - **Do not** resurrect refinalize / batch `*-rebuild` CLIs — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md).
@@ -490,5 +491,6 @@ Separate agent track. Does **not** gate Ref-League-A / Ref-Cup-A practice.
 |------|--------|
 | 2026-07-07 | **RTB shipped** — Lane B running scores on fixtures; Make official = promote + finalize; `verify-running-tournament-boundary` in prove. |
 | 2026-07-07 | **Start=public live + Make official** — removed config allowlist; running generated events auto on Live hub; organizer **Make official** = finalize (ALO11). |
-| 2026-07-07 | **Practice-first sequencing** — §12 rewritten: Ref-League-A / Ref-Cup-A drill loop gates §12.2 infra; Track L vs Track C; [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) living log. |
+| 2026-07-16 | **Serial feedback** — practice track retires pain-log inventory; queue depth 1; §12.1 / agent policy aligned. |
+| 2026-07-07 | **Practice-first sequencing** — §12 rewritten: Ref-League-A / Ref-Cup-A drill loop gates §12.2 infra; Track L vs Track C; [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) living track. |
 | 2026-07-05 | Initial policy — three lanes, staging authority, timeline/present repair, ground packs, Lane C media, bidirectional flow, phased roadmap (ALO1–ALO10). |
