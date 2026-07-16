@@ -1258,6 +1258,13 @@ function amiga_profile_lb_slice_rows_victims(array $row): void
         $playerId > 0 && $victims > 0 ? amiga_player_chronology_victims_entry_href($playerId) : ''
     );
     echo amiga_profile_lb_slice_row('Victims', $victimsValue, k2_lb_help_victims());
+    $culprits = (int) ($row['DifferentCulprits'] ?? 0);
+    $culpritsDisplay = '<span class="blue">' . k2_fmt_count($row['DifferentCulprits'] ?? null, $games) . '</span>';
+    $culpritsValue = amiga_profile_lb_slice_link_star_value_html(
+        $culpritsDisplay,
+        $playerId > 0 && $culprits > 0 ? amiga_player_chronology_culprits_entry_href($playerId) : ''
+    );
+    echo amiga_profile_lb_slice_row('Culprits', $culpritsValue, k2_lb_help_culprits());
     $ddVictims = (int) ($row['DoubleDigitsVictims'] ?? 0);
     $ddVictimsDisplay = '<span class="blue">' . k2_fmt_count($row['DoubleDigitsVictims'] ?? null, $games) . '</span>';
     $ddVictimsValue = amiga_profile_lb_slice_link_star_value_html(
@@ -1265,6 +1272,13 @@ function amiga_profile_lb_slice_rows_victims(array $row): void
         $playerId > 0 && $ddVictims > 0 ? amiga_player_chronology_dd_victims_entry_href($playerId) : ''
     );
     echo amiga_profile_lb_slice_row('DD Victims', $ddVictimsValue, k2_lb_help_dd_victims(), 'Double Digit victims');
+    $ddCulprits = (int) ($row['DoubleDigitsCulprits'] ?? 0);
+    $ddCulpritsDisplay = '<span class="blue">' . k2_fmt_count($row['DoubleDigitsCulprits'] ?? null, $games) . '</span>';
+    $ddCulpritsValue = amiga_profile_lb_slice_link_star_value_html(
+        $ddCulpritsDisplay,
+        $playerId > 0 && $ddCulprits > 0 ? amiga_player_chronology_dd_culprits_entry_href($playerId) : ''
+    );
+    echo amiga_profile_lb_slice_row('DD Culprits', $ddCulpritsValue, k2_lb_help_dd_culprits(), 'Double Digit culprits');
     $csVictims = (int) ($row['CleanSheetsVictims'] ?? 0);
     $csVictimsDisplay = '<span class="blue">' . k2_fmt_count($row['CleanSheetsVictims'] ?? null, $games) . '</span>';
     $csVictimsValue = amiga_profile_lb_slice_link_star_value_html(
@@ -1272,6 +1286,13 @@ function amiga_profile_lb_slice_rows_victims(array $row): void
         $playerId > 0 && $csVictims > 0 ? amiga_player_chronology_cs_victims_entry_href($playerId) : ''
     );
     echo amiga_profile_lb_slice_row('CS Victims', $csVictimsValue, k2_lb_help_cs_victims(), 'Clean Sheet victims');
+    $csCulprits = (int) ($row['CleanSheetsCulprits'] ?? 0);
+    $csCulpritsDisplay = '<span class="blue">' . k2_fmt_count($row['CleanSheetsCulprits'] ?? null, $games) . '</span>';
+    $csCulpritsValue = amiga_profile_lb_slice_link_star_value_html(
+        $csCulpritsDisplay,
+        $playerId > 0 && $csCulprits > 0 ? amiga_player_chronology_cs_culprits_entry_href($playerId) : ''
+    );
+    echo amiga_profile_lb_slice_row('CS Culprits', $csCulpritsValue, k2_lb_help_cs_culprits(), 'Clean Sheet culprits');
     $mgcVictims = (int) ($row['MostGoalsConcededVictims'] ?? 0);
     $mgcVictimsDisplay = '<span class="blue">' . k2_fmt_count($row['MostGoalsConcededVictims'] ?? null, $games) . '</span>';
     $mgcVictimsValue = amiga_profile_lb_slice_link_star_value_html(
@@ -1286,27 +1307,6 @@ function amiga_profile_lb_slice_rows_victims(array $row): void
         $playerId > 0 && $blVictims > 0 ? amiga_player_chronology_bl_victims_entry_href($playerId) : ''
     );
     echo amiga_profile_lb_slice_row('BL Victims', $blVictimsValue, k2_lb_help_bl_victims(), 'Biggest Loss victims');
-    $culprits = (int) ($row['DifferentCulprits'] ?? 0);
-    $culpritsDisplay = '<span class="blue">' . k2_fmt_count($row['DifferentCulprits'] ?? null, $games) . '</span>';
-    $culpritsValue = amiga_profile_lb_slice_link_star_value_html(
-        $culpritsDisplay,
-        $playerId > 0 && $culprits > 0 ? amiga_player_chronology_culprits_entry_href($playerId) : ''
-    );
-    echo amiga_profile_lb_slice_row('Culprits', $culpritsValue, k2_lb_help_culprits());
-    $ddCulprits = (int) ($row['DoubleDigitsCulprits'] ?? 0);
-    $ddCulpritsDisplay = '<span class="blue">' . k2_fmt_count($row['DoubleDigitsCulprits'] ?? null, $games) . '</span>';
-    $ddCulpritsValue = amiga_profile_lb_slice_link_star_value_html(
-        $ddCulpritsDisplay,
-        $playerId > 0 && $ddCulprits > 0 ? amiga_player_chronology_dd_culprits_entry_href($playerId) : ''
-    );
-    echo amiga_profile_lb_slice_row('DD Culprits', $ddCulpritsValue, k2_lb_help_dd_culprits(), 'Double Digit culprits');
-    $csCulprits = (int) ($row['CleanSheetsCulprits'] ?? 0);
-    $csCulpritsDisplay = '<span class="blue">' . k2_fmt_count($row['CleanSheetsCulprits'] ?? null, $games) . '</span>';
-    $csCulpritsValue = amiga_profile_lb_slice_link_star_value_html(
-        $csCulpritsDisplay,
-        $playerId > 0 && $csCulprits > 0 ? amiga_player_chronology_cs_culprits_entry_href($playerId) : ''
-    );
-    echo amiga_profile_lb_slice_row('CS Culprits', $csCulpritsValue, k2_lb_help_cs_culprits(), 'Clean Sheet culprits');
     $mgsCulprits = (int) ($row['MostGoalsScoredCulprits'] ?? 0);
     $mgsCulpritsDisplay = '<span class="blue">' . k2_fmt_count($row['MostGoalsScoredCulprits'] ?? null, $games) . '</span>';
     $mgsCulpritsValue = amiga_profile_lb_slice_link_star_value_html(

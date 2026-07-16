@@ -27,7 +27,7 @@ function amiga_records_hof_lb_target(string $metric): ?array
         'most_opponents' => ['wing' => 'victims', 'sort' => 4, 'dir' => 'desc'],
         'most_victims' => ['wing' => 'victims', 'sort' => 5, 'dir' => 'desc'],
         'most_dd_victims' => ['wing' => 'victims', 'sort' => 7, 'dir' => 'desc'],
-        'most_cs_victims' => ['wing' => 'victims', 'sort' => 11, 'dir' => 'desc'],
+        'most_cs_victims' => ['wing' => 'victims', 'sort' => 9, 'dir' => 'desc'],
         'peak_rating' => ['wing' => 'peak-rating', 'sort' => 4, 'dir' => 'desc'],
         'attack_avg' => ['wing' => 'goals', 'sort' => 6, 'dir' => 'desc'],
         'defense_avg' => ['wing' => 'goals', 'sort' => 7, 'dir' => 'asc'],

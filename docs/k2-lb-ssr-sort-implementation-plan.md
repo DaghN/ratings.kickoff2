@@ -120,7 +120,7 @@ Shared table stack: `includes/amiga_wc_players_table.php` — one SSR upgrade ma
 | most_opponents | victims | 4 | desc |
 | most_victims | victims | 5 | desc |
 | most_dd_victims | victims | 7 | desc |
-| most_cs_victims | victims | 11 | desc |
+| most_cs_victims | victims | 9 | desc |
 | peak_rating | peak-rating | 4 | desc |
 | most_games_in_year | calendar-geo | 3 | desc |
 | most_tournaments_in_year | calendar-geo | 5 | desc |

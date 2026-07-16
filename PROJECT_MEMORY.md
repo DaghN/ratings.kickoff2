@@ -149,6 +149,9 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-16 | **Amiga profile Victims mosaic row order** — `amiga_profile_lb_slice_rows_victims()`: Victims → Culprits → DD → CS → MGC/BL victims → MGS/BW culprits (parity with Victims LB wing). |
+| 2026-07-16 | **Online Victims LB column order** — CS Victims/Culprits before MGC/BL victims (`leaderboards/victims.php`); SSR map `k2_lb_victims_order_column_map()`; HoF `most_cs_victims` `k2_sort` 9 (`records_hof_links.php`). Parity with Amiga victims wing. |
+| 2026-07-16 | **Amiga Victims LB column order** — CS Victims/Culprits moved before MGC/BL victims (`victims.php` cols 9–10); SSR map `amiga_lb_victims_order_column_map()`; HoF `most_cs_victims` `k2_sort` 9 (`amiga_records_hof_links.php`). |
 | 2026-07-16 | **K2 calm cell links (C1) doc** — `k2-table-entity-links-policy.md` § Calm cell links: decision fork, markup patterns, traps, references; unified `k2-table-cell-link` CSS shipped same session. |
 | 2026-07-16 | **K2 calm cell links unified** — `k2-table-cell-link` hover: underline + weight 600; primary lift for muted ink; `.blue`/`.red` keep stat color; retired `k2-lb-amiga-peak-*` + `k2-lb-amiga-rating-delta-*`; peak Peak links use `--rest-emphasis`. Policy: [`k2-table-entity-links-policy.md`](docs/k2-table-entity-links-policy.md). |
 | 2026-07-15 | **Amiga game list phase links** — player games, tournament games tab, and realm games hub (filtered path) now SELECT `r.phase_witness` + `r.stage_id` via `amiga_rated_games_phase_link_cols_sql()`; fixes League / QF / SF links when display stage name ≠ witness scope key. |
