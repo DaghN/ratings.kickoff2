@@ -182,10 +182,11 @@ function amiga_profile_lb_slices_enrich_goals_lb_link_context(int $playerId, arr
 
     $row['goals_lb_gf_href'] = amiga_lb_goals_player_href($playerId, 4);
     $row['goals_lb_ga_href'] = amiga_lb_goals_player_href($playerId, 5);
-    $row['goals_lb_gf_per_game_href'] = amiga_lb_goals_player_href($playerId, 6);
-    $row['goals_lb_ga_per_game_href'] = amiga_lb_goals_player_href($playerId, 7, 'asc');
-    $row['goals_lb_gd_per_game_href'] = amiga_lb_goals_player_href($playerId, 8);
-    $row['goals_lb_ratio_href'] = amiga_lb_goals_player_href($playerId, 9);
+    $row['goals_lb_gd_href'] = amiga_lb_goals_player_href($playerId, 6);
+    $row['goals_lb_gf_per_game_href'] = amiga_lb_goals_player_href($playerId, 7);
+    $row['goals_lb_ga_per_game_href'] = amiga_lb_goals_player_href($playerId, 8, 'asc');
+    $row['goals_lb_gd_per_game_href'] = amiga_lb_goals_player_href($playerId, 9);
+    $row['goals_lb_ratio_href'] = amiga_lb_goals_player_href($playerId, 10);
 }
 
 /**
@@ -1026,9 +1027,10 @@ function amiga_profile_lb_slice_rows_goals(array $row): void
 {
     $games = (int) ($row['NumberGames'] ?? 0);
     $playerId = (int) ($row['ID'] ?? 0);
-    $gdPer = k2_derived_games_started($games)
-        ? ((int) ($row['GoalsFor'] ?? 0) - (int) ($row['GoalsAgainst'] ?? 0)) / $games
+    $gd = k2_derived_games_started($games)
+        ? (int) ($row['GoalsFor'] ?? 0) - (int) ($row['GoalsAgainst'] ?? 0)
         : null;
+    $gdPer = $gd !== null ? $gd / $games : null;
 
     if (!k2_derived_games_started($games)) {
         $ratioCell = k2_fmt_dash();
@@ -1067,6 +1069,13 @@ function amiga_profile_lb_slice_rows_goals(array $row): void
         k2_lb_help_amiga_goals_conceded(),
         'Goals against'
     );
+    $gdDisplay = $gd !== null ? k2_fmt_signed_int_text($gd) : k2_fmt_dash();
+    echo amiga_profile_lb_slice_row(
+        'GD',
+        $goalsLbLink($gdDisplay, 'goals_lb_gd_href'),
+        k2_lb_help_amiga_goal_difference(),
+        'Goal difference'
+    );
     echo amiga_profile_lb_slice_row(
         'GF/g',
         $goalsLbLink(k2_fmt_decimal($row['AverageGoalsFor'] ?? null, $games), 'goals_lb_gf_per_game_href'),
@@ -1082,7 +1091,9 @@ function amiga_profile_lb_slice_rows_goals(array $row): void
     $gdDisplay = $gdPer !== null ? k2_fmt_decimal($gdPer, $games) : k2_fmt_dash();
     echo amiga_profile_lb_slice_row(
         'GD/g',
-        $goalsLbLink($gdDisplay, 'goals_lb_gd_per_game_href')
+        $goalsLbLink($gdDisplay, 'goals_lb_gd_per_game_href'),
+        k2_lb_help_amiga_goal_difference_per_game(),
+        'Goal difference per game'
     );
     echo amiga_profile_lb_slice_row(
         'Ratio',

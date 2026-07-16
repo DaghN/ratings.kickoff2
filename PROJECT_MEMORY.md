@@ -149,7 +149,8 @@
 
 | Date | Note |
 |------|------|
-| 2026-07-16 | **Amiga Victims LB chronology links** — Opponents→BW Culprits cols link to player chronology Made-it entries (`amiga_lb_victims_chronology_cell_html()` · plain C1 `k2-table-cell-link`); same destinations as profile Victims mosaic; count > 0 only. |
+| 2026-07-16 | **Amiga Rating LB games inventory links** — Games / Wins / Draws / Losses cols → player Games tab (`amiga_lb_rating_games_inventory_cell_html()` · C1; W/L `.blue`/`.red` when count > 0); parity with profile Results mosaic. |
+| 2026-07-16 | **Amiga Victims LB chronology links** — Opponents→BW Culprits cols link to player chronology Made-it entries (`amiga_lb_victims_chronology_cell_html()` · plain C1 `k2-table-cell-link`; Opponents anchor `.blue`); same destinations as profile Victims mosaic; count > 0 only. |
 | 2026-07-16 | **Amiga profile Victims mosaic row order** — `amiga_profile_lb_slice_rows_victims()`: Victims → Culprits → DD → CS → MGC/BL victims → MGS/BW culprits (parity with Victims LB wing). |
 | 2026-07-16 | **Online Victims LB column order** — CS Victims/Culprits before MGC/BL victims (`leaderboards/victims.php`); SSR map `k2_lb_victims_order_column_map()`; HoF `most_cs_victims` `k2_sort` 9 (`records_hof_links.php`). Parity with Amiga victims wing. |
 | 2026-07-16 | **Amiga Victims LB column order** — CS Victims/Culprits moved before MGC/BL victims (`victims.php` cols 9–10); SSR map `amiga_lb_victims_order_column_map()`; HoF `most_cs_victims` `k2_sort` 9 (`amiga_records_hof_links.php`). |
@@ -192,6 +193,7 @@
 | 2026-07-15 | **Amiga profile mosaic — Double Digits link** — DD count → Games tab `?gf_min=10` + `#matching-games` (URL-only hero GF floor; id desc default; no listbox). |
 | 2026-07-15 | **Amiga profile mosaic — Goals peak links** — Max GA / win / loss / sum / draw → Games tab inventory (`against`·`diff`·`sum` sorts; win/loss/draw result filters where needed) + `#matching-games`. |
 | 2026-07-15 | **Amiga profile mosaic — Max GF link** — Goals **Max GF** → Games tab `?sort=goals_for&dir=desc` + `#matching-games` (inventory; SSR sort; `as=` preserved). |
+| 2026-07-16 | **Goals LB — GD column (Amiga + online)** — Career Goals tables: GD after GA (signed blue/red), online gains GD/g; SSR column maps + HoF link indices (attack 7, defense 8, ratio 10); Amiga profile mosaic **GD** row (link-star, signed text → col 6). |
 | 2026-07-15 | **Amiga Goals LB SSR sort + mosaic links** — `goals.php` URL `k2_sort` → SQL ORDER BY + row anchors; profile Goals mosaic GF→Ratio (6 cells); HoF `goal_ratio` sort col 8→9 (Ratio not GD/g). |
 | 2026-07-15 | **Amiga profile mosaic — Opponent Average link** — Results **Opponent Average** → Rating LB Opponent Average column (SSR `k2_sort` col 9 + `#k2-lb-player-{id}`). |
 | 2026-07-15 | **Amiga profile mosaic — Win rate link** — Results **Win rate** → Rating LB SSR `k2_sort` col 8 + player row anchor; `amiga_lb_rating_win_rate_player_href()` (fixed cols; SSR-13). |

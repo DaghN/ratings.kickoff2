@@ -175,6 +175,32 @@ function k2_fmt_dash(): string
 	return '-';
 }
 
+/** Signed integer label (+N / −N / 0) without colour spans — mosaic link-star cells. */
+function k2_fmt_signed_int_text(int $value): string
+{
+	if ($value === 0) {
+		return '0';
+	}
+	if ($value > 0) {
+		return '+' . $value;
+	}
+
+	return (string) $value;
+}
+
+/** Signed integer cell with blue (+) / red (−) spans — career goal-difference columns. */
+function k2_fmt_signed_int_html(int $value): string
+{
+	if ($value === 0) {
+		return '0';
+	}
+	if ($value > 0) {
+		return '<span class="blue">+' . $value . '</span>';
+	}
+
+	return '<span class="red">' . $value . '</span>';
+}
+
 /** Derived career game count from simul/post-game (`NumberGames` > 0). */
 function k2_derived_games_started(mixed $games): bool
 {

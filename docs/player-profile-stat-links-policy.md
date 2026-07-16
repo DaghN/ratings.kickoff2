@@ -65,7 +65,7 @@ Secondary comparison paths (opening the LB from inside inventory, HoF deep links
 | Mosaic — Losses | Games tab, Result = loss | **Shipped** | `?result=loss` |
 | Mosaic — Win rate | Rating LB, Win rate column | **Shipped** | SSR `k2_sort` col 8 + `#k2-lb-player-{id}`; `amiga_lb_rating_win_rate_player_href()` |
 | Mosaic — Opponent Average | Rating LB, Opponent Average column | **Shipped** | SSR `k2_sort` col 9 + `#k2-lb-player-{id}`; `amiga_lb_rating_opponent_avg_player_href()` |
-| Mosaic — GF · GA · GF/g · GA/g · GD/g · Ratio | Goals LB (cols 4–9) | **Shipped** | SSR sort + `#k2-lb-player-{id}`; GA/g `asc`; `amiga_lb_goals_player_href()` |
+| Mosaic — GF · GA · GD · GF/g · GA/g · GD/g · Ratio | Goals LB (cols 4–10) | **Shipped** | SSR sort + `#k2-lb-player-{id}`; GD signed link-star (+/−); GA/g `asc`; `amiga_lb_goals_player_href()` |
 | Mosaic — Max GF | Games tab, sort GF desc | **Shipped** | Inventory — peak-scoring game(s); `?sort=goals_for&dir=desc` + `#matching-games`; `amiga_profile_lb_slice_player_games_href()` |
 | Mosaic — Max GA | Games tab, sort GA desc | **Shipped** | `?sort=against&dir=desc` + `#matching-games` |
 | Mosaic — Max win | Games tab, Result = win, sort GD desc | **Shipped** | `?result=win&sort=diff&dir=desc` + `#matching-games` |
@@ -135,4 +135,4 @@ Update this table when a stat gains a link or a new inventory page ships.
 
 ---
 
-*Last updated: Jul 2026 — Calendar & geo country chronologies shipped; Host countries / faced / beaten / beaten by mosaic links complete.*
+*Last updated: Jul 2026 — Goals LB GD column + mosaic GD row; HoF/mosaic column indices 7–10 for per-game and ratio links.*

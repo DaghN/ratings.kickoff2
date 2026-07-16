@@ -120,10 +120,10 @@ while ($row = mysqli_fetch_assoc($result)) {
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_lb_player_row_anchor_markup($playerId); ?><?php echo k2_amiga_lb_player_cell($playerId, $playerName, (string) ($row['Country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td($colElo, $lbSort); ?>><?php echo k2_amiga_lb_rating_cell_link($playerId, $row['Rating'], $playerName); ?></td>
         <td<?php echo k2_lb_td($colDelta, $lbSort, 'k2-table-cell--center'); ?> data-k2-sort-value="<?php echo k2_h(amiga_lb_rating_delta_sort_value($delta)); ?>"><?php echo amiga_lb_rating_delta_cell($delta, $deltaLinkTournamentId); ?></td>
-        <td<?php echo k2_lb_td($colGames, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
-        <td<?php echo k2_lb_td($colWins, $lbSort); ?>><?php echo k2_fmt_wdl_count($row['NumberWins'], $games, 'win'); ?></td>
-        <td<?php echo k2_lb_td($colDraws, $lbSort); ?>><?php echo k2_fmt_count($row['NumberDraws'], $games); ?></td>
-        <td<?php echo k2_lb_td($colLosses, $lbSort); ?>><?php echo k2_fmt_wdl_count($row['NumberLosses'], $games, 'loss'); ?></td>
+        <td<?php echo k2_lb_td($colGames, $lbSort); ?>><?php echo amiga_lb_rating_games_inventory_cell_html($playerId, $games); ?></td>
+        <td<?php echo k2_lb_td($colWins, $lbSort); ?>><?php echo amiga_lb_rating_games_inventory_cell_html($playerId, $games, 'win', 'win', $row['NumberWins']); ?></td>
+        <td<?php echo k2_lb_td($colDraws, $lbSort); ?>><?php echo amiga_lb_rating_games_inventory_cell_html($playerId, $games, 'draw', null, $row['NumberDraws']); ?></td>
+        <td<?php echo k2_lb_td($colLosses, $lbSort); ?>><?php echo amiga_lb_rating_games_inventory_cell_html($playerId, $games, 'loss', 'loss', $row['NumberLosses']); ?></td>
         <td<?php echo k2_lb_td($colWinRate, $lbSort); ?>><?php echo k2_fmt_pct_from_ratio($winRate, $games); ?></td>
         <td<?php echo k2_lb_td($colOppAvg, $lbSort); ?>><?php echo k2_fmt_lb_stat($row['AverageOpponentRating'], $games); ?></td>
     </tr>

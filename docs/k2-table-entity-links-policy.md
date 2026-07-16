@@ -138,6 +138,7 @@ With column tooltips: add `k2-table-helped` + `data-k2-help` per [`k2-tooltip-po
 | `.blue` + `--rest-emphasis` + tooltip | `amiga_lb_peak_rating_peak_cell_html()` in same file |
 | `.blue` / `.red` signed stat link | `amiga_lb_rating_delta_cell()` in `includes/amiga_lb_snapshot_lib.php` |
 | Victims LB → chronology Made-it | `amiga_lb_victims_chronology_cell_html()` in `includes/amiga_lb_lib.php` |
+| Rating LB → games tab (Results) | `amiga_lb_rating_games_inventory_cell_html()` in `includes/amiga_lb_lib.php` |
 | Online activity peaks → games | `lb_activity_lib.php` (`k2-table-cell-link` on calm-stats table) |
 
 ---
@@ -192,7 +193,7 @@ These stay on their existing patterns:
 | Dual link pattern (flag + name) | `k2_amiga_inline_flag_and_link()` — same wrapper as above |
 | Country name link | `k2_amiga_country_roster_link()` — `k2-link-star` to roster |
 | Career Elo → rating LB row | `k2_amiga_lb_rating_cell_link()` in `amiga_lb_lib.php` (Amiga); `k2_lb_rating_cell_link()` in `lb_player_filters.php` (online) |
-| **Calm cell link** (stat value) | **C1** — `amiga_lb_peak_rating_lib.php` (peak rank · peak); `amiga_lb_snapshot_lib.php` (rating Δ); `amiga_lb_lib.php` (victims LB chronology); `lb_activity_lib.php` (activity peaks) |
+| **Calm cell link** (stat value) | **C1** — `amiga_lb_peak_rating_lib.php` (peak rank · peak); `amiga_lb_snapshot_lib.php` (rating Δ); `amiga_lb_lib.php` (victims LB chronology · rating LB games inventory); `lb_activity_lib.php` (activity peaks) |
 | Flag img link only | `k2_amiga_country_flag_link()` |
 
 If unsure: **grep** `k2_amiga_lb_player_cell` / `k2_amiga_lb_tournament_cell` / `k2_amiga_lb_country_cell` / **`k2-table-cell-link`** in `site/public_html/`.

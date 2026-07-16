@@ -124,16 +124,17 @@ function amiga_lb_goals_order_column_map(): array
         3 => 's.NumberGames',
         4 => 's.GoalsFor',
         5 => 's.GoalsAgainst',
-        6 => 's.AverageGoalsFor',
-        7 => 's.AverageGoalsAgainst',
-        8 => '(s.GoalsFor - s.GoalsAgainst) / NULLIF(s.NumberGames, 0)',
-        9 => '(CASE WHEN s.GoalRatio IS NULL OR s.GoalRatio < 0 THEN NULL ELSE s.GoalRatio END)',
-        10 => 's.MostGoalsScored',
-        11 => 's.MostGoalsConceded',
-        12 => 's.BiggestWinDifference',
-        13 => 's.BiggestLossDifference',
-        14 => 's.BiggestSumOfGoals',
-        15 => 's.BiggestDrawSum',
+        6 => '(s.GoalsFor - s.GoalsAgainst)',
+        7 => 's.AverageGoalsFor',
+        8 => 's.AverageGoalsAgainst',
+        9 => '(s.GoalsFor - s.GoalsAgainst) / NULLIF(s.NumberGames, 0)',
+        10 => '(CASE WHEN s.GoalRatio IS NULL OR s.GoalRatio < 0 THEN NULL ELSE s.GoalRatio END)',
+        11 => 's.MostGoalsScored',
+        12 => 's.MostGoalsConceded',
+        13 => 's.BiggestWinDifference',
+        14 => 's.BiggestLossDifference',
+        15 => 's.BiggestSumOfGoals',
+        16 => 's.BiggestDrawSum',
     ];
 }
 
@@ -264,6 +265,78 @@ function amiga_lb_victims_chronology_cell_html(
     }
 
     return k2_h($display);
+}
+
+/**
+ * Player games tab inventory href (Results mosaic parity).
+ *
+ * @param 'all'|'win'|'draw'|'loss' $resultFilter
+ */
+function amiga_lb_player_games_inventory_href(int $playerId, string $resultFilter = 'all'): string
+{
+    if ($playerId < 1) {
+        return '';
+    }
+
+    require_once __DIR__ . '/amiga_player_games_lib.php';
+    require_once __DIR__ . '/k2_safety.php';
+
+    $params = ['id' => $playerId];
+    $resultFilter = amiga_games_valid_result($resultFilter);
+    if ($resultFilter !== 'all') {
+        $params['result'] = $resultFilter;
+    }
+
+    return amiga_games_build_url($params) . k2_player_matching_games_anchor_fragment();
+}
+
+/**
+ * Rating LB Games / W / D / L → player games tab (C1 calm cell link).
+ * Same destinations as profile Results mosaic; links when rated games started.
+ *
+ * @param 'all'|'win'|'draw'|'loss' $resultFilter
+ * @param 'win'|'loss'|null $wdlTone Editorial ink on link when count > 0
+ */
+function amiga_lb_rating_games_inventory_cell_html(
+    int $playerId,
+    int $games,
+    string $resultFilter = 'all',
+    ?string $wdlTone = null,
+    mixed $wdlCount = null,
+): string {
+    if ($resultFilter === 'all') {
+        $plain = k2_fmt_games_played($games);
+        $restHtml = k2_h($plain);
+        $linkClass = 'k2-table-cell-link';
+    } elseif ($wdlTone === 'win' || $wdlTone === 'loss') {
+        $plain = k2_fmt_count($wdlCount, $games);
+        $restHtml = k2_fmt_wdl_count($wdlCount, $games, $wdlTone);
+        $numericCount = ($plain === '-' || $plain === '—') ? 0 : (int) $plain;
+        $linkClass = 'k2-table-cell-link';
+        if ($wdlTone === 'win' && $numericCount > 0) {
+            $linkClass = 'k2-table-cell-link blue';
+        } elseif ($wdlTone === 'loss' && $numericCount > 0) {
+            $linkClass = 'k2-table-cell-link red';
+        }
+    } else {
+        $plain = k2_fmt_count($wdlCount, $games);
+        $restHtml = k2_h($plain);
+        $linkClass = 'k2-table-cell-link';
+    }
+
+    if ($plain === '-' || $plain === '—') {
+        return k2_h($plain);
+    }
+
+    if ($playerId > 0 && k2_derived_games_started($games)) {
+        $href = amiga_lb_player_games_inventory_href($playerId, $resultFilter);
+        if ($href !== '') {
+            return '<a class="' . $linkClass . '" href="' . k2_h($href) . '">'
+                . k2_h($plain) . '</a>';
+        }
+    }
+
+    return $restHtml;
 }
 
 /** Default ORDER BY tail for Amiga peak-rating LB (no leading ORDER BY). */

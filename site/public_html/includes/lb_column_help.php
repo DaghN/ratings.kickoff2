@@ -113,6 +113,16 @@ function k2_lb_help_goals_conceded_avg(): string
     return 'Average goals conceded per rated game.';
 }
 
+function k2_lb_help_goal_difference(): string
+{
+    return 'Goals for minus goals against across your rated career.';
+}
+
+function k2_lb_help_goal_difference_per_game(): string
+{
+    return 'Goal difference per rated game (GD ÷ games).';
+}
+
 function k2_lb_help_goal_ratio(): string
 {
     return 'Career goals scored divided by career goals conceded.';
@@ -448,6 +458,16 @@ function k2_lb_help_amiga_goals_scored_avg(): string
 function k2_lb_help_amiga_goals_conceded_avg(): string
 {
     return 'Average goals conceded per game.';
+}
+
+function k2_lb_help_amiga_goal_difference(): string
+{
+    return 'Goals for minus goals against across your career.';
+}
+
+function k2_lb_help_amiga_goal_difference_per_game(): string
+{
+    return 'Goal difference per game (GD ÷ games).';
 }
 
 function k2_lb_help_amiga_most_scored(): string
