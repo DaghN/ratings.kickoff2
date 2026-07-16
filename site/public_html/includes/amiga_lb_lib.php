@@ -289,6 +289,7 @@ function amiga_lb_chronology_inventory_cell_html(
  * Player games tab inventory href (profile mosaic parity).
  *
  * @param 'all'|'win'|'draw'|'loss' $resultFilter
+ * @param 'all'|'world-cup' $eventFilter
  */
 function amiga_lb_player_games_inventory_href(
     int $playerId,
@@ -299,6 +300,7 @@ function amiga_lb_player_games_inventory_href(
     int $heroGfMax = -1,
     int $heroGaMin = -1,
     int $heroGaMax = -1,
+    string $eventFilter = 'all',
 ): string {
     if ($playerId < 1) {
         return '';
@@ -311,6 +313,10 @@ function amiga_lb_player_games_inventory_href(
     $resultFilter = amiga_games_valid_result($resultFilter);
     if ($resultFilter !== 'all') {
         $params['result'] = $resultFilter;
+    }
+    $eventFilter = amiga_games_valid_event_filter($eventFilter);
+    if ($eventFilter !== 'all') {
+        $params['filter'] = $eventFilter;
     }
     if ($sortKey !== null && $sortKey !== '') {
         $params['sort'] = $sortKey === 'for' ? 'goals_for' : $sortKey;
@@ -338,6 +344,7 @@ function amiga_lb_player_games_inventory_href(
  * Hub LB cell → player games tab inventory (C1 calm cell link).
  *
  * @param 'all'|'win'|'draw'|'loss' $resultFilter
+ * @param 'all'|'world-cup' $eventFilter
  */
 function amiga_lb_games_inventory_cell_html(
     int $playerId,
@@ -352,6 +359,7 @@ function amiga_lb_games_inventory_cell_html(
     int $heroGaMax = -1,
     bool $anchorBlue = false,
     ?string $editorialTone = null,
+    string $eventFilter = 'all',
 ): string {
     if ($display === '-' || $display === '—') {
         return k2_h($display);
@@ -376,7 +384,8 @@ function amiga_lb_games_inventory_cell_html(
             $heroGfMin,
             $heroGfMax,
             $heroGaMin,
-            $heroGaMax
+            $heroGaMax,
+            $eventFilter,
         );
         if ($href !== '') {
             return '<a class="' . $linkClass . '" href="' . k2_h($href) . '">'

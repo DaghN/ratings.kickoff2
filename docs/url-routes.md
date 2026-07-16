@@ -144,6 +144,10 @@ Registry: [`site/public_html/includes/k2_amiga_routes.php`](../site/public_html/
 | `amiga-player-opponents-country-dds` | `/amiga/player/opponents/country/dds.php` |
 | `amiga-player-chronologies-opponents-made-it` | `/amiga/player/chronologies/opponents/made-it.php` (inventory default; `index.php` 302) |
 | `amiga-player-chronologies-opponents-graphs` | `/amiga/player/chronologies/opponents/graphs.php` |
+| `amiga-player-chronologies-wc-opponents-made-it` | `/amiga/player/chronologies/wc_opponents/made-it.php` (WC slice inventory default; `index.php` 302) |
+| `amiga-player-chronologies-wc-opponents-graphs` | `/amiga/player/chronologies/wc_opponents/graphs.php` |
+| `amiga-player-chronologies-wc-victims-made-it` | `/amiga/player/chronologies/wc_victims/made-it.php` (WC slice inventory default; `index.php` 302) |
+| `amiga-player-chronologies-wc-victims-graphs` | `/amiga/player/chronologies/wc_victims/graphs.php` |
 | `amiga-player-chronologies-victims-made-it` | `/amiga/player/chronologies/victims/made-it.php` (inventory default; `index.php` 302) |
 | `amiga-player-chronologies-victims-graphs` | `/amiga/player/chronologies/victims/graphs.php` |
 | `amiga-player-chronologies-dd-victims-made-it` | `/amiga/player/chronologies/dd_victims/made-it.php` (inventory default; `index.php` 302) |

@@ -56,6 +56,12 @@ Each **kind** (Opponents, Victims, DD Victims, …) is a separate folder under `
 | `amiga-player-chronologies-opponents-made-it` | `/amiga/player/chronologies/opponents/made-it.php?id=` | Made it (default) |
 | `amiga-player-chronologies-opponents-graphs` | `/amiga/player/chronologies/opponents/graphs.php?id=` | Graphs |
 | *(folder default)* | `/amiga/player/chronologies/opponents/index.php` | 302 → made-it |
+| `amiga-player-chronologies-wc-opponents-made-it` | `/amiga/player/chronologies/wc_opponents/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-wc-opponents-graphs` | `/amiga/player/chronologies/wc_opponents/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/wc_opponents/index.php` | 302 → made-it |
+| `amiga-player-chronologies-wc-victims-made-it` | `/amiga/player/chronologies/wc_victims/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-wc-victims-graphs` | `/amiga/player/chronologies/wc_victims/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/wc_victims/index.php` | 302 → made-it |
 | `amiga-player-chronologies-victims-made-it` | `/amiga/player/chronologies/victims/made-it.php?id=` | Made it (default) |
 | `amiga-player-chronologies-victims-graphs` | `/amiga/player/chronologies/victims/graphs.php?id=` | Graphs |
 | *(folder default)* | `/amiga/player/chronologies/victims/index.php` | 302 → made-it |
@@ -107,6 +113,10 @@ Register in [`k2_amiga_routes.php`](../site/public_html/includes/k2_amiga_routes
 |--------|-----|
 | `amiga_player_chronology_opponents_href($playerId, $segment)` | Internal segment nav (opponents) |
 | `amiga_player_chronology_opponents_entry_href($playerId)` | Profile mosaic + external entry (includes `#k2-amiga-chronology-spotlight`) |
+| `amiga_player_chronology_wc_opponents_href($playerId, $segment)` | Internal segment nav (WC opponents) |
+| `amiga_player_chronology_wc_opponents_entry_href($playerId)` | WC player-stats Opponents LB + external entry (includes spotlight hash) |
+| `amiga_player_chronology_wc_victims_href($playerId, $segment)` | Internal segment nav (WC victims) |
+| `amiga_player_chronology_wc_victims_entry_href($playerId)` | WC player-stats Victims LB + external entry (includes spotlight hash) |
 | `amiga_player_chronology_victims_href($playerId, $segment)` | Internal segment nav (victims) |
 | `amiga_player_chronology_victims_entry_href($playerId)` | Profile mosaic Victims row |
 | `amiga_player_chronology_dd_victims_href($playerId, $segment)` | Internal segment nav (DD victims) |
@@ -176,6 +186,28 @@ Empty state note when zero opponents; charts still span rated era.
 ### 4.4 Profile mosaic link
 
 **Victims & Culprits panel — Opponents row:** `DifferentOpponents` count → `amiga_player_chronology_opponents_entry_href()` when count > 0. Register: [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) §4.
+
+---
+
+## 4.0 WC Opponents — World Cup slice (shipped Jul 2026)
+
+**Kind token:** `wc_opponents` · **Title:** WC opponents · **Rule:** *Players that **{name}** has faced in World Cups*
+
+**Data:** `amiga_player_chronology_wc_opponents_load()` — same window SQL as career Opponents §4 with `amiga_games_world_cup_flag_sql('r.is_world_cup')`. **No new stored table** (PC7 read-time). Row count must match `amiga_player_slice_totals.different_opponents` for slice `world_cup`.
+
+**UI:** Reuses Opponents Made it table + Graphs (`amiga_player_chronology_render_opponents_*`). Charts payload label **WC opponents**.
+
+**Entry:** WC hub → Player stats → Opponents wing — **Opponents** column → `amiga_player_chronology_wc_opponents_entry_href()` (`amiga_lb_victims_chronology_cell_html()`, `.blue` when count > 0). **Games** column → Games tab `filter=world-cup`.
+
+**Follow-on track:** remaining WC opponent-wing unlock kinds (culprits, DD/CS, country unlocks) — same `wc_*` folder pattern.
+
+### WC Victims (`wc_victims`) — Jul 2026
+
+**Title:** WC victims · **Rule:** *Players that **{name}** has beaten at least once in World Cups*
+
+**Data:** `amiga_player_chronology_wc_victims_load()` — career victims SQL + WC game filter. Parity: `different_victims` on `world_cup` slice.
+
+**UI:** Reuses career Victims Made it + Graphs. **LB:** Victims column on WC player-stats Opponents wing — plain C1 (not wing anchor blue; that stays on Opponents only).
 
 ---
 

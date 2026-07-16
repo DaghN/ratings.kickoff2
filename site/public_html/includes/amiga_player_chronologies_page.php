@@ -38,6 +38,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php';
 <?php } else {
     $chartsJs = match ($kind) {
         AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS => 'amiga-chronology-victims-charts.js',
+        AMIGA_PLAYER_CHRONOLOGY_KIND_WC_VICTIMS => 'amiga-chronology-victims-charts.js',
         AMIGA_PLAYER_CHRONOLOGY_KIND_DD_VICTIMS => 'amiga-chronology-dd-victims-charts.js',
         AMIGA_PLAYER_CHRONOLOGY_KIND_CS_VICTIMS => 'amiga-chronology-cs-victims-charts.js',
         AMIGA_PLAYER_CHRONOLOGY_KIND_MGC_VICTIMS => 'amiga-chronology-mgc-victims-charts.js',
@@ -97,6 +98,12 @@ $chartPayload = [];
 if ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS) {
     $chronologyRows = amiga_player_chronology_opponents_load($con, $id, $ctx);
     $chartPayload = amiga_player_chronology_opponents_chart_payload($con, $id, $chronologyRows, $Name);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_WC_OPPONENTS) {
+    $chronologyRows = amiga_player_chronology_wc_opponents_load($con, $id, $ctx);
+    $chartPayload = amiga_player_chronology_wc_opponents_chart_payload($con, $id, $chronologyRows, $Name);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_WC_VICTIMS) {
+    $chronologyRows = amiga_player_chronology_wc_victims_load($con, $id, $ctx);
+    $chartPayload = amiga_player_chronology_wc_victims_chart_payload($con, $id, $chronologyRows, $Name);
 } elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS) {
     $chronologyRows = amiga_player_chronology_victims_load($con, $id, $ctx);
     $chartPayload = amiga_player_chronology_victims_chart_payload($con, $id, $chronologyRows, $Name);
@@ -169,6 +176,14 @@ amiga_player_chronology_render_segment_nav($id, $kind, $segment);
     amiga_player_chronology_render_opponents_made_it($id, $chronologyRows);
 } elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS && $segment === 'graphs') {
     amiga_player_chronology_render_opponents_graphs($chartPayload);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_WC_OPPONENTS && $segment === 'made-it') {
+    amiga_player_chronology_render_opponents_made_it($id, $chronologyRows);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_WC_OPPONENTS && $segment === 'graphs') {
+    amiga_player_chronology_render_opponents_graphs($chartPayload);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_WC_VICTIMS && $segment === 'made-it') {
+    amiga_player_chronology_render_victims_made_it($id, $chronologyRows);
+} elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_WC_VICTIMS && $segment === 'graphs') {
+    amiga_player_chronology_render_victims_graphs($chartPayload);
 } elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS && $segment === 'made-it') {
     amiga_player_chronology_render_victims_made_it($id, $chronologyRows);
 } elseif ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_VICTIMS && $segment === 'graphs') {

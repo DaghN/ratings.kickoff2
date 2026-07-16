@@ -149,6 +149,11 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-16 | **Amiga WC victims chronology (`wc_victims`)** — spotlight **WC victims**; rule adds “in World Cups”; Victims col on WC player-stats Opponents wing linked (plain C1); parity vs `different_victims` slice. |
+| 2026-07-16 | **Amiga WC opponents chronology pilot (`wc_opponents`)** — read-time SQL ∩ WC games; spotlight **WC opponents** + Made it \| Graphs; WC player-stats Opponents LB links Games + Opponents cols; policy [`amiga-player-chronologies-policy.md`](docs/amiga-player-chronologies-policy.md) §4.0. |
+| 2026-07-16 | **Amiga WC player DD&CS LB inventory links** — Games + Double Digits / Clean Sheets / DD C / CS C → Games tab `filter=world-cup` (+ gf/ga hero bounds); DD anchor `.blue`, DD C `.red`; ratio cols unchanged. |
+| 2026-07-16 | **Amiga WC player goals LB inventory links** — Games + Max GF→Max draw → Games tab `filter=world-cup` (career Goals LB parity); GF/GA/GD/ratio cols unchanged. |
+| 2026-07-16 | **Amiga WC player results LB inventory links** — WCs → Tournaments `filter=world-cup`; Games/W/D/L → Games tab `filter=world-cup` (+ result); W/L `.blue`/`.red` when count > 0; Pts/Pts/g/Win rate unchanged. |
 | 2026-07-16 | **Amiga player hero — WC medal links** — Gold / silver / bronze counts → Tournaments tab `filter=world-cup` + winner/finish filters (`amiga_lb_player_tournaments_inventory_href()`); `k2-player-hero__stat-link`; count > 0. |
 | 2026-07-16 | **Amiga WC player honours LB inventory links** — WCs · gold/silver/bronze · Podiums · Perfect → player Tournaments tab `filter=world-cup` (+ winner/podium/perfect/finish); career honours LB pattern via `amiga_lb_tournaments_*_inventory_cell_html()`. |
 | 2026-07-16 | **Amiga Peak-rating LB games inventory links** — Highest Victim · Lowest Culprit → player Games tab (`result=win|loss`, `sort=opp_rating` `desc|asc`); mosaic parity via `amiga_lb_games_inventory_cell_html()`. |

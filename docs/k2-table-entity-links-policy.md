@@ -145,6 +145,11 @@ With column tooltips: add `k2-table-helped` + `data-k2-help` per [`k2-tooltip-po
 | DD&CS LB → games tab (Games + DD/CS counts) | same helper + hero gf/ga URL params |
 | Tournament honours LB → Tournaments tab | `amiga_lb_tournaments_inventory_cell_html()` · `amiga_lb_tournaments_medal_inventory_cell_html()` in `includes/amiga_lb_lib.php` |
 | WC player honours LB → Tournaments tab (`filter=world-cup`) | same helpers with `$eventFilter = 'world-cup'` — `amiga_wc_players_table.php` |
+| WC player results LB → Tournaments / Games tab | WCs → tournaments `world-cup`; Games/W/D/L → games `filter=world-cup` (+ `result`); `amiga_wc_players_render_results()` |
+| WC player goals LB → Games tab (`filter=world-cup`) | Games + Max GF→Max draw — same sorts/filters as career Goals LB; `amiga_wc_players_render_goals()` |
+| WC player DD&CS LB → Games tab (`filter=world-cup`) | Games + DD/CS/DD C/CS C — hero gf/ga bounds; career DD LB parity; `amiga_wc_players_render_dds()` |
+| WC player opponents LB → Games tab + WC opponents chronology | Games → `filter=world-cup`; Opponents → `wc_opponents` Made-it (`.blue` wing anchor); `amiga_wc_players_render_opponents()` |
+| WC player opponents LB → WC victims chronology | Victims col → `wc_victims` Made-it; plain C1; `amiga_player_chronology_wc_victims_entry_href()` |
 | Online activity peaks → games | `lb_activity_lib.php` (`k2-table-cell-link` on calm-stats table) |
 
 ---
