@@ -149,6 +149,8 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-16 | **K2 calm cell links (C1) doc** — `k2-table-entity-links-policy.md` § Calm cell links: decision fork, markup patterns, traps, references; unified `k2-table-cell-link` CSS shipped same session. |
+| 2026-07-16 | **K2 calm cell links unified** — `k2-table-cell-link` hover: underline + weight 600; primary lift for muted ink; `.blue`/`.red` keep stat color; retired `k2-lb-amiga-peak-*` + `k2-lb-amiga-rating-delta-*`; peak Peak links use `--rest-emphasis`. Policy: [`k2-table-entity-links-policy.md`](docs/k2-table-entity-links-policy.md). |
 | 2026-07-15 | **Amiga game list phase links** — player games, tournament games tab, and realm games hub (filtered path) now SELECT `r.phase_witness` + `r.stage_id` via `amiga_rated_games_phase_link_cols_sql()`; fixes League / QF / SF links when display stage name ≠ witness scope key. |
 | 2026-07-15 | **Amiga country chronologies (Track B)** — `/amiga/player/chronologies/{host_countries,countries_faced,countries_beaten,countries_beaten_by}/`: Country unlock inventories; host = event grain; faced/beaten/beaten-by = game grain (goals H6–H8); mosaic Calendar & geo wired. Parity id=149: 10/20/20/8 present; TT `year:2010` 5/15/15/6. |
 | 2026-07-15 | **Amiga Culprits / DD / CS Culprits chronologies (Track B)** — `/amiga/player/chronologies/{culprits,dd_culprits,cs_culprits}/{made-it,graphs}.php`: first loss / GA≥10 / GF=0 per opponent; mosaic Culprits rows wired. Parity id=149: 30/3/0 present; TT `year:2010` 21/0/0. |

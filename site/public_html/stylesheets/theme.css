@@ -2021,7 +2021,7 @@ body.k2-site .k2-table.k2-table--calm-stats tbody td.k2-table-col-sorted {
 	font-weight: 600;
 }
 
-/* Calm stats body links that should match cell ink (Activity peaks → games), not link-star */
+/* Calm stats body links — inherit cell ink at rest (Activity peaks → games); not link-star */
 body.k2-site .k2-table.k2-table--calm-stats tbody td a.k2-table-cell-link,
 body.k2-site .k2-table.k2-table--calm-stats tbody td a.k2-table-cell-link:visited {
 	color: inherit;
@@ -2029,70 +2029,28 @@ body.k2-site .k2-table.k2-table--calm-stats tbody td a.k2-table-cell-link:visite
 	text-decoration: none;
 }
 
+/* Optional: weight 600 at rest when cell sort state is not active (e.g. peak-rating Peak links) */
+body.k2-site .k2-table.k2-table--calm-stats tbody td a.k2-table-cell-link.k2-table-cell-link--rest-emphasis {
+	font-weight: 600;
+}
+
 body.k2-site .k2-table.k2-table--calm-stats tbody td a.k2-table-cell-link:hover,
 body.k2-site .k2-table.k2-table--calm-stats tbody td a.k2-table-cell-link:focus-visible {
 	color: var(--k2-text-primary);
-	text-decoration: underline;
-}
-
-/* Amiga peak-rating LB — Peak column links keep stat green .blue (not calm cell-link inherit) */
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-link,
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-link:visited {
-	color: var(--k2-table-positive);
-	font-weight: 600;
-	text-decoration: none;
-}
-
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-link:hover,
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-link:focus-visible {
-	color: var(--k2-table-positive);
-	text-decoration: underline;
-}
-
-/* Amiga peak-rating LB — Peak rank links inherit calm cell ink */
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-rank-link,
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-rank-link:visited {
-	color: inherit;
-	font-weight: inherit;
-	text-decoration: none;
-}
-
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-rank-link:hover,
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-peak-rank-link:focus-visible {
-	color: var(--k2-text-primary);
-	text-decoration: underline;
-}
-
-/* Amiga rating LB — TT event Δ links: same blue/red as plain cells; underline on hover only */
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link,
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link:visited {
-	font-weight: inherit;
-	text-decoration: none;
-}
-
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--pos,
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--pos:visited {
-	color: var(--k2-table-positive);
-}
-
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--neg,
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--neg:visited {
-	color: var(--k2-table-negative);
-}
-
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--pos:hover,
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--pos:focus-visible {
-	color: var(--k2-table-positive);
 	font-weight: 600;
 	text-decoration: underline;
+}
+
+/* Editorial .blue / .red cell links — keep stat ink on hover (no primary lift) */
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-table-cell-link.blue:hover,
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-table-cell-link.blue:focus-visible {
+	color: var(--k2-table-positive);
 	text-decoration-color: var(--k2-table-positive);
 }
 
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--neg:hover,
-body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-lb-amiga-rating-delta-link--neg:focus-visible {
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-table-cell-link.red:hover,
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-table-cell-link.red:focus-visible {
 	color: var(--k2-table-negative);
-	font-weight: 600;
-	text-decoration: underline;
 	text-decoration-color: var(--k2-table-negative);
 }
 
@@ -2175,6 +2133,17 @@ body.k2-site .k2-table tbody td a:hover,
 body.k2-site .k2-table tbody td a:focus-visible {
 	color: var(--k2-link-star-hover);
 	text-decoration: underline;
+}
+
+/* Cell links with editorial .blue / .red — stat ink at rest (beats tbody td a link-star + color:inherit) */
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-table-cell-link.blue,
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-table-cell-link.blue:visited {
+	color: var(--k2-table-positive);
+}
+
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-table-cell-link.red,
+body.k2-site .k2-table.k2-table--calm-stats.ranked-pages-table tbody td a.k2-table-cell-link.red:visited {
+	color: var(--k2-table-negative);
 }
 
 body.k2-site .k2-table-cell--video-glyph {

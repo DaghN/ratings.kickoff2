@@ -730,10 +730,10 @@ function amiga_lb_rating_delta_cell(?float $delta, ?int $linkTournamentId = null
 
     if ($rounded > 0) {
         $display = '+' . $rounded;
-        $toneClass = 'k2-lb-amiga-rating-delta-link--pos';
+        $toneClass = 'blue';
     } else {
         $display = (string) $rounded;
-        $toneClass = 'k2-lb-amiga-rating-delta-link--neg';
+        $toneClass = 'red';
     }
 
     if ($linkTournamentId === null || $linkTournamentId < 1) {
@@ -749,7 +749,7 @@ function amiga_lb_rating_delta_cell(?float $delta, ?int $linkTournamentId = null
     $href = amiga_tournament_href(amiga_tournament_event_stats_url($linkTournamentId))
         . '#' . AMIGA_TOURNAMENT_PAGE_FRAGMENT;
 
-    return '<a class="k2-lb-amiga-rating-delta-link ' . $toneClass . '" href="' . k2_h($href) . '"'
+    return '<a class="k2-table-cell-link ' . $toneClass . '" href="' . k2_h($href) . '"'
         . ' aria-label="Open this tournament event stats">'
         . k2_h($display) . '</a>';
 }

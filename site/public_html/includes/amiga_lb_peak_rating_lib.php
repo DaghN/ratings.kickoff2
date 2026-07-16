@@ -107,7 +107,7 @@ function amiga_lb_peak_rating_peak_cell_html(array $row): string
     $help = htmlspecialchars(amiga_lb_peak_rating_peak_tooltip_html($row), ENT_QUOTES, 'UTF-8');
 
     return '<a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '"'
-        . ' class="blue k2-lb-amiga-peak-link k2-table-helped"'
+        . ' class="blue k2-table-cell-link k2-table-cell-link--rest-emphasis k2-table-helped"'
         . ' data-k2-coarse-tap="1"'
         . ' data-k2-tooltip-hide-title="1"'
         . ' data-k2-help-html="1"'
@@ -204,7 +204,7 @@ function amiga_lb_peak_rating_peak_rank_cell_html(array $row): string
     $help = htmlspecialchars(amiga_lb_peak_rating_peak_rank_tooltip_html($row), ENT_QUOTES, 'UTF-8');
 
     return '<a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '"'
-        . ' class="k2-lb-amiga-peak-rank-link k2-table-helped"'
+        . ' class="k2-table-cell-link k2-table-helped"'
         . ' data-k2-coarse-tap="1"'
         . ' data-k2-tooltip-hide-title="1"'
         . ' data-k2-help-html="1"'

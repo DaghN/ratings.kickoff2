@@ -4,7 +4,7 @@
 
 **Authority:** Product + visual contract; defers to [`design-direction.md`](design-direction.md) for tokens. Table machinery (sort, cloak, mirror, anchor map): [`k2-table-and-games-plan.md`](k2-table-and-games-plan.md). Amiga flag SVG map + roster URLs: [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) CH9. Dagh's latest chat wins on scope.
 
-**For agents:** read this before adding or refactoring **player / tournament / country name links inside table cells**, or **inline Amiga country flags** beside those names. Pair with [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md) for the table stack and [`k2-tooltip-policy.md`](k2-tooltip-policy.md) for column help.
+**For agents:** read this before adding or refactoring **player / tournament / country name links inside table cells**, **calm stat-value links** (`k2-table-cell-link` — § Calm cell links C1), or **inline Amiga country flags** beside those names. Pair with [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md) for the table stack and [`k2-tooltip-policy.md`](k2-tooltip-policy.md) for column help.
 
 ---
 
@@ -26,6 +26,7 @@ Table cells that name a **player**, **tournament**, or **country** should look a
 | **E4** | **Amiga inline table cells** — `[flag][name link]` in one column via compositors in `includes/k2_amiga_country_flag.php`. **No dedicated flag-only Country columns** on Amiga tables (migration list §4). |
 | **E5** | **Country rows — dual link:** flag link + separate name link, both to the same roster URL (mirrors player inline: flag → nationality roster, name → entity destination). |
 | **E6** | **Unmapped country tokens:** omit flag; name link still renders when the token is non-empty. No text fallback where a flag SVG was expected. |
+| **C1** | **Calm cell links** — stat values that should **look like normal cell text** at rest use **`k2-table-cell-link`** on the `<a>` (§ Calm cell links below). **Not** bare `<a>` in `td` (global link-star trap). **Not** `k2-link-star` unless the value is an entity name or intentional accent drill-down (Elo, Opponents Games count). |
 
 ---
 
@@ -79,6 +80,68 @@ Any hub LB (online or Amiga) that may receive **`#k2-lb-player-{id}`** inbound l
 
 ---
 
+## Calm cell links (C1)
+
+**When:** a **numeric or stat value** in a calm-stats table (`k2-table--calm-stats`, usually `ranked-pages-table`) should stay visually quiet at rest but be clickable — peak rank, rating Δ, activity peaks → games, future GF-style inventory links, etc.
+
+**Not C1:** player / tournament / country **names** (E1 `k2-link-star`); Elo column drill-downs (`k2_*_lb_rating_cell_link()` → `k2-link-star`); Opponents **Games** counts (`k2-link-star` — intentional accent drill-down).
+
+### Pick link type (decision fork)
+
+| Cell content | Class on `<a>` | Notes |
+|--------------|----------------|-------|
+| Plain calm stat (muted when column not sorted) | `k2-table-cell-link` | Inherits cell ink at rest |
+| Editorial positive stat (`.blue` column / win count) | `k2-table-cell-link blue` | **Put `blue` on the `<a>`**, not only on a child `<span>` — `td .blue` on spans does not reliably paint anchors |
+| Editorial negative stat | `k2-table-cell-link red` | Same rule as `.blue` |
+| Hero stat link, **bold even when column not sorted** | add `k2-table-cell-link--rest-emphasis` | Peak-rating **Peak** links only today; do **not** default every `.blue` link to this — Goals GF-style links stay sort-gated weight at rest |
+
+### Markup (copy patterns)
+
+```html
+<!-- plain calm value -->
+<a class="k2-table-cell-link" href="…">42</a>
+
+<!-- positive stat ink (--k2-table-positive; tint-aware, not always green) -->
+<a class="k2-table-cell-link blue" href="…">1847</a>
+
+<!-- negative stat ink -->
+<a class="k2-table-cell-link red" href="…">−12</a>
+
+<!-- hero stat link: bold at rest even when column not active sort -->
+<a class="k2-table-cell-link blue k2-table-cell-link--rest-emphasis" href="…">2613</a>
+```
+
+With column tooltips: add `k2-table-helped` + `data-k2-help` per [`k2-tooltip-policy.md`](k2-tooltip-policy.md) (see peak-rating lib).
+
+### Rest vs hover contract
+
+| Rest | Hover |
+|------|-------|
+| Inherit cell ink (secondary when column not sorted; primary + 600 when sorted) | Underline + weight **600** |
+| `.blue` / `.red` on `<a>`: stat palette at rest (`theme.css` explicit `a.k2-table-cell-link.blue` / `.red`) | Same stat hue — **no** primary lift |
+| `--rest-emphasis`: weight 600 at rest regardless of sort | Underline + 600; `.blue`/`.red` still no hue lift |
+
+**Do not** add page-specific link classes (`k2-lb-foo-link`). One class family + optional `.blue` / `.red` / `--rest-emphasis`.
+
+### Agent traps
+
+1. **Bare `<a href>` in `tbody td`** — global `body.k2-site .k2-table tbody td a` applies **link-star** accent. Always opt into `k2-table-cell-link`.
+2. **`k2-link-star` on stat values** — wrong ink; reserved for entity names and accent drill-downs (Elo, Games count).
+3. **`<span class="blue">` inside `<a class="k2-table-cell-link">`** — prefer `class="k2-table-cell-link blue"` on the anchor so rest-state stat color wins over `color: inherit` / link-star.
+4. **`--rest-emphasis` on every `.blue` link** — only when product wants permanent bold off-sort (Peak pattern). Default `.blue` cell links match `<span class="blue">` sort-gated weight.
+5. **Perf-rating LB** — table modifier `k2-table--perf-rating-lb` still forces all `td .blue` to weight 600 at rest; separate from C1 markup.
+
+### References (read one first)
+
+| Scenario | Reference |
+|----------|-----------|
+| Plain calm link + tooltip | `amiga_lb_peak_rating_peak_rank_cell_html()` in `includes/amiga_lb_peak_rating_lib.php` |
+| `.blue` + `--rest-emphasis` + tooltip | `amiga_lb_peak_rating_peak_cell_html()` in same file |
+| `.blue` / `.red` signed stat link | `amiga_lb_rating_delta_cell()` in `includes/amiga_lb_snapshot_lib.php` |
+| Online activity peaks → games | `lb_activity_lib.php` (`k2-table-cell-link` on calm-stats table) |
+
+---
+
 ## Not entity name links
 
 These stay on their existing patterns:
@@ -89,7 +152,7 @@ These stay on their existing patterns:
 | **Career Elo drill-down (Amiga)** | Hub LB + WC player stats + countries roster **Elo** column → `k2_amiga_lb_rating_cell_link()` → rating LB `#k2-lb-player-{id}` (`k2-link-star`; rating glance: name + flag, rank + rating, footer “Click to view rating leaderboard”) |
 | **Career Elo drill-down (online)** | Hub LB wings + League honours + Status active-players table **Elo** column → `k2_lb_rating_cell_link()` → rating LB `#k2-lb-player-{id}` (`k2-link-star`; rating glance via `data-k2-player-glance-rating`, same footer) |
 | **Profile hero rank / rating / games (online)** | **Policy:** [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) — rank/rating → rating LB `#k2-lb-player-{id}`; games → Games tab `#matching-games`. |
-| Calm secondary body links | `k2-table-cell-link` — inherit cell ink (Activity peaks → games) |
+| Calm secondary body links | **C1** — `k2-table-cell-link` (full contract § Calm cell links) |
 | Filter listbox labels | Text-only country/year pickers — no flags ([`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) CH9) |
 | Hero / prose links | Player hero name, country hero title, hub chapter links — outside table compositors. **Profile hero + mosaic stat values:** [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) |
 
@@ -129,9 +192,10 @@ These stay on their existing patterns:
 | Dual link pattern (flag + name) | `k2_amiga_inline_flag_and_link()` — same wrapper as above |
 | Country name link | `k2_amiga_country_roster_link()` — `k2-link-star` to roster |
 | Career Elo → rating LB row | `k2_amiga_lb_rating_cell_link()` in `amiga_lb_lib.php` (Amiga); `k2_lb_rating_cell_link()` in `lb_player_filters.php` (online) |
+| **Calm cell link** (stat value) | **C1** — `amiga_lb_peak_rating_lib.php` (peak rank · peak); `amiga_lb_snapshot_lib.php` (rating Δ); `lb_activity_lib.php` (activity peaks) |
 | Flag img link only | `k2_amiga_country_flag_link()` |
 
-If unsure: **grep** `k2_amiga_lb_player_cell` / `k2_amiga_lb_tournament_cell` / `k2_amiga_lb_country_cell` in `site/public_html/includes/`.
+If unsure: **grep** `k2_amiga_lb_player_cell` / `k2_amiga_lb_tournament_cell` / `k2_amiga_lb_country_cell` / **`k2-table-cell-link`** in `site/public_html/`.
 
 ---
 
@@ -141,6 +205,7 @@ If unsure: **grep** `k2_amiga_lb_player_cell` / `k2_amiga_lb_tournament_cell` / 
 - [ ] Amiga nationality/host/country identity uses inline compositors (E4) — no new flag-only columns.
 - [ ] Country rows use **dual link** (E5): `flag_link` + `country_roster_link`.
 - [ ] Unmapped tokens: no flag, name still linked when token non-empty (E6).
+- [ ] **Calm stat links (C1):** `k2-table-cell-link` on the `<a>` — not bare `td a` / not `k2-link-star`; `.blue`/`.red` on the **anchor** when needed; `--rest-emphasis` only for permanent off-sort bold.
 - [ ] Table stack still passes [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md) §3.
 - [ ] Update this doc's migration table if a new surface ships; Part A [`UPDATE_DOCS.md`](UPDATE_DOCS.md) + `PROJECT_MEMORY.md`.
 
@@ -151,12 +216,15 @@ If unsure: **grep** `k2_amiga_lb_player_cell` / `k2_amiga_lb_tournament_cell` / 
 | Class | Role |
 |-------|------|
 | `a.k2-link-star` | Entity name links — `--k2-link-star`, weight 600, hover underline |
+| `a.k2-table-cell-link` | Calm cell links — inherit rest ink; hover underline + 600; primary lift for muted ink; `.blue`/`.red` preserve stat color on hover |
+| `a.k2-table-cell-link.blue` / `.red` | Rest stat ink on ranked LBs (beats global `tbody td a` link-star) — class on the `<a>` |
+| `a.k2-table-cell-link--rest-emphasis` | Optional weight 600 at rest (peak-rating Peak links when column not sorted) |
 | `a.k2-country-roster-link` | Flag **img** wrappers — `color: inherit`; not for country name text in tables |
 | `.k2-amiga-wc-podium-player` | Inline `[flag][name]` flex row |
 | `.k2-amiga-country-flag-img` | Table flag impression 20×15 |
 
-Global `body.k2-site .k2-table tbody td a` also styles links link-star — **do not** depend on it for new entity names; use E1 explicitly.
+Global `body.k2-site .k2-table tbody td a` also styles links link-star — **do not** depend on it for new entity names (E1) or calm cell links (C1); use explicit classes.
 
 ---
 
-*Last updated: Jul 2026 — LB player-row anchors on all hub wings (online + Amiga); Elo drill-down + profile comparison links land `#k2-lb-player-{id}`.*
+*Last updated: Jul 2026 — C1 calm cell links section (decision fork, markup, traps, references); unified hover; retired `k2-lb-amiga-peak-*` and `k2-lb-amiga-rating-delta-*`.*
