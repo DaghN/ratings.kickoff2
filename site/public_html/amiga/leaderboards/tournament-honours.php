@@ -77,12 +77,27 @@ foreach ($honoursRows as $row) {
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_lb_player_row_anchor_markup($playerId); ?><?php echo k2_amiga_lb_player_cell($playerId, $playerName, (string) ($row['country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_amiga_lb_rating_cell_link($playerId, $row['rating'], $playerName); ?></td>
-        <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo (int) $row['tournaments_played']; ?></td>
-        <td<?php echo k2_lb_td(4, $lbSort, 'k2-lb-honours-medal-td'); ?>><?php echo amiga_wc_podium_medal_value_markup((int) $row['event_gold'], 1); ?></td>
-        <td<?php echo k2_lb_td(5, $lbSort, 'k2-lb-honours-medal-td'); ?>><?php echo amiga_wc_podium_medal_value_markup((int) $row['event_silver'], 2); ?></td>
-        <td<?php echo k2_lb_td(6, $lbSort, 'k2-lb-honours-medal-td'); ?>><?php echo amiga_wc_podium_medal_value_markup((int) $row['event_bronze'], 3); ?></td>
-        <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo (int) $row['event_podiums']; ?></td>
-        <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo (int) ($row['perfect_events'] ?? 0); ?></td>
+        <td<?php echo k2_lb_td(3, $lbSort); ?>><?php
+            $events = (int) $row['tournaments_played'];
+            echo amiga_lb_tournaments_inventory_cell_html($playerId, $events, (string) $events);
+        ?></td>
+        <td<?php echo k2_lb_td(4, $lbSort, 'k2-lb-honours-medal-td'); ?>><?php
+            echo amiga_lb_tournaments_medal_inventory_cell_html($playerId, (int) $row['event_gold'], 1, 'with-win');
+        ?></td>
+        <td<?php echo k2_lb_td(5, $lbSort, 'k2-lb-honours-medal-td'); ?>><?php
+            echo amiga_lb_tournaments_medal_inventory_cell_html($playerId, (int) $row['event_silver'], 2, '', '', 2);
+        ?></td>
+        <td<?php echo k2_lb_td(6, $lbSort, 'k2-lb-honours-medal-td'); ?>><?php
+            echo amiga_lb_tournaments_medal_inventory_cell_html($playerId, (int) $row['event_bronze'], 3, '', '', 3);
+        ?></td>
+        <td<?php echo k2_lb_td(7, $lbSort); ?>><?php
+            $podiums = (int) $row['event_podiums'];
+            echo amiga_lb_tournaments_inventory_cell_html($playerId, $podiums, (string) $podiums, 'all', '', '', 'with-podium');
+        ?></td>
+        <td<?php echo k2_lb_td(8, $lbSort); ?>><?php
+            $perfect = (int) ($row['perfect_events'] ?? 0);
+            echo amiga_lb_tournaments_inventory_cell_html($playerId, $perfect, (string) $perfect, 'all', 'with-participant');
+        ?></td>
     </tr>
     <?php
     $rank++;

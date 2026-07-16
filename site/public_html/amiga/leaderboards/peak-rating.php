@@ -81,8 +81,26 @@ while ($row = mysqli_fetch_assoc($result)) {
         <td<?php echo k2_lb_td(7, $lbSort, 'k2-table-cell--right'); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value(['event_date' => $row['peak_elo_rank_date'] ?? null]); ?>"><?php echo amiga_profile_format_event_date($row['peak_elo_rank_date'] ?? null); ?></td>
         <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo k2_fmt_nadir_rating($row['LowestRating']); ?></td>
         <td<?php echo k2_lb_td(9, $lbSort, 'k2-table-cell--right'); ?> data-k2-sort-value="<?php echo amiga_profile_event_date_sort_value(['event_date' => $row['lowest_rating_date'] ?? null]); ?>"><?php echo amiga_profile_format_event_date($row['lowest_rating_date'] ?? null); ?></td>
-        <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo k2_fmt_lb_stat($row['HighestRatedVictim'], $games); ?></td>
-        <td<?php echo k2_lb_td(11, $lbSort); ?>><?php echo k2_fmt_lb_stat($row['LowestRatedCulprit'], $games, 5000.0); ?></td>
+        <td<?php echo k2_lb_td(10, $lbSort); ?>><?php
+            echo amiga_lb_games_inventory_cell_html(
+                (int) $row['ID'],
+                $games,
+                k2_fmt_lb_stat($row['HighestRatedVictim'], $games),
+                'win',
+                'opp_rating',
+                'desc'
+            );
+        ?></td>
+        <td<?php echo k2_lb_td(11, $lbSort); ?>><?php
+            echo amiga_lb_games_inventory_cell_html(
+                (int) $row['ID'],
+                $games,
+                k2_fmt_lb_stat($row['LowestRatedCulprit'], $games, 5000.0),
+                'loss',
+                'opp_rating',
+                'asc'
+            );
+        ?></td>
     </tr>
     <?php
     $rank++;

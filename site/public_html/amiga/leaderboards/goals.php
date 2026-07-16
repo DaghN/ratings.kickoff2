@@ -89,7 +89,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_lb_player_row_anchor_markup($playerId); ?><?php echo k2_amiga_lb_player_cell($playerId, $playerName, (string) ($row['Country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_amiga_lb_rating_cell_link($playerId, $row['Rating'], $playerName); ?></td>
-        <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
+        <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo amiga_lb_rating_games_inventory_cell_html($playerId, $games); ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><span class="blue"><?php echo k2_fmt_count($row['GoalsFor'], $games); ?></span></td>
         <td<?php echo k2_lb_td(5, $lbSort); ?>><span class="red"><?php echo k2_fmt_count($row['GoalsAgainst'], $games); ?></span></td>
         <td<?php echo k2_lb_td(6, $lbSort); ?> data-k2-sort-value="<?php echo $gd; ?>"><?php echo k2_derived_games_started($games) ? k2_fmt_signed_int_html($gd) : k2_fmt_dash(); ?></td>
@@ -105,20 +105,26 @@ while ($row = mysqli_fetch_assoc($result)) {
                 echo k2_fmt_decimal($row['GoalRatio'], $games);
             }
         ?></td>
-        <td<?php echo k2_lb_td(11, $lbSort); ?>><?php echo k2_fmt_count($row['MostGoalsScored'], $games); ?></td>
-        <td<?php echo k2_lb_td(12, $lbSort); ?>><?php echo k2_fmt_count($row['MostGoalsConceded'], $games); ?></td>
-        <td<?php echo k2_lb_td(13, $lbSort); ?>><?php echo k2_fmt_count($row['BiggestWinDifference'], $games); ?></td>
-        <td<?php echo k2_lb_td(14, $lbSort); ?>><?php echo k2_fmt_count($row['BiggestLossDifference'], $games); ?></td>
-        <td<?php echo k2_lb_td(15, $lbSort); ?>><?php echo k2_fmt_count($row['BiggestSumOfGoals'], $games); ?></td>
-        <td<?php echo k2_lb_td(16, $lbSort); ?>><?php
-            if (!k2_derived_games_started($games) || (int) $row['NumberDraws'] === 0) {
-                echo k2_fmt_dash();
-            } else {
-                $drawSum = k2_db_is_null($row['BiggestDrawSum']) ? 0 : (int) $row['BiggestDrawSum'];
-                $half = (int) ($drawSum / 2);
-                echo $half . '-' . $half;
-            }
-        ?></td>
+        <?php
+        $maxGfDisplay = k2_fmt_count($row['MostGoalsScored'], $games);
+        $maxGaDisplay = k2_fmt_count($row['MostGoalsConceded'], $games);
+        $maxWinDisplay = k2_fmt_count($row['BiggestWinDifference'], $games);
+        $maxLossDisplay = k2_fmt_count($row['BiggestLossDifference'], $games);
+        $maxSumDisplay = k2_fmt_count($row['BiggestSumOfGoals'], $games);
+        if (!k2_derived_games_started($games) || (int) $row['NumberDraws'] === 0) {
+            $maxDrawDisplay = k2_fmt_dash();
+        } else {
+            $drawSum = k2_db_is_null($row['BiggestDrawSum']) ? 0 : (int) $row['BiggestDrawSum'];
+            $half = (int) ($drawSum / 2);
+            $maxDrawDisplay = $half . '-' . $half;
+        }
+        ?>
+        <td<?php echo k2_lb_td(11, $lbSort); ?>><?php echo amiga_lb_games_inventory_cell_html($playerId, $games, $maxGfDisplay, 'all', 'goals_for', 'desc'); ?></td>
+        <td<?php echo k2_lb_td(12, $lbSort); ?>><?php echo amiga_lb_games_inventory_cell_html($playerId, $games, $maxGaDisplay, 'all', 'against', 'desc'); ?></td>
+        <td<?php echo k2_lb_td(13, $lbSort); ?>><?php echo amiga_lb_games_inventory_cell_html($playerId, $games, $maxWinDisplay, 'win', 'diff', 'desc'); ?></td>
+        <td<?php echo k2_lb_td(14, $lbSort); ?>><?php echo amiga_lb_games_inventory_cell_html($playerId, $games, $maxLossDisplay, 'loss', 'diff', 'asc'); ?></td>
+        <td<?php echo k2_lb_td(15, $lbSort); ?>><?php echo amiga_lb_games_inventory_cell_html($playerId, $games, $maxSumDisplay, 'all', 'sum', 'desc'); ?></td>
+        <td<?php echo k2_lb_td(16, $lbSort); ?>><?php echo amiga_lb_games_inventory_cell_html($playerId, $games, $maxDrawDisplay, 'draw', 'sum', 'desc'); ?></td>
     </tr>
     <?php
     $rank++;

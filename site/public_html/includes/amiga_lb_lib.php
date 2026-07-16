@@ -268,12 +268,38 @@ function amiga_lb_victims_chronology_cell_html(
 }
 
 /**
- * Player games tab inventory href (Results mosaic parity).
+ * Hub LB cell → player chronology Made-it entry (C1 calm cell link).
+ * Same destinations as profile Calendar & geography country mosaic rows; link only when count > 0.
+ */
+function amiga_lb_chronology_inventory_cell_html(
+    int $playerId,
+    int $count,
+    string $href,
+): string {
+    $display = (string) $count;
+    if ($playerId > 0 && $count > 0 && $href !== '') {
+        return '<a class="k2-table-cell-link" href="' . k2_h($href) . '">'
+            . k2_h($display) . '</a>';
+    }
+
+    return k2_h($display);
+}
+
+/**
+ * Player games tab inventory href (profile mosaic parity).
  *
  * @param 'all'|'win'|'draw'|'loss' $resultFilter
  */
-function amiga_lb_player_games_inventory_href(int $playerId, string $resultFilter = 'all'): string
-{
+function amiga_lb_player_games_inventory_href(
+    int $playerId,
+    string $resultFilter = 'all',
+    ?string $sortKey = null,
+    ?string $sortDir = null,
+    int $heroGfMin = -1,
+    int $heroGfMax = -1,
+    int $heroGaMin = -1,
+    int $heroGaMax = -1,
+): string {
     if ($playerId < 1) {
         return '';
     }
@@ -286,8 +312,89 @@ function amiga_lb_player_games_inventory_href(int $playerId, string $resultFilte
     if ($resultFilter !== 'all') {
         $params['result'] = $resultFilter;
     }
+    if ($sortKey !== null && $sortKey !== '') {
+        $params['sort'] = $sortKey === 'for' ? 'goals_for' : $sortKey;
+    }
+    if ($sortDir !== null && $sortDir !== '') {
+        $params['dir'] = amiga_games_valid_direction($sortDir);
+    }
+    if ($heroGfMin >= 0) {
+        $params['gf_min'] = amiga_games_valid_hero_goals_bound($heroGfMin);
+    }
+    if ($heroGfMax >= 0) {
+        $params['gf_max'] = amiga_games_valid_hero_goals_bound($heroGfMax);
+    }
+    if ($heroGaMin >= 0) {
+        $params['ga_min'] = amiga_games_valid_hero_goals_bound($heroGaMin);
+    }
+    if ($heroGaMax >= 0) {
+        $params['ga_max'] = amiga_games_valid_hero_goals_bound($heroGaMax);
+    }
 
     return amiga_games_build_url($params) . k2_player_matching_games_anchor_fragment();
+}
+
+/**
+ * Hub LB cell → player games tab inventory (C1 calm cell link).
+ *
+ * @param 'all'|'win'|'draw'|'loss' $resultFilter
+ */
+function amiga_lb_games_inventory_cell_html(
+    int $playerId,
+    int $games,
+    string $display,
+    string $resultFilter = 'all',
+    ?string $sortKey = null,
+    ?string $sortDir = null,
+    int $heroGfMin = -1,
+    int $heroGfMax = -1,
+    int $heroGaMin = -1,
+    int $heroGaMax = -1,
+    bool $anchorBlue = false,
+    ?string $editorialTone = null,
+): string {
+    if ($display === '-' || $display === '—') {
+        return k2_h($display);
+    }
+
+    $numericCount = (int) $display;
+    $linkClass = 'k2-table-cell-link';
+    if ($anchorBlue) {
+        $linkClass = 'k2-table-cell-link blue';
+    } elseif ($editorialTone === 'blue' && $numericCount > 0) {
+        $linkClass = 'k2-table-cell-link blue';
+    } elseif ($editorialTone === 'red' && $numericCount > 0) {
+        $linkClass = 'k2-table-cell-link red';
+    }
+
+    if ($playerId > 0 && k2_derived_games_started($games)) {
+        $href = amiga_lb_player_games_inventory_href(
+            $playerId,
+            $resultFilter,
+            $sortKey,
+            $sortDir,
+            $heroGfMin,
+            $heroGfMax,
+            $heroGaMin,
+            $heroGaMax
+        );
+        if ($href !== '') {
+            return '<a class="' . $linkClass . '" href="' . k2_h($href) . '">'
+                . k2_h($display) . '</a>';
+        }
+    }
+
+    if ($anchorBlue) {
+        return '<span class="blue">' . k2_h($display) . '</span>';
+    }
+    if ($editorialTone === 'blue' && $numericCount > 0) {
+        return '<span class="blue">' . k2_h($display) . '</span>';
+    }
+    if ($editorialTone === 'red' && $numericCount > 0) {
+        return '<span class="red">' . k2_h($display) . '</span>';
+    }
+
+    return k2_h($display);
 }
 
 /**
@@ -337,6 +444,101 @@ function amiga_lb_rating_games_inventory_cell_html(
     }
 
     return $restHtml;
+}
+
+function amiga_lb_player_tournaments_inventory_href(
+    int $playerId,
+    string $eventFilter = 'all',
+    string $perfectFilter = '',
+    string $winnerFilter = '',
+    string $podiumFilter = '',
+    int $finishFilter = 0,
+): string {
+    require_once __DIR__ . '/amiga_player_tournament_lib.php';
+
+    if ($playerId < 1) {
+        return '';
+    }
+
+    return amiga_player_tournaments_filter_url(
+        $playerId,
+        $eventFilter,
+        '',
+        0,
+        $perfectFilter,
+        $winnerFilter,
+        $podiumFilter,
+        $finishFilter,
+    ) . amiga_player_tournaments_table_anchor_fragment();
+}
+
+/**
+ * Hub LB cell → player Tournaments tab inventory (C1 calm cell link).
+ * Same destinations as profile Tournament honours mosaic.
+ *
+ * @param 'all'|'world-cup' $eventFilter
+ */
+function amiga_lb_tournaments_inventory_cell_html(
+    int $playerId,
+    int $count,
+    string $display,
+    string $eventFilter = 'all',
+    string $perfectFilter = '',
+    string $winnerFilter = '',
+    string $podiumFilter = '',
+    int $finishFilter = 0,
+): string {
+    if ($playerId > 0 && $count > 0) {
+        $href = amiga_lb_player_tournaments_inventory_href(
+            $playerId,
+            $eventFilter,
+            $perfectFilter,
+            $winnerFilter,
+            $podiumFilter,
+            $finishFilter,
+        );
+        if ($href !== '') {
+            return '<a class="k2-table-cell-link" href="' . k2_h($href) . '">'
+                . k2_h($display) . '</a>';
+        }
+    }
+
+    return k2_h($display);
+}
+
+/**
+ * Hub LB medal count → player Tournaments tab inventory (C1; gradient medal ink preserved).
+ *
+ * @param 'all'|'world-cup' $eventFilter
+ */
+function amiga_lb_tournaments_medal_inventory_cell_html(
+    int $playerId,
+    int $count,
+    int $place,
+    string $winnerFilter = '',
+    string $podiumFilter = '',
+    int $finishFilter = 0,
+    string $eventFilter = 'all',
+): string {
+    require_once __DIR__ . '/amiga_wc_podium_th.php';
+
+    $displayHtml = amiga_wc_podium_medal_value_markup($count, $place);
+    if ($playerId > 0 && $count > 0) {
+        $href = amiga_lb_player_tournaments_inventory_href(
+            $playerId,
+            $eventFilter,
+            '',
+            $winnerFilter,
+            $podiumFilter,
+            $finishFilter,
+        );
+        if ($href !== '') {
+            return '<a class="k2-table-cell-link" href="' . k2_h($href) . '">'
+                . $displayHtml . '</a>';
+        }
+    }
+
+    return $displayHtml;
 }
 
 /** Default ORDER BY tail for Amiga peak-rating LB (no leading ORDER BY). */

@@ -19,6 +19,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_table_helpers.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_table_render.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_chronologies_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_tournament_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_country_flag.php';
@@ -74,10 +75,38 @@ foreach ($rows as $row) {
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo $row['peak_year_games_year'] !== null ? (int) $row['peak_year_games_year'] : '—'; ?></td>
         <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo (int) $row['peak_year_tournaments']; ?></td>
         <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo $row['peak_year_tournaments_year'] !== null ? (int) $row['peak_year_tournaments_year'] : '—'; ?></td>
-        <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo (int) $row['countries_played_in']; ?></td>
-        <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo (int) $row['opponent_countries_faced']; ?></td>
-        <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo (int) $row['opponent_countries_beaten']; ?></td>
-        <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo (int) ($row['opponent_countries_beaten_by'] ?? 0); ?></td>
+        <td<?php echo k2_lb_td(7, $lbSort); ?>><?php
+            $hostCountries = (int) $row['countries_played_in'];
+            echo amiga_lb_chronology_inventory_cell_html(
+                $playerId,
+                $hostCountries,
+                amiga_player_chronology_host_countries_entry_href($playerId)
+            );
+        ?></td>
+        <td<?php echo k2_lb_td(8, $lbSort); ?>><?php
+            $countriesFaced = (int) $row['opponent_countries_faced'];
+            echo amiga_lb_chronology_inventory_cell_html(
+                $playerId,
+                $countriesFaced,
+                amiga_player_chronology_countries_faced_entry_href($playerId)
+            );
+        ?></td>
+        <td<?php echo k2_lb_td(9, $lbSort); ?>><?php
+            $countriesBeaten = (int) $row['opponent_countries_beaten'];
+            echo amiga_lb_chronology_inventory_cell_html(
+                $playerId,
+                $countriesBeaten,
+                amiga_player_chronology_countries_beaten_entry_href($playerId)
+            );
+        ?></td>
+        <td<?php echo k2_lb_td(10, $lbSort); ?>><?php
+            $countriesBeatenBy = (int) ($row['opponent_countries_beaten_by'] ?? 0);
+            echo amiga_lb_chronology_inventory_cell_html(
+                $playerId,
+                $countriesBeatenBy,
+                amiga_player_chronology_countries_beaten_by_entry_href($playerId)
+            );
+        ?></td>
     </tr>
     <?php
     $rank++;

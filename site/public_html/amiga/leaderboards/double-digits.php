@@ -20,6 +20,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_snapshot_lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_country_flag.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_games_lib.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
@@ -75,18 +76,22 @@ while ($row = mysqli_fetch_assoc($result)) {
     $games = (int) $row['NumberGames'];
     $playerId = (int) $row['ID'];
     $playerName = (string) $row['Name'];
+    $ddDisplay = k2_fmt_count($row['DoubleDigits'], $games);
+    $csDisplay = k2_fmt_count($row['CleanSheets'], $games);
+    $ddConcededDisplay = k2_fmt_count($row['DoubleDigitsConceded'], $games);
+    $csConcededDisplay = k2_fmt_count($row['CleanSheetsConceded'], $games);
     ?>
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
         <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_lb_player_row_anchor_markup($playerId); ?><?php echo k2_amiga_lb_player_cell($playerId, $playerName, (string) ($row['Country'] ?? '')); ?></td>
         <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_amiga_lb_rating_cell_link($playerId, $row['Rating'], $playerName); ?></td>
-        <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
-        <td<?php echo k2_lb_td(4, $lbSort); ?>><span class="blue"><?php echo k2_fmt_count($row['DoubleDigits'], $games); ?></span></td>
-        <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo k2_fmt_count($row['CleanSheets'], $games); ?></td>
+        <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo amiga_lb_rating_games_inventory_cell_html($playerId, $games); ?></td>
+        <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo amiga_lb_games_inventory_cell_html($playerId, $games, $ddDisplay, 'all', null, null, AMIGA_PLAYER_GAMES_DOUBLE_DIGITS_GF_MIN, -1, -1, -1, true); ?></td>
+        <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo amiga_lb_games_inventory_cell_html($playerId, $games, $csDisplay, 'all', null, null, -1, -1, -1, 0); ?></td>
         <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo k2_fmt_pct_from_ratio($row['DoubleDigitsRatio'], $games); ?></td>
         <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo k2_fmt_pct_from_ratio($row['CleanSheetsRatio'], $games); ?></td>
-        <td<?php echo k2_lb_td(8, $lbSort); ?>><span class="red"><?php echo k2_fmt_count($row['DoubleDigitsConceded'], $games); ?></span></td>
-        <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo k2_fmt_count($row['CleanSheetsConceded'], $games); ?></td>
+        <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo amiga_lb_games_inventory_cell_html($playerId, $games, $ddConcededDisplay, 'all', null, null, -1, -1, AMIGA_PLAYER_GAMES_DOUBLE_DIGITS_GA_MIN, -1, false, 'red'); ?></td>
+        <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo amiga_lb_games_inventory_cell_html($playerId, $games, $csConcededDisplay, 'all', null, null, -1, 0); ?></td>
         <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo k2_fmt_pct_from_ratio($row['DoubleDigitsConcededRatio'], $games); ?></td>
         <td<?php echo k2_lb_td(11, $lbSort); ?>><?php echo k2_fmt_pct_from_ratio($row['CleanSheetsConcededRatio'], $games); ?></td>
     </tr>

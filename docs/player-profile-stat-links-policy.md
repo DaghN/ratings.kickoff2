@@ -59,6 +59,9 @@ Secondary comparison paths (opening the LB from inside inventory, HoF deep links
 | Games | Games tab (`amiga-player-games`) | **Shipped** | Hero `#matching-games` (above list status) |
 | Events | Tournaments tab | **Shipped** | Hero `#k2-player-tournaments-table` (above list status) |
 | World Cups | Tournaments tab, WC filter | **Shipped** | Same status anchor + WC filter |
+| Hero — WC gold | Tournaments tab, `filter=world-cup&winner=with-win` | **Shipped** | Gradient medal count; `k2-player-hero__stat-link`; count > 0 |
+| Hero — WC silver | Tournaments tab, `filter=world-cup&finish=2` | **Shipped** | Same pattern as WC honours LB |
+| Hero — WC bronze | Tournaments tab, `filter=world-cup&finish=3` | **Shipped** | Same pattern as WC honours LB |
 | Mosaic — Games | Games tab | **Shipped** | Same as hero — `#matching-games`; `amiga_profile_lb_slice_player_games_href()` |
 | Mosaic — Wins | Games tab, Result = win | **Shipped** | `?result=win` activates Result listbox + filtered list; `#matching-games` |
 | Mosaic — Draws | Games tab, Result = draw | **Shipped** | `?result=draw` |

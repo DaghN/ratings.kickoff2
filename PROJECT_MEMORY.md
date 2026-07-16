@@ -149,6 +149,13 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-16 | **Amiga player hero — WC medal links** — Gold / silver / bronze counts → Tournaments tab `filter=world-cup` + winner/finish filters (`amiga_lb_player_tournaments_inventory_href()`); `k2-player-hero__stat-link`; count > 0. |
+| 2026-07-16 | **Amiga WC player honours LB inventory links** — WCs · gold/silver/bronze · Podiums · Perfect → player Tournaments tab `filter=world-cup` (+ winner/podium/perfect/finish); career honours LB pattern via `amiga_lb_tournaments_*_inventory_cell_html()`. |
+| 2026-07-16 | **Amiga Peak-rating LB games inventory links** — Highest Victim · Lowest Culprit → player Games tab (`result=win|loss`, `sort=opp_rating` `desc|asc`); mosaic parity via `amiga_lb_games_inventory_cell_html()`. |
+| 2026-07-16 | **Amiga Calendar-geo LB chronology links** — Host countries · Countries faced · beaten · beaten by → player chronology Made-it (`amiga_lb_chronology_inventory_cell_html()`); mosaic parity; count > 0 only; peak games/events cols unchanged. |
+| 2026-07-16 | **Amiga Tournament honours LB inventory links** — Events · gold/silver/bronze · Podiums · Perfect → player Tournaments tab (mosaic parity; medal gradient ink preserved); `amiga_lb_tournaments_*_inventory_cell_html()`; count > 0 only. |
+| 2026-07-16 | **Amiga DD&CS LB games inventory links** — Games + Double Digits / Clean Sheets / DD conceded / CS conceded → player Games tab (gf/ga filters); DD anchor `.blue`, DD conceded `.red`; ratio cols unchanged. |
+| 2026-07-16 | **Amiga Goals LB games inventory links** — Games col + Max GF→Max draw → player Games tab (`amiga_lb_games_inventory_cell_html()`); mosaic parity; C1 calm links. |
 | 2026-07-16 | **Amiga Rating LB games inventory links** — Games / Wins / Draws / Losses cols → player Games tab (`amiga_lb_rating_games_inventory_cell_html()` · C1; W/L `.blue`/`.red` when count > 0); parity with profile Results mosaic. |
 | 2026-07-16 | **Amiga Victims LB chronology links** — Opponents→BW Culprits cols link to player chronology Made-it entries (`amiga_lb_victims_chronology_cell_html()` · plain C1 `k2-table-cell-link`; Opponents anchor `.blue`); same destinations as profile Victims mosaic; count > 0 only. |
 | 2026-07-16 | **Amiga profile Victims mosaic row order** — `amiga_profile_lb_slice_rows_victims()`: Victims → Culprits → DD → CS → MGC/BL victims → MGS/BW culprits (parity with Victims LB wing). |
