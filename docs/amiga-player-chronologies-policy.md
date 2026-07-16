@@ -26,7 +26,7 @@ Each **kind** (Opponents, Victims, DD Victims, …) is a separate folder under `
 | Surface | Difference |
 |---------|------------|
 | **Opponents wing** (`/amiga/player/opponents/*`) | **Comparison** — H2H poster, W/D/L ledger, pair charts vs one selected opponent. Profile mosaic **Opponents count** links to **chronology**, not this wing. |
-| **Hub leaderboards** | **Comparison** — where does this player rank? |
+| **Hub leaderboards** | **Comparison** — where does this player rank? **Exception (Jul 2026):** Amiga **Victims & Culprits** LB wing — Opponents→BW Culprits cols link to chronology Made-it (inventory drill-down; plain C1 `k2-table-cell-link` via `amiga_lb_victims_chronology_cell_html()`). |
 | **Milestone detail** (`milestone.php`) | Server-wide achievers for one milestone key — same *spotlight + Made it \| Graphs* UX family, different data scope. |
 | **Online / Amiga milestone chronology** (`player/milestones/chronology.php`) | Player’s **milestone unlock timeline** — not opponent/victim inventories. |
 
@@ -38,7 +38,7 @@ Each **kind** (Opponents, Victims, DD Victims, …) is a separate folder under `
 |---|----------|------|
 | **PC1** | **Inventory mode** | Chronology pages serve **inventory** only ([`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) §2). No default links to LB row anchors from table cells. |
 | **PC2** | **Folder per kind** | `/amiga/player/chronologies/{kind}/` — plural **`chronologies`**. Each segment = **separate PHP file** (`made-it.php`, `graphs.php`). `{kind}/index.php` → 302 default segment. **No** `?view=` / `?tab=` / `?wing=` for navigation ([`k2-page-structure-checklist.md`](k2-page-structure-checklist.md)). |
-| **PC3** | **Entry v1** | **Profile mosaic only** — no new player wing pill; player nav shows with **no tab active** (`$k2AmigaPlayerTabActive = ''`). Wing nav remains visible (Profile · Opponents · Tournaments · Games · Videos). |
+| **PC3** | **Entry** | **Profile mosaic** + **Victims & Culprits LB wing** (Jul 2026) — no new player wing pill; player nav shows with **no tab active** (`$k2AmigaPlayerTabActive = ''`). Wing nav remains visible (Profile · Opponents · Tournaments · Games · Videos). |
 | **PC4** | **Page stack** | Realm hub bar → TT ribbon → player hero → **player wing nav** → **spotlight card** → **segment nav** (Made it \| Graphs, `data-k2-carry-scroll`) → table or charts. Same milestone-detail *family* as `milestone.php` ([`player_milestones_helpers.php`](../site/public_html/includes/player_milestones_helpers.php) spotlight). |
 | **PC5** | **Spotlight** | Anchor `#k2-amiga-chronology-spotlight` **above** card (`AMIGA_PLAYER_CHRONOLOGY_SPOTLIGHT_FRAGMENT`). Mosaic entry uses `amiga_player_chronology_opponents_entry_href()` = route + hash. Page sets `$k2ScrollTargetId` to same fragment. Title ink = **`k2-link-star`**; card glow `--k2-ms-accent: var(--k2-link-star)` ([`player-feast-sections.css`](../site/public_html/stylesheets/player-feast-sections.css)). |
 | **PC6** | **Time travel** | **`as=`** on all wired reads and internal links (`amiga_snapshot_context_from_request`, `amiga_url_with_context()` / `k2_amiga_route()`). Membership + first meeting ≤ cutoff. |

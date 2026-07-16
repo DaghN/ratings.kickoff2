@@ -234,6 +234,38 @@ function amiga_lb_victims_order_column_map(bool $timeTravelActive = false): arra
     ];
 }
 
+/**
+ * Victims LB stat cell → player chronology Made-it entry (C1 calm cell link).
+ * Same destinations as profile Victims & Culprits mosaic; link only when count > 0.
+ *
+ * @param bool $anchorBlue Wing anchor column (Opponents) — editorial `.blue` ink at rest per hub LB pattern.
+ */
+function amiga_lb_victims_chronology_cell_html(
+    int $playerId,
+    mixed $count,
+    int $games,
+    string $href,
+    bool $anchorBlue = false
+): string {
+    $display = k2_fmt_count($count, $games);
+    if ($display === '-' || $display === '—') {
+        return k2_h($display);
+    }
+
+    $numericCount = (int) $display;
+    $linkClass = $anchorBlue ? 'k2-table-cell-link blue' : 'k2-table-cell-link';
+    if ($playerId > 0 && $numericCount > 0 && $href !== '') {
+        return '<a class="' . $linkClass . '" href="' . k2_h($href) . '">'
+            . k2_h($display) . '</a>';
+    }
+
+    if ($anchorBlue) {
+        return '<span class="blue">' . k2_h($display) . '</span>';
+    }
+
+    return k2_h($display);
+}
+
 /** Default ORDER BY tail for Amiga peak-rating LB (no leading ORDER BY). */
 function amiga_lb_peak_rating_default_order_sql(): string
 {

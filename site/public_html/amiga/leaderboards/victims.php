@@ -21,6 +21,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_inverse_count_lib.php'
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_load.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_amiga_country_flag.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/lb_column_help.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_chronologies_lib.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 
 $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $dbportnum);
@@ -110,24 +111,25 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
 $rank = 1;
 while ($row = mysqli_fetch_assoc($result)) {
     $games = (int) $row['NumberGames'];
+    $playerId = (int) $row['ID'];
     $playerName = (string) $row['Name'];
     ?>
     <tr>
         <td<?php echo k2_lb_td(0, $lbSort); ?>><?php echo $rank; ?></td>
-        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_lb_player_row_anchor_markup((int) $row['ID']); ?><?php echo k2_amiga_lb_player_cell((int) $row['ID'], $playerName, (string) ($row['Country'] ?? '')); ?></td>
-        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_amiga_lb_rating_cell_link((int) $row['ID'], $row['Rating'], $playerName); ?></td>
+        <td<?php echo k2_lb_td(1, $lbSort, 'k2-table-cell--left'); ?> data-k2-sort-value="<?php echo k2_h($playerName); ?>"><?php echo k2_lb_player_row_anchor_markup($playerId); ?><?php echo k2_amiga_lb_player_cell($playerId, $playerName, (string) ($row['Country'] ?? '')); ?></td>
+        <td<?php echo k2_lb_td(2, $lbSort); ?>><?php echo k2_amiga_lb_rating_cell_link($playerId, $row['Rating'], $playerName); ?></td>
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo k2_fmt_games_played($games); ?></td>
-        <td<?php echo k2_lb_td(4, $lbSort); ?>><span class="blue"><?php echo k2_fmt_count($row['DifferentOpponents'], $games); ?></span></td>
-        <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo k2_fmt_count($row['DifferentVictims'], $games); ?></td>
-        <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo k2_fmt_count($row['DifferentCulprits'], $games); ?></td>
-        <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo k2_fmt_count($row['DoubleDigitsVictims'], $games); ?></td>
-        <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo k2_fmt_count($row['DoubleDigitsCulprits'], $games); ?></td>
-        <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo k2_fmt_count($row['CleanSheetsVictims'], $games); ?></td>
-        <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo k2_fmt_count($row['CleanSheetsCulprits'], $games); ?></td>
-        <td<?php echo k2_lb_td(11, $lbSort); ?>><?php echo k2_fmt_count($row['MostGoalsConcededVictims'], $games); ?></td>
-        <td<?php echo k2_lb_td(12, $lbSort); ?>><?php echo k2_fmt_count($row['BiggestLossVictims'], $games); ?></td>
-        <td<?php echo k2_lb_td(13, $lbSort); ?>><?php echo k2_fmt_count($row['MostGoalsScoredCulprits'], $games); ?></td>
-        <td<?php echo k2_lb_td(14, $lbSort); ?>><?php echo k2_fmt_count($row['BiggestWinCulprits'], $games); ?></td>
+        <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['DifferentOpponents'], $games, amiga_player_chronology_opponents_entry_href($playerId), true); ?></td>
+        <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['DifferentVictims'], $games, amiga_player_chronology_victims_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['DifferentCulprits'], $games, amiga_player_chronology_culprits_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['DoubleDigitsVictims'], $games, amiga_player_chronology_dd_victims_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['DoubleDigitsCulprits'], $games, amiga_player_chronology_dd_culprits_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['CleanSheetsVictims'], $games, amiga_player_chronology_cs_victims_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['CleanSheetsCulprits'], $games, amiga_player_chronology_cs_culprits_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(11, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['MostGoalsConcededVictims'], $games, amiga_player_chronology_mgc_victims_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(12, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['BiggestLossVictims'], $games, amiga_player_chronology_bl_victims_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(13, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['MostGoalsScoredCulprits'], $games, amiga_player_chronology_mgs_culprits_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(14, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['BiggestWinCulprits'], $games, amiga_player_chronology_bw_culprits_entry_href($playerId)); ?></td>
     </tr>
     <?php
     $rank++;

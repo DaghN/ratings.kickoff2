@@ -149,6 +149,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-16 | **Amiga Victims LB chronology links** — Opponents→BW Culprits cols link to player chronology Made-it entries (`amiga_lb_victims_chronology_cell_html()` · plain C1 `k2-table-cell-link`); same destinations as profile Victims mosaic; count > 0 only. |
 | 2026-07-16 | **Amiga profile Victims mosaic row order** — `amiga_profile_lb_slice_rows_victims()`: Victims → Culprits → DD → CS → MGC/BL victims → MGS/BW culprits (parity with Victims LB wing). |
 | 2026-07-16 | **Online Victims LB column order** — CS Victims/Culprits before MGC/BL victims (`leaderboards/victims.php`); SSR map `k2_lb_victims_order_column_map()`; HoF `most_cs_victims` `k2_sort` 9 (`records_hof_links.php`). Parity with Amiga victims wing. |
 | 2026-07-16 | **Amiga Victims LB column order** — CS Victims/Culprits moved before MGC/BL victims (`victims.php` cols 9–10); SSR map `amiga_lb_victims_order_column_map()`; HoF `most_cs_victims` `k2_sort` 9 (`amiga_records_hof_links.php`). |
