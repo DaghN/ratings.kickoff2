@@ -121,6 +121,9 @@ def build(*, verified_only: bool = False) -> dict:
 
 
 def run(*, verified_only: bool = False) -> int:
+    from scripts.amiga.modern.work_safety import refuse_legacy_video_deploy_on_work
+
+    refuse_legacy_video_deploy_on_work(cli_name="build_manifest")
     payload = build(verified_only=verified_only)
     MANIFEST_JSON.parent.mkdir(parents=True, exist_ok=True)
     MANIFEST_JSON.write_text(

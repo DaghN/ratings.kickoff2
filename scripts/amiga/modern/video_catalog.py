@@ -324,7 +324,17 @@ def _assert_promote_start_sec_parity(work_manifest: Path) -> None:
 
 
 def promote_work_video_deploy() -> dict[str, Any]:
-    """PROMOTE-1 — copy work video build to PHP deploy paths."""
+    """PROMOTE-1 — align work manifest, verify parity, copy to PHP deploy paths."""
+    from scripts.amiga.modern.work_safety import snapshot_video_promote_backup
+
+    snapshot_video_promote_backup()
+
+    if run_video_align_work(dry_run=False) != 0:
+        raise SystemExit(
+            "Refusing promote-video-deploy: align-video-work failed.\n"
+            "Fix video catalog errors, then retry promote."
+        )
+
     work_manifest = WORK_MANIFEST_JSON
     work_review = WORK_VIDEO_DIR / "review.csv"
     deploy_manifest = LEGACY_MANIFEST_JSON

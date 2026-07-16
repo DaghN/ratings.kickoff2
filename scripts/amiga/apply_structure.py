@@ -101,6 +101,7 @@ def apply_structure_from_disposition(
     limit: int | None = None,
     dry_run: bool = False,
     clear_existing: bool = True,
+    force: bool = False,
 ) -> ApplyStructureStats:
     """Dispatch L4 handlers from disposition_register.json."""
     reg = reg or DispositionRegister.load()
@@ -133,7 +134,7 @@ def apply_structure_from_disposition(
             stats.skipped += 1
             continue
 
-        if tournament_id is not None and clear_existing:
+        if tournament_id is not None and clear_existing and force:
             from scripts.amiga.tournament_structure.materialize_legacy import (
                 _clear_tournament_structure,
             )
@@ -147,6 +148,7 @@ def apply_structure_from_disposition(
                     tid,
                     dry_run=dry_run,
                     replace=True,
+                    force=force,
                 )
                 stats.pure_rr += 1
                 _accumulate_materialize(stats, result)
@@ -156,6 +158,7 @@ def apply_structure_from_disposition(
                     tid,
                     dry_run=dry_run,
                     replace=True,
+                    force=force,
                 )
                 stats.pure_knockout += 1
                 _accumulate_materialize(stats, result)

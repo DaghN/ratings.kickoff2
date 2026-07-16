@@ -48,13 +48,13 @@ The Amiga realm adopts a **living ground database** model, matching online ladde
 | Dagh said | Agent may run | Agent must **not** run |
 |-----------|---------------|------------------------|
 | simul / sign-off | `python -m scripts.amiga simul` | `prove`, `import-witness`, `seed-work` |
-| export / push staged | `export_ko2amiga_work.ps1` (align → promote → export) | `seed-work`, `simul --recreate-schema` without destroy consent |
-| fix video timestamps | Edit **shared** `data/amiga/tournament_videos/video_game_links.csv` → `align-video-work` | Edit only deploy `tournament_videos.json`; stale work sidecar |
+| export / push staged | `export_ko2amiga_work.ps1` (`promote-video-deploy` → export) | `seed-work`, `simul --recreate-schema` / full `apply-structure-work` without destroy consent |
+| fix video timestamps | Edit **shared** `data/amiga/tournament_videos/video_game_links.csv` → `align-video-work` | Edit only deploy `tournament_videos.json`; stale work sidecar; legacy `sync_db_ids` / `build_manifest` on work |
 | pull staged | `pull_ko2amiga_from_staging.ps1 -Force` | Push without reminding if staging had unstaged community ground |
 
-**Nuclear commands** (`seed-work`, `simul --recreate-schema`) refuse when living ground exists unless **`--i-mean-destroy-work`** + **`--confirm-destroy=destroy-ko2amiga-work`** (or env `KO2AMIGA_ALLOW_DESTROY_WORK=1`). **`import-witness`** already refuses `ko2amiga_work` (oracle `ko2amiga_db` only).
+**Nuclear commands** (`seed-work`, `simul --recreate-schema`, full **`apply-structure-work`** when L4 exists) refuse when living ground exists unless **`--i-mean-destroy-work`** + **`--confirm-destroy=destroy-ko2amiga-work`** (or env `KO2AMIGA_ALLOW_DESTROY_WORK=1`). **`import-witness`** already refuses `ko2amiga_work` (oracle `ko2amiga_db` only).
 
-**Video editorial canon** = git `data/amiga/tournament_videos/` — align reads sidecar from shared; promote refuses manifest/sidecar `start_sec` mismatch. Export snapshots prior deploy manifest under `data/amiga/exports/video-promote/`.
+**Video editorial canon** = git `data/amiga/tournament_videos/` — align reads sidecar from shared; **`promote-video-deploy`** runs snapshot → align → parity gate → deploy copy. Legacy `sync_db_ids` / `build_manifest` refuse on `ko2amiga_work`.
 
 **Ground fingerprint** — `data/amiga/work/ground-fingerprint.json` (gitignored); simul preflight aborts if L3/L4 counts shrink unexpectedly (`--allow-ground-shrink` to override).
 

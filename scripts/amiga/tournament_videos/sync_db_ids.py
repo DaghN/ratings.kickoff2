@@ -17,6 +17,9 @@ from scripts.amiga.tournament_videos.manifest_db import (
 
 
 def run(*, write: bool = True, resolve_matches: bool = True, rebuild: bool = True) -> int:
+    from scripts.amiga.modern.work_safety import refuse_legacy_video_deploy_on_work
+
+    refuse_legacy_video_deploy_on_work(cli_name="sync_db_ids")
     rows = load_review_rows()
     conn = connect_db()
     try:

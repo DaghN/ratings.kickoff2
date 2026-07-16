@@ -164,7 +164,11 @@ def run_simul(
 
     if need_structure:
         log.info("simul: L4 apply-structure-work")
-        stats = run_apply_structure_work(dry_run=dry_run)
+        stats = run_apply_structure_work(
+            dry_run=dry_run,
+            destroy_work=destroy_work,
+            confirm_destroy=confirm_destroy,
+        )
         log.info("simul: L4 complete %s", stats.to_dict())
 
     if not dry_run:

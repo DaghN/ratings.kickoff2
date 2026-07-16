@@ -406,7 +406,7 @@ def main(argv: list[str] | None = None) -> int:
     p_simul.add_argument(
         "--i-mean-destroy-work",
         action="store_true",
-        help="Required with --recreate-schema when living ground exists",
+        help="Required with --recreate-schema or --apply-structure when living L4 exists",
     )
     p_simul.add_argument(
         "--confirm-destroy",
@@ -427,6 +427,22 @@ def main(argv: list[str] | None = None) -> int:
     p_apply_structure_work.add_argument("--tournament-id", type=int, default=None)
     p_apply_structure_work.add_argument("--limit", type=int, default=None)
     p_apply_structure_work.add_argument("--dry-run", action="store_true")
+    p_apply_structure_work.add_argument(
+        "--i-mean-destroy-work",
+        action="store_true",
+        help="Required for full L4 clear when living structure exists on work",
+    )
+    p_apply_structure_work.add_argument(
+        "--confirm-destroy",
+        type=str,
+        default=None,
+        help="Typed phrase destroy-ko2amiga-work (with --i-mean-destroy-work)",
+    )
+    p_apply_structure_work.add_argument(
+        "--force",
+        action="store_true",
+        help="With --tournament-id: wipe curated structure (--force on materialize)",
+    )
 
     p_parity = sub.add_parser(
         "parity",
@@ -968,6 +984,9 @@ def main(argv: list[str] | None = None) -> int:
             tournament_id=args.tournament_id,
             limit=args.limit,
             dry_run=args.dry_run,
+            destroy_work=args.i_mean_destroy_work,
+            confirm_destroy=args.confirm_destroy,
+            force=args.force,
         )
         log.info("apply-structure-work complete: %s", stats.to_dict())
         return 0

@@ -89,7 +89,7 @@ When `python -m scripts.amiga simul` (video on by default; `--skip-video` to opt
 6. Write **work** `review.csv` cache columns + rebuild **work** manifest.
 7. Run `verify-tournament-videos` against work — includes **`game_start_sec[]` vs shared sidecar parity** (catches minutes-vs-seconds drift).
 
-**Default:** simul runs video align + verify unless `--skip-video`. Export runs **align → promote** (`promote-video-deploy` refuses sidecar/manifest `start_sec` mismatch; snapshots prior deploy manifest under `data/amiga/exports/video-promote/`).
+**Default:** simul runs video align + verify unless `--skip-video`. **`promote-video-deploy`** snapshots prior deploy manifest, runs **align**, enforces **`game_start_sec[]` parity**, then copies work → deploy. Export calls **`promote-video-deploy`** only (align is inside promote). Legacy **`sync_db_ids`** / **`build_manifest`** refuse when `KO2AMIGA_DATABASE=ko2amiga_work`.
 
 Harvest (`harvest`, `apply_review`, `resolve_games`) remains **offline editorial** — not every simul.
 

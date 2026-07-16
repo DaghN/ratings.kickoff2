@@ -1,15 +1,9 @@
 # Dump local ko2amiga_work for staging import into ko2amiga_db on the server.
-# Aligns video from shared editorial, promotes to site/public_html, then exports.
+# Promote runs snapshot + align + deploy video; then exports.
 # Usage (repo root): powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_work.ps1
 $ErrorActionPreference = 'Stop'
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $RepoRoot
-
-python -m scripts.amiga snapshot-video-promote
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-python -m scripts.amiga align-video-work
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 python -m scripts.amiga promote-video-deploy
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
