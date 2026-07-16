@@ -82,14 +82,14 @@ Work outputs (writable by modern tooling only)
 When `python -m scripts.amiga simul` (video on by default; `--skip-video` to opt out):
 
 1. Target DB = **`ko2amiga_work`** only (`KO2AMIGA_DATABASE`).
-2. Read shared editorial (+ work cache overlay if split).
+2. **Always refresh** shared editorial `video_game_links.csv` + `dropped.csv` into work; **`start_sec` reads from shared git path only** (work must not fork editorial).
 3. For **verified / locked** rows: assert `game_id_guess` exists in work DB; assert facts match DB; **do not** heuristic-replace id.
 4. For **unverified** rows: allow resolver proposals (same fact machinery as legacy).
 5. Refresh `tournament_id` / `player_*_id` from names where needed.
 6. Write **work** `review.csv` cache columns + rebuild **work** manifest.
-7. Run `verify-tournament-videos` against work (env override).
+7. Run `verify-tournament-videos` against work — includes **`game_start_sec[]` vs shared sidecar parity** (catches minutes-vs-seconds drift).
 
-**Default:** simul runs video align + verify unless `--skip-video`. Export promotes work manifest via `promote-video-deploy` before WinSCP sync.
+**Default:** simul runs video align + verify unless `--skip-video`. Export runs **align → promote** (`promote-video-deploy` refuses sidecar/manifest `start_sec` mismatch; snapshots prior deploy manifest under `data/amiga/exports/video-promote/`).
 
 Harvest (`harvest`, `apply_review`, `resolve_games`) remains **offline editorial** — not every simul.
 

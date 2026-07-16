@@ -105,7 +105,7 @@ Preview must show the manifest **part count** from the latest export and the imp
 
 **Post-import verify (local or after staging refresh):** On work clone: `python -m scripts.amiga simul` or spot-check verify CLIs. On oracle: `python -m scripts.amiga parity` (work vs frozen `ko2amiga_db`). Staging does not run Python replay automatically — export must come from local **`ko2amiga_work`** that already passed **simul**.
 
-**Tournament video manifest:** Modern path — `export_ko2amiga_work.ps1` runs **`promote-video-deploy`** (work manifest → `site/public_html/data/amiga/`). Legacy oracle rebuild: **`prove`** + `sync_db_ids` before export ([`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §12).
+**Tournament video manifest:** Modern path — `export_ko2amiga_work.ps1` runs **snapshot → `align-video-work` → `promote-video-deploy`** (shared sidecar canon → deploy `site/public_html/data/amiga/`). Legacy oracle rebuild: **`prove`** + `sync_db_ids` before export ([`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §12).
 
 Password is **`coffee`** (`&pwd=coffee` in URL, or type it on the prompt page).
 

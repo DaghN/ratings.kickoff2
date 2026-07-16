@@ -372,6 +372,11 @@ def validate_catalog(
             if issue.severity == "error":
                 add(f"{yt}: {issue.code}: {issue.message}")
 
+    from scripts.amiga.tournament_videos.game_links import verify_manifest_start_sec_parity
+
+    for msg in verify_manifest_start_sec_parity(manifest_videos):
+        add(msg)
+
     if total_errors > max_errors:
         errors.append(f"... and {total_errors - max_errors} more (showing first {max_errors})")
     return errors, total_errors

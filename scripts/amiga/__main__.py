@@ -361,6 +361,17 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Do not drop existing tables before apply_schema",
     )
+    p_seed_work.add_argument(
+        "--i-mean-destroy-work",
+        action="store_true",
+        help="Required when living ground exists — wipes all post-day-0 data",
+    )
+    p_seed_work.add_argument(
+        "--confirm-destroy",
+        type=str,
+        default=None,
+        help="Typed phrase destroy-ko2amiga-work (with --i-mean-destroy-work)",
+    )
 
     p_simul = sub.add_parser(
         "simul",
@@ -391,6 +402,22 @@ def main(argv: list[str] | None = None) -> int:
         "--recreate-schema",
         action="store_true",
         help="apply_schema(drop_existing=True) — destructive dev only",
+    )
+    p_simul.add_argument(
+        "--i-mean-destroy-work",
+        action="store_true",
+        help="Required with --recreate-schema when living ground exists",
+    )
+    p_simul.add_argument(
+        "--confirm-destroy",
+        type=str,
+        default=None,
+        help="Typed phrase destroy-ko2amiga-work (with --i-mean-destroy-work)",
+    )
+    p_simul.add_argument(
+        "--allow-ground-shrink",
+        action="store_true",
+        help="Allow simul when L3/L4 counts dropped since last fingerprint",
     )
 
     p_apply_structure_work = sub.add_parser(
@@ -441,6 +468,14 @@ def main(argv: list[str] | None = None) -> int:
     p_promote_video_deploy = sub.add_parser(
         "promote-video-deploy",
         help="PROMOTE-1: copy work video manifest to site/public_html deploy paths",
+    )
+    sub.add_parser(
+        "snapshot-video-promote",
+        help="Pre-export backup of deploy video manifest + shared sidecar fingerprint",
+    )
+    sub.add_parser(
+        "write-ground-fingerprint",
+        help="Record ko2amiga_work L3/L4 counts for simul shrink detection",
     )
 
     p_verify_export_pack = sub.add_parser(
@@ -901,6 +936,8 @@ def main(argv: list[str] | None = None) -> int:
             day0_dir=args.day0_dir,
             skip_schema_part=not args.include_schema_part,
             recreate=not args.no_recreate,
+            destroy_work=args.i_mean_destroy_work,
+            confirm_destroy=args.confirm_destroy,
         )
         log.info(
             "seed-work OK: version=%s db=%s tournaments=%s players=%s games=%s parts=%s",
@@ -921,6 +958,9 @@ def main(argv: list[str] | None = None) -> int:
             skip_video=args.skip_video,
             skip_verify=args.skip_verify,
             recreate_schema=args.recreate_schema,
+            destroy_work=args.i_mean_destroy_work,
+            confirm_destroy=args.confirm_destroy,
+            allow_ground_shrink=args.allow_ground_shrink,
         )
 
     if args.cmd == "apply-structure-work":
@@ -957,6 +997,18 @@ def main(argv: list[str] | None = None) -> int:
         from scripts.amiga.modern.video_catalog import promote_work_video_deploy
 
         promote_work_video_deploy()
+        return 0
+
+    if args.cmd == "snapshot-video-promote":
+        from scripts.amiga.modern.work_safety import snapshot_video_promote_backup
+
+        snapshot_video_promote_backup()
+        return 0
+
+    if args.cmd == "write-ground-fingerprint":
+        from scripts.amiga.modern.work_safety import write_ground_fingerprint
+
+        write_ground_fingerprint()
         return 0
 
     if args.cmd == "seal-day0":

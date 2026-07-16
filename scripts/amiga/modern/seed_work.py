@@ -98,8 +98,18 @@ def seed_work_from_day0(
     day0_dir: Path = DAY0_DIR,
     skip_schema_part: bool = True,
     recreate: bool = True,
+    destroy_work: bool = False,
+    confirm_destroy: str | None = None,
 ) -> dict[str, object]:
     """Create ko2amiga_work, apply_schema, load day0 sql_parts, verify."""
+    if recreate:
+        from scripts.amiga.modern.work_safety import assert_safe_to_nuke_work
+
+        assert_safe_to_nuke_work(
+            operation="seed-work",
+            cli_destroy_flag=destroy_work,
+            confirm_phrase=confirm_destroy,
+        )
     manifest = _load_manifest(day0_dir)
     version = manifest.get("version", "unknown")
     sql_parts = manifest.get("sql_parts")

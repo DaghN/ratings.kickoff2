@@ -26,7 +26,7 @@ def _day0_baseline() -> dict[str, Any] | None:
     }
 
 
-def preflight_simul() -> dict[str, Any]:
+def preflight_simul(*, allow_ground_shrink: bool = False) -> dict[str, Any]:
     """
     Living-ground preflight: work DB has L3 witness rows.
 
@@ -35,6 +35,9 @@ def preflight_simul() -> dict[str, Any]:
     """
     conn = connect_work()
     try:
+        from scripts.amiga.modern.work_safety import check_ground_fingerprint_preflight
+
+        check_ground_fingerprint_preflight(conn, allow_ground_shrink=allow_ground_shrink)
         with conn.cursor() as cur:
             cur.execute("SELECT COUNT(*) AS n FROM tournaments")
             tournaments = int(cur.fetchone()["n"])

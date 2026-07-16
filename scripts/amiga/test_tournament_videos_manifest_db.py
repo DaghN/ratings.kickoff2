@@ -12,6 +12,7 @@ from scripts.amiga.tournament_videos.game_links import (
     manifest_game_start_sec,
     row_needs_game_link_audit,
     validate_sidecar_schema,
+    verify_manifest_start_sec_parity,
 )
 from scripts.amiga.tournament_videos.manifest_db import (
     DbSnapshot,
@@ -124,6 +125,33 @@ class ManifestDbTest(unittest.TestCase):
         game_links._load_sidecar_index.cache_clear()
         issues = validate_sidecar_schema([{"youtube_id": "abc"}])
         self.assertFalse(any("duplicate" in i for i in issues))
+
+    def test_verify_manifest_start_sec_parity_mismatch(self) -> None:
+        from scripts.amiga.tournament_videos import game_links
+
+        game_links._load_sidecar_index.cache_clear()
+        links = [
+            MatchFactLink("yt1", 1, "T", "A", "B", "1-0", "stream", None, 780),
+        ]
+        original = game_links.sidecar_links_for_video
+
+        def fake_sidecar(youtube_id: str) -> list[MatchFactLink]:
+            return links if youtube_id == "yt1" else []
+
+        game_links.sidecar_links_for_video = fake_sidecar  # type: ignore[assignment]
+        try:
+            manifest = [
+                {
+                    "youtube_id": "yt1",
+                    "game_ids": [10],
+                    "game_start_sec": [13],
+                }
+            ]
+            errors = verify_manifest_start_sec_parity(manifest)
+            self.assertTrue(any("780" in e and "13" in e for e in errors))
+        finally:
+            game_links.sidecar_links_for_video = original  # type: ignore[assignment]
+            game_links._load_sidecar_index.cache_clear()
 
 
 if __name__ == "__main__":

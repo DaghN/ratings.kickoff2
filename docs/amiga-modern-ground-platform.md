@@ -41,6 +41,25 @@ The Amiga realm adopts a **living ground database** model, matching online ladde
 | **Access L0–L5 docs** | **Archived** — [`archive/amiga-access-pipeline-index.md`](archive/amiga-access-pipeline-index.md) |
 | **Community mistakes on staging** | [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) — anchored repair, not full prove |
 
+### 0.1 Work DB kill switches (Jul 2026)
+
+**Living ground = `ko2amiga_work`.** Simul clears **L5 derived only** — not games, fixtures, structure, or forward events.
+
+| Dagh said | Agent may run | Agent must **not** run |
+|-----------|---------------|------------------------|
+| simul / sign-off | `python -m scripts.amiga simul` | `prove`, `import-witness`, `seed-work` |
+| export / push staged | `export_ko2amiga_work.ps1` (align → promote → export) | `seed-work`, `simul --recreate-schema` without destroy consent |
+| fix video timestamps | Edit **shared** `data/amiga/tournament_videos/video_game_links.csv` → `align-video-work` | Edit only deploy `tournament_videos.json`; stale work sidecar |
+| pull staged | `pull_ko2amiga_from_staging.ps1 -Force` | Push without reminding if staging had unstaged community ground |
+
+**Nuclear commands** (`seed-work`, `simul --recreate-schema`) refuse when living ground exists unless **`--i-mean-destroy-work`** + **`--confirm-destroy=destroy-ko2amiga-work`** (or env `KO2AMIGA_ALLOW_DESTROY_WORK=1`). **`import-witness`** already refuses `ko2amiga_work` (oracle `ko2amiga_db` only).
+
+**Video editorial canon** = git `data/amiga/tournament_videos/` — align reads sidecar from shared; promote refuses manifest/sidecar `start_sec` mismatch. Export snapshots prior deploy manifest under `data/amiga/exports/video-promote/`.
+
+**Ground fingerprint** — `data/amiga/work/ground-fingerprint.json` (gitignored); simul preflight aborts if L3/L4 counts shrink unexpectedly (`--allow-ground-shrink` to override).
+
+**Structure replace** — `materialize --replace` on curated tournaments (manual materialize notes or fixture-linked games) requires **`--force`**.
+
 ---
 
 ## 2. Motivation

@@ -402,6 +402,27 @@ def _import_create_fixture(
         return int(cur.fetchone()["id"])
 
 
+def _is_manually_curated_structure(conn: pymysql.connections.Connection, tournament_id: int) -> bool:
+    """True when disposition notes or fixture linkage indicate hand-built structure."""
+    from scripts.amiga.tournament_structure.disposition_register import DispositionRegister
+
+    reg = DispositionRegister.load()
+    row = reg.get(tournament_id)
+    if row and row.notes:
+        notes = row.notes.lower()
+        if "manual materialize" in notes or "materialize --replace" in notes:
+            return True
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT COUNT(*) AS n FROM amiga_games "
+            "WHERE tournament_id = %s AND fixture_id IS NOT NULL",
+            (tournament_id,),
+        )
+        if int(cur.fetchone()["n"]) > 0:
+            return True
+    return False
+
+
 def materialize_legacy_fixtures(
     conn: pymysql.connections.Connection,
     tournament_id: int,
@@ -449,6 +470,13 @@ def materialize_legacy_fixtures(
             f"tournament_id={tournament_id} already has {existing_stages} stage(s) — "
             "pass replace=True to rebuild"
         )
+    if existing_stages and replace and not force:
+        if _is_manually_curated_structure(conn, tournament_id):
+            raise StructureReviewRequired(
+                f"tournament_id={tournament_id} ({tournament['name']!r}) has curated structure "
+                "(manual materialize or fixture-linked games). "
+                "Pass --force to wipe and rebuild."
+            )
     if existing_stages and replace:
         _clear_tournament_structure(conn, tournament_id)
 

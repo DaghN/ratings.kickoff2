@@ -240,6 +240,16 @@ def materialize_pure_knockout(
         raise ValueError(
             f"tournament_id={tournament_id} already has {existing} stage(s) — pass replace=True"
         )
+    if existing and replace and not force:
+        from scripts.amiga.tournament_structure.materialize_legacy import (
+            _is_manually_curated_structure,
+        )
+
+        if _is_manually_curated_structure(conn, tournament_id):
+            raise ValueError(
+                f"tournament_id={tournament_id} has curated structure — "
+                "pass --force to wipe and rebuild"
+            )
     if existing and replace:
         _clear_tournament_structure(conn, tournament_id)
 

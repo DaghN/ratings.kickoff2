@@ -85,13 +85,17 @@ def run_prove(
     """
     L1 → L2 → L3 → L4 → L5 → verify — strict ground-layer orchestrator.
 
-    ``skip_l1_l2``: use existing L2 artefact (dev only — full sign-off runs L0→L1→L2).
+    Oracle only — forward path: python -m scripts.amiga simul on ko2amiga_work.
 
     ``limit``: replay smoke only — several verifiers require a full replay; do not use
     ``limit`` for sign-off (use full prove).
 
     ``skip_structure``: dev-only — skip L4 disposition dispatch (not sign-off).
     """
+    log.warning(
+        "prove: ORACLE ONLY on ko2amiga_db — never daily forward path. "
+        "Use: python -m scripts.amiga simul (ko2amiga_work living ground)."
+    )
     if limit is not None:
         log.warning(
             "prove --limit=%s: smoke only; rating-events / event-snapshots need full replay",

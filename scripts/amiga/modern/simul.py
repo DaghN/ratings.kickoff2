@@ -126,15 +126,25 @@ def run_simul(
     skip_video: bool = False,
     skip_verify: bool = False,
     recreate_schema: bool = False,
+    destroy_work: bool = False,
+    confirm_destroy: str | None = None,
+    allow_ground_shrink: bool = False,
 ) -> int:
     if recreate_schema:
+        from scripts.amiga.modern.work_safety import assert_safe_to_nuke_work
+
+        assert_safe_to_nuke_work(
+            operation="simul --recreate-schema",
+            cli_destroy_flag=destroy_work,
+            confirm_phrase=confirm_destroy,
+        )
         log.warning("simul --recreate-schema: destructive — drops all tables on %s", WORK_DB)
 
     activate_work_database_env()
     t0 = time.monotonic()
     started_utc = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
-    preflight = preflight_simul()
+    preflight = preflight_simul(allow_ground_shrink=allow_ground_shrink)
     l3_before = {k: preflight["counts"][k] for k in L3_GROUND_COUNT_KEYS}
 
     conn = connect_work()
@@ -197,6 +207,11 @@ def run_simul(
         apply_structure=need_structure,
         skip_video=skip_video,
     )
+
+    if not dry_run:
+        from scripts.amiga.modern.work_safety import write_ground_fingerprint
+
+        write_ground_fingerprint()
 
     log.info("simul OK on %s", WORK_DB)
     return 0

@@ -36,6 +36,12 @@ _SHARED_FILES = (
     "dropped.csv",
 )
 
+# Editorial canon lives in git shared paths — always refreshed into work on align.
+_SHARED_EDITORIAL_ALWAYS_REFRESH = (
+    "video_game_links.csv",
+    "dropped.csv",
+)
+
 
 def _git_head() -> str | None:
     try:
@@ -55,7 +61,10 @@ def _git_head() -> str | None:
 
 @contextmanager
 def work_video_paths() -> Iterator[None]:
-    """Point legacy tournament_videos modules at work outputs only."""
+    """Point legacy tournament_videos modules at work outputs only.
+
+    Sidecar editorial (start_sec) always reads from shared git paths — never a stale work fork.
+    """
     import scripts.amiga.tournament_videos.build_manifest as build_manifest
     import scripts.amiga.tournament_videos.constants as tv_const
     import scripts.amiga.tournament_videos.game_links as gl
@@ -64,7 +73,7 @@ def work_video_paths() -> Iterator[None]:
     work_review = WORK_VIDEO_DIR / "review.csv"
     work_manifest = WORK_MANIFEST_JSON
     work_public_review = work_manifest.parent / "tournament_videos" / "review.csv"
-    work_links = WORK_VIDEO_DIR / "video_game_links.csv"
+    shared_links = SHARED_VIDEO_DIR / "video_game_links.csv"
 
     saved = (
         tv_const.REVIEW_CSV,
@@ -79,7 +88,7 @@ def work_video_paths() -> Iterator[None]:
     try:
         tv_const.REVIEW_CSV = work_review
         tv_const.MANIFEST_JSON = work_manifest
-        gl.VIDEO_GAME_LINKS_CSV = work_links
+        gl.VIDEO_GAME_LINKS_CSV = shared_links
         build_manifest.REVIEW_CSV = work_review
         build_manifest.MANIFEST_JSON = work_manifest
         build_manifest.REVIEW_CSV_PUBLIC = work_public_review
@@ -97,6 +106,7 @@ def work_video_paths() -> Iterator[None]:
             manifest_db.REVIEW_CSV,
             manifest_db.MANIFEST_JSON,
         ) = saved
+        gl._load_sidecar_index.cache_clear()
 
 
 def seal_video_oracle() -> dict[str, Any]:
@@ -126,12 +136,32 @@ def seal_video_oracle() -> dict[str, Any]:
     return summary
 
 
+def refresh_shared_editorial_to_work() -> list[str]:
+    """Force-copy git editorial files into work (start_sec canon must not fork)."""
+    WORK_VIDEO_DIR.mkdir(parents=True, exist_ok=True)
+    copied: list[str] = []
+    for name in _SHARED_EDITORIAL_ALWAYS_REFRESH:
+        src = SHARED_VIDEO_DIR / name
+        if not src.is_file():
+            continue
+        dest = WORK_VIDEO_DIR / name
+        shutil.copy2(src, dest)
+        copied.append(name)
+    if copied:
+        from scripts.amiga.tournament_videos import game_links as gl
+
+        gl._load_sidecar_index.cache_clear()
+    return copied
+
+
 def seed_work_video_catalog(*, force: bool = False) -> dict[str, Any]:
     """V-1.2 — copy shared editorial into work compartment."""
     WORK_VIDEO_DIR.mkdir(parents=True, exist_ok=True)
-    copied: list[str] = []
+    copied: list[str] = list(refresh_shared_editorial_to_work())
 
     for name in _SHARED_FILES:
+        if name in _SHARED_EDITORIAL_ALWAYS_REFRESH:
+            continue
         src = SHARED_VIDEO_DIR / name
         if not src.is_file():
             continue
@@ -172,6 +202,7 @@ def run_video_align_work(*, dry_run: bool = False) -> int:
     started_utc = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
     seed_work_video_catalog()
+    refresh_shared_editorial_to_work()
 
     def _align() -> tuple[list[str], list[str], list[str], int]:
         with work_video_paths():
@@ -275,6 +306,23 @@ def run_verify_tournament_videos_work() -> int:
     return _run_with_work_db(_verify)
 
 
+def _assert_promote_start_sec_parity(work_manifest: Path) -> None:
+    """Refuse promote when manifest offsets diverge from shared sidecar."""
+    from scripts.amiga.tournament_videos.game_links import verify_manifest_start_sec_parity
+
+    data = json.loads(work_manifest.read_text(encoding="utf-8"))
+    videos = data.get("videos") or []
+    errors = verify_manifest_start_sec_parity(videos)
+    if errors:
+        sample = "\n  ".join(errors[:5])
+        extra = f"\n  ... and {len(errors) - 5} more" if len(errors) > 5 else ""
+        raise SystemExit(
+            "Refusing promote-video-deploy: manifest game_start_sec[] != shared sidecar.\n"
+            f"  {sample}{extra}\n"
+            "Run: python -m scripts.amiga align-video-work"
+        )
+
+
 def promote_work_video_deploy() -> dict[str, Any]:
     """PROMOTE-1 — copy work video build to PHP deploy paths."""
     work_manifest = WORK_MANIFEST_JSON
@@ -287,6 +335,8 @@ def promote_work_video_deploy() -> dict[str, Any]:
             f"Missing work manifest {work_manifest}\n"
             "Run: python -m scripts.amiga align-video-work"
         )
+
+    _assert_promote_start_sec_parity(work_manifest)
 
     deploy_manifest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(work_manifest, deploy_manifest)

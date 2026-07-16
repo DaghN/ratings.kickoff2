@@ -149,6 +149,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-16 | **Amiga work safety shipped** — shared-only video sidecar at align; promote/verify `game_start_sec` parity; export snapshot + align→promote; `seed-work`/`--recreate-schema` destroy consent; ground fingerprint; curated structure `--replace` guard; Nottingham stream offsets restored. [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md) §0.1. |
 | 2026-07-16 | **Amiga WC Opponents wing chronologies (complete)** — eight `wc_*` kinds shipped: culprits, DD/CS victims & culprits, countries faced/beaten/beaten-by; WC player-stats Opponents wing cols 6–13 linked; read-time SQL + `world_cup` slice parity; policy §4.0. |
 | 2026-07-16 | **Amiga WC opponents chronology pilot (`wc_opponents`)** — read-time SQL ∩ WC games; spotlight **WC opponents** + Made it \| Graphs; WC player-stats Opponents LB links Games + Opponents cols; policy [`amiga-player-chronologies-policy.md`](docs/amiga-player-chronologies-policy.md) §4.0. |
 | 2026-07-16 | **Amiga WC player DD&CS LB inventory links** — Games + Double Digits / Clean Sheets / DD C / CS C → Games tab `filter=world-cup` (+ gf/ga hero bounds); DD anchor `.blue`, DD C `.red`; ratio cols unchanged. |

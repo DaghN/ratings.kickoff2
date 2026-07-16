@@ -580,6 +580,40 @@ def audit_row_links(
     return issues
 
 
+def verify_manifest_start_sec_parity(
+    manifest_videos: list[dict[str, Any]],
+) -> list[str]:
+    """Manifest game_start_sec[] must match shared sidecar (catches minutes-vs-seconds drift)."""
+    errors: list[str] = []
+    for v in manifest_videos:
+        yt = str(v.get("youtube_id") or "")
+        gids = [int(x) for x in (v.get("game_ids") or [])]
+        if not gids:
+            continue
+        expected = manifest_game_start_sec(yt, gids)
+        actual = v.get("game_start_sec")
+        if expected is None:
+            continue
+        if actual is None:
+            if any(s is not None for s in expected):
+                errors.append(f"{yt}: manifest missing game_start_sec (sidecar has offsets)")
+            continue
+        if len(actual) != len(expected):
+            errors.append(
+                f"{yt}: game_start_sec length {len(actual)} != sidecar {len(expected)}"
+            )
+            continue
+        for i, (exp, got) in enumerate(zip(expected, actual, strict=True)):
+            if exp is None:
+                continue
+            if int(got) != int(exp):
+                errors.append(
+                    f"{yt}: game_start_sec[{i}]={got} != sidecar {exp} "
+                    f"(game_id {gids[i]})"
+                )
+    return errors
+
+
 def audit_catalog(
     snap: DbSnapshot,
     csv_rows: list[dict[str, str]],

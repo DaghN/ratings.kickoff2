@@ -27,7 +27,8 @@ Then add a **gitignore allowlist** for that folder (copy the `work-2026-07-11-ta
 1. Fresh `ko2amiga_work` (or DROP/CREATE).
 2. Import `ko2amiga_*.sql` in `ko2amiga_manifest.json` `parts[]` order.
 3. Copy `companion/tournament_videos.json` to `site/public_html/data/amiga/` if video manifest drifted.
-4. `python -m scripts.amiga simul` only if L5 derived looks stale or you imported structure-only.
+4. Restore video editorial from **`companion/video_game_links.csv`** (shared git canon snapshot at seal) — not a stale work fork.
+5. `python -m scripts.amiga simul` only if L5 derived looks stale or you imported structure-only.
 
 **Alternative:** Copy parts to `site/public_html/amiga/_import/` and use staging browser import URLs ([`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md)) against local Laragon.
 

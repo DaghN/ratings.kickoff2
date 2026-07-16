@@ -15,6 +15,10 @@ Living ground tooling for **`ko2amiga_work`**. Legacy nuclear prove (`prove.py`,
 | `python -m scripts.amiga parity` | `parity.py` |
 | `python -m scripts.amiga align-video-work` | `video_catalog.py` |
 | `python -m scripts.amiga promote-video-deploy` | `video_catalog.py` |
+| `python -m scripts.amiga snapshot-video-promote` | `work_safety.py` |
+| `python -m scripts.amiga write-ground-fingerprint` | `work_safety.py` |
+
+**Safety:** `seed-work` / `simul --recreate-schema` refuse when living ground exists unless `--i-mean-destroy-work` + `--confirm-destroy=destroy-ko2amiga-work`. Video sidecar editorial = shared git only at align time.
 
 Staging export: `scripts/export_ko2amiga_work.ps1` (outside this package).
 
