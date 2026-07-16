@@ -10,6 +10,7 @@ require_once __DIR__ . '/amiga_snapshot_context.php';
 function amiga_realm_games_hub_select_sql(): string
 {
     return 'SELECT r.id, r.`Date`, r.idA, r.NameA, r.idB, r.NameB, r.tournament_id, r.tournament_name, r.tournament_country, r.phase, '
+        . amiga_rated_games_phase_link_cols_sql() . ', '
         . 'r.GoalsA, r.GoalsB, r.RatingA, r.RatingB, r.RatingDifference, '
         . 'r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB, '
         . 'r.NewRatingA, r.NewRatingB, r.SumOfGoals, r.GoalDifference, r.country_a, r.country_b ';

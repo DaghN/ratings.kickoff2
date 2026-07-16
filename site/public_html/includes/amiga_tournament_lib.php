@@ -1216,7 +1216,8 @@ function amiga_tournament_games_rows(mysqli $con, int $tournamentId, int $player
 
     // Rich ratedresults-shaped source (Elo, expected score, adjustments, player nationalities)
     // — same view that backs amiga/game.php and amiga/player/games.php.
-    $sql = 'SELECT r.id, r.`Date`, r.idA, r.NameA, r.idB, r.NameB, r.phase,
+    $sql = 'SELECT r.id, r.`Date`, r.idA, r.NameA, r.idB, r.NameB, r.phase, '
+        . amiga_rated_games_phase_link_cols_sql() . ',
                    r.GoalsA, r.GoalsB, r.RatingA, r.RatingB, r.RatingDifference,
                    r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB,
                    r.NewRatingA, r.NewRatingB, r.SumOfGoals, r.GoalDifference,

@@ -139,7 +139,7 @@ $games = amiga_games_query_all(
     $con,
     'SELECT r.id, r.Date, r.idA, r.NameA, r.idB, r.NameB, r.RatingA, r.RatingB, r.GoalsA, r.GoalsB, '
         . 'r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB, r.SumOfGoals, r.GoalDifference, '
-        . 'r.phase, r.tournament_id, r.tournament_name, r.country_a, r.country_b, r.tournament_country '
+        . 'r.phase, ' . amiga_rated_games_phase_link_cols_sql() . ', r.tournament_id, r.tournament_name, r.country_a, r.country_b, r.tournament_country '
         . $fromSql . ' WHERE ' . $whereSql
         . ' ORDER BY ' . $sortMap[$sortKey] . ' ' . strtoupper($sortDirection) . ', r.id DESC'
         . ' LIMIT ' . $limit . ' OFFSET ' . $offset,

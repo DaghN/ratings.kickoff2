@@ -31,6 +31,12 @@ function amiga_game_phase_select_sql(): string
         . 's.id AS stage_id';
 }
 
+/** Outer SELECT columns (subquery alias `r`) for phase standings links on game list rows. */
+function amiga_rated_games_phase_link_cols_sql(): string
+{
+    return 'r.phase_witness, r.stage_id';
+}
+
 /** SQL expression for sorting/filtering by display phase. */
 function amiga_game_display_phase_expr_sql(): string
 {
@@ -134,7 +140,7 @@ function amiga_rated_game_load(mysqli $con, int $gameId): ?array
 
     $sql = 'SELECT r.id, r.Date, r.idA, r.NameA, r.idB, r.NameB, r.RatingA, r.RatingB, r.RatingDifference, '
         . 'r.GoalsA, r.GoalsB, r.ExpectedScoreA, r.ExpectedScoreB, r.ActualScore, r.AdjustmentA, r.AdjustmentB, '
-        . 'r.SumOfGoals, r.GoalDifference, r.phase, r.tournament_id, r.tournament_name, '
+        . 'r.SumOfGoals, r.GoalDifference, r.phase, ' . amiga_rated_games_phase_link_cols_sql() . ', r.tournament_id, r.tournament_name, '
         . 'r.country_a, r.country_b, r.tournament_country '
         . amiga_rated_games_from_sql(null, null, $gameId)
         . ' WHERE r.id = ? LIMIT 1';
