@@ -104,6 +104,7 @@ function amiga_player_chronology_opponent_countries_load(
     int $playerId,
     string $extraFilterSql,
     ?AmigaSnapshotContext $ctx = null,
+    bool $worldCupOnly = false,
 ): array {
     if ($playerId < 1) {
         return [];
@@ -116,6 +117,7 @@ function amiga_player_chronology_opponent_countries_load(
     $cutoffSql = amiga_snapshot_rated_game_cutoff_and_sql($ctx, $types, $params);
     $fromSql = amiga_rated_games_from_sql($playerId);
     $countrySql = amiga_player_chronology_opponent_country_nonempty_sql($playerId, 'r');
+    $wcSql = $worldCupOnly ? ' AND ' . amiga_games_world_cup_flag_sql('r.is_world_cup') : '';
 
     $sql = 'SELECT numbered.* FROM ('
         . 'SELECT ranked.*, '
@@ -130,7 +132,7 @@ function amiga_player_chronology_opponent_countries_load(
         . "PARTITION BY TRIM(CASE WHEN inner_r.idA = {$pid} THEN inner_r.country_b ELSE inner_r.country_a END) "
         . 'ORDER BY inner_r.tournament_event_date ASC, inner_r.tournament_chrono ASC, inner_r.tournament_id ASC, inner_r.id ASC'
         . ') AS meeting_rn '
-        . 'FROM (SELECT r.* ' . $fromSql . ' WHERE 1=1' . $cutoffSql . $countrySql . $extraFilterSql . ') inner_r'
+        . 'FROM (SELECT r.* ' . $fromSql . ' WHERE 1=1' . $cutoffSql . $countrySql . $extraFilterSql . $wcSql . ') inner_r'
         . ') ranked WHERE ranked.meeting_rn = 1'
         . ') numbered '
         . 'ORDER BY numbered.tournament_event_date DESC, numbered.tournament_chrono DESC, numbered.tournament_id DESC, numbered.id DESC';
@@ -153,8 +155,9 @@ function amiga_player_chronology_countries_faced_load(
     mysqli $con,
     int $playerId,
     ?AmigaSnapshotContext $ctx = null,
+    bool $worldCupOnly = false,
 ): array {
-    return amiga_player_chronology_opponent_countries_load($con, $playerId, '', $ctx);
+    return amiga_player_chronology_opponent_countries_load($con, $playerId, '', $ctx, $worldCupOnly);
 }
 
 /**
@@ -180,12 +183,14 @@ function amiga_player_chronology_countries_beaten_load(
     mysqli $con,
     int $playerId,
     ?AmigaSnapshotContext $ctx = null,
+    bool $worldCupOnly = false,
 ): array {
     return amiga_player_chronology_opponent_countries_load(
         $con,
         $playerId,
         amiga_player_chronology_hero_goals_win_sql($playerId, 'r'),
         $ctx,
+        $worldCupOnly,
     );
 }
 
@@ -212,12 +217,14 @@ function amiga_player_chronology_countries_beaten_by_load(
     mysqli $con,
     int $playerId,
     ?AmigaSnapshotContext $ctx = null,
+    bool $worldCupOnly = false,
 ): array {
     return amiga_player_chronology_opponent_countries_load(
         $con,
         $playerId,
         amiga_player_chronology_hero_goals_loss_sql($playerId, 'r'),
         $ctx,
+        $worldCupOnly,
     );
 }
 

@@ -150,6 +150,7 @@ With column tooltips: add `k2-table-helped` + `data-k2-help` per [`k2-tooltip-po
 | WC player DD&CS LB → Games tab (`filter=world-cup`) | Games + DD/CS/DD C/CS C — hero gf/ga bounds; career DD LB parity; `amiga_wc_players_render_dds()` |
 | WC player opponents LB → Games tab + WC opponents chronology | Games → `filter=world-cup`; Opponents → `wc_opponents` Made-it (`.blue` wing anchor); `amiga_wc_players_render_opponents()` |
 | WC player opponents LB → WC victims chronology | Victims col → `wc_victims` Made-it; plain C1; `amiga_player_chronology_wc_victims_entry_href()` |
+| WC player opponents LB → WC culprits / DD / CS / country unlock chronologies | Cols 6–13 → matching `wc_*` Made-it (`amiga_player_chronology_wc_*_entry_href()`); plain C1; `amiga_wc_players_render_opponents()` |
 | Online activity peaks → games | `lb_activity_lib.php` (`k2-table-cell-link` on calm-stats table) |
 
 ---

@@ -428,14 +428,14 @@ function amiga_wc_players_render_opponents(array $rows, int $playerCount, array 
         <td<?php echo k2_lb_td(3, $lbSort); ?>><?php echo amiga_lb_games_inventory_cell_html($playerId, $games, k2_fmt_games_played($games), 'all', null, null, -1, -1, -1, -1, false, null, 'world-cup'); ?></td>
         <td<?php echo k2_lb_td(4, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['different_opponents'] ?? 0, $games, amiga_player_chronology_wc_opponents_entry_href($playerId), true); ?></td>
         <td<?php echo k2_lb_td(5, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['different_victims'] ?? 0, $games, amiga_player_chronology_wc_victims_entry_href($playerId)); ?></td>
-        <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo k2_fmt_count($row['different_culprits'] ?? 0, $games); ?></td>
-        <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo k2_fmt_count($row['double_digits_victims'] ?? 0, $games); ?></td>
-        <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo k2_fmt_count($row['double_digits_culprits'] ?? 0, $games); ?></td>
-        <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo k2_fmt_count($row['clean_sheets_victims'] ?? 0, $games); ?></td>
-        <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo k2_fmt_count($row['clean_sheets_culprits'] ?? 0, $games); ?></td>
-        <td<?php echo k2_lb_td(11, $lbSort); ?>><?php echo k2_fmt_count($row['opponent_countries_faced'] ?? 0, $games); ?></td>
-        <td<?php echo k2_lb_td(12, $lbSort); ?>><?php echo k2_fmt_count($row['opponent_countries_beaten'] ?? 0, $games); ?></td>
-        <td<?php echo k2_lb_td(13, $lbSort); ?>><?php echo k2_fmt_count($row['opponent_countries_beaten_by'] ?? 0, $games); ?></td>
+        <td<?php echo k2_lb_td(6, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['different_culprits'] ?? 0, $games, amiga_player_chronology_wc_culprits_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(7, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['double_digits_victims'] ?? 0, $games, amiga_player_chronology_wc_dd_victims_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(8, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['double_digits_culprits'] ?? 0, $games, amiga_player_chronology_wc_dd_culprits_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(9, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['clean_sheets_victims'] ?? 0, $games, amiga_player_chronology_wc_cs_victims_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(10, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['clean_sheets_culprits'] ?? 0, $games, amiga_player_chronology_wc_cs_culprits_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(11, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['opponent_countries_faced'] ?? 0, $games, amiga_player_chronology_wc_countries_faced_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(12, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['opponent_countries_beaten'] ?? 0, $games, amiga_player_chronology_wc_countries_beaten_entry_href($playerId)); ?></td>
+        <td<?php echo k2_lb_td(13, $lbSort); ?>><?php echo amiga_lb_victims_chronology_cell_html($playerId, $row['opponent_countries_beaten_by'] ?? 0, $games, amiga_player_chronology_wc_countries_beaten_by_entry_href($playerId)); ?></td>
     </tr>
         <?php
         $rank++;

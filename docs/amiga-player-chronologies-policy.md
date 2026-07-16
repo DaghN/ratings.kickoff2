@@ -1,6 +1,6 @@
 # Amiga player chronologies — policy
 
-**Status:** **Shipped v1** (Jul 2026) — opponent/victim/culprit kinds + **country unlock** kinds (host / faced / beaten / beaten by). Calendar & geo mosaic inventory complete.
+**Status:** **Shipped v1** (Jul 2026) — opponent/victim/culprit kinds + **country unlock** kinds (host / faced / beaten / beaten by). Calendar & geo mosaic inventory complete. **WC slice kinds** (`wc_*`, ten kinds) — World Cups hub → Player stats → Opponents wing inventory links complete (read-time SQL; no mosaic).
 
 **Parent:** [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) (inventory vs comparison — profile mosaic entry) · [`amiga-profile-v0.md`](amiga-profile-v0.md) · [`navigation-model.md`](navigation-model.md) NM2–NM4
 
@@ -26,7 +26,7 @@ Each **kind** (Opponents, Victims, DD Victims, …) is a separate folder under `
 | Surface | Difference |
 |---------|------------|
 | **Opponents wing** (`/amiga/player/opponents/*`) | **Comparison** — H2H poster, W/D/L ledger, pair charts vs one selected opponent. Profile mosaic **Opponents count** links to **chronology**, not this wing. |
-| **Hub leaderboards** | **Comparison** — where does this player rank? **Exception (Jul 2026):** Amiga **Victims & Culprits** LB wing — Opponents→BW Culprits cols link to chronology Made-it (inventory drill-down; plain C1 `k2-table-cell-link` via `amiga_lb_victims_chronology_cell_html()`). |
+| **Hub leaderboards** | **Comparison** — where does this player rank? **Exception (Jul 2026):** Amiga **Victims & Culprits** LB wing — Opponents→BW Culprits cols link to chronology Made-it (inventory drill-down; plain C1 `k2-table-cell-link` via `amiga_lb_victims_chronology_cell_html()`). **WC Player stats → Opponents wing** — Games + unlock cols → games tab `filter=world-cup` or matching `wc_*` chronology (§4.0). |
 | **Milestone detail** (`milestone.php`) | Server-wide achievers for one milestone key — same *spotlight + Made it \| Graphs* UX family, different data scope. |
 | **Online / Amiga milestone chronology** (`player/milestones/chronology.php`) | Player’s **milestone unlock timeline** — not opponent/victim inventories. |
 
@@ -62,6 +62,30 @@ Each **kind** (Opponents, Victims, DD Victims, …) is a separate folder under `
 | `amiga-player-chronologies-wc-victims-made-it` | `/amiga/player/chronologies/wc_victims/made-it.php?id=` | Made it (default) |
 | `amiga-player-chronologies-wc-victims-graphs` | `/amiga/player/chronologies/wc_victims/graphs.php?id=` | Graphs |
 | *(folder default)* | `/amiga/player/chronologies/wc_victims/index.php` | 302 → made-it |
+| `amiga-player-chronologies-wc-culprits-made-it` | `/amiga/player/chronologies/wc_culprits/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-wc-culprits-graphs` | `/amiga/player/chronologies/wc_culprits/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/wc_culprits/index.php` | 302 → made-it |
+| `amiga-player-chronologies-wc-dd-victims-made-it` | `/amiga/player/chronologies/wc_dd_victims/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-wc-dd-victims-graphs` | `/amiga/player/chronologies/wc_dd_victims/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/wc_dd_victims/index.php` | 302 → made-it |
+| `amiga-player-chronologies-wc-dd-culprits-made-it` | `/amiga/player/chronologies/wc_dd_culprits/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-wc-dd-culprits-graphs` | `/amiga/player/chronologies/wc_dd_culprits/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/wc_dd_culprits/index.php` | 302 → made-it |
+| `amiga-player-chronologies-wc-cs-victims-made-it` | `/amiga/player/chronologies/wc_cs_victims/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-wc-cs-victims-graphs` | `/amiga/player/chronologies/wc_cs_victims/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/wc_cs_victims/index.php` | 302 → made-it |
+| `amiga-player-chronologies-wc-cs-culprits-made-it` | `/amiga/player/chronologies/wc_cs_culprits/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-wc-cs-culprits-graphs` | `/amiga/player/chronologies/wc_cs_culprits/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/wc_cs_culprits/index.php` | 302 → made-it |
+| `amiga-player-chronologies-wc-countries-faced-made-it` | `/amiga/player/chronologies/wc_countries_faced/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-wc-countries-faced-graphs` | `/amiga/player/chronologies/wc_countries_faced/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/wc_countries_faced/index.php` | 302 → made-it |
+| `amiga-player-chronologies-wc-countries-beaten-made-it` | `/amiga/player/chronologies/wc_countries_beaten/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-wc-countries-beaten-graphs` | `/amiga/player/chronologies/wc_countries_beaten/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/wc_countries_beaten/index.php` | 302 → made-it |
+| `amiga-player-chronologies-wc-countries-beaten-by-made-it` | `/amiga/player/chronologies/wc_countries_beaten_by/made-it.php?id=` | Made it (default) |
+| `amiga-player-chronologies-wc-countries-beaten-by-graphs` | `/amiga/player/chronologies/wc_countries_beaten_by/graphs.php?id=` | Graphs |
+| *(folder default)* | `/amiga/player/chronologies/wc_countries_beaten_by/index.php` | 302 → made-it |
 | `amiga-player-chronologies-victims-made-it` | `/amiga/player/chronologies/victims/made-it.php?id=` | Made it (default) |
 | `amiga-player-chronologies-victims-graphs` | `/amiga/player/chronologies/victims/graphs.php?id=` | Graphs |
 | *(folder default)* | `/amiga/player/chronologies/victims/index.php` | 302 → made-it |
@@ -117,6 +141,14 @@ Register in [`k2_amiga_routes.php`](../site/public_html/includes/k2_amiga_routes
 | `amiga_player_chronology_wc_opponents_entry_href($playerId)` | WC player-stats Opponents LB + external entry (includes spotlight hash) |
 | `amiga_player_chronology_wc_victims_href($playerId, $segment)` | Internal segment nav (WC victims) |
 | `amiga_player_chronology_wc_victims_entry_href($playerId)` | WC player-stats Victims LB + external entry (includes spotlight hash) |
+| `amiga_player_chronology_wc_culprits_entry_href($playerId)` | WC player-stats Culprits LB + external entry |
+| `amiga_player_chronology_wc_dd_victims_entry_href($playerId)` | WC player-stats DD Victims LB + external entry |
+| `amiga_player_chronology_wc_dd_culprits_entry_href($playerId)` | WC player-stats DD Culprits LB + external entry |
+| `amiga_player_chronology_wc_cs_victims_entry_href($playerId)` | WC player-stats CS Victims LB + external entry |
+| `amiga_player_chronology_wc_cs_culprits_entry_href($playerId)` | WC player-stats CS Culprits LB + external entry |
+| `amiga_player_chronology_wc_countries_faced_entry_href($playerId)` | WC player-stats Opp. countries LB + external entry |
+| `amiga_player_chronology_wc_countries_beaten_entry_href($playerId)` | WC player-stats Opp. beaten LB + external entry |
+| `amiga_player_chronology_wc_countries_beaten_by_entry_href($playerId)` | WC player-stats Opp. beaten by LB + external entry |
 | `amiga_player_chronology_victims_href($playerId, $segment)` | Internal segment nav (victims) |
 | `amiga_player_chronology_victims_entry_href($playerId)` | Profile mosaic Victims row |
 | `amiga_player_chronology_dd_victims_href($playerId, $segment)` | Internal segment nav (DD victims) |
@@ -199,7 +231,19 @@ Empty state note when zero opponents; charts still span rated era.
 
 **Entry:** WC hub → Player stats → Opponents wing — **Opponents** column → `amiga_player_chronology_wc_opponents_entry_href()` (`amiga_lb_victims_chronology_cell_html()`, `.blue` when count > 0). **Games** column → Games tab `filter=world-cup`.
 
-**Follow-on track:** remaining WC opponent-wing unlock kinds (culprits, DD/CS, country unlocks) — same `wc_*` folder pattern.
+**Opponents wing inventory (shipped Jul 2026):** remaining unlock columns use the same `wc_*` folder pattern — career kind SQL + `amiga_games_world_cup_flag_sql('r.is_world_cup')`; row count = matching `amiga_player_slice_totals` column on slice `world_cup`. All linked via `amiga_lb_victims_chronology_cell_html()` + `*_entry_href()` except Opponents (`.blue` wing anchor).
+
+| Kind | Title | Rule tail | Slice parity col | Career UI reuse |
+|------|-------|-----------|------------------|-----------------|
+| `wc_victims` | WC victims | has beaten at least once in World Cups | `different_victims` | Victims |
+| `wc_culprits` | WC culprits | has lost to at least once in World Cups | `different_culprits` | Culprits |
+| `wc_dd_victims` | WC DD victims | scored 10+ against at least once in World Cups | `double_digits_victims` | DD Victims |
+| `wc_dd_culprits` | WC DD culprits | scored 10+ against {name} at least once in World Cups | `double_digits_culprits` | DD Culprits |
+| `wc_cs_victims` | WC CS victims | shut out at least once in World Cups | `clean_sheets_victims` | CS Victims |
+| `wc_cs_culprits` | WC CS culprits | shut out {name} at least once in World Cups | `clean_sheets_culprits` | CS Culprits |
+| `wc_countries_faced` | WC countries faced | has faced in World Cups | `opponent_countries_faced` | Countries faced |
+| `wc_countries_beaten` | WC countries beaten | has beaten in World Cups | `opponent_countries_beaten` | Countries beaten |
+| `wc_countries_beaten_by` | WC countries beaten by | have beaten {name} in World Cups | `opponent_countries_beaten_by` | Countries beaten by |
 
 ### WC Victims (`wc_victims`) — Jul 2026
 
@@ -489,6 +533,21 @@ Loads live in `amiga_player_chronologies_countries_lib.php`.
 | **countries_beaten** | Countries beaten | First rated goals-win vs that nationality | Year bar + cumulative | **Shipped** |
 | **countries_beaten_by** | Countries beaten by | First rated goals-loss vs that nationality | Year bar + cumulative | **Shipped** |
 
+**WC slice kinds** (`wc_*`) — same Made it \| Graphs UX; career kind SQL ∩ `is_world_cup` games; **LB entry only** (World Cups hub → Player stats → Opponents wing). Parity = matching `amiga_player_slice_totals` column on `slice_key = 'world_cup'`. See §4.0.
+
+| Kind | WC slice parity col | LB column | Wing anchor colour |
+|------|---------------------|-----------|-------------------|
+| **wc_opponents** | `different_opponents` | Opponents | `.blue` |
+| **wc_victims** | `different_victims` | Victims | plain C1 |
+| **wc_culprits** | `different_culprits` | Culprits | plain C1 |
+| **wc_dd_victims** | `double_digits_victims` | DD Victims | plain C1 |
+| **wc_dd_culprits** | `double_digits_culprits` | DD Culprits | plain C1 |
+| **wc_cs_victims** | `clean_sheets_victims` | CS Victims | plain C1 |
+| **wc_cs_culprits** | `clean_sheets_culprits` | CS Culprits | plain C1 |
+| **wc_countries_faced** | `opponent_countries_faced` | Opp. countries | plain C1 |
+| **wc_countries_beaten** | `opponent_countries_beaten` | Opp. beaten | plain C1 |
+| **wc_countries_beaten_by** | `opponent_countries_beaten_by` | Opp. beaten by | plain C1 |
+
 Add a row when a kind ships; do not link mosaic cells until Made it exists ([`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) §3).
 
 ---
@@ -529,4 +588,4 @@ Add a row when a kind ships; do not link mosaic cells until Made it exists ([`pl
 
 ---
 
-*Last updated: Jul 2026 — host / faced / beaten / beaten-by country chronologies shipped; Calendar & geo mosaic inventory complete.*
+*Last updated: Jul 2026 — WC slice chronologies (`wc_*`, ten kinds) + Opponents wing inventory links complete; host / faced / beaten / beaten-by country chronologies shipped; Calendar & geo mosaic inventory complete.*
