@@ -1,0 +1,2010 @@
+{
+  "tournament_id": 608,
+  "surfaces": [
+    {
+      "table": "amiga_games+ratings",
+      "py_rows": 28,
+      "php_rows": 28,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 0,
+      "sample_mismatches": [],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "match"
+    },
+    {
+      "table": "amiga_tournament_standings",
+      "py_rows": 8,
+      "php_rows": 8,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 0,
+      "sample_mismatches": [],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "match"
+    },
+    {
+      "table": "amiga_player_event_snapshots",
+      "py_rows": 8,
+      "php_rows": 8,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 8,
+      "sample_mismatches": [
+        {
+          "key": [
+            14,
+            608
+          ],
+          "diffs": [
+            {
+              "col": "rating_delta",
+              "py": -2.749396,
+              "php": -2.749395
+            },
+            {
+              "col": "rating_after",
+              "py": 2172.029406,
+              "php": 2172.029407
+            },
+            {
+              "col": "Rating",
+              "py": 2172.029406,
+              "php": 2172.029407
+            },
+            {
+              "col": "MostGoalsScoredVictimID",
+              "py": null,
+              "php": 442
+            },
+            {
+              "col": "tournaments_played",
+              "py": 101,
+              "php": 102
+            },
+            {
+              "col": "honours_last_event_date",
+              "py": "2025-11-01",
+              "php": "2026-07-16"
+            },
+            {
+              "col": "honours_last_tournament_id",
+              "py": 25,
+              "php": 608
+            },
+            {
+              "col": "peak_year_games",
+              "py": 7,
+              "php": 168
+            },
+            {
+              "col": "peak_year_games_year",
+              "py": 2026,
+              "php": 2003
+            },
+            {
+              "col": "peak_year_tournaments",
+              "py": 1,
+              "php": 14
+            },
+            {
+              "col": "peak_year_tournaments_year",
+              "py": 2026,
+              "php": 2003
+            },
+            {
+              "col": "countries_played_in",
+              "py": 1,
+              "php": 9
+            }
+          ],
+          "diff_count": 17
+        },
+        {
+          "key": [
+            134,
+            608
+          ],
+          "diffs": [
+            {
+              "col": "rating_delta",
+              "py": -4.64042,
+              "php": -4.640421
+            },
+            {
+              "col": "rating_after",
+              "py": 1976.172896,
+              "php": 1976.172895
+            },
+            {
+              "col": "Rating",
+              "py": 1976.172896,
+              "php": 1976.172895
+            },
+            {
+              "col": "MostGoalsScoredVictimID",
+              "py": null,
+              "php": 50
+            },
+            {
+              "col": "tournaments_played",
+              "py": 102,
+              "php": 103
+            },
+            {
+              "col": "honours_last_event_date",
+              "py": "2019-05-12",
+              "php": "2026-07-16"
+            },
+            {
+              "col": "honours_last_tournament_id",
+              "py": 7,
+              "php": 608
+            },
+            {
+              "col": "peak_year_games",
+              "py": 7,
+              "php": 217
+            },
+            {
+              "col": "peak_year_games_year",
+              "py": 2026,
+              "php": 2007
+            },
+            {
+              "col": "peak_year_tournaments",
+              "py": 1,
+              "php": 20
+            },
+            {
+              "col": "peak_year_tournaments_year",
+              "py": 2026,
+              "php": 2007
+            },
+            {
+              "col": "countries_played_in",
+              "py": 1,
+              "php": 3
+            }
+          ],
+          "diff_count": 19
+        },
+        {
+          "key": [
+            149,
+            608
+          ],
+          "diffs": [
+            {
+              "col": "rating_delta",
+              "py": -105.505152,
+              "php": -105.505153
+            },
+            {
+              "col": "rating_after",
+              "py": 2480.778242,
+              "php": 2480.778241
+            },
+            {
+              "col": "Rating",
+              "py": 2480.778242,
+              "php": 2480.778241
+            },
+            {
+              "col": "MostGoalsScoredVictimID",
+              "py": null,
+              "php": 294
+            },
+            {
+              "col": "tournaments_played",
+              "py": 70,
+              "php": 71
+            },
+            {
+              "col": "honours_last_event_date",
+              "py": "2025-11-01",
+              "php": "2026-07-16"
+            },
+            {
+              "col": "honours_last_tournament_id",
+              "py": 25,
+              "php": 608
+            },
+            {
+              "col": "peak_year_games",
+              "py": 7,
+              "php": 128
+            },
+            {
+              "col": "peak_year_games_year",
+              "py": 2026,
+              "php": 2005
+            },
+            {
+              "col": "peak_year_tournaments",
+              "py": 1,
+              "php": 9
+            },
+            {
+              "col": "peak_year_tournaments_year",
+              "py": 2026,
+              "php": 2005
+            },
+            {
+              "col": "countries_played_in",
+              "py": 1,
+              "php": 11
+            }
+          ],
+          "diff_count": 19
+        },
+        {
+          "key": [
+            382,
+            608
+          ],
+          "diffs": [
+            {
+              "col": "MostGoalsScoredVictimID",
+              "py": null,
+              "php": 82
+            },
+            {
+              "col": "tournaments_played",
+              "py": 116,
+              "php": 117
+            },
+            {
+              "col": "honours_last_event_date",
+              "py": "2026-05-31",
+              "php": "2026-07-16"
+            },
+            {
+              "col": "honours_last_tournament_id",
+              "py": 607,
+              "php": 608
+            },
+            {
+              "col": "peak_year_games",
+              "py": 7,
+              "php": 218
+            },
+            {
+              "col": "peak_year_games_year",
+              "py": 2026,
+              "php": 2003
+            },
+            {
+              "col": "peak_year_tournaments",
+              "py": 1,
+              "php": 18
+            },
+            {
+              "col": "peak_year_tournaments_year",
+              "py": 2026,
+              "php": 2003
+            },
+            {
+              "col": "countries_played_in",
+              "py": 1,
+              "php": 11
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 5,
+              "php": 20
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 2,
+              "php": 19
+            },
+            {
+              "col": "opponent_countries_beaten_by",
+              "py": 3,
+              "php": 14
+            }
+          ],
+          "diff_count": 14
+        },
+        {
+          "key": [
+            417,
+            608
+          ],
+          "diffs": [
+            {
+              "col": "rating_delta",
+              "py": 19.265769,
+              "php": 19.26577
+            },
+            {
+              "col": "rating_after",
+              "py": 2031.296292,
+              "php": 2031.296293
+            },
+            {
+              "col": "Rating",
+              "py": 2031.296292,
+              "php": 2031.296293
+            },
+            {
+              "col": "MostGoalsScoredVictimID",
+              "py": null,
+              "php": 328
+            },
+            {
+              "col": "tournaments_played",
+              "py": 74,
+              "php": 75
+            },
+            {
+              "col": "honours_last_event_date",
+              "py": "2026-05-31",
+              "php": "2026-07-16"
+            },
+            {
+              "col": "honours_last_tournament_id",
+              "py": 607,
+              "php": 608
+            },
+            {
+              "col": "peak_year_games",
+              "py": 7,
+              "php": 129
+            },
+            {
+              "col": "peak_year_games_year",
+              "py": 2026,
+              "php": 2002
+            },
+            {
+              "col": "peak_year_tournaments",
+              "py": 1,
+              "php": 10
+            },
+            {
+              "col": "peak_year_tournaments_year",
+              "py": 2026,
+              "php": 2002
+            },
+            {
+              "col": "countries_played_in",
+              "py": 1,
+              "php": 11
+            }
+          ],
+          "diff_count": 17
+        }
+      ],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "numeric_or_content"
+    },
+    {
+      "table": "amiga_player_current(participants)",
+      "py_rows": 8,
+      "php_rows": 8,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 8,
+      "sample_mismatches": [
+        {
+          "key": [
+            14
+          ],
+          "diffs": [
+            {
+              "col": "last_finalized_at",
+              "py": "2026-07-16T20:22:32",
+              "php": "2026-07-16T20:22:38"
+            },
+            {
+              "col": "Rating",
+              "py": 2172.029406,
+              "php": 2172.029407
+            },
+            {
+              "col": "MostGoalsScoredVictimID",
+              "py": null,
+              "php": 442
+            },
+            {
+              "col": "tournaments_played",
+              "py": 101,
+              "php": 102
+            },
+            {
+              "col": "peak_year_games",
+              "py": 7,
+              "php": 168
+            },
+            {
+              "col": "peak_year_games_year",
+              "py": 2026,
+              "php": 2003
+            },
+            {
+              "col": "peak_year_tournaments",
+              "py": 1,
+              "php": 14
+            },
+            {
+              "col": "peak_year_tournaments_year",
+              "py": 2026,
+              "php": 2003
+            },
+            {
+              "col": "countries_played_in",
+              "py": 1,
+              "php": 9
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 4,
+              "php": 19
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 2,
+              "php": 19
+            },
+            {
+              "col": "opponent_countries_beaten_by",
+              "py": 2,
+              "php": 9
+            }
+          ],
+          "diff_count": 14
+        },
+        {
+          "key": [
+            134
+          ],
+          "diffs": [
+            {
+              "col": "last_finalized_at",
+              "py": "2026-07-16T20:22:32",
+              "php": "2026-07-16T20:22:38"
+            },
+            {
+              "col": "Rating",
+              "py": 1976.172896,
+              "php": 1976.172895
+            },
+            {
+              "col": "MostGoalsScoredVictimID",
+              "py": null,
+              "php": 50
+            },
+            {
+              "col": "tournaments_played",
+              "py": 102,
+              "php": 103
+            },
+            {
+              "col": "peak_year_games",
+              "py": 7,
+              "php": 217
+            },
+            {
+              "col": "peak_year_games_year",
+              "py": 2026,
+              "php": 2007
+            },
+            {
+              "col": "peak_year_tournaments",
+              "py": 1,
+              "php": 20
+            },
+            {
+              "col": "peak_year_tournaments_year",
+              "py": 2026,
+              "php": 2007
+            },
+            {
+              "col": "countries_played_in",
+              "py": 1,
+              "php": 3
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 5,
+              "php": 15
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 2,
+              "php": 14
+            },
+            {
+              "col": "opponent_countries_beaten_by",
+              "py": 2,
+              "php": 11
+            }
+          ],
+          "diff_count": 16
+        },
+        {
+          "key": [
+            149
+          ],
+          "diffs": [
+            {
+              "col": "last_finalized_at",
+              "py": "2026-07-16T20:22:32",
+              "php": "2026-07-16T20:22:38"
+            },
+            {
+              "col": "Rating",
+              "py": 2480.778242,
+              "php": 2480.778241
+            },
+            {
+              "col": "MostGoalsScoredVictimID",
+              "py": null,
+              "php": 294
+            },
+            {
+              "col": "tournaments_played",
+              "py": 70,
+              "php": 71
+            },
+            {
+              "col": "peak_year_games",
+              "py": 7,
+              "php": 128
+            },
+            {
+              "col": "peak_year_games_year",
+              "py": 2026,
+              "php": 2005
+            },
+            {
+              "col": "peak_year_tournaments",
+              "py": 1,
+              "php": 9
+            },
+            {
+              "col": "peak_year_tournaments_year",
+              "py": 2026,
+              "php": 2005
+            },
+            {
+              "col": "countries_played_in",
+              "py": 1,
+              "php": 11
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 4,
+              "php": 21
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 2,
+              "php": 20
+            },
+            {
+              "col": "opponent_countries_beaten_by",
+              "py": 3,
+              "php": 9
+            }
+          ],
+          "diff_count": 16
+        },
+        {
+          "key": [
+            382
+          ],
+          "diffs": [
+            {
+              "col": "last_finalized_at",
+              "py": "2026-07-16T20:22:32",
+              "php": "2026-07-16T20:22:38"
+            },
+            {
+              "col": "MostGoalsScoredVictimID",
+              "py": null,
+              "php": 82
+            },
+            {
+              "col": "tournaments_played",
+              "py": 116,
+              "php": 117
+            },
+            {
+              "col": "peak_year_games",
+              "py": 7,
+              "php": 218
+            },
+            {
+              "col": "peak_year_games_year",
+              "py": 2026,
+              "php": 2003
+            },
+            {
+              "col": "peak_year_tournaments",
+              "py": 1,
+              "php": 18
+            },
+            {
+              "col": "peak_year_tournaments_year",
+              "py": 2026,
+              "php": 2003
+            },
+            {
+              "col": "countries_played_in",
+              "py": 1,
+              "php": 11
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 5,
+              "php": 20
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 2,
+              "php": 19
+            },
+            {
+              "col": "opponent_countries_beaten_by",
+              "py": 3,
+              "php": 14
+            },
+            {
+              "col": "tournaments_played_last_rise_tournament_id",
+              "py": 607,
+              "php": 608
+            }
+          ],
+          "diff_count": 13
+        },
+        {
+          "key": [
+            417
+          ],
+          "diffs": [
+            {
+              "col": "last_finalized_at",
+              "py": "2026-07-16T20:22:32",
+              "php": "2026-07-16T20:22:38"
+            },
+            {
+              "col": "Rating",
+              "py": 2031.296292,
+              "php": 2031.296293
+            },
+            {
+              "col": "MostGoalsScoredVictimID",
+              "py": null,
+              "php": 328
+            },
+            {
+              "col": "tournaments_played",
+              "py": 74,
+              "php": 75
+            },
+            {
+              "col": "peak_year_games",
+              "py": 7,
+              "php": 129
+            },
+            {
+              "col": "peak_year_games_year",
+              "py": 2026,
+              "php": 2002
+            },
+            {
+              "col": "peak_year_tournaments",
+              "py": 1,
+              "php": 10
+            },
+            {
+              "col": "peak_year_tournaments_year",
+              "py": 2026,
+              "php": 2002
+            },
+            {
+              "col": "countries_played_in",
+              "py": 1,
+              "php": 11
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 5,
+              "php": 21
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 4,
+              "php": 21
+            },
+            {
+              "col": "opponent_countries_beaten_by",
+              "py": 2,
+              "php": 13
+            }
+          ],
+          "diff_count": 14
+        }
+      ],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "numeric_or_content"
+    },
+    {
+      "table": "amiga_player_matchup_at_event",
+      "py_rows": 1037,
+      "php_rows": 1037,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 0,
+      "sample_mismatches": [],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "match"
+    },
+    {
+      "table": "amiga_player_slice_at_event",
+      "py_rows": 8,
+      "php_rows": 8,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 8,
+      "sample_mismatches": [
+        {
+          "key": [
+            14,
+            "world_cup",
+            608
+          ],
+          "diffs": [
+            {
+              "col": "goal_ratio",
+              "py": 2.18061674,
+              "php": 2.17585302
+            },
+            {
+              "col": "clean_sheets",
+              "py": 65,
+              "php": 70
+            },
+            {
+              "col": "double_digits_ratio",
+              "py": 0.1288,
+              "php": 0.1266
+            },
+            {
+              "col": "clean_sheets_ratio",
+              "py": 0.1641,
+              "php": 0.1737
+            },
+            {
+              "col": "double_digits_conceded_ratio",
+              "py": 0.0126,
+              "php": 0.0124
+            },
+            {
+              "col": "clean_sheets_conceded_ratio",
+              "py": 0.0051,
+              "php": 0.005
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 17,
+              "php": 18
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 17,
+              "php": 18
+            },
+            {
+              "col": "different_opponents",
+              "py": 114,
+              "php": 115
+            },
+            {
+              "col": "different_victims",
+              "py": 110,
+              "php": 111
+            },
+            {
+              "col": "clean_sheets_victims",
+              "py": 48,
+              "php": 52
+            },
+            {
+              "col": "different_culprits",
+              "py": 26,
+              "php": 27
+            }
+          ],
+          "diff_count": 13
+        },
+        {
+          "key": [
+            134,
+            "world_cup",
+            608
+          ],
+          "diffs": [
+            {
+              "col": "goal_ratio",
+              "py": 0.88217523,
+              "php": 0.88372093
+            },
+            {
+              "col": "clean_sheets_ratio",
+              "py": 0.0562,
+              "php": 0.0521
+            },
+            {
+              "col": "clean_sheets_conceded",
+              "py": 4,
+              "php": 6
+            },
+            {
+              "col": "double_digits_conceded_ratio",
+              "py": 0.0562,
+              "php": 0.0521
+            },
+            {
+              "col": "clean_sheets_conceded_ratio",
+              "py": 0.0449,
+              "php": 0.0625
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 13,
+              "php": 14
+            },
+            {
+              "col": "different_opponents",
+              "py": 51,
+              "php": 53
+            },
+            {
+              "col": "different_victims",
+              "py": 29,
+              "php": 30
+            },
+            {
+              "col": "clean_sheets_culprits",
+              "py": 4,
+              "php": 6
+            },
+            {
+              "col": "best_single_wc_ga_per_game",
+              "py": 3.1034,
+              "php": 1.8571
+            },
+            {
+              "col": "best_single_wc_ga_per_game_tournament_id",
+              "py": 526,
+              "php": 608
+            }
+          ],
+          "diff_count": 11
+        },
+        {
+          "key": [
+            149,
+            "world_cup",
+            608
+          ],
+          "diffs": [
+            {
+              "col": "goal_ratio",
+              "py": 2.83918813,
+              "php": 2.82366589
+            },
+            {
+              "col": "double_digits_ratio",
+              "py": 0.3124,
+              "php": 0.3075
+            },
+            {
+              "col": "clean_sheets_ratio",
+              "py": 0.1281,
+              "php": 0.1261
+            },
+            {
+              "col": "clean_sheets_conceded",
+              "py": 0,
+              "php": 1
+            },
+            {
+              "col": "double_digits_conceded_ratio",
+              "py": 0.0045,
+              "php": 0.0044
+            },
+            {
+              "col": "clean_sheets_conceded_ratio",
+              "py": 0.0,
+              "php": 0.0022
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 19,
+              "php": 20
+            },
+            {
+              "col": "opponent_countries_beaten_by",
+              "py": 7,
+              "php": 8
+            },
+            {
+              "col": "different_opponents",
+              "py": 103,
+              "php": 104
+            },
+            {
+              "col": "different_culprits",
+              "py": 15,
+              "php": 17
+            },
+            {
+              "col": "clean_sheets_culprits",
+              "py": 0,
+              "php": 1
+            },
+            {
+              "col": "best_single_wc_ga_per_game",
+              "py": 2.2903,
+              "php": 1.7143
+            }
+          ],
+          "diff_count": 13
+        },
+        {
+          "key": [
+            382,
+            "world_cup",
+            608
+          ],
+          "diffs": [
+            {
+              "col": "goal_ratio",
+              "py": 1.09501188,
+              "php": 1.08835027
+            },
+            {
+              "col": "clean_sheets",
+              "py": 44,
+              "php": 45
+            },
+            {
+              "col": "double_digits_ratio",
+              "py": 0.0221,
+              "php": 0.0217
+            },
+            {
+              "col": "clean_sheets_ratio",
+              "py": 0.1215,
+              "php": 0.122
+            },
+            {
+              "col": "clean_sheets_conceded",
+              "py": 16,
+              "php": 17
+            },
+            {
+              "col": "double_digits_conceded_ratio",
+              "py": 0.0525,
+              "php": 0.0515
+            },
+            {
+              "col": "clean_sheets_conceded_ratio",
+              "py": 0.0442,
+              "php": 0.0461
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 18,
+              "php": 19
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 17,
+              "php": 18
+            },
+            {
+              "col": "different_opponents",
+              "py": 120,
+              "php": 121
+            },
+            {
+              "col": "different_victims",
+              "py": 95,
+              "php": 97
+            },
+            {
+              "col": "clean_sheets_victims",
+              "py": 36,
+              "php": 37
+            }
+          ],
+          "diff_count": 14
+        },
+        {
+          "key": [
+            417,
+            "world_cup",
+            608
+          ],
+          "diffs": [
+            {
+              "col": "goal_ratio",
+              "py": 1.26693456,
+              "php": 1.26914286
+            },
+            {
+              "col": "clean_sheets",
+              "py": 44,
+              "php": 46
+            },
+            {
+              "col": "double_digits_ratio",
+              "py": 0.0416,
+              "php": 0.041
+            },
+            {
+              "col": "clean_sheets_ratio",
+              "py": 0.0915,
+              "php": 0.0943
+            },
+            {
+              "col": "clean_sheets_conceded",
+              "py": 10,
+              "php": 11
+            },
+            {
+              "col": "double_digits_conceded_ratio",
+              "py": 0.0249,
+              "php": 0.0246
+            },
+            {
+              "col": "clean_sheets_conceded_ratio",
+              "py": 0.0208,
+              "php": 0.0225
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 19,
+              "php": 20
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 18,
+              "php": 19
+            },
+            {
+              "col": "different_opponents",
+              "py": 125,
+              "php": 126
+            },
+            {
+              "col": "different_victims",
+              "py": 107,
+              "php": 109
+            },
+            {
+              "col": "clean_sheets_victims",
+              "py": 34,
+              "php": 36
+            }
+          ],
+          "diff_count": 14
+        }
+      ],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "numeric_or_content"
+    },
+    {
+      "table": "amiga_player_slice_totals",
+      "py_rows": 8,
+      "php_rows": 8,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 8,
+      "sample_mismatches": [
+        {
+          "key": [
+            14,
+            "world_cup"
+          ],
+          "diffs": [
+            {
+              "col": "goal_ratio",
+              "py": 2.18061674,
+              "php": 2.17585302
+            },
+            {
+              "col": "clean_sheets",
+              "py": 65,
+              "php": 70
+            },
+            {
+              "col": "double_digits_ratio",
+              "py": 0.1288,
+              "php": 0.1266
+            },
+            {
+              "col": "clean_sheets_ratio",
+              "py": 0.1641,
+              "php": 0.1737
+            },
+            {
+              "col": "double_digits_conceded_ratio",
+              "py": 0.0126,
+              "php": 0.0124
+            },
+            {
+              "col": "clean_sheets_conceded_ratio",
+              "py": 0.0051,
+              "php": 0.005
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 17,
+              "php": 18
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 17,
+              "php": 18
+            },
+            {
+              "col": "different_opponents",
+              "py": 114,
+              "php": 115
+            },
+            {
+              "col": "different_victims",
+              "py": 110,
+              "php": 111
+            },
+            {
+              "col": "clean_sheets_victims",
+              "py": 48,
+              "php": 52
+            },
+            {
+              "col": "different_culprits",
+              "py": 26,
+              "php": 27
+            }
+          ],
+          "diff_count": 13
+        },
+        {
+          "key": [
+            134,
+            "world_cup"
+          ],
+          "diffs": [
+            {
+              "col": "goal_ratio",
+              "py": 0.88217523,
+              "php": 0.88372093
+            },
+            {
+              "col": "clean_sheets_ratio",
+              "py": 0.0562,
+              "php": 0.0521
+            },
+            {
+              "col": "clean_sheets_conceded",
+              "py": 4,
+              "php": 6
+            },
+            {
+              "col": "double_digits_conceded_ratio",
+              "py": 0.0562,
+              "php": 0.0521
+            },
+            {
+              "col": "clean_sheets_conceded_ratio",
+              "py": 0.0449,
+              "php": 0.0625
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 13,
+              "php": 14
+            },
+            {
+              "col": "different_opponents",
+              "py": 51,
+              "php": 53
+            },
+            {
+              "col": "different_victims",
+              "py": 29,
+              "php": 30
+            },
+            {
+              "col": "clean_sheets_culprits",
+              "py": 4,
+              "php": 6
+            },
+            {
+              "col": "best_single_wc_ga_per_game",
+              "py": 3.1034,
+              "php": 1.8571
+            },
+            {
+              "col": "best_single_wc_ga_per_game_tournament_id",
+              "py": 526,
+              "php": 608
+            }
+          ],
+          "diff_count": 11
+        },
+        {
+          "key": [
+            149,
+            "world_cup"
+          ],
+          "diffs": [
+            {
+              "col": "goal_ratio",
+              "py": 2.83918813,
+              "php": 2.82366589
+            },
+            {
+              "col": "double_digits_ratio",
+              "py": 0.3124,
+              "php": 0.3075
+            },
+            {
+              "col": "clean_sheets_ratio",
+              "py": 0.1281,
+              "php": 0.1261
+            },
+            {
+              "col": "clean_sheets_conceded",
+              "py": 0,
+              "php": 1
+            },
+            {
+              "col": "double_digits_conceded_ratio",
+              "py": 0.0045,
+              "php": 0.0044
+            },
+            {
+              "col": "clean_sheets_conceded_ratio",
+              "py": 0.0,
+              "php": 0.0022
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 19,
+              "php": 20
+            },
+            {
+              "col": "opponent_countries_beaten_by",
+              "py": 7,
+              "php": 8
+            },
+            {
+              "col": "different_opponents",
+              "py": 103,
+              "php": 104
+            },
+            {
+              "col": "different_culprits",
+              "py": 15,
+              "php": 17
+            },
+            {
+              "col": "clean_sheets_culprits",
+              "py": 0,
+              "php": 1
+            },
+            {
+              "col": "best_single_wc_ga_per_game",
+              "py": 2.2903,
+              "php": 1.7143
+            }
+          ],
+          "diff_count": 13
+        },
+        {
+          "key": [
+            382,
+            "world_cup"
+          ],
+          "diffs": [
+            {
+              "col": "goal_ratio",
+              "py": 1.09501188,
+              "php": 1.08835027
+            },
+            {
+              "col": "clean_sheets",
+              "py": 44,
+              "php": 45
+            },
+            {
+              "col": "double_digits_ratio",
+              "py": 0.0221,
+              "php": 0.0217
+            },
+            {
+              "col": "clean_sheets_ratio",
+              "py": 0.1215,
+              "php": 0.122
+            },
+            {
+              "col": "clean_sheets_conceded",
+              "py": 16,
+              "php": 17
+            },
+            {
+              "col": "double_digits_conceded_ratio",
+              "py": 0.0525,
+              "php": 0.0515
+            },
+            {
+              "col": "clean_sheets_conceded_ratio",
+              "py": 0.0442,
+              "php": 0.0461
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 18,
+              "php": 19
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 17,
+              "php": 18
+            },
+            {
+              "col": "different_opponents",
+              "py": 120,
+              "php": 121
+            },
+            {
+              "col": "different_victims",
+              "py": 95,
+              "php": 97
+            },
+            {
+              "col": "clean_sheets_victims",
+              "py": 36,
+              "php": 37
+            }
+          ],
+          "diff_count": 14
+        },
+        {
+          "key": [
+            417,
+            "world_cup"
+          ],
+          "diffs": [
+            {
+              "col": "goal_ratio",
+              "py": 1.26693456,
+              "php": 1.26914286
+            },
+            {
+              "col": "clean_sheets",
+              "py": 44,
+              "php": 46
+            },
+            {
+              "col": "double_digits_ratio",
+              "py": 0.0416,
+              "php": 0.041
+            },
+            {
+              "col": "clean_sheets_ratio",
+              "py": 0.0915,
+              "php": 0.0943
+            },
+            {
+              "col": "clean_sheets_conceded",
+              "py": 10,
+              "php": 11
+            },
+            {
+              "col": "double_digits_conceded_ratio",
+              "py": 0.0249,
+              "php": 0.0246
+            },
+            {
+              "col": "clean_sheets_conceded_ratio",
+              "py": 0.0208,
+              "php": 0.0225
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 19,
+              "php": 20
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 18,
+              "php": 19
+            },
+            {
+              "col": "different_opponents",
+              "py": 125,
+              "php": 126
+            },
+            {
+              "col": "different_victims",
+              "py": 107,
+              "php": 109
+            },
+            {
+              "col": "clean_sheets_victims",
+              "py": 34,
+              "php": 36
+            }
+          ],
+          "diff_count": 14
+        }
+      ],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "numeric_or_content"
+    },
+    {
+      "table": "amiga_country_slice_at_event",
+      "py_rows": 22,
+      "php_rows": 22,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 22,
+      "sample_mismatches": [
+        {
+          "key": [
+            "Austria",
+            "world_cup",
+            608
+          ],
+          "diffs": [
+            {
+              "col": "domestic_games",
+              "py": 0,
+              "php": 80
+            },
+            {
+              "col": "domestic_game_share",
+              "py": 0.0,
+              "php": 0.099502
+            },
+            {
+              "col": "international_games",
+              "py": 0,
+              "php": 724
+            },
+            {
+              "col": "international_game_share",
+              "py": 0.0,
+              "php": 0.900498
+            },
+            {
+              "col": "average_opponent_rating",
+              "py": null,
+              "php": 1761.8935
+            },
+            {
+              "col": "performance_rating",
+              "py": null,
+              "php": 1591.9931
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 0,
+              "php": 20
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 0,
+              "php": 15
+            },
+            {
+              "col": "opponent_countries_beaten_by",
+              "py": 0,
+              "php": 16
+            },
+            {
+              "col": "different_opponents",
+              "py": 0,
+              "php": 129
+            },
+            {
+              "col": "different_victims",
+              "py": 0,
+              "php": 74
+            },
+            {
+              "col": "double_digits_victims",
+              "py": 0,
+              "php": 1
+            }
+          ],
+          "diff_count": 13
+        },
+        {
+          "key": [
+            "Belgium",
+            "world_cup",
+            608
+          ],
+          "diffs": [
+            {
+              "col": "international_games",
+              "py": 0,
+              "php": 49
+            },
+            {
+              "col": "international_game_share",
+              "py": 0.0,
+              "php": 1.0
+            },
+            {
+              "col": "average_opponent_rating",
+              "py": null,
+              "php": 1964.4367
+            },
+            {
+              "col": "performance_rating",
+              "py": null,
+              "php": 2021.0311
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 0,
+              "php": 11
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 0,
+              "php": 9
+            },
+            {
+              "col": "opponent_countries_beaten_by",
+              "py": 0,
+              "php": 5
+            },
+            {
+              "col": "different_opponents",
+              "py": 0,
+              "php": 35
+            },
+            {
+              "col": "different_victims",
+              "py": 0,
+              "php": 21
+            },
+            {
+              "col": "double_digits_victims",
+              "py": 0,
+              "php": 1
+            },
+            {
+              "col": "clean_sheets_victims",
+              "py": 0,
+              "php": 5
+            }
+          ],
+          "diff_count": 11
+        },
+        {
+          "key": [
+            "Denmark",
+            "world_cup",
+            608
+          ],
+          "diffs": [
+            {
+              "col": "domestic_games",
+              "py": 0,
+              "php": 10
+            },
+            {
+              "col": "domestic_game_share",
+              "py": 0.0,
+              "php": 0.031348
+            },
+            {
+              "col": "international_games",
+              "py": 0,
+              "php": 309
+            },
+            {
+              "col": "international_game_share",
+              "py": 0.0,
+              "php": 0.968652
+            },
+            {
+              "col": "average_opponent_rating",
+              "py": null,
+              "php": 1855.9085
+            },
+            {
+              "col": "performance_rating",
+              "py": null,
+              "php": 2026.2757
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 0,
+              "php": 15
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 0,
+              "php": 13
+            },
+            {
+              "col": "opponent_countries_beaten_by",
+              "py": 0,
+              "php": 11
+            },
+            {
+              "col": "different_opponents",
+              "py": 0,
+              "php": 103
+            },
+            {
+              "col": "different_victims",
+              "py": 0,
+              "php": 89
+            },
+            {
+              "col": "double_digits_victims",
+              "py": 0,
+              "php": 42
+            }
+          ],
+          "diff_count": 13
+        },
+        {
+          "key": [
+            "England",
+            "world_cup",
+            608
+          ],
+          "diffs": [
+            {
+              "col": "domestic_games",
+              "py": 12,
+              "php": 630
+            },
+            {
+              "col": "domestic_game_share",
+              "py": 0.003831,
+              "php": 0.201149
+            },
+            {
+              "col": "international_games",
+              "py": 16,
+              "php": 2502
+            },
+            {
+              "col": "international_game_share",
+              "py": 0.005109,
+              "php": 0.798851
+            },
+            {
+              "col": "average_opponent_rating",
+              "py": 17.8012,
+              "php": 1836.7567
+            },
+            {
+              "col": "performance_rating",
+              "py": 1946.632,
+              "php": 1841.8858
+            },
+            {
+              "col": "clean_sheets",
+              "py": 314,
+              "php": 319
+            },
+            {
+              "col": "clean_sheets_ratio",
+              "py": 0.1003,
+              "php": 0.1019
+            },
+            {
+              "col": "clean_sheets_conceded",
+              "py": 222,
+              "php": 228
+            },
+            {
+              "col": "clean_sheets_conceded_ratio",
+              "py": 0.0709,
+              "php": 0.0728
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 5,
+              "php": 22
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 4,
+              "php": 22
+            }
+          ],
+          "diff_count": 17
+        },
+        {
+          "key": [
+            "France",
+            "world_cup",
+            608
+          ],
+          "diffs": [
+            {
+              "col": "international_games",
+              "py": 0,
+              "php": 123
+            },
+            {
+              "col": "international_game_share",
+              "py": 0.0,
+              "php": 1.0
+            },
+            {
+              "col": "average_opponent_rating",
+              "py": null,
+              "php": 1859.4918
+            },
+            {
+              "col": "performance_rating",
+              "py": null,
+              "php": 1607.6278
+            },
+            {
+              "col": "opponent_countries_faced",
+              "py": 0,
+              "php": 11
+            },
+            {
+              "col": "opponent_countries_beaten",
+              "py": 0,
+              "php": 9
+            },
+            {
+              "col": "opponent_countries_beaten_by",
+              "py": 0,
+              "php": 10
+            },
+            {
+              "col": "different_opponents",
+              "py": 0,
+              "php": 52
+            },
+            {
+              "col": "different_victims",
+              "py": 0,
+              "php": 24
+            },
+            {
+              "col": "double_digits_victims",
+              "py": 0,
+              "php": 1
+            },
+            {
+              "col": "clean_sheets_victims",
+              "py": 0,
+              "php": 5
+            }
+          ],
+          "diff_count": 11
+        }
+      ],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "numeric_or_content"
+    },
+    {
+      "table": "amiga_realm_snapshots",
+      "py_rows": 1,
+      "php_rows": 1,
+      "verdict": "content_hash_mismatch",
+      "py_hash": "50383b50fb9878db",
+      "php_hash": "61578c2530b0ada3"
+    },
+    {
+      "table": "amiga_community_stats_snapshots",
+      "py_rows": 1,
+      "php_rows": 1,
+      "verdict": "content_hash_mismatch",
+      "py_hash": "309908f4ae0656ce",
+      "php_hash": "65d0608feabd5e20"
+    },
+    {
+      "table": "amiga_community_stat_facts",
+      "py_rows": 1977,
+      "php_rows": 1975,
+      "verdict": "count_gap"
+    },
+    {
+      "table": "amiga_world_cup_stats",
+      "py_rows": 1,
+      "php_rows": 1,
+      "verdict": "content_hash_mismatch",
+      "py_hash": "915169d1e37a4f75",
+      "php_hash": "88e815df6f249e51"
+    },
+    {
+      "table": "amiga_wc_hof_snapshots",
+      "py_rows": 1,
+      "php_rows": 1,
+      "verdict": "content_hash_mismatch",
+      "py_hash": "fc6a8b044e1dbe42",
+      "php_hash": "eecf595b75fb6931"
+    },
+    {
+      "table": "amiga_tournament_catalog_stats",
+      "py_rows": 1,
+      "php_rows": 1,
+      "verdict": "match",
+      "py_hash": "fd377ea31fda8ea4",
+      "php_hash": "fd377ea31fda8ea4"
+    },
+    {
+      "table": "amiga_player_inverse_count_at_event",
+      "py_rows": 4,
+      "php_rows": 4,
+      "verdict": "match",
+      "py_hash": "3dcd0edd0e0b2658",
+      "php_hash": "3dcd0edd0e0b2658"
+    },
+    {
+      "table": "amiga_wc_hof_present",
+      "py_rows": 1,
+      "php_rows": 1,
+      "py_hash": "91efb71369e67ca1",
+      "php_hash": "c63740400dfaf344",
+      "verdict": "content_hash_mismatch"
+    },
+    {
+      "table": "amiga_community_stats",
+      "py_rows": 1,
+      "php_rows": 1,
+      "py_hash": "a99ba2c429609794",
+      "php_hash": "22e2aeb50bccd423",
+      "verdict": "content_hash_mismatch"
+    },
+    {
+      "table": "amiga_generalstats",
+      "py_rows": 1,
+      "php_rows": 1,
+      "py_hash": "c004b2d0878e7417",
+      "php_hash": "0e2c379de498c80e",
+      "verdict": "content_hash_mismatch"
+    }
+  ],
+  "tournament": {
+    "py": {
+      "id": 608,
+      "name": "World Cup Parity Probe I",
+      "chrono": 599.0,
+      "rating_finalized": 1,
+      "lifecycle_status": "running",
+      "is_world_cup": 1,
+      "event_date": "2026-07-16",
+      "country": "Iceland"
+    },
+    "php": {
+      "id": 608,
+      "name": "World Cup Parity Probe I",
+      "chrono": 599.0,
+      "rating_finalized": 1,
+      "lifecycle_status": "running",
+      "is_world_cup": 1,
+      "event_date": "2026-07-16",
+      "country": "Iceland"
+    }
+  },
+  "slice_chrono": {
+    "py": [
+      [
+        14,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        134,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        149,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        382,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        417,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        418,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        441,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        470,
+        599.0,
+        "2026-07-16"
+      ]
+    ],
+    "php": [
+      [
+        14,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        134,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        149,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        382,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        417,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        418,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        441,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        470,
+        599.0,
+        "2026-07-16"
+      ]
+    ]
+  },
+  "slice_totals_has_as_of": {
+    "py": false,
+    "php": false
+  },
+  "country_slice_counts": {
+    "py": 22,
+    "php": 22
+  }
+}

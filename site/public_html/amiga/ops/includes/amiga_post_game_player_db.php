@@ -236,7 +236,12 @@ function amiga_ops_load_player_states_for_finalize(
 function amiga_post_game_player_write(mysqli $con, array $dbRow): void
 {
     $playerId = (int) $dbRow['ID'];
-    unset($dbRow['ID']);
+    unset(
+        $dbRow['ID'],
+        // SCH-043: Amiga uses peak/lowest_rating_tournament_id — not online GameID columns.
+        $dbRow['PeakRatingGameID'],
+        $dbRow['LowestRatingGameID']
+    );
     $cols = array_keys($dbRow);
     $colList = implode(', ', array_map(static fn (string $c): string => "`{$c}`", $cols));
     $placeholders = implode(', ', array_fill(0, count($cols), '?'));

@@ -521,6 +521,8 @@ def finalize_tournament(
         existing_games = int(cur.fetchone()["n"])
     if existing_games == 0:
         promote_running_tournament(conn, tournament_id, dry_run=dry_run)
+        # Promote may assign chrono; reload so matchup/realm paths see the committed row.
+        tour = _load_tournament(conn, tournament_id)
 
     with conn.cursor() as cur:
         cur.execute(GAME_SELECT_FOR_TOURNAMENT, (tournament_id,))

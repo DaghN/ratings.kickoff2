@@ -1,0 +1,502 @@
+{
+  "tournament_id": 608,
+  "surfaces": [
+    {
+      "table": "amiga_games+ratings",
+      "py_rows": 28,
+      "php_rows": 28,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 0,
+      "sample_mismatches": [],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "match"
+    },
+    {
+      "table": "amiga_tournament_standings",
+      "py_rows": 8,
+      "php_rows": 8,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 0,
+      "sample_mismatches": [],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "match"
+    },
+    {
+      "table": "amiga_player_event_snapshots",
+      "py_rows": 8,
+      "php_rows": 8,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 5,
+      "sample_mismatches": [
+        {
+          "key": [
+            14,
+            608
+          ],
+          "diffs": [
+            {
+              "col": "rating_delta",
+              "py": -2.749396,
+              "php": -2.749395
+            },
+            {
+              "col": "rating_after",
+              "py": 2172.029406,
+              "php": 2172.029407
+            },
+            {
+              "col": "Rating",
+              "py": 2172.029406,
+              "php": 2172.029407
+            }
+          ],
+          "diff_count": 3
+        },
+        {
+          "key": [
+            134,
+            608
+          ],
+          "diffs": [
+            {
+              "col": "rating_delta",
+              "py": -4.64042,
+              "php": -4.640421
+            },
+            {
+              "col": "rating_after",
+              "py": 1976.172896,
+              "php": 1976.172895
+            },
+            {
+              "col": "Rating",
+              "py": 1976.172896,
+              "php": 1976.172895
+            }
+          ],
+          "diff_count": 3
+        },
+        {
+          "key": [
+            149,
+            608
+          ],
+          "diffs": [
+            {
+              "col": "rating_delta",
+              "py": -105.505152,
+              "php": -105.505153
+            },
+            {
+              "col": "rating_after",
+              "py": 2480.778242,
+              "php": 2480.778241
+            },
+            {
+              "col": "Rating",
+              "py": 2480.778242,
+              "php": 2480.778241
+            }
+          ],
+          "diff_count": 3
+        },
+        {
+          "key": [
+            417,
+            608
+          ],
+          "diffs": [
+            {
+              "col": "rating_delta",
+              "py": 19.265769,
+              "php": 19.26577
+            },
+            {
+              "col": "rating_after",
+              "py": 2031.296292,
+              "php": 2031.296293
+            },
+            {
+              "col": "Rating",
+              "py": 2031.296292,
+              "php": 2031.296293
+            }
+          ],
+          "diff_count": 3
+        },
+        {
+          "key": [
+            441,
+            608
+          ],
+          "diffs": [
+            {
+              "col": "rating_delta",
+              "py": 61.928659,
+              "php": 61.92866
+            },
+            {
+              "col": "rating_after",
+              "py": 1777.524042,
+              "php": 1777.524043
+            },
+            {
+              "col": "Rating",
+              "py": 1777.524042,
+              "php": 1777.524043
+            }
+          ],
+          "diff_count": 3
+        }
+      ],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "numeric_or_content"
+    },
+    {
+      "table": "amiga_player_current(participants)",
+      "py_rows": 8,
+      "php_rows": 8,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 8,
+      "sample_mismatches": [
+        {
+          "key": [
+            14
+          ],
+          "diffs": [
+            {
+              "col": "last_finalized_at",
+              "py": "2026-07-16T20:57:49",
+              "php": "2026-07-17T06:16:37"
+            },
+            {
+              "col": "Rating",
+              "py": 2172.029406,
+              "php": 2172.029407
+            }
+          ],
+          "diff_count": 2
+        },
+        {
+          "key": [
+            134
+          ],
+          "diffs": [
+            {
+              "col": "last_finalized_at",
+              "py": "2026-07-16T20:57:49",
+              "php": "2026-07-17T06:16:37"
+            },
+            {
+              "col": "Rating",
+              "py": 1976.172896,
+              "php": 1976.172895
+            }
+          ],
+          "diff_count": 2
+        },
+        {
+          "key": [
+            149
+          ],
+          "diffs": [
+            {
+              "col": "last_finalized_at",
+              "py": "2026-07-16T20:57:49",
+              "php": "2026-07-17T06:16:37"
+            },
+            {
+              "col": "Rating",
+              "py": 2480.778242,
+              "php": 2480.778241
+            }
+          ],
+          "diff_count": 2
+        },
+        {
+          "key": [
+            382
+          ],
+          "diffs": [
+            {
+              "col": "last_finalized_at",
+              "py": "2026-07-16T20:57:49",
+              "php": "2026-07-17T06:16:37"
+            }
+          ],
+          "diff_count": 1
+        },
+        {
+          "key": [
+            417
+          ],
+          "diffs": [
+            {
+              "col": "last_finalized_at",
+              "py": "2026-07-16T20:57:49",
+              "php": "2026-07-17T06:16:37"
+            },
+            {
+              "col": "Rating",
+              "py": 2031.296292,
+              "php": 2031.296293
+            }
+          ],
+          "diff_count": 2
+        }
+      ],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "numeric_or_content"
+    },
+    {
+      "table": "amiga_player_matchup_at_event",
+      "py_rows": 1037,
+      "php_rows": 1037,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 0,
+      "sample_mismatches": [],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "match"
+    },
+    {
+      "table": "amiga_player_slice_at_event",
+      "py_rows": 8,
+      "php_rows": 8,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 0,
+      "sample_mismatches": [],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "match"
+    },
+    {
+      "table": "amiga_player_slice_totals",
+      "py_rows": 8,
+      "php_rows": 8,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 0,
+      "sample_mismatches": [],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "match"
+    },
+    {
+      "table": "amiga_country_slice_at_event",
+      "py_rows": 22,
+      "php_rows": 22,
+      "only_py": 0,
+      "only_php": 0,
+      "value_mismatches": 0,
+      "sample_mismatches": [],
+      "sample_only_py": [],
+      "sample_only_php": [],
+      "verdict": "match"
+    },
+    {
+      "table": "amiga_realm_snapshots",
+      "py_rows": 1,
+      "php_rows": 1,
+      "verdict": "content_hash_mismatch",
+      "py_hash": "181ad7be750d9de5",
+      "php_hash": "70c458aa77d937f6"
+    },
+    {
+      "table": "amiga_community_stats_snapshots",
+      "py_rows": 1,
+      "php_rows": 1,
+      "verdict": "content_hash_mismatch",
+      "py_hash": "88d0ae506650fce9",
+      "php_hash": "b5f65c7d8d010fe9"
+    },
+    {
+      "table": "amiga_community_stat_facts",
+      "py_rows": 1977,
+      "php_rows": 1977,
+      "verdict": "match"
+    },
+    {
+      "table": "amiga_world_cup_stats",
+      "py_rows": 1,
+      "php_rows": 1,
+      "verdict": "content_hash_mismatch",
+      "py_hash": "baafe3577c8ef83d",
+      "php_hash": "cc05fa0a6ece1cce"
+    },
+    {
+      "table": "amiga_wc_hof_snapshots",
+      "py_rows": 1,
+      "php_rows": 1,
+      "verdict": "content_hash_mismatch",
+      "py_hash": "0c5a5adee3d1a520",
+      "php_hash": "82e0bb865269bb59"
+    },
+    {
+      "table": "amiga_tournament_catalog_stats",
+      "py_rows": 1,
+      "php_rows": 1,
+      "verdict": "match",
+      "py_hash": "fd377ea31fda8ea4",
+      "php_hash": "fd377ea31fda8ea4"
+    },
+    {
+      "table": "amiga_player_inverse_count_at_event",
+      "py_rows": 4,
+      "php_rows": 4,
+      "verdict": "match",
+      "py_hash": "3dcd0edd0e0b2658",
+      "php_hash": "3dcd0edd0e0b2658"
+    },
+    {
+      "table": "amiga_wc_hof_present",
+      "py_rows": 1,
+      "php_rows": 1,
+      "py_hash": "c63740400dfaf344",
+      "php_hash": "c63740400dfaf344",
+      "verdict": "match"
+    },
+    {
+      "table": "amiga_community_stats",
+      "py_rows": 1,
+      "php_rows": 1,
+      "py_hash": "a99ba2c429609794",
+      "php_hash": "a99ba2c429609794",
+      "verdict": "match"
+    },
+    {
+      "table": "amiga_generalstats",
+      "py_rows": 1,
+      "php_rows": 1,
+      "py_hash": "0e2c379de498c80e",
+      "php_hash": "0e2c379de498c80e",
+      "verdict": "match"
+    }
+  ],
+  "tournament": {
+    "py": {
+      "id": 608,
+      "name": "World Cup Parity Probe I",
+      "chrono": 599.0,
+      "rating_finalized": 1,
+      "lifecycle_status": "completed",
+      "is_world_cup": 1,
+      "event_date": "2026-07-16",
+      "country": "Iceland"
+    },
+    "php": {
+      "id": 608,
+      "name": "World Cup Parity Probe I",
+      "chrono": 599.0,
+      "rating_finalized": 1,
+      "lifecycle_status": "running",
+      "is_world_cup": 1,
+      "event_date": "2026-07-16",
+      "country": "Iceland"
+    }
+  },
+  "slice_chrono": {
+    "py": [
+      [
+        14,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        134,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        149,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        382,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        417,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        418,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        441,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        470,
+        599.0,
+        "2026-07-16"
+      ]
+    ],
+    "php": [
+      [
+        14,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        134,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        149,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        382,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        417,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        418,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        441,
+        599.0,
+        "2026-07-16"
+      ],
+      [
+        470,
+        599.0,
+        "2026-07-16"
+      ]
+    ]
+  },
+  "slice_totals_has_as_of": {
+    "py": false,
+    "php": false
+  },
+  "country_slice_counts": {
+    "py": 22,
+    "php": 22
+  }
+}

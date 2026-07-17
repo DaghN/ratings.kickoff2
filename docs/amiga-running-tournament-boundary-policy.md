@@ -6,7 +6,7 @@
 
 **Parent:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (Lane B) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (L3–L5) · [`amiga-data-contract.md`](amiga-data-contract.md) · **Scoring contract:** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md) (RTB14)
 
-**Related:** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (fixture = one match) · [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (permanent `amiga_players` at create) · [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) (Make official writers)
+**Related:** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (fixture = one match) · [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (permanent `amiga_players` at create) · [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) (Make official writers) · [`amiga-php-finalize-parity-protocol.md`](amiga-php-finalize-parity-protocol.md) (PHP Finish ↔ simul-oracle fingerprint)
 
 **Inventory / implementation:** [`amiga-running-tournament-boundary-inventory.md`](amiga-running-tournament-boundary-inventory.md) · [`amiga-running-tournament-boundary-implementation-plan.md`](amiga-running-tournament-boundary-implementation-plan.md)
 
@@ -98,7 +98,7 @@ Broadcast / organizer reads ──►           Public ladder reads ──►
 | **RTB9** | **Orphan guard uses official games** | Orphan-delete eligibility counts **official** `amiga_games` only (after RTB1). Running scores do not block orphan cleanup. |
 | **RTB10** | **Abandon = delete workspace** | Deleting/abandoning a never-official running tournament removes running package + structure only. No L3/L5 repair if nothing was promoted. |
 | **RTB11** | **Import/prove unchanged** | Lane A historical path still materializes fixtures from existing `amiga_games`. RTB applies to **Lane B live ops** only. |
-| **RTB12** | **Python/PHP parity** | Record-result and organizer finish must match between `fixtures.php` and `scripts/amiga/tournament_fixtures.py` / `finalize_tournament.py`. |
+| **RTB12** | **Python/PHP parity** | Record-result and organizer finish must match between `fixtures.php` and `scripts/amiga/tournament_fixtures.py` / `finalize_tournament.py`. **Finish derive:** [`amiga-php-finalize-parity-protocol.md`](amiga-php-finalize-parity-protocol.md) (simul-oracle fingerprint; #608 signed off Jul 2026). |
 | **RTB13** | **One organizer finish action** | Browser happy path = single **Finish and make official** control. On success, atomically: **promote** → **finalize** derive → `rating_finalized = 1` → `lifecycle_status = completed` + `completed_at`. No separate **Mark complete** step. |
 | **RTB14** | **Scoring contract parity** | Broadcast (fixtures) and official (`amiga_games`) use the **same stage scoring contracts + standings executor** ([`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md) SC14). Broadcast **does not persist L5**; live hub league + KO in scope. |
 
@@ -154,22 +154,23 @@ Undo/edit before Make official mutates **fixture running fields only**.
 
 | Element | Rule |
 |---------|------|
-| **Placement** | Table tab (`view=table`) — primary workspace after all results are entered. Results tab may link here; no second finish control on Setup. |
+| **Placement** | Table tab (`view=table`) — primary workspace when the secretary is ready to commit (all results **or** early finish). Results tab may link here; no second finish control on Setup. |
 | **Button** | **Finish and make official** (or **Finish & make official** when width-constrained). |
 | **Helper** | One line under the button: commits to ratings and tournament history; leaves Live hub; joins historical catalog. |
 | **Retired on Setup** | **Mark complete** button and “finish lifecycle only” happy path removed. Setup keeps **Start tournament** and **Void tournament** only. |
 | **Advanced / CLI** | Raw `lifecycle_status` transitions and `finalize-tournament` remain for operators; not the secretary happy path. |
 
-### 6.2 Preconditions (gate — same as today’s Make official button)
+### 6.2 Preconditions (gate)
 
-All must pass; otherwise refuse with an actionable message (no partial commit):
+All must pass; otherwise refuse with an actionable message (no partial *commit* of ratings — either full finish or refuse):
 
 - Generated tournament (`source_id IS NULL`, fixture-backed builder) — imported Access rows refuse.
 - `lifecycle_status = running` (not `draft`, `ready`, `completed`, `void`, …).
 - `rating_finalized = 0` and zero existing `amiga_games` for this `tournament_id` (idempotent promote guard).
-- **Zero scheduled fixtures** — every non-void fixture is `played` with running scores entered.
 - **At least one played fixture** with scores.
 - Entrants valid; no fixture without both players unless fixture status is `void`.
+
+**Partial finish (Jul 2026):** Remaining **scheduled** fixtures are **auto-voided** as part of Finish (player left early, night cut short). Only **played** fixtures become official `amiga_games`. Do **not** require every fixture to be played before the button appears.
 
 ### 6.3 Promote step (L3 insert)
 
@@ -215,8 +216,8 @@ Finalize **must not** read running fixture score columns after promote — it re
 | Situation | Action |
 |-----------|--------|
 | `rating_finalized = 1` but `lifecycle_status = running` (RTB-1–8 limbo) | CLI `fixtures set-lifecycle-status` → `completed`, or Advanced tab — one-off hygiene after RTB-9 ships. |
-| Finish refused mid-tournament | Enter remaining results on Results tab; button stays hidden until scheduled count is zero. |
-| Void never-official test league | **Void tournament** on Setup — separate from finish; no promote. |
+| Finish refused / limbo | Honest message; **do not** silent-rewind on Finish. Advanced **Reset incomplete finish** is explicit (narrow table list). Prefer pull→repair if unsure. |
+| Void never-official test league | **Abandon league (void)** on Advanced — separate from finish; no promote. |
 
 ---
 
@@ -277,6 +278,10 @@ Broadcast paths **read the running package only** and may **compute** standings/
 
 | Date | Change |
 |------|--------|
+| 2026-07-16 | **No silent Finish rewind** — `rating_finalized` only after full derive succeeds; limbo → Advanced explicit reset (narrow). Partial finish + SCH-043 strip retained. |
+| 2026-07-17 | **Community scan limbo parity** — PHP (and Python) tournament-host community scan uses `(rating_finalized = 1 OR id = as_of)` so Finish can keep limbo-safe late `rating_finalized` without under-counting the tournament being finalized. Simul-oracle #608 re-fingerprint: community headline/facts match. |
+| 2026-07-16 | **Promote chrono parity** — PHP `amiga_promote_next_tournament_chrono` matches Python `next_tournament_chrono` (same-day bump, else global append). Fork fingerprint: was PHP `chrono=1` vs Py `599` on new event_date. |
+| 2026-07-16 | **Partial finish** — Finish and make official with unplayed matches: auto-void remaining scheduled; button visible with ≥1 played (Dagh kitchen feedback). |
 | 2026-07-08 | **RTB-9 shipped** — browser **Finish and make official** atomically promote + finalize + lifecycle `completed`; Setup **Mark complete** retired. |
 | 2026-07-08 | **Rev. 2 locked** — one organizer **Finish and make official** action (promote + finalize + lifecycle `completed`); layered vocabulary §2; **Mark complete** retired from happy path; RTB13. |
 | 2026-07-07 | **Implementation shipped (RTB-1–RTB-8)** — running vs official boundary; fixture running columns; promote at Make official. |

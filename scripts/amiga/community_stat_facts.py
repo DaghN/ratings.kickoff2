@@ -312,11 +312,13 @@ def _load_tournaments_at_cutoff(
     conn: pymysql.connections.Connection,
     cutoff: Any,
 ) -> tuple[int, int]:
-    params = tournament_cutoff_params(cutoff)
+    # Include as_of tournament even when rating_finalized is still 0
+    # (PHP sets the flag only after community writers succeed — limbo safety).
+    params = (cutoff.tournament_id,) + tournament_cutoff_params(cutoff)
     sql = """
         SELECT t.event_date, t.country
         FROM tournaments t
-        WHERE t.rating_finalized = 1
+        WHERE (t.rating_finalized = 1 OR t.id = %s)
           AND (
             t.event_date < %s
             OR (t.event_date = %s AND (t.chrono < %s OR (t.chrono = %s AND t.id <= %s)))
@@ -381,14 +383,14 @@ def build_community_realm_scan(
             """
             SELECT t.event_date, t.country
             FROM tournaments t
-            WHERE t.rating_finalized = 1
+            WHERE (t.rating_finalized = 1 OR t.id = %s)
               AND (
                 t.event_date < %s
                 OR (t.event_date = %s AND (t.chrono < %s OR (t.chrono = %s AND t.id <= %s)))
               )
             ORDER BY t.event_date ASC, t.chrono ASC, t.id ASC
             """,
-            tour_params,
+            (as_of_tournament_id,) + tour_params,
         )
         for row in cur.fetchall():
             year = year_key(row["event_date"])

@@ -98,11 +98,13 @@ Only the **current** cycle is live. When fixed and re-checked, clear or archive 
 
 | Field | Value |
 |-------|-------|
-| **Status** | idle — awaiting Dagh’s next one-step feedback |
-| **Format** | Ref-League-A |
+| **Status** | idle — L0 complete; awaiting next secretary step / L1 feedback |
+| **Format** | — |
 | **Step** | — |
-| **Feedback** | — |
+| **Feedback** | (none) |
 | **Slice** | — |
+
+**Context for next chat:** Ref-League-A L0 green on staging (CREATE → MAKE OFFICIAL → WEBSITE). Next gate = **L1** (UX polish only when Dagh names one feedback on a repeat run), or continue with another Ref-League-A if he wants more reps before L1. Do **not** start cups (L3) or Track C until L1/L2 feel boring enough.
 
 When a cycle is open, agents read **this table only** — not historical notes — as the work order.
 
@@ -123,7 +125,7 @@ Milestones are **gates**, not a parallel backlog. Advance when Dagh says the pri
 | **L6** | Ground pack pull | Staging event on laptop (finer than full pull) |
 | **L7** | Media on ran event | YouTube URL on staging tournament |
 
-**Current gate:** **L0** — start with CREATE on staging; one feedback at a time.
+**Current gate:** **L0 complete** — full Ref-League-A on staging (create → Make official → website). Next = **L1** when Dagh runs the path again and names one feedback (or another L0-style rep with no feedback).
 
 **Explicit defer until a cycle names them:** structure imprint P2–P3, WC materialize, Lane C media DDL, CR-9 country polish, player-create phase 2, cups before L2 boring.
 
@@ -145,6 +147,15 @@ Closed cycles from early drills. Do **not** treat as open work.
 
 | Date | Step | Feedback | Outcome |
 |------|------|----------|---------|
+| 2026-07-17 | WEBSITE | (none — spot-check green) | Catalog + tournament page + profile effect + gone from Live — **L0 complete**; §4 idle |
+| 2026-07-17 | WEBSITE | Staging cleaned for parity — old #608 gone | No public event to spot-check; §4 → CREATE new kitchen (L0 restart) |
+| 2026-07-16 | MAKE OFFICIAL | `as_of_tournament_id` on slice_totals INSERT | Strip chrono cols from totals upsert; WC-only gate — **Finish success reported**; §4 had → WEBSITE (void after staging clean) |
+| 2026-07-16 | MAKE OFFICIAL limbo | Staging #608 extent unclear | **Push local oracle** (`export_ko2amiga_work`) — not browser rewind/repair |
+| 2026-07-16 | MAKE OFFICIAL | Silent rewind unsafe | Removed; `rating_finalized` only after full derive; Advanced explicit reset |
+| 2026-07-16 | MAKE OFFICIAL | LowestRatingGameID INSERT + limbo | Strip retired GameID cols; (rewind approach superseded — see above) |
+| 2026-07-16 | MAKE OFFICIAL | Finish hidden until all results; reject all-must-play gate | Partial finish: button with ≥1 played; unplayed → void on finish |
+| 2026-07-16 | START | “Void tournament” unexplained on Setup | Void removed from Setup; Advanced = Abandon league (void) + copy — **re-check green** |
+| 2026-07-16 | CREATE re-entry | #608 missing from Recent leagues | Wrong `bind_param` types stored `format_overrides` as `0`; fixed types + auto-repair — **re-check green** (Recent leagues → Open) |
 | 2026-07-07 | enter ops | Tournament id on password gate confused secretaries | Password-only gate + Recent leagues inside — shipped |
 | 2026-07-07 | website | Allowlist blocked public live page | Start=public (ALO11) — shipped |
 | 2026-07-07 | enter ops | Staging fixtures.php HTTP 500 before gate | Require path fix — shipped |
@@ -155,6 +166,17 @@ Closed cycles from early drills. Do **not** treat as open work.
 
 | Date | Change |
 |------|--------|
+| 2026-07-17 | **L0 complete** — Dagh WEBSITE spot-check green (catalog, tournament page, profile, left Live); §4 idle; gate → L1. |
+| 2026-07-17 | **L0 §4 → CREATE (restart)** — staging cleaned for PHP parity; old kitchen #608 gone; WEBSITE deferred until a new Ref-League-A is finished on staging. |
+| 2026-07-17 | **L0 §4 → WEBSITE** — MAKE OFFICIAL success already reported; parity track separate; next secretary step = public site check. *(superseded same day by staging clean)* |
+| 2026-07-16 | **Finish slice_totals leak** — PHP copied `as_of_tournament_id`/`event_*` into `amiga_player_slice_totals` INSERT; unset those cols + WC-only persist gate. |
+| 2026-07-16 | **L0 limbo → push local** — staging kitchen Finish limbo; Dagh: local `ko2amiga_work` oracle → `export_ko2amiga_work` for staged replace (not in-place rewind). |
+| 2026-07-16 | **Finish limbo redesign** — no silent Finish rewind; `rating_finalized` set only after full derive; Advanced “Reset incomplete finish” is explicit and narrow. |
+| 2026-07-16 | **Finish limbo / SCH-043** — Amiga current upsert still sent `LowestRatingGameID`; stripped + limbo rewind on Finish retry. |
+| 2026-07-16 | **Partial finish** — Finish and make official with unplayed matches (auto-void scheduled); RTB policy §6.2 updated. |
+| 2026-07-16 | **START Void clarity** — removed unexplained “Void tournament” from Setup; Advanced has “Abandon league (void)” with plain copy; Setup after start points to Results / Finish. |
+| 2026-07-16 | **CREATE Recent-leagues miss** — kitchen create `bind_param` typed `format_overrides` as int (`0`); fixed `ssisiiisiiis` + repair on organizer load for broken rows (e.g. #608). |
+| 2026-07-16 | L0 Ref-League-A: CREATE ok on staging; §4 → awaiting START. |
 | 2026-07-16 | **Serial feedback** replaces pain-log inventory — queue depth 1; §4 active cycle; shipped rows → archive; agent rules updated. |
 | 2026-07-07 | **RTB shipped** — play = fixture-only scores; Make official = promote + finalize. |
 | 2026-07-07 | Drill checklist + ALO11 start=public; Make official wording. |

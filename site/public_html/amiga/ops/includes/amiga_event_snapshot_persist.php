@@ -220,7 +220,12 @@ function amiga_ops_upsert_row(mysqli $con, string $table, array $row, array $key
 function amiga_ops_current_row_from_snapshot(array $snapshot): array
 {
     $careerTemplate = k2_post_game_player_to_db_row(k2_post_game_player_state_new(), 0);
-    unset($careerTemplate['ID']);
+    unset(
+        $careerTemplate['ID'],
+        // SCH-043: dropped on Amiga snapshots/current — tournament_id anchors instead.
+        $careerTemplate['PeakRatingGameID'],
+        $careerTemplate['LowestRatingGameID']
+    );
     $careerColumns = array_keys($careerTemplate);
 
     $current = [
@@ -585,9 +590,9 @@ function amiga_ops_persist_tournament_event_snapshots(
         $players
     );
 
-    amiga_ops_persist_world_cup_slices($con, $tournamentId, $eventDate, $eventChrono, $sliceByPlayer);
-
+    // Parity with Python: only persist WC slice at-event/totals for World Cup events.
     if (amiga_honours_participation_is_world_cup($participation)) {
+        amiga_ops_persist_world_cup_slices($con, $tournamentId, $eventDate, $eventChrono, $sliceByPlayer);
         amiga_country_slice_rebuild_at_world_cup_finalize(
             $con,
             $tournamentId,

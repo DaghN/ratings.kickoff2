@@ -244,7 +244,7 @@ function amiga_community_build_realm_scan(mysqli $con, int $tournamentId): array
     $tourSql = "
         SELECT t.event_date, t.country
         FROM tournaments t
-        WHERE t.rating_finalized = 1
+        WHERE (t.rating_finalized = 1 OR t.id = ?)
           AND (
             t.event_date < ?
             OR (t.event_date = ? AND (t.chrono < ? OR (t.chrono = ? AND t.id <= ?)))
@@ -255,7 +255,9 @@ function amiga_community_build_realm_scan(mysqli $con, int $tournamentId): array
     if ($tstmt === false) {
         throw new RuntimeException('prepare community realm scan tournaments: ' . $con->error);
     }
-    $tstmt->bind_param('ssddi', $eventDate, $eventDate, $chrono, $chrono, $tid);
+    // Include the tournament being finalized even when rating_finalized is still 0
+    // (PHP sets the flag only after community/realm writers succeed — limbo safety).
+    $tstmt->bind_param('issddi', $tid, $eventDate, $eventDate, $chrono, $chrono, $tid);
     if (!$tstmt->execute()) {
         throw new RuntimeException('execute community realm scan tournaments: ' . $tstmt->error);
     }

@@ -200,7 +200,9 @@ function amiga_ops_persist_world_cup_slices(
             ['player_id', 'slice_key', 'as_of_tournament_id']
         );
 
+        // totals table has no as_of / event chrono columns (Python uses SLICE_TOTALS_COLUMNS).
         $totalRow = $atRow;
+        unset($totalRow['as_of_tournament_id'], $totalRow['event_date'], $totalRow['event_chrono']);
         amiga_slice_upsert_row(
             $con,
             'amiga_player_slice_totals',

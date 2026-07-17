@@ -46,6 +46,53 @@ function amiga_promote_next_game_date(mysqli $con): string
 }
 
 /**
+ * Next tournament chrono at promote — mirrors scripts/amiga/tournament_fixtures.py
+ * next_tournament_chrono: bump within same event_date, else global append.
+ */
+function amiga_promote_next_tournament_chrono(
+    mysqli $con,
+    string $eventDate,
+    int $excludeTournamentId
+): float {
+    $stmt = $con->prepare(
+        'SELECT COALESCE(MAX(chrono), 0) AS same_day_max '
+        . 'FROM tournaments WHERE event_date = ? AND id <> ?'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare promote same-day chrono: ' . $con->error);
+    }
+    $stmt->bind_param('si', $eventDate, $excludeTournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute promote same-day chrono: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+    $sameDayMax = (float) ($row['same_day_max'] ?? 0);
+
+    $stmt = $con->prepare(
+        'SELECT COALESCE(MAX(chrono), 0) AS global_max FROM tournaments WHERE id <> ?'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare promote global chrono: ' . $con->error);
+    }
+    $stmt->bind_param('i', $excludeTournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute promote global chrono: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+    $globalMax = (float) ($row['global_max'] ?? 0);
+
+    if ($sameDayMax > 0.0) {
+        return $sameDayMax + 1.0;
+    }
+
+    return $globalMax + 1.0;
+}
+
+/**
  * @return list<array<string, mixed>>
  */
 function amiga_promote_running_tournament_load_played_fixtures(mysqli $con, int $tournamentId): array
@@ -114,20 +161,7 @@ function amiga_promote_running_tournament(mysqli $con, int $tournamentId, bool $
 
     if ($tournament['chrono'] === null && $tournament['event_date'] !== null) {
         $eventDate = (string) $tournament['event_date'];
-        $stmt = $con->prepare(
-            'SELECT COALESCE(MAX(chrono), 0) + 1 AS next_chrono FROM tournaments WHERE event_date = ?'
-        );
-        if ($stmt === false) {
-            throw new RuntimeException('prepare promote chrono: ' . $con->error);
-        }
-        $stmt->bind_param('s', $eventDate);
-        if (!$stmt->execute()) {
-            throw new RuntimeException('execute promote chrono: ' . $stmt->error);
-        }
-        $res = $stmt->get_result();
-        $chronoRow = $res ? $res->fetch_assoc() : null;
-        $stmt->close();
-        $nextChrono = (float) ($chronoRow['next_chrono'] ?? 1);
+        $nextChrono = amiga_promote_next_tournament_chrono($con, $eventDate, $tournamentId);
         $stmt = $con->prepare('UPDATE tournaments SET chrono = ? WHERE id = ?');
         if ($stmt === false) {
             throw new RuntimeException('prepare promote chrono update: ' . $con->error);
@@ -175,8 +209,10 @@ function amiga_promote_running_tournament(mysqli $con, int $tournamentId, bool $
     $stmt->close();
     $scheduled = (int) ($row['n'] ?? 0);
     if ($scheduled > 0) {
+        // Partial finish: caller should have voided remaining; refuse if any left.
         throw new RuntimeException(
-            "Tournament {$tournamentId} has {$scheduled} scheduled fixture(s); promote refused."
+            "Tournament {$tournamentId} has {$scheduled} scheduled fixture(s); "
+            . 'void unplayed matches before promote (Finish and make official does this).'
         );
     }
 

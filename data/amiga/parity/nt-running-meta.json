@@ -1,0 +1,76 @@
+{
+    "probe":  "php-finalize-parity",
+    "shape":  "kitchen_rr_stamped_wc",
+    "base_checkpoint":  "work-2026-07-16-php-parity-base",
+    "tournament":  {
+                       "id":  608,
+                       "name":  "World Cup Parity Probe I",
+                       "event_date":  "2026-07-16",
+                       "country":  "Iceland",
+                       "is_world_cup":  1,
+                       "lifecycle_status":  "running",
+                       "rating_finalized":  0,
+                       "player_count":  8
+                   },
+    "newcomer":  {
+                     "id":  470,
+                     "name":  "Inga H",
+                     "country":  "Iceland",
+                     "player_source":  "live_ops"
+                 },
+    "field":  [
+                  {
+                      "player_id":  382,
+                      "name":  "Robert S",
+                      "country":  "England",
+                      "seed_no":  1
+                  },
+                  {
+                      "player_id":  14,
+                      "name":  "Alkis P",
+                      "country":  "Greece",
+                      "seed_no":  2
+                  },
+                  {
+                      "player_id":  149,
+                      "name":  "Gianni T",
+                      "country":  "Italy",
+                      "seed_no":  3
+                  },
+                  {
+                      "player_id":  417,
+                      "name":  "Steve C",
+                      "country":  "England",
+                      "seed_no":  4
+                  },
+                  {
+                      "player_id":  441,
+                      "name":  "Thorsten B",
+                      "country":  "Germany",
+                      "seed_no":  5
+                  },
+                  {
+                      "player_id":  134,
+                      "name":  "Garry C",
+                      "country":  "England",
+                      "seed_no":  6
+                  },
+                  {
+                      "player_id":  418,
+                      "name":  "Steve E",
+                      "country":  "England",
+                      "seed_no":  7
+                  },
+                  {
+                      "player_id":  470,
+                      "name":  "Inga H",
+                      "country":  "Iceland",
+                      "seed_no":  8
+                  }
+              ],
+    "fixtures_played":  28,
+    "amiga_games_for_t":  0,
+    "dump_path":  "data\\amiga\\parity\\nt-running-2026-07-16\\ko2amiga_work.sql",
+    "dump_size_mb":  71.8,
+    "dump_note":  "N+T_running mid-state; amiga_games for T=0; restore twice for Py vs PHP finalize forks"
+}

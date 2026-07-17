@@ -612,6 +612,21 @@ function amiga_finalize_tournament(
         /** @var array<string, array{0: int, 1: int}> $touchedMatchupPairs */
         $touchedMatchupPairs = [];
 
+        // Idempotent rating phase: clear prior ratings for this tournament when not yet official.
+        $del = $con->prepare(
+            'DELETE r FROM amiga_game_ratings r '
+            . 'INNER JOIN amiga_games g ON g.id = r.game_id '
+            . 'WHERE g.tournament_id = ?'
+        );
+        if ($del === false) {
+            throw new RuntimeException('prepare clear prior game_ratings: ' . $con->error);
+        }
+        $del->bind_param('i', $tournamentId);
+        if (!$del->execute()) {
+            throw new RuntimeException('execute clear prior game_ratings: ' . $del->error);
+        }
+        $del->close();
+
         foreach ($games as $game) {
             $matchups->applyGame($game);
             $gameId = (int) $game['id'];
@@ -658,21 +673,12 @@ function amiga_finalize_tournament(
             $ratingEvents++;
         }
 
-        $flagStmt = $con->prepare(
-            'UPDATE tournaments SET rating_finalized = 1, rating_finalized_at = ? WHERE id = ?'
-        );
-        if ($flagStmt === false) {
-            throw new RuntimeException('prepare tournament finalize flag: ' . $con->error);
-        }
-        $flagStmt->bind_param('si', $finalizedAt, $tournamentId);
-        if (!$flagStmt->execute()) {
-            throw new RuntimeException('execute tournament finalize flag: ' . $flagStmt->error);
-        }
-        $flagStmt->close();
-
         amiga_scoring_freeze_contracts_for_tournament($con, $tournamentId, $finalizedAt);
 
         amiga_ops_standings_apply_game($con, $games[array_key_last($games)]);
+
+        // Do NOT set rating_finalized here — flag only after post-commit derive succeeds
+        // (otherwise a snapshot/catalog failure leaves an untrustworthy "official" limbo).
 
         $con->commit();
     } catch (Throwable $e) {
@@ -760,6 +766,18 @@ function amiga_finalize_tournament(
             . implode('; ', $errors)
         );
     }
+
+    $flagStmt = $con->prepare(
+        'UPDATE tournaments SET rating_finalized = 1, rating_finalized_at = ? WHERE id = ?'
+    );
+    if ($flagStmt === false) {
+        throw new RuntimeException('prepare tournament finalize flag: ' . $con->error);
+    }
+    $flagStmt->bind_param('si', $finalizedAt, $tournamentId);
+    if (!$flagStmt->execute()) {
+        throw new RuntimeException('execute tournament finalize flag: ' . $flagStmt->error);
+    }
+    $flagStmt->close();
 
     amiga_ops_log("finalize-tournament complete: id={$tournamentId} events={$ratingEvents}");
 

@@ -187,14 +187,24 @@ def refuse_legacy_video_deploy_on_work(*, cli_name: str) -> None:
             db = load_amiga_db_config().database
         except Exception:
             return
-    if db == WORK_DB:
-        raise SystemExit(
-            f"Refusing {cli_name} on {WORK_DB}: do not write deploy tournament_videos.json "
-            "from legacy sync/build.\n"
-            "Forward path:\n"
-            "  python -m scripts.amiga align-video-work\n"
-            "  python -m scripts.amiga promote-video-deploy"
-        )
+    if db != WORK_DB:
+        return
+    # align-video-work patches MANIFEST_JSON to the work compartment — allow that path.
+    try:
+        from scripts.amiga.modern.constants import WORK_MANIFEST_JSON
+        from scripts.amiga.tournament_videos import build_manifest as build_manifest_mod
+
+        if Path(build_manifest_mod.MANIFEST_JSON).resolve() == WORK_MANIFEST_JSON.resolve():
+            return
+    except Exception:
+        pass
+    raise SystemExit(
+        f"Refusing {cli_name} on {WORK_DB}: do not write deploy tournament_videos.json "
+        "from legacy sync/build.\n"
+        "Forward path:\n"
+        "  python -m scripts.amiga align-video-work\n"
+        "  python -m scripts.amiga promote-video-deploy"
+    )
 def write_ground_fingerprint(conn: pymysql.connections.Connection | None = None) -> dict[str, Any]:
     own = conn is None
     if own:

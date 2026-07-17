@@ -142,10 +142,25 @@ def promote_running_tournament(
             (tournament_id,),
         )
         scheduled = int(cur.fetchone()["n"])
-    if scheduled > 0:
-        raise ValueError(
-            f"tournament_id={tournament_id} has {scheduled} scheduled fixture(s); promote refused"
-        )
+        if scheduled > 0:
+            cur.execute(
+                """
+                UPDATE tournament_fixtures f
+                INNER JOIN tournament_stages s ON s.id = f.stage_id
+                SET f.status = 'void'
+                WHERE s.tournament_id = %s AND f.status = 'scheduled'
+                """,
+                (tournament_id,),
+            )
+            log.info(
+                "promote_running_tournament: voided %s scheduled fixture(s) for tournament_id=%s dry_run=%s",
+                scheduled,
+                tournament_id,
+                dry_run,
+            )
+            if not dry_run:
+                conn.commit()
+            # dry_run: leave void UPDATE in the open transaction; rollback with promote dry_run below
 
     fixtures = running_tournament_games(conn, tournament_id)
     if not fixtures:
