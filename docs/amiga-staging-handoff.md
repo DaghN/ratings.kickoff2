@@ -107,7 +107,7 @@ Preview must show the manifest **part count** from the latest export and the imp
 
 **Tournament video manifest:** Modern path — `export_ko2amiga_work.ps1` runs **`promote-video-deploy`** (snapshot → align → parity → deploy copy). Legacy oracle rebuild: **`prove`** + `sync_db_ids` on **`ko2amiga_db` only** ([`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §12).
 
-Password is in `site/config/amiga_ops_password.local.php` (gitignored) — use `&pwd=YOUR_OPS_PASSWORD` in the URL, or type it on the prompt page.
+Password is in `amiga/_ops/amiga_ops_password.local.php` (gitignored; WinSCP-deployable — staging `/config` is root-owned) — use `&pwd=YOUR_OPS_PASSWORD` in the URL, or type it on the prompt page.
 
 Local dry-run (same paths, `ratingskickoff.test`): preview URL above with local host.
 

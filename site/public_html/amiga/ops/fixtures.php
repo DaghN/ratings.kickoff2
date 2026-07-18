@@ -6,7 +6,7 @@
  *   /amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD
  *   /amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD&tournament_id=N  (optional deep link)
  *
- * Password: site/config/amiga_ops_password.local.php (gitignored).
+ * Password: amiga/_ops/amiga_ops_password.local.php (gitignored; WinSCP-deployable).
  */
 declare(strict_types=1);
 
@@ -21,7 +21,7 @@ require_once __DIR__ . '/modules/process_completed_game.php';
 require_once __DIR__ . '/modules/finalize_tournament.php';
 require_once __DIR__ . '/includes/amiga_promote_running_tournament.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
-require_once __DIR__ . '/../../../config/amiga_ops_password.php';
+require_once __DIR__ . '/../includes/amiga_ops_password_lib.php';
 
 const AMIGA_FIXTURE_LIVE_SOURCE_SCORES_ID_BASE = 1000000000;
 

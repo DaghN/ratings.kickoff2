@@ -9,7 +9,7 @@
  *   /amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=YOUR_OPS_PASSWORD&apply=1
  *   Optional: &part=1 (auto-continues through manifest parts)
  *
- * Password: site/config/amiga_ops_password.local.php (gitignored).
+ * Password: amiga/_ops/amiga_ops_password.local.php (gitignored; WinSCP-deployable).
  */
 declare(strict_types=1);
 
@@ -203,7 +203,7 @@ function k2_amiga_import_counts(mysqli $con): array
 
 header('Content-Type: text/html; charset=utf-8');
 
-require_once __DIR__ . '/../../config/amiga_ops_password.php';
+require_once __DIR__ . '/includes/amiga_ops_password_lib.php';
 
 $key = 'ko2amiga-import-one-shot';
 $importPassword = amiga_ops_require_password();

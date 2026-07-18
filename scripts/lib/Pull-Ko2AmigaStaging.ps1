@@ -6,20 +6,26 @@ function Get-AmigaOpsPasswordFromConfig {
     if ($env:AMIGA_OPS_PASSWORD -and $env:AMIGA_OPS_PASSWORD.Trim() -ne '') {
         return $env:AMIGA_OPS_PASSWORD.Trim()
     }
-    $local = Join-Path $RepoRoot 'site\config\amiga_ops_password.local.php'
-    if (-not (Test-Path -LiteralPath $local)) {
-        throw "Missing Amiga ops password. Copy site\config\amiga_ops_password.local.php.example → amiga_ops_password.local.php (or set env AMIGA_OPS_PASSWORD)."
-    }
-    $text = [System.IO.File]::ReadAllText($local)
-    # Single-quoted pattern so $password is literal (not a PowerShell variable).
-    if ($text -match '(?m)^\s*\$password\s*=\s*''([^'']*)''\s*;') {
-        $pwd = $Matches[1]
-        if ([string]::IsNullOrWhiteSpace($pwd)) {
-            throw "amiga_ops_password.local.php has empty `$password."
+    $candidates = @(
+        (Join-Path $RepoRoot 'site\public_html\amiga\_ops\amiga_ops_password.local.php'),
+        (Join-Path $RepoRoot 'site\config\amiga_ops_password.local.php')
+    )
+    foreach ($local in $candidates) {
+        if (-not (Test-Path -LiteralPath $local)) {
+            continue
         }
-        return $pwd
+        $text = [System.IO.File]::ReadAllText($local)
+        # Single-quoted pattern so $password is literal (not a PowerShell variable).
+        if ($text -match '(?m)^\s*\$password\s*=\s*''([^'']*)''\s*;') {
+            $pwd = $Matches[1]
+            if ([string]::IsNullOrWhiteSpace($pwd)) {
+                throw "amiga_ops_password.local.php has empty `$password ($local)."
+            }
+            return $pwd
+        }
+        throw "Could not parse `$password from $local"
     }
-    throw "Could not parse `$password from $local"
+    throw "Missing Amiga ops password. Create site\public_html\amiga\_ops\amiga_ops_password.local.php (or site\config\…) or set env AMIGA_OPS_PASSWORD."
 }
 
 function Invoke-Ko2AmigaStagingPull {

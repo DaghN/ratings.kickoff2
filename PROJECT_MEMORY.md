@@ -149,7 +149,7 @@
 
 | Date | Note |
 |------|------|
-| 2026-07-18 | **Public repo hygiene** — MIT `LICENSE`; GitHub description + homepage → ratings.kickoff2.com; drop git seal `work-2026-07-11-tail` (keep `work-2026-07-18-forum`); Amiga ops password out of git → `amiga_ops_password.local.php` (rotated; docs use `YOUR_OPS_PASSWORD`). **Staging:** upload local password file under `site/config/` with PHP sync. |
+| 2026-07-18 | **Public repo hygiene** — MIT `LICENSE`; GitHub description + homepage → ratings.kickoff2.com; drop git seal `work-2026-07-11-tail` (keep `work-2026-07-18-forum`); Amiga ops password out of git → **`amiga/_ops/amiga_ops_password.local.php`** (WinSCP-deployable; staging `/config` root-owned). Rotated; docs use `YOUR_OPS_PASSWORD`. Staging uploaded Jul 18. |
 | 2026-07-18 | **DB-in-git policy corrected** — sealed continuity backups **belong in git** (Amiga checkpoints/day0; online wanted). Sweep: brief, README Continuity, `data/*`, PROJECT_MAP, LOCAL_DEV, ladder-ops, database-copies, AGENTS trap, two archive prompts + ladder-engine-plan. Secrets still out; working dumps may stay gitignored until sealed. |
 | 2026-07-18 | **README human overview** — title **Kick Off 2 ratings** (KOOL as online wording, not lead identity); opener + Amiga para align with brief content-platform framing. |
 | 2026-07-18 | **PROJECT_BRIEF redraft** — dual-realm **rich KO2 content platform** (stats spine + News/lore/video/organizer growth); not all-KO2 umbrella; not legacy-stats-only. Cross-touch: `design-direction` lead, `k2-mobile-smartphone-policy` stance. |

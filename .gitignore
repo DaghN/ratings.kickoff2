@@ -6,6 +6,7 @@ site/config/ko2unitydb_config.local.php
 site/config/ko2unitydb_config_work.local.php
 site/config/ko2amiga_config.local.php
 site/config/amiga_ops_password.local.php
+site/public_html/amiga/_ops/amiga_ops_password.local.php
 site/public_html/amiga/_import/*.sql
 site/public_html/amiga/_export/*.sql
 site/config/ladder.ini

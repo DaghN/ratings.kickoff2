@@ -11,7 +11,7 @@
  * Download dump (browser; same password gate):
  *   /amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=YOUR_OPS_PASSWORD&download=1
  *
- * Password: site/config/amiga_ops_password.local.php (gitignored).
+ * Password: amiga/_ops/amiga_ops_password.local.php (gitignored; WinSCP-deployable).
  */
 declare(strict_types=1);
 
@@ -81,7 +81,7 @@ function k2_amiga_export_send_dump_download(string $dumpPath): void
     exit;
 }
 
-require_once __DIR__ . '/../../config/amiga_ops_password.php';
+require_once __DIR__ . '/includes/amiga_ops_password_lib.php';
 
 $key = 'ko2amiga-export-one-shot';
 $exportPassword = amiga_ops_require_password();
