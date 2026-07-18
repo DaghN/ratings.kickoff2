@@ -235,6 +235,29 @@
 		}
 	}
 
+	function applyLiveEmpty(root) {
+		var slot = root.querySelector('[data-k2-status-live-slot="live"]');
+		if (!slot) {
+			return;
+		}
+		var panel = root.querySelector('[data-k2-status-panel="live"]');
+		var href = (panel && panel.getAttribute('data-week-league-href'))
+			|| '/status.php?period=week#k2-status-leagues-title';
+		slot.textContent = '';
+		var empty = document.createElement('p');
+		empty.className = 'k2-status-panel__empty';
+		empty.textContent = 'No live games in progress.';
+		var meta = document.createElement('p');
+		meta.className = 'k2-status-panel__meta k2-status-panel__empty-link';
+		var link = document.createElement('a');
+		link.className = 'k2-link-star k2-status-panel__more';
+		link.href = href;
+		link.textContent = "This week's league standings \u2192";
+		meta.appendChild(link);
+		slot.appendChild(empty);
+		slot.appendChild(meta);
+	}
+
 	function patchListSlot(root, slotName, section, emptyMessage, glowSelector, options) {
 		options = options || {};
 		var forceApply = !!options.forceApply;
@@ -243,6 +266,10 @@
 			return true;
 		}
 		if (section.empty) {
+			if (slotName === 'live') {
+				applyLiveEmpty(root);
+				return true;
+			}
 			slot.innerHTML = '<p class="k2-status-panel__empty">' + emptyMessage + '</p>';
 			return true;
 		}

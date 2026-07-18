@@ -137,7 +137,7 @@ $img = static function (string $file): string {
 	</section>
 
 	<section class="k2-boxart__section">
-		<h2 class="k2-boxart__h2">The man in the background: Hugo Sánchez</h2>
+		<h2 id="k2-boxart-hugo" class="k2-boxart__h2">The man in the background: Hugo Sánchez</h2>
 		<p class="k2-boxart__prose">
 			Now to the players &mdash; and this is where the goosebumps start. The figure behind the shooter,
 			sitting back on his shins with both arms reaching for the sky, is

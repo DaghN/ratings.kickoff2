@@ -48,7 +48,7 @@
 
 - **Amiga realm (Jul 2026):** **Games hub shipped** — `/amiga/games/{recent,highlights,all}.php`. **Tournament structure — non-WC materialize tail complete** on `ko2amiga_work`: **583/606** catalog ids have stages; remaining **23** = `wc_deferred` World Cups only; disposition register **0** `pending_review`; parser queue **empty** (slice **6a**). Forward: **WC structure track** + display imprint P2–P3 — [`amiga-tournament-structure-review-queue.md`](docs/amiga-tournament-structure-review-queue.md) · [`amiga-tournament-structure-display-policy.md`](docs/amiga-tournament-structure-display-policy.md).
 
-- **Amiga rating history (Jun 2026):** **V1** — History hub + time-travel rating LB; **News tab shell (Jul 2026)** — roll + pulse stubs, placeholder post; [`amiga-rating-history-policy.md`](docs/amiga-rating-history-policy.md) · [`present-layer-ia.md`](docs/present-layer-ia.md) §5.5.
+- **Amiga rating history (Jun 2026):** **V1** — History hub + time-travel rating LB; **News tab (Jul 2026)** — roll + pulse invites (no “coming soon”); [`amiga-rating-history-policy.md`](docs/amiga-rating-history-policy.md) · [`present-layer-ia.md`](docs/present-layer-ia.md) §5.5.
 
 - **Amiga event snapshots (Jun 2026):** **Complete (slices 0–9)** — `amiga_player_event_snapshots` + `amiga_player_current`; legacy four tables retired; holy loop `python -m scripts.amiga prove` green. Policy [`amiga-event-snapshot-policy.md`](docs/amiga-event-snapshot-policy.md).
 
@@ -149,6 +149,22 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-18 | **About acknowledgements** — community-first + five named pillars (Robert/Glenn, Alkis, Spyros, Mark/Durban, Steve); `/about.php` `#acknowledgements`. |
+| 2026-07-18 | **Status pane → links** — `k2-status-panel__more` + arc-link 11→12px. |
+| 2026-07-18 | **Amiga News pulse Online copy** — “KOOL online room” (parallel Amiga-world LB line). |
+| 2026-07-18 | **Amiga News pulse LB copy** — “Who’s on top of the Amiga world right now…”. |
+| 2026-07-18 | **Amiga News pulse Upcoming** — pane after art; Oslo WC blurb + **World Cup →** → `#2026-07-oslo-wc`. |
+| 2026-07-18 | **Amiga News pulse text tone** — Get involved blurb uses muted empty class (match Online/LB/HoF). |
+| 2026-07-18 | **Amiga News pulse Leaderboards** — empty invite pane above HoF (`Leaderboards →` rating wing); living ladder vs record book. |
+| 2026-07-18 | **Status Live empty → week league** — when no live games: “This week's league standings →” to `#k2-status-leagues-title` (current week URL); pulse empty patch keeps the link. |
+| 2026-07-18 | **Play & Setup reading** — join measure 42→40rem; prose/steps/lists 15.5px/1.66 (match News trial). |
+| 2026-07-18 | **Amiga News pulse type** — rail prose/empty/shelf 13→14px; star links 11→12px (still under roll 15.5px). |
+| 2026-07-18 | **Amiga Rating LB — Opponent Avg.** — header shortened to match online Rating/Peak (`Opponent Avg.`; tooltip label stays full). |
+| 2026-07-18 | **Amiga News reading trial** — column gap 12→24px; post prose 15.5px/1.66 + `max-width: 40rem` (figures full-bleed); title/meta share measure. |
+| 2026-07-18 | **Amiga News pulse art** — neon Kick Off 2 Hugo scene (`images/amiga/news/hugo-kick-off-2-neon-v2.png`) at top of pulse rail; still links to boxart `#k2-boxart-hugo` (historical 1986 photo stays on the story page). |
+| 2026-07-18 | **Amiga News pulse art (earlier)** — Hugo Sánchez 1986 photo framed at top of pulse rail (Status heritage inset pattern); links to boxart `#k2-boxart-hugo`. |
+| 2026-07-18 | **Amiga News pulse copy** — Online now / Hall of Fame empty lines: confident invites (no “coming soon”); Status + HoF links kept. Live widgets still deferred. |
+| 2026-07-18 | **Status heritage pane** — neon-noir 3D KO2 box scene (`images/status-heritage-ko2-box.png`); `object-fit: cover` fill via `--scene`; tint lamp off for scene. Links to boxart story. |
 | 2026-07-18 | **Wordmark hover bloom removed** — Exo neon stays at rest look; link still uses pointer cursor. |
 | 2026-07-18 | **Neon wordmark trial reverted** — back to Exo 2 text wordmark; header padding 18/14 and hub-bar top margin 16px restored. PNG experiments left under `images/wordmark/` unused. |
 | 2026-07-18 | **Neon wordmark trial** — amber Grok PNG at `images/wordmark/kick-off-2-amber.png`; `$k2NeonWordmarkTrial` in `site_header.php` (amber tint only; other tints keep Exo text). Set `false` to revert. |
@@ -290,6 +306,7 @@
 | 2026-07-13 | **World Cup XXIII (25) Tier E finish** — full holistic ladder 1–37 in `amiga_tournament_finish_override` (Access `Tables`; 37/37 roster match); snapshots refreshed. |
 | 2026-07-13 | **WC event-stats Medal column retired** — single **Finish** col (Gold/Silver/Bronze 1–3, ordinals 4+); col 12; sorts on `event_finish_position`. |
 | 2026-07-13 | **World Cup XXII (20) Tier E finish** — full holistic ladder 1–35 in `amiga_tournament_finish_override` (Access `Tables` witness); snapshots refreshed; `wc_deferred` structure unchanged. |
+| 2026-07-18 | **Amiga News third post** — Sensible Days 2026 / SWOS World Cup Cambridge (stream, Amiga+PC signup links, Blazej shout-out, Wyld Retro KO2 vs SWOS bracket still voting until Monday); bracket image in `images/amiga/news/` — [`present-layer-ia.md`](docs/present-layer-ia.md) §5.5. |
 | 2026-07-13 | **Amiga News second post** — Active Soccer 3 launch (Gianluca Troiano, The Fox Software); two Steam screenshots + trailer as native `<video>` figure (Steam CDN mp4, local poster) in `images/amiga/news/`; X embed tried then dropped — [`present-layer-ia.md`](docs/present-layer-ia.md) §5.5. |
 | 2026-07-13 | **Amiga News first post** — Oslo WC 2026 wired (10 Jul); author byline; pulse stubs unchanged — [`present-layer-ia.md`](docs/present-layer-ia.md) §5.5. |
 | 2026-07-12 | **Milan XXXIX (17) materialize** — 13p incomplete double-RR **League** (151/156g); Sandro T left early (5 return legs); incomplete-dRR guard spread≤5; Tier B **1 Fabio F · … · 13 Flavio Z**; work DB only. |

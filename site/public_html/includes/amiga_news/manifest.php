@@ -8,6 +8,13 @@ declare(strict_types=1);
 
 return [
     [
+        'id' => '2026-07-sensible-days-2026',
+        'date' => '2026-07-18',
+        'title' => 'Sensible Days 2026: SWOS World Cup comes home to Cambridge',
+        'author' => 'Dagh Nielsen',
+        'file' => '2026-07-sensible-days-2026.inc.php',
+    ],
+    [
         'id' => '2026-07-active-soccer-3',
         'date' => '2026-07-13',
         'title' => 'Active Soccer 3 by Gianluca Troiano launches on Steam',

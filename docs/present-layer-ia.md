@@ -1,6 +1,6 @@
 # Present layer & site completion — editorial IA and shippable intent
 
-**Status:** Intent / policy (Jul 2026). **Site chrome shipped (Jul 2026):** global footer + `/about.php` stub — PL12–PL13. **News v1 shell shipped (Jul 2026):** two-column roll + pulse stubs on `/amiga/news.php`; manifest + PHP includes (`includes/amiga_news/`); placeholder post only — Phase A real post still open. Remaining: pulse live widgets, Misc shelf.
+**Status:** Intent / policy (Jul 2026). **Site chrome shipped (Jul 2026):** global footer + `/about.php` with acknowledgements (PL12–PL13). **News v1 shell shipped (Jul 2026):** two-column roll + pulse rail on `/amiga/news.php`; manifest + PHP includes (`includes/amiga_news/`); real posts live. **Pulse rail (Jul 18):** Upcoming tournament (Oslo WC hash) · Online now · Leaderboards · HoF empty-panel invites + destination links (no “coming soon”); live widgets still deferred. Remaining: pulse live widgets, Misc shelf.
 
 **Authority:** Dagh's latest chat wins. This doc sits **below** [`hub-ia-agreement.md`](hub-ia-agreement.md) (hub tab contracts) and [`navigation-model.md`](navigation-model.md) (NM1–NM7 invariants). URL shape defers to [`k2-page-structure-checklist.md`](k2-page-structure-checklist.md) and [`url-routes.md`](url-routes.md).
 
@@ -26,7 +26,7 @@
 | Surface | Cadence (typical) | Examples |
 |---------|-------------------|----------|
 | **News roll** | **Weekly** | Scrollable posts on Amiga News |
-| **Pulse rail** | **Daily** (especially **online**-linked) | Live games, HoF (New!), “online busy → Status” |
+| **Pulse rail** | **Daily** (especially **online**-linked) | Upcoming tournament, Live games, Leaderboards, HoF (New!), “online busy → Status” |
 | **Misc shelf** | **Evergreen** | Universe map, joystick guides, remarkable-game tours |
 | **Stats hubs** | Continuous / historical | Rating LB, Games vault, time travel |
 
@@ -113,9 +113,11 @@ Status room grid = structural reference (main + satellites).
 ┌ optional “today” strip when roll is stale ─────────────────────────┐
 ├─────────────────────────────┬──────────────────────────────────────┤
 │  News roll (scroll)         │  Pulse rail                          │
-│  · post (newest)            │  · online activity → Status (daily)  │
-│  · post                     │  · HoF (New!) / recent rises         │
-│  · …                        │  · finalize / live teaser            │
+│  · post (newest)            │  · Upcoming tournament → WC post     │
+│  · post                     │  · online activity → Status (daily)  │
+│  · …                        │  · Leaderboards (living ladder)      │
+│                             │  · HoF (New!) / recent rises         │
+│                             │  · finalize / live teaser            │
 │                             │  · Get involved (onboarding)         │
 │                             │  · From the shelf (Misc teasers)     │
 └─────────────────────────────┴──────────────────────────────────────┘
@@ -130,7 +132,7 @@ Status room grid = structural reference (main + satellites).
 ### 5.3 Pulse rail
 
 - **Daily-scale** where data allows — especially **online** pulse.
-- Amiga-native: HoF, finalize, Live hook, clips.
+- Amiga-native: **Upcoming tournament** (timed editorial hash into the roll — currently Oslo WC), **Leaderboards** (living ranks, above HoF), HoF, finalize, Live hook, clips.
 - **Get involved** + **From the shelf** (Misc teasers).
 
 ### 5.4 Sparse roll (PL11)
@@ -143,7 +145,7 @@ Pulse keeps page alive; optional top strip for cross-realm “today”; threshol
 |-------|------|
 | Page entry | `/amiga/news.php` |
 | Room layout | `includes/amiga_news_room_section.php` |
-| Pulse stubs | `includes/amiga_news_pulse_rail.inc.php` |
+| Pulse rail | `includes/amiga_news_pulse_rail.inc.php` — top heritage art (neon Hugo / KO2 → boxart) + empty-panel invites (Upcoming · Online · Leaderboards · HoF · …) + links until live widgets |
 | Manifest | `includes/amiga_news/manifest.php` (newest-first list; optional `author`) |
 | Post bodies | `includes/amiga_news/posts/{slug}.inc.php` |
 | Post images | `images/amiga/news/` (web path `/images/amiga/news/…`) |
@@ -265,7 +267,7 @@ Optional later: **Privacy** if analytics or non-essential cookies ship.
 
 - What Kick Off 2 ratings is (online ladder + Amiga archive).
 - How the site came to be (Dagh's voice).
-- **Acknowledgements** — Robert Swift, Alkis, Spyros, Steve C, Steve (hosting), community contributors.
+- **Acknowledgements** — Robert Swift (+ Glenn Loite), Alkis Polyrakis, Spyros Paraschis, Mark W (Durban), Steve Camber; community-first framing.
 - **Data honesty** — fan/community project; Kick Off 2 trademark note if desired.
 - **Contact** — email for site/data issues; Discord/community → Play & Setup (PL15).
 - Link to Misc **Site** / **Scene** pieces for depth (universe map, etc.).
@@ -374,6 +376,14 @@ Phases **A + C** are the smallest **metadata-complete** slice; **B** makes Misc 
 
 | Date | Change |
 |------|--------|
+| 2026-07-18 | **Pulse Upcoming tournament** — pane after art; Oslo WC blurb + **World Cup →** → `#2026-07-oslo-wc`. |
+| 2026-07-18 | **About acknowledgements** — `/about.php` `#acknowledgements`: community-first + Robert/Glenn, Alkis, Spyros, Mark (Durban), Steve. |
+| 2026-07-18 | **Pulse Leaderboards pane** — empty invite above HoF (`Leaderboards →` rating wing); living ladder vs record book. |
+| 2026-07-18 | **News reading measure** — roll/pulse column gap 24px; `.k2-news-post__prose` 15.5px / 1.66 + `max-width: 40rem` (figures stay full card width); head shares measure. |
+| 2026-07-18 | **News third post** — Sensible Days 2026 (SWOS World Cup, Cambridge); Wyld Retro bracket figure; stream + signup links; Blazej shout-out. |
+| 2026-07-18 | **Pulse rail art** — neon Kick Off 2 Hugo scene (`images/amiga/news/hugo-kick-off-2-neon-v2.png`) in Status-style heritage inset; deep link `#k2-boxart-hugo` (1986 photo remains on boxart story). |
+| 2026-07-18 | **Pulse rail art (first)** — Hugo Sánchez 1986 photo in Status-style heritage inset at top of pulse (`amiga_news_pulse_rail.inc.php`); deep link `#k2-boxart-hugo`. |
+| 2026-07-18 | **Pulse rail copy** — Online now / Hall of Fame empty panels: confident invites (Status + HoF links kept); no “coming soon.” Live widgets still deferred. |
 | 2026-07-13 | **News second post** — Active Soccer 3 launch; video-figure convention (`.k2-news-post__figure--video`, native `<video>`, Steam CDN trailer mp4 + local poster); X tweet embed tried and dropped; Steam screenshot assets in `images/amiga/news/`. |
 | 2026-07-13 | **News first post** — Oslo WC 2026 (author byline, manifest `author` field); placeholder replaced. |
 | 2026-07-13 | **News v1 shell** — `/amiga/news.php` two-column roll + pulse stubs; manifest + post includes; placeholder welcome post. |

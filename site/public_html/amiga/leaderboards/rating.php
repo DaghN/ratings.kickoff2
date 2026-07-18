@@ -99,7 +99,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_nav.php';
         <th<?php echo k2_lb_th($colDraws, $lbSort, ''); ?> data-k2-sort="number">Draws</th>
         <th<?php echo k2_lb_th($colLosses, $lbSort, ''); ?> data-k2-sort="number">Losses</th>
         <th<?php echo k2_lb_th($colWinRate, $lbSort, ''); ?> data-k2-sort="number" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_amiga_wc_win_rate(), ENT_QUOTES, 'UTF-8'); ?>">Win rate</th>
-        <th<?php echo k2_lb_th($colOppAvg, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Opponent Average" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_opponent_avg(), ENT_QUOTES, 'UTF-8'); ?>">Opponent Average</th>
+        <th<?php echo k2_lb_th($colOppAvg, $lbSort, ''); ?> data-k2-sort="number" data-k2-tooltip-label="Opponent Average" data-k2-help="<?php echo htmlspecialchars(k2_lb_help_opponent_avg(), ENT_QUOTES, 'UTF-8'); ?>">Opponent Avg.</th>
     </tr>
 </thead>
 

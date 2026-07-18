@@ -100,6 +100,21 @@ function k2_status_on_this_day_last_year_href(?array $serverClock = null): strin
     return k2_league_period_href('points', 'day', $now->modify('-1 year')->format('Y-m-d'));
 }
 
+/**
+ * Same-page jump to Status Leagues on the current UTC week lens.
+ * Anchor: #k2-status-leagues-title (Leagues heading).
+ */
+function k2_status_this_week_league_href(?string $weekMondayYmd = null): string
+{
+    $query = ['period' => 'week'];
+    $start = trim((string) $weekMondayYmd);
+    if ($start !== '') {
+        $query['start'] = $start;
+    }
+
+    return '/status.php?' . http_build_query($query) . '#k2-status-leagues-title';
+}
+
 /** Unix epoch for league period end (UTC). */
 function k2_status_league_end_epoch(array $league): int
 {

@@ -141,6 +141,7 @@ Clamp at 0 → display `—`. Resync every heartbeat; on `period` change, take s
 - Same `game_id`, score/period changed → update scores in place (no list HTML replace); pulse **only the goal cell(s) that increased**; resync clock anchor from payload
 - New `game_id` → list replace; **kickoff score digit glow** on new live row(s).
 - Missing `game_id` → remove row (no glow)
+- **Empty list** → “No live games in progress.” plus **This week's league standings →** (SSR + `applyLiveEmpty` in `status-room-live.js`; href from `data-week-league-href` on the Live panel → `#k2-status-leagues-title` with current week lens)
 
 **List patch glow:** **`recent_games`** (new game id → both player names). **Online** glow via **`LastLogin` epoch** after patch (not DOM-id diff). Live kickoff glow in `patchLive`.
 
@@ -307,6 +308,7 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 
 | Date | Change |
 |------|--------|
+| 2026-07-18 | **Live empty → week league link** — empty Live pane shows **This week's league standings →** to `#k2-status-leagues-title` (current week); SSR + `applyLiveEmpty` via `data-week-league-href`. |
 | 2026-07-18 | **League pulse → Daily/Weekly games** — cascade / `league_fp` reload includes `day_games` or `week_games_html` when that tab is active; client `applyLeaguePulse` refreshes the games block. |
 | 2026-07-06 | **Production readiness** — deploy-safe vs behaviour-proven table; Steve `HalfCountdown` cadence prerequisite |
 | 2026-07-06 | **SRL-9 wired** — `live_clocks` on every pulse; client resyncs half anchor when `changed: false` |

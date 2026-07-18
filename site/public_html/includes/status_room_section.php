@@ -39,6 +39,11 @@ $pulseSignalsJson = htmlspecialchars(json_encode($pulseSignals, JSON_UNESCAPED_U
 
 $activePlayerCount = is_array($activeTop) ? count($activeTop) : 0;
 $onlinePlayerCount = is_array($online) ? count($online) : 0;
+$periodCompetitions = is_array($room['period_competitions'] ?? null) ? $room['period_competitions'] : [];
+$periodCurrentKeys = is_array($periodCompetitions['current_keys'] ?? null) ? $periodCompetitions['current_keys'] : [];
+$weekLeagueHref = k2_status_this_week_league_href(
+    isset($periodCurrentKeys['week']) ? (string) $periodCurrentKeys['week'] : null
+);
 ?>
 <section
 	class="k2-status-room"
@@ -65,11 +70,17 @@ $onlinePlayerCount = is_array($online) ? count($online) : 0;
 			</div>
 		</section>
 
-		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-live" aria-labelledby="k2-status-live-title" data-k2-status-panel="live">
+		<section
+			class="k2-status-panel k2-status-panel--tight k2-status-room__panel-live"
+			aria-labelledby="k2-status-live-title"
+			data-k2-status-panel="live"
+			data-week-league-href="<?php echo k2_status_h($weekLeagueHref); ?>"
+		>
 			<h2 id="k2-status-live-title" class="k2-panel-heading">Live games</h2>
 			<div class="k2-status-room-live__slot" data-k2-status-live-slot="live">
 <?php if ($liveGames === []) { ?>
 			<p class="k2-status-panel__empty">No live games in progress.</p>
+			<p class="k2-status-panel__meta k2-status-panel__empty-link"><a class="k2-link-star k2-status-panel__more" href="<?php echo k2_status_h($weekLeagueHref); ?>">This week's league standings &rarr;</a></p>
 <?php } else { ?>
 			<ul class="k2-status-live-list">
 <?php foreach ($liveGames as $g) { ?>
@@ -100,9 +111,20 @@ $onlinePlayerCount = is_array($online) ? count($online) : 0;
 		</section>
 
 		<section class="k2-status-panel k2-status-panel--tight k2-status-room__panel-heritage" aria-label="Original Amiga box art">
-			<a class="k2-status-heritage-inset k2-status-heritage-inset--link" href="/boxart.php#k2-boxart-story">
-				<img class="k2-heritage-box__art" src="images/KO2BoxFront.jpg" width="88" alt="The original 1990 Kick Off 2 Amiga box art — read its story" loading="lazy" decoding="async" />
-				<p class="k2-heritage-box__caption">KO2 · 1990</p>
+			<?php
+			$k2HeritageSceneSrc = '/images/status-heritage-ko2-box.png';
+			$k2HeritageSceneVer = (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . $k2HeritageSceneSrc);
+			?>
+			<a class="k2-status-heritage-inset k2-status-heritage-inset--link k2-status-heritage-inset--scene" href="/boxart.php#k2-boxart-story">
+				<img
+					class="k2-heritage-box__art"
+					src="<?php echo htmlspecialchars($k2HeritageSceneSrc . '?v=' . $k2HeritageSceneVer, ENT_QUOTES, 'UTF-8'); ?>"
+					width="576"
+					height="1024"
+					alt="Kick Off 2 Amiga box on a neon-noir table — read the box art story"
+					loading="lazy"
+					decoding="async"
+				/>
 			</a>
 		</section>
 

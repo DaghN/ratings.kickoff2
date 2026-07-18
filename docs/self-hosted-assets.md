@@ -67,6 +67,7 @@ No `@import` of external URLs in site CSS (after Jun 2026 font change).
 | Asset | Status |
 |-------|--------|
 | `images/KO2BoxFront.jpg` | Self-hosted |
+| `images/status-heritage-ko2-box.png` | Status heritage pane scene (neon-noir 3D box) |
 | Medal SVG inline in PHP | Generated in HTML (no external fetch) |
 | Data-URI chevrons in `theme.css` | Inline (not a network request) |
 
