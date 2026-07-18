@@ -49,25 +49,25 @@ python -m scripts.amiga build-tournament create-kitchen-marathon --name "Browser
 # created tournament_id=627
 
 # HTTP smoke via work.ratingskickoff.test (Laragon):
-curl.exe -s "http://work.ratingskickoff.test/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee&tournament_id=627"
+curl.exe -s "http://work.ratingskickoff.test/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD&tournament_id=627"
 # Shows lifecycle_status=draft, transition target ready, result entry blocked
 
-curl.exe -s -X POST -d "once=amiga-fixtures-one-shot&pwd=coffee&action=set_lifecycle_status&tournament_id=627&lifecycle_status=ready" http://work.ratingskickoff.test/amiga/ops/fixtures.php
+curl.exe -s -X POST -d "once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD&action=set_lifecycle_status&tournament_id=627&lifecycle_status=ready" http://work.ratingskickoff.test/amiga/ops/fixtures.php
 # Tournament #627 lifecycle: draft → ready.
 
-curl.exe -s -X POST -d "once=amiga-fixtures-one-shot&pwd=coffee&action=set_lifecycle_status&tournament_id=627&lifecycle_status=running" http://work.ratingskickoff.test/amiga/ops/fixtures.php
+curl.exe -s -X POST -d "once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD&action=set_lifecycle_status&tournament_id=627&lifecycle_status=running" http://work.ratingskickoff.test/amiga/ops/fixtures.php
 # Tournament #627 lifecycle: ready → running.; Record buttons visible
 
-curl.exe -s -X POST -d "once=amiga-fixtures-one-shot&pwd=coffee&action=set_lifecycle_status&tournament_id=627&lifecycle_status=completed" http://work.ratingskickoff.test/amiga/ops/fixtures.php
+curl.exe -s -X POST -d "once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD&action=set_lifecycle_status&tournament_id=627&lifecycle_status=completed" http://work.ratingskickoff.test/amiga/ops/fixtures.php
 # flash--error: browser transition to 'completed' is not allowed (6 scheduled fixtures)
 
 python -m scripts.amiga fixtures record-result --fixture-id 90 --goals-a 2 --goals-b 1
 # game_id=27421 (allowed while running)
 
-curl.exe -s -X POST -d "once=amiga-fixtures-one-shot&pwd=coffee&action=set_lifecycle_status&tournament_id=627&lifecycle_status=void" http://work.ratingskickoff.test/amiga/ops/fixtures.php
+curl.exe -s -X POST -d "once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD&action=set_lifecycle_status&tournament_id=627&lifecycle_status=void" http://work.ratingskickoff.test/amiga/ops/fixtures.php
 # flash--error: browser transition to 'void' is not allowed (games exist)
 
-curl.exe -s -X POST -d "once=amiga-fixtures-one-shot&pwd=coffee&action=set_lifecycle_status&tournament_id=1&lifecycle_status=ready" http://work.ratingskickoff.test/amiga/ops/fixtures.php
+curl.exe -s -X POST -d "once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD&action=set_lifecycle_status&tournament_id=1&lifecycle_status=ready" http://work.ratingskickoff.test/amiga/ops/fixtures.php
 # flash--error: imported historical tournament; lifecycle changes not allowed in browser
 
 python -m scripts.amiga fixtures set-tournament-status --tournament-id 627 --status running --force

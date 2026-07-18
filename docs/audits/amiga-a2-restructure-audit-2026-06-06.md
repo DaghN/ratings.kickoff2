@@ -42,7 +42,7 @@ Remaining caveats: Amiga `ProcessCompletedGame` PHP ops unbuilt (Track A gap), o
 | F-07 | **Nit** | Comments | Amiga PHP includes use “ratedresults-shaped” / “playertable-shaped” in comments only — not SQL views. Harmless but grep-noisy. | `site/public_html/includes/amiga_db.php:3,7,53` | Optional comment cleanup (S). |
 | F-08 | **Known gap** | Live ops | No Amiga `ProcessCompletedGame` PHP path. First live Amiga game cannot be submitted through the website; requires import + full replay or manual SQL + replay. | `docs/amiga-data-contract.md:97–98,143` | Track A follow-up after A2 sign-off (L). |
 | F-09 | **Known gap** | Track B | `amiga_tournament_standings`, `reference_*` tables not implemented. | `docs/amiga-data-contract.md:126–127,144–145` | Planned; not an A2 failure. |
-| F-10 | **Nit** | Security | Staging import password `coffee` is in source, docs, and URL examples. `_import/.htaccess` blocks direct SQL download; importer gated by `once=` + password. | `run_import_ko2amiga.php:204–205`; `_import/.htaccess` | Acceptable for staging ops; rotate if URL leaks (S). |
+| F-10 | **Nit** | Security | Staging import password `YOUR_OPS_PASSWORD` is in source, docs, and URL examples. `_import/.htaccess` blocks direct SQL download; importer gated by `once=` + password. | `run_import_ko2amiga.php:204–205`; `_import/.htaccess` | Acceptable for staging ops; rotate if URL leaks (S). |
 | F-11 | **Nit** | Tooling | `php -l` on import script not run — `php` not on PATH in audit environment. | Shell attempt | Run on Laragon/staging host before deploy (S). |
 
 **Not raised as findings (verified OK):**

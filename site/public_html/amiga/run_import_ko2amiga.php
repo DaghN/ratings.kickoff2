@@ -3,11 +3,13 @@
  * Staging / local — import ko2amiga_db into ko2amiga_db.
  *
  * Preview:
- *   /amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee
+ *   /amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=YOUR_OPS_PASSWORD
  *
  * Apply (multi-part — avoids gateway timeouts):
- *   /amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee&apply=1
+ *   /amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=YOUR_OPS_PASSWORD&apply=1
  *   Optional: &part=1 (auto-continues through manifest parts)
+ *
+ * Password: site/config/amiga_ops_password.local.php (gitignored).
  */
 declare(strict_types=1);
 
@@ -201,8 +203,10 @@ function k2_amiga_import_counts(mysqli $con): array
 
 header('Content-Type: text/html; charset=utf-8');
 
+require_once __DIR__ . '/../../config/amiga_ops_password.php';
+
 $key = 'ko2amiga-import-one-shot';
-$importPassword = 'coffee';
+$importPassword = amiga_ops_require_password();
 
 if (!isset($_GET['once']) || $_GET['once'] !== $key) {
     header('HTTP/1.1 404 Not Found');

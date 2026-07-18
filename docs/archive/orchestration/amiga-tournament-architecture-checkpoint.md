@@ -124,7 +124,7 @@ powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_db.ps1
 
 Integrity checks passed (`fixtures verify`, `verify-entrants`, `verify-lifecycle`, `verify-tournament-formats`).
 
-**Verified (Dagh, 2026-06-07):** WinSCP sync and browser import succeeded. Import preview showed `parts: 23`; public `/amiga/tournaments.php` showed historical tournaments only; a public detail page loaded; ops `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee` loaded. Recorded in [`2026-06-07-012-staging-sync-rehearsal.md`](agent-handoffs/2026-06-07-012-staging-sync-rehearsal.md).
+**Verified (Dagh, 2026-06-07):** WinSCP sync and browser import succeeded. Import preview showed `parts: 23`; public `/amiga/tournaments.php` showed historical tournaments only; a public detail page loaded; ops `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD` loaded. Recorded in [`2026-06-07-012-staging-sync-rehearsal.md`](agent-handoffs/2026-06-07-012-staging-sync-rehearsal.md).
 
 ## Related docs
 

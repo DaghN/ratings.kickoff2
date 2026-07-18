@@ -91,6 +91,6 @@ mysql -u root -N -B -e "SELECT COUNT(*) players, (SELECT COUNT(*) FROM ko2amiga_
 ## Recommended next steps
 
 1. WinSCP sync `site/public_html/` (including all `_import/ko2amiga_*.sql` + updated manifest).
-2. Staging preview: `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` — confirm `parts: 23`.
+2. Staging preview: `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=YOUR_OPS_PASSWORD` — confirm `parts: 23`.
 3. Apply import with `&apply=1&part=1`; spot-check rating, profile, tournaments, and `/amiga/ops/fixtures.php` lifecycle panel on a generated tournament.
 4. After next significant schema change, re-run `scripts/export_ko2amiga_db.ps1` before staging refresh.

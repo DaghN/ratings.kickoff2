@@ -3,8 +3,10 @@
  * Internal fixture browser/result entry for fixture-backed Amiga tournaments.
  *
  * Usage:
- *   /amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee
- *   /amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee&tournament_id=N  (optional deep link)
+ *   /amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD
+ *   /amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD&tournament_id=N  (optional deep link)
+ *
+ * Password: site/config/amiga_ops_password.local.php (gitignored).
  */
 declare(strict_types=1);
 
@@ -19,11 +21,12 @@ require_once __DIR__ . '/modules/process_completed_game.php';
 require_once __DIR__ . '/modules/finalize_tournament.php';
 require_once __DIR__ . '/includes/amiga_promote_running_tournament.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
+require_once __DIR__ . '/../../../config/amiga_ops_password.php';
 
 const AMIGA_FIXTURE_LIVE_SOURCE_SCORES_ID_BASE = 1000000000;
 
 $key = 'amiga-fixtures-one-shot';
-$opsPassword = 'coffee';
+$opsPassword = amiga_ops_require_password();
 $onceValue = (string) ($_GET['once'] ?? $_POST['once'] ?? '');
 $pwdValue = (string) ($_GET['pwd'] ?? $_POST['pwd'] ?? '');
 

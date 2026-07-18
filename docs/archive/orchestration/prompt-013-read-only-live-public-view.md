@@ -64,7 +64,7 @@ Recommended shape:
 
 - Use `/amiga/live-tournaments.php` as the public entry point.
 - It may be an index + selected detail in one file, or it may link to a new public detail page such as `/amiga/live-tournament.php?id=N` if that is cleaner.
-- Remove any public link that includes `pwd=coffee` or otherwise exposes the passworded fixture manager.
+- Remove any public link that includes `pwd=YOUR_OPS_PASSWORD` or otherwise exposes the passworded fixture manager.
 - If you keep a link to internal ops for local/operator convenience, do not include the password in the URL and make it clearly separate from the public read-only path.
 - Prefer Amiga PHP helper functions for live read queries if the template would otherwise accumulate large raw SQL blocks.
 - Keep styling in the existing Amiga/site chrome (`k2-site`, `amiga-tournament.css`, `k2-table` patterns).

@@ -157,11 +157,11 @@ Agents: run the above when Dagh says **pull staged Amiga** (non-interactive). Fl
 
 | Step | URL |
 |------|-----|
-| **Preview** (no dump) | https://ratings.kickoff2.com/amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=coffee |
-| **Generate dump** | https://ratings.kickoff2.com/amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=coffee&generate=1 |
-| **Download dump** | https://ratings.kickoff2.com/amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=coffee&download=1 |
+| **Preview** (no dump) | https://ratings.kickoff2.com/amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=YOUR_OPS_PASSWORD |
+| **Generate dump** | https://ratings.kickoff2.com/amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=YOUR_OPS_PASSWORD&generate=1 |
+| **Download dump** | https://ratings.kickoff2.com/amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=YOUR_OPS_PASSWORD&download=1 |
 
-Password **`coffee`**. Writes **`public_html/amiga/_export/ko2amiga_staging_pull.sql`** (+ manifest JSON; **overwrite** each generate). Direct HTTP to `_export/*.sql` is blocked (`.htaccess`); use export page **Download dump**, pull script, or WinSCP.
+Password from `site/config/amiga_ops_password.local.php` (gitignored). Writes **`public_html/amiga/_export/ko2amiga_staging_pull.sql`** (+ manifest JSON; **overwrite** each generate). Direct HTTP to `_export/*.sql` is blocked (`.htaccess`); use export page **Download dump**, pull script, or WinSCP.
 
 **Manual fallback** (if pull script unavailable):
 

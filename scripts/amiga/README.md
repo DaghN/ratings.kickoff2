@@ -200,9 +200,9 @@ Export writes part files + `ko2amiga_manifest.json` under `site/public_html/amig
 
 **Staging refresh:** WinSCP sync `public_html/`, then browser import (verified Jun 2026, A2 schema):
 
-- **Preview:** `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee` — confirm manifest part count matches export
+- **Preview:** `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=YOUR_OPS_PASSWORD` — confirm manifest part count matches export
 - **Apply:** same URL with `&apply=1&part=1` (auto-continues)
-- **Local dry-run:** `http://ratingskickoff.test/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee`
+- **Local dry-run:** `http://ratingskickoff.test/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=YOUR_OPS_PASSWORD`
 
 Script: `site/public_html/amiga/run_import_ko2amiga.php` · payload: `site/public_html/amiga/_import/`
 
@@ -468,7 +468,7 @@ python -m scripts.amiga players create --name "Mark Be" --country "England"
 
 Live tournaments hub (Amiga realm tab): `/amiga/live-tournaments.php` — lists generated events; links to the tournament organizer.
 
-Internal tournament organizer / create / result entry: `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee&tournament_id=N&view=fixtures` (same site chrome as the hub; default `view=fixtures` when `tournament_id` is set, else `view=setup`).
+Internal tournament organizer / create / result entry: `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD&tournament_id=N&view=fixtures` (same site chrome as the hub; default `view=fixtures` when `tournament_id` is set, else `view=setup`).
 
 Staging pages: `https://ratings.kickoff2.com/amiga/…` — DB config in `site/config/ko2amiga_config.local.php`; handoff [`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md).
 

@@ -41,7 +41,7 @@ python -m scripts.amiga fixtures verify-lifecycle
 
 Staging URLs (from `docs/amiga-staging-handoff.md`):
 
-- Preview: `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee`
+- Preview: `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=YOUR_OPS_PASSWORD`
 - Apply: add `&apply=1&part=1`
 
 ## Handoff

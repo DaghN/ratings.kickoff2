@@ -65,11 +65,11 @@ python -m scripts.amiga fixtures set-players --fixture-id 151 --player-a-id 2 --
 # ERROR: player_id=2 is not placed in stage_id=43; fixture players must belong to the fixture's stage
 
 # HTTP POST positive (group-b fixture 152, players 2+4)
-curl.exe -s -X POST "http://ratingskickoff.test/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee" -d "action=assign_players&tournament_id=639&fixture_id=152&player_a_id=2&player_b_id=4"
+curl.exe -s -X POST "http://ratingskickoff.test/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD" -d "action=assign_players&tournament_id=639&fixture_id=152&player_a_id=2&player_b_id=4"
 # flash: Assigned players to fixture #152.
 
 # HTTP POST negative (final fixture 153, group-b players)
-curl.exe -s -X POST "http://ratingskickoff.test/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee" -d "action=assign_players&tournament_id=639&fixture_id=153&player_a_id=2&player_b_id=4"
+curl.exe -s -X POST "http://ratingskickoff.test/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD" -d "action=assign_players&tournament_id=639&fixture_id=153&player_a_id=2&player_b_id=4"
 # error flash: Player 2 is not placed in stage 45; fixture players must belong to the fixture's stage.
 
 python -m scripts.amiga fixtures cleanup-generated --tournament-id 639

@@ -33,7 +33,7 @@ Dagh confirmed the staging verification succeeded:
 # OK - detail page loads
 
 # Ops fixture manager
-# OK - /amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee loads
+# OK - /amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD loads
 ```
 
 No additional local commands were run for this record-only handoff.

@@ -6,6 +6,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 
 | Feature | Level | Schema | Ops simul | `kooldb1` proof | Live cutover | Periodic | Notes |
 |---------|-------|--------|-----------|-----------------|--------------|----------|-------|
+| Amiga ops password local config | L0 | — | — | — | **Local done**; staging needs `amiga_ops_password.local.php` upload | — | Import/export/fixtures + pull script; value not in git — `site/config/amiga_ops_password.php` |
 | Amiga PHP Finish ↔ simul-oracle parity | — | — | — | **Done** local Jul 2026-17 (#608 kitchen) | Sync promote + community scan PHP | — | Fork protocol (no rewind); chrono + community limbo fixes — [`amiga-php-finalize-parity-protocol.md`](../amiga-php-finalize-parity-protocol.md) |
 | Amiga live ops practice method | — | — | — | — | — | — | **Jul 2026-16** — serial feedback (queue depth 1) replaces pain-log inventory — [`amiga-live-ops-practice-track.md`](../amiga-live-ops-practice-track.md) · platform §12.1 |
 | Amiga inverse-count changelog | L1 | `051_inverse_count_changelog` (`amiga_player_inverse_count_at_event`) | — | **Done** local Jul 2026 (`verify-inverse-count-changelog` + replay, 3,423 rows) | **Export ready** (push staged after sync) | — | Ghost-event TT fix for MGS/BW/MGC/BL; mosaic + Victims LB — [`amiga-player-inverse-count-timeline-policy.md`](../amiga-player-inverse-count-timeline-policy.md) |

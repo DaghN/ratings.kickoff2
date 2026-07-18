@@ -5,6 +5,7 @@
 site/config/ko2unitydb_config.local.php
 site/config/ko2unitydb_config_work.local.php
 site/config/ko2amiga_config.local.php
+site/config/amiga_ops_password.local.php
 site/public_html/amiga/_import/*.sql
 site/public_html/amiga/_export/*.sql
 site/config/ladder.ini
@@ -29,8 +30,6 @@ site/public_html/ops/config/dispatch-http.ini
 # Amiga work checkpoints (milestone git backups — opt-in per sealed folder)
 data/amiga/checkpoints/**
 !data/amiga/checkpoints/README.md
-!data/amiga/checkpoints/work-2026-07-11-tail/
-!data/amiga/checkpoints/work-2026-07-11-tail/**
 !data/amiga/checkpoints/work-2026-07-18-forum/
 !data/amiga/checkpoints/work-2026-07-18-forum/**
 data/amiga/modern/simul-last.json
@@ -52,7 +51,6 @@ data/amiga/oracle/
 !scripts/amiga/sql/**/*.sql
 !schema/**/*.sql
 !data/amiga/day0/**/*.sql
-!data/amiga/checkpoints/work-2026-07-11-tail/**/*.sql
 !data/amiga/checkpoints/work-2026-07-18-forum/**/*.sql
 
 # Laragon Apache shim build artifacts

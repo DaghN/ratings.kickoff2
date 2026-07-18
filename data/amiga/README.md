@@ -84,7 +84,7 @@ Whenever local **`ko2amiga_work`** is the state you want (after **simul**):
 
 1. `scripts\export_ko2amiga_work.ps1` → `site/public_html/amiga/_import/ko2amiga_db.sql`
 2. WinSCP sync `public_html/`
-3. **Preview:** https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=coffee
+3. **Preview:** https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=YOUR_OPS_PASSWORD
 4. **Apply:** same URL with `&apply=1`
 
 Agents: remind Dagh of those URLs — [`docs/amiga-staging-handoff.md`](../docs/amiga-staging-handoff.md).

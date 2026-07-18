@@ -30,7 +30,7 @@ You are **GPT-5.5**, strategic orchestrator for the **Amiga offline tournament s
 1. Import preview `parts: 23`
 2. Public `/amiga/tournaments.php` — historical only (no internal smokes)
 3. Detail page works
-4. Ops `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee` works
+4. Ops `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD` works
 
 **Orchestrator-direct UI work (commit `7acf2a4`, not a numbered worker job):**
 
@@ -59,7 +59,7 @@ Checkpoint sequence lists **browser entrant onboarding** as future worker job **
 | Page | URL |
 |------|-----|
 | Live tournaments hub | `/amiga/live-tournaments.php` |
-| Fixture manager | `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=coffee` |
+| Fixture manager | `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD` |
 | Public historical index | `/amiga/tournaments.php` |
 | Staging handoff | [`docs/amiga-staging-handoff.md`](../amiga-staging-handoff.md) |
 

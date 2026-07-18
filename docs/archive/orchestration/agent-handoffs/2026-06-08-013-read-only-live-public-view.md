@@ -22,7 +22,7 @@ Add a public, read-only live tournament view for selected fixture-backed `runnin
 - **Live tournaments tab** (`/amiga/live-tournaments.php`) is now a public read-only index. It lists only tournaments that are simultaneously: on the allowlist, `lifecycle_status = running`, and fixture-backed generated events.
 - **Live tournament detail** (`/amiga/live-tournament.php?id=N`) shows lifecycle metadata, date/country, players (entrants or stage-player fallback), and fixtures grouped by stage with read-only scores.
 - **Publishing:** add tournament ids to `AMIGA_PUBLIC_LIVE_TOURNAMENT_IDS` in `amiga_tournament_lib.php` and/or `$amigaPublicLiveTournamentIds` in gitignored local config. Committed allowlist is empty (safe default).
-- **Removed** public links containing `pwd=coffee`. Operator note links to `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot` without a password query param.
+- **Removed** public links containing `pwd=YOUR_OPS_PASSWORD`. Operator note links to `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot` without a password query param.
 - **Unchanged:** historical pages and profile links still use `AMIGA_TOURNAMENT_PUBLIC_LIFECYCLE_STATUSES` (`completed`, `archived` only).
 
 ## Tests/checks run with exact commands and results
@@ -56,7 +56,7 @@ OK: every tournament with games has has_league or has_cup
 
 **Local HTTP checks** (`http://ratingskickoff.test`):
 
-- `live-tournaments.php` — OK: no `pwd=coffee` in page source; ops link present without password param; new read-only copy served.
+- `live-tournaments.php` — OK: no `pwd=YOUR_OPS_PASSWORD` in page source; ops link present without password param; new read-only copy served.
 - `live-tournament.php?id=627` without allowlist — shows “Live tournament not found.” (non-allowlisted running event not exposed).
 - PHP helper smoke with `$amigaPublicLiveTournamentIds = [627]` — `load=Browser Lifecycle Smoke`, `index_count=1`, `fixture_groups=1`, `fixtures=6`.
 

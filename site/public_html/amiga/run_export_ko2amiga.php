@@ -3,13 +3,15 @@
  * Staging / local — export ko2amiga_db for pull to local repair shop (PULL-1b).
  *
  * Preview:
- *   /amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=coffee
+ *   /amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=YOUR_OPS_PASSWORD
  *
  * Generate dump:
- *   /amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=coffee&generate=1
+ *   /amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=YOUR_OPS_PASSWORD&generate=1
  *
  * Download dump (browser; same password gate):
- *   /amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=coffee&download=1
+ *   /amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=YOUR_OPS_PASSWORD&download=1
+ *
+ * Password: site/config/amiga_ops_password.local.php (gitignored).
  */
 declare(strict_types=1);
 
@@ -79,8 +81,10 @@ function k2_amiga_export_send_dump_download(string $dumpPath): void
     exit;
 }
 
+require_once __DIR__ . '/../../config/amiga_ops_password.php';
+
 $key = 'ko2amiga-export-one-shot';
-$exportPassword = 'coffee';
+$exportPassword = amiga_ops_require_password();
 
 if (!isset($_GET['once']) || $_GET['once'] !== $key) {
     header('HTTP/1.1 404 Not Found');

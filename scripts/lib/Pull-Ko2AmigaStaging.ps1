@@ -1,11 +1,32 @@
 # Pull staged ko2amiga_db -> local ko2amiga_work (PULL-1a).
 # Dot-source from scripts\pull_ko2amiga_from_staging.ps1
 
+function Get-AmigaOpsPasswordFromConfig {
+    param([string]$RepoRoot)
+    if ($env:AMIGA_OPS_PASSWORD -and $env:AMIGA_OPS_PASSWORD.Trim() -ne '') {
+        return $env:AMIGA_OPS_PASSWORD.Trim()
+    }
+    $local = Join-Path $RepoRoot 'site\config\amiga_ops_password.local.php'
+    if (-not (Test-Path -LiteralPath $local)) {
+        throw "Missing Amiga ops password. Copy site\config\amiga_ops_password.local.php.example → amiga_ops_password.local.php (or set env AMIGA_OPS_PASSWORD)."
+    }
+    $text = [System.IO.File]::ReadAllText($local)
+    # Single-quoted pattern so $password is literal (not a PowerShell variable).
+    if ($text -match '(?m)^\s*\$password\s*=\s*''([^'']*)''\s*;') {
+        $pwd = $Matches[1]
+        if ([string]::IsNullOrWhiteSpace($pwd)) {
+            throw "amiga_ops_password.local.php has empty `$password."
+        }
+        return $pwd
+    }
+    throw "Could not parse `$password from $local"
+}
+
 function Invoke-Ko2AmigaStagingPull {
     param(
         [string]$StagingBaseUrl = 'https://ratings.kickoff2.com',
         [string]$OnceKey = 'ko2amiga-export-one-shot',
-        [string]$Password = 'coffee',
+        [string]$Password = '',
         [string]$TargetDatabase = 'ko2amiga_work',
         [string]$SourceDatabaseName = 'ko2amiga_db',
         [switch]$SkipGenerate,
@@ -15,6 +36,9 @@ function Invoke-Ko2AmigaStagingPull {
 
     $ErrorActionPreference = 'Stop'
     $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+    if ([string]::IsNullOrWhiteSpace($Password)) {
+        $Password = Get-AmigaOpsPasswordFromConfig -RepoRoot $RepoRoot
+    }
     . (Join-Path $PSScriptRoot 'LaragonMysql.ps1')
 
     $MysqlExe = Find-LaragonMysqlExe
