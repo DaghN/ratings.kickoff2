@@ -9,7 +9,7 @@
 | | Local | Staging | Production |
 |---|--------|---------|------------|
 | DB name | **`ko2unity_db`** (dev); sandbox: `ko2unity_work` + `ko2unity_baseline` | **`kooldb1`** / **`kooldb2`** (config1/config2) — [`database-copies-2026-06.md`](coordination/database-copies-2026-06.md) | Steve-managed live DB |
-| Live game writes | No | **No** | **Yes** (legacy C++ today → **PHP ops** at cutover) |
+| Live game writes | No | **No** | **Yes** (**PHP ops** since **2026-07-18**; C++ derived retired) |
 | Site code updates | Edit in repo | WinSCP sync | Steve / agreed deploy |
 | Typical DB refresh | Re-import dump | Steve: replay / SQL / dump | Continuous |
 

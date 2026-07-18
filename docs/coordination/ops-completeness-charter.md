@@ -1,6 +1,6 @@
 # Ops completeness — charter (Phase 0)
 
-**Status:** Adopted Jun 2026 (post parity audit). **Simul sign-off:** staging `kooldb1` verify PASS + visual parity vs frozen dev (Jun 2026). **Next:** Live phase on staging, then prod cutover.  
+**Status:** Adopted Jun 2026 (post parity audit). **Simul sign-off:** staging `kooldb1` verify PASS + visual parity vs frozen dev (Jun 2026). **Live PHP ops cutover:** **Done (2026-07-18)**.  
 **Audience:** Dagh, Steve, Cursor agents.  
 **Authority for behaviour:** [`website-data-contract.md`](../website-data-contract.md). This doc defines **how we get there**, not table-by-table rules.
 
@@ -16,9 +16,9 @@
 
 ## 1. Problem statement
 
-**Live prod (target):** Steve writes **ground truth** → one **`ProcessCompletedGame`** per rated game → **one calendar job** per UTC day boundary for period/league/day-close derived data.
+**Live prod (since 2026-07-18):** Steve writes **ground truth** → one **`ProcessCompletedGame`** per rated game → **one calendar job** per UTC day boundary for period/league/day-close derived data. **C++ derived retired.**
 
-**Today:** Per-game PHP ops and **Mode C** simul (`run_ops_sim` + `FinalizeUtcDay`) are **shipped and signed off on staging** ([`parity-audit-backlog.md`](parity-audit-backlog.md) **AUD-004** closed). Default **Mode A** (`replay-to`) still does **not** run league finalize or day-close keys — use Mode C for ops-complete replay. Batch rebuild SQL remains **repair only**, not simul definition of done ([`work-db-prepare.md`](../work-db-prepare.md) §5).
+**Simul / Mode C:** Per-game PHP ops and **Mode C** simul (`run_ops_sim` + `FinalizeUtcDay`) are **shipped and signed off on staging** ([`parity-audit-backlog.md`](parity-audit-backlog.md) **AUD-004** closed). Default **Mode A** (`replay-to`) still does **not** run league finalize or day-close keys — use Mode C for ops-complete replay. Batch rebuild SQL remains **repair only**, not simul definition of done ([`work-db-prepare.md`](../work-db-prepare.md) §5).
 
 **Programme goal:** Every derived artifact that **must** update in daily ops **does** update — in **live**, in **simul**, and in **docs/code** — without relying on batch rebuilds on the happy path.
 
@@ -87,7 +87,7 @@ Run **A + B** in parallel first (reading). **C** audits code against DDR. **D** 
 | **1 — DDR v1** | Inventory | **Done (Jun 2026)** — [`ops-derived-data-registry.md`](ops-derived-data-registry.md) |
 | **2 — Orchestration** | Lock midnight design | **`FinalizeUtcDay` shipped** — **Open:** Steve cron on staging/prod |
 | **3 — Gap closure** | Code | **Done** for simul happy path — `FinalizeUtcDay`, timeline sim, league event milestones in day tick |
-| **4 — Steve / cutover** | Handoff | **Next:** Live phase ([`staging-work-steve-brief.md`](staging-work-steve-brief.md) §4.4); prod cutover packet when agreed |
+| **4 — Steve / cutover** | Handoff | **Done (2026-07-18)** — live PHP ops; see [`staging-work-steve-brief.md`](staging-work-steve-brief.md) · [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md) |
 | **5 — Validation** | Sign-off | **Done (staging):** `run_verify_ops_sim` + visual parity. **Ongoing:** Live-shaped games, optional `ab-post-game` |
 
 **Implementation priority inside phase 3** (highest leverage):
@@ -95,7 +95,7 @@ Run **A + B** in parallel first (reading). **C** audits code against DDR. **D** 
 1. Sim interleaves **league finalize** at UTC boundaries (honours + totals + `league_wins_*`).
 2. **League event milestones** (~20 keys) chained **after** awards commit.
 3. **`perfect_day` / `nightmare_day`** day-close CMD.
-4. ~~**`entered_arena` in timeline sim**~~ — **satisfied by prepare §4.7** (lobby seed from `JoinDate`); live `ProcessPlayerRegistered` at cutover only.
+4. ~~**`entered_arena` in timeline sim**~~ — **satisfied by prepare §4.7** (lobby seed from `JoinDate`); live `ProcessPlayerRegistered` when wired.
 5. Retire batch from default runbooks (keep labelled for repair).
 
 ---
@@ -110,8 +110,8 @@ Run **A + B** in parallel first (reading). **C** audits code against DDR. **D** 
 | 4 | Fix proven ops failures | **Done** (UTC/league finalize, milestone rules `a3cb1c0`) |
 | 5 | Steve — staging simul + verify | **Done** — `kooldb1`, verify **0 fail / 0 warn** |
 | 6 | Dagh — visual parity staging vs frozen dev | **Done** Jun 2026 |
-| **7** | **Steve** — **Live** phase: game server → `kooldb1` + `ProcessCompletedGame` + cron `FinalizeUtcDay` | **Next** |
-| **8** | Both — prod cutover when Live is boring | **Deferred** |
+| **7** | **Steve** — optional staging Live-shaped experiments | **Optional / deferred** (not required for prod) |
+| **8** | Both — prod cutover | **Done (2026-07-18)** |
 
 Detail for steps 1–6: [`ops-simul-runbook.md`](ops-simul-runbook.md) § Verify. **Do not** use batch rebuild as sign-off.
 

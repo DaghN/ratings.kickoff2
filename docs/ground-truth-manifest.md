@@ -72,7 +72,7 @@ playertable — split
     LastLogin, LastActive
     all Feedback_* columns
 
-  Derived — ladder career (replay / C++ can rebuild on sandbox):
+  Derived — ladder career (PHP ops live / ops simul rebuild on sandbox):
     Rating, NumberGames, wins/draws/losses, ratios, goals, extremes, streaks,
     opponent/victim/culprit counts, all *GameID and *VictimID and *CulpritID columns,
     LastGame (rebuilt from games — not the same as LastLogin)
@@ -92,15 +92,15 @@ playertable — split
 generalstatstable — derived, not ground
 
   Single row: server totals + Hall of Fame records.
-  C++ updates live on prod. Replay rebuilds on sandbox.
+  PHP ops updates live on prod (since 2026-07-18). Ops simul rebuilds on sandbox.
 
-  Good targets to delete on prod (obsolete derived, PG-004):
+  Good targets to delete on prod (obsolete derived):
     BiggestWinRatio, BiggestGoalsForAverage, SmallestGoalsAgainstAverage,
     BiggestGoalRatio, BiggestDoubleDigitsRatio, BiggestCleanSheetsRatio,
     BiggestAverageOpponentRating
     plus matching *ID, *Name, *Date columns for each
     Dev already dropped these — Records page uses playertable instead.
-    C++ path for these was bugged; safe to remove once Steve applies migration 002.
+    Legacy C++ path for these was bugged; SCH-003 drop executed with ops cutover.
 
   Dev may have extra streak columns on this row; prod may still have ratio columns.
   Both sides are still derived, not facts.
@@ -117,7 +117,7 @@ What Dagh’s repo may do
 
   On production:
     no scripts that UPDATE or DELETE ground tables or ground columns
-    new games = Steve C++ appends rows (facts + derived in one go)
+    new games = Steve inserts ground truth → PHP ops `ProcessCompletedGame` (derived)
 
   Schema cleanup (KungFu drop, ratio column drop):
     Steve + registered migration — not a day-to-day agent change

@@ -45,7 +45,7 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | `data/dumps/` | Local SQL dump (gitignored) |
 | `data/amiga/day0/` | L3 witness archive (git-tracked) |
 | `data/amiga/checkpoints/` | Milestone **`ko2amiga_work`** git seals — [`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md) |
-| `README.md` | Repo entry — links to agents, ops, brief |
+| `README.md` | Human repo overview — website + DB/ops backbone, continuity, dive-deeper links (agents → `AGENTS.md`) |
 | `PROJECT_BRIEF.md` | Product taste / north star |
 | `PROJECT_MEMORY.md` | **Current focus**, deploy facts, recent log |
 
@@ -108,7 +108,7 @@ Dagh uses this phrase often — **not only for DB work**. Always: session handof
 | Shared rating formulas (library) | `scripts/k2_rating_core/` | Amiga **simul** + PHP mirror reference |
 | After each game (prod) | [`ladder-ops-platform.md`](ladder-ops-platform.md) → `dispatch_request.php` or `ops/dispatch.php` | Steve insert + HTTP/CLI call (agreed Jun 2026) |
 
-Post-game **rules:** [`website-data-contract.md`](website-data-contract.md). **Cutover runtime:** PHP `ops/dispatch.php` ([`ladder-ops-platform.md`](ladder-ops-platform.md) §2). **Prod today:** legacy C++ until Steve switches — agents implement PHP ops + contract, not C++ extensions. Records: [`coordination/records-post-game-exception.md`](coordination/records-post-game-exception.md).
+Post-game **rules:** [`website-data-contract.md`](website-data-contract.md). **Live derived runtime:** PHP `ops/dispatch.php` since **2026-07-18** ([`ladder-ops-platform.md`](ladder-ops-platform.md) §2). **Prod today:** PHP ops (Steve ground insert + invoke); **C++ derived retired** — do not extend. Records: [`coordination/records-post-game-exception.md`](coordination/records-post-game-exception.md).
 
 ---
 

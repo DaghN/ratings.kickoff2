@@ -1,10 +1,10 @@
 # Post-game cutover checklist (agent / Dagh)
 
-> **Jun 2026 — forward cutover:** Live post-game target is **PHP `ops/dispatch.php`** (`ProcessCompletedGame`, `FinalizeUtcDay`), not new C++ merges. Steve runbook: [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md). Prep proof: [`cutover-readiness.md`](cutover-readiness.md). Legacy C++ = read-only reference ([`ratings_cpp.txt`](../ratings_cpp.txt)).
+> **Live since 2026-07-18:** derived post-game is **PHP `ops/dispatch.php`** (`ProcessCompletedGame`, `FinalizeUtcDay`). Steve runbook: [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md). Layers A+B+C: [`cutover-readiness.md`](cutover-readiness.md). Legacy C++ = read-only reference ([`ratings_cpp.txt`](../ratings_cpp.txt)).
 
-**Purpose:** One-page index of **contract vs legacy C++** deltas before Steve **enables PHP ops** on live. **Policy detail stays in** [`website-data-contract.md`](../website-data-contract.md) — do not duplicate rules here.
+**Purpose:** One-page index of **contract vs legacy C++** deltas (historical cutover checklist + ongoing parity). **Policy detail stays in** [`website-data-contract.md`](../website-data-contract.md) — do not duplicate rules here.
 
-**When to use:** Planning live cutover, ops simul parity checks, or “what did we decide about peak vs club milestones?”
+**When to use:** Future schema packets, ops simul parity checks, or “what did we decide about peak vs club milestones?”
 
 ---
 
@@ -27,10 +27,10 @@
 
 ## Deliberate breaks from legacy C++ (must not miss)
 
-| Area | Legacy (today) | Target (contract) |
-|------|----------------|-------------------|
+| Area | Legacy C++ (retired) | Live contract (PHP ops) |
+|------|----------------------|-------------------------|
 | Career peak / nadir | From game 1; peak only on rating **gain** in that game | **Unset until 20 games**; at game 20 set **both** from post-game **`Rating`**; game 21+ max/min of **`Rating`** every game |
-| `club_*` milestones | *(no live writer on prod C++ today)*; batch rebuild still joins `PeakRating` | **PHP ops shipped:** first **`Rating` ≥ threshold** on crossing game; batch SQL join removal **deferred** (DDR-052) |
+| `club_*` milestones | *(no live writer on prod C++)*; batch rebuild still joins `PeakRating` | **PHP ops:** first **`Rating` ≥ threshold** on crossing game; batch SQL join removal **deferred** (DDR-052) |
 | Personal record pointers | `>=` on margin | **`>`** — first holder keeps on tie |
 | HoF records | `>=` on many fields | **`>`**; stop writing ratio leader cols to `generalstatstable` |
 | `player_milestones` (most keys) | Not in prod C++ | Full writer per contract M1–M7 |
@@ -49,28 +49,28 @@
 
 ---
 
-## Rating club — status (Jun 2026)
+## Rating club — status
 
-- **Prod C++:** does **not** insert `player_milestones` (any key). New games do not unlock milestones until PHP ops cutover.
-- **PHP ops (shipped):** `k2_post_game_milestones_rating_clubs()` — first cross on post-game **`Rating`**; proven on work via ops simul P6.
+- **Legacy C++:** did **not** insert `player_milestones` (any key).
+- **PHP ops (live since 2026-07-18):** `k2_post_game_milestones_rating_clubs()` — first cross on post-game **`Rating`**; proven on work via ops simul P6.
 - **Batch repair SQL (deferred):** `player_milestones_rebuild.sql` still has redundant `PeakRating >= thresh` join (line 168). Regen when touching batch repair — not holy-path blocking. See DDR-052 + discrepancy register.
 
 `club_1900` / `elite_altitude`: ideas/probes only — **not** in 112-key catalog or rebuild.
 
 ---
 
-## Cutover sequence (minimal)
+## Cutover sequence (executed 2026-07-18; reuse for future packets)
 
 1. Staging: schema (if any) + **dry-run** new post-game on test game(s).
 2. Staging: **`migrate-work` → `seed-catalog` → `zero-derived` → `run_ops_sim.php` → `run_verify_ops_sim.php`**.
 3. Parity: contract § **Global validation checklist** + milestone sanity scripts.
-4. Prod: same prepare + simul on prod copy, then enable **PHP** `dispatch.php` on live games; retire C++ derived writer.
+4. Prod: same prepare + simul on prod copy, then **PHP** `dispatch.php` on live games; C++ derived writer retired.
 5. Site: `ranked5` tooltips/footer if personal `>` shipped; profile peak/nadir tooltips when ready.
-6. **feature-log** + **MEMORY** — Prod live / done date.
+6. **feature-log** + **MEMORY** — mark live executed.
 
 ---
 
 ## Related MEMORY / feature-log
 
 - `PROJECT_MEMORY.md` — Recent log (career peak/nadir, milestones).
-- `feature-log.md` — **Live cutover = Not executed** means Steve go-live scheduled, not incomplete repo work.
+- `feature-log.md` — **Live cutover = Done (2026-07-18)** for online PHP ops; Amiga staging rows are a separate track.

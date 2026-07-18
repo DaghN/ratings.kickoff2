@@ -1,8 +1,8 @@
 # Post-game — coordination pointer
 
-**Agents:** Post-game **prep is done** on `kooldb1` (ops simul + verify). **Not** incomplete website work. Live prod still uses legacy C++ until cutover — see [`cutover-readiness.md`](cutover-readiness.md).
+**Agents:** Post-game **prep is done** on `kooldb1` (ops simul + verify). **Live PHP ops cutover executed 2026-07-18** — see [`cutover-readiness.md`](cutover-readiness.md). **Not** incomplete website work.
 
-**Prod target (agreed Jun 2026):** Steve inserts ground truth → **PHP** `ops/dispatch.php` `CMD=ProcessCompletedGame`. **Retire C++ derived post-game** at cutover. Behaviour = [`website-data-contract.md`](../website-data-contract.md); code = `ops/modules/process_completed_game.php` + includes.
+**Prod today:** Steve inserts ground truth → **PHP** `ops/dispatch.php` `CMD=ProcessCompletedGame`. **C++ derived post-game retired.** Behaviour = [`website-data-contract.md`](../website-data-contract.md); code = `ops/modules/process_completed_game.php` + includes.
 
 **Steve runbook:** [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md) — **migrate → seed → zero → simul → verify → live dispatch** (not `*_rebuild.sql` marathon).
 
@@ -16,8 +16,8 @@
 |------|----------|
 | Aggregate tables | [`website-data-contract.md`](../website-data-contract.md) |
 | HoF / records | [`records-post-game-exception.md`](records-post-game-exception.md) |
-| Legacy C++ (retiring) | [`ratings_cpp.txt`](../ratings_cpp.txt) |
-| PHP ops (target) | `ops/modules/process_completed_game.php` |
+| Legacy C++ (retired) | [`ratings_cpp.txt`](../ratings_cpp.txt) |
+| PHP ops (live) | `ops/modules/process_completed_game.php` |
 | Cutover links | [`post-game-cutover-checklist.md`](post-game-cutover-checklist.md) |
 
 ---
@@ -27,19 +27,21 @@
 | Environment | Deliverable |
 |-------------|-------------|
 | Work / `kooldb1` | **Done** — simul sign-off Jun 2026 ([`cutover-readiness.md`](cutover-readiness.md)) |
-| Live prod | **Not executed** — Steve cutover when scheduled |
+| Live prod | **Done (2026-07-18)** — PHP ops live; C++ derived retired |
 
 ---
 
-## Steve — prod cutover (summary)
+## Steve — live path (executed 2026-07-18)
+
+Historical checklist (still the shape for future schema packets):
 
 1. `migrate-work` — all files in `ops/sql/migrations/`
 2. `seed-catalog` + `zero-derived`
 3. **`run_ops_sim.php run`** + **`run_verify_ops_sim.php`**
-4. Wire `ProcessCompletedGame` + `FinalizeUtcDay`; disable C++ derived block
+4. Wire `ProcessCompletedGame` + `FinalizeUtcDay`; C++ derived block retired
 5. Mark **Live prod executed** in [`schema-register.md`](schema-register.md) / [`feature-log.md`](feature-log.md)
 
-Details: [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md). Email: [`cutover-packet-template.md`](cutover-packet-template.md).
+Daily ops: [`post-dagh-live-story.md`](../../site/public_html/ops/docs/post-dagh-live-story.md) · [`steve-live-ops.md`](../../site/public_html/ops/docs/steve-live-ops.md). Email template: [`cutover-packet-template.md`](cutover-packet-template.md).
 
 ---
 

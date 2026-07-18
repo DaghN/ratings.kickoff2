@@ -3,7 +3,7 @@
 **Status:** **`ops/` dev runners + `dispatch.php`** (prepare, post-game, league finalize, timeline sim, `CMD=` router — Jun 2026).  
 **Audience:** Dagh, Steve, Cursor agents.
 
-**Related:** [`work-db-prepare.md`](work-db-prepare.md) (prepare, zero derived, simul modes) · [`coordination/ops-completeness-charter.md`](coordination/ops-completeness-charter.md) (**staging simul signed off** Jun 2026; Live phase next) · [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md) (DB names) · [`website-data-contract.md`](website-data-contract.md) (derived rules at cutover) · [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) (core ladder column manifest)
+**Related:** [`work-db-prepare.md`](work-db-prepare.md) (prepare, zero derived, simul modes) · [`coordination/ops-completeness-charter.md`](coordination/ops-completeness-charter.md) (**staging simul signed off** Jun 2026; **live cutover Done 2026-07-18**) · [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md) (DB names) · [`website-data-contract.md`](website-data-contract.md) (derived rules) · [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) (core ladder column manifest)
 
 ---
 
@@ -38,8 +38,8 @@
 |----------|------------------|
 | **What** must post-game compute? | [`website-data-contract.md`](website-data-contract.md) post-game §§ — rules for each table/column. |
 | **Who invokes** derived updates after ground insert? | Steve: `CMD=ProcessCompletedGame` `game_id=` via **`dispatch_request.php`** (HTTP, game server) or **`ops/dispatch.php`** (CLI on web host). Runner: `run_process_game.php`. |
-| **Prod today** | Live games still use **Steve’s C++** derived post-game until cutover. |
-| **Prod target** | **PHP ops** (`ProcessCompletedGame`) implements contract rules per game; **C++ derived post-game is retired** (not extended with M1–M7). |
+| **Prod today** | **PHP ops** live — Steve inserts ground truth, then invokes `ProcessCompletedGame` / dispatch (cutover **2026-07-18**). |
+| **Prod target** | Same — **C++ derived post-game is retired** (not extended with M1–M7). |
 
 Registers ([`prod-coordination.md`](prod-coordination.md), [`coordination/post-game-register.md`](coordination/post-game-register.md)) track cutover status — they do **not** override the split above.
 

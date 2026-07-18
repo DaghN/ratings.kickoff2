@@ -23,7 +23,7 @@
 | **Ground truth** | Match facts (who, score, time; events later). Stored first; `game_id` boundary for derived step. Column/table list: [`docs/ground-truth-manifest.md`](../ground-truth-manifest.md). |
 | **Derived truth** | Elo, milestones, aggregates, etc. — one post-game processor reading DB. Same manifest for sandbox vs prod boundaries. |
 | **Dev DB** | `ko2unity_db` — browser, PHP, day-to-day feature work. |
-| **Prod sandbox** | `ko2unity_baseline` + `ko2unity_work` — prod-shaped copy for migrate/sim; **not** the PHP site until cutover. |
+| **Prod sandbox** | `ko2unity_baseline` + `ko2unity_work` — prod-shaped copy for migrate/sim; **not** the live site (local work URLs only). |
 | **Refresh work** | Clone baseline → work (script: `reset_local_work_db.ps1`). **Not** “zero derived.” |
 | **Migrate work** | Apply **`site/public_html/ops/sql/migrations/`** on work only (`php site/public_html/ops/run_prepare.php migrate-work`, or `schema/apply_local.ps1` → same SQL files). |
 | **Zero derived** | Derived day-zero pre-game; ground truth kept. See [`work-db-prepare.md`](../work-db-prepare.md) §4. |

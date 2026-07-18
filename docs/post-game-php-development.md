@@ -11,7 +11,7 @@
 | [`ladder-ops-platform.md`](ladder-ops-platform.md) | Steve boundary, `dispatch.php`, `ops/` layout, prod target |
 | [`work-db-prepare.md`](work-db-prepare.md) | Prepare, zero derived, simul modes A/B/C |
 | [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) | Core ladder column lists for reset/replay |
-| [`ratings_cpp.txt`](ratings_cpp.txt) | **Prod today** — per-game block shape and field order (inspiration; not the speed or tie-policy target) |
+| [`ratings_cpp.txt`](ratings_cpp.txt) | **Historical** — per-game block shape and field order (inspiration; not the speed or tie-policy target). Live = PHP ops since 2026-07-18. |
 
 ---
 
@@ -22,7 +22,7 @@
 | Rank | Source | Use it for |
 |------|--------|------------|
 | **1 — Must match** | [`website-data-contract.md`](website-data-contract.md) (+ [`records-post-game-exception.md`](coordination/records-post-game-exception.md) for GST records) | **Correctness:** column meanings, processing order, tie policy **targets** (`>` on HoF and, when shipped, playertable personal extremes), UTC, incremental post-game rules. |
-| **2 — Structural inspiration** | [`ratings_cpp.txt`](ratings_cpp.txt) (`RatingProcedureUnity` per-game block) | **What prod does today:** which fields get updated per game, rough sequencing (ratedresults → playertable → generalstatstable), formulas that are not spelled out elsewhere. |
+| **2 — Structural inspiration** | [`ratings_cpp.txt`](ratings_cpp.txt) (`RatingProcedureUnity` per-game block) | **What legacy C++ did:** which fields get updated per game, rough sequencing (ratedresults → playertable → generalstatstable), formulas that are not spelled out elsewhere. Live derived = PHP ops. |
 | **3 — Formula library** | `scripts/k2_rating_core/` (`elo.py`, `outcome.py`, `player_state.py`, `server_records.py`, …) | **Checkpoint diffs** when contract changes (see [`post-game-contract-vs-oracle-discrepancies.md`](coordination/post-game-contract-vs-oracle-discrepancies.md)). **Do not** copy archived replay loop structure (memory + batch finalize). |
 
 **When sources disagree:** **Contract wins.** Update PHP ops and Python oracle together. C++ / old oracle behaviour is legacy only. Prod target is **PHP post-game**, not extending C++ ([`ladder-ops-platform.md`](ladder-ops-platform.md) §2).
@@ -153,7 +153,7 @@ While implementing a phase, **look for** SQL that is correct but **heavy on the 
 
 | Item | Status |
 |------|--------|
-| **`playertable.RecentAverageRating`** | **Dropped on work DB** — `site/public_html/ops/sql/migrations/016_drop_playertable_recent_average_rating.sql` (SCH-016) runs in prepare **migrate** step. Do not reference in PHP post-game or parity. Python replay no longer writes it. Prod C++ may still expect the column until cutover. |
+| **`playertable.RecentAverageRating`** | **Dropped** — `site/public_html/ops/sql/migrations/016_drop_playertable_recent_average_rating.sql` (SCH-016) runs in prepare **migrate** step. Do not reference in PHP post-game or parity. Python replay no longer writes it. C++ derived retired with cutover. |
 | **`Display = 1` + NULL career fields** | Valid on work between zero-derived and replay catch-up; **not** a post-game writer bug. Public site uses `k2_fmt_*` in `includes/k2_safety.php` — see [`playertable-schema.md`](playertable-schema.md). NULL-as-zero storage vs display: [`coordination/parity-audit-backlog.md`](coordination/parity-audit-backlog.md) **AUD-001**. |
 | **Ratio leader columns on `generalstatstable`** | Dropped — leaders from `playertable` at read time ([`records-post-game-exception.md`](coordination/records-post-game-exception.md)). |
 | **`player_milestones`, period aggregates, …** | Later phases (P4+) — contract § Post-game derived-data behavior. |

@@ -7,11 +7,11 @@
 
 ---
 
-## Context (unchanged goal)
+## Context
 
-Prod still uses **C++** after each rated game. PHP ops rebuilds the same **derived** state (Elo, stats, milestones, league inputs, …) from **ground** rows you insert. Batch **simul** on a copy already passed verify; **next** is the same pipeline **one game at a time** on your prod copy, then prod cutover when boring.
+**Live since 2026-07-18:** after each rated game Steve inserts **ground** rows, then invokes PHP ops (`ProcessCompletedGame` / `FinalizeUtcDay`). **C++ derived post-game is retired.** PHP rebuilds derived state (Elo, stats, milestones, league inputs, …) from those ground rows. Batch **simul** on a copy remains the proof path for schema packets.
 
-**Division of labour:** Dagh uploads `public_html/`; you run CLI, DB, game server, cron, site DB config.
+**Division of labour:** Dagh uploads `public_html/`; you run CLI, DB, game server, cron, site DB config. Steve owns ground insert + hosting + invoke; this repo owns derived writers/contracts.
 
 **Do not use** for this phase: `prepare` / `refresh-work` (two-DB refresh shortcut). Use **migrate-work → seed-catalog → zero-derived** on the prod copy you already have — see post-dagh-live-story.
 

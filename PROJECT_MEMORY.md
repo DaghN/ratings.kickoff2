@@ -14,11 +14,11 @@
 
 - **K2 LB SSR (Jul 2026):** **Track A complete** — all hub wings URL landing sort ([`k2-lb-ssr-sort-policy.md`](docs/k2-lb-ssr-sort-policy.md) **Implemented**). Track **B** = profile mosaic stat links.
 
-- **Ladder ops (Jun 2026):** PHP post-game **P0–P7** in `ops/run_process_game.php` + `dispatch.php`. **Staging simul signed off** on `kooldb1` (`run_verify_ops_sim` 0 fail). **Next (Steve):** live cutover when scheduled — [`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md). Discrepancies: [`post-game-contract-vs-oracle-discrepancies.md`](docs/coordination/post-game-contract-vs-oracle-discrepancies.md).
+- **Ladder ops (Jul 2026):** PHP post-game **P0–P7** live on prod — **cutover executed 2026-07-18** (Steve ground insert + invoke; derived writers from this repo). Staging simul was signed off earlier on `kooldb1`. Runbook: [`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md). Discrepancies: [`post-game-contract-vs-oracle-discrepancies.md`](docs/coordination/post-game-contract-vs-oracle-discrepancies.md).
 
-- **Milestones:** Catalog **112**; v0 UI + **`kooldb1` simul proof** done. Live writer = **PHP ops** at cutover (not C++).
+- **Milestones:** Catalog **112**; v0 UI + **`kooldb1` simul proof** done. Live writer = **PHP ops** (live since cutover 2026-07-18).
 
-- **Cutover prep (done):** Schema + PHP ops + **simul proven on `kooldb1`** — [`cutover-readiness.md`](docs/coordination/cutover-readiness.md). **Live prod execution** = Steve when scheduled (not repo backlog).
+- **Cutover:** Schema + PHP ops + **`kooldb1` simul** + **live execution Done 2026-07-18** — [`cutover-readiness.md`](docs/coordination/cutover-readiness.md) layers A+B+C.
 
 - **Activity wing (Leaderboards):** **Proven `kooldb1` (Jun 2026)** — SCH-022–025 ops + LB UI (Peaks · Participation · In a row); Steve full bootstrap + simul + verify **0 fail** (participation, play-streak HoF, reached_at oracle). Policy: [`activity-wing-stored-truth-policy.md`](docs/activity-wing-stored-truth-policy.md). **HoF:** month/year play-streak rows + participation block shipped.
 
@@ -137,9 +137,9 @@
 
 2. **Amiga Tournaments hub — tournament stats wing (C14)** — metadata leaderboards (most debuts, largest field, …) beside chronological catalog; WC hub pattern. **Approved** — [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) §6.4; pairs **C08** editorial on `tournament.php`; likely extend `amiga_tournament_catalog_stats` at finalize.
 
-**Steve (when ready)**
+**Steve (ongoing)**
 
-3. **Prod copy → live PHP ops** — migrate / seed / zero / simul / dispatch — [`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md); WinSCP `public_html/ops/`.
+3. **Live PHP ops** — ground insert + invoke dispatch (running since **2026-07-18**) — [`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md) · [`steve-live-ops.md`](site/public_html/ops/docs/steve-live-ops.md). Future schema packets still use migrate / seed / zero / simul / verify before live.
 
 **Migration habit (not a numbered task):** stored-truth changes → [`UPDATE_DOCS.md`](docs/UPDATE_DOCS.md) Part B + [`prod-coordination.md`](docs/prod-coordination.md) registers.
 
@@ -149,6 +149,11 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-18 | **Online PHP ops cutover docs sweep** — Tier 1+2 authority docs aligned: live derived = PHP ops since 2026-07-18 / C++ derived retired; schema-register + online feature-log rows flipped; topology left alone. Handoff: [`online-php-ops-cutover-docs-sweep-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/online-php-ops-cutover-docs-sweep-STARTER-PROMPT.md). |
+| 2026-07-18 | **Live PHP ops cutover** — Dagh confirmed live games on PHP `ops/` (Steve ground + invoke; derived from this repo). Status: [`cutover-readiness.md`](docs/coordination/cutover-readiness.md) C Done; [`ladder-ops-platform.md`](docs/ladder-ops-platform.md) Prod today = PHP ops. |
+| 2026-07-18 | **Cutover docs sweep (deferred topology)** — starter for careful C++→PHP-ops doc cleanup only: [`online-php-ops-cutover-docs-sweep-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/online-php-ops-cutover-docs-sweep-STARTER-PROMPT.md). Staging/prod host topology left alone. |
+| 2026-07-18 | **README rewrite (human)** — community/fork overview: website **and** DB/ops backbone; Steve-grateful ground/derived split; Amiga = Access→MySQL + derived; continuity (`work-2026-07-18-forum`); dive-deeper + agent tip. |
+| 2026-07-18 | **Amiga checkpoint** — sealed + pushed `data/amiga/checkpoints/work-2026-07-18-forum/` (pre-forum continuity; 607 tournaments / 27,474 games). |
 | 2026-07-18 | **Status Leagues URL history** — `status.php?period=&start=` (league.php parity); pushState on tab/step/picker; popstate + boot restore; AJAX cache/prewarm unchanged. |
 | 2026-07-18 | **Status Daily/Weekly games live** — pulse league section carries `day_games` / `week_games_html`; cascade refreshes Games this day/week when that tab is active. |
 | 2026-07-18 | **Status Weekly “Games this week”** — Recent-style day sections (newest first; **no future UTC days**), columns ID·Date·teams·goals·Rating A/B with inline `(±adj)`; thinner set. API `status_period_week_games.php`. |
@@ -754,8 +759,6 @@
 - GitHub branch protection — when collaborators land.
 - **Extensionless URLs** (`.htaccess` rewrites) — optional; filenames and folders done Jun 2026.
 - **Status on prod live DB** + joshua redirect — [`STATUS_PAGE_DATA.md`](docs/STATUS_PAGE_DATA.md).
-- **Prod PHP ops cutover** — after prod copy proves live dispatch (Steve).
-
 ---
 
 ## Quick facts

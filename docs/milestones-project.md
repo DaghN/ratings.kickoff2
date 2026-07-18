@@ -37,7 +37,7 @@ Single place to see **where the milestone feature is** in the pipeline.
 |------|--------|
 | `milestone_definitions` | SCH-011; **112** rows from seed |
 | `player_milestones` | **112/112** keys in rebuild; parity scripts on local/work |
-| Post-game (forward) | PHP ops P6 — [`post-game-php-development.md`](post-game-php-development.md); prod C++ until cutover |
+| Post-game (forward) | PHP ops P6 — [`post-game-php-development.md`](post-game-php-development.md); **live since 2026-07-18** |
 | Profiles / leaderboards | **v0** — profile pill + garden + chronology, `leaderboards/milestones.php`, hub Recent/Catalog |
 
 ---

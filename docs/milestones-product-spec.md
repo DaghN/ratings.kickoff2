@@ -137,7 +137,7 @@ Data source: `player_milestones.achieved_at` + catalog tier + display name.
 1. **`milestone_definitions`** — SCH-011 + seed load — **done**.
 2. **Rebuild waves** — all waves — **done** ([`milestones-facilitation.md`](milestones-facilitation.md)).
 3. **UI + hub v2** — garden, meta LB, Recent, Catalog, `milestone.php` — **done**.
-4. **Forward post-game** — PHP ops P6 — **done** on work (`kooldb1` simul); prod C++ until Steve cutover.
+4. **Forward post-game** — PHP ops P6 — **done** on work (`kooldb1` simul) and **live since 2026-07-18**.
 
 Phase map: [`milestones-project.md`](milestones-project.md).
 

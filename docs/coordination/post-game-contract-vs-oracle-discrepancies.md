@@ -108,8 +108,8 @@ Use this list before prod cutover. Do not treat “Python passed yesterday” as
 
 | Topic | Notes |
 |-------|--------|
-| **Prod today** | Live games still run **Steve C++** post-game until cutover. |
-| **Prod target** | **PHP** `ops/` `ProcessCompletedGame` + `FinalizeUtcDay`; retire C++ derived writer — [`ladder-ops-platform.md`](../ladder-ops-platform.md) §2, [`post-game-register.md`](post-game-register.md). |
+| **Prod today** | **PHP ops** live since **2026-07-18** — Steve ground insert → `ProcessCompletedGame` / `FinalizeUtcDay`; **C++ derived retired**. |
+| **Prod target** | Same — do not extend legacy C++ — [`ladder-ops-platform.md`](../ladder-ops-platform.md) §2, [`post-game-register.md`](post-game-register.md). |
 | **M1–M7 milestone phases** | Were a **C++ rollout checklist**; same rules now owned by PHP modules + periodic jobs. |
 
 ---

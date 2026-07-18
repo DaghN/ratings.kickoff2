@@ -2,7 +2,7 @@
 
 **On server:** `public_html/ops/docs/steve-live-ops.md` (Dagh syncs `site/public_html/`; **you** run CLI on the host).
 
-**Read first:** [`post-dagh-live-story.md`](post-dagh-live-story.md) (bootstrap on prod copy → simul → this live phase).  
+**Read first:** [`post-dagh-live-story.md`](post-dagh-live-story.md) (bootstrap history + daily live phase). Live PHP ops since **2026-07-18**.  
 **Detail:** [`ops-dispatch.md`](ops-dispatch.md) (exit codes, retries, legacy CMDs).
 
 ---

@@ -2,14 +2,14 @@
 
 Lightweight index: **what we built** and **cutover status**. Agents update on **“update docs”** ([`../UPDATE_DOCS.md`](../UPDATE_DOCS.md)) — not on every CSS tweak.
 
-**Read first:** [`cutover-readiness.md`](cutover-readiness.md) — **kooldb1 proof** ≠ **live prod executed**. “Not executed” on live is **scheduled go-live**, not repo work pending. **Do not** assign batch `REP-xxx` scripts for prod cutover.
+**Read first:** [`cutover-readiness.md`](cutover-readiness.md) — **live PHP ops cutover Done (2026-07-18)**. Layers A+B+C complete for the online ops set. Amiga “Not executed (Amiga staging)” rows are a **separate** sync track. **Do not** assign batch `REP-xxx` scripts for prod.
 
 | Feature | Level | Schema | Ops simul | `kooldb1` proof | Live cutover | Periodic | Notes |
 |---------|-------|--------|-----------|-----------------|--------------|----------|-------|
 | Amiga PHP Finish ↔ simul-oracle parity | — | — | — | **Done** local Jul 2026-17 (#608 kitchen) | Sync promote + community scan PHP | — | Fork protocol (no rewind); chrono + community limbo fixes — [`amiga-php-finalize-parity-protocol.md`](../amiga-php-finalize-parity-protocol.md) |
 | Amiga live ops practice method | — | — | — | — | — | — | **Jul 2026-16** — serial feedback (queue depth 1) replaces pain-log inventory — [`amiga-live-ops-practice-track.md`](../amiga-live-ops-practice-track.md) · platform §12.1 |
 | Amiga inverse-count changelog | L1 | `051_inverse_count_changelog` (`amiga_player_inverse_count_at_event`) | — | **Done** local Jul 2026 (`verify-inverse-count-changelog` + replay, 3,423 rows) | **Export ready** (push staged after sync) | — | Ghost-event TT fix for MGS/BW/MGC/BL; mosaic + Victims LB — [`amiga-player-inverse-count-timeline-policy.md`](../amiga-player-inverse-count-timeline-policy.md) |
-| Ladder ops platform (`ops/`, PHP post-game) | — | — | — | **Done** Jun 2026 | **Not executed** | — | P0–P7 + `dispatch.php` + `dispatch_request.php` (HTTP); Steve `CMD=ProcessCompletedGame` |
+| Ladder ops platform (`ops/`, PHP post-game) | — | — | — | **Done** Jun 2026 | **Done (2026-07-18)** | — | P0–P7 + `dispatch.php` + `dispatch_request.php` (HTTP); Steve ground insert → `CMD=ProcessCompletedGame` |
 | Local dual website (dev + work URLs) | — | — | — | — | — | — | **Jun 2026** — `ratingskickoff.test` → `ko2unity_db`, `work.ratingskickoff.test` → `ko2unity_work`; config router |
 | Amiga jukebox (popup window) | — | — | — | — | — | — | **Jun 2026-26** — gapless MP3 player in a **separate popup window** (`/jukebox.php`); floating **FAB launcher** on all themed pages opens/focuses it; `BroadcastChannel` now-playing mirror; `/audio/amiga/` ~159 MB audio. **Replaced the Turbo Drive approach — Turbo removed site-wide** ([`k2-jukebox-popup.md`](../k2-jukebox-popup.md)) |
 | Amiga player hero country flags | — | — | — | — | — | — | Country stat column (label + flag) on player profile/tournaments/games/opponents; **Jun 2026-27:** sparse WC podium medal counts (country-hero gradient styling) after flag when count &gt; 0; `amiga_player_wc_medal_counts()` |
@@ -80,7 +80,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Player games GF/GA/GS filters | L0 | — | — | — | — | — | `player/games.php` — `gf`/`ga` listboxes + `gs` URL filter (total goals in game); chart click-through from H2H histogram |
 | Opponents Goals TG/g column | L0 | — | — | — | — | — | `(GF+GA)/games` per opponent after Ratio on `/player/opponents/goals.php`; read-time from `player_matchup_summary` |
 | Opponents H2H scoreline heatmap | L0 | — | — | — | — | — | Full GF×GA grid per pair; outcome tint + intensity; click → `games.php?gf=&ga=&opponent=` — [`player-opponents-h2h-poster.md`](../player-opponents-h2h-poster.md) |
-| Daily active players chart | L2 | SCH-007 | Yes | **Done** | **Not executed** | — | `server_daily_activity`; post-game via PHP ops at live cutover |
+| Daily active players chart | L2 | SCH-007 | Yes | **Done** | **Done (2026-07-18)** | — | `server_daily_activity`; post-game via PHP ops |
 | All-time busiest players chart (Activity) | L0 | — | — | — | — | — | Top 10 by `playertable.NumberGames` (tie → lowest ID); monthly series from `player_period_games`; was monthly top-10 eras |
 | Activity Graph Roadmap | L0 | — | — | — | — | — | Read-time `ratedresults`/`playertable` |
 | Activity recent milestones digest | — | — | — | — | — | — | **Removed Jun 2026** |
@@ -94,11 +94,11 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Header realm switcher | — | — | — | — | — | — | **Re-shipped Jun 2026** — `realm_switcher.php` beside wordmark; Online ↔ `/status.php`, Amiga 500 ↔ `/amiga/rating.php` |
 | Header cross-realm player search | — | — | — | — | — | — | `api/player_search.php?realm=all`; realm label per dropdown row; pick uses per-hit `data-player-realm`; **Amiga pick carries `as=`** when active (Jun 2026); H2H stays online-only |
 | Records two-panel split | L0 | — | — | — | — | — | Peak cache read path |
-| League honours leaderboard (v1) | L0 | — | — | **Proven** | **Not executed** | — | `leaderboards/league-honours.php`; **proven on `kooldb1`** after simul |
-| League period awards (medals DB) | L4 | SCH-009, SCH-010 | Yes | **Proven** | **Not executed** | PER-003 at cutover | Activity + points same orphan eligibility (`LEFT JOIN`); re-simul on work after rule change |
-| Status Leagues (Activity + Points) | L0 | — | — | **Proven** | **Not executed** | — | **Shipped**; Daily/Weekly games + pulse refresh; URL lens `?period=`/`?start=` + pushState; spec [`status-period-competitions.md`](../status-period-competitions.md) |
+| League honours leaderboard (v1) | L0 | — | — | **Proven** | **Done (2026-07-18)** | — | `leaderboards/league-honours.php`; **proven on `kooldb1`** after simul |
+| League period awards (medals DB) | L4 | SCH-009, SCH-010 | Yes | **Proven** | **Done (2026-07-18)** | PER-003 / `FinalizeUtcDay` | Activity + points same orphan eligibility (`LEFT JOIN`); re-simul on work after rule change |
+| Status Leagues (Activity + Points) | L0 | — | — | **Proven** | **Done (2026-07-18)** | — | **Shipped**; Daily/Weekly games + pulse refresh; URL lens `?period=`/`?start=` + pushState; spec [`status-period-competitions.md`](../status-period-competitions.md) |
 | Status room live (v1.5 pulse) | L0 | — | — | — | — | — | **Shipped Jul 2026** — 1 s heartbeat, lobby patches, cascade, **`live_clocks` every beat** (SRL-9), cascade glow (LB Elo gainers; league Activity Games + Points Pts), minimal lobby glow, live **`StartTime ASC`**, deploy-safe DB-only pulse; work sim + wall-clock catch-up; [`status-room-live-policy.md`](../status-room-live-policy.md) |
-| Status league stack | L4 | SCH-008 | Yes | **Proven** | **Not executed** | — | `player_period_league`; PHP ops post-game at live cutover |
+| Status league stack | L4 | SCH-008 | Yes | **Proven** | **Done (2026-07-18)** | — | `player_period_league`; PHP ops post-game |
 | Player games server-side filters/sort | L0 | — | — | — | — | — | Read-time |
 | Hall of Fame aggregate read path | L0 | — | — | — | — | — | Peak/period cache + participation (Nth-period ties) + milestones/league read-time (Jun 2026) |
 | Hall of Fame context links | L0 | — | — | — | — | — | ranked wings + `k2_sort` + `#k2-lb-table` scroll anchor (Jul 2026); highlights boards use `#k2-games-highlights` |
@@ -113,26 +113,26 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Milestones hub tab (stub) | L0 | — | — | — | — | — | `milestones.php` v0 hub |
 | Hub IA — Games tab | — | — | — | — | — | — | **Jun 2026** — `games/recent.php` hub tab after Milestones; Status **Games →** retained |
 | Hub IA — Games off top nav | — | — | — | — | — | — | Superseded Jun 2026 — Games promoted to hub tab |
-| Status league / performance | L2 | SCH-005, SCH-017 | Yes | **Proven** | **Not executed** | — | Indexes + `player_period_league` |
-| Period activity leaderboards | L2 | SCH-004, SCH-006 | Yes | **Proven** | **Not executed** | — | `player_period_games` / peaks |
+| Status league / performance | L2 | SCH-005, SCH-017 | Yes | **Proven** | **Done (2026-07-18)** | — | Indexes + `player_period_league` |
+| Period activity leaderboards | L2 | SCH-004, SCH-006 | Yes | **Proven** | **Done (2026-07-18)** | — | `player_period_games` / peaks |
 | Profile hero milestones (no peak) | L0 | — | — | — | — | — | Garden hero |
-| Milestones Phase 4 v0 UI | L0 | — | — | **Proven** | **Not executed** | — | Garden / ranked10 / HoF on `kooldb1` |
+| Milestones Phase 4 v0 UI | L0 | — | — | **Proven** | **Done (2026-07-18)** | — | Garden / ranked10 / HoF on `kooldb1` |
 | Milestone unlock event UI | L0 | — | — | — | — | — | [`milestones-unlock-event-ui.md`](../milestones-unlock-event-ui.md) |
-| `perfect_day` / `nightmare_day` day-close | L0 | — | Yes | **Proven** | **Not executed** | — | 113 midnight rows on work DB |
+| `perfect_day` / `nightmare_day` day-close | L0 | — | Yes | **Proven** | **Done (2026-07-18)** | — | 113 midnight rows on work DB |
 | Milestones doc consolidation | L0 | — | — | — | — | — | [`milestones-README.md`](../milestones-README.md) |
-| Milestone `year_in_heaven` | L2 | SCH-011 | Yes | **Proven** | **Not executed** | — | Catalog **112**; holders on work DB |
-| Milestone `play_streak_100` | L2 | SCH-011 | Yes | **Proven** | **Not executed** | — | 0 holders; catalog seeded |
-| Milestones post-game contract | L2 | SCH-011–013 | Yes | **Proven** | **Not executed** | — | PHP ops P6; simul on `kooldb1`; live = dispatch at cutover |
-| Rated play streaks (day/week) | L4 | SCH-014 | Yes | **Proven** | **Not executed** | — | `ranked4` + HoF; **proven on `kooldb1`**; live writer = PHP ops P7 |
-| Activity wing stored truth (participation + streaks) | L4 | SCH-022–025 | Yes | **Proven** | **Not executed** | — | **`kooldb1` simul signed off** Jun 2026 (participation + play-streak + reached_at verify PASS) — [`activity-wing-stored-truth-policy.md`](../activity-wing-stored-truth-policy.md) |
-| Result streak boundaries (Streaks LB) | L2 | SCH-026 | Yes | **Done** (ops + UI) | **Not executed** | — | `player_result_streaks`; LB tooltips + games drill-down; date/GD polish Jun 2026 |
-| Milestones `diversity_merchant` per-game DD | L4 | — | Yes | **Proven** | **Not executed** | — | **25** holders; **6615** canonical rows |
-| Milestones `giant_slayer` active #1 | L2 | — | Yes | **Proven** | **Not executed** | — | **31** holders on work DB |
-| Milestones Phase 3 (catalog + full rebuild) | L4 | SCH-011–013 | Yes | **Proven** | **Not executed** | — | Catalog **112**; simul on `kooldb1` |
-| Milestone meta leaderboard totals | L2 | SCH-020 | Yes | **Proven** | **Not executed** | — | `player_milestone_totals`; verify `milestone_totals_parity` PASS on `kooldb1` |
-| Milestone catalog holder counts | L2 | SCH-021 | Yes | **Proven** | **Not executed** | — | All unlock rows incl. orphans; verify `milestone_holder_count_parity` PASS on `kooldb1` |
-| Stored truth expansion | L4 | SCH-008 | Yes | **Proven** | **Not executed** | — | Five tables; **ops simul on `kooldb1`** (not May `kooldb` batch) |
-| Opponents wing stored matchup (SCH-019) | L2 | SCH-019 | Yes | **Proven** | **Not executed** | — | Full `kooldb1` simul Jun 2026 — [`player-opponents-hub.md`](../player-opponents-hub.md) |
+| Milestone `year_in_heaven` | L2 | SCH-011 | Yes | **Proven** | **Done (2026-07-18)** | — | Catalog **112**; holders on work DB |
+| Milestone `play_streak_100` | L2 | SCH-011 | Yes | **Proven** | **Done (2026-07-18)** | — | 0 holders; catalog seeded |
+| Milestones post-game contract | L2 | SCH-011–013 | Yes | **Proven** | **Done (2026-07-18)** | — | PHP ops P6; simul on `kooldb1`; live = dispatch |
+| Rated play streaks (day/week) | L4 | SCH-014 | Yes | **Proven** | **Done (2026-07-18)** | — | `ranked4` + HoF; **proven on `kooldb1`**; live writer = PHP ops P7 |
+| Activity wing stored truth (participation + streaks) | L4 | SCH-022–025 | Yes | **Proven** | **Done (2026-07-18)** | — | **`kooldb1` simul signed off** Jun 2026 (participation + play-streak + reached_at verify PASS) — [`activity-wing-stored-truth-policy.md`](../activity-wing-stored-truth-policy.md) |
+| Result streak boundaries (Streaks LB) | L2 | SCH-026 | Yes | **Done** (ops + UI) | **Done (2026-07-18)** | — | `player_result_streaks`; LB tooltips + games drill-down; date/GD polish Jun 2026 |
+| Milestones `diversity_merchant` per-game DD | L4 | — | Yes | **Proven** | **Done (2026-07-18)** | — | **25** holders; **6615** canonical rows |
+| Milestones `giant_slayer` active #1 | L2 | — | Yes | **Proven** | **Done (2026-07-18)** | — | **31** holders on work DB |
+| Milestones Phase 3 (catalog + full rebuild) | L4 | SCH-011–013 | Yes | **Proven** | **Done (2026-07-18)** | — | Catalog **112**; simul on `kooldb1` |
+| Milestone meta leaderboard totals | L2 | SCH-020 | Yes | **Proven** | **Done (2026-07-18)** | — | `player_milestone_totals`; verify `milestone_totals_parity` PASS on `kooldb1` |
+| Milestone catalog holder counts | L2 | SCH-021 | Yes | **Proven** | **Done (2026-07-18)** | — | All unlock rows incl. orphans; verify `milestone_holder_count_parity` PASS on `kooldb1` |
+| Stored truth expansion | L4 | SCH-008 | Yes | **Proven** | **Done (2026-07-18)** | — | Five tables; **ops simul on `kooldb1`** (not May `kooldb` batch) |
+| Opponents wing stored matchup (SCH-019) | L2 | SCH-019 | Yes | **Proven** | **Done (2026-07-18)** | — | Full `kooldb1` simul Jun 2026 — [`player-opponents-hub.md`](../player-opponents-hub.md) |
 | Amiga realm snapshots + HoF (ko2amiga_db) | L5 | `028_hof_tournament_geo` | — | **Done** (local prove) | — | — | Incremental realm row + eight calendar/geo HoF records; Calendar & geo LB wing; `verify-hof-geo-year` |
 | Amiga HoF record rise dates (ko2amiga_db) | L5 | `029_hof_record_rise_dates` | — | **Complete** (local prove + export) | — | — | Per-metric last-rise id/date; holder `*Date` from rise not participation — [`amiga-hof-record-date-policy.md`](../amiga-hof-record-date-policy.md) |
 | Amiga career HoF rise dates (ko2amiga_db) | L5 | `030_career_rise_dates` | — | **Complete** (local prove + export) | — | — | Ten legacy career rows (`MostGamesPlayed` …) — rise `*Date` at event finalize — [`amiga-hof-record-date-policy.md`](../amiga-hof-record-date-policy.md) § SCH-030 |
@@ -141,10 +141,10 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 | Amiga perfect event honours (ko2amiga_db) | L5 | SCH-045 | — | **Complete** (local prove) | — | — | `is_perfect_event`, career `perfect_events`, HoF `MostPerfectEvents`, catalog filter, honours LB + WC Perfect column — [`amiga-perfect-event-policy.md`](../amiga-perfect-event-policy.md) |
 | Amiga PHP finalize parity smoke (ko2amiga_db) | L5 | — | — | **Complete** (local prove) | — | — | Phase D — T24 reopen+finalize; prior-snapshot carry in PHP persist |
 | H2H versus poster + pair detail + moments + charts | L0 | — | — | — | — | — | Poster + race table (perf rating last) + **3×3 moments grid (v2: neutral shells, goal-digit neon)** + **pair charts on H2H** (cumulative wins · cumulative goals · **total goals histogram** · rating compare · goals-per-game histograms · **scoreline heatmap**); **top opponents bar on Profile** — [`player-opponents-h2h-poster.md`](../player-opponents-h2h-poster.md) |
-| Profile `ratedresults` indexes | L1 | SCH-001 | — | **Done** (migrate) | **Not executed** | — | Migration `001` in ops package; live = migrate-work on cutover |
-| Ladder replay sandbox (K32/1600) | L2 | SCH-002 | Partial | **Done** (May) | **Not executed** | — | Core ladder via `scripts/ladder`; website aggregates via ops simul |
-| Records ratio leaders from playertable | L2 | SCH-003 | Yes | **Proven** | **Not executed** | — | [`records-post-game-exception.md`](records-post-game-exception.md) |
-| Career peak/nadir (`PeakRating`, `LowestRating`) | L2 | — | Yes | **Proven** | **Not executed** | — | Contract §; PHP ops at cutover |
+| Profile `ratedresults` indexes | L1 | SCH-001 | — | **Done** (migrate) | **Done (2026-07-18)** | — | Migration `001` in ops package; live via cutover migrate-work |
+| Ladder replay sandbox (K32/1600) | L2 | SCH-002 | Partial | **Done** (May) | **Done (2026-07-18)** | — | Live writer = PHP ops; May sandbox/scripts/ladder = historical repair path |
+| Records ratio leaders from playertable | L2 | SCH-003 | Yes | **Proven** | **Done (2026-07-18)** | — | [`records-post-game-exception.md`](records-post-game-exception.md) |
+| Career peak/nadir (`PeakRating`, `LowestRating`) | L2 | — | Yes | **Proven** | **Done (2026-07-18)** | — | Contract §; PHP ops live |
 
 ### Column legend
 
@@ -152,8 +152,8 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 - **Schema** — SCH id or `—`.
 - **Ops simul** — Filled by `run_ops_sim.php` on work DB (not batch `REP-xxx` on prod).
 - **`kooldb1` proof** — **Proven** / **Done** after migrate + simul + verify on work DB (`kooldb1` or `ko2unity_work`). **Not** “work still to do.”
-- **Live cutover** — **Not executed** until Steve runs cutover on **live** prod; **Done (date)** after go-live.
-- **Periodic** — cron/`FinalizeUtcDay` at live cutover.
+- **Live cutover** — **Done (2026-07-18)** for online PHP ops go-live. Rows that still say **Not executed** may lag (especially Amiga staging sync); do not treat online ops as “still waiting on Steve cutover.”
+- **Periodic** — cron/`FinalizeUtcDay` (live since cutover).
 
 ### Adding a row
 

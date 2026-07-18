@@ -13,7 +13,7 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 
 | Environment | Database name | Notes |
 |-------------|---------------|--------|
-| **Production / joshua** | Steve live DB | **Live writes** — legacy C++ **today**; **PHP ops** (`ops/dispatch.php`) at cutover |
+| **Production / joshua** | Steve live DB | **Live writes** — **PHP ops** (`ops/dispatch.php`) since **2026-07-18**; C++ derived retired |
 | **Staging work** | **`kooldb1`** (pristine clone **`kooldb2`**) | **Same schema family, no live game writes** — forward proof via ops prepare/simul ([`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)). Legacy May DB **`kooldb`** = frozen historical log only. WinSCP syncs PHP only. |
 | **Local Laragon** | `ko2unity_db` | HeidiSQL export from **`ts-joshua`**, May 2026; no live writes |
 | **Local work (sim)** | **`ko2unity_work`** | Ops simul + **live environment sim** — [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md); URL **`work.ratingskickoff.test`** only |

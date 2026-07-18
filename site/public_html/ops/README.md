@@ -8,8 +8,8 @@
 
 | Step | Open this file |
 |------|----------------|
-| **1 — Start here (prod cutover, full story)** | **[`docs/post-dagh-live-story.md`](docs/post-dagh-live-story.md)** |
-| **2 — After cutover (daily commands)** | [`docs/steve-live-ops.md`](docs/steve-live-ops.md) |
+| **1 — Start here (live ops story + bootstrap)** | **[`docs/post-dagh-live-story.md`](docs/post-dagh-live-story.md)** |
+| **2 — Daily commands** | [`docs/steve-live-ops.md`](docs/steve-live-ops.md) |
 | **3 — Only if you need exit codes / CMD detail** | [`docs/ops-dispatch.md`](docs/ops-dispatch.md) |
 
 **Before you run anything:** copy `config/work-targets.ini.example` → `config/work-targets.ini` and set the real database host, user, and password for this server.
@@ -33,7 +33,7 @@
 **Legacy Python:** `python -m scripts.work_prepare` — **retired Jun 2026** (stub → use `run_prepare.php`). Archived modules: `docs/archive/work-prepare-retired-2026-06/`.
 
 - **Post-game P0–P7 (PHP):** `run_process_game.php` — milestones + play streaks. **Sign-off:** `run_ops_sim.php` + `run_verify_ops_sim.php` ([`cutover-readiness.md`](../../../docs/coordination/cutover-readiness.md)).
-- **Prod target:** PHP replaces C++ derived post-game at cutover ([`docs/ladder-ops-platform.md`](../../../docs/ladder-ops-platform.md) §2).
+- **Prod today:** **PHP ops** live since **2026-07-18** — C++ derived retired ([`docs/ladder-ops-platform.md`](../../../docs/ladder-ops-platform.md) §2).
 - **Periodic PER-003 (PHP):** `run_finalize_league.php` — `finalize-due` (debug); **`rebuild-all` / `rebuild-aggregates` = dev repair only** (`--target local-dev`; **refused** on work). **Steve midnight:** `CMD=FinalizeUtcDay` (league + league milestones + day-close).
 - **UTC day tick:** `run_finalize_utc_day.php` — dev runner same as `CMD=FinalizeUtcDay`.
 - **Prod-shaped simul:** `run_ops_sim.php run` — full history or `--until-game-id` (preferred). Low-level: `run_timeline_sim.php`.

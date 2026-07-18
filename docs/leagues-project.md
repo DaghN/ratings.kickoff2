@@ -12,9 +12,9 @@ Extends Status **Leagues** (Phase 1 shipped) into **persistent awards**, career 
 
 | | |
 |--|--|
-| **Done** | Status Leagues UI · rules spec · SCH-009/010 · **League honours proven on `kooldb1`** (`leaderboards/league-honours.php`) · ops simul sign-off |
-| **Next** | Profile league block · **live prod cutover** when Steve ready ([`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)) |
-| **Not started** | Milestones merge (Track 5) · prod cron |
+| **Done** | Status Leagues UI · rules spec · SCH-009/010 · **League honours proven on `kooldb1`** · **live PHP ops since 2026-07-18** ([`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)) |
+| **Next** | Profile league block |
+| **Not started** | Milestones merge (Track 5) |
 
 ---
 
@@ -28,7 +28,7 @@ Extends Status **Leagues** (Phase 1 shipped) into **persistent awards**, career 
 | 3 | **Career leaderboard** | **v1 shipped** | `leaderboards/league-honours.php` — `player_league_totals` + `player_league_slice_totals` |
 | 4 | **Player universe** | Not started | Profile slot TBD — `k2_league_player_slice_totals()` ready |
 | 5 | **Milestones merge** | Not started | [`milestones-project.md`](milestones-project.md) |
-| 6 | **Prod** | Prep done; live not executed | Steve cutover runbook — simul, not batch REP |
+| 6 | **Prod** | **Done (2026-07-18)** | Live PHP ops; Steve runbook — simul for packets, not batch REP |
 
 ---
 

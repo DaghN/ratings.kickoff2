@@ -1,6 +1,6 @@
 # Records post-game exception — `generalstatstable` / Hall of Fame
 
-**Why this file exists:** Server records need worked examples for **cutover parity** (tie policy, UTC dates, ratio-column removal). **All other derived tables:** behaviour in [`website-data-contract.md`](../website-data-contract.md); live writer = **PHP ops** at cutover — not new C++ development.
+**Why this file exists:** Server records need worked examples for **cutover parity** (tie policy, UTC dates, ratio-column removal). **All other derived tables:** behaviour in [`website-data-contract.md`](../website-data-contract.md); live writer = **PHP ops** since **2026-07-18** — not new C++ development.
 
 **Schema:** [schema-register.md](schema-register.md) **SCH-003**
 **Feature:** Hall of Fame (`hall-of-fame.php`)
@@ -17,7 +17,7 @@ Three categories of change to the `generalstatstable` post-game update:
 2. **CHANGE** — non-ratio record tie policy from `>=` to `>` — first holder keeps the record until strictly beaten.
 3. **ADD** — UTC timezone requirement — record dates must be UTC.
 
-**Separate handoff (this file does not cover it):** `playertable` personal record pointers and inverse victim/culprit counts (`BiggestLossVictims`, `BiggestWinCulprits`, `MostGoalsConcededVictims`, etc.) must also move from legacy **`>=` to `>`** in the per-game C++ block. Required behaviour and checklist: [`website-data-contract.md`](../website-data-contract.md) § *Personal record pointers and record-holder victim/culprit counts*. Do not mark records post-game “done” without that pass.
+**Separate handoff (this file does not cover it):** `playertable` personal record pointers and inverse victim/culprit counts (`BiggestLossVictims`, `BiggestWinCulprits`, `MostGoalsConcededVictims`, etc.) must use strict **`>`** (not legacy `>=`). Required behaviour and checklist: [`website-data-contract.md`](../website-data-contract.md) § *Personal record pointers and record-holder victim/culprit counts*. Live writer = PHP ops — do not mark records post-game “done” without that pass.
 
 ---
 
@@ -132,7 +132,7 @@ Establishing game = **first** rated game (`MIN(id)`) on the last UTC day / last 
 
 **Not** the same as `LongestWinningStreak` on `playertable` — those are result streaks; these are “played at least one rated game” streaks.
 
-Contract: [`website-data-contract.md`](../website-data-contract.md) § `player_play_streaks`. Staging: [`play-streaks-staging-handoff.md`](play-streaks-staging-handoff.md) — **SCH-014 + REP-015 verified** May 2026. Live writer = **PHP ops** at cutover.
+Contract: [`website-data-contract.md`](../website-data-contract.md) § `player_play_streaks`. Staging: [`play-streaks-staging-handoff.md`](play-streaks-staging-handoff.md) — **SCH-014 + REP-015 verified** May 2026. Live writer = **PHP ops** since **2026-07-18**.
 
 ---
 

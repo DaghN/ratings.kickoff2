@@ -48,15 +48,15 @@ Cold start (do **before** coding unless Dagh pasted full context):
 
 Prod ladder data is written by **Steve** (ground insert per game + periodic jobs). **Reference implementation:** PHP **`ops/dispatch.php`** (`ProcessCompletedGame`, `FinalizeUtcDay`) — see [`ladder-ops-platform.md`](docs/ladder-ops-platform.md) §2. Behaviour rules: [`website-data-contract.md`](docs/website-data-contract.md).
 
-**Prod today:** live games still run **legacy C++** derived post-game until Steve cutover — **do not extend C++** or treat “C++ pending” as blocking repo work. Parity target is PHP ops (simul signed off Jun 2026).
+**Prod today:** live games use **PHP ops** derived post-game (cutover **2026-07-18**) — Steve inserts ground truth and invokes dispatch; **do not extend legacy C++**. Contract and writers live in this repo ([`ladder-ops-platform.md`](docs/ladder-ops-platform.md)).
 
 **Performance / stored truth habit:** For DB-backed website work, default to stored/precomputed truth on hot paths (~73× faster than wide `ratedresults` scans at ~75k rows — see May 2026 evidence in prior MEMORY).
 
-**Default question:** *What stored table should this value live in, and what does [`website-data-contract.md`](docs/website-data-contract.md) say for rebuild + post-game?* **Amiga** player×event stats: [`amiga-player-universe-contract.md`](docs/amiga-player-universe-contract.md) **§5.0** (same stored-truth habit; `participation` vs `standings` vs `rating_events`). Work/staging proof: **ops simul** after `migrate-work` — not batch `REP-xxx` or `*_rebuild.sql` on prod. Do **not** treat missing C++ snippets as incomplete features.
+**Default question:** *What stored table should this value live in, and what does [`website-data-contract.md`](docs/website-data-contract.md) say for rebuild + post-game?* **Amiga** player×event stats: [`amiga-player-universe-contract.md`](docs/amiga-player-universe-contract.md) **§5.0** (same stored-truth habit; `participation` vs `standings` vs `rating_events`). Work/staging proof: **ops simul** after `migrate-work` — not batch `REP-xxx` or `*_rebuild.sql` on prod. **Do not** treat missing C++ snippets as incomplete features.
 
-**One-line cutover rule:** Prep is done on `kooldb1` via ops simul; live prod is Steve’s scheduled cutover; retired dev batch/replay CLIs — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md).
+**One-line cutover rule:** Prep + **live PHP ops** are done (`kooldb1` simul, then live **2026-07-18**); retired dev batch/replay CLIs — [`obsolete-dev-scripts-retirement-policy.md`](docs/obsolete-dev-scripts-retirement-policy.md).
 
-**Steve cutover:** schema + backfill on server, sync `ops/`, wire `dispatch.php` — [`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md). Hall of Fame records: [`records-post-game-exception.md`](docs/coordination/records-post-game-exception.md) (parity notes at cutover, not new C++ dev).
+**Steve / live ops:** hosting, ground insert, invoke dispatch — [`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md). Hall of Fame records: [`records-post-game-exception.md`](docs/coordination/records-post-game-exception.md).
 
 **Triggers to think about migration:** new DB columns/tables/indexes, `scripts/k2_rating_core/` or ops PHP edits, “store this on profile” vs compute in PHP, medals persistent on `playertable`, etc.
 
@@ -82,7 +82,7 @@ Prod ladder data is written by **Steve** (ground insert per game + periodic jobs
 - **Work DB = simul only** — `ko2unity_work` / `kooldb1`: **`zero-derived` → `run_ops_sim.php` → `verify`**. No `rebuild-all`, no ad-hoc repair, no “avoid re-simul” patches. [`work-db-prepare.md`](docs/work-db-prepare.md) §1.5.
 - **Cutover prep is done** on `kooldb1` / `ko2unity_work` via **ops simul** — do not assign batch **`REP-xxx`** or `*_rebuild.sql` on prod. Historical log: [`archive/replay-register-2026-05.md`](docs/archive/replay-register-2026-05.md).
 - **`kooldb`** (May 2026) is **frozen** — forward staging work DB = **`kooldb1`**; pristine clone = **`kooldb2`**.
-- **`feature-log.md` “Live cutover = Not executed”** means **Steve go-live scheduled**, not incomplete repo work.
+- **`feature-log.md`:** online ops cutover rows marked **Done (2026-07-18)** in Jul 2026 docs sweep; Amiga staging sync rows remain a **separate** track. See [`cutover-readiness.md`](docs/coordination/cutover-readiness.md).
 - **`docs/archive/`** and May handoffs = **history** — do not run `staging-scripts/` PHP (folder **removed** from repo and remote Jun 2026); use **`site/public_html/ops/`**.
 - **New SCH DDL** → `site/public_html/ops/sql/migrations/` — not `schema/migrations/` (redirect only).
 - **`docs/STAGING_REPLAY.md`** is an **archive stub** — not the current staging runbook ([`cutover-readiness.md`](docs/coordination/cutover-readiness.md)).

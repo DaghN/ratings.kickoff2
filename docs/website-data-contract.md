@@ -24,15 +24,15 @@ Deployment status is tracked elsewhere:
 
 Those registers link here for behavior; they do **not** duplicate post-game rules.
 
-**One-line cutover rule (agents):** Prep is done on `kooldb1` via ops simul; live prod is Steve’s scheduled cutover; retired dev batch/replay CLIs are **not** tasks or prod — [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md).
+**One-line cutover rule (agents):** Prep done on `kooldb1` via ops simul; **live PHP ops cutover executed 2026-07-18**; retired dev batch/replay CLIs are **not** tasks or prod — [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md).
 
 ### Agent policy (post-game)
 
 - **Fill derived tables (happy path):** **`ops/run_ops_sim.php`** after migrate + seed + zero — see [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md).
 - **Dev repair (retired):** [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) — frozen `ko2unity_db` → re-import dump.
 - **Behaviour authority:** This document’s **Post-game rule** sections — implemented in **PHP ops** (`ops/run_process_game.php`, `ops/dispatch.php`).
-- **Prod live games (today):** Legacy **C++** still runs until Steve cutover — **do not extend C++**; do not block website/staging work on “C++ pending.”
-- **Prod cutover:** Steve inserts ground truth → `dispatch.php CMD=ProcessCompletedGame` (+ `FinalizeUtcDay`) — same rules as here. Guide: [`post-game-php-development.md`](post-game-php-development.md), [`ladder-ops-platform.md`](ladder-ops-platform.md).
+- **Prod live games (today):** **PHP ops** since **2026-07-18** — Steve inserts ground truth → `dispatch.php CMD=ProcessCompletedGame` (+ `FinalizeUtcDay`); **C++ derived retired** — **do not extend C++**.
+- **Guide:** [`post-game-php-development.md`](post-game-php-development.md), [`ladder-ops-platform.md`](ladder-ops-platform.md).
 - **Historical C++:** [`ratings_cpp.txt`](ratings_cpp.txt) — read-only comparison only.
 - **Exception:** Hall of Fame / `generalstatstable` — [`records-post-game-exception.md`](coordination/records-post-game-exception.md).
 
@@ -109,7 +109,7 @@ Schema reference: `docs/playertable-schema.md`.
 
 **Threshold:** `K2_ESTABLISHED_MIN_GAMES` (**20**) — `site/public_html/includes/lb_player_filters.php`. Leaderboard “exclude provisional” uses the same number for **who is listed**; this section defines **when the columns exist and how they are written**.
 
-**Legacy behaviour (prod C++ today — retiring):** Updates can start from game 1. Peak only moves when `NewRating > PeakRating` **and** `NewRating > OldRating`; nadir only when `NewRating < LowestRating` **and** `NewRating < OldRating`. Reference: `docs/ratings_cpp.txt`.
+**Legacy behaviour (retired C++):** Updates can start from game 1. Peak only moves when `NewRating > PeakRating` **and** `NewRating > OldRating`; nadir only when `NewRating < LowestRating` **and** `NewRating < OldRating`. Reference: `docs/ratings_cpp.txt`.
 
 **Required behaviour (PHP ops post-game + full replay — target):**
 
@@ -1060,10 +1060,10 @@ The **server-wide** record pointers (e.g. `MostCleanSheetsVictimsS`) in `general
 
 Counts move when the **credited opponent** for that personal record changes, not on every game between the same pair.
 
-**Legacy behaviour (prod C++ today — retiring):**  
+**Legacy behaviour (retired C++):**  
 Per-game block uses **`>=`** when comparing a new game to the stored extreme. On a **tied** margin with a **different** opponent, the later opponent takes the credit. Reference: `docs/ratings_cpp.txt`.
 
-**Required tie policy (PHP ops post-game + Python oracle — target):**  
+**Required tie policy (PHP ops post-game + Python oracle — live):**  
 Align with non-ratio Hall of Fame records (§ Non-ratio hall-of-fame records): **first holder keeps until strictly beaten** — use **`>`**, not **`>=`**. Implemented in `post_game_player_state.php` / `player_state.py` (Jun 2026).
 
 When a new game **equals** the stored personal extreme: do **not** change the margin/goals, `*CulpritID` / `*VictimID`, `*GameID`, or any inverse count (`BiggestLossVictims`, `BiggestWinCulprits`, `MostGoalsConcededVictims`, `MostGoalsScoredCulprits`, etc.).

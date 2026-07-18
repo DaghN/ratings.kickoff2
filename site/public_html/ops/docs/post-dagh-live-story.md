@@ -1,7 +1,7 @@
 # Post-Dagh live database — full story (Steve)
 
 **On server:** `public_html/ops/docs/post-dagh-live-story.md` (Dagh syncs `site/public_html/` via WinSCP; **you** run everything on the host).  
-**Status:** Jun 2026 — batch simul path proven; **next** = bootstrap on a **prod copy**, then live-shaped dispatch.
+**Status:** **Live PHP ops since 2026-07-18** — Steve inserts ground truth and invokes `dispatch.php`; C++ derived post-game retired. This doc remains the bootstrap + daily runbook.
 
 **Short live commands:** [`steve-live-ops.md`](steve-live-ops.md) · **Dispatcher detail:** [`ops-dispatch.md`](ops-dispatch.md)
 

@@ -22,10 +22,10 @@
 |--|--|
 | **Rules (what)** | [`website-data-contract.md`](website-data-contract.md) post-game §§ |
 | **Reference implementation** | PHP `ops/run_process_game.php` + `ops/dispatch.php` — see [`post-game-php-development.md`](post-game-php-development.md) |
-| **Prod today** | Legacy **C++** still runs on **live prod** until Steve cutover — **do not extend C++**; parity target is PHP ops |
-| **Prod cutover** | Steve inserts ground truth → `CMD=ProcessCompletedGame` (+ `FinalizeUtcDay` cron) — [`ladder-ops-platform.md`](ladder-ops-platform.md) §2 |
+| **Prod today** | **PHP ops** live since **2026-07-18** — Steve inserts ground truth → `CMD=ProcessCompletedGame` (+ `FinalizeUtcDay` cron); **C++ derived retired** — **do not extend C++** |
+| **Steve / repo split** | Steve: ground insert + hosting + invoke · Repo: derived contract + writers + website — [`ladder-ops-platform.md`](ladder-ops-platform.md) §2 |
 
-**Agents:** Do **not** cite “prod C++ pending” or “M1–M7” as blocking local/staging or website work. Do **not** recreate `cpp-snippets/`. Historical C++: [`ratings_cpp.txt`](ratings_cpp.txt) (read-only reference).
+**Agents:** Do **not** cite “prod still on C++” or “M1–M7 pending cutover” as blocking local/staging or website work. Do **not** recreate `cpp-snippets/`. Historical C++: [`ratings_cpp.txt`](ratings_cpp.txt) (read-only reference).
 
 ---
 
@@ -36,7 +36,7 @@
 | **Local dev** | `ko2unity_db` | No | Repo + Laragon | Dump import, `schema/apply_local.ps1`, `--target local-dev` |
 | **Local sandbox** | `ko2unity_work` (+ `ko2unity_baseline` pristine) | No | `work.ratingskickoff.test` | Prepare: [`work-db-prepare.md`](work-db-prepare.md); simul: `--target local-work` |
 | **Staging** | `kooldb1` work / `kooldb2` reset (legacy `kooldb` possible) | **No** | WinSCP → `public_html/` | Steve: SQL, replay, ops simul — **not** live play |
-| **Production** | Steve-managed live DB (not in repo) | **Yes** (legacy C++ **today**; **PHP ops** at cutover) | Steve / agreed deploy | Continuous + cutover packets |
+| **Production** | Steve-managed live DB (not in repo) | **Yes** (**PHP ops** since **2026-07-18**; C++ derived retired) | Steve / agreed deploy | Continuous + packets when stored truth changes |
 
 Steve confirmed staging and production are on entirely different physical servers.
 
