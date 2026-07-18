@@ -149,6 +149,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-18 | **Status Leagues URL history** — `status.php?period=&start=` (league.php parity); pushState on tab/step/picker; popstate + boot restore; AJAX cache/prewarm unchanged. |
 | 2026-07-18 | **Status Daily/Weekly games live** — pulse league section carries `day_games` / `week_games_html`; cascade refreshes Games this day/week when that tab is active. |
 | 2026-07-18 | **Status Weekly “Games this week”** — Recent-style day sections (newest first; **no future UTC days**), columns ID·Date·teams·goals·Rating A/B with inline `(±adj)`; thinner set. API `status_period_week_games.php`. |
 | 2026-07-18 | **Status Daily “Games this day”** — column order **ID · time · match** (games-hub style); PHP SSR + JS refresh + CSS grid. |

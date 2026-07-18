@@ -61,7 +61,7 @@ Hub tab order: Status · Activity · Leaderboards · Milestones · **Games** · 
 
 | Route key | Path |
 |-----------|------|
-| `status` | `/status.php` |
+| `status` | `/status.php` — Leagues lens filters: `?period=` + `?start=` (day/week/month/year + key; same as `league.php`) |
 | `activity` | `/activity.php` |
 | `lb-rating` | `/leaderboards/rating.php` (Leaderboards tab default) |
 | `milestones` | `/milestones/recent.php` (hub default) |

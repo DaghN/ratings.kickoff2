@@ -161,12 +161,27 @@ $compPeriods = is_array($competitions['periods'] ?? null) ? $competitions['perio
 $defaultPeriod = (string) ($competitions['default_period'] ?? 'week');
 $activityLimit = (int) ($competitions['activity_limit'] ?? 0);
 $currentKeys = is_array($competitions['current_keys'] ?? null) ? $competitions['current_keys'] : [];
+$ssrLiveKeys = $currentKeys;
 $dayMin = (string) ($competitions['day_min'] ?? date('Y-m-d'));
 $dayMax = (string) ($competitions['day_max'] ?? date('Y-m-d'));
 $firstRatedDay = (string) ($competitions['first_rated_day'] ?? $dayMin);
 $weekChoices = is_array($competitions['week_choices'] ?? null) ? $competitions['week_choices'] : [];
 $monthChoices = is_array($competitions['month_choices'] ?? null) ? $competitions['month_choices'] : [];
 $yearChoices = is_array($competitions['year_choices'] ?? null) ? $competitions['year_choices'] : [];
+
+/* URL lens filters (same names as league.php) — restore Back / deep link without ?tab=. */
+$urlPeriodRaw = isset($_GET['period']) ? trim((string) $_GET['period']) : '';
+$urlStartRaw = isset($_GET['start']) ? trim((string) $_GET['start']) : '';
+if (in_array($urlPeriodRaw, ['day', 'week', 'month', 'year'], true) && $urlStartRaw !== '') {
+    if (!function_exists('k2_period_activity_normalize_key')) {
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/period_activity_leaderboard_query.php';
+    }
+    $urlKeyNorm = k2_period_activity_normalize_key($urlPeriodRaw, $urlStartRaw);
+    if ($urlKeyNorm !== null) {
+        $defaultPeriod = $urlPeriodRaw;
+        $currentKeys[$urlPeriodRaw] = $urlKeyNorm;
+    }
+}
 
 $periodTabLabels = [
     'day' => k2_status_period_segment_label('day'),
@@ -179,35 +194,52 @@ $navBounds = [
     'day' => ['min' => $dayMin, 'max' => $dayMax],
     'week' => [
         'min' => $weekChoices !== [] ? (string) $weekChoices[array_key_last($weekChoices)] : '',
-        'max' => (string) ($currentKeys['week'] ?? ($weekChoices[0] ?? '')),
+        'max' => (string) ($ssrLiveKeys['week'] ?? ($weekChoices[0] ?? '')),
     ],
     'month' => [
         'min' => $monthChoices !== [] ? (string) $monthChoices[array_key_last($monthChoices)] : '',
-        'max' => (string) ($currentKeys['month'] ?? ($monthChoices[0] ?? '')),
+        'max' => (string) ($ssrLiveKeys['month'] ?? ($monthChoices[0] ?? '')),
     ],
     'year' => [
         'min' => $yearChoices !== [] ? (string) $yearChoices[array_key_last($yearChoices)] : '',
-        'max' => (string) ($currentKeys['year'] ?? ($yearChoices[0] ?? '')),
+        'max' => (string) ($ssrLiveKeys['year'] ?? ($yearChoices[0] ?? '')),
     ],
 ];
 
 $initialMeta = '';
+$lensKeyMatchesSsr = ((string) ($currentKeys[$defaultPeriod] ?? '')) === ((string) ($ssrLiveKeys[$defaultPeriod] ?? ''));
 $initialBundle = is_array($compPeriods[$defaultPeriod] ?? null) ? $compPeriods[$defaultPeriod] : [];
-$initialPoints = is_array($initialBundle['points'] ?? null) ? $initialBundle['points'] : null;
-$initialPointsError = $initialBundle['points_error'] ?? null;
-$initialActivity = is_array($initialBundle['activity'] ?? null) ? $initialBundle['activity'] : [];
-$initialActivityEntries = is_array($initialActivity['entries'] ?? null) ? $initialActivity['entries'] : [];
-$initialActivityError = $initialActivity['error'] ?? null;
-$initialPanelAttrs = k2_status_period_competition_points_panel_attrs($initialPoints, $serverNowEpoch);
-$initialShowMedals = k2_status_period_competition_show_medals($initialPoints, $serverNowEpoch);
+$initialPoints = null;
+$initialPointsError = null;
+$initialActivityEntries = [];
+$initialActivityError = null;
+$initialShowMedals = false;
+$initialPanelAttrs = k2_status_period_competition_points_panel_attrs(null, $serverNowEpoch);
+if ($lensKeyMatchesSsr) {
+    $initialPoints = is_array($initialBundle['points'] ?? null) ? $initialBundle['points'] : null;
+    $initialPointsError = $initialBundle['points_error'] ?? null;
+    $initialActivity = is_array($initialBundle['activity'] ?? null) ? $initialBundle['activity'] : [];
+    $initialActivityEntries = is_array($initialActivity['entries'] ?? null) ? $initialActivity['entries'] : [];
+    $initialActivityError = $initialActivity['error'] ?? null;
+    $initialPanelAttrs = k2_status_period_competition_points_panel_attrs($initialPoints, $serverNowEpoch);
+    $initialShowMedals = k2_status_period_competition_show_medals($initialPoints, $serverNowEpoch);
+}
 $dayBundle = is_array($compPeriods['day'] ?? null) ? $compPeriods['day'] : [];
-$initialDayGames = is_array($dayBundle['day_games'] ?? null) ? $dayBundle['day_games'] : [];
-$initialDayGamesError = $dayBundle['day_games_error'] ?? null;
 $initialDayKey = (string) ($currentKeys['day'] ?? '');
+$initialDayGames = [];
+$initialDayGamesError = null;
+if ($initialDayKey !== '' && $initialDayKey === (string) ($ssrLiveKeys['day'] ?? '')) {
+    $initialDayGames = is_array($dayBundle['day_games'] ?? null) ? $dayBundle['day_games'] : [];
+    $initialDayGamesError = $dayBundle['day_games_error'] ?? null;
+}
 $weekBundle = is_array($compPeriods['week'] ?? null) ? $compPeriods['week'] : [];
-$initialWeekGames = is_array($weekBundle['week_games'] ?? null) ? $weekBundle['week_games'] : [];
-$initialWeekGamesError = $weekBundle['week_games_error'] ?? null;
 $initialWeekKey = (string) ($currentKeys['week'] ?? '');
+$initialWeekGames = [];
+$initialWeekGamesError = null;
+if ($initialWeekKey !== '' && $initialWeekKey === (string) ($ssrLiveKeys['week'] ?? '')) {
+    $initialWeekGames = is_array($weekBundle['week_games'] ?? null) ? $weekBundle['week_games'] : [];
+    $initialWeekGamesError = $weekBundle['week_games_error'] ?? null;
+}
 $weekGamesHidden = $defaultPeriod !== 'week';
 $dayGamesHidden = $defaultPeriod !== 'day';
 if ($initialPoints !== null) {
@@ -237,6 +269,7 @@ $podiumMedalHtml = [
 			data-podium-medals="<?php echo k2_status_h(json_encode($podiumMedalHtml, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)); ?>"
 			data-active-period="<?php echo k2_status_h($defaultPeriod); ?>"
 			data-competition-prewarm="1"
+			data-league-ssr-ready="<?php echo $lensKeyMatchesSsr ? '1' : '0'; ?>"
 		>
 			<div class="k2-status-period-competitions__intro">
 				<h2 id="k2-status-leagues-title" class="k2-panel-heading">Leagues</h2>
@@ -313,7 +346,9 @@ $podiumMedalHtml = [
 							<div class="k2-status-period-competitions__col-stack">
 							<?php k2_status_period_competition_league_col_title('activity', $defaultPeriod, $initialLeaguePeriodStart); ?>
 							<div class="k2-status-period-competitions__table-slot" data-competition-activity-body>
-<?php if (!empty($initialActivityError)) { ?>
+<?php if (!$lensKeyMatchesSsr) { ?>
+								<p class="k2-status-panel__empty">Loading…</p>
+<?php } elseif (!empty($initialActivityError)) { ?>
 								<p class="k2-status-panel__empty">Could not load activity for this period.</p>
 <?php } elseif ($initialActivityEntries === []) { ?>
 								<p class="k2-status-panel__empty">No rated games in this period yet.</p>
@@ -336,7 +371,9 @@ $podiumMedalHtml = [
                                 }
 ?>
 							>
-<?php if (!empty($initialPointsError) || $initialPoints === null) { ?>
+<?php if (!$lensKeyMatchesSsr) { ?>
+								<p class="k2-status-panel__empty">Loading…</p>
+<?php } elseif (!empty($initialPointsError) || $initialPoints === null) { ?>
 								<p class="k2-status-panel__empty">Could not load points league for this period.</p>
 <?php } elseif (($initialPoints['rows'] ?? []) === []) { ?>
 								<p class="k2-status-panel__empty">No rated games in this period yet.</p>

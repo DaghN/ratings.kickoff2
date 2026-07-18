@@ -37,7 +37,7 @@ Steve’s status page is **very likely** the same **KOOL Unity MySQL** the game 
 | 3 (widest) | Live games | Recent games |
 | 4 (moderate) | Heritage box (dark inset well, clipped warm tint halo/rays behind box art + caption); **whole inset is a link to `boxart.php#k2-boxart-story`** (box art story) — hover: image lift + moment-card border/glow (2px accent + `--k2-accent-glow`); no visible link text | Leaderboard (full active rated list — 12‑month window) |
 
-Below west: **Leagues** (shipped) spans cols 1–3 — paired **Activity** + **Points**, day/week/month/year tabs. **Daily tab only:** compact **Games this day** list (**ID · time · match**, `game.php` on ID). **Weekly tab only:** **Games this week** — newest-first weekday sections (no future UTC days), Recent-style thinner table with Rating A/B `rating (±adj)`. Spec: [`docs/status-period-competitions.md`](status-period-competitions.md).
+Below west: **Leagues** (shipped) spans cols 1–3 — paired **Activity** + **Points**, day/week/month/year tabs. **URL lens** `?period=` + `?start=` with pushState/popstate (Back restores; same params as `league.php`). **Daily tab only:** compact **Games this day** list (**ID · time · match**, `game.php` on ID). **Weekly tab only:** **Games this week** — newest-first weekday sections (no future UTC days), Recent-style thinner table with Rating A/B `rating (±adj)`. Spec: [`docs/status-period-competitions.md`](status-period-competitions.md).
 
 **Legacy (pre–period competitions):** League stack was **Daily**, **Weekly**, **Monthly**, **Yearly** panels, each with current/previous toggle (`js/status-league-toggle.js`; medals on previous period only). Monday-start weeks.
 

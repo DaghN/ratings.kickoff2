@@ -14,6 +14,9 @@
     var DAY_GAMES_API = 'api/status_period_day_games.php';
     var WEEK_GAMES_API = 'api/status_period_week_games.php';
     var PERIODS = ['day', 'week', 'month', 'year'];
+    /** Status Leagues URL filters — same names as league.php (not hub-mode tabs). */
+    var URL_PERIOD_PARAM = 'period';
+    var URL_START_PARAM = 'start';
 
     /** Set false to restore per-period listbox trigger widths (see session chat for prior px). */
     var UNIFY_COMPETITION_LISTBOX_TRIGGER_WIDTH = true;
@@ -473,6 +476,9 @@
     }
 
     function seedInitialPeriodCache(root) {
+        if (root.getAttribute('data-league-ssr-ready') === '0') {
+            return;
+        }
         var defaultPeriod = root.getAttribute('data-default-period') || 'week';
         var keys = currentKeys(root);
         var key = keys[defaultPeriod];
@@ -1209,7 +1215,7 @@
                     if (!keys) {
                         return;
                     }
-                    applyPeriodKeys(root, 'day', keys);
+                    applyPeriodKeys(root, 'day', keys, 'push');
                 },
                 onOpen: function (selectedDates, dateStr, instance) {
                     if (instance) {
@@ -1304,6 +1310,62 @@
 
     function currentKeys(root) {
         return parseJsonAttr(root, 'data-current-keys', {});
+    }
+
+    function readLeagueLensFromUrl() {
+        try {
+            var params = new URLSearchParams(window.location.search);
+            var period = params.get(URL_PERIOD_PARAM) || '';
+            var key = params.get(URL_START_PARAM) || '';
+            if (PERIODS.indexOf(period) === -1) {
+                return null;
+            }
+            return { period: period, key: key };
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function writeLeagueLensToUrl(period, key, mode) {
+        if (!window.history || !window.URLSearchParams) {
+            return;
+        }
+        if (PERIODS.indexOf(period) === -1 || !key) {
+            return;
+        }
+        try {
+            var url = new URL(window.location.href);
+            url.searchParams.set(URL_PERIOD_PARAM, period);
+            url.searchParams.set(URL_START_PARAM, key);
+            var next = url.pathname + url.search + url.hash;
+            if (mode === 'replace' && window.history.replaceState) {
+                window.history.replaceState({ k2StatusLeague: true }, '', next);
+            } else if (window.history.pushState) {
+                window.history.pushState({ k2StatusLeague: true }, '', next);
+            }
+        } catch (e) {
+            /* ignore */
+        }
+    }
+
+    function syncLeagueKeysAttr(root, keys) {
+        if (!keys) {
+            return;
+        }
+        root.setAttribute('data-current-keys', JSON.stringify(keys));
+    }
+
+    /** @param {'push'|'replace'|'none'} historyMode */
+    function commitLeagueLens(root, period, keys, historyMode) {
+        syncLeagueKeysAttr(root, keys);
+        if (historyMode === 'none') {
+            return;
+        }
+        var key = keys && keys[period];
+        if (!key) {
+            return;
+        }
+        writeLeagueLensToUrl(period, key, historyMode === 'replace' ? 'replace' : 'push');
     }
 
     function isWithinBounds(period, key, bounds) {
@@ -1704,9 +1766,12 @@
         return promise;
     }
 
-    function applyPeriodKeys(root, period, keys) {
+    function applyPeriodKeys(root, period, keys, historyMode) {
         if (!keys || !keys[period]) {
             return;
+        }
+        if (historyMode !== 'push' && historyMode !== 'replace' && historyMode !== 'none') {
+            historyMode = 'push';
         }
         root._syncingPickers = true;
         root._periodKeys = keys;
@@ -1718,6 +1783,7 @@
         updateStepButtons(root, period);
         updateLeagueColumnLinks(root);
         syncCompetitionControlsLayout(root.querySelector('.k2-status-period-competitions__controls'));
+        commitLeagueLens(root, period, keys, historyMode);
 
         cancelPendingWarm(root);
         root._warmQueue = [];
@@ -1800,10 +1866,10 @@
         fetchPeriod(root, period, key, { navSeq: navSeq });
     }
 
-    function navigatePeriod(root, period) {
+    function navigatePeriod(root, period, historyMode) {
         closeArchiveListboxes(root);
         var keys = root._periodKeys;
-        applyPeriodKeys(root, period, keys);
+        applyPeriodKeys(root, period, keys, historyMode);
     }
 
     function stepPeriod(root, period, direction) {
@@ -1816,7 +1882,7 @@
         if (!keys) {
             return;
         }
-        applyPeriodKeys(root, period, keys);
+        applyPeriodKeys(root, period, keys, 'push');
     }
 
     function syncCompetitionControlsLayout(controls) {
@@ -1890,7 +1956,7 @@
         var periodTabs = root.querySelectorAll('[data-competition-period]');
         for (var p = 0; p < periodTabs.length; p++) {
             periodTabs[p].addEventListener('click', function () {
-                navigatePeriod(root, this.getAttribute('data-competition-period'));
+                navigatePeriod(root, this.getAttribute('data-competition-period'), 'push');
             });
         }
 
@@ -1913,7 +1979,7 @@
                 if (!keys) {
                     return;
                 }
-                applyPeriodKeys(root, changedPeriod, keys);
+                applyPeriodKeys(root, changedPeriod, keys, 'push');
                 var listbox = this.closest('[data-k2-archive-listbox]');
                 if (listbox && typeof window.K2ArchiveListbox !== 'undefined') {
                     window.K2ArchiveListbox.close(listbox);
@@ -1922,8 +1988,19 @@
         }
 
         root._k2CompetitionsBootstrapping = true;
-        var defaultPeriod = root.getAttribute('data-default-period') || 'week';
-        navigatePeriod(root, defaultPeriod);
+        var bootPeriod = root.getAttribute('data-default-period') || 'week';
+        var bootKeys = root._periodKeys;
+        var lens = readLeagueLensFromUrl();
+        if (lens) {
+            var lensKey = lens.key || (bootKeys && bootKeys[lens.period]) || '';
+            var resolved = lensKey ? resolvePeriodKeys(root, lens.period, lensKey) : null;
+            if (resolved && resolved[lens.period] && isWithinBounds(lens.period, resolved[lens.period], navBounds(root))) {
+                bootKeys = resolved;
+                root._periodKeys = bootKeys;
+                bootPeriod = lens.period;
+            }
+        }
+        applyPeriodKeys(root, bootPeriod, bootKeys, 'replace');
 
         var dayValueInputs = root.querySelectorAll('.k2-status-day-picker__value');
         for (var d = 0; d < dayValueInputs.length; d++) {
@@ -1932,6 +2009,40 @@
         root._k2CompetitionsBootstrapping = false;
         syncCompetitionPickerSlotWidth(root);
         syncCompetitionControlsLayout(root.querySelector('.k2-status-period-competitions__controls'));
+    }
+
+    function applyLeagueLensFromHistory() {
+        var roots = document.querySelectorAll('[data-k2-status-period-competitions]');
+        for (var i = 0; i < roots.length; i++) {
+            var root = roots[i];
+            if (!root._k2StatusPeriodCompetitionsBound) {
+                continue;
+            }
+            var lens = readLeagueLensFromUrl();
+            var period = lens ? lens.period : (root.getAttribute('data-default-period') || 'week');
+            var key = lens && lens.key
+                ? lens.key
+                : ((root._periodKeys && root._periodKeys[period])
+                    || (currentKeys(root)[period] || ''));
+            if (!key) {
+                continue;
+            }
+            var keys = resolvePeriodKeys(root, period, key);
+            if (!keys || !keys[period] || !isWithinBounds(period, keys[period], navBounds(root))) {
+                continue;
+            }
+            applyPeriodKeys(root, period, keys, 'none');
+        }
+    }
+
+    function bindLeagueHistory() {
+        if (window._k2StatusLeagueHistoryBound) {
+            return;
+        }
+        window._k2StatusLeagueHistoryBound = true;
+        window.addEventListener('popstate', function () {
+            applyLeagueLensFromHistory();
+        });
     }
 
     function refreshMeta() {
@@ -1947,6 +2058,9 @@
         var roots = document.querySelectorAll('[data-k2-status-period-competitions]');
         for (var i = 0; i < roots.length; i++) {
             initRoot(roots[i]);
+        }
+        if (roots.length) {
+            bindLeagueHistory();
         }
         if (roots.length && metaRefreshInterval == null && !document.querySelector('[data-k2-status-room-live]')) {
             metaRefreshInterval = window.setInterval(refreshMeta, 30000);

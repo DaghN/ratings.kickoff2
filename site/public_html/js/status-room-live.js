@@ -64,7 +64,12 @@
 			return { period: 'week', key: '' };
 		}
 		var period = comp.getAttribute('data-active-period') || 'week';
-		var keys = parseJsonAttr(comp, 'data-current-keys', {});
+		var keys = {};
+		if (comp._periodKeys) {
+			keys = comp._periodKeys;
+		} else {
+			keys = parseJsonAttr(comp, 'data-current-keys', {});
+		}
 		return { period: period, key: keys[period] || '' };
 	}
 
