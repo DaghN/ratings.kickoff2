@@ -39,7 +39,7 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 | SRL-5 | **`last_rated_id`** = `MAX(id) FROM ratedresults` — primary cascade trigger. When it changes, refresh cascade sections (below). |
 | SRL-6 | **Between finishes:** no rating-table or league-standings work. Heading count reloads **with** the full rating table on cascade, not on its own. |
 | SRL-7 | **League refresh:** **active period tab only** (Day / Week / Month / Year). No adjacent-tab prewarm in v1 — keep simple. |
-| SRL-8 | **Both** Activity + Points league tables in cascade (same period key as active tab). Reuse existing league query/API helpers where possible. |
+| SRL-8 | **Both** Activity + Points league tables in cascade (same period key as active tab). Reuse existing league query/API helpers where possible. **Daily / Weekly games blocks** refresh with the same league pulse when that tab is active (`day_games` / `week_games_html` on the league section). |
 | SRL-9 | **Live half clock:** client ticks from server `half_countdown` (50 ticks/s) + `sync_epoch`; resync every heartbeat. Display `M:SS`. |
 | SRL-10 | **Glow — minimal set + cascade:** (1) **Online** — name when **`LastLogin` epoch increased** (warm bloom). (2) **Live** — new game **score digits** (0–0, white). (3) **Recent** — names (warm) + score digits (white). (4) **Goals** — scoring digit (white). (5) **Active LB** — **Elo** (warm). (6) **League Activity** — **Games** (warm). (7) **League Points** — **Pts** (warm). **2.6 s**. Scores / `.blue` = white; accent ink = warm. |
 | SRL-11 | **Glow — score change:** **`k2-live-glow-bloom-white`** on the scoring digit (inner `.blue` when leading, else plain cell) — bright white ink, not accent or stat-green bloom |
@@ -77,6 +77,7 @@ When **`last_rated_id`** (or confirming **`games_played`**) changes:
 | Rating table + heading count | **Full tbody reload**; **glow** each **rating gainer** on the finishing game (`AdjustmentA/B > 0`) — **Elo only** when row present |
 | League Activity + Points | Full reload for **active tab** period key; **Activity Games** white bloom for both finishers; **Points Pts** white bloom for winner (both on draw) |
 | League meta | Refresh `total_games`, period label |
+| **Games this day / week** | When active tab is **Daily** or **Weekly** (and pulse key matches the viewed key): refresh that games block — day list JSON → client HTML; week HTML from `k2_status_week_games_html` |
 | Arc ticker | Refresh game count — **no glow** |
 
 **No cascade-only glow pass** — finished-game panels do not get an extra choreographed glow sequence (SRL-12 retired).
@@ -306,6 +307,7 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 
 | Date | Change |
 |------|--------|
+| 2026-07-18 | **League pulse → Daily/Weekly games** — cascade / `league_fp` reload includes `day_games` or `week_games_html` when that tab is active; client `applyLeaguePulse` refreshes the games block. |
 | 2026-07-06 | **Production readiness** — deploy-safe vs behaviour-proven table; Steve `HalfCountdown` cadence prerequisite |
 | 2026-07-06 | **SRL-9 wired** — `live_clocks` on every pulse; client resyncs half anchor when `changed: false` |
 | 2026-07-06 | **League cascade glow** — Activity Games (both finishers); Points Pts (winner or both on draw) |

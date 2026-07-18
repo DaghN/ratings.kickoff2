@@ -619,6 +619,15 @@ function k2_status_pulse_build_sections(
                 'rows' => $points['rows'] ?? [],
             ] : null,
         ];
+        if ($leaguePeriod === 'day') {
+            $dayErr = null;
+            $sections['league']['day_games'] = k2_status_rated_games_for_calendar_day($con, $leagueKey, $dayErr) ?? [];
+        } elseif ($leaguePeriod === 'week') {
+            require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_week_games_render.php';
+            $weekErr = null;
+            $weekDays = k2_status_rated_games_for_calendar_week($con, $leagueKey, $weekErr) ?? [];
+            $sections['league']['week_games_html'] = k2_status_week_games_html($weekDays);
+        }
     }
 
     return $sections;

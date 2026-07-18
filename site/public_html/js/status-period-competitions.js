@@ -2007,6 +2007,14 @@
             var showMedals = !!leagueData.points.show_medals;
             var entries = leagueData.activity ? leagueData.activity.entries : [];
             var snap = renderPeriodSnapshot(root, entries, leagueData.points, showMedals);
+            if (period === 'day' && Array.isArray(leagueData.day_games)) {
+                snap.dayGames = renderDayGamesHtml(leagueData.day_games);
+                setDayGamesCache(root, key, snap.dayGames);
+            }
+            if (period === 'week' && leagueData.week_games_html !== undefined && leagueData.week_games_html !== null) {
+                snap.weekGames = leagueData.week_games_html;
+                setWeekGamesCache(root, key, snap.weekGames);
+            }
             setPeriodCache(root, period, key, snap);
             if (isViewingPeriodKey(root, period, key)) {
                 applyPeriodCacheToSlots(root, snap);

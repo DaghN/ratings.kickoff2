@@ -34,8 +34,8 @@ UI heading: **Leagues** (paired Activity + Points tables on `status.php`).
 | Lock-step floor | `data-first-rated-day` (MIN `ratedresults`); day/week/month clamp up to first rated day |
 | Data | Points: `player_period_league`; Activity: `player_period_games` |
 | Rows | All players with ≥1 game in period (no top-N cap) |
-| **Daily tab** | **Games this day** list below league tables; columns **ID · time · match** (games-hub style); `k2_status_rated_games_for_calendar_day` + `api/status_period_day_games.php`; narrow `ratedresults` day query |
-| **Weekly tab** | **Games this week** below league tables; day sections newest-first (weekday labels); **omit future UTC days** in the current week; Recent-style table minus GD/Sum/TS/Elo Diff/Fav ES/Adjustment; Rating A/B show `rating (±adj)` with adjustment ink; `k2_status_rated_games_for_calendar_week` + `api/status_period_week_games.php` |
+| **Daily tab** | **Games this day** list below league tables; columns **ID · time · match** (games-hub style); `k2_status_rated_games_for_calendar_day` + `api/status_period_day_games.php`; **live pulse** refreshes with league cascade when Daily is active |
+| **Weekly tab** | **Games this week** below league tables; day sections newest-first (weekday labels); **omit future UTC days** in the current week; Recent-style table minus GD/Sum/TS/Elo Diff/Fav ES/Adjustment; Rating A/B show `rating (±adj)` with adjustment ink; `k2_status_rated_games_for_calendar_week` + `api/status_period_week_games.php`; **live pulse** refreshes with league cascade when Weekly is active |
 
 ---
 
@@ -85,6 +85,7 @@ Mobile: single column, **Activity first**, then Points.
 
 | Date | Note |
 |------|------|
+| 2026-07-18 | **Games this week / day live** — league pulse cascade refreshes Daily list + Weekly tables when that tab is active. |
 | 2026-07-18 | **Games this week** — Weekly tab Recent-style tables (newest-first weekdays; skip future UTC days); Rating A/B inline `(±adj)`; thinner column set. |
 | 2026-07-18 | **Games this day column order** — ID first, then time, then match (parity with Games hub lists). |
 | 2026-07-06 | **Live room spec** — heartbeat will own league meta refresh + cascade; 30 s meta interval to retire when shipped — [`status-room-live-policy.md`](status-room-live-policy.md). |

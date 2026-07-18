@@ -149,6 +149,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-18 | **Status Daily/Weekly games live** — pulse league section carries `day_games` / `week_games_html`; cascade refreshes Games this day/week when that tab is active. |
 | 2026-07-18 | **Status Weekly “Games this week”** — Recent-style day sections (newest first; **no future UTC days**), columns ID·Date·teams·goals·Rating A/B with inline `(±adj)`; thinner set. API `status_period_week_games.php`. |
 | 2026-07-18 | **Status Daily “Games this day”** — column order **ID · time · match** (games-hub style); PHP SSR + JS refresh + CSS grid. |
 | 2026-07-18 | **Ops work-target loader** — `k2_ops_load_work_target` accepts ini-only profiles (Steve `[live-game]`); `database=` map scans ini; removed PHP `live-game` stub. Fix for live ratings not updating after games. Sync `ops_work_target.php` (+ dispatch Help) to staged. |
