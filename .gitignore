@@ -31,6 +31,8 @@ data/amiga/checkpoints/**
 !data/amiga/checkpoints/README.md
 !data/amiga/checkpoints/work-2026-07-11-tail/
 !data/amiga/checkpoints/work-2026-07-11-tail/**
+!data/amiga/checkpoints/work-2026-07-18-forum/
+!data/amiga/checkpoints/work-2026-07-18-forum/**
 data/amiga/modern/simul-last.json
 data/amiga/modern/staging-sync-last.json
 data/amiga/pulls/*.sql
@@ -51,6 +53,7 @@ data/amiga/oracle/
 !schema/**/*.sql
 !data/amiga/day0/**/*.sql
 !data/amiga/checkpoints/work-2026-07-11-tail/**/*.sql
+!data/amiga/checkpoints/work-2026-07-18-forum/**/*.sql
 
 # Laragon Apache shim build artifacts
 laragon/*.exe

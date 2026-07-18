@@ -1,0 +1,42 @@
+{
+    "checkpoint_id":  "work-2026-07-18-forum",
+    "tier":  "full",
+    "sealed_utc":  "2026-07-18T04:34:19Z",
+    "label":  "forum",
+    "notes_text":  "Pre-forum continuity seal of local ko2amiga_work (Jul 2026 week of structure/scoring/ops work).",
+    "source_database":  "ko2amiga_work",
+    "git_commit_at_seal":  "598c07db",
+    "export":  {
+                   "parts_bytes":  75164779,
+                   "parts_bytes_mb":  71.68,
+                   "generated":  "2026-07-18 06:34:14",
+                   "parts_count":  41
+               },
+    "counts":  {
+                   "amiga_players":  469,
+                   "tournament_stages":  1127,
+                   "tournaments":  607,
+                   "amiga_tournament_finish_override":  1264,
+                   "amiga_games":  27474,
+                   "amiga_player_event_snapshots":  4547,
+                   "tournament_fixtures":  19025
+               },
+    "simul_last":  {
+                       "git_head":  "bd4733b9a24fbc37a294191beb7ad062f85f067b",
+                       "duration_sec":  1485.12,
+                       "note":  "Structure edits after this simul may be included in SQL; re-simul if restoring without L5 parts.",
+                       "finished_utc":  "2026-07-15T16:10:56.778277Z"
+                   },
+    "companion_files":  [
+                            "tournament_videos.json",
+                            "tournament_videos_review.csv",
+                            "disposition_register.json",
+                            "match_extensions_verified_register.json",
+                            "video_game_links.csv"
+                        ],
+    "restore":  {
+                    "after_import":  "Point ko2amiga_config.local.php at ko2amiga_work; run python -m scripts.amiga simul if L5 derived looks stale.",
+                    "target_database":  "ko2amiga_work",
+                    "import_parts_in_order":  "ko2amiga_manifest.json parts[]"
+                }
+}

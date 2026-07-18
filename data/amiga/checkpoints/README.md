@@ -20,7 +20,7 @@ data/amiga/checkpoints/work-YYYY-MM-DD-<label>/
 powershell -ExecutionPolicy Bypass -File scripts\seal_amiga_work_checkpoint.ps1 -Label tail
 ```
 
-Then add a **gitignore allowlist** for that folder (copy the `work-2026-07-11-tail` block in repo `.gitignore`).
+Then add a **gitignore allowlist** for that folder (copy the `work-2026-07-18-forum` block in repo `.gitignore`).
 
 ## Restore (local)
 
