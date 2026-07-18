@@ -14,15 +14,18 @@ $mailto = htmlspecialchars('mailto:' . rawurlencode($email), ENT_QUOTES, 'UTF-8'
 <section class="k2-about-page" aria-labelledby="k2-about-title">
 	<header class="k2-about-page__hero">
 		<h1 id="k2-about-title" class="k2-about-page__title">About</h1>
-		<p class="k2-about-page__prose">
-			Kick Off 2 ratings is a community statistics site for online ladder play and Amiga tournaments, built and maintained by fans who play the game.
-		</p>
 	</header>
 
-	<article class="k2-card k2-about-page__card">
-		<h2 class="k2-panel-heading">Who maintains this</h2>
+	<article class="k2-card k2-about-page__card" id="what-this-is">
+		<h2 class="k2-panel-heading">What this is</h2>
 		<p class="k2-about-page__prose">
-			<?php echo htmlspecialchars($links['copyright_name'], ENT_QUOTES, 'UTF-8'); ?> builds and maintains this site. It is a fan project, not an official product of any game publisher.
+			Kick Off 2 ratings is a community content site for people who play and follow Kick Off 2, rooted in statistics, results, and tournament history, and growing into news, lore, and media.
+		</p>
+		<p class="k2-about-page__prose">
+			It covers two related worlds under one shell: the live online ladder, and the Amiga 500 tournament tradition. It is not the homepage for everything KO2; forums, Discord, the play client, and the rest of the scene are older siblings. This site aims to fit next to them. Dense where stats matter, warmer where the story does, and honest about it all.
+		</p>
+		<p class="k2-about-page__prose">
+			<?php echo htmlspecialchars($links['copyright_name'], ENT_QUOTES, 'UTF-8'); ?> builds and maintains the website. It is not an official product of any game publisher.
 		</p>
 	</article>
 
@@ -34,8 +37,8 @@ $mailto = htmlspecialchars('mailto:' . rawurlencode($email), ENT_QUOTES, 'UTF-8'
 
 		<p class="k2-about-page__prose">
 			<strong class="k2-about-page__person">Robert Swift</strong>
-			(and <strong class="k2-about-page__person">Glenn Loite</strong>)
-			who, in the dawn of time, took charge of organizing tournament records into a spreadsheet archive and rating system, and who were always ready to take the reins again when exhaustion set in and the work was about to be left by the wayside. Of course, this is not to overlook that Robert was absolutely crucial in kickstarting the English Kick Off 2 scene and helping keep it going strong throughout the years.
+			and <strong class="k2-about-page__person">Glenn Loite</strong>
+			who, in the dawn of time, took charge of organizing tournament records into a spreadsheet archive and rating system, and who were always ready to take the reins again when exhaustion set in and the work was about to be left by the wayside. Of course, this is not to overlook that Robert was also absolutely crucial in kickstarting the English Kick Off 2 scene and helping keep it going strong throughout the years.
 		</p>
 
 		<p class="k2-about-page__prose">
@@ -55,7 +58,7 @@ $mailto = htmlspecialchars('mailto:' . rawurlencode($email), ENT_QUOTES, 'UTF-8'
 		</p>
 
 		<p class="k2-about-page__prose">
-			<strong class="k2-about-page__person">Mark W</strong>
+			<strong class="k2-about-page__person">Mark Williams</strong>
 			(also known as <strong class="k2-about-page__person">Durban</strong>)
 			who has maintained the social backbone of the KOA, our infamous
 			<a href="https://ko-gathering.com/forum/index.php" rel="noopener noreferrer">KOA forum</a>,

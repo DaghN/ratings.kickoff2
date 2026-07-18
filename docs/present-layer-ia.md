@@ -265,10 +265,9 @@ Optional later: **Privacy** if analytics or non-essential cookies ship.
 
 **`/about.php`** — cross-realm leaf (Tier 3):
 
-- What Kick Off 2 ratings is (online ladder + Amiga archive).
-- How the site came to be (Dagh's voice).
-- **Acknowledgements** — Robert Swift (+ Glenn Loite), Alkis Polyrakis, Spyros Paraschis, Mark W (Durban), Steve Camber; community-first framing.
-- **Data honesty** — fan/community project; Kick Off 2 trademark note if desired.
+- **What this is** — one card: dual-realm content site (stats spine + news/lore/media), older-sibling scene framing, maintainer + unofficial disclaimer (brief-led; Jul 2026).
+- **Acknowledgements** — Robert Swift and Glenn Loite, Alkis Polyrakis, Spyros Paraschis, Mark Williams (Durban), Steve Camber; community-first framing (Dagh's voice).
+- **Data honesty** — optional deeper card later; disclaimer lives in What this is for now.
 - **Contact** — email for site/data issues; Discord/community → Play & Setup (PL15).
 - Link to Misc **Site** / **Scene** pieces for depth (universe map, etc.).
 
@@ -377,7 +376,8 @@ Phases **A + C** are the smallest **metadata-complete** slice; **B** makes Misc 
 | Date | Change |
 |------|--------|
 | 2026-07-18 | **Pulse Upcoming tournament** — pane after art; Oslo WC blurb + **World Cup →** → `#2026-07-oslo-wc`. |
-| 2026-07-18 | **About acknowledgements** — `/about.php` `#acknowledgements`: community-first + Robert/Glenn, Alkis, Spyros, Mark (Durban), Steve. |
+| 2026-07-18 | **About What this is** — folded hero + maintainer into one brief-led card; acknowledgements unchanged. |
+| 2026-07-18 | **About acknowledgements** — Mark Williams (Durban); Robert & Glenn equal billing; Alkis, Spyros, Steve. |
 | 2026-07-18 | **Pulse Leaderboards pane** — empty invite above HoF (`Leaderboards →` rating wing); living ladder vs record book. |
 | 2026-07-18 | **News reading measure** — roll/pulse column gap 24px; `.k2-news-post__prose` 15.5px / 1.66 + `max-width: 40rem` (figures stay full card width); head shares measure. |
 | 2026-07-18 | **News third post** — Sensible Days 2026 (SWOS World Cup, Cambridge); Wyld Retro bracket figure; stream + signup links; Blazej shout-out. |

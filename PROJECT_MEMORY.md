@@ -149,6 +149,8 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-18 | **About acknowledgements** — Robert & Glenn equal billing (+ Robert “also” on English scene). |
+| 2026-07-18 | **About What this is** — folded hero + maintainer into one brief-led card on `/about.php`; acknowledgements unchanged. |
 | 2026-07-18 | **About acknowledgements** — community-first + five named pillars (Robert/Glenn, Alkis, Spyros, Mark/Durban, Steve); `/about.php` `#acknowledgements`. |
 | 2026-07-18 | **Status pane → links** — `k2-status-panel__more` + arc-link 11→12px. |
 | 2026-07-18 | **Amiga News pulse Online copy** — “KOOL online room” (parallel Amiga-world LB line). |
