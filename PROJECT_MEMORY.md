@@ -149,6 +149,9 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-18 | **Neon wordmark trial** — amber Grok PNG at `images/wordmark/kick-off-2-amber.png`; `$k2NeonWordmarkTrial` in `site_header.php` (amber tint only; other tints keep Exo text). Set `false` to revert. |
+| 2026-07-18 | **Share cards** — OG/Twitter meta via `k2_social_meta.php` in `k2_head`; brand card `images/og/ratings-default.png` (1200×630); Status / Join / Amiga News / About overrides. |
+| 2026-07-18 | **Live hub Watch / Run split** — public Live tournaments: Watch table + invited **Run a tournament** → organizer CTA (no “Operators / password required” footnote). |
 | 2026-07-18 | **Remove root stub** `run_staging_ladder_replay.sh` — retired Jun 2026; archive copy remains under `docs/archive/`. Cleaner GitHub root. |
 | 2026-07-18 | **Public repo hygiene** — MIT `LICENSE`; GitHub description + homepage → ratings.kickoff2.com; drop git seal `work-2026-07-11-tail` (keep `work-2026-07-18-forum`); Amiga ops password out of git → **`amiga/_ops/amiga_ops_password.local.php`** (WinSCP-deployable; staging `/config` root-owned). Rotated; docs use `YOUR_OPS_PASSWORD`. Staging uploaded Jul 18. |
 | 2026-07-18 | **DB-in-git policy corrected** — sealed continuity backups **belong in git** (Amiga checkpoints/day0; online wanted). Sweep: brief, README Continuity, `data/*`, PROJECT_MAP, LOCAL_DEV, ladder-ops, database-copies, AGENTS trap, two archive prompts + ladder-engine-plan. Secrets still out; working dumps may stay gitignored until sealed. |

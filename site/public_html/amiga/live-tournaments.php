@@ -29,19 +29,31 @@ $con->query("SET time_zone = '+00:00'");
 
 $liveRows = amiga_live_tournament_index_rows($con);
 mysqli_close($con);
+
+$amigaOrganizerUrl = '/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot';
 ?>
 
 <?php
 $k2HubChapterTitle = 'Live tournaments';
+$k2HubChapterLede = 'Watch kitchen leagues and community events while they are in progress — tables and fixtures update as results come in.';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_hub_chapter.inc.php';
 ?>
 
-<?php amiga_live_tournament_index_render_table($liveRows); ?>
+<section class="k2-amiga-live-hub__watch" aria-labelledby="k2-amiga-live-watch-heading">
+  <h2 id="k2-amiga-live-watch-heading" class="k2-panel-heading">Watch</h2>
+  <?php amiga_live_tournament_index_render_table($liveRows); ?>
+</section>
 
-<p class="k2-amiga-live-view__ops-note k2-amiga-tournament-footnote" style="padding-bottom:1rem">
-  Operators: fixture management and result entry use the internal
-  <a href="/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot">fixture manager</a> (password required).
-</p>
+<section class="k2-amiga-live-hub__run k2-status-panel k2-status-panel--tight" aria-labelledby="k2-amiga-live-run-heading">
+  <h2 id="k2-amiga-live-run-heading" class="k2-panel-heading">Run a tournament</h2>
+  <p class="k2-amiga-live-hub__run-prose">
+    Create a league, enter scores, and make it official when the night is done.
+    This tooling is young — try it, break it gently, and tell us what you need.
+  </p>
+  <p class="k2-amiga-live-hub__run-cta">
+    <a class="k2-link-star" href="<?php echo htmlspecialchars($amigaOrganizerUrl, ENT_QUOTES, 'UTF-8'); ?>">Open the tournament organizer &rarr;</a>
+  </p>
+</section>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_site_end.inc.php'; ?>
 </body>

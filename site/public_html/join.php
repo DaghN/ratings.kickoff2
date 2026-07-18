@@ -9,7 +9,11 @@ header('Expires: 0');
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Kick Off 2 — Play &amp; Setup</title>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<?php
+$k2OgTitle = 'Kick Off 2 ratings — Play & Setup';
+$k2MetaDescription = 'Join online Kick Off 2 — Discord, download, and setup.';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php';
+?>
 
 </head>
 

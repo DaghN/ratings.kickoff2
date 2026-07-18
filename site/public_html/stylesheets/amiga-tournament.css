@@ -471,6 +471,29 @@ body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option-
 }
 
 /* Public read-only live tournament view */
+.k2-amiga-live-hub__watch {
+	margin: 0 0 1.25rem;
+}
+
+.k2-amiga-live-hub__watch .k2-panel-heading {
+	margin: 0 0 0.75rem;
+}
+
+.k2-amiga-live-hub__run {
+	margin: 0 0 1.5rem;
+	padding-bottom: 1rem;
+}
+
+.k2-amiga-live-hub__run-prose {
+	margin: 0 0 0.75rem;
+	color: var(--k2-text-secondary);
+	line-height: 1.45;
+}
+
+.k2-amiga-live-hub__run-cta {
+	margin: 0;
+}
+
 .k2-amiga-live-view {
 	margin: 0 0 1.25rem;
 }

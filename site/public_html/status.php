@@ -9,7 +9,11 @@ header('Expires: 0');
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Kick Off 2 — Status</title>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<?php
+$k2OgTitle = 'Kick Off 2 ratings — Status';
+$k2MetaDescription = "Who's online and what's live on the Kick Off 2 ladder.";
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php';
+?>
 <link href="stylesheets/flatpickr.min.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/flatpickr.min.css'); ?>" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="js/flatpickr.min.js?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/js/flatpickr.min.js'); ?>" defer="defer"></script>
 <?php

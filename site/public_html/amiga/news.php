@@ -9,7 +9,11 @@ amiga_snapshot_redirect_present_only_page();
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Amiga 500 — News</title>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<?php
+$k2OgTitle = 'Kick Off 2 ratings — Amiga News';
+$k2MetaDescription = 'News from the Amiga 500 tournament realm.';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php';
+?>
 </head>
 <body class="k2-site">
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>

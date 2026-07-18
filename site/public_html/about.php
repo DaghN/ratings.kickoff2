@@ -8,7 +8,11 @@ header('Expires: 0');
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Kick Off 2 — About</title>
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
+<?php
+$k2OgTitle = 'About Kick Off 2 ratings';
+$k2MetaDescription = 'Community Kick Off 2 ladder and Amiga 500 statistics — by fans.';
+include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php';
+?>
 </head>
 <body class="k2-site">
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/includes/site_header.php'; ?>

@@ -331,7 +331,7 @@ body.k2-site .k2-hub-chapter__list li::marker {
 	gap: 16px;
 	max-width: 1200px;
 	margin: 0 auto;
-	padding: 18px 0 14px;
+	padding: 10px 0 8px;
 	border-bottom: 1px solid var(--k2-border-subtle);
 	/* Own stacking context above hub bar (1210) + jukebox (1200) so the header search
 	   dropdown is never painted behind page chrome below it. */
@@ -346,6 +346,34 @@ body.k2-site .k2-hub-chapter__list li::marker {
 	font-weight: 600;
 	line-height: 1.1;
 	letter-spacing: 0.03em;
+}
+
+.k2-wordmark__img {
+	display: none;
+	height: 49px;
+	width: auto;
+	vertical-align: middle;
+}
+
+/* Neon image trial — amber asset only; other tints keep Exo text wordmark */
+.k2-wordmark--neon-trial .k2-wordmark__link {
+	display: inline-flex;
+	align-items: center;
+}
+
+html[data-k2-accent="amber"] .k2-wordmark--neon-trial .k2-wordmark__main,
+html:not([data-k2-accent]) .k2-wordmark--neon-trial .k2-wordmark__main {
+	display: none;
+}
+
+html[data-k2-accent="amber"] .k2-wordmark--neon-trial .k2-wordmark__img,
+html:not([data-k2-accent]) .k2-wordmark--neon-trial .k2-wordmark__img {
+	display: block;
+}
+
+body.k2-site a.k2-wordmark__link:hover .k2-wordmark__img,
+body.k2-site a.k2-wordmark__link:focus-visible .k2-wordmark__img {
+	filter: brightness(1.06);
 }
 
 .k2-wordmark__link {
@@ -5254,8 +5282,9 @@ body.k2-site a.k2-status-heritage-inset--link:focus-visible .k2-heritage-box__ar
 	line-height: 1.45;
 }
 
-.k2-status-room__panel-online .k2-status-panel__empty {
-	font-size: 12px;
+.k2-status-room__panel-online .k2-status-panel__empty,
+.k2-status-room__panel-live .k2-status-panel__empty {
+	font-size: inherit;
 }
 
 /* west: new | logins | games, then league â€” subgrid aligns with parent cols 1â€“3 */
