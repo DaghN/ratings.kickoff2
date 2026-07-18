@@ -1,5 +1,7 @@
 # Kick Off 2 ratings
 
+**Live site:** [ratings.kickoff2.com](https://ratings.kickoff2.com)
+
 PHP + MariaDB site for **Kick Off 2** — the live **online** (KOOL) ratings ladder, plus a full **Amiga 500** offline tournament realm. At the core: game results, Elo, and derived career truth. Around that: a richer content surface that has grown with the project (Status and join online; News, tournament video, time travel, and Live / organizer tooling on Amiga; lore and chrome shared across realms).
 
 This repository is where that system is built and maintained: the **website**, and the **database / ops backbone** behind it (schema, post-game writers, rebuild and proof tooling, Amiga scripts, and the contracts that say what stored data means). **Steve** runs live hosting and production databases; site and ladder development happen in this repo and are synced to production when ready.
