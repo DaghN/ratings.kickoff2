@@ -331,7 +331,7 @@ body.k2-site .k2-hub-chapter__list li::marker {
 	gap: 16px;
 	max-width: 1200px;
 	margin: 0 auto;
-	padding: 10px 0 8px;
+	padding: 18px 0 14px;
 	border-bottom: 1px solid var(--k2-border-subtle);
 	/* Own stacking context above hub bar (1210) + jukebox (1200) so the header search
 	   dropdown is never painted behind page chrome below it. */
@@ -348,38 +348,11 @@ body.k2-site .k2-hub-chapter__list li::marker {
 	letter-spacing: 0.03em;
 }
 
-.k2-wordmark__img {
-	display: none;
-	height: 49px;
-	width: auto;
-	vertical-align: middle;
-}
-
-/* Neon image trial — amber asset only; other tints keep Exo text wordmark */
-.k2-wordmark--neon-trial .k2-wordmark__link {
-	display: inline-flex;
-	align-items: center;
-}
-
-html[data-k2-accent="amber"] .k2-wordmark--neon-trial .k2-wordmark__main,
-html:not([data-k2-accent]) .k2-wordmark--neon-trial .k2-wordmark__main {
-	display: none;
-}
-
-html[data-k2-accent="amber"] .k2-wordmark--neon-trial .k2-wordmark__img,
-html:not([data-k2-accent]) .k2-wordmark--neon-trial .k2-wordmark__img {
-	display: block;
-}
-
-body.k2-site a.k2-wordmark__link:hover .k2-wordmark__img,
-body.k2-site a.k2-wordmark__link:focus-visible .k2-wordmark__img {
-	filter: brightness(1.06);
-}
-
 .k2-wordmark__link {
 	color: inherit;
 	text-decoration: none;
 	font-weight: inherit;
+	cursor: pointer;
 }
 
 body.k2-site a.k2-wordmark__link,
@@ -399,24 +372,6 @@ body.k2-site a.k2-wordmark__link:focus-visible {
 		0 0 68px color-mix(in srgb, var(--k2-accent) 44%, transparent),
 		0 0 82px color-mix(in srgb, var(--k2-accent-glow) 58%, transparent);
 	filter: var(--k2-accent-bloom-filter);
-}
-
-/* Hover â€” same core + extra bloom (filter must repeat base drop-shadows) */
-body.k2-site a.k2-wordmark__link:hover .k2-wordmark__main,
-body.k2-site a.k2-wordmark__link:focus-visible .k2-wordmark__main {
-	color: var(--k2-accent);
-	text-shadow:
-		0 0 10px color-mix(in srgb, var(--k2-accent) 92%, transparent),
-		0 0 28px color-mix(in srgb, var(--k2-accent-glow) 88%, transparent),
-		0 0 50px color-mix(in srgb, var(--k2-accent-glow) 74%, transparent),
-		0 0 72px color-mix(in srgb, var(--k2-accent) 48%, transparent),
-		0 0 88px color-mix(in srgb, var(--k2-accent-glow) 64%, transparent),
-		0 0 96px color-mix(in srgb, var(--k2-accent-glow) 48%, transparent),
-		0 0 88px color-mix(in srgb, var(--k2-accent) 32%, transparent);
-	filter:
-		var(--k2-accent-bloom-filter)
-		drop-shadow(0 0 68px color-mix(in srgb, var(--k2-accent-glow) 46%, transparent))
-		drop-shadow(0 0 82px color-mix(in srgb, var(--k2-accent) 28%, transparent));
 }
 
 .k2-site-header__links {

@@ -203,7 +203,7 @@ Never use pixel/bitmap fonts for readable data.
 
 Current shared chrome:
 
-- `includes/site_header.php` for wordmark + **realm switcher** (`includes/realm_switcher.php`: Online � Amiga 500, beside wordmark) + cross-realm player search (`realm=all`, per-hit Online/Amiga label). Realm switch uses segment-outline active cell (site tint, not per-realm colours). **Default wordmark** = Exo 2 street-sign neon (`text-shadow` on `.k2-wordmark__main`). **Trial (Jul 2026):** `$k2NeonWordmarkTrial` in `site_header.php` swaps in Grok neon PNG for **amber** only (`images/wordmark/kick-off-2-amber.png`); other tints keep text. Set flag `false` to restore text-only.
+- `includes/site_header.php` for wordmark + **realm switcher** (`includes/realm_switcher.php`: Online � Amiga 500, beside wordmark) + cross-realm player search (`realm=all`, per-hit Online/Amiga label). Realm switch uses segment-outline active cell (site tint, not per-realm colours). Wordmark **always** street-sign neon (`text-shadow` layers on `.k2-wordmark__main`, px-capped and pleasant rather than foggy � avoid huge `calc()` blurs); **no hover bloom change** (pointer cursor only).
 - `includes/hub_nav.php` for Status / Activity / Leaderboards / Milestones / **Games** / Hall of Fame / Play & Setup (`games/recent.php` hub default; Recent · Highlights · All games sub-nav).
 - `includes/lb_nav.php` for leaderboard wing tabs.
 - `includes/player_nav.php` for player context tabs.

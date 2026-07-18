@@ -149,6 +149,8 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-18 | **Wordmark hover bloom removed** — Exo neon stays at rest look; link still uses pointer cursor. |
+| 2026-07-18 | **Neon wordmark trial reverted** — back to Exo 2 text wordmark; header padding 18/14 and hub-bar top margin 16px restored. PNG experiments left under `images/wordmark/` unused. |
 | 2026-07-18 | **Neon wordmark trial** — amber Grok PNG at `images/wordmark/kick-off-2-amber.png`; `$k2NeonWordmarkTrial` in `site_header.php` (amber tint only; other tints keep Exo text). Set `false` to revert. |
 | 2026-07-18 | **Share cards** — OG/Twitter meta via `k2_social_meta.php` in `k2_head`; brand card `images/og/ratings-default.png` (1200×630); Status / Join / Amiga News / About overrides. |
 | 2026-07-18 | **Live hub Watch / Run split** — public Live tournaments: Watch table + invited **Run a tournament** → organizer CTA (no “Operators / password required” footnote). |
