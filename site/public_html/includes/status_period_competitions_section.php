@@ -14,6 +14,7 @@ if (!function_exists('k2_format_period_activity_label')) {
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_table_render.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_period_page.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_week_games_render.php';
 
 if (!function_exists('k2_status_period_competition_league_col_title')) {
     function k2_status_period_competition_league_col_title(string $cup, string $period, string $periodStart): void
@@ -100,13 +101,13 @@ if (!function_exists('k2_status_render_day_games_list')) {
 							<ul class="k2-status-recency-list k2-status-day-games-list">
 <?php foreach ($games as $g) { ?>
 								<li>
+									<a class="k2-link-star k2-status-day-games-list__game" href="<?php echo htmlspecialchars(k2_game_page_url((int) $g['id']), ENT_QUOTES, 'UTF-8'); ?>"><?php echo (int) $g['id']; ?></a>
 									<?php echo k2_status_day_clock_html($g['at']); ?>
 									<span class="k2-status-match">
 										<span class="k2-status-match__side"><?php echo k2_status_player_link($g['id_a'], $g['name_a']); ?></span>
 										<span class="k2-status-score"><?php echo k2_status_score_html((int) $g['goals_a'], (int) $g['goals_b']); ?></span>
 										<span class="k2-status-match__side"><?php echo k2_status_player_link($g['id_b'], $g['name_b']); ?></span>
 									</span>
-									<a class="k2-link-star k2-status-day-games-list__game" href="<?php echo htmlspecialchars(k2_game_page_url((int) $g['id']), ENT_QUOTES, 'UTF-8'); ?>"><?php echo (int) $g['id']; ?></a>
 								</li>
 <?php } ?>
 							</ul>
@@ -203,6 +204,12 @@ $dayBundle = is_array($compPeriods['day'] ?? null) ? $compPeriods['day'] : [];
 $initialDayGames = is_array($dayBundle['day_games'] ?? null) ? $dayBundle['day_games'] : [];
 $initialDayGamesError = $dayBundle['day_games_error'] ?? null;
 $initialDayKey = (string) ($currentKeys['day'] ?? '');
+$weekBundle = is_array($compPeriods['week'] ?? null) ? $compPeriods['week'] : [];
+$initialWeekGames = is_array($weekBundle['week_games'] ?? null) ? $weekBundle['week_games'] : [];
+$initialWeekGamesError = $weekBundle['week_games_error'] ?? null;
+$initialWeekKey = (string) ($currentKeys['week'] ?? '');
+$weekGamesHidden = $defaultPeriod !== 'week';
+$dayGamesHidden = $defaultPeriod !== 'day';
 if ($initialPoints !== null) {
     $initialMeta = k2_status_league_meta_html_for_clock(
         $initialPoints,
@@ -344,7 +351,9 @@ $podiumMedalHtml = [
 						class="k2-status-period-competitions__day-games"
 						data-competition-day-games
 						data-day-games-key="<?php echo k2_status_h($initialDayKey); ?>"
+<?php if ($dayGamesHidden) { ?>
 						hidden="hidden"
+<?php } ?>
 					>
 						<h3 class="k2-panel-heading k2-status-period-competitions__day-games-title">Games this day</h3>
 						<div data-competition-day-games-body>
@@ -352,6 +361,23 @@ $podiumMedalHtml = [
 							<p class="k2-status-panel__empty">Could not load games for this day.</p>
 <?php } else {
     k2_status_render_day_games_list($initialDayGames);
+} ?>
+						</div>
+					</div>
+					<div
+						class="k2-status-period-competitions__week-games"
+						data-competition-week-games
+						data-week-games-key="<?php echo k2_status_h($initialWeekKey); ?>"
+<?php if ($weekGamesHidden) { ?>
+						hidden="hidden"
+<?php } ?>
+					>
+						<h3 class="k2-panel-heading k2-status-period-competitions__week-games-title">Games this week</h3>
+						<div data-competition-week-games-body>
+<?php if (!empty($initialWeekGamesError)) { ?>
+							<p class="k2-status-panel__empty">Could not load games for this week.</p>
+<?php } else {
+    k2_status_render_week_games_list($initialWeekGames);
 } ?>
 						</div>
 					</div>

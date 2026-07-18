@@ -250,7 +250,7 @@ function k2_rated_game_td(
  * Elo / adjustment cell strings shared by the full row and the Highlights compact row.
  *
  * @param array<string, mixed> $game normalized ratedresults row
- * @return array{rating_a: string, rating_b: string, rating_diff: string, es: string, fav_es: float, adjustment: string, adjustment_loser: string, adj_winner: float, adj_loser: float}
+ * @return array{rating_a: string, rating_b: string, rating_diff: string, es: string, fav_es: float, adjustment: string, adjustment_loser: string, adj_winner: float, adj_loser: float, adj_a: float, adj_b: float}
  */
 function k2_rated_game_elo_cells(array $game, bool $processed): array
 {
@@ -267,6 +267,8 @@ function k2_rated_game_elo_cells(array $game, bool $processed): array
             'adjustment_loser' => $dash,
             'adj_winner' => 0.0,
             'adj_loser' => 0.0,
+            'adj_a' => 0.0,
+            'adj_b' => 0.0,
         ];
     }
 
@@ -283,7 +285,15 @@ function k2_rated_game_elo_cells(array $game, bool $processed): array
         'adjustment_loser' => k2_game_rating_adjustment_loser_html($game),
         'adj_winner' => (float) $winnerAdjustment['adj'],
         'adj_loser' => (float) $loserAdjustment['adj'],
+        'adj_a' => (float) $game['AdjustmentA'],
+        'adj_b' => (float) $game['AdjustmentB'],
     ];
+}
+
+/** Pre-game rating plus signed adjustment in parentheses (Status Weekly games table). */
+function k2_rated_game_rating_with_adjustment_html(string $ratingText, float $adj): string
+{
+    return $ratingText . ' (' . k2_game_rating_adjustment_span_html($adj) . ')';
 }
 
 /**
@@ -374,7 +384,22 @@ function k2_rated_game_row_compact_html(array $row, array $options = []): string
 
 /**
  * @param array<string, mixed> $game normalized or raw ratedresults row
- * @param array{id_mode?: string, date_format?: string, variant?: string, show_ts_column?: bool, sorted_col_index?: int, show_winner?: bool, highlight_winner_goal?: bool, team_a_align?: string} $options
+ * @param array{
+ *   id_mode?: string,
+ *   date_format?: string,
+ *   variant?: string,
+ *   show_ts_column?: bool,
+ *   show_gd_column?: bool,
+ *   show_sum_column?: bool,
+ *   show_elo_diff_column?: bool,
+ *   show_fav_es_column?: bool,
+ *   show_adjustment_columns?: bool,
+ *   rating_inline_adjustment?: bool,
+ *   sorted_col_index?: int,
+ *   show_winner?: bool,
+ *   highlight_winner_goal?: bool,
+ *   team_a_align?: string
+ * } $options
  */
 function k2_rated_game_row_html(array $row, array $options = []): string
 {
@@ -392,6 +417,13 @@ function k2_rated_game_row_html(array $row, array $options = []): string
     $showWinner = ($options['show_winner'] ?? true) !== false;
     $highlightWinnerGoal = !empty($options['highlight_winner_goal']);
     $teamAClass = ($options['team_a_align'] ?? 'left') === 'right' ? 'k2-table-cell--right' : 'k2-table-cell--left';
+    $showGd = ($options['show_gd_column'] ?? true) !== false;
+    $showSum = ($options['show_sum_column'] ?? true) !== false;
+    $showTs = ($options['show_ts_column'] ?? true) !== false;
+    $showEloDiff = ($options['show_elo_diff_column'] ?? true) !== false;
+    $showFavEs = ($options['show_fav_es_column'] ?? true) !== false;
+    $showAdjustment = ($options['show_adjustment_columns'] ?? true) !== false;
+    $ratingInlineAdj = !empty($options['rating_inline_adjustment']);
 
     $idA = $game['idA'];
     $idB = $game['idB'];
@@ -425,6 +457,14 @@ function k2_rated_game_row_html(array $row, array $options = []): string
     $gameId = (int) $game['id'];
 
     $elo = k2_rated_game_elo_cells($game, $processed);
+    $ratingACell = $elo['rating_a'];
+    $ratingBCell = $elo['rating_b'];
+    $ratingASort = $processed ? (int) round((float) $game['RatingA']) : 0;
+    $ratingBSort = $processed ? (int) round((float) $game['RatingB']) : 0;
+    if ($ratingInlineAdj && $processed) {
+        $ratingACell = k2_rated_game_rating_with_adjustment_html($elo['rating_a'], (float) $elo['adj_a']);
+        $ratingBCell = k2_rated_game_rating_with_adjustment_html($elo['rating_b'], (float) $elo['adj_b']);
+    }
 
     $col = 0;
     $cells = '';
@@ -443,18 +483,30 @@ function k2_rated_game_row_html(array $row, array $options = []): string
     $emit($goalsACell);
     $emit($goalsBCell, 'k2-table-cell--left');
     $emit($teamB, 'k2-table-cell--left');
-    $emit($goalDiffCell, '', $goalDiff);
-    $emit((string) $sumGoals);
-    $emit((string) $topScore, '', $topScore);
+    if ($showGd) {
+        $emit($goalDiffCell, '', $goalDiff);
+    }
+    if ($showSum) {
+        $emit((string) $sumGoals);
+    }
+    if ($showTs) {
+        $emit((string) $topScore, '', $topScore);
+    }
     if ($showWinner) {
         $emit($winnerCell, 'k2-table-cell--left k2-table-cell--pad-left-lg');
     }
-    $emit($elo['rating_a']);
-    $emit($elo['rating_b']);
-    $emit($elo['rating_diff']);
-    $emit($elo['es'], 'k2-table-cell--pad-right-xs', $elo['fav_es']);
-    $emit($elo['adjustment'], 'k2-table-cell--left', $elo['adj_winner']);
-    $emit($elo['adjustment_loser'], 'k2-table-cell--left', $elo['adj_loser']);
+    $emit($ratingACell, $ratingInlineAdj ? 'k2-table-cell--pad-left-md' : '', $ratingASort);
+    $emit($ratingBCell, '', $ratingBSort);
+    if ($showEloDiff) {
+        $emit($elo['rating_diff']);
+    }
+    if ($showFavEs) {
+        $emit($elo['es'], 'k2-table-cell--pad-right-xs', $elo['fav_es']);
+    }
+    if ($showAdjustment) {
+        $emit($elo['adjustment'], 'k2-table-cell--left', $elo['adj_winner']);
+        $emit($elo['adjustment_loser'], 'k2-table-cell--left', $elo['adj_loser']);
+    }
 
     return '<tr data-k2-sort-tie-value="' . $gameId . '">' . $cells . '</tr>';
 }

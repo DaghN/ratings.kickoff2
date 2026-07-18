@@ -1102,6 +1102,8 @@ function k2_status_build_period_competitions(mysqli $con, DateTimeImmutable $ser
                 ],
                 'day_games' => [],
                 'day_games_error' => null,
+                'week_games' => [],
+                'week_games_error' => null,
             ];
             continue;
         }
@@ -1122,6 +1124,12 @@ function k2_status_build_period_competitions(mysqli $con, DateTimeImmutable $ser
             $dayGames = k2_status_rated_games_for_calendar_day($con, $key, $dayGamesError) ?? [];
         }
 
+        $weekGames = [];
+        $weekGamesError = null;
+        if ($period === 'week' && $key !== null) {
+            $weekGames = k2_status_rated_games_for_calendar_week($con, $key, $weekGamesError) ?? [];
+        }
+
         $periods[$period] = [
             'points' => $points,
             'points_error' => $pointsError,
@@ -1134,6 +1142,8 @@ function k2_status_build_period_competitions(mysqli $con, DateTimeImmutable $ser
             ],
             'day_games' => $dayGames,
             'day_games_error' => $dayGamesError,
+            'week_games' => $weekGames,
+            'week_games_error' => $weekGamesError,
         ];
     }
 
@@ -1373,6 +1383,88 @@ function k2_status_rated_games_for_calendar_day(mysqli $con, string $dayYmd, ?st
     $nameMap = k2_player_display_names_for_rated_rows($con, $raw);
 
     return k2_status_rated_games_to_list_items(k2_rated_games_apply_display_names($raw, $nameMap));
+}
+
+/**
+ * Rated games for one Monday-start UTC week (Status Weekly tab), bucketed by weekday
+ * in newest-first order (latest reached day … Monday). Future UTC days are omitted.
+ *
+ * @return list<array{ymd: string, weekday: string, games: list<array<string, mixed>>}>|null
+ */
+function k2_status_rated_games_for_calendar_week(mysqli $con, string $weekMondayYmd, ?string &$error = null): ?array
+{
+    $error = null;
+    $bounds = k2_status_bounds_from_period_key('week', $weekMondayYmd);
+    if ($bounds === null) {
+        $error = 'invalid_week';
+
+        return null;
+    }
+
+    $sql = 'SELECT id, `Date`, idA, idB, NameA, NameB, RatingA, RatingB, RatingDifference, '
+        . 'GoalsA, GoalsB, ExpectedScoreA, ExpectedScoreB, ActualScore, AdjustmentA, AdjustmentB, '
+        . 'SumOfGoals, GoalDifference '
+        . 'FROM ratedresults WHERE `Date` >= ? AND `Date` < ? ORDER BY `Date` DESC, id DESC';
+    $stmt = mysqli_prepare($con, $sql);
+    if ($stmt === false) {
+        $error = mysqli_error($con);
+
+        return null;
+    }
+    mysqli_stmt_bind_param($stmt, 'ss', $bounds['start'], $bounds['end']);
+    if (!mysqli_stmt_execute($stmt)) {
+        $error = mysqli_stmt_error($stmt);
+        mysqli_stmt_close($stmt);
+
+        return null;
+    }
+    $r = mysqli_stmt_get_result($stmt);
+    if ($r === false) {
+        $error = mysqli_stmt_error($stmt);
+        mysqli_stmt_close($stmt);
+
+        return null;
+    }
+    $raw = [];
+    while ($row = mysqli_fetch_assoc($r)) {
+        $raw[] = $row;
+    }
+    mysqli_free_result($r);
+    mysqli_stmt_close($stmt);
+
+    $nameMap = k2_player_display_names_for_rated_rows($con, $raw);
+    $named = k2_rated_games_apply_display_names($raw, $nameMap);
+
+    $utc = new DateTimeZone('UTC');
+    $monday = new DateTimeImmutable($weekMondayYmd . ' 00:00:00', $utc);
+    $todayYmd = (new DateTimeImmutable('now', $utc))->format('Y-m-d');
+    $buckets = [];
+    for ($i = 0; $i < 7; $i++) {
+        $day = $monday->modify('+' . $i . ' day');
+        $ymd = $day->format('Y-m-d');
+        if ($ymd > $todayYmd) {
+            continue;
+        }
+        $buckets[$ymd] = [
+            'ymd' => $ymd,
+            'weekday' => $day->format('l'),
+            'games' => [],
+        ];
+    }
+
+    foreach ($named as $row) {
+        $ts = strtotime((string) ($row['Date'] ?? ''));
+        if ($ts === false) {
+            continue;
+        }
+        $ymd = gmdate('Y-m-d', $ts);
+        if (!isset($buckets[$ymd])) {
+            continue;
+        }
+        $buckets[$ymd]['games'][] = $row;
+    }
+
+    return array_reverse(array_values($buckets));
 }
 
 /** @return list<array{id: int, name_a: string, name_b: string, goals_a: int, goals_b: int, at: string, id_a: int, id_b: int}>|null */

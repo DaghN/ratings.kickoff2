@@ -149,6 +149,8 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-18 | **Status Weekly “Games this week”** — Recent-style day sections (newest first; **no future UTC days**), columns ID·Date·teams·goals·Rating A/B with inline `(±adj)`; thinner set. API `status_period_week_games.php`. |
+| 2026-07-18 | **Status Daily “Games this day”** — column order **ID · time · match** (games-hub style); PHP SSR + JS refresh + CSS grid. |
 | 2026-07-18 | **Ops work-target loader** — `k2_ops_load_work_target` accepts ini-only profiles (Steve `[live-game]`); `database=` map scans ini; removed PHP `live-game` stub. Fix for live ratings not updating after games. Sync `ops_work_target.php` (+ dispatch Help) to staged. |
 | 2026-07-18 | **Steve online ops ingest** — pulled staged `ops/` PHP → local (not the two `.ini`). New `ops_std.php` (stderr/stdout for HTTP); `live-game` profile stub; `livedb` prepare verb stub. **Secret stripped:** live DB password had been in `ops_prepare_constants.php` — keep creds in server `work-targets.ini` only. WinSCP: exclude both real `.ini` forever ([`ladder-ops-platform.md`](docs/ladder-ops-platform.md) §5). |
 | 2026-07-17 | **Organizer finish confirm — slice 1** — `amiga_finish_override_write.php`: validate full ladder 1..N vs registered entrants + idempotent replace; smoke PASS (validation + `--db` rollback on work #607). Next = slice 2 Table UI. |

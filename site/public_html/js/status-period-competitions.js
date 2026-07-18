@@ -12,6 +12,7 @@
     var GAME_PAGE_ANCHOR = '#k2-game'; /* keep in sync with k2_game_page_anchor_hash() */
     var PLAYER_PROFILE_ANCHOR = '#player'; /* keep in sync with K2_PLAYER_PAGE_FRAGMENT */
     var DAY_GAMES_API = 'api/status_period_day_games.php';
+    var WEEK_GAMES_API = 'api/status_period_week_games.php';
     var PERIODS = ['day', 'week', 'month', 'year'];
 
     /** Set false to restore per-period listbox trigger widths (see session chat for prior px). */
@@ -199,6 +200,13 @@
         };
     }
 
+    function weekGamesPanel(root) {
+        return {
+            wrap: root.querySelector('[data-competition-week-games]'),
+            body: root.querySelector('[data-competition-week-games-body]'),
+        };
+    }
+
     function ensureDayGamesCache(root) {
         if (!root._dayGamesCache) {
             root._dayGamesCache = Object.create(null);
@@ -213,6 +221,30 @@
     function setDayGamesCache(root, key, html) {
         ensureDayGamesCache(root);
         root._dayGamesCache[key] = html;
+    }
+
+    function ensureWeekGamesCache(root) {
+        if (!root._weekGamesCache) {
+            root._weekGamesCache = Object.create(null);
+        }
+    }
+
+    function getWeekGamesCache(root, key) {
+        ensureWeekGamesCache(root);
+        return root._weekGamesCache[key] || null;
+    }
+
+    function setWeekGamesCache(root, key, html) {
+        ensureWeekGamesCache(root);
+        root._weekGamesCache[key] = html;
+    }
+
+    function initWeekGamesTables(root) {
+        var panel = weekGamesPanel(root);
+        if (!panel.body || typeof window.k2TableInitSortableInRoot !== 'function') {
+            return;
+        }
+        window.k2TableInitSortableInRoot(panel.body);
     }
 
     function formatDayGameTimeHtml(datetime) {
@@ -258,6 +290,8 @@
         for (var i = 0; i < games.length; i++) {
             var g = games[i];
             html += '<li>';
+            html += '<a class="k2-link-star k2-status-day-games-list__game" href="/game.php?id='
+                + parseInt(g.id, 10) + GAME_PAGE_ANCHOR + '">' + parseInt(g.id, 10) + '</a>';
             html += formatDayGameTimeHtml(g.at);
             html += '<span class="k2-status-match">';
             html += '<span class="k2-status-match__side"><a class="k2-link-star" data-k2-player-glance="'
@@ -268,8 +302,6 @@
                 + parseInt(g.id_b, 10) + '" href="/player/profile.php?id='
                 + parseInt(g.id_b, 10) + PLAYER_PROFILE_ANCHOR + '">' + escapeHtml(g.name_b || '') + '</a></span>';
             html += '</span>';
-            html += '<a class="k2-link-star k2-status-day-games-list__game" href="/game.php?id='
-                + parseInt(g.id, 10) + GAME_PAGE_ANCHOR + '">' + parseInt(g.id, 10) + '</a>';
             html += '</li>';
         }
         html += '</ul>';
@@ -300,6 +332,31 @@
         }
     }
 
+    function syncWeekGamesPanel(root, snap) {
+        var panel = weekGamesPanel(root);
+        if (!panel.wrap || !panel.body) {
+            return;
+        }
+        var period = activePeriod(root);
+        if (period !== 'week') {
+            panel.wrap.hidden = true;
+            return;
+        }
+        panel.wrap.hidden = false;
+        var key = root._periodKeys && root._periodKeys.week;
+        var html = snap && snap.weekGames !== undefined ? snap.weekGames : null;
+        if (html === null && key) {
+            html = getWeekGamesCache(root, key);
+        }
+        if (html !== null && html !== undefined) {
+            panel.body.innerHTML = html;
+            if (key) {
+                panel.wrap.setAttribute('data-week-games-key', key);
+            }
+            initWeekGamesTables(root);
+        }
+    }
+
     function seedDayGamesFromDom(root) {
         var panel = dayGamesPanel(root);
         if (!panel.wrap || !panel.body) {
@@ -310,6 +367,18 @@
             return;
         }
         setDayGamesCache(root, key, panel.body.innerHTML);
+    }
+
+    function seedWeekGamesFromDom(root) {
+        var panel = weekGamesPanel(root);
+        if (!panel.wrap || !panel.body) {
+            return;
+        }
+        var key = panel.wrap.getAttribute('data-week-games-key') || '';
+        if (!key || !panel.body.innerHTML.trim()) {
+            return;
+        }
+        setWeekGamesCache(root, key, panel.body.innerHTML);
     }
 
     function periodCacheId(period, key) {
@@ -357,6 +426,7 @@
         restorePanelAttrs(slots.points, snap.pointsAttrs);
         slots.points.setAttribute('data-competition-points-panel', '');
         syncDayGamesPanel(root, snap);
+        syncWeekGamesPanel(root, snap);
         updateMeta(root);
     }
 
@@ -1568,6 +1638,14 @@
                     });
                 })
             );
+        } else if (period === 'week') {
+            fetchJobs.push(
+                fetch(WEEK_GAMES_API + '?key=' + encodeURIComponent(key), fetchOpts).then(function (res) {
+                    return res.json().then(function (body) {
+                        return { ok: res.ok, body: body };
+                    });
+                })
+            );
         }
 
         var promise = Promise.all(fetchJobs).then(function (results) {
@@ -1588,12 +1666,19 @@
                 if (!results[2].ok || results[2].body.error) {
                     throw new Error('day_games');
                 }
+            } else if (period === 'week') {
+                if (!results[2].ok || results[2].body.error) {
+                    throw new Error('week_games');
+                }
             }
             var showMedals = showMedalsForPeriod(root, results[1].body.end_epoch || 0);
             var snap = renderPeriodSnapshot(root, results[0].body.entries, results[1].body, showMedals);
             if (period === 'day') {
                 snap.dayGames = renderDayGamesHtml(results[2].body.games || []);
                 setDayGamesCache(root, key, snap.dayGames);
+            } else if (period === 'week') {
+                snap.weekGames = results[2].body.html || '<p class="k2-status-panel__empty">No rated games in this week.</p>';
+                setWeekGamesCache(root, key, snap.weekGames);
             }
             setPeriodCache(root, period, key, snap);
             if (isViewingPeriodKey(root, period, key)) {
@@ -1648,6 +1733,12 @@
                     cached.dayGames = dayHtml;
                 }
             }
+            if (period === 'week' && cached.weekGames === undefined) {
+                var weekHtml = getWeekGamesCache(root, key);
+                if (weekHtml) {
+                    cached.weekGames = weekHtml;
+                }
+            }
             applyPeriodCacheToSlots(root, cached);
             if (period === 'day' && cached.dayGames === undefined) {
                 fetch(DAY_GAMES_API + '?key=' + encodeURIComponent(key), { credentials: 'same-origin' })
@@ -1672,6 +1763,33 @@
                             var panel = dayGamesPanel(root);
                             if (panel.body) {
                                 panel.body.innerHTML = '<p class="k2-status-panel__empty">Could not load games for this day.</p>';
+                            }
+                        }
+                    });
+            }
+            if (period === 'week' && cached.weekGames === undefined) {
+                fetch(WEEK_GAMES_API + '?key=' + encodeURIComponent(key), { credentials: 'same-origin' })
+                    .then(function (res) {
+                        return res.json().then(function (body) {
+                            return { ok: res.ok, body: body };
+                        });
+                    })
+                    .then(function (result) {
+                        if (!result.ok || result.body.error || !isViewingPeriodKey(root, 'week', key)) {
+                            return;
+                        }
+                        cached.weekGames = result.body.html || '<p class="k2-status-panel__empty">No rated games in this week.</p>';
+                        setWeekGamesCache(root, key, cached.weekGames);
+                        setPeriodCache(root, period, key, cached);
+                        if (isViewingPeriodKey(root, period, key)) {
+                            syncWeekGamesPanel(root, cached);
+                        }
+                    })
+                    .catch(function () {
+                        if (isViewingPeriodKey(root, 'week', key)) {
+                            var weekPanel = weekGamesPanel(root);
+                            if (weekPanel.body) {
+                                weekPanel.body.innerHTML = '<p class="k2-status-panel__empty">Could not load games for this week.</p>';
                             }
                         }
                     });
@@ -1763,6 +1881,7 @@
         }
         seedInitialPeriodCache(root);
         seedDayGamesFromDom(root);
+        seedWeekGamesFromDom(root);
         root._periodKeys = clampKeysToFirstRated(root, currentKeys(root));
         root._syncingPickers = true;
         applyKeysToPickers(root, root._periodKeys);

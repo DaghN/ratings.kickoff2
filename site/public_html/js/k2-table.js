@@ -1078,6 +1078,18 @@
 
 	window.k2TableInitHelpTooltips = initHelpTooltipsInRoot;
 
+	/** Init sortable tables + header help inside a root after DOM replace (e.g. Status week games). */
+	window.k2TableInitSortableInRoot = function (root) {
+		var scope = root && root.querySelectorAll ? root : document;
+		var tables = scope.querySelectorAll ? scope.querySelectorAll(TABLE_SELECTOR) : [];
+		var i;
+
+		for (i = 0; i < tables.length; i++) {
+			initTable(tables[i]);
+		}
+		initHelpTooltipsInRoot(scope);
+	};
+
 	/** Re-sort tbody after DOM replace (e.g. Status room cascade). Preserves user-chosen sort when set. */
 	window.k2TableRefreshSortableBody = function (table) {
 		var index;
