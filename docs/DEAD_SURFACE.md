@@ -70,7 +70,7 @@ Full-corpus audit (`scripts/audit_theme_css_dead_tokens.py`: every class/custom-
 | `scripts/rebuild_activity_wing_local.ps1` | Activity-wing batch slice | Same (ops simul) |
 | `scripts/rebuild_player_period_games_local.ps1` | Period-games batch slice | Same |
 | `scripts/run_local_replay.ps1` | Python ladder `run` on dev DB | Work simul; dev DB → re-import dump |
-| `run_staging_ladder_replay.sh` (root stub) | Staging one-shot replay | Archived: `docs/archive/run_staging_ladder_replay.sh` |
+| `run_staging_ladder_replay.sh` (root stub — **removed Jul 2026**) | Staging one-shot replay | Archived only: `docs/archive/run_staging_ladder_replay.sh` |
 | `python -m scripts.ladder run` / `reset` / `replay` | Full-memory replay CLI | `run_ops_sim.php` (online) · `scripts.amiga prove` (Amiga) |
 | `python -m scripts.work_prepare` | Legacy prepare / A/B oracle | `php ops/run_prepare.php` verbs |
 | `scripts/ladder/sql/archive/batch-2026-05/` (stub README) | Batch `*_rebuild.sql` | Archived: `docs/archive/batch-rebuild-sql-2026-05/` |
