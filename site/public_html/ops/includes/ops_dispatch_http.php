@@ -53,7 +53,7 @@ function k2_ops_dispatch_http_handle(array $query): array
     if ($parsed['cmd'] === '') {
         return k2_ops_dispatch_http_error(400, 'missing CMD', 64);
     }
-
+	
     k2_ops_dispatch_http_begin();
 
     try {
@@ -61,7 +61,6 @@ function k2_ops_dispatch_http_handle(array $query): array
     } catch (K2OpsDispatchExit $e) {
         $exitCode = $e->exitCode;
     }
-
     return k2_ops_dispatch_http_result($exitCode, $parsed['cmd'], k2_ops_dispatch_http_lines());
 }
 

@@ -22,9 +22,9 @@ k2_ops_require_cli();
 
 $verb = $argv[1] ?? '';
 if ($verb === '' || str_starts_with($verb, '-')) {
-    fwrite(STDERR, "Usage: php run_process_game.php <verb> [options]\n");
-    fwrite(STDERR, "Verbs: process-one, replay-to, register-arena, status-ratedresults\n");
-    fwrite(STDERR, "Options: --target local-work, --game-id N, --player-id N, --limit N, --until-game-id N, --dry-run\n");
+    fwrite(stderr(), "Usage: php run_process_game.php <verb> [options]\n");
+    fwrite(stderr(), "Verbs: process-one, replay-to, register-arena, status-ratedresults\n");
+    fwrite(stderr(), "Options: --target local-work, --game-id N, --player-id N, --limit N, --until-game-id N, --dry-run\n");
     exit(1);
 }
 
@@ -66,7 +66,7 @@ k2_ops_assert_mutate_work_target($target);
 
 if ($verb === 'process-one') {
     if ($gameId === null || $gameId <= 0) {
-        fwrite(STDERR, "process-one requires --game-id N\n");
+        fwrite(stderr(), "process-one requires --game-id N\n");
         exit(1);
     }
     $con = k2_ops_connect_work($target);
@@ -94,7 +94,7 @@ if ($verb === 'process-one') {
 
 if ($verb === 'register-arena') {
     if ($playerId === null || $playerId <= 0) {
-        fwrite(STDERR, "register-arena requires --player-id N\n");
+        fwrite(stderr(), "register-arena requires --player-id N\n");
         exit(1);
     }
     $con = k2_ops_connect_work($target);
@@ -113,7 +113,7 @@ if ($verb === 'register-arena') {
 
 if ($verb === 'replay-to') {
     if ($limit === null && $untilGameId === null) {
-        fwrite(STDERR, "replay-to requires --limit N and/or --until-game-id G\n");
+        fwrite(stderr(), "replay-to requires --limit N and/or --until-game-id G\n");
         exit(1);
     }
     $con = k2_ops_connect_work($target);
@@ -160,5 +160,5 @@ if ($verb === 'status-ratedresults') {
     }
 }
 
-fwrite(STDERR, "Unknown verb {$verb}\n");
+fwrite(stderr(), "Unknown verb {$verb}\n");
 exit(1);

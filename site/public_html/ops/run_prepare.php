@@ -9,6 +9,7 @@
  *   php site/public_html/ops/run_prepare.php migrate-work --target local-work
  *   php site/public_html/ops/run_prepare.php seed-catalog --target local-work
  *   php site/public_html/ops/run_prepare.php seed-catalog --target local-dev
+ *   php site/public_html/ops/run_prepare.php sync-catalog-copy --target local-work
  *   php site/public_html/ops/run_prepare.php zero-derived --target local-work
  *   php site/public_html/ops/run_prepare.php seed-lobby --target local-work
  * See docs/work-db-prepare.md and docs/ladder-ops-platform.md §6.6.
@@ -25,8 +26,8 @@ k2_ops_require_cli();
 
 $verb = $argv[1] ?? '';
 if ($verb === '' || str_starts_with($verb, '-')) {
-    fwrite(STDERR, "Usage: php run_prepare.php <verb> [--target local-work|local-dev|staging-work] [--dry-run] [--zero-only]\n");
-    fwrite(STDERR, "Verbs: prepare, refresh-work, migrate-work, seed-catalog, zero-derived, seed-lobby, parity\n");
+    fwrite(stderr(), "Usage: php run_prepare.php <verb> [--target local-work|local-dev|staging-work] [--dry-run] [--zero-only]\n");
+    fwrite(stderr(), "Verbs: prepare, refresh-work, migrate-work, seed-catalog, sync-catalog-copy, zero-derived, seed-lobby, parity\n");
     exit(1);
 }
 
@@ -48,10 +49,11 @@ for ($i = 2, $n = count($argv); $i < $n; $i++) {
 $target = k2_ops_load_work_target($targetName);
 
 $allowed = [
-    'prepare', 'refresh-work', 'migrate-work', 'seed-catalog', 'zero-derived', 'seed-lobby', 'parity',
+    'prepare', 'refresh-work', 'migrate-work', 'seed-catalog', 'sync-catalog-copy',
+    'zero-derived', 'seed-lobby', 'parity', 'livedb',
 ];
 if (!in_array($verb, $allowed, true)) {
-    fwrite(STDERR, "Unknown verb {$verb}\n");
+    fwrite(stderr(), "Unknown verb {$verb}\n");
     exit(1);
 }
 
@@ -74,6 +76,9 @@ switch ($verb) {
         break;
     case 'seed-catalog':
         k2_ops_seed_milestone_definitions($target, $dryRun, $targetName === 'local-dev');
+        break;
+    case 'sync-catalog-copy':
+        k2_ops_sync_milestone_catalog_copy($target, $dryRun, $targetName === 'local-dev');
         break;
     case 'zero-derived':
         k2_ops_zero_derived($target, $dryRun);

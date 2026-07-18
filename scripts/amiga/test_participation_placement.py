@@ -357,6 +357,42 @@ class EventFinishPositionTests(unittest.TestCase):
         ]
         self.assertEqual(derive_event_finish_position(rows, tournament_name="World Cup I"), {})
 
+    def test_kitchen_wc_stamp_uses_league_when_no_knockout(self) -> None:
+        """is_world_cup kitchen RR (has_cup=0): league table is the finish ladder."""
+        rows = [
+            {"scope_type": "league", "scope_key": "", "player_id": 139, "position": 1},
+            {"scope_type": "league", "scope_key": "", "player_id": 2, "position": 2},
+            {"scope_type": "league", "scope_key": "", "player_id": 3, "position": 3},
+            {"scope_type": "league", "scope_key": "", "player_id": 4, "position": 4},
+        ]
+        finish = derive_event_finish_position(
+            rows,
+            tournament_name="World Cup Kitchen getting wild",
+            has_league=True,
+            has_cup=False,
+            is_world_cup=True,
+        )
+        self.assertEqual(finish[139], 1)
+        self.assertEqual(finish[2], 2)
+        self.assertEqual(finish[3], 3)
+        self.assertEqual(finish[4], 4)
+
+    def test_kitchen_wc_stamp_does_not_copy_groups_when_has_cup(self) -> None:
+        """Real WC shape (has_cup): group ranks stay off event_finish even if KO empty."""
+        rows = [
+            {"scope_type": "league", "scope_key": "Group A", "player_id": 10, "position": 1},
+        ]
+        self.assertEqual(
+            derive_event_finish_position(
+                rows,
+                tournament_name="World Cup I (Dartford)",
+                has_league=True,
+                has_cup=True,
+                is_world_cup=True,
+            ),
+            {},
+        )
+
     def test_tier_b_final_only_league_third_is_third(self) -> None:
         """Minimal league+cup: title match only; 3rd = league 3rd among non-finalists."""
         rows = [

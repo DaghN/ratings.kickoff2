@@ -117,6 +117,7 @@ Covers kitchen marathons, single-phase round-robins.
 | **Podium** | Same knockout medal rules as v1 §4.2 — write **`event_finish_position` 1 / 2 / 3`** (not a separate `wc_medal` column). |
 | **Below podium** | **NULL** (holistic WC rank 4+ deferred). |
 | **Group phase** | Standings only — **never** copied to `event_finish_position`. |
+| **Kitchen / pure-league WC stamp (Jul 2026)** | Organizer can set `is_world_cup` on a kitchen marathon (`has_league=1`, `has_cup=0`). No knockout → Tier D empty. **Temporary fallback:** use Tier C primary-league positions (full 1..N). Real WCs keep `has_cup=1`, so group-only rows still stay empty. **Durable path:** organizer finish confirm (Tier E UI) — [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md) FO4/FO9 — not more WC heuristics. |
 
 **Medal mapping (WC podium):**
 
@@ -129,6 +130,8 @@ Covers kitchen marathons, single-phase round-robins.
 ### Tier E — Curated overrides
 
 `amiga_tournament_finish_override` (`tournament_id`, `player_id`, `event_finish_position`) — L3 DDL `sql/ground/002_tournament_finish_override.sql`. Overrides win over tiers A–D.
+
+**Live organizer (Planned Jul 2026):** secretary **confirm finishing order** before Make official writes the same Tier E table — [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md) (FO1–FO10). Preferred durable fix for kitchen / odd formats vs more WC heuristics.
 
 **Ops rule (Jul 2026): full ladder or none** — default. If a tournament needs *any* Tier E row, insert **one row per entrant** — positions `1..N`, no gaps, no duplicates. Do **not** mix “derive 1–(N−1) + patch one slot” (e.g. Milan V had been Sandro-only at 8; expanded to full eight rows). A full table is the canonical honours ladder in ground and survives simul without coupling to tier A–D logic.
 

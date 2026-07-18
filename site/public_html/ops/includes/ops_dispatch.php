@@ -32,6 +32,7 @@ function k2_ops_dispatch_http_lines(): array
     return K2OpsDispatchHttpContext::$lines;
 }
 
+require_once __DIR__ . '/ops_std.php';
 require_once __DIR__ . '/ops_argv.php';
 require_once __DIR__ . '/ops_work_target.php';
 require_once __DIR__ . '/ops_bootstrap.php';
@@ -66,8 +67,8 @@ function k2_ops_dispatch_usage(): void
         'Usage: php dispatch.php CMD=<Name> [key=value ...] [--target <profile>]',
         '',
         'Target (required unless database= is a known work DB):',
-        '  target=local-work | staging-work | local-dev',
-        '  database=kooldb1  (maps to profile with that work_database)',
+        '  target=local-work | staging-work | local-dev | (any [section] in work-targets.ini)',
+        '  database=kooldb1  (maps to profile with that work_database; ini sections included)',
         '',
         'Commands:',
     ];
@@ -88,7 +89,7 @@ function k2_ops_dispatch_usage(): void
         }
         throw new K2OpsDispatchExit(64);
     }
-    fwrite(STDERR, implode(PHP_EOL, $lines) . PHP_EOL);
+    fwrite(stderr(), implode(PHP_EOL, $lines) . PHP_EOL);
 }
 
 function k2_ops_dispatch_log(string $message): void
@@ -98,7 +99,7 @@ function k2_ops_dispatch_log(string $message): void
         K2OpsDispatchHttpContext::$lines[] = $line;
         return;
     }
-    fwrite(STDOUT, $line . PHP_EOL);
+    fwrite(stdout(), $line . PHP_EOL);
 }
 
 function k2_ops_dispatch_fail(string $message, int $exitCode = 1): never
@@ -108,7 +109,7 @@ function k2_ops_dispatch_fail(string $message, int $exitCode = 1): never
         K2OpsDispatchHttpContext::$lines[] = $line;
         throw new K2OpsDispatchExit($exitCode);
     }
-    fwrite(STDERR, $line . PHP_EOL);
+    fwrite(stderr(), $line . PHP_EOL);
     exit($exitCode);
 }
 
@@ -118,6 +119,18 @@ function k2_ops_profile_for_work_database(string $database): ?string
         $data = K2_OPS_DEFAULT_PROFILES[$profile];
         if ((string) $data['work_database'] === $database) {
             return $profile;
+        }
+    }
+
+    $ini = k2_ops_parse_work_targets_ini();
+    if ($ini !== null) {
+        foreach ($ini as $profile => $section) {
+            if (!is_array($section)) {
+                continue;
+            }
+            if ((string) ($section['work_database'] ?? '') === $database) {
+                return (string) $profile;
+            }
         }
     }
 
@@ -159,9 +172,11 @@ function k2_ops_dispatch_connect(string $profileName): mysqli
 {
     $target = k2_ops_load_work_target($profileName);
     $allowDevDb = ($profileName === 'local-dev');
+
     if (!$allowDevDb) {
         k2_ops_assert_mutate_work_target($target);
     }
+
     k2_ops_dispatch_log(
         'profile=' . $target->profile
         . ' database=' . $target->workDatabase
@@ -194,7 +209,7 @@ function k2_ops_dispatch_run(string $cmd, array $params, bool $dryRun): int
     );
 
     $t0 = microtime(true);
-    k2_ops_dispatch_log("CMD={$cmd} dry_run=" . ($dryRun ? 'true' : 'false'));
+    k2_ops_dispatch_log("cmd={$cmd} dry_run=" . ($dryRun ? 'true' : 'false'));
 
     try {
         $exitCode = match ($cmd) {

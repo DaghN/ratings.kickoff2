@@ -146,7 +146,24 @@ See **[`coordination/database-copies-2026-06.md`](coordination/database-copies-2
 - **Canonical:** `site/public_html/ops/sql/migrations/` — synced with ops; apply via `run_prepare.php migrate-work` ([`coordination/ops-schema-migrations.md`](coordination/ops-schema-migrations.md)). **Track in git** (repo `.gitignore` allowlists ops SCH DDL; only `data/dumps/` etc. stay ignored).
 - **Legacy wrapper:** `schema/apply_local.ps1` (Laragon) reads the same files.
 
-**Not synced:** `scripts/*.ps1` (Windows), `data/dumps/`, gitignored config (`ops/config/work-targets.ini`, `*.local.php`).
+**Not synced (exclude in WinSCP):** `scripts/*.ps1` (Windows), `data/dumps/`, gitignored config — especially:
+
+| Path | Why |
+|------|-----|
+| `ops/config/work-targets.ini` | Server DB credentials (Steve maintains on host) |
+| `ops/config/dispatch-http.ini` | HTTP `shared_key` |
+
+**Never** upload Laragon copies of those `.ini` files to staged (would overwrite Steve’s live profiles). Sync the `.example` templates only. Prefer a permanent WinSCP exclude for both real `.ini` names.
+
+### 5.1 Steve edits ops on staged (Jul 2026)
+
+Default flow is still **Local → Staged**. When Steve changes `ops/` PHP on the server for daily ops:
+
+1. **Pull** those paths **Staged → Local** (PHP only — not the two `.ini` files).
+2. Diff / commit into git so the next Local → Staged does not wipe him.
+3. Live credentials stay in **`work-targets.ini` on the host**, not in committed PHP defaults.
+
+Ingested Jul 2026: `includes/ops_std.php` (`stderr()` / `stdout()` so dispatch works when `STDERR`/`STDOUT` are undefined under HTTP); allow-list stub verb **`livedb`** on `run_prepare.php` (no handler yet — exits 0). **`k2_ops_load_work_target`** accepts ini-only profiles (e.g. Steve’s `[live-game]` in `work-targets.ini`) — no PHP stub required in `K2_OPS_DEFAULT_PROFILES`.
 
 ---
 
@@ -202,7 +219,7 @@ site/public_html/ops/
 
 ### 6.4 Bootstrap contract
 
-Implemented in `includes/ops_bootstrap.php` and work-target profiles (`local-work`, `local-dev`, `staging-work`). **`dispatch.php`** will reuse the same connect/guards.
+Implemented in `includes/ops_bootstrap.php` and work-target profiles (`local-work`, `local-dev`, `staging-work`, plus any `[section]` in gitignored `work-targets.ini`). Live credentials stay in the ini only. Stream helpers: `includes/ops_std.php`. **`dispatch.php`** reuses the same connect/guards.
 
 | Rule | Detail |
 |------|--------|

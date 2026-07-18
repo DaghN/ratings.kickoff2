@@ -10,6 +10,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_routes.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/status_queries.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/player_milestones_garden_order.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/milestone_garden_links.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/milestone_catalog_seed_sync.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_league_period_page.php';
 
@@ -70,6 +71,7 @@ const K2_MILESTONE_TIER_CHART_TOKEN = [
 
 function k2_milestone_strip_markdown(string $text): string
 {
+    $text = k2_milestone_repair_rule_utf8_mojibake($text);
     $text = str_replace('**', '', $text);
     $text = preg_replace('/\s*·\s*/u', ' ', $text) ?? $text;
 

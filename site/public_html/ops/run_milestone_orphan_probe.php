@@ -35,7 +35,7 @@ $con = k2_ops_connect_work($target);
 k2_ops_log('milestone_orphan_probe database=' . $target->workDatabase);
 
 if (!k2_ops_table_exists($con, 'player_milestones')) {
-    fwrite(STDERR, "player_milestones missing\n");
+    fwrite(stderr(), "player_milestones missing\n");
     exit(1);
 }
 
@@ -56,7 +56,7 @@ ORDER BY pm.player_id, pm.milestone_key
 SQL
 );
 if ($res === false) {
-    fwrite(STDERR, 'orphan list: ' . $con->error . PHP_EOL);
+    fwrite(stderr(), 'orphan list: ' . $con->error . PHP_EOL);
     exit(1);
 }
 while ($row = $res->fetch_assoc()) {

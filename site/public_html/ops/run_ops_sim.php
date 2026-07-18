@@ -67,7 +67,7 @@ try {
         try {
             $stopAt = new DateTimeImmutable($stopAtRaw, new DateTimeZone('UTC'));
         } catch (Exception $e) {
-            fwrite(STDERR, "Invalid --stop-at: {$stopAtRaw}\n");
+            fwrite(stderr(), "Invalid --stop-at: {$stopAtRaw}\n");
             exit(1);
         }
     } elseif ($untilGameId !== null && $untilGameId > 0) {
@@ -86,7 +86,7 @@ if ($startAtRaw !== null && $startAtRaw !== '') {
     try {
         $startAt = new DateTimeImmutable($startAtRaw, new DateTimeZone('UTC'));
     } catch (Exception $e) {
-        fwrite(STDERR, "Invalid --start-at: {$startAtRaw}\n");
+        fwrite(stderr(), "Invalid --start-at: {$startAtRaw}\n");
         exit(1);
     }
 }

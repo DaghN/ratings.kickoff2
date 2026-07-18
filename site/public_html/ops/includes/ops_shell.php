@@ -25,7 +25,7 @@ function k2_ops_find_mysql_exe(): string
             return $path;
         }
     }
-    fwrite(STDERR, "mysql client not found (Laragon on Windows, or /usr/bin/mysql on Linux).\n");
+    fwrite(stderr(), "mysql client not found (Laragon on Windows, or /usr/bin/mysql on Linux).\n");
     exit(1);
 }
 
@@ -39,7 +39,7 @@ function k2_ops_find_mysqldump_exe(): string
             return $dump;
         }
     }
-    fwrite(STDERR, "mysqldump not found beside {$mysql}\n");
+    fwrite(stderr(), "mysqldump not found beside {$mysql}\n");
     exit(1);
 }
 
@@ -51,7 +51,7 @@ function k2_ops_run_command(array $args, ?string $cwd = null): void
     $descriptor = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
     $proc = proc_open($cmd, $descriptor, $pipes, $cwd ?? k2_ops_root_directory());
     if (!is_resource($proc)) {
-        fwrite(STDERR, "Failed to start: {$cmd}\n");
+        fwrite(stderr(), "Failed to start: {$cmd}\n");
         exit(1);
     }
     fclose($pipes[0]);
@@ -64,10 +64,10 @@ function k2_ops_run_command(array $args, ?string $cwd = null): void
         echo $stdout;
     }
     if ($stderr !== false && $stderr !== '') {
-        fwrite(STDERR, $stderr);
+        fwrite(stderr(), $stderr);
     }
     if ($code !== 0) {
-        fwrite(STDERR, "Command failed (exit {$code}): {$cmd}\n");
+        fwrite(stderr(), "Command failed (exit {$code}): {$cmd}\n");
         exit(1);
     }
 }
@@ -76,7 +76,7 @@ function k2_ops_refresh_work(K2OpsWorkTarget $target, bool $dryRun): void
 {
     k2_ops_assert_refresh_target($target);
     if (!k2_ops_database_exists($target, $target->baselineDatabase)) {
-        fwrite(STDERR, "Baseline database {$target->baselineDatabase} missing. Run setup_local_prod_sandbox.ps1 first.\n");
+        fwrite(stderr(), "Baseline database {$target->baselineDatabase} missing. Run setup_local_prod_sandbox.ps1 first.\n");
         exit(1);
     }
 
@@ -108,7 +108,7 @@ function k2_ops_refresh_work(K2OpsWorkTarget $target, bool $dryRun): void
     // Temp file avoids fragile pipe wiring on Windows (Python Popen pipe works; PHP proc_open does not).
     $tmpFile = tempnam(sys_get_temp_dir(), 'k2_refresh_');
     if ($tmpFile === false) {
-        fwrite(STDERR, "tempnam failed\n");
+        fwrite(stderr(), "tempnam failed\n");
         exit(1);
     }
     try {
@@ -120,7 +120,7 @@ function k2_ops_refresh_work(K2OpsWorkTarget $target, bool $dryRun): void
         ];
         $dumpProc = proc_open($dumpLine, $descriptor, $dumpPipes);
         if (!is_resource($dumpProc)) {
-            fwrite(STDERR, "mysqldump failed to start\n");
+            fwrite(stderr(), "mysqldump failed to start\n");
             exit(1);
         }
         if (isset($dumpPipes[0]) && is_resource($dumpPipes[0])) {
@@ -130,10 +130,10 @@ function k2_ops_refresh_work(K2OpsWorkTarget $target, bool $dryRun): void
         fclose($dumpPipes[2]);
         $dumpCode = proc_close($dumpProc);
         if ($dumpErr !== false && $dumpErr !== '') {
-            fwrite(STDERR, $dumpErr);
+            fwrite(stderr(), $dumpErr);
         }
         if ($dumpCode !== 0) {
-            fwrite(STDERR, "mysqldump failed (exit {$dumpCode})\n");
+            fwrite(stderr(), "mysqldump failed (exit {$dumpCode})\n");
             exit(1);
         }
 
@@ -145,7 +145,7 @@ function k2_ops_refresh_work(K2OpsWorkTarget $target, bool $dryRun): void
         ];
         $loadProc = proc_open($loadLine, $descriptor, $loadPipes);
         if (!is_resource($loadProc)) {
-            fwrite(STDERR, "mysql load failed to start\n");
+            fwrite(stderr(), "mysql load failed to start\n");
             exit(1);
         }
         if (isset($loadPipes[0]) && is_resource($loadPipes[0])) {
@@ -160,10 +160,10 @@ function k2_ops_refresh_work(K2OpsWorkTarget $target, bool $dryRun): void
             echo $loadOut;
         }
         if ($loadErr !== false && $loadErr !== '') {
-            fwrite(STDERR, $loadErr);
+            fwrite(stderr(), $loadErr);
         }
         if ($loadCode !== 0) {
-            fwrite(STDERR, "mysql load failed (exit {$loadCode})\n");
+            fwrite(stderr(), "mysql load failed (exit {$loadCode})\n");
             exit(1);
         }
     } finally {

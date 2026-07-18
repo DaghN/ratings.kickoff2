@@ -21,12 +21,12 @@ function k2_ops_seed_milestone_definitions(K2OpsWorkTarget $target, bool $dryRun
     }
     $seedPath = k2_ops_milestones_seed_path();
     if (!is_file($seedPath)) {
-        fwrite(STDERR, "Missing seed file: {$seedPath}\n");
+        fwrite(stderr(), "Missing seed file: {$seedPath}\n");
         exit(1);
     }
     $json = file_get_contents($seedPath);
     if ($json === false) {
-        fwrite(STDERR, "Cannot read {$seedPath}\n");
+        fwrite(stderr(), "Cannot read {$seedPath}\n");
         exit(1);
     }
     $payload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
@@ -46,11 +46,11 @@ function k2_ops_seed_milestone_definitions(K2OpsWorkTarget $target, bool $dryRun
     $con->autocommit(false);
     try {
         if (!k2_ops_table_exists($con, 'milestone_definitions')) {
-            fwrite(STDERR, "milestone_definitions table missing — run migrate-work before seed-catalog.\n");
+            fwrite(stderr(), "milestone_definitions table missing — run migrate-work before seed-catalog.\n");
             exit(1);
         }
         if (!$con->query('TRUNCATE TABLE milestone_definitions')) {
-            fwrite(STDERR, 'TRUNCATE milestone_definitions: ' . $con->error . PHP_EOL);
+            fwrite(stderr(), 'TRUNCATE milestone_definitions: ' . $con->error . PHP_EOL);
             exit(1);
         }
         $stmt = $con->prepare(
@@ -60,14 +60,14 @@ function k2_ops_seed_milestone_definitions(K2OpsWorkTarget $target, bool $dryRun
             ) VALUES (?, ?, ?, ?, ?, NULL, ?, NULL)'
         );
         if ($stmt === false) {
-            fwrite(STDERR, 'prepare INSERT: ' . $con->error . PHP_EOL);
+            fwrite(stderr(), 'prepare INSERT: ' . $con->error . PHP_EOL);
             exit(1);
         }
         $sort = 1;
         foreach ($rows as $row) {
             $seedTier = (string) $row['tier_band'];
             if (!isset(K2_OPS_TIER_BAND_PRODUCT[$seedTier])) {
-                fwrite(STDERR, "Unknown tier_band in seed: {$seedTier}\n");
+                fwrite(stderr(), "Unknown tier_band in seed: {$seedTier}\n");
                 exit(1);
             }
             $tier = K2_OPS_TIER_BAND_PRODUCT[$seedTier];
@@ -77,7 +77,7 @@ function k2_ops_seed_milestone_definitions(K2OpsWorkTarget $target, bool $dryRun
             $rule = (string) $row['rule_short'];
             $stmt->bind_param('sssssi', $key, $name, $tier, $token, $rule, $sort);
             if (!$stmt->execute()) {
-                fwrite(STDERR, 'INSERT milestone_definitions: ' . $stmt->error . PHP_EOL);
+                fwrite(stderr(), 'INSERT milestone_definitions: ' . $stmt->error . PHP_EOL);
                 exit(1);
             }
             $sort++;
@@ -97,13 +97,57 @@ function k2_ops_seed_milestone_definitions(K2OpsWorkTarget $target, bool $dryRun
     }
 
     if ($n !== count($rows)) {
-        fwrite(STDERR, "milestone_definitions: expected " . count($rows) . " rows, got {$n}\n");
+        fwrite(stderr(), "milestone_definitions: expected " . count($rows) . " rows, got {$n}\n");
         exit(1);
     }
     if ($n !== $expected) {
         k2_ops_log("WARNING: Seed milestone_count={$expected} but loaded {$n} rows");
     }
     k2_ops_log("[OK] milestone_definitions seeded: {$n} rows");
+}
+
+/**
+ * Repair/sync display_name + rule_short from seed without TRUNCATE (keeps holder_count).
+ * Use after UTF-8 mojibake in rule_short (e.g. ≥ → â‰¥) or copy-only seed edits.
+ */
+function k2_ops_sync_milestone_catalog_copy(K2OpsWorkTarget $target, bool $dryRun, bool $allowDevDb = false): void
+{
+    if (!$allowDevDb) {
+        k2_ops_assert_mutate_work_target($target);
+    } else {
+        k2_ops_log('WARNING: mutating ko2unity_db via local-dev sync-catalog-copy');
+    }
+    require_once dirname(__DIR__, 2) . '/includes/milestone_catalog_seed_sync.php';
+
+    k2_ops_log(
+        'sync_milestone_catalog_copy profile=' . $target->profile
+        . ' dry_run=' . ($dryRun ? 'true' : 'false')
+    );
+    $con = k2_ops_connect_work($target, $allowDevDb);
+    try {
+        if (!k2_ops_table_exists($con, 'milestone_definitions')) {
+            fwrite(stderr(), "milestone_definitions table missing — run migrate-work before sync-catalog-copy.\n");
+            exit(1);
+        }
+        $report = k2_milestone_sync_catalog_copy_from_seed($con, !$dryRun);
+    } finally {
+        $con->close();
+    }
+
+    $changed = $report['changed_keys'];
+    $missing = $report['missing'];
+    k2_ops_log(
+        '[OK] sync_catalog_copy checked=' . $report['checked']
+        . ' would_update_or_updated=' . $report['updated']
+        . ' missing=' . count($missing)
+    );
+    if ($changed !== []) {
+        $show = array_slice($changed, 0, 20);
+        k2_ops_log('changed_keys: ' . implode(', ', $show) . (count($changed) > 20 ? '…' : ''));
+    }
+    if ($missing !== []) {
+        k2_ops_log('WARNING: seed keys missing in DB: ' . implode(', ', array_slice($missing, 0, 20)));
+    }
 }
 
 function k2_ops_prepare_full(K2OpsWorkTarget $target, bool $dryRun): void

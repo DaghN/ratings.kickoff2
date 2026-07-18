@@ -421,6 +421,11 @@ function amiga_participation_derive_event_finish_position(
     $wcEvent = $isWorldCup ?? amiga_tournament_is_world_cup_by_name($tournamentName);
     if ($wcEvent) {
         $finish = amiga_participation_compute_tier_d_wc_finish($standingRows);
+        // Kitchen / pure-league WC stamp: no knockout podium → Tier C league ladder.
+        // Real WCs keep has_cup=1; group-only rows stay empty (Tier D).
+        if ($finish === [] && $hasLeague && !$hasCup && $primaryLeague !== []) {
+            $finish = $primaryLeague;
+        }
     } elseif ($hasLeague && $hasCup && $primaryLeague !== []) {
         $finish = amiga_participation_compute_tier_b_league_cup_finish($standingRows);
     } elseif ($primaryLeague !== []) {

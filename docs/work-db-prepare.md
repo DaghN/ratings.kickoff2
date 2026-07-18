@@ -16,6 +16,7 @@
 | **Refresh work** | Drop/recreate work DB and **clone from baseline** (full MySQL copy). Restores prod ground truth **and** prod-derived values in core tables. | `refresh_local_work_db.ps1` → PHP `run_prepare.php refresh-work` | “Reset work DB” |
 | **Migrate work** | Apply `ops/sql/migrations/` to work only (indexes, KungFu drop, tables). | `ops/run_prepare.php migrate-work` | “Expand” alone (informal OK in chat) |
 | **Seed catalog** | Load `milestone_definitions` reference rows (not unlocks). | `run_prepare.php seed-catalog` | — |
+| **Sync catalog copy** | UPDATE `display_name` / `rule_short` from seed only (no TRUNCATE; keeps `holder_count`). | `run_prepare.php sync-catalog-copy` | Fix mojibake / copy drift |
 | **Zero derived** | Clear **derived** columns/tables to **day-zero pre-game** state. Ground truth rows stay; facts on `ratedresults` stay. | `run_prepare.php zero-derived` (§4.3 + §4.5 truncates) | “Reset” without qualifier |
 | **Simul** | Re-execute derived writers over history (umbrella term). See §3 modes. | `php ops/run_ops_sim.php run` | Assuming simul = only core Elo replay |
 

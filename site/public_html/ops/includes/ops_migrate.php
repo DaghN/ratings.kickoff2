@@ -46,12 +46,12 @@ function k2_ops_apply_migrations(K2OpsWorkTarget $target): void
             k2_ops_log('  -> ' . $name);
             $sql = file_get_contents($path);
             if ($sql === false) {
-                fwrite(STDERR, "Cannot read {$path}\n");
+                fwrite(stderr(), "Cannot read {$path}\n");
                 exit(1);
             }
             $batch = "SET time_zone = '+00:00';\n" . $sql;
             if (!$con->multi_query($batch)) {
-                fwrite(STDERR, "Failed {$name}: {$con->error}\n");
+                fwrite(stderr(), "Failed {$name}: {$con->error}\n");
                 exit(1);
             }
             do {
@@ -62,7 +62,7 @@ function k2_ops_apply_migrations(K2OpsWorkTarget $target): void
                     break;
                 }
                 if (!$con->next_result()) {
-                    fwrite(STDERR, "Failed {$name}: {$con->error}\n");
+                    fwrite(stderr(), "Failed {$name}: {$con->error}\n");
                     exit(1);
                 }
             } while (true);

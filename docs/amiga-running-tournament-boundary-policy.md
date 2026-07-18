@@ -157,6 +157,7 @@ Undo/edit before Make official mutates **fixture running fields only**.
 | **Placement** | Table tab (`view=table`) — primary workspace when the secretary is ready to commit (all results **or** early finish). Results tab may link here; no second finish control on Setup. |
 | **Button** | **Finish and make official** (or **Finish & make official** when width-constrained). |
 | **Helper** | One line under the button: commits to ratings and tournament history; leaves Live hub; joins historical catalog. |
+| **Finish confirm (Planned)** | Before commit, secretary reviews/edits finishing order → Tier E — [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md). |
 | **Retired on Setup** | **Mark complete** button and “finish lifecycle only” happy path removed. Setup keeps **Start tournament** and **Void tournament** only. |
 | **Advanced / CLI** | Raw `lifecycle_status` transitions and `finalize-tournament` remain for operators; not the secretary happy path. |
 
@@ -216,7 +217,7 @@ Finalize **must not** read running fixture score columns after promote — it re
 | Situation | Action |
 |-----------|--------|
 | `rating_finalized = 1` but `lifecycle_status = running` (RTB-1–8 limbo) | CLI `fixtures set-lifecycle-status` → `completed`, or Advanced tab — one-off hygiene after RTB-9 ships. |
-| Finish refused / limbo | Honest message; **do not** silent-rewind on Finish. Advanced **Reset incomplete finish** is explicit (narrow table list). Prefer pull→repair if unsure. |
+| Finish refused / limbo | Honest message; **do not** silent-rewind on Finish. Advanced **Reset incomplete finish** is **limbo-only** (`lifecycle` still `running` + half-official). It is **not** available after successful `completed` Finish — do not tell secretaries to Reset a green event. Prefer pull→repair or a future post-official correction verb. |
 | Void never-official test league | **Abandon league (void)** on Advanced — separate from finish; no promote. |
 
 ---

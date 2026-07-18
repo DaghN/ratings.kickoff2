@@ -22,8 +22,8 @@ k2_ops_require_cli();
 
 $verb = $argv[1] ?? '';
 if ($verb !== 'run') {
-    fwrite(STDERR, "Usage: php run_timeline_sim.php run --target local-work --stop-at ISO-8601-UTC [--start-at ISO] [--dry-run]\n");
-    fwrite(STDERR, "Example: --stop-at 2017-07-10T00:10:00Z  (Monday ~1 month after 2017-06-09)\n");
+    fwrite(stderr(), "Usage: php run_timeline_sim.php run --target local-work --stop-at ISO-8601-UTC [--start-at ISO] [--dry-run]\n");
+    fwrite(stderr(), "Example: --stop-at 2017-07-10T00:10:00Z  (Monday ~1 month after 2017-06-09)\n");
     exit(1);
 }
 
@@ -51,14 +51,14 @@ for ($i = 2, $n = count($argv); $i < $n; $i++) {
 }
 
 if ($stopAtRaw === null || $stopAtRaw === '') {
-    fwrite(STDERR, "run requires --stop-at (e.g. 2017-07-10T00:10:00Z)\n");
+    fwrite(stderr(), "run requires --stop-at (e.g. 2017-07-10T00:10:00Z)\n");
     exit(1);
 }
 
 try {
     $stopAt = new DateTimeImmutable($stopAtRaw, new DateTimeZone('UTC'));
 } catch (Exception $e) {
-    fwrite(STDERR, "Invalid --stop-at: {$stopAtRaw}\n");
+    fwrite(stderr(), "Invalid --stop-at: {$stopAtRaw}\n");
     exit(1);
 }
 
@@ -67,7 +67,7 @@ if ($startAtRaw !== null && $startAtRaw !== '') {
     try {
         $startAt = new DateTimeImmutable($startAtRaw, new DateTimeZone('UTC'));
     } catch (Exception $e) {
-        fwrite(STDERR, "Invalid --start-at: {$startAtRaw}\n");
+        fwrite(stderr(), "Invalid --start-at: {$startAtRaw}\n");
         exit(1);
     }
 }

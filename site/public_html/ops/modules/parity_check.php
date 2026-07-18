@@ -188,6 +188,23 @@ function k2_ops_run_parity_checks(K2OpsWorkTarget $target): array
                 'ok' => $md === $expectedMilestones,
                 'detail' => "rows={$md} expected={$expectedMilestones}",
             ];
+
+            // Double-UTF-8 encoding of ≥ (U+2265) → â‰¥
+            $res = $con->query(
+                "SELECT COUNT(*) AS n FROM milestone_definitions "
+                . "WHERE LOCATE(_utf8mb4 0xC3A2E280B0C2A5, `rule_short`) > 0"
+            );
+            $mojibake = $res ? (int) $res->fetch_assoc()['n'] : -1;
+            if ($res) {
+                $res->free();
+            }
+            $results[] = [
+                'name' => 'milestone_rule_short_no_ge_mojibake',
+                'ok' => $mojibake === 0,
+                'detail' => $mojibake === 0
+                    ? 'no double-encoded ≥ in rule_short'
+                    : "rows with ≥ mojibake={$mojibake} — run sync-catalog-copy",
+            ];
         } else {
             $results[] = [
                 'name' => 'milestone_definitions_seeded',
@@ -274,7 +291,7 @@ function k2_ops_print_parity_report(array $results): int
         }
     }
     if ($failed > 0) {
-        fwrite(STDERR, "Parity: {$failed} check(s) failed\n");
+        fwrite(stderr(), "Parity: {$failed} check(s) failed\n");
         return 1;
     }
     k2_ops_log('Parity: all checks passed');

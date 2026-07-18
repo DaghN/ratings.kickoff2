@@ -20,7 +20,7 @@ function k2_ops_parse_as_of(?string $raw): ?DateTimeImmutable
     try {
         return new DateTimeImmutable($raw, new DateTimeZone('UTC'));
     } catch (Exception) {
-        fwrite(STDERR, "Invalid --as-of (use ISO-8601 UTC, e.g. 2026-05-27T00:00:01Z): {$raw}\n");
+        fwrite(stderr(), "Invalid --as-of (use ISO-8601 UTC, e.g. 2026-05-27T00:00:01Z): {$raw}\n");
         exit(1);
     }
 }
@@ -28,7 +28,7 @@ function k2_ops_parse_as_of(?string $raw): ?DateTimeImmutable
 function k2_ops_require_league_awards_schema(mysqli $con): void
 {
     if (!k2_ops_table_exists($con, 'player_league_award')) {
-        fwrite(STDERR, "Table player_league_award missing — run migrate-work on work DB first.\n");
+        fwrite(stderr(), "Table player_league_award missing — run migrate-work on work DB first.\n");
         exit(1);
     }
 }

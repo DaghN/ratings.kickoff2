@@ -98,13 +98,13 @@ Only the **current** cycle is live. When fixed and re-checked, clear or archive 
 
 | Field | Value |
 |-------|-------|
-| **Status** | idle — L0 complete; awaiting next secretary step / L1 feedback |
+| **Status** | idle — L1 next = finish-confirm **slice 2** (Table UI) |
 | **Format** | — |
 | **Step** | — |
-| **Feedback** | (none) |
-| **Slice** | — |
+| **Feedback** | (none open) |
+| **Slice** | finish-confirm 0–1 done → 2 next |
 
-**Context for next chat:** Ref-League-A L0 green on staging (CREATE → MAKE OFFICIAL → WEBSITE). Next gate = **L1** (UX polish only when Dagh names one feedback on a repeat run), or continue with another Ref-League-A if he wants more reps before L1. Do **not** start cups (L3) or Track C until L1/L2 feel boring enough.
+**Context for next chat:** Finish-confirm **slice 1** write path shipped (`amiga_finish_override_write.php`). Next = **slice 2** Table confirm UI (prefill + persist). Do **not** mix Track C / cup templates. Starter [`amiga-organizer-finish-confirm-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-organizer-finish-confirm-STARTER-PROMPT.md).
 
 When a cycle is open, agents read **this table only** — not historical notes — as the work order.
 
@@ -125,7 +125,7 @@ Milestones are **gates**, not a parallel backlog. Advance when Dagh says the pri
 | **L6** | Ground pack pull | Staging event on laptop (finer than full pull) |
 | **L7** | Media on ran event | YouTube URL on staging tournament |
 
-**Current gate:** **L0 complete** — full Ref-League-A on staging (create → Make official → website). Next = **L1** when Dagh runs the path again and names one feedback (or another L0-style rep with no feedback).
+**Current gate:** **L1** — organizer finish confirm **slices 0–1 done**; next **slice 2** (Table UI).
 
 **Explicit defer until a cycle names them:** structure imprint P2–P3, WC materialize, Lane C media DDL, CR-9 country polish, player-create phase 2, cups before L2 boring.
 
@@ -147,6 +147,7 @@ Closed cycles from early drills. Do **not** treat as open work.
 
 | Date | Step | Feedback | Outcome |
 |------|------|----------|---------|
+| 2026-07-17 | WEBSITE / Finish | #609 WC kitchen: no Finish / no gold | Root cause Tier D vs RR; Reset N/A when completed; durable = finish-confirm policy track (docs); temp Tier C fallback in code |
 | 2026-07-17 | WEBSITE | (none — spot-check green) | Catalog + tournament page + profile effect + gone from Live — **L0 complete**; §4 idle |
 | 2026-07-17 | WEBSITE | Staging cleaned for parity — old #608 gone | No public event to spot-check; §4 → CREATE new kitchen (L0 restart) |
 | 2026-07-16 | MAKE OFFICIAL | `as_of_tournament_id` on slice_totals INSERT | Strip chrono cols from totals upsert; WC-only gate — **Finish success reported**; §4 had → WEBSITE (void after staging clean) |
@@ -166,6 +167,10 @@ Closed cycles from early drills. Do **not** treat as open work.
 
 | Date | Change |
 |------|--------|
+| 2026-07-17 | **Finish confirm slice 1** — Tier E full-ladder write helper + smoke; §4 idle → next slice 2 Table UI. |
+| 2026-07-17 | **Finish confirm slice 0** — inventory + locks in plan §3a; §4 idle → next slice 1 write path. |
+| 2026-07-17 | **Finish confirm track (docs)** — policy FO1–FO10 + plan + starter; §4 idle pending slice 0; #609 cycle archived (Reset limbo-only clarified). |
+| 2026-07-17 | **L1 kitchen WC finish** — WC + `has_cup=0` kitchen RR: Tier D empty → fall back to Tier C league finish (PHP + Python); temporary pending finish-confirm UI. |
 | 2026-07-17 | **L0 complete** — Dagh WEBSITE spot-check green (catalog, tournament page, profile, left Live); §4 idle; gate → L1. |
 | 2026-07-17 | **L0 §4 → CREATE (restart)** — staging cleaned for PHP parity; old kitchen #608 gone; WEBSITE deferred until a new Ref-League-A is finished on staging. |
 | 2026-07-17 | **L0 §4 → WEBSITE** — MAKE OFFICIAL success already reported; parity track separate; next secretary step = public site check. *(superseded same day by staging clean)* |

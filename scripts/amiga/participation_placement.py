@@ -366,6 +366,10 @@ def derive_event_finish_position(
     wc_event = is_world_cup if is_world_cup is not None else is_world_cup_tournament(tournament_name)
     if wc_event:
         finish = compute_tier_d_wc_finish(standing_rows)
+        # Kitchen / pure-league WC stamp: no knockout podium → Tier C league ladder.
+        # Real WCs keep has_cup=1; group-only rows stay empty (Tier D).
+        if not finish and has_league and not has_cup and primary_league:
+            finish = primary_league
     elif has_league and has_cup and primary_league:
         finish = compute_tier_b_league_cup_finish(standing_rows)
     elif primary_league:

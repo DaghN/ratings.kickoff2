@@ -33,17 +33,17 @@ function k2_ops_ensure_generalstatstable(mysqli $con): void
 {
     $path = k2_ops_generalstatstable_sql_path();
     if (!is_file($path)) {
-        fwrite(STDERR, "Missing SQL: {$path}\n");
+        fwrite(stderr(), "Missing SQL: {$path}\n");
         exit(1);
     }
     $sql = file_get_contents($path);
     if ($sql === false || $sql === '') {
-        fwrite(STDERR, "Empty SQL: {$path}\n");
+        fwrite(stderr(), "Empty SQL: {$path}\n");
         exit(1);
     }
     foreach (k2_ops_split_sql_statements($sql) as $statement) {
         if (!$con->query($statement)) {
-            fwrite(STDERR, 'generalstatstable SQL failed: ' . $con->error . PHP_EOL);
+            fwrite(stderr(), 'generalstatstable SQL failed: ' . $con->error . PHP_EOL);
             exit(1);
         }
         if ($result = $con->store_result()) {
@@ -63,7 +63,7 @@ function k2_ops_reset_generalstatstable_row(mysqli $con): void
         . "AND COLUMN_NAME != 'id' ORDER BY ORDINAL_POSITION"
     );
     if ($res === false) {
-        fwrite(STDERR, 'generalstatstable columns: ' . $con->error . PHP_EOL);
+        fwrite(stderr(), 'generalstatstable columns: ' . $con->error . PHP_EOL);
         exit(1);
     }
     $cols = [];
@@ -76,7 +76,7 @@ function k2_ops_reset_generalstatstable_row(mysqli $con): void
     }
     $sets = implode(', ', array_map(static fn (string $c): string => "`{$c}` = NULL", $cols));
     if (!$con->query("UPDATE generalstatstable SET {$sets} WHERE id = 1")) {
-        fwrite(STDERR, 'generalstatstable clear: ' . $con->error . PHP_EOL);
+        fwrite(stderr(), 'generalstatstable clear: ' . $con->error . PHP_EOL);
         exit(1);
     }
     k2_ops_log('generalstatstable id=1 cleared (' . count($cols) . ' columns)');
@@ -121,12 +121,12 @@ function k2_ops_reset_universe(mysqli $con, bool $dryRun): void
 
     k2_ops_ensure_generalstatstable($con);
     if (!$con->query($sqlRated)) {
-        fwrite(STDERR, 'ratedresults clear: ' . $con->error . PHP_EOL);
+        fwrite(stderr(), 'ratedresults clear: ' . $con->error . PHP_EOL);
         exit(1);
     }
     k2_ops_log('ratedresults cleared: ' . $con->affected_rows . ' rows affected');
     if (!$con->query($sqlPlayer)) {
-        fwrite(STDERR, 'playertable reset: ' . $con->error . PHP_EOL);
+        fwrite(stderr(), 'playertable reset: ' . $con->error . PHP_EOL);
         exit(1);
     }
     k2_ops_log('playertable reset: ' . $con->affected_rows . ' rows affected');
@@ -143,7 +143,7 @@ function k2_ops_truncate_aggregate_tables(mysqli $con, bool $dryRun): void
         }
         k2_ops_log("truncate {$table}");
         if (!$dryRun && !$con->query("TRUNCATE TABLE `{$table}`")) {
-            fwrite(STDERR, "truncate {$table}: " . $con->error . PHP_EOL);
+            fwrite(stderr(), "truncate {$table}: " . $con->error . PHP_EOL);
             exit(1);
         }
     }

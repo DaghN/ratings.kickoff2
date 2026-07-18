@@ -29,3 +29,13 @@ host = 127.0.0.1
 port = 3306
 user = root
 password =
+
+; Extra server profiles (e.g. live-game) need only an ini section — loader accepts ini-only names.
+; Never commit a filled work-targets.ini. Do not put live passwords in ops_prepare_constants.php.
+; [live-game]
+; work_database = kooldb
+; baseline_database = kooldb
+; host = YOUR_LIVE_HOST
+; port = YOUR_PORT
+; user = YOUR_USER
+; password = YOUR_PASSWORD

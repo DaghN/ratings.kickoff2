@@ -25,8 +25,8 @@ k2_ops_require_cli();
 
 $verb = $argv[1] ?? '';
 if ($verb === '' || str_starts_with($verb, '-')) {
-    fwrite(STDERR, "Usage: php run_finalize_league.php <verb> [--target local-work|local-dev|staging-work] [--as-of ISO-8601-UTC]\n");
-    fwrite(STDERR, "Verbs: finalize-due (PER-003), rebuild-all (REP-012), rebuild-aggregates (REP-013)\n");
+    fwrite(stderr(), "Usage: php run_finalize_league.php <verb> [--target local-work|local-dev|staging-work] [--as-of ISO-8601-UTC]\n");
+    fwrite(stderr(), "Verbs: finalize-due (PER-003), rebuild-all (REP-012), rebuild-aggregates (REP-013)\n");
     exit(1);
 }
 
@@ -47,7 +47,7 @@ for ($i = 2, $n = count($argv); $i < $n; $i++) {
 
 $allowed = ['finalize-due', 'rebuild-all', 'rebuild-aggregates'];
 if (!in_array($verb, $allowed, true)) {
-    fwrite(STDERR, "Unknown verb {$verb}\n");
+    fwrite(stderr(), "Unknown verb {$verb}\n");
     exit(1);
 }
 
