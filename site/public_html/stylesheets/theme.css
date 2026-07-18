@@ -5095,7 +5095,7 @@ body.k2-site .k2-player-hero__stat-value:not([class*="--"]) a.k2-player-hero__st
 	align-items: stretch;
 	justify-content: stretch;
 	min-width: 0;
-	min-height: 11.875rem;
+	min-height: calc(11.875rem + 15px);
 	overflow: hidden;
 	--k2-heritage-inset-fill: color-mix(in srgb, var(--k2-bg-page) 38%, var(--k2-bg-surface));
 }
@@ -5231,7 +5231,7 @@ body.k2-site .k2-player-hero__stat-value:not([class*="--"]) a.k2-player-hero__st
 /* Neon-noir scene fill — tall art, object-fit cover; no tint lamp (scene has its own light) */
 .k2-status-heritage-inset--scene {
 	padding: 0;
-	min-height: 11.875rem;
+	min-height: calc(11.875rem + 15px);
 	background: #070a0e;
 	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k2-accent) 8%, transparent);
 }
@@ -5250,7 +5250,7 @@ body.k2-site .k2-player-hero__stat-value:not([class*="--"]) a.k2-player-hero__st
 	margin: 0;
 	border-radius: 0;
 	object-fit: cover;
-	object-position: center center;
+	object-position: center calc(50% - 7px);
 	opacity: 1;
 	filter: none;
 	box-shadow: none;
