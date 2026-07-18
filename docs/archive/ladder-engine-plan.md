@@ -19,7 +19,7 @@
 | `docs/ratedresults-schema.md` | Online per-game row shape (snapshot) |
 | `docs/playertable-schema.md` | Online per-player aggregates (snapshot) |
 | `docs/generalstatstable-schema.md` | Server-wide single row `id=1` (snapshot) |
-| `data/README.md` | Local SQL dump import (not in Git) |
+| `data/README.md` | Local SQL dump import (working extracts often gitignored; sealed continuity backups belong in git — see repo README Continuity) |
 | `docs/LOCAL_DEV.md` | Laragon, `ratingskickoff.test`, local DB name |
 | `docs/replay-v1-scope-and-reset.md` | **P0** — scope + reset manifest (expanded in v2 replay) |
 

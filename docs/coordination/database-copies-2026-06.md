@@ -99,11 +99,13 @@ powershell -ExecutionPolicy Bypass -File scripts\check_local_dev.ps1
 
 ---
 
-## Archive files (not in Git)
+## Archive / dump files
+
+Working online extracts often live under `data/dumps/` (gitignored by default). **Sealed continuity backups belong in git** when milestoned (Amiga: `data/amiga/day0/`, `data/amiga/checkpoints/`; online: same habit wanted). See repo [`README.md`](../../README.md) Continuity · [`data/dumps/README.md`](../../data/dumps/README.md).
 
 | File | Location |
 |------|----------|
-| **Prod** | `data/dumps/ko2unity_prod-2026-06-02.sql` from `Downloads\KOOL_DB_Live.zip` |
+| **Prod (working extract)** | `data/dumps/ko2unity_prod-2026-06-02.sql` from `Downloads\KOOL_DB_Live.zip` — local/working unless sealed into a git milestone |
 | **Staging (optional)** | `Downloads\kooldb.zip` → `kooldb.sql` (2026-06-02); not imported locally by default |
 | **Legacy dev** | `data/dumps/ko2unity_db-2026-05-20.sql` — old dev import; not prod |
 

@@ -149,6 +149,9 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-18 | **DB-in-git policy corrected** — sealed continuity backups **belong in git** (Amiga checkpoints/day0; online wanted). Sweep: brief, README Continuity, `data/*`, PROJECT_MAP, LOCAL_DEV, ladder-ops, database-copies, AGENTS trap, two archive prompts + ladder-engine-plan. Secrets still out; working dumps may stay gitignored until sealed. |
+| 2026-07-18 | **README human overview** — title **Kick Off 2 ratings** (KOOL as online wording, not lead identity); opener + Amiga para align with brief content-platform framing. |
+| 2026-07-18 | **PROJECT_BRIEF redraft** — dual-realm **rich KO2 content platform** (stats spine + News/lore/video/organizer growth); not all-KO2 umbrella; not legacy-stats-only. Cross-touch: `design-direction` lead, `k2-mobile-smartphone-policy` stance. |
 | 2026-07-18 | **Online PHP ops cutover docs sweep** — Tier 1+2 authority docs aligned: live derived = PHP ops since 2026-07-18 / C++ derived retired; schema-register + online feature-log rows flipped; topology left alone. Handoff: [`online-php-ops-cutover-docs-sweep-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/online-php-ops-cutover-docs-sweep-STARTER-PROMPT.md). |
 | 2026-07-18 | **Live PHP ops cutover** — Dagh confirmed live games on PHP `ops/` (Steve ground + invoke; derived from this repo). Status: [`cutover-readiness.md`](docs/coordination/cutover-readiness.md) C Done; [`ladder-ops-platform.md`](docs/ladder-ops-platform.md) Prod today = PHP ops. |
 | 2026-07-18 | **Cutover docs sweep (deferred topology)** — starter for careful C++→PHP-ops doc cleanup only: [`online-php-ops-cutover-docs-sweep-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/online-php-ops-cutover-docs-sweep-STARTER-PROMPT.md). Staging/prod host topology left alone. |

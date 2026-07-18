@@ -53,7 +53,7 @@ Run the export script if possible:
 
 or the repository's established equivalent.
 
-After export, inspect `git status` carefully. Some generated SQL dump parts may be ignored or intentionally untracked. Do not force-add ignored files unless the repository clearly tracks them or the prompt/docs indicate they should be tracked.
+After export, inspect `git status` carefully. Staging `_import/` SQL part files are usually gitignored (WinSCP carries them). Do not force-add ignored **working** export parts unless Dagh asks. **Sealed continuity backups** (Amiga checkpoints / day0; online when milestoned) are intentional git archives — see repo `README.md` Continuity.
 
 At minimum, verify:
 

@@ -6,9 +6,9 @@
 
 ## What this is
 
-**KOOL Kick Off 2 ratings site** — PHP + MariaDB ladder/stats for online play. Dagh iterates locally: **`http://ratingskickoff.test`** (dev DB) and **`http://work.ratingskickoff.test`** (work DB); deploys PHP to **staging** via **WinSCP**; **production** coordinated with **Steve** later.
+**Kick Off 2 ratings** — PHP + MariaDB: live **online** (KOOL) ladder/stats **and** a full **Amiga 500** offline tournament realm (plus present-layer / media / organizer growth). Dagh iterates locally: **`http://ratingskickoff.test`** (dev DB) and **`http://work.ratingskickoff.test`** (work DB); deploys PHP to **staging** via **WinSCP**; **production** coordinated with **Steve**.
 
-Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense stats UI, Chart.js APIs.
+Not a greenfield app: legacy online tables (`ratedresults`, `playertable`, …), dense stats UI, Chart.js APIs — plus Amiga ground/derived stack and editorial surfaces. Purpose: [`PROJECT_BRIEF.md`](../PROJECT_BRIEF.md).
 
 ---
 
@@ -42,11 +42,11 @@ Not a greenfield app: legacy tables (`ratedresults`, `playertable`, …), dense 
 | `docs/present-layer-ia.md` | **Present layer & site completion** — News, pulse, Misc shelf, leaf pages, footer/about, path to shippable v1 (intent/policy; PL1–PL16) |
 | `docs/k2-jukebox-popup.md` | **Gapless audio = popup window** (Turbo removed Jun 2026); FAB launcher + `BroadcastChannel`; centred window + raise/behind toggle |
 | `docs/k2-turbo-page-init-checklist.md` | **Historical (Turbo removed Jun 2026).** Page JS boot now plain full loads — prefer `k2OnPageReady` (shim `js/k2-page-boot.js`) + idempotent guards. Carry-scroll / `#fragment` hash landing live in `includes/k2_carry_scroll_restore.php` (pre-paint cloak) |
-| `data/dumps/` | Local SQL dump (gitignored) |
+| `data/dumps/` | Working online SQL extracts (often gitignored until sealed); continuity backups **do** belong in git when milestoned |
 | `data/amiga/day0/` | L3 witness archive (git-tracked) |
 | `data/amiga/checkpoints/` | Milestone **`ko2amiga_work`** git seals — [`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md) |
 | `README.md` | Human repo overview — website + DB/ops backbone, continuity, dive-deeper links (agents → `AGENTS.md`) |
-| `PROJECT_BRIEF.md` | Product taste / north star |
+| `PROJECT_BRIEF.md` | Product purpose / taste / north star (rich KO2 content platform; dual realm) |
 | `PROJECT_MEMORY.md` | **Current focus**, deploy facts, recent log |
 
 ---

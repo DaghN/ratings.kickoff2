@@ -1,6 +1,8 @@
-# Database dumps (gitignored contents)
+# Database dumps (working extracts)
 
-Files here are **not in Git**. See [`data/README.md`](../README.md).
+**Policy:** intentional **continuity backups** of database state **belong in git** when sealed as milestones (Amiga: `data/amiga/checkpoints/`, `data/amiga/day0/`; online: same habit wanted). See [`PROJECT_BRIEF.md`](../../PROJECT_BRIEF.md) and repo [`README.md`](../../README.md) Continuity.
+
+This folder holds **working / local** online extracts. Contents are often **gitignored** until a sealed online checkpoint habit exists — that is hygiene for large scratch dumps, **not** “databases must never be committed.”
 
 ## Safe prod archive
 

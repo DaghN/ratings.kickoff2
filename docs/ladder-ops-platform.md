@@ -143,7 +143,7 @@ See **[`coordination/database-copies-2026-06.md`](coordination/database-copies-2
 
 **Schema:**
 
-- **Canonical:** `site/public_html/ops/sql/migrations/` — synced with ops; apply via `run_prepare.php migrate-work` ([`coordination/ops-schema-migrations.md`](coordination/ops-schema-migrations.md)). **Track in git** (repo `.gitignore` allowlists ops SCH DDL; only `data/dumps/` etc. stay ignored).
+- **Canonical:** `site/public_html/ops/sql/migrations/` — synced with ops; apply via `run_prepare.php migrate-work` ([`coordination/ops-schema-migrations.md`](coordination/ops-schema-migrations.md)). **Track in git** (repo `.gitignore` allowlists ops SCH DDL). Working `data/dumps/` extracts are often ignored until sealed; **intentional DB continuity backups belong in git** ([`README.md`](../README.md) Continuity).
 - **Legacy wrapper:** `schema/apply_local.ps1` (Laragon) reads the same files.
 
 **Not synced (exclude in WinSCP):** `scripts/*.ps1` (Windows), `data/dumps/`, gitignored config — especially:
@@ -330,4 +330,4 @@ Periodic: php ops/dispatch.php CMD=… (scheduler)
 
 - Replacing [`website-data-contract.md`](website-data-contract.md) row-level rules before implementation.
 - Recreating deleted `staging-scripts/` cutover runners under `public_html/`.
-- Committing raw prod SQL dumps to git.
+- Casually committing every working/raw prod SQL extract from `data/dumps/` (scratch hygiene). **Sealed continuity backups belong in git** when milestoned — Amiga day0/checkpoints already; online the same habit is wanted ([`README.md`](../README.md) Continuity). Never commit secrets / credential configs.

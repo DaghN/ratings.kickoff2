@@ -30,7 +30,7 @@ See **`docs/coordination/database-copies-2026-06.md`** (DB names) and **`docs/ST
 | Hosts entry | `127.0.0.1 ratingskickoff.test` (#laragon magic!) |
 | Local dev DB | **`ko2unity_db`** (PHP config) |
 | Prod sandbox | **`ko2unity_baseline`** + **`ko2unity_work`** — see `data/README.md` |
-| Prod SQL dump (gitignored) | `data/dumps/ko2unity_prod-2026-06-02.sql` |
+| Prod SQL dump (working; often gitignored) | `data/dumps/ko2unity_prod-2026-06-02.sql` — sealed continuity backups **do** belong in git ([`README.md`](../README.md) Continuity) |
 | PHP DB config | Router: `site/config/ko2unitydb_config.php` · credentials: `*.local.php` (gitignored) |
 | Python DB config | Same as PHP: `site/config/ko2unitydb_config.php` (optional `ladder.ini` override) |
 | Examples (committed) | `site/config/*.example` |
@@ -203,7 +203,7 @@ With the junction, that resolves to **`site/config/`** in the repo. Copy from **
 1. Assume **Start Menu Laragon → Start All** is enough if `setup_laragon_apache_fix.ps1` was run; use **`check_local_dev.ps1`** only when diagnosing failures.
 2. DB work: confirm `DATABASE()` = `ko2unity_db`.
 3. Destructive scripts: **dry-run first**; keep pristine SQL dump for re-import.
-4. Do **not** commit `data/dumps/*.sql` or `site/config/ko2unitydb_config.php`. **Staging / cutover ladder work:** [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md) + ops simul — **not** Laragon. [`STAGING_REPLAY.md`](STAGING_REPLAY.md) is an **archive redirect** only (May 2026 one-shot record).
+4. **Secrets:** do **not** commit `site/config/ko2unitydb_config.php` / `*.local.php` / ops credential ini. **Working** `data/dumps/*.sql` stay untracked by default; **do not** treat that as “databases must never be in git” — sealed continuity backups belong in git ([`README.md`](../README.md) Continuity · [`PROJECT_BRIEF.md`](../PROJECT_BRIEF.md)). **Staging / cutover ladder work:** [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md) + ops simul — **not** Laragon. [`STAGING_REPLAY.md`](STAGING_REPLAY.md) is an **archive redirect** only (May 2026 one-shot record).
 
 ---
 

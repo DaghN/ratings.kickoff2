@@ -1,6 +1,8 @@
-# Local data (not in Git)
+# Local data
 
 **Inventory:** [`docs/coordination/database-copies-2026-06.md`](../docs/coordination/database-copies-2026-06.md)
+
+**Git policy:** sealed DB continuity backups **belong in git** (Amiga checkpoints / day0 already; online wanted). Secrets and scratch working dumps stay out until sealed — see repo [`README.md`](../README.md) Continuity and [`dumps/README.md`](dumps/README.md).
 
 ---
 

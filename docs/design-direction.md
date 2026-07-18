@@ -10,7 +10,7 @@
 
 ## Current Contract
 
-The ratings site should feel like a live, premium stats surface for a competitive retro community: dark, precise, vibrant, and alive. It should not clone kickoff2.com's museum/pixel-pitch look.
+The site should feel like a live, premium Kick Off 2 content surface for a competitive retro community — dark, precise, vibrant, and alive — with **data leading** on ladder pages and chrome supporting editorial, media, and hang-out surfaces. It keeps its own neon-noir visual identity; sibling sites such as kickoff2.com remain distinct. Product purpose: [`PROJECT_BRIEF.md`](../PROJECT_BRIEF.md).
 
 Use **neon noir statistics** as the shorthand:
 

@@ -54,7 +54,7 @@ Include whether WinSCP/import was run by Dagh or deferred, and what was verified
 
 - No schema changes.
 - No public UI feature work.
-- Do not force-add gitignored SQL dumps unless repo precedent requires it.
+- Do not force-add **staging `_import/` / working** gitignored SQL dumps unless Dagh asks. **Sealed continuity checkpoints** (Amiga `day0/` / `checkpoints/`; online when milestoned) are intentional git archives — see repo `README.md` Continuity.
 
 ## Expected final response
 

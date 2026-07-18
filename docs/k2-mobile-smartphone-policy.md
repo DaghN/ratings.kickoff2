@@ -9,7 +9,7 @@
 
 ## Product stance
 
-Kick Off 2 ratings is a **stats surface** for a niche retro community — not a consumer funnel app. The primary artifact is **comparability across rows and columns** (leaderboards, game lists, standings, charts). PC remains the main workflow; smartphone use is **usable when convenient**.
+Kick Off 2 ratings is a **rich content platform** for a niche retro community (historically stats-first; still dense where comparison is the job) — not a consumer funnel app. On ladder and table pages, the primary artifact is **comparability across rows and columns** (leaderboards, game lists, standings, charts). PC remains the main workflow; smartphone use is **usable when convenient**.
 
 **Deliberate compromise — read-first, pinch-second:**
 
