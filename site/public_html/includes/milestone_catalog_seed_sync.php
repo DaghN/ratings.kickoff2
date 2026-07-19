@@ -6,12 +6,21 @@
 declare(strict_types=1);
 
 /**
- * Double-UTF-8 encoding of U+2265 (≥) appears as â‰¥ (bytes C3 A2 E2 80 B0 C2 A5).
- * Repair on read so corrupted staging rows still render correctly until DB sync.
+ * Double-UTF-8 encoding of common seed glyphs appears as mojibake in rule_short.
+ * Repair on read so corrupted live/staging rows still render correctly until DB sync.
+ *   ≥ (U+2265) → â‰¥  (bytes C3 A2 E2 80 B0 C2 A5)
+ *   ’ (U+2019) → â€™ (bytes C3 A2 E2 82 AC E2 84 A2)
+ *   – (U+2013) → â€œ (bytes C3 A2 E2 82 AC E2 80 9C)  // looks like 10â€“10
  */
 function k2_milestone_repair_rule_utf8_mojibake(string $text): string
 {
-    return str_replace("\xC3\xA2\xE2\x80\xB0\xC2\xA5", "\xE2\x89\xA5", $text);
+    static $map = [
+        "\xC3\xA2\xE2\x80\xB0\xC2\xA5" => "\xE2\x89\xA5", // ≥
+        "\xC3\xA2\xE2\x82\xAC\xE2\x84\xA2" => "\xE2\x80\x99", // ’
+        "\xC3\xA2\xE2\x82\xAC\xE2\x80\x9C" => "\xE2\x80\x93", // –
+    ];
+
+    return str_replace(array_keys($map), array_values($map), $text);
 }
 
 function k2_milestone_catalog_seed_json_path(): string

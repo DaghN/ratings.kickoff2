@@ -43,7 +43,7 @@ See policy **SRL-1…SRL-16**. Implementer essentials:
 | Interval | 1 s client poll; **fresh DB signal read** each pulse (no server signal cache on read path) |
 | Cascade trigger | `last_rated_id` change |
 | League | Active tab only; Activity + Points |
-| Clock | Client ticks `half_countdown` at 50/s; **`live_clocks` on every pulse** with SRL-9 smart anchor (keep prior when sample unchanged/behind) |
+| Clock | Client SRL-9: **pending** → **running** (smooth uncapped) → **held** after 6 s idle; client `sync_epoch` |
 | Glow | Minimal lobby set + **cascade:** active LB Elo (gainers); league Activity **Games** (both finishers); Points **Pts** (winner, or both on draw) — white bloom @ 2.6 s |
 | Tab hidden | **Keep polling**; **catch-up poll** on visible (`visibilitychange` / `pageshow` / `focus`) |
 | Prod | Pulse = DB reads only; sim tick hook **guarded no-op** off work — see policy § Production readiness |
@@ -274,7 +274,7 @@ Add `scripts/oneoff/status_room_pulse_probe.php` — prints signal bundle + timi
 | 1 s × N viewers DB load | Fresh signal SQL each poll; **`changed: false`** skips section HTML only; monitor on prod |
 | Rating table sortable break after tbody swap | **`k2TableRefreshSortableBody()`** after cascade — preserves user sort or defaults to Elo desc |
 | Staging looks “broken” | Document in UI? **No** — use **work live sim** for moving lobby; staging is snapshot |
-| Half clock drift | **`live_clocks` every heartbeat** + smart anchor (Jul 2026) — 1 s client tick OK when prod `HalfCountdown` is sparse |
+| Half clock drift | SRL-9 pending / running / held (Jul 2026) — smooth mid-match; hold after 6 s with no decrease |
 | `last_rated_id` alone misses unrated finish | Rare for Status story; live_fp drop still catches live panel |
 
 ---

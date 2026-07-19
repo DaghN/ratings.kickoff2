@@ -40,9 +40,9 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 | SRL-6 | **Between finishes:** no rating-table or league-standings work. Heading count reloads **with** the full rating table on cascade, not on its own. |
 | SRL-7 | **League refresh:** **active period tab only** (Day / Week / Month / Year). No adjacent-tab prewarm in v1 — keep simple. |
 | SRL-8 | **Both** Activity + Points league tables in cascade (same period key as active tab). Reuse existing league query/API helpers where possible. **Daily / Weekly games blocks** refresh with the same league pulse when that tab is active (`day_games` / `week_games_html` on the league section). |
-| SRL-9 | **Live half clock:** client ticks from server `half_countdown` (50 ticks/s) + `sync_epoch`; pulse sends `live_clocks` every heartbeat but the client **keeps** the prior anchor when the sample is unchanged or behind local prediction (prod `HalfCountdown` may update sparsely). Take server on new game, period change, countdown reset upward, or when server is ahead. Display `M:SS`. |
-| SRL-10 | **Glow — minimal set + cascade:** (1) **Online** — name when **`LastLogin` epoch increased** (warm bloom). (2) **Live** — new game **score digits** (0–0, white). (3) **Recent** — names (warm) + score digits (white). (4) **Goals** — scoring digit (white). (5) **Active LB** — **Elo** (warm). (6) **League Activity** — **Games** (warm). (7) **League Points** — **Pts** (warm). **2.6 s**. Scores / `.blue` = white; accent ink = warm. |
-| SRL-11 | **Glow — score change:** **`k2-live-glow-bloom-white`** on the scoring digit (inner `.blue` when leading, else plain cell) — bright white ink, not accent or stat-green bloom |
+| SRL-9 | **Live half clock (state machine):** § Half countdown math — **pending** until first decrease (or mid-half join); **running** = smooth uncapped 1 s tick on **client** clock; **held** after **6 s** with no decrease (pause). Re-anchor on decrease only when server is ahead of/equal to local. Injury time = later. |
+| SRL-10 | **Glow — minimal set + cascade:** (1) **Online** — name when **`LastLogin` epoch increased** (warm bloom). (2) **Live** — new game **score digits** (0–0, white). (3) **Recent** — names (warm) + score digits (white). (4) **Goals** — scoring cell white bloom then digit reveal (SRL-11). (5) **Active LB** — **Elo** (warm). (6) **League Activity** — **Games** (warm). (7) **League Points** — **Pts** (warm). **2.6 s**. Scores / `.blue` = white; accent ink = warm. |
+| SRL-11 | **Glow — live goal:** white bloom on scoring **cell**; **reveal new digit at ~2 s** into the 2.6 s bloom — old digit glows first, then count updates in place. Kickoff 0–0 glow unchanged (immediate). |
 | SRL-12 | **Retired — cascade glow sequence:** no post-cascade glow choreography. Glow only from **SRL-10/11** lobby rules. |
 | SRL-13 | **First paint stays SSR** — `status.php` + `k2_status_load_room()` unchanged for no-JS and fast paint; heartbeat **enhances**. |
 | SRL-14 | **Revision / fingerprint** — when no signals changed, API returns `{ changed: false, revision, server_now_epoch, live_clocks }` (tiny body; **`live_clocks` always** for SRL-9). |
@@ -60,11 +60,11 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 
 | Signal | Source | Client action |
 |--------|--------|---------------|
-| `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, `GamePeriod`) — **not** `half_countdown`; client ticks clock locally between polls | Patch live list on fp change; **goal glow** on score increase; **score digit glow** (0–0 white bloom) on new live game row only; **`live_clocks` every heartbeat** for SRL-9 (smart anchor — see half-countdown math) |
+| `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, `GamePeriod`) — **not** `half_countdown`; client ticks clock locally between polls | Patch live list on fp change; **goal glow** on score increase; **score digit glow** (0–0 white bloom) on new live game row only; **`live_clocks` every heartbeat** for SRL-9 (pending / running + stale budget) |
 | `online_fp` | Ordered online player ids (login-first sort) | Patch Online list + heading count (**count: no glow**); **name glow** when row `data-last-login-epoch` increased vs session memory (just logged in; both same-second logins glow) |
 | `last_login_epoch` | Head of `playertable.LastLogin` | Refresh recent logins — **no glow** |
 | `last_join_epoch` | Head of `playertable.JoinDate` | Refresh new players — **no glow** |
-| Local 1 s timer | Client math on last live payload | Tick half clocks (`half_countdown` at 50 ticks/s) |
+| Local 1 s timer | Client math on last live payload | Tick when **running**; freeze when **pending** or **held** (SRL-9) |
 
 ### Rated finish cascade (rare, coordinated refresh)
 
@@ -130,15 +130,41 @@ Per game in JSON:
 | `period` | `1st half` / `2nd half` |
 | `half_countdown` | **Client-ticked** `M:SS` in `.k2-status-live-list__clock` |
 
-**Half countdown math (locked):** 50 ticks per second ([`k2_status_format_half_countdown()`](../../site/public_html/includes/status_queries.php)). On sync:
+**Half countdown math (locked):** 50 ticks per second ([`k2_status_format_half_countdown()`](../../site/public_html/includes/status_queries.php)). Full half = **15000** ticks (`5:00`). Prod `HalfCountdown` often updates about every **~3 wall seconds**.
+
+Pulse always includes `live_clocks`. Client per-game phases (`status-room-live.js`):
+
+| Phase | When | Display |
+|-------|------|---------|
+| **pending** | New game / new half at full time (`≥ 15000`), or `half ≤ 0` (`—`) | Frozen at server sample — **no** client tick |
+| **running** | First **decrease** of `HalfCountdown` in the same period, or first sample already mid-half (`0 < half < 15000`) | Smooth 1 s interpolation from last anchor |
+| **held** | No decrease for **`PAUSE_DETECT_SEC = 6`** while running (pause / stalled writes) | Frozen until the next decrease |
+
+**Running tick:**
 
 `remaining_ticks = half_countdown - (client_now - sync_epoch) * 50`
 
-Clamp at 0 → display `—`. Pulse always includes `live_clocks`, but the client **does not** reset `sync_epoch` on every heartbeat: keep the prior anchor when `half_countdown`+`period` are unchanged, or when a new sample is still behind the local prediction (sparse game-server writes). Take server as truth on new `game_id`, `period` change, countdown reset upward, or when server remaining is ahead of local.
+- **`sync_epoch` uses the client clock** (`Date.now()`), never pulse `server_now_epoch` — avoids freeze/stutter when server time is ahead of the browser.
+- **No per-tick stale cap** — capping at ~4 s caused pause-between-seconds stutter when writes were irregular. Pause is **held** after 6 s without a decrease instead.
+- Clamp at 0 → display `—`.
+
+| Event | Action |
+|-------|--------|
+| Sample unchanged | Keep prior anchor; after 6 s running → **held** |
+| `HalfCountdown` decreases and server ≤ local prediction | Keep local (sparse write behind the tick) |
+| `HalfCountdown` decreases and server ≥ local | → **running**, re-anchor on client now |
+| Period change or countdown reset upward to full half | → **pending** until next decrease |
+| Mid-match page load (`half` already below full) | → **running** immediately |
+
+**Goals (SRL-9):**
+
+1. **Do not start** before the server clock actually moves (hold at `5:00` while row exists but countdown still full).
+2. **Do not run ahead** when the server clock stops — after 6 s with no decrease → **held** (allows smooth tick across the normal ~3 s write gap).
+3. **Injury time (later):** no Status-wired pause/injury field today (`HalfCountdown` + `GamePeriod` only). Probe candidates later: `GameEventJSON` / `FrameDataJSON`, or `half = 0` while still live — not implemented.
 
 **Diff rules:**
 
-- Same `game_id`, score/period changed → update scores in place (no list HTML replace); pulse **only the goal cell(s) that increased**; resync clock anchor from payload
+- Same `game_id`, score/period changed → update scores in place (no list HTML replace); on goal: **glow scoring cell → reveal new digit at ~2 s** (SRL-11); resync clock anchor from payload
 - New `game_id` → list replace; **kickoff score digit glow** on new live row(s).
 - Missing `game_id` → remove row (no glow)
 - **Empty list** → “No live games in progress.” plus **This week's league standings →** (SSR + `applyLiveEmpty` in `status-room-live.js`; href from `data-week-league-href` on the Live panel → `#k2-status-leagues-title` with current week lens)
@@ -156,7 +182,7 @@ Clamp at 0 → display `—`. Pulse always includes `live_clocks`, but the clien
 | Player enters Online panel | **Name** — warm bloom when **`LastLogin` advanced** |
 | New live game row | **Score digits** — white bloom (0–0 kickoff) |
 | New recent game row | **Names** warm + **score digits** white |
-| Goal scored (live) | **Scoring digit** — white bloom |
+| Goal scored (live) | **Scoring cell** — white bloom on old digit, **new count at ~2 s** (SRL-11) |
 | Rated finish — rating gainer in active LB | **Elo link** — warm bloom |
 | Rated finish — league Activity | **Games** cell — warm bloom |
 | Rated finish — league Points | **Pts** cell — warm bloom |
@@ -244,7 +270,7 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 |------|---------|
 | **Sync PHP/JS to prod** | **Yes** — sim never runs outside `ko2unity_work` + `work.ratingskickoff.test` |
 | **Pulse reads only** | **Yes** — no sim JSON; no signal cache on read path |
-| **Clock accuracy on prod** | **Client-interpolated** — 1 s display tick does **not** require 1 Hz `HalfCountdown` writes; sparse game-server updates are OK. Server still needed for score/period/finish truth |
+| **Clock accuracy on prod** | **Client state machine** — pending → running (smooth, client `sync_epoch`) → held after 6 s without decrease; injury not wired |
 | **Validated on prod-like traffic** | **Work sim + staging snapshot only** — soak on real server recommended |
 
 ### What prod pulse does (every request)
@@ -270,7 +296,7 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 ### Client contract (prod-safe)
 
 - Poll `GET /api/status_room_pulse.php` with previous `signals` query params; apply `sections` patches when `changed: true`.
-- **`live_clocks`** on **every** response — client applies SRL-9 smart anchor (keep prior tick base when sample unchanged/behind; take server when ahead or structural change).
+- **`live_clocks`** on **every** response — client applies SRL-9 state machine (pending / running / held).
 - No sim URLs or host branches in client JS.
 
 ---
@@ -308,6 +334,9 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 
 | Date | Change |
 |------|--------|
+| 2026-07-19 | **SRL-11 goal reveal** — live score: glow first, swap digit at ~2 s (cell wrapper glow; in-place write) |
+| 2026-07-19 | **SRL-9 smooth running** — drop 4 s tick cap (caused stutter); client `sync_epoch`; **held** after 6 s without decrease; keep local when sparse write behind |
+| 2026-07-19 | **SRL-9 clock phases** — pending until first `HalfCountdown` decrease; running tick capped by 4 s stale budget (pre-start + pause); injury time deferred |
 | 2026-07-19 | **SRL-9 sparse HalfCountdown** — client keeps prior clock anchor when pulse repeats a stale/behind sample; 1 s tick without Steve write-cadence change |
 | 2026-07-18 | **Live empty → week league link** — empty Live pane shows **This week's league standings →** to `#k2-status-leagues-title` (current week); SSR + `applyLiveEmpty` via `data-week-league-href`. |
 | 2026-07-18 | **League pulse → Daily/Weekly games** — cascade / `league_fp` reload includes `day_games` or `week_games_html` when that tab is active; client `applyLeaguePulse` refreshes the games block. |

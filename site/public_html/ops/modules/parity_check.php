@@ -205,6 +205,40 @@ function k2_ops_run_parity_checks(K2OpsWorkTarget $target): array
                     ? 'no double-encoded ≥ in rule_short'
                     : "rows with ≥ mojibake={$mojibake} — run sync-catalog-copy",
             ];
+
+            // Double-UTF-8 encoding of ’ (U+2019) → â€™
+            $res = $con->query(
+                "SELECT COUNT(*) AS n FROM milestone_definitions "
+                . "WHERE LOCATE(_utf8mb4 0xC3A2E282ACE284A2, `rule_short`) > 0"
+            );
+            $aposMojibake = $res ? (int) $res->fetch_assoc()['n'] : -1;
+            if ($res) {
+                $res->free();
+            }
+            $results[] = [
+                'name' => 'milestone_rule_short_no_apos_mojibake',
+                'ok' => $aposMojibake === 0,
+                'detail' => $aposMojibake === 0
+                    ? 'no double-encoded ’ in rule_short'
+                    : "rows with ’ mojibake={$aposMojibake} — run sync-catalog-copy",
+            ];
+
+            // Double-UTF-8 encoding of – (U+2013) → â€œ
+            $res = $con->query(
+                "SELECT COUNT(*) AS n FROM milestone_definitions "
+                . "WHERE LOCATE(_utf8mb4 0xC3A2E282ACE2809C, `rule_short`) > 0"
+            );
+            $ndashMojibake = $res ? (int) $res->fetch_assoc()['n'] : -1;
+            if ($res) {
+                $res->free();
+            }
+            $results[] = [
+                'name' => 'milestone_rule_short_no_ndash_mojibake',
+                'ok' => $ndashMojibake === 0,
+                'detail' => $ndashMojibake === 0
+                    ? 'no double-encoded – in rule_short'
+                    : "rows with – mojibake={$ndashMojibake} — run sync-catalog-copy",
+            ];
         } else {
             $results[] = [
                 'name' => 'milestone_definitions_seeded',

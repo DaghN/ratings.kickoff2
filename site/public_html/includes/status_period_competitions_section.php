@@ -264,6 +264,7 @@ $podiumMedalHtml = [
 			data-server-now-epoch="<?php echo (int) $serverNowEpoch; ?>"
 			data-activity-limit="<?php echo (int) $activityLimit; ?>"
 			data-current-keys='<?php echo htmlspecialchars(json_encode($currentKeys, JSON_UNESCAPED_UNICODE), ENT_COMPAT, 'UTF-8'); ?>'
+			data-live-keys='<?php echo htmlspecialchars(json_encode($ssrLiveKeys, JSON_UNESCAPED_UNICODE), ENT_COMPAT, 'UTF-8'); ?>'
 			data-nav-bounds='<?php echo htmlspecialchars(json_encode($navBounds, JSON_UNESCAPED_UNICODE), ENT_COMPAT, 'UTF-8'); ?>'
 			data-first-rated-day="<?php echo k2_status_h($firstRatedDay); ?>"
 			data-podium-medals="<?php echo k2_status_h(json_encode($podiumMedalHtml, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)); ?>"

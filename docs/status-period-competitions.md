@@ -25,7 +25,7 @@ UI heading: **Leagues** (paired Activity + Points tables on `status.php`).
 | Period tabs | Day · Week · Month · Year — **default Week** |
 | Tables | **Activity** (rank, player, games) + **Points** (existing columns); same period + scope |
 | Layout | Side-by-side when width allows; **stack Activity above Points** when not — **no toggle** |
-| Navigation | **← / →** step by period type; **picker** for exact jump; lock-step keys across day/week/month/year. **URL lens:** `?period=` + `?start=` (same names as `league.php`); **pushState** on in-panel nav; **popstate** restores without reload; boot/Back-from-league read the params. AJAX cache + prewarm unchanged. |
+| Navigation | **← / →** step by period type; **picker** for exact jump; lock-step keys across day/week/month/year. **Ongoing exception:** when the active (or resolved) period is the **live** one, finer grains snap to **today / this week / this month** — not the parent’s first day/week/month. Historical periods keep start-of-parent lock-step. **URL lens:** `?period=` + `?start=` (same names as `league.php`); **pushState** on in-panel nav; **popstate** restores without reload; boot/Back-from-league read the params. AJAX cache + prewarm unchanged. Live keys: `data-live-keys` (SSR + pulse). |
 | Meta | Period label, total rated games, end boundary, time left (reuse league meta behaviour). Label order: **Week 49, 2025 League** (period in `.blue`, then “League”); rated-games count uses `.blue` |
 | SSR | **Default period** (week, or URL lens) tables in HTML when key matches live SSR; other periods / archive keys load via API on navigate |
 | Medals | Podium when period has **ended** (`end ≤ now`), not scope-based. **Persisted rules:** [`leagues-rules-spec.md`](leagues-rules-spec.md) |
@@ -85,6 +85,7 @@ Mobile: single column, **Activity first**, then Points.
 
 | Date | Note |
 |------|------|
+| 2026-07-19 | **Ongoing → shorter period** — live week/month/year no longer lands Daily/etc. on Monday / 1st / January; finer grains heal to `data-live-keys`. Historical lock-step unchanged. |
 | 2026-07-18 | **Leagues URL history** — `?period=` + `?start=` + pushState/popstate; Back restores lens (incl. from `league.php`); AJAX/prewarm kept. |
 | 2026-07-18 | **Games this week / day live** — league pulse cascade refreshes Daily list + Weekly tables when that tab is active. |
 | 2026-07-18 | **Games this week** — Weekly tab Recent-style tables (newest-first weekdays; skip future UTC days); Rating A/B inline `(±adj)`; thinner column set. |

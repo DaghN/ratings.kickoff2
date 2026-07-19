@@ -4,6 +4,20 @@
 	var PULSE_API = 'api/status_room_pulse.php';
 	var POLL_MS = 1000;
 	var TICKS_PER_SEC = 50;
+	/** Full half at kickoff / 2nd-half start (5:00). */
+	var HALF_START_TICKS = 15000;
+	/**
+	 * Wall seconds without a HalfCountdown decrease before we treat the match
+	 * clock as paused. Must be clearly above prod's ~3 s write cadence.
+	 */
+	var PAUSE_DETECT_SEC = 6;
+	/**
+	 * Live goal: glow scoring cell, then reveal new digit (~2 s into the 2.6 s bloom).
+	 */
+	var GOAL_REVEAL_MS = 2000;
+	var CLOCK_PENDING = 'pending';
+	var CLOCK_RUNNING = 'running';
+	var CLOCK_HELD = 'held';
 
 	var state = {
 		root: null,
@@ -25,6 +39,35 @@
 		} catch (e) {
 			return fallback;
 		}
+	}
+
+	function clientNowEpoch() {
+		return Math.floor(Date.now() / 1000);
+	}
+
+	function clockPhaseForSample(half) {
+		if (half <= 0 || half >= HALF_START_TICKS) {
+			return CLOCK_PENDING;
+		}
+		return CLOCK_RUNNING;
+	}
+
+	function makeClockItem(gameId, half, period, syncEpoch, phase) {
+		return {
+			game_id: gameId,
+			half_countdown: half,
+			period: period,
+			sync_epoch: syncEpoch,
+			phase: phase,
+		};
+	}
+
+	/** Predicted remaining ticks for a running anchor (uncapped). */
+	function predictedRemaining(item, now) {
+		if (item.phase !== CLOCK_RUNNING || item.half_countdown <= 0) {
+			return item.half_countdown;
+		}
+		return item.half_countdown - Math.max(0, now - item.sync_epoch) * TICKS_PER_SEC;
 	}
 
 	function formatHalfCountdown(ticks) {
@@ -398,12 +441,11 @@
 	}
 
 	/**
-	 * Apply pulse live_clocks anchors without freezing the 1 s client tick.
-	 * Prod HalfCountdown often updates only every few wall seconds; blindly
-	 * resetting sync_epoch each heartbeat made the display step with the DB.
-	 * Keep the prior anchor when the server sample is unchanged or behind the
-	 * local prediction; take server on new game, period change, countdown
-	 * reset upward, or when the server is ahead of local.
+	 * SRL-9 — pending / running / held.
+	 * pending: full-half (or zero); frozen until HalfCountdown decreases.
+	 * running: smooth 1 s tick from last anchor (client clock — not server_now).
+	 * held: no decrease for PAUSE_DETECT_SEC (pause); frozen until decrease.
+	 * syncEpoch arg ignored for anchors (kept for call-site compat).
 	 */
 	function syncLiveGameClocks(root, games, syncEpoch) {
 		var prevById = {};
@@ -414,7 +456,7 @@
 		if (!games || !games.length) {
 			return;
 		}
-		var now = Math.floor(Date.now() / 1000);
+		var now = clientNowEpoch();
 		for (var j = 0; j < games.length; j++) {
 			var g = games[j];
 			var gameId = g.game_id;
@@ -422,23 +464,32 @@
 			var period = g.period || 0;
 			var prev = prevById[gameId];
 			if (prev && prev.period === period && prev.half_countdown === half) {
-				state.liveClocks.push(prev);
+				if (prev.phase === CLOCK_RUNNING
+					&& (now - prev.sync_epoch) >= PAUSE_DETECT_SEC) {
+					var frozen = Math.max(0, prev.half_countdown - PAUSE_DETECT_SEC * TICKS_PER_SEC);
+					state.liveClocks.push(makeClockItem(gameId, frozen, period, now, CLOCK_HELD));
+				} else {
+					state.liveClocks.push(prev);
+				}
 				continue;
 			}
-			if (prev && prev.period === period) {
-				var localRem = prev.half_countdown - Math.max(0, now - prev.sync_epoch) * TICKS_PER_SEC;
-				/* Sparse/stale write still behind local tick — keep interpolating. */
-				if (half <= prev.half_countdown && half > localRem) {
+			if (prev && prev.period === period && half < prev.half_countdown) {
+				var localRem = predictedRemaining(prev, now);
+				/* Sparse write still behind local — keep smooth tick. */
+				if (prev.phase === CLOCK_RUNNING && half > localRem) {
 					state.liveClocks.push(prev);
 					continue;
 				}
+				state.liveClocks.push(makeClockItem(gameId, half, period, now, CLOCK_RUNNING));
+				continue;
 			}
-			state.liveClocks.push({
-				game_id: gameId,
-				half_countdown: half,
-				period: period,
-				sync_epoch: syncEpoch,
-			});
+			state.liveClocks.push(makeClockItem(
+				gameId,
+				half,
+				period,
+				now,
+				clockPhaseForSample(half)
+			));
 		}
 		tickLiveClocks(root);
 	}
@@ -447,15 +498,25 @@
 		if (!root || !state.liveClocks.length) {
 			return;
 		}
-		var now = Math.floor(Date.now() / 1000);
+		var now = clientNowEpoch();
 		for (var i = 0; i < state.liveClocks.length; i++) {
 			var item = state.liveClocks[i];
 			var li = root.querySelector('[data-k2-status-live-slot="live"] li[data-game-id="' + item.game_id + '"]');
 			if (!li) {
 				continue;
 			}
-			var elapsed = Math.max(0, now - item.sync_epoch);
-			var remaining = item.half_countdown - elapsed * TICKS_PER_SEC;
+			var remaining = item.half_countdown;
+			if (item.phase === CLOCK_RUNNING && item.half_countdown > 0) {
+				var elapsed = Math.max(0, now - item.sync_epoch);
+				if (elapsed >= PAUSE_DETECT_SEC) {
+					remaining = Math.max(0, item.half_countdown - PAUSE_DETECT_SEC * TICKS_PER_SEC);
+					item.phase = CLOCK_HELD;
+					item.half_countdown = remaining;
+					item.sync_epoch = now;
+				} else {
+					remaining = item.half_countdown - elapsed * TICKS_PER_SEC;
+				}
+			}
 			var clockEl = li.querySelector('.k2-status-live-list__clock');
 			var periodEl = li.querySelector('.k2-status-live-list__period');
 			if (clockEl) {
@@ -479,6 +540,25 @@
 			+ '<span class="k2-status-score__goal" data-side="b">' + cell(scoreB, scoreA) + '</span>';
 	}
 
+	function goalCellHtml(goals, opp) {
+		if (goals > opp) {
+			return '<strong class="blue">' + goals + '</strong>';
+		}
+		return String(goals);
+	}
+
+	/** Update A/B digits in place (keeps glow class on the cell wrappers). */
+	function writeLiveScoreCells(scoreEl, scoreA, scoreB) {
+		var a = scoreEl.querySelector('.k2-status-score__goal[data-side="a"]');
+		var b = scoreEl.querySelector('.k2-status-score__goal[data-side="b"]');
+		if (!a || !b) {
+			scoreEl.innerHTML = formatLiveScoreHtml(scoreA, scoreB);
+			return;
+		}
+		a.innerHTML = goalCellHtml(scoreA, scoreB);
+		b.innerHTML = goalCellHtml(scoreB, scoreA);
+	}
+
 	function readScoreSide(scoreEl, side) {
 		var goal = scoreEl.querySelector('.k2-status-score__goal[data-side="' + side + '"]');
 		if (!goal) {
@@ -488,10 +568,18 @@
 		return Number.isFinite(n) ? n : 0;
 	}
 
+	/** Glow the goal *cell* (not inner .blue) so reveal can swap text mid-bloom. */
 	function pulseScoreSide(scoreEl, side) {
 		var goal = scoreEl.querySelector('.k2-status-score__goal[data-side="' + side + '"]');
-		if (goal && window.k2LiveGlow) {
-			window.k2LiveGlow.scorePulse(goal);
+		if (goal && window.k2LiveGlow && typeof window.k2LiveGlow.triggerStar === 'function') {
+			window.k2LiveGlow.triggerStar(goal);
+		}
+	}
+
+	function clearGoalRevealTimer(scoreEl) {
+		if (scoreEl && scoreEl.__k2GoalRevealTimer) {
+			clearTimeout(scoreEl.__k2GoalRevealTimer);
+			scoreEl.__k2GoalRevealTimer = null;
 		}
 	}
 
@@ -530,13 +618,31 @@
 			var nextB = g.score_b;
 			var nextKey = nextA + '-' + nextB;
 			if (prevKey && prevKey !== nextKey) {
-				scoreEl.innerHTML = formatLiveScoreHtml(nextA, nextB);
-				if (nextA > prevA) {
-					pulseScoreSide(scoreEl, 'a');
+				var aScored = nextA > prevA;
+				var bScored = nextB > prevB;
+				if ((aScored || bScored) && window.k2LiveGlow) {
+					clearGoalRevealTimer(scoreEl);
+					if (aScored) {
+						pulseScoreSide(scoreEl, 'a');
+					}
+					if (bScored) {
+						pulseScoreSide(scoreEl, 'b');
+					}
+					/* Commit truth now so the next pulse does not re-trigger. */
+					syncScoreState(scoreEl, nextA, nextB);
+					(function (el, revealA, revealB) {
+						el.__k2GoalRevealTimer = setTimeout(function () {
+							el.__k2GoalRevealTimer = null;
+							if (!el.isConnected) {
+								return;
+							}
+							writeLiveScoreCells(el, revealA, revealB);
+						}, GOAL_REVEAL_MS);
+					})(scoreEl, nextA, nextB);
+					continue;
 				}
-				if (nextB > prevB) {
-					pulseScoreSide(scoreEl, 'b');
-				}
+				clearGoalRevealTimer(scoreEl);
+				writeLiveScoreCells(scoreEl, nextA, nextB);
 			}
 			syncScoreState(scoreEl, nextA, nextB);
 		}
@@ -989,19 +1095,18 @@
 				}
 			}
 		}
-		var syncEpoch = parseInt(root.getAttribute('data-pulse-sync-epoch'), 10) || Math.floor(Date.now() / 1000);
+		var syncEpoch = clientNowEpoch();
 		var clocks = [];
 		for (var j = 0; j < nodes.length; j++) {
 			var clockEl = nodes[j].querySelector('.k2-status-live-list__clock');
 			var periodEl = nodes[j].querySelector('.k2-status-live-list__period');
 			var ticks = clockEl ? parseInt(clockEl.getAttribute('data-half-countdown'), 10) : 0;
+			if (!Number.isFinite(ticks)) {
+				ticks = 0;
+			}
 			var period = periodEl && periodEl.textContent.indexOf('2nd') !== -1 ? 2 : 1;
-			clocks.push({
-				game_id: parseInt(nodes[j].getAttribute('data-game-id'), 10),
-				half_countdown: ticks,
-				period: period,
-				sync_epoch: syncEpoch,
-			});
+			var gameId = parseInt(nodes[j].getAttribute('data-game-id'), 10);
+			clocks.push(makeClockItem(gameId, ticks, period, syncEpoch, clockPhaseForSample(ticks)));
 		}
 		state.liveClocks = clocks;
 	}

@@ -50,7 +50,7 @@ Both end up in `site/public_html/ops/data/milestones_definitions_seed.json` and 
 2. Run `python scripts/oneoff/build_milestone_garden_links.py` (updates `milestones-catalog.md`).
 3. Load into DB:
    - **Work / dev (preferred):** `php site/public_html/ops/run_prepare.php seed-catalog --target local-work` (or `local-dev` for `ko2unity_db`).
-   - **Copy-only repair (no TRUNCATE):** `php site/public_html/ops/run_prepare.php sync-catalog-copy --target local-work` — UPDATEs `display_name` + `rule_short` from seed; **keeps** `holder_count`. Use this to fix UTF-8 mojibake (e.g. `≥` shown as `â‰¥` on phones).
+   - **Copy-only repair (no TRUNCATE):** `php site/public_html/ops/run_prepare.php sync-catalog-copy --target local-work` — UPDATEs `display_name` + `rule_short` from seed; **keeps** `holder_count`. Use this to fix UTF-8 mojibake in the DB (e.g. `≥` → `â‰¥`, `’` → `â€™`, `–` → `â€œ`). Site PHP also repairs those on read until sync.
    - **Local alt:** `python scripts/oneoff/load_milestone_definitions.py` (reads same ops path).
    - **Staging legacy:** `load_milestone_definitions.php` (deprecated; prefer `seed-catalog` after WinSCP `ops/`).
 

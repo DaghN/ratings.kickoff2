@@ -118,7 +118,7 @@ php site/public_html/ops/run_prepare.php sync-catalog-copy --target local-work
 php site/public_html/ops/run_prepare.php sync-catalog-copy --target staging-work
 ```
 
-Use when `rule_short` / `display_name` drifted (e.g. UTF-8 mojibake of `≥` → `â‰¥`). Site PHP also repairs that mojibake on read until the DB is synced.
+Use when `rule_short` / `display_name` drifted (e.g. UTF-8 mojibake of `≥` → `â‰¥`, `’` → `â€™`, `–` → `â€œ`). Site PHP also repairs those on read until the DB is synced.
 
 Legacy Python: `python -m scripts.work_prepare` — **retired** (slice 3); use `run_prepare.php` above.
 

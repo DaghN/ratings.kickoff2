@@ -2,6 +2,7 @@
  * Status — Leagues block: paired Activity + Points tables, period tabs, step nav, pickers.
  * Single table slot; in-memory cache by period:key; optional prewarm of five next clicks.
  * Lock-step keys clamped to data-first-rated-day after derive.
+ * Ongoing coarser → shorter tab: heal finer grains to data-live-keys (today / this week / …).
  */
 (function () {
     'use strict';
@@ -758,7 +759,74 @@
         if (!keys) {
             return null;
         }
-        return clampKeysToFirstRated(root, keys);
+        keys = clampKeysToFirstRated(root, keys);
+        if (keys && isLivePeriodKey(root, changedPeriod, keys[changedPeriod])) {
+            keys = healFinerKeysToLive(root, keys, changedPeriod);
+        }
+        return keys;
+    }
+
+    function periodRank(period) {
+        return PERIODS.indexOf(period);
+    }
+
+    function isShorterPeriod(a, b) {
+        var ia = periodRank(a);
+        var ib = periodRank(b);
+        return ia !== -1 && ib !== -1 && ia < ib;
+    }
+
+    function livePeriodKeys(root) {
+        return parseJsonAttr(root, 'data-live-keys', {});
+    }
+
+    function setLivePeriodKeys(root, keys) {
+        if (!root || !keys) {
+            return;
+        }
+        try {
+            root.setAttribute('data-live-keys', JSON.stringify(keys));
+        } catch (e) {
+            /* ignore */
+        }
+    }
+
+    function isLivePeriodKey(root, period, key) {
+        var live = livePeriodKeys(root);
+        return !!(key && live[period] && key === live[period]);
+    }
+
+    /**
+     * Viewing an ongoing coarser period: set all finer grains to live
+     * (today / this week / this month) instead of the parent period start.
+     */
+    function healFinerKeysToLive(root, keys, coarserPeriod) {
+        if (!keys || !coarserPeriod) {
+            return keys;
+        }
+        var live = livePeriodKeys(root);
+        var rank = periodRank(coarserPeriod);
+        if (rank <= 0) {
+            return keys;
+        }
+        var next = {
+            day: keys.day,
+            week: keys.week,
+            month: keys.month,
+            year: keys.year,
+        };
+        var changed = false;
+        for (var i = 0; i < rank; i++) {
+            var p = PERIODS[i];
+            if (live[p] && next[p] !== live[p]) {
+                next[p] = live[p];
+                changed = true;
+            }
+        }
+        if (!changed) {
+            return keys;
+        }
+        return clampKeysToFirstRated(root, next);
     }
 
     function dayValueInput(root) {
@@ -1868,7 +1936,11 @@
 
     function navigatePeriod(root, period, historyMode) {
         closeArchiveListboxes(root);
+        var from = activePeriod(root);
         var keys = root._periodKeys;
+        if (keys && isShorterPeriod(period, from) && isLivePeriodKey(root, from, keys[from])) {
+            keys = healFinerKeysToLive(root, keys, from);
+        }
         applyPeriodKeys(root, period, keys, historyMode);
     }
 
@@ -2152,6 +2224,7 @@
         var roots = document.querySelectorAll('[data-k2-status-period-competitions]');
         for (var i = 0; i < roots.length; i++) {
             var root = roots[i];
+            setLivePeriodKeys(root, periodKeys);
             root.setAttribute('data-current-keys', JSON.stringify(periodKeys));
             ensurePeriodCache(root);
             if (!root._periodKeys) {

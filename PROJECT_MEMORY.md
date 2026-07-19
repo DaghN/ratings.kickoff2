@@ -149,6 +149,10 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-19 | **Status Leagues ongoing→shorter** — live week/year tab switch lands today/this month (not Mon/Jan); `data-live-keys` + heal in `status-period-competitions.js`. |
+| 2026-07-19 | **Live goal glow→reveal** — scoring cell blooms ~2 s, then digit updates (SRL-11). WinSCP `js/status-room-live.js`. |
+| 2026-07-19 | **Status live clock smooth** — removed 4 s tick cap (stutter); client sync_epoch; held after 6 s no decrease. WinSCP `js/status-room-live.js`. |
+| 2026-07-19 | **Status live clock phases** — SRL-9 pending until first HalfCountdown decrease + 4 s stale budget (pre-start + pause); injury deferred. WinSCP `js/status-room-live.js`. |
 | 2026-07-19 | **Status live clock 1 s tick** — SRL-9 smart anchor in `status-room-live.js` (ignore stale/behind `live_clocks` samples); no Steve dependency. WinSCP sync `js/status-room-live.js`. |
 | 2026-07-19 | **About What this is** — GitHub source link (`DaghN/ratings.kickoff2`) in maintainer paragraph. |
 | 2026-07-19 | **About acknowledgements** — “a special mention here” (present, not permanent plaque). |
@@ -202,6 +206,8 @@
 | 2026-07-17 | **L1 kitchen WC finish empty** — #609 stamped World Cup + RR-only: Tier D wrote no `event_finish_position` (no KO). Fallback Tier C when WC + has_league + !has_cup (temporary). Reset N/A after completed Finish. |
 | 2026-07-17 | **L0 complete** — WEBSITE spot-check green on staging (catalog, tournament page, profile effect, left Live); practice track §4 idle; next gate **L1**. |
 | 2026-07-17 | **L0 secretary → CREATE restart** — staging cleaned for PHP parity (old #608 gone); WEBSITE void without a finished kitchen; practice track §4 back to CREATE new Ref-League-A. |
+| 2026-07-19 | **Online milestone – mojibake** — `merchant_trade_fair` (and scoreline rules) showed `10â€“10` (double-UTF-8 en-dash). Same read-path map as ≥ / ’; seed only has those three non-ASCII glyphs in copy. WinSCP `milestone_catalog_seed_sync.php`. |
+| 2026-07-19 | **Online milestone ’ mojibake** — `newbie_welcomer` rule showed `someoneâ€™s` (double-UTF-8 curly apostrophe). Same read-path repair as ≥ in `k2_milestone_repair_rule_utf8_mojibake`; WinSCP `milestone_catalog_seed_sync.php` — no prod DB sync required for display. |
 | 2026-07-18 | **Online milestone ≥ mojibake** — live `rule_short` had double-UTF-8 `≥` → `â‰¥` (3 chars on phones). Read-path repair in `k2_milestone_strip_markdown`; DB fix via `sync-catalog-copy` (no TRUNCATE). WinSCP PHP first; then `php ops/run_prepare.php sync-catalog-copy --target staging-work`. |
 | 2026-07-17 | **L0 secretary → WEBSITE** — practice track §4: MAKE OFFICIAL success already reported; next = public site check; parity stays in [`amiga-php-finalize-parity-protocol.md`](docs/amiga-php-finalize-parity-protocol.md). *(superseded same day — staging clean)* |
 | 2026-07-17 | **PHP Finish parity protocol doc** — [`amiga-php-finalize-parity-protocol.md`](docs/amiga-php-finalize-parity-protocol.md): locked simul-oracle vs PHP Finish method, #608 probe/artifacts/re-run, chrono + community limbo fixes, soft-gap table. Linked from live-ops platform, RTB12, derived-write, starter prompt. |
