@@ -149,6 +149,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-19 | **About What this is** — GitHub source link (`DaghN/ratings.kickoff2`) in maintainer paragraph. |
 | 2026-07-19 | **About acknowledgements** — “a special mention here” (present, not permanent plaque). |
 | 2026-07-19 | **About acknowledgements open** — “…alive and thriving” (not bare survival). |
 | 2026-07-19 | **About Robert line** — “…keeping it alive and strong through the years” (thriving, not barely surviving). |

@@ -25,7 +25,9 @@ $mailto = htmlspecialchars('mailto:' . rawurlencode($email), ENT_QUOTES, 'UTF-8'
 			It covers two related worlds under one shell: the live online ladder, and the Amiga 500 tournament tradition. It is not the homepage for everything KO2; forums, Discord, the play client, and the rest of the scene are older siblings. This site aims to fit next to them. Dense where stats matter, warmer where the story does, and honest about it all.
 		</p>
 		<p class="k2-about-page__prose">
-			<?php echo htmlspecialchars($links['copyright_name'], ENT_QUOTES, 'UTF-8'); ?> builds and maintains the website. It is not an official product of any game publisher.
+			<?php echo htmlspecialchars($links['copyright_name'], ENT_QUOTES, 'UTF-8'); ?> builds and maintains the website. The source is on
+			<a href="https://github.com/DaghN/ratings.kickoff2" rel="noopener noreferrer">GitHub</a>.
+			It is not an official product of any game publisher.
 		</p>
 	</article>
 
