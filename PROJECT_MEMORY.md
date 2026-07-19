@@ -149,6 +149,11 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-19 | **About acknowledgements** — “a special mention here” (present, not permanent plaque). |
+| 2026-07-19 | **About acknowledgements open** — “…alive and thriving” (not bare survival). |
+| 2026-07-19 | **About Robert line** — “…keeping it alive and strong through the years” (thriving, not barely surviving). |
+| 2026-07-19 | **About acknowledgements** — “special praise” → “a special mention”. |
+| 2026-07-19 | **About title→card gap** — bare “About” hero used 22px (intro-head rhythm); tightened to `--k2-nav-gap` (12px). |
 | 2026-07-18 | **About acknowledgements** — Robert & Glenn equal billing (+ Robert “also” on English scene). |
 | 2026-07-18 | **About What this is** — folded hero + maintainer into one brief-led card on `/about.php`; acknowledgements unchanged. |
 | 2026-07-18 | **About acknowledgements** — community-first + five named pillars (Robert/Glenn, Alkis, Spyros, Mark/Durban, Steve); `/about.php` `#acknowledgements`. |

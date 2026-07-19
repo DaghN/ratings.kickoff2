@@ -219,11 +219,11 @@ body.k2-site a:hover {
 }
 
 .k2-about-page__hero {
-	margin-bottom: 22px;
+	margin-bottom: var(--k2-nav-gap);
 }
 
 .k2-about-page__title {
-	margin: 0 0 10px;
+	margin: 0;
 	font-size: 1.5rem;
 	font-weight: 600;
 	color: var(--k2-text-primary);
@@ -5250,7 +5250,7 @@ body.k2-site .k2-player-hero__stat-value:not([class*="--"]) a.k2-player-hero__st
 	margin: 0;
 	border-radius: 0;
 	object-fit: cover;
-	object-position: center calc(50% - 7px);
+	object-position: center calc(50% - 8px);
 	opacity: 1;
 	filter: none;
 	box-shadow: none;

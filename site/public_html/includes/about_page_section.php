@@ -32,13 +32,13 @@ $mailto = htmlspecialchars('mailto:' . rawurlencode($email), ENT_QUOTES, 'UTF-8'
 	<article class="k2-card k2-about-page__card" id="acknowledgements">
 		<h2 class="k2-panel-heading">Acknowledgements</h2>
 		<p class="k2-about-page__prose">
-			We are all responsible for this thing still being alive. Every single person who has played a game or posted in the forum is part of the history. Some people, though, I would like to give special praise:
+			We are all responsible for this thing still being alive and thriving. Every single person who has played a game or posted in the forum is part of the history. Some people, though, I would like to give a special mention here:
 		</p>
 
 		<p class="k2-about-page__prose">
 			<strong class="k2-about-page__person">Robert Swift</strong>
 			and <strong class="k2-about-page__person">Glenn Loite</strong>
-			who, in the dawn of time, took charge of organizing tournament records into a spreadsheet archive and rating system, and who were always ready to take the reins again when exhaustion set in and the work was about to be left by the wayside. Of course, this is not to overlook that Robert was also absolutely crucial in kickstarting the English Kick Off 2 scene and helping keep it going strong throughout the years.
+			who, in the dawn of time, took charge of organizing tournament records into a spreadsheet archive and rating system, and who were always ready to take the reins again when exhaustion set in and the work was about to be left by the wayside. Of course, this is not to overlook that Robert was also absolutely crucial in kickstarting the English Kick Off 2 scene and keeping it alive and strong through the years.
 		</p>
 
 		<p class="k2-about-page__prose">
