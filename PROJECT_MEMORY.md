@@ -149,6 +149,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-19 | **Status live clock 1 s tick** — SRL-9 smart anchor in `status-room-live.js` (ignore stale/behind `live_clocks` samples); no Steve dependency. WinSCP sync `js/status-room-live.js`. |
 | 2026-07-19 | **About What this is** — GitHub source link (`DaghN/ratings.kickoff2`) in maintainer paragraph. |
 | 2026-07-19 | **About acknowledgements** — “a special mention here” (present, not permanent plaque). |
 | 2026-07-19 | **About acknowledgements open** — “…alive and thriving” (not bare survival). |
@@ -157,6 +158,7 @@
 | 2026-07-19 | **About title→card gap** — bare “About” hero used 22px (intro-head rhythm); tightened to `--k2-nav-gap` (12px). |
 | 2026-07-18 | **About acknowledgements** — Robert & Glenn equal billing (+ Robert “also” on English scene). |
 | 2026-07-18 | **About What this is** — folded hero + maintainer into one brief-led card on `/about.php`; acknowledgements unchanged. |
+| 2026-07-19 | **Amiga ops dual passwords + POST gate** — `$admin_password` (import/export) vs `$organizer_password` (fixtures; admin also OK); POST forms + session (no `?pwd=` in address bar); pull script POSTs admin pwd in body. Local config updated; **WinSCP sync `amiga/_ops/` + PHP pages** before relying on staging. Paste new admin password to agent when ready. |
 | 2026-07-18 | **About acknowledgements** — community-first + five named pillars (Robert/Glenn, Alkis, Spyros, Mark/Durban, Steve); `/about.php` `#acknowledgements`. |
 | 2026-07-18 | **Status pane → links** — `k2-status-panel__more` + arc-link 11→12px. |
 | 2026-07-18 | **Amiga News pulse Online copy** — “KOOL online room” (parallel Amiga-world LB line). |

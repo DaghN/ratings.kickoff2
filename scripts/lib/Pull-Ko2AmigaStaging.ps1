@@ -2,7 +2,14 @@
 # Dot-source from scripts\pull_ko2amiga_from_staging.ps1
 
 function Get-AmigaOpsPasswordFromConfig {
-    param([string]$RepoRoot)
+    param(
+        [string]$RepoRoot,
+        [ValidateSet('admin', 'organizer')]
+        [string]$Role = 'admin'
+    )
+    if ($Role -eq 'admin' -and $env:AMIGA_OPS_ADMIN_PASSWORD -and $env:AMIGA_OPS_ADMIN_PASSWORD.Trim() -ne '') {
+        return $env:AMIGA_OPS_ADMIN_PASSWORD.Trim()
+    }
     if ($env:AMIGA_OPS_PASSWORD -and $env:AMIGA_OPS_PASSWORD.Trim() -ne '') {
         return $env:AMIGA_OPS_PASSWORD.Trim()
     }
@@ -15,17 +22,35 @@ function Get-AmigaOpsPasswordFromConfig {
             continue
         }
         $text = [System.IO.File]::ReadAllText($local)
-        # Single-quoted pattern so $password is literal (not a PowerShell variable).
-        if ($text -match '(?m)^\s*\$password\s*=\s*''([^'']*)''\s*;') {
-            $pwd = $Matches[1]
-            if ([string]::IsNullOrWhiteSpace($pwd)) {
-                throw "amiga_ops_password.local.php has empty `$password ($local)."
-            }
-            return $pwd
+        $admin = $null
+        $organizer = $null
+        $legacy = $null
+        if ($text -match "(?m)^\s*\`$admin_password\s*=\s*'([^']*)'\s*;") {
+            $admin = $Matches[1]
+        } elseif ($text -match '(?m)^\s*\$admin_password\s*=\s*"([^"]*)"\s*;') {
+            $admin = $Matches[1]
         }
-        throw "Could not parse `$password from $local"
+        if ($text -match "(?m)^\s*\`$organizer_password\s*=\s*'([^']*)'\s*;") {
+            $organizer = $Matches[1]
+        } elseif ($text -match '(?m)^\s*\$organizer_password\s*=\s*"([^"]*)"\s*;') {
+            $organizer = $Matches[1]
+        }
+        if ($text -match "(?m)^\s*\`$password\s*=\s*'([^']*)'\s*;") {
+            $legacy = $Matches[1]
+        } elseif ($text -match '(?m)^\s*\$password\s*=\s*"([^"]*)"\s*;') {
+            $legacy = $Matches[1]
+        }
+        if ($Role -eq 'admin') {
+            $pwd = if (-not [string]::IsNullOrWhiteSpace($admin)) { $admin } else { $legacy }
+        } else {
+            $pwd = if (-not [string]::IsNullOrWhiteSpace($organizer)) { $organizer } else { $legacy }
+        }
+        if ([string]::IsNullOrWhiteSpace($pwd)) {
+            throw "amiga_ops_password.local.php missing `$Role password ($local)."
+        }
+        return $pwd
     }
-    throw "Missing Amiga ops password. Create site\public_html\amiga\_ops\amiga_ops_password.local.php (or site\config\…) or set env AMIGA_OPS_PASSWORD."
+    throw "Missing Amiga ops password. Create site\public_html\amiga\_ops\amiga_ops_password.local.php (or site\config\…) or set env AMIGA_OPS_ADMIN_PASSWORD / AMIGA_OPS_PASSWORD."
 }
 
 function Invoke-Ko2AmigaStagingPull {
@@ -43,7 +68,7 @@ function Invoke-Ko2AmigaStagingPull {
     $ErrorActionPreference = 'Stop'
     $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
     if ([string]::IsNullOrWhiteSpace($Password)) {
-        $Password = Get-AmigaOpsPasswordFromConfig -RepoRoot $RepoRoot
+        $Password = Get-AmigaOpsPasswordFromConfig -RepoRoot $RepoRoot -Role admin
     }
     . (Join-Path $PSScriptRoot 'LaragonMysql.ps1')
 
@@ -71,22 +96,28 @@ function Invoke-Ko2AmigaStagingPull {
     }
 
     $base = $StagingBaseUrl.TrimEnd('/')
-    $query = "once=$([uri]::EscapeDataString($OnceKey))&pwd=$([uri]::EscapeDataString($Password))"
     $exportScript = "$base/amiga/run_export_ko2amiga.php"
+    $onceQuery = "once=$([uri]::EscapeDataString($OnceKey))"
 
     $generateMeta = $null
     if (-not $SkipGenerate) {
         Write-Host "Generating staging dump via $exportScript ..."
-        $genUrl = ('{0}?{1}&generate=1&format=json' -f $exportScript, $query)
+        $genUri = "{0}?{1}" -f $exportScript, $onceQuery
+        $genBody = @{
+            once     = $OnceKey
+            pwd      = $Password
+            generate = '1'
+            format   = 'json'
+        }
         try {
-            $generateMeta = Invoke-RestMethod -Uri $genUrl -Method Get -TimeoutSec 600
+            $generateMeta = Invoke-RestMethod -Uri $genUri -Method Post -Body $genBody -TimeoutSec 600
         } catch {
             throw "Staging generate failed: $($_.Exception.Message)"
         }
         if (-not $generateMeta.ok) {
             # Staging may still run export-v1/v2 (HTML only). Fall back to HTML probe.
             Write-Warning 'JSON generate response missing ok=true; probing HTML export page ...'
-            $html = (Invoke-WebRequest -Uri $genUrl -UseBasicParsing -TimeoutSec 600).Content
+            $html = (Invoke-WebRequest -Uri $genUri -Method Post -Body $genBody -UseBasicParsing -TimeoutSec 600).Content
             if ($html -notmatch 'status:\s*OK') {
                 throw 'Staging generate did not report status: OK in HTML response.'
             }
@@ -111,14 +142,19 @@ function Invoke-Ko2AmigaStagingPull {
         Write-Host ("  OK method={0} bytes={1} elapsed={2}s" -f $generateMeta.generate.method, $generateMeta.generate.bytes, $elapsed)
     } else {
         Write-Host 'SkipGenerate: using existing staging dump file.'
-        $statusUrl = ('{0}?{1}&status=1' -f $exportScript, $query)
+        $statusUri = "{0}?{1}" -f $exportScript, $onceQuery
+        $statusBody = @{
+            once   = $OnceKey
+            pwd    = $Password
+            status = '1'
+        }
         try {
-            $status = Invoke-RestMethod -Uri $statusUrl -Method Get -TimeoutSec 120
+            $status = Invoke-RestMethod -Uri $statusUri -Method Post -Body $statusBody -TimeoutSec 120
         } catch {
             $status = $null
         }
         if (-not $status -or -not $status.exists) {
-            $html = (Invoke-WebRequest -Uri ('{0}?{1}' -f $exportScript, $query) -UseBasicParsing -TimeoutSec 120).Content
+            $html = (Invoke-WebRequest -Uri $statusUri -Method Post -Body @{ once = $OnceKey; pwd = $Password } -UseBasicParsing -TimeoutSec 120).Content
             if ($html -notmatch 'ko2amiga_staging_pull\.sql') {
                 throw 'No staging dump on server. Run without -SkipGenerate first.'
             }
@@ -133,8 +169,13 @@ function Invoke-Ko2AmigaStagingPull {
     }
 
     Write-Host 'Downloading dump ...'
-    $dlUrl = ('{0}?{1}&download=1' -f $exportScript, $query)
-    Invoke-WebRequest -Uri $dlUrl -OutFile $RawDump -UseBasicParsing -TimeoutSec 900
+    $dlUri = "{0}?{1}" -f $exportScript, $onceQuery
+    $dlBody = @{
+        once     = $OnceKey
+        pwd      = $Password
+        download = '1'
+    }
+    Invoke-WebRequest -Uri $dlUri -Method Post -Body $dlBody -OutFile $RawDump -UseBasicParsing -TimeoutSec 900
     $rawBytes = (Get-Item $RawDump).Length
     $head = [System.IO.File]::ReadAllText($RawDump, [System.Text.Encoding]::UTF8).Substring(0, [Math]::Min(120, $rawBytes))
     if ($head -match '^\s*<!DOCTYPE|^\s*<html') {

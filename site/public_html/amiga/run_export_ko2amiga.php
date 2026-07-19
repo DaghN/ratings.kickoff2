@@ -2,16 +2,11 @@
 /**
  * Staging / local — export ko2amiga_db for pull to local repair shop (PULL-1b).
  *
- * Preview:
- *   /amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=YOUR_OPS_PASSWORD
+ * Open:  /amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot
+ * Gate:  admin password via POST form (session kept; do not put pwd in the URL).
+ * Scripts may POST pwd= with generate=1 / download=1 / status=1 / format=json.
  *
- * Generate dump:
- *   /amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=YOUR_OPS_PASSWORD&generate=1
- *
- * Download dump (browser; same password gate):
- *   /amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=YOUR_OPS_PASSWORD&download=1
- *
- * Password: amiga/_ops/amiga_ops_password.local.php (gitignored; WinSCP-deployable).
+ * Password file: amiga/_ops/amiga_ops_password.local.php ($admin_password).
  */
 declare(strict_types=1);
 
@@ -84,57 +79,53 @@ function k2_amiga_export_send_dump_download(string $dumpPath): void
 require_once __DIR__ . '/includes/amiga_ops_password_lib.php';
 
 $key = 'ko2amiga-export-one-shot';
-$exportPassword = amiga_ops_require_password();
-
-if (!isset($_GET['once']) || $_GET['once'] !== $key) {
+$onceValue = (string) ($_POST['once'] ?? $_GET['once'] ?? '');
+if ($onceValue !== $key) {
     header('HTTP/1.1 404 Not Found');
     echo 'Not found.';
     exit;
 }
 
-$generate = isset($_GET['generate']) && $_GET['generate'] === '1';
-$download = isset($_GET['download']) && $_GET['download'] === '1';
-$pwdProvided = isset($_GET['pwd']);
-$pwdOk = $pwdProvided && hash_equals($exportPassword, (string) $_GET['pwd']);
+$generate = (isset($_POST['generate']) && (string) $_POST['generate'] === '1')
+    || (isset($_GET['generate']) && (string) $_GET['generate'] === '1');
+$download = (isset($_POST['download']) && (string) $_POST['download'] === '1')
+    || (isset($_GET['download']) && (string) $_GET['download'] === '1');
+$formatJson = (isset($_POST['format']) && (string) $_POST['format'] === 'json')
+    || (isset($_GET['format']) && (string) $_GET['format'] === 'json');
+$statusOnly = (isset($_POST['status']) && (string) $_POST['status'] === '1')
+    || (isset($_GET['status']) && (string) $_GET['status'] === '1');
 
-if (!$pwdOk) {
-    header('Content-Type: text/html; charset=utf-8');
-    $self = htmlspecialchars($_SERVER['SCRIPT_NAME'] ?? '/amiga/run_export_ko2amiga.php', ENT_QUOTES, 'UTF-8');
-    echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Amiga DB export — password</title>';
-    echo '<style>body{font-family:system-ui,sans-serif;max-width:32rem;margin:2rem auto;line-height:1.5}';
-    echo 'input[type=password]{width:100%;padding:.5rem;font-size:1rem;box-sizing:border-box}';
-    echo 'button{margin-top:.75rem;padding:.5rem 1rem;font-size:1rem}';
-    echo '.fail{color:#c0392b;font-weight:600}</style></head><body>';
-    echo '<h1>Amiga DB export (staging pull)</h1>';
-    if ($pwdProvided) {
-        echo '<p class="fail">Incorrect password.</p>';
-    } else {
-        echo '<p>Password required to continue.</p>';
-    }
+$gate = amiga_ops_gate('admin');
+if (!$gate['ok']) {
+    $self = (string) ($_SERVER['SCRIPT_NAME'] ?? '/amiga/run_export_ko2amiga.php');
+    $hidden = ['once' => $key];
     if ($generate) {
-        echo '<p><strong>Mode:</strong> generate dump</p>';
-    } elseif ($download) {
-        echo '<p><strong>Mode:</strong> download dump</p>';
-    } else {
-        echo '<p><strong>Mode:</strong> preview only</p>';
-    }
-    echo '<form method="get" action="' . $self . '">';
-    echo '<input type="hidden" name="once" value="' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '">';
-    if ($generate) {
-        echo '<input type="hidden" name="generate" value="1">';
+        $hidden['generate'] = '1';
     }
     if ($download) {
-        echo '<input type="hidden" name="download" value="1">';
+        $hidden['download'] = '1';
     }
-    echo '<p><label for="pwd">Password</label><br><input type="password" id="pwd" name="pwd" autocomplete="current-password" required autofocus></p>';
-    echo '<button type="submit">Continue</button></form></body></html>';
+    if ($formatJson) {
+        $hidden['format'] = 'json';
+    }
+    if ($statusOnly) {
+        $hidden['status'] = '1';
+    }
+    $mode = $generate ? 'generate dump' : ($download ? 'download dump' : 'preview only');
+    amiga_ops_render_password_form(
+        $self,
+        'Amiga DB export — admin password',
+        'Admin password required (' . $mode . ').',
+        $hidden,
+        $gate['provided'],
+        'Admin password'
+    );
     exit;
 }
 
 $expectedDb = 'ko2amiga_db';
 $dumpPath = AMIGA_EXPORT_DIR . '/' . AMIGA_EXPORT_DUMP;
 $manifestPath = AMIGA_EXPORT_DIR . '/ko2amiga_staging_pull_manifest.json';
-$formatJson = isset($_GET['format']) && $_GET['format'] === 'json';
 
 /**
  * @param array<string, mixed> $payload
@@ -173,7 +164,7 @@ function k2_amiga_export_read_status(string $dumpPath, string $manifestPath): ar
     return $out;
 }
 
-if (isset($_GET['status']) && $_GET['status'] === '1') {
+if ($statusOnly) {
     k2_amiga_export_json_out(k2_amiga_export_read_status($dumpPath, $manifestPath));
 }
 
@@ -267,10 +258,7 @@ echo '<p>Exporter build: <code>' . AMIGA_EXPORTER_BUILD . '</code></p>';
 echo '<p>Writes <code>amiga/_export/' . AMIGA_EXPORT_DUMP . '</code> — download in browser or WinSCP → import into local <code>ko2amiga_work</code>.</p>';
 
 $self = htmlspecialchars($_SERVER['SCRIPT_NAME'] ?? '/amiga/run_export_ko2amiga.php', ENT_QUOTES, 'UTF-8');
-$queryBase = '?once=' . rawurlencode($key) . '&pwd=' . rawurlencode($exportPassword);
-$previewUrl = $self . $queryBase;
-$generateUrl = $self . $queryBase . '&generate=1';
-$downloadUrl = $self . $queryBase . '&download=1';
+$onceEsc = htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
 
 if ($generate) {
     echo '<p><strong>Mode:</strong> <span class="warn">GENERATE</span></p>';
@@ -278,12 +266,21 @@ if ($generate) {
     echo '<p><strong>Mode:</strong> preview only</p>';
 }
 
-echo '<p><a class="btn" href="' . $previewUrl . '">Preview</a>';
+echo '<p style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">';
+echo '<form method="post" action="' . $self . '" style="display:inline;margin:0">';
+echo '<input type="hidden" name="once" value="' . $onceEsc . '">';
+echo '<button class="btn" type="submit" style="cursor:pointer;border:0">Preview</button></form>';
 if (!$generate) {
-    echo '<a class="btn btn-primary" href="' . $generateUrl . '">Generate dump</a>';
+    echo '<form method="post" action="' . $self . '" style="display:inline;margin:0">';
+    echo '<input type="hidden" name="once" value="' . $onceEsc . '">';
+    echo '<input type="hidden" name="generate" value="1">';
+    echo '<button class="btn btn-primary" type="submit" style="cursor:pointer;border:0">Generate dump</button></form>';
 }
 if (is_file($dumpPath)) {
-    echo '<a class="btn btn-primary" href="' . $downloadUrl . '">Download dump</a>';
+    echo '<form method="post" action="' . $self . '" style="display:inline;margin:0">';
+    echo '<input type="hidden" name="once" value="' . $onceEsc . '">';
+    echo '<input type="hidden" name="download" value="1">';
+    echo '<button class="btn btn-primary" type="submit" style="cursor:pointer;border:0">Download dump</button></form>';
 }
 echo '</p><hr>';
 
@@ -332,7 +329,10 @@ if (is_file($dumpPath)) {
         }
     }
     echo '</pre>';
-    echo '<p class="pass"><a class="btn btn-primary" href="' . $downloadUrl . '">Download dump</a> (~'
+    echo '<p class="pass"><form method="post" action="' . $self . '" style="display:inline">';
+    echo '<input type="hidden" name="once" value="' . $onceEsc . '">';
+    echo '<input type="hidden" name="download" value="1">';
+    echo '<button class="btn btn-primary" type="submit" style="cursor:pointer;border:0">Download dump</button></form> (~'
         . number_format((int) filesize($dumpPath) / 1024 / 1024, 1) . ' MB) or WinSCP <code>public_html/amiga/_export/'
         . AMIGA_EXPORT_DUMP . '</code></p>';
 } else {

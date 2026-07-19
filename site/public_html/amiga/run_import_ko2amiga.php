@@ -2,14 +2,11 @@
 /**
  * Staging / local — import ko2amiga_db into ko2amiga_db.
  *
- * Preview:
- *   /amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=YOUR_OPS_PASSWORD
+ * Open:  /amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot
+ * Gate:  admin password via POST form (session kept; do not put pwd in the URL).
+ * Apply: POST apply=1 (multi-part; optional part=N). Session allows auto-continue GETs.
  *
- * Apply (multi-part — avoids gateway timeouts):
- *   /amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=YOUR_OPS_PASSWORD&apply=1
- *   Optional: &part=1 (auto-continues through manifest parts)
- *
- * Password: amiga/_ops/amiga_ops_password.local.php (gitignored; WinSCP-deployable).
+ * Password file: amiga/_ops/amiga_ops_password.local.php ($admin_password).
  */
 declare(strict_types=1);
 
@@ -206,44 +203,36 @@ header('Content-Type: text/html; charset=utf-8');
 require_once __DIR__ . '/includes/amiga_ops_password_lib.php';
 
 $key = 'ko2amiga-import-one-shot';
-$importPassword = amiga_ops_require_password();
-
-if (!isset($_GET['once']) || $_GET['once'] !== $key) {
+$onceValue = (string) ($_POST['once'] ?? $_GET['once'] ?? '');
+if ($onceValue !== $key) {
     header('HTTP/1.1 404 Not Found');
     echo 'Not found.';
     exit;
 }
 
-$apply = isset($_GET['apply']) && $_GET['apply'] === '1';
-$part = isset($_GET['part']) ? max(1, (int) $_GET['part']) : 1;
-$pwdProvided = isset($_GET['pwd']);
-$pwdOk = $pwdProvided && hash_equals($importPassword, (string) $_GET['pwd']);
+$apply = (isset($_POST['apply']) && (string) $_POST['apply'] === '1')
+    || (isset($_GET['apply']) && (string) $_GET['apply'] === '1');
+$partRaw = $_POST['part'] ?? $_GET['part'] ?? null;
+$part = $partRaw !== null ? max(1, (int) $partRaw) : 1;
 
-if (!$pwdOk) {
-    $self = htmlspecialchars($_SERVER['SCRIPT_NAME'] ?? '/amiga/run_import_ko2amiga.php', ENT_QUOTES, 'UTF-8');
-    echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Amiga DB import — password</title>';
-    echo '<style>body{font-family:system-ui,sans-serif;max-width:32rem;margin:2rem auto;line-height:1.5}';
-    echo 'input[type=password]{width:100%;padding:.5rem;font-size:1rem;box-sizing:border-box}';
-    echo 'button{margin-top:.75rem;padding:.5rem 1rem;font-size:1rem}';
-    echo '.fail{color:#c0392b;font-weight:600}</style></head><body>';
-    echo '<h1>Amiga DB import</h1>';
-    if ($pwdProvided) {
-        echo '<p class="fail">Incorrect password.</p>';
-    } else {
-        echo '<p>Password required to continue.</p>';
-    }
+$gate = amiga_ops_gate('admin');
+if (!$gate['ok']) {
+    $self = (string) ($_SERVER['SCRIPT_NAME'] ?? '/amiga/run_import_ko2amiga.php');
+    $hidden = ['once' => $key];
     if ($apply) {
-        echo '<p><strong>Mode:</strong> apply import (multi-part)</p>';
-    } else {
-        echo '<p><strong>Mode:</strong> preview only</p>';
+        $hidden['apply'] = '1';
+        if ($part > 1) {
+            $hidden['part'] = (string) $part;
+        }
     }
-    echo '<form method="get" action="' . $self . '">';
-    echo '<input type="hidden" name="once" value="' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '">';
-    if ($apply) {
-        echo '<input type="hidden" name="apply" value="1">';
-    }
-    echo '<p><label for="pwd">Password</label><br><input type="password" id="pwd" name="pwd" autocomplete="current-password" required autofocus></p>';
-    echo '<button type="submit">Continue</button></form></body></html>';
+    amiga_ops_render_password_form(
+        $self,
+        'Amiga DB import — admin password',
+        'Admin password required (' . ($apply ? 'apply import' : 'preview only') . ').',
+        $hidden,
+        $gate['provided'],
+        'Admin password'
+    );
     exit;
 }
 
@@ -278,9 +267,8 @@ echo '<h1>Import <code>ko2amiga_db</code></h1>';
 echo '<p>Importer build: <code>' . AMIGA_IMPORTER_BUILD . '</code></p>';
 
 $self = htmlspecialchars($_SERVER['SCRIPT_NAME'] ?? '/amiga/run_import_ko2amiga.php', ENT_QUOTES, 'UTF-8');
-$queryBase = '?once=' . rawurlencode($key) . '&pwd=' . rawurlencode($importPassword);
-$previewUrl = $self . $queryBase;
-$applyUrl = $self . $queryBase . '&apply=1&part=1';
+$onceEsc = htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+$queryBase = '?once=' . rawurlencode($key);
 
 if ($apply) {
     echo '<p><strong>Mode:</strong> <span class="warn">APPLY — part ' . $part . ' / ' . count($manifestParts) . '</span></p>';
@@ -288,9 +276,16 @@ if ($apply) {
     echo '<p><strong>Mode:</strong> preview only (no import yet)</p>';
 }
 
-echo '<p><a class="btn" href="' . $previewUrl . '">Preview again</a>';
+echo '<p style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">';
+echo '<form method="post" action="' . $self . '" style="display:inline;margin:0">';
+echo '<input type="hidden" name="once" value="' . $onceEsc . '">';
+echo '<button class="btn" type="submit" style="cursor:pointer;border:0">Preview again</button></form>';
 if (!$apply) {
-    echo '<a class="btn btn-danger" href="' . $applyUrl . '">Apply import</a>';
+    echo '<form method="post" action="' . $self . '" style="display:inline;margin:0">';
+    echo '<input type="hidden" name="once" value="' . $onceEsc . '">';
+    echo '<input type="hidden" name="apply" value="1">';
+    echo '<input type="hidden" name="part" value="1">';
+    echo '<button class="btn btn-danger" type="submit" style="cursor:pointer;border:0">Apply import</button></form>';
 }
 echo '</p><hr>';
 

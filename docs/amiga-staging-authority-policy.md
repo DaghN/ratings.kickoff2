@@ -157,11 +157,11 @@ Agents: run the above when Dagh says **pull staged Amiga** (non-interactive). Fl
 
 | Step | URL |
 |------|-----|
-| **Preview** (no dump) | https://ratings.kickoff2.com/amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=YOUR_OPS_PASSWORD |
-| **Generate dump** | https://ratings.kickoff2.com/amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=YOUR_OPS_PASSWORD&generate=1 |
-| **Download dump** | https://ratings.kickoff2.com/amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot&pwd=YOUR_OPS_PASSWORD&download=1 |
+| **Preview** (no dump) | https://ratings.kickoff2.com/amiga/run_export_ko2amiga.php?once=ko2amiga-export-one-shot |
+| **Generate dump** | Open preview → **Generate dump** (admin password POST form / session) |
+| **Download dump** | Open preview → **Download dump** (same session) |
 
-Password from `site/config/amiga_ops_password.local.php` (gitignored). Writes **`public_html/amiga/_export/ko2amiga_staging_pull.sql`** (+ manifest JSON; **overwrite** each generate). Direct HTTP to `_export/*.sql` is blocked (`.htaccess`); use export page **Download dump**, pull script, or WinSCP.
+Passwords in `amiga/_ops/amiga_ops_password.local.php` (gitignored): **`$admin_password`** (import/export) and **`$organizer_password`** (fixtures; admin also accepted). Prefer the POST password form — do not put `pwd=` in the address bar. Pull script POSTs the admin password in the request body. Writes **`public_html/amiga/_export/ko2amiga_staging_pull.sql`** (+ manifest JSON; **overwrite** each generate). Direct HTTP to `_export/*.sql` is blocked (`.htaccess`); use export page **Download dump**, pull script, or WinSCP.
 
 **Manual fallback** (if pull script unavailable):
 

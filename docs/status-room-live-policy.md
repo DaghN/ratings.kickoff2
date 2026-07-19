@@ -40,7 +40,7 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 | SRL-6 | **Between finishes:** no rating-table or league-standings work. Heading count reloads **with** the full rating table on cascade, not on its own. |
 | SRL-7 | **League refresh:** **active period tab only** (Day / Week / Month / Year). No adjacent-tab prewarm in v1 — keep simple. |
 | SRL-8 | **Both** Activity + Points league tables in cascade (same period key as active tab). Reuse existing league query/API helpers where possible. **Daily / Weekly games blocks** refresh with the same league pulse when that tab is active (`day_games` / `week_games_html` on the league section). |
-| SRL-9 | **Live half clock:** client ticks from server `half_countdown` (50 ticks/s) + `sync_epoch`; resync every heartbeat. Display `M:SS`. |
+| SRL-9 | **Live half clock:** client ticks from server `half_countdown` (50 ticks/s) + `sync_epoch`; pulse sends `live_clocks` every heartbeat but the client **keeps** the prior anchor when the sample is unchanged or behind local prediction (prod `HalfCountdown` may update sparsely). Take server on new game, period change, countdown reset upward, or when server is ahead. Display `M:SS`. |
 | SRL-10 | **Glow — minimal set + cascade:** (1) **Online** — name when **`LastLogin` epoch increased** (warm bloom). (2) **Live** — new game **score digits** (0–0, white). (3) **Recent** — names (warm) + score digits (white). (4) **Goals** — scoring digit (white). (5) **Active LB** — **Elo** (warm). (6) **League Activity** — **Games** (warm). (7) **League Points** — **Pts** (warm). **2.6 s**. Scores / `.blue` = white; accent ink = warm. |
 | SRL-11 | **Glow — score change:** **`k2-live-glow-bloom-white`** on the scoring digit (inner `.blue` when leading, else plain cell) — bright white ink, not accent or stat-green bloom |
 | SRL-12 | **Retired — cascade glow sequence:** no post-cascade glow choreography. Glow only from **SRL-10/11** lobby rules. |
@@ -60,7 +60,7 @@ Status is the **“right now”** hub — who is online, what is playing, what j
 
 | Signal | Source | Client action |
 |--------|--------|---------------|
-| `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, `GamePeriod`) — **not** `half_countdown`; client ticks clock locally between polls | Patch live list on fp change; **goal glow** on score increase; **score digit glow** (0–0 white bloom) on new live game row only; **`live_clocks` every heartbeat** resyncs anchor (SRL-9) |
+| `live_fp` | Hash of live `resulttable` rows (`game_id`, scores, `GamePeriod`) — **not** `half_countdown`; client ticks clock locally between polls | Patch live list on fp change; **goal glow** on score increase; **score digit glow** (0–0 white bloom) on new live game row only; **`live_clocks` every heartbeat** for SRL-9 (smart anchor — see half-countdown math) |
 | `online_fp` | Ordered online player ids (login-first sort) | Patch Online list + heading count (**count: no glow**); **name glow** when row `data-last-login-epoch` increased vs session memory (just logged in; both same-second logins glow) |
 | `last_login_epoch` | Head of `playertable.LastLogin` | Refresh recent logins — **no glow** |
 | `last_join_epoch` | Head of `playertable.JoinDate` | Refresh new players — **no glow** |
@@ -134,7 +134,7 @@ Per game in JSON:
 
 `remaining_ticks = half_countdown - (client_now - sync_epoch) * 50`
 
-Clamp at 0 → display `—`. Resync every heartbeat; on `period` change, take server countdown as truth.
+Clamp at 0 → display `—`. Pulse always includes `live_clocks`, but the client **does not** reset `sync_epoch` on every heartbeat: keep the prior anchor when `half_countdown`+`period` are unchanged, or when a new sample is still behind the local prediction (sparse game-server writes). Take server as truth on new `game_id`, `period` change, countdown reset upward, or when server remaining is ahead of local.
 
 **Diff rules:**
 
@@ -244,7 +244,7 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 |------|---------|
 | **Sync PHP/JS to prod** | **Yes** — sim never runs outside `ko2unity_work` + `work.ratingskickoff.test` |
 | **Pulse reads only** | **Yes** — no sim JSON; no signal cache on read path |
-| **Clock accuracy on prod** | **Conditional** — needs continuous `resulttable.HalfCountdown` updates; **`live_clocks` every beat** corrects anchor when DB moves |
+| **Clock accuracy on prod** | **Client-interpolated** — 1 s display tick does **not** require 1 Hz `HalfCountdown` writes; sparse game-server updates are OK. Server still needed for score/period/finish truth |
 | **Validated on prod-like traffic** | **Work sim + staging snapshot only** — soak on real server recommended |
 
 ### What prod pulse does (every request)
@@ -270,7 +270,7 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 ### Client contract (prod-safe)
 
 - Poll `GET /api/status_room_pulse.php` with previous `signals` query params; apply `sections` patches when `changed: true`.
-- **`live_clocks`** on **every** response — client resyncs half-clock anchor even when `changed: false` (SRL-9).
+- **`live_clocks`** on **every** response — client applies SRL-9 smart anchor (keep prior tick base when sample unchanged/behind; take server when ahead or structural change).
 - No sim URLs or host branches in client JS.
 
 ---
@@ -308,6 +308,7 @@ No Steve agreement required to **build** or **test on work**; prod read authorit
 
 | Date | Change |
 |------|--------|
+| 2026-07-19 | **SRL-9 sparse HalfCountdown** — client keeps prior clock anchor when pulse repeats a stale/behind sample; 1 s tick without Steve write-cadence change |
 | 2026-07-18 | **Live empty → week league link** — empty Live pane shows **This week's league standings →** to `#k2-status-leagues-title` (current week); SSR + `applyLiveEmpty` via `data-week-league-href`. |
 | 2026-07-18 | **League pulse → Daily/Weekly games** — cascade / `league_fp` reload includes `day_games` or `week_games_html` when that tab is active; client `applyLeaguePulse` refreshes the games block. |
 | 2026-07-06 | **Production readiness** — deploy-safe vs behaviour-proven table; Steve `HalfCountdown` cadence prerequisite |

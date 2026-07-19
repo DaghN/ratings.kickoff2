@@ -2,11 +2,11 @@
 /**
  * Internal fixture browser/result entry for fixture-backed Amiga tournaments.
  *
- * Usage:
- *   /amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD
- *   /amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD&tournament_id=N  (optional deep link)
+ * Open: /amiga/ops/fixtures.php?once=amiga-fixtures-one-shot
+ * Gate: organizer password via POST (admin password also accepted). Session kept;
+ * do not put pwd in the URL.
  *
- * Password: amiga/_ops/amiga_ops_password.local.php (gitignored; WinSCP-deployable).
+ * Password file: amiga/_ops/amiga_ops_password.local.php ($organizer_password / $admin_password).
  */
 declare(strict_types=1);
 
@@ -26,9 +26,7 @@ require_once __DIR__ . '/../includes/amiga_ops_password_lib.php';
 const AMIGA_FIXTURE_LIVE_SOURCE_SCORES_ID_BASE = 1000000000;
 
 $key = 'amiga-fixtures-one-shot';
-$opsPassword = amiga_ops_require_password();
 $onceValue = (string) ($_GET['once'] ?? $_POST['once'] ?? '');
-$pwdValue = (string) ($_GET['pwd'] ?? $_POST['pwd'] ?? '');
 
 if ($onceValue !== $key) {
     header('HTTP/1.1 404 Not Found');
@@ -36,8 +34,11 @@ if ($onceValue !== $key) {
     exit;
 }
 
-$pwdProvided = $pwdValue !== '';
-$pwdOk = $pwdProvided && hash_equals($opsPassword, $pwdValue);
+$gate = amiga_ops_gate('organizer');
+$pwdProvided = $gate['provided'];
+$pwdOk = $gate['ok'];
+// Keep empty for URL builders — auth is session-based after the POST gate.
+$pwdValue = '';
 $self = htmlspecialchars($_SERVER['SCRIPT_NAME'] ?? '/amiga/ops/fixtures.php', ENT_QUOTES, 'UTF-8');
 
 function amiga_fixture_render_chrome_start(string $pageTitle, bool $withDayPickerAssets = false, bool $withSortableTableAssets = false): void
@@ -102,15 +103,15 @@ if (!$pwdOk) {
 <?php if ($pwdProvided) { ?>
   <div class="k2-amiga-live-ops__flash k2-amiga-live-ops__flash--error">Incorrect password.</div>
 <?php } ?>
-  <form method="get" action="<?php echo $self; ?>" class="k2-amiga-live-ops__grid-form" style="max-width:24rem">
+  <form method="post" action="<?php echo $self; ?>" class="k2-amiga-live-ops__grid-form" style="max-width:24rem">
     <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
     <?php
-    $gateTournamentId = isset($_GET['tournament_id']) ? max(0, (int) $_GET['tournament_id']) : 0;
+    $gateTournamentId = isset($_GET['tournament_id']) ? max(0, (int) $_GET['tournament_id']) : (isset($_POST['tournament_id']) ? max(0, (int) $_POST['tournament_id']) : 0);
     if ($gateTournamentId > 0) {
         ?>
     <input type="hidden" name="tournament_id" value="<?php echo $gateTournamentId; ?>">
     <?php } ?>
-    <label>Password
+    <label>Organizer password
       <input type="password" id="pwd" name="pwd" autocomplete="current-password" required autofocus>
     </label>
     <div class="wide"><button type="submit">Continue</button></div>
@@ -222,7 +223,6 @@ function amiga_fixture_ops_redirect(
 ): void {
     $params = [
         'once' => $onceKey,
-        'pwd' => $pwd,
         'view' => $view,
     ];
     if ($tournamentId > 0) {
@@ -554,7 +554,7 @@ function amiga_fixture_redirect_create_compose(
         amiga_fixture_ops_flash_set($flashMessage, $flashError);
     }
     $params = array_merge(
-        ['once' => $onceKey, 'pwd' => $pwd, 'view' => 'setup'],
+        ['once' => $onceKey, 'view' => 'setup'],
         amiga_fixture_create_draft_query($draft)
     );
     header('Location: ' . $self . '?' . http_build_query($params));
@@ -572,7 +572,6 @@ function amiga_fixture_ops_url(
 ): string {
     $params = array_merge([
         'once' => $onceKey,
-        'pwd' => $pwd,
         'view' => $view,
     ], $extra);
     if ($tournamentId > 0) {
@@ -3113,7 +3112,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $tournamentId <= 0) {
         $params = array_merge(
             [
                 'once' => $key,
-                'pwd' => $pwdValue,
                 'view' => 'setup',
             ],
             amiga_fixture_create_draft_query($createDraft)
@@ -3723,7 +3721,7 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
 <?php if ($view === 'setup') { ?>
   <?php if ($tournamentId <= 0) {
       $organizerPickerBase = $self . '?' . http_build_query(array_merge(
-          ['once' => $key, 'pwd' => $pwdValue, 'view' => 'setup'],
+          ['once' => $key, 'view' => 'setup'],
           amiga_fixture_create_draft_query($createDraft)
       ));
       $organizerSelectedIds = implode(',', array_map('intval', $createDraft['player_ids']));
@@ -3766,7 +3764,7 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
             <input type="hidden" name="new_player_preview" value="<?php echo k2_h($createDraft['new_player_preview']); ?>">
             <button type="submit">Create player and add to list</button>
           </form>
-          <p class="k2-amiga-live-ops__muted"><a href="<?php echo htmlspecialchars($self . '?' . http_build_query(array_merge(['once' => $key, 'pwd' => $pwdValue, 'view' => 'setup', 'create_clear_new_player' => '1'], amiga_fixture_create_draft_query($createDraft))), ENT_QUOTES, 'UTF-8'); ?>">Clear preview</a></p>
+          <p class="k2-amiga-live-ops__muted"><a href="<?php echo htmlspecialchars($self . '?' . http_build_query(array_merge(['once' => $key, 'view' => 'setup', 'create_clear_new_player' => '1'], amiga_fixture_create_draft_query($createDraft))), ENT_QUOTES, 'UTF-8'); ?>">Clear preview</a></p>
         </div>
       <?php } ?>
       <form class="k2-amiga-live-ops__grid-form k2-amiga-organizer-create-player__form" method="post" action="<?php echo $self; ?>">
@@ -3801,7 +3799,7 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
           <ul class="k2-amiga-organizer__player-chips">
           <?php foreach ($createSelectedPlayers as $selectedPlayer) {
               $removeUrl = $self . '?' . http_build_query(array_merge(
-                  ['once' => $key, 'pwd' => $pwdValue, 'view' => 'setup', 'create_remove_player_id' => $selectedPlayer['id']],
+                  ['once' => $key, 'view' => 'setup', 'create_remove_player_id' => $selectedPlayer['id']],
                   amiga_fixture_create_draft_query($createDraft)
               ));
               ?>

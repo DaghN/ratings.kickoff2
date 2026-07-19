@@ -19,7 +19,7 @@
 | **Frozen dev DB (`ko2unity_db`) recovery?** | Re-import May dump (`data/README.md`) — not retired batch/replay CLIs |
 | **Steve prod cutover?** | [`site/public_html/ops/docs/post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md) |
 | **Schema migrations?** | `site/public_html/ops/sql/migrations/` + `run_prepare.php migrate-work` |
-| **Amiga staging DB refresh?** | Agent **runs** `scripts\export_ko2amiga_work.ps1` when Dagh asks to export to staged → tells him **ready for sync + import** → **preview** `/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=YOUR_OPS_PASSWORD` → **apply** `&apply=1` on `ratings.kickoff2.com` — [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
+| **Amiga staging DB refresh?** | Agent **runs** `scripts\export_ko2amiga_work.ps1` when Dagh asks to export to staged → tells him **ready for sync + import** → **preview** `/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot` → enter **admin** password (POST form) → **Apply import** on `ratings.kickoff2.com` — [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 
 ---
 
@@ -152,9 +152,9 @@ Not online ladder ops. Local build any way you like → export snapshot → sync
 | **Export SQL (agent runs this)** | `scripts\export_ko2amiga_work.ps1` → `site/public_html/amiga/_import/ko2amiga_*.sql` (promotes work video manifest first) |
 | **Work git checkpoint** | `scripts\seal_amiga_work_checkpoint.ps1 -Label <name>` → `data/amiga/checkpoints/work-YYYY-MM-DD-<label>/` (milestone; opt-in git) — [`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md) |
 | Deploy (Dagh) | WinSCP sync `site/public_html/` |
-| **Staging import (preview)** | https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=YOUR_OPS_PASSWORD |
+| **Staging import (preview)** | https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot |
 | **Staging import (apply)** | same + `&apply=1` |
-| **Local import dry-run** | http://ratingskickoff.test/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=YOUR_OPS_PASSWORD |
+| **Local import dry-run** | http://ratingskickoff.test/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot |
 
 Full handoff: [`amiga-staging-handoff.md`](amiga-staging-handoff.md) · scripts: [`scripts/amiga/README.md`](../scripts/amiga/README.md)
 

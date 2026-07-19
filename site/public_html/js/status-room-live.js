@@ -397,17 +397,46 @@
 		return !deferred;
 	}
 
+	/**
+	 * Apply pulse live_clocks anchors without freezing the 1 s client tick.
+	 * Prod HalfCountdown often updates only every few wall seconds; blindly
+	 * resetting sync_epoch each heartbeat made the display step with the DB.
+	 * Keep the prior anchor when the server sample is unchanged or behind the
+	 * local prediction; take server on new game, period change, countdown
+	 * reset upward, or when the server is ahead of local.
+	 */
 	function syncLiveGameClocks(root, games, syncEpoch) {
+		var prevById = {};
+		for (var i = 0; i < state.liveClocks.length; i++) {
+			prevById[state.liveClocks[i].game_id] = state.liveClocks[i];
+		}
 		state.liveClocks = [];
 		if (!games || !games.length) {
 			return;
 		}
-		for (var i = 0; i < games.length; i++) {
-			var g = games[i];
+		var now = Math.floor(Date.now() / 1000);
+		for (var j = 0; j < games.length; j++) {
+			var g = games[j];
+			var gameId = g.game_id;
+			var half = g.half_countdown || 0;
+			var period = g.period || 0;
+			var prev = prevById[gameId];
+			if (prev && prev.period === period && prev.half_countdown === half) {
+				state.liveClocks.push(prev);
+				continue;
+			}
+			if (prev && prev.period === period) {
+				var localRem = prev.half_countdown - Math.max(0, now - prev.sync_epoch) * TICKS_PER_SEC;
+				/* Sparse/stale write still behind local tick — keep interpolating. */
+				if (half <= prev.half_countdown && half > localRem) {
+					state.liveClocks.push(prev);
+					continue;
+				}
+			}
 			state.liveClocks.push({
-				game_id: g.game_id,
-				half_countdown: g.half_countdown || 0,
-				period: g.period || 0,
+				game_id: gameId,
+				half_countdown: half,
+				period: period,
 				sync_epoch: syncEpoch,
 			});
 		}
