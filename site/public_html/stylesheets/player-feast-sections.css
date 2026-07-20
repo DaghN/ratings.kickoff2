@@ -1037,7 +1037,7 @@ body.k2-site.player-feast-body .k2-amiga-profile-lb-slices .k2-table.server-reco
 	text-align: right;
 }
 
-/* Profile slice stacked values — primary line + muted secondary (Activity dates, calendar peak years) */
+/* Profile slice stacked values — primary line + muted secondary (Activity tournament dates) */
 .player-feast-body .k2-amiga-profile-lb-slices .k2-amiga-profile-activity-date {
 	color: var(--k2-text-muted);
 	font-weight: 400;
@@ -1057,6 +1057,14 @@ body.k2-site.player-feast-body .k2-amiga-profile-lb-slices .k2-table.server-reco
 
 .player-feast-body .k2-amiga-profile-lb-slices td.k2-amiga-profile-activity-value-cell--stacked {
 	vertical-align: top;
+}
+
+/* Calendar / Peak rating: muted date then value on one line (wide gap, no bullet) */
+.player-feast-body .k2-amiga-profile-lb-slices .k2-amiga-profile-activity-value--inline {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.75em; /* ~triple word space */
+	white-space: nowrap;
 }
 
 /* Amiga player chronologies — spotlight card (milestone-style, link-star glow) */

@@ -149,6 +149,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-20 | **Amiga profile mosaic labels** — Goals / DDs & CSs / Victims DD·CS / Tournament honours / Calendar & geo; peak year+count + Peak rating Peak/rank/Nadir dates **inline** (muted date, wide gap); `amiga_profile_lb_slices.php` + `player-feast-sections.css`. |
 | 2026-07-19 | **Status Leagues ongoing→shorter** — live week/year tab switch lands today/this month (not Mon/Jan); `data-live-keys` + heal in `status-period-competitions.js`. |
 | 2026-07-19 | **Live goal glow→reveal** — scoring cell blooms ~2 s, then digit updates (SRL-11). WinSCP `js/status-room-live.js`. |
 | 2026-07-19 | **Status live clock smooth** — removed 4 s tick cap (stutter); client sync_epoch; held after 6 s no decrease. WinSCP `js/status-room-live.js`. |

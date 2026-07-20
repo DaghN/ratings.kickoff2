@@ -654,7 +654,7 @@ function amiga_profile_lb_slice_sections(array $row): array
             'render' => static fn () => amiga_profile_lb_slice_rows_goals($row),
         ],
         'double-digits' => [
-            'title' => 'DDs & CSs',
+            'title' => 'Double Digits & Clean Sheets',
             'render' => static fn () => amiga_profile_lb_slice_rows_double_digits($row),
         ],
         'victims' => [
@@ -733,7 +733,7 @@ function amiga_profile_lb_slice_tournament_value(?array $event): string
 }
 
 /**
- * Primary value on first line, optional muted secondary line below (Activity dates, calendar peak years).
+ * Primary value on first line, optional muted secondary line below (Activity tournament dates).
  */
 function amiga_profile_lb_slice_value_stacked(string $primaryHtml, ?string $mutedHtml = null): string
 {
@@ -745,6 +745,21 @@ function amiga_profile_lb_slice_value_stacked(string $primaryHtml, ?string $mute
     $html .= '</span>';
 
     return $html;
+}
+
+/**
+ * One line: muted prefix then value (Calendar peak year; Peak rating event dates).
+ */
+function amiga_profile_lb_slice_value_inline_muted_prefix(string $valueHtml, ?string $mutedPrefixHtml = null): string
+{
+    if ($mutedPrefixHtml === null || $mutedPrefixHtml === '' || $mutedPrefixHtml === '—') {
+        return $valueHtml;
+    }
+
+    return '<span class="k2-amiga-profile-activity-value k2-amiga-profile-activity-value--inline">'
+        . '<span class="k2-amiga-profile-activity-date">' . $mutedPrefixHtml . '</span>'
+        . '<span class="k2-amiga-profile-activity-event">' . $valueHtml . '</span>'
+        . '</span>';
 }
 
 /**
@@ -914,6 +929,16 @@ function amiga_profile_lb_slice_link_star_value_stacked_html(
     return amiga_profile_lb_slice_value_stacked($primary, $mutedHtml);
 }
 
+function amiga_profile_lb_slice_link_star_value_inline_muted_prefix_html(
+    string $primaryHtml,
+    ?string $mutedPrefixHtml,
+    string $href
+): string {
+    $primary = amiga_profile_lb_slice_link_star_value_html($primaryHtml, $href);
+
+    return amiga_profile_lb_slice_value_inline_muted_prefix($primary, $mutedPrefixHtml);
+}
+
 function amiga_profile_lb_slice_link_star_value_stacked(
     string $primaryDisplay,
     ?string $mutedHtml,
@@ -1058,80 +1083,74 @@ function amiga_profile_lb_slice_rows_goals(array $row): void
     };
 
     echo amiga_profile_lb_slice_row(
-        'GF',
+        'Goals scored',
         $goalsLbLink('<span class="blue">' . k2_fmt_count($row['GoalsFor'] ?? null, $games) . '</span>', 'goals_lb_gf_href'),
-        k2_lb_help_amiga_goals_scored(),
-        'Goals for'
+        k2_lb_help_amiga_goals_scored()
     );
     echo amiga_profile_lb_slice_row(
-        'GA',
+        'Goals conceded',
         $goalsLbLink('<span class="red">' . k2_fmt_count($row['GoalsAgainst'] ?? null, $games) . '</span>', 'goals_lb_ga_href'),
-        k2_lb_help_amiga_goals_conceded(),
-        'Goals against'
+        k2_lb_help_amiga_goals_conceded()
     );
     $gdDisplay = $gd !== null ? k2_fmt_signed_int_text($gd) : k2_fmt_dash();
     echo amiga_profile_lb_slice_row(
-        'GD',
+        'Goal difference',
         $goalsLbLink($gdDisplay, 'goals_lb_gd_href'),
-        k2_lb_help_amiga_goal_difference(),
-        'Goal difference'
+        k2_lb_help_amiga_goal_difference()
     );
     echo amiga_profile_lb_slice_row(
-        'GF/g',
+        'Goals scored per game',
         $goalsLbLink(k2_fmt_decimal($row['AverageGoalsFor'] ?? null, $games), 'goals_lb_gf_per_game_href'),
-        k2_lb_help_amiga_goals_scored_avg(),
-        'Goals scored per game'
+        k2_lb_help_amiga_goals_scored_avg()
     );
     echo amiga_profile_lb_slice_row(
-        'GA/g',
+        'Goals conceded per game',
         $goalsLbLink(k2_fmt_decimal($row['AverageGoalsAgainst'] ?? null, $games), 'goals_lb_ga_per_game_href'),
-        k2_lb_help_amiga_goals_conceded_avg(),
-        'Goals conceded per game'
+        k2_lb_help_amiga_goals_conceded_avg()
     );
     $gdDisplay = $gdPer !== null ? k2_fmt_decimal($gdPer, $games) : k2_fmt_dash();
     echo amiga_profile_lb_slice_row(
-        'GD/g',
+        'Goal difference per game',
         $goalsLbLink($gdDisplay, 'goals_lb_gd_per_game_href'),
-        k2_lb_help_amiga_goal_difference_per_game(),
-        'Goal difference per game'
+        k2_lb_help_amiga_goal_difference_per_game()
     );
     echo amiga_profile_lb_slice_row(
-        'Ratio',
+        'Goal ratio',
         $goalsLbLink($ratioCell, 'goals_lb_ratio_href'),
         k2_lb_help_goal_ratio()
     );
     $maxGfDisplay = k2_fmt_count($row['MostGoalsScored'] ?? null, $games);
     echo amiga_profile_lb_slice_row(
-        'Max GF',
+        'Most goals scored',
         amiga_profile_lb_slice_games_inventory_link($maxGfDisplay, $playerId, $games, 'all', 'goals_for', 'desc'),
         k2_lb_help_amiga_most_scored()
     );
     $maxGaDisplay = k2_fmt_count($row['MostGoalsConceded'] ?? null, $games);
     echo amiga_profile_lb_slice_row(
-        'Max GA',
+        'Most goals conceded',
         amiga_profile_lb_slice_games_inventory_link($maxGaDisplay, $playerId, $games, 'all', 'against', 'desc'),
         k2_lb_help_amiga_most_conceded()
     );
     $maxWinDisplay = k2_fmt_count($row['BiggestWinDifference'] ?? null, $games);
     echo amiga_profile_lb_slice_row(
-        'Max win',
+        'Biggest winning margin',
         amiga_profile_lb_slice_games_inventory_link($maxWinDisplay, $playerId, $games, 'win', 'diff', 'desc'),
         k2_lb_help_win_margin()
     );
     $maxLossDisplay = k2_fmt_count($row['BiggestLossDifference'] ?? null, $games);
     echo amiga_profile_lb_slice_row(
-        'Max loss',
+        'Biggest losing margin',
         amiga_profile_lb_slice_games_inventory_link($maxLossDisplay, $playerId, $games, 'loss', 'diff', 'asc'),
         k2_lb_help_loss_margin()
     );
     $maxSumDisplay = k2_fmt_count($row['BiggestSumOfGoals'] ?? null, $games);
     echo amiga_profile_lb_slice_row(
-        'Max sum',
+        'Highest total goals',
         amiga_profile_lb_slice_games_inventory_link($maxSumDisplay, $playerId, $games, 'all', 'sum', 'desc'),
         k2_lb_help_goal_sum()
     );
     echo amiga_profile_lb_slice_row(
-        'Max draw',
+        'Biggest draw',
         amiga_profile_lb_slice_games_inventory_link($drawCell, $playerId, $games, 'draw', 'sum', 'desc'),
         k2_lb_help_biggest_draw()
     );
@@ -1182,22 +1201,20 @@ function amiga_profile_lb_slice_rows_double_digits(array $row): void
         return amiga_profile_lb_slice_link_star_value($display, $href);
     };
     echo amiga_profile_lb_slice_row(
-        'DD Ratio',
+        'Double Digits ratio',
         $ddLbRatioLink(
             k2_fmt_pct_from_ratio($row['DoubleDigitsRatio'] ?? null, $games),
             'dd_lb_dd_ratio_href'
         ),
-        k2_lb_help_double_digits_ratio(),
-        'Double Digits ratio'
+        k2_lb_help_double_digits_ratio()
     );
     echo amiga_profile_lb_slice_row(
-        'CS Ratio',
+        'Clean Sheets ratio',
         $ddLbRatioLink(
             k2_fmt_pct_from_ratio($row['CleanSheetsRatio'] ?? null, $games),
             'dd_lb_cs_ratio_href'
         ),
-        k2_lb_help_clean_sheets_ratio(),
-        'Clean Sheets ratio'
+        k2_lb_help_clean_sheets_ratio()
     );
     $ddConcededDisplay = k2_fmt_count($row['DoubleDigitsConceded'] ?? null, $games);
     echo amiga_profile_lb_slice_row(
@@ -1227,22 +1244,20 @@ function amiga_profile_lb_slice_rows_double_digits(array $row): void
         k2_lb_help_clean_sheets_conceded()
     );
     echo amiga_profile_lb_slice_row(
-        'DD C Ratio',
+        'DD conceded ratio',
         $ddLbRatioLink(
             k2_fmt_pct_from_ratio($row['DoubleDigitsConcededRatio'] ?? null, $games),
             'dd_lb_dd_conceded_ratio_href'
         ),
-        k2_lb_help_double_digits_conceded_ratio(),
-        'DD conceded ratio'
+        k2_lb_help_double_digits_conceded_ratio()
     );
     echo amiga_profile_lb_slice_row(
-        'CS C Ratio',
+        'CS conceded ratio',
         $ddLbRatioLink(
             k2_fmt_pct_from_ratio($row['CleanSheetsConcededRatio'] ?? null, $games),
             'dd_lb_cs_conceded_ratio_href'
         ),
-        k2_lb_help_clean_sheets_conceded_ratio(),
-        'CS conceded ratio'
+        k2_lb_help_clean_sheets_conceded_ratio()
     );
 }
 
@@ -1282,28 +1297,28 @@ function amiga_profile_lb_slice_rows_victims(array $row): void
         $ddVictimsDisplay,
         $playerId > 0 && $ddVictims > 0 ? amiga_player_chronology_dd_victims_entry_href($playerId) : ''
     );
-    echo amiga_profile_lb_slice_row('DD Victims', $ddVictimsValue, k2_lb_help_dd_victims(), 'Double Digit victims');
+    echo amiga_profile_lb_slice_row('Double Digits Victims', $ddVictimsValue, k2_lb_help_dd_victims());
     $ddCulprits = (int) ($row['DoubleDigitsCulprits'] ?? 0);
     $ddCulpritsDisplay = '<span class="blue">' . k2_fmt_count($row['DoubleDigitsCulprits'] ?? null, $games) . '</span>';
     $ddCulpritsValue = amiga_profile_lb_slice_link_star_value_html(
         $ddCulpritsDisplay,
         $playerId > 0 && $ddCulprits > 0 ? amiga_player_chronology_dd_culprits_entry_href($playerId) : ''
     );
-    echo amiga_profile_lb_slice_row('DD Culprits', $ddCulpritsValue, k2_lb_help_dd_culprits(), 'Double Digit culprits');
+    echo amiga_profile_lb_slice_row('Double Digits Culprits', $ddCulpritsValue, k2_lb_help_dd_culprits());
     $csVictims = (int) ($row['CleanSheetsVictims'] ?? 0);
     $csVictimsDisplay = '<span class="blue">' . k2_fmt_count($row['CleanSheetsVictims'] ?? null, $games) . '</span>';
     $csVictimsValue = amiga_profile_lb_slice_link_star_value_html(
         $csVictimsDisplay,
         $playerId > 0 && $csVictims > 0 ? amiga_player_chronology_cs_victims_entry_href($playerId) : ''
     );
-    echo amiga_profile_lb_slice_row('CS Victims', $csVictimsValue, k2_lb_help_cs_victims(), 'Clean Sheet victims');
+    echo amiga_profile_lb_slice_row('Clean Sheets Victims', $csVictimsValue, k2_lb_help_cs_victims());
     $csCulprits = (int) ($row['CleanSheetsCulprits'] ?? 0);
     $csCulpritsDisplay = '<span class="blue">' . k2_fmt_count($row['CleanSheetsCulprits'] ?? null, $games) . '</span>';
     $csCulpritsValue = amiga_profile_lb_slice_link_star_value_html(
         $csCulpritsDisplay,
         $playerId > 0 && $csCulprits > 0 ? amiga_player_chronology_cs_culprits_entry_href($playerId) : ''
     );
-    echo amiga_profile_lb_slice_row('CS Culprits', $csCulpritsValue, k2_lb_help_cs_culprits(), 'Clean Sheet culprits');
+    echo amiga_profile_lb_slice_row('Clean Sheets Culprits', $csCulpritsValue, k2_lb_help_cs_culprits());
     $mgcVictims = (int) ($row['MostGoalsConcededVictims'] ?? 0);
     $mgcVictimsDisplay = '<span class="blue">' . k2_fmt_count($row['MostGoalsConcededVictims'] ?? null, $games) . '</span>';
     $mgcVictimsValue = amiga_profile_lb_slice_link_star_value_html(
@@ -1347,7 +1362,7 @@ function amiga_profile_lb_slice_rows_tournament_honours(array $row): void
             ? amiga_profile_lb_slice_player_tournaments_href($playerId)
             : ''
     );
-    echo amiga_profile_lb_slice_row('Events', $eventsValue, k2_lb_help_amiga_tournament_events());
+    echo amiga_profile_lb_slice_row('Tournaments played', $eventsValue, k2_lb_help_amiga_tournament_events());
 
     $podiums = (int) ($row['event_podiums'] ?? 0);
     $podiumsValue = amiga_profile_lb_slice_link_star_value(
@@ -1416,7 +1431,7 @@ function amiga_profile_lb_slice_rows_tournament_honours(array $row): void
             ? amiga_profile_lb_slice_player_tournaments_href($playerId, 'all', 'with-participant')
             : ''
     );
-    echo amiga_profile_lb_slice_row('Perfect', $perfectValue, k2_lb_help_amiga_perfect_events());
+    echo amiga_profile_lb_slice_row('Perfect tournaments', $perfectValue, k2_lb_help_amiga_perfect_events());
 }
 
 /**
@@ -1429,7 +1444,6 @@ function amiga_profile_lb_slice_rows_calendar_geo(array $row): void
     $games = (int) ($row['NumberGames'] ?? 0);
     $peakGamesYear = $row['peak_year_games_year'] ?? null;
     $peakEventsYear = $row['peak_year_tournaments_year'] ?? null;
-    $stackedClass = 'k2-amiga-profile-activity-value-cell--stacked';
     $peakGames = (int) ($row['peak_year_games'] ?? 0);
     $peakEvents = (int) ($row['peak_year_tournaments'] ?? 0);
 
@@ -1437,38 +1451,34 @@ function amiga_profile_lb_slice_rows_calendar_geo(array $row): void
     if ($playerId > 0 && k2_derived_games_started($games) && $peakGames > 0) {
         $peakGamesHref = (string) ($row['calendar_geo_lb_peak_games_href'] ?? '');
     }
-    $peakGamesValue = amiga_profile_lb_slice_link_star_value_stacked_html(
+    $peakGamesYearHtml = $peakGamesYear !== null ? k2_h((string) (int) $peakGamesYear) : null;
+    $peakGamesValue = amiga_profile_lb_slice_link_star_value_inline_muted_prefix_html(
         '<span class="blue">' . $peakGames . '</span>',
-        $peakGamesYear !== null ? k2_h((string) (int) $peakGamesYear) : null,
+        $peakGamesYearHtml,
         $peakGamesHref
     );
 
     echo amiga_profile_lb_slice_row(
-        'Peak games',
+        'Most games in one year',
         $peakGamesValue,
-        k2_lb_help_amiga_peak_year_games(),
-        null,
-        '',
-        $stackedClass
+        k2_lb_help_amiga_peak_year_games()
     );
 
     $peakEventsHref = '';
     if ($playerId > 0 && k2_derived_games_started($games) && $peakEvents > 0) {
         $peakEventsHref = (string) ($row['calendar_geo_lb_peak_events_href'] ?? '');
     }
-    $peakEventsValue = amiga_profile_lb_slice_link_star_value_stacked_html(
+    $peakEventsYearHtml = $peakEventsYear !== null ? k2_h((string) (int) $peakEventsYear) : null;
+    $peakEventsValue = amiga_profile_lb_slice_link_star_value_inline_muted_prefix_html(
         (string) $peakEvents,
-        $peakEventsYear !== null ? k2_h((string) (int) $peakEventsYear) : null,
+        $peakEventsYearHtml,
         $peakEventsHref
     );
 
     echo amiga_profile_lb_slice_row(
-        'Peak events',
+        'Most tournaments in one year',
         $peakEventsValue,
-        k2_lb_help_amiga_peak_year_tournaments(),
-        null,
-        '',
-        $stackedClass
+        k2_lb_help_amiga_peak_year_tournaments()
     );
     $hostCountries = (int) ($row['countries_played_in'] ?? 0);
     $hostCountriesDisplay = '<span class="blue">' . (string) $hostCountries . '</span>';
@@ -1476,7 +1486,7 @@ function amiga_profile_lb_slice_rows_calendar_geo(array $row): void
         $hostCountriesDisplay,
         $playerId > 0 && $hostCountries > 0 ? amiga_player_chronology_host_countries_entry_href($playerId) : ''
     );
-    echo amiga_profile_lb_slice_row('Host countries', $hostCountriesValue, k2_lb_help_amiga_countries_played_in());
+    echo amiga_profile_lb_slice_row('Different host countries', $hostCountriesValue, k2_lb_help_amiga_countries_played_in());
     $countriesFaced = (int) ($row['opponent_countries_faced'] ?? 0);
     $countriesFacedDisplay = '<span class="blue">' . (string) $countriesFaced . '</span>';
     $countriesFacedValue = amiga_profile_lb_slice_link_star_value_html(
@@ -1507,29 +1517,22 @@ function amiga_profile_lb_slice_rows_peak_rating(array $row): void
 {
     $playerId = (int) ($row['ID'] ?? 0);
     $games = (int) ($row['NumberGames'] ?? 0);
-    $stackedClass = 'k2-amiga-profile-activity-value-cell--stacked';
 
     echo amiga_profile_lb_slice_row(
-        'Peak Rating',
-        amiga_profile_lb_slice_value_stacked(
+        'Peak rating',
+        amiga_profile_lb_slice_value_inline_muted_prefix(
             amiga_lb_peak_rating_peak_cell_html($row),
             amiga_profile_lb_slice_event_date_stacked_muted($row['peak_rating_date'] ?? null)
         ),
-        k2_lb_help_peak(),
-        null,
-        '',
-        $stackedClass
+        k2_lb_help_peak()
     );
     echo amiga_profile_lb_slice_row(
         'Peak rank',
-        amiga_profile_lb_slice_value_stacked(
+        amiga_profile_lb_slice_value_inline_muted_prefix(
             amiga_lb_peak_rating_peak_rank_cell_html($row),
             amiga_profile_lb_slice_event_date_stacked_muted($row['peak_elo_rank_date'] ?? null)
         ),
-        k2_lb_help_peak_elo_rank(),
-        null,
-        '',
-        $stackedClass
+        k2_lb_help_peak_elo_rank()
     );
 
     $nadirDisplay = k2_fmt_nadir_rating($row['LowestRating'] ?? null);
@@ -1538,19 +1541,15 @@ function amiga_profile_lb_slice_rows_peak_rating(array $row): void
         $nadirHref = (string) ($row['peak_rating_lb_nadir_href'] ?? '');
     }
     echo amiga_profile_lb_slice_row(
-        'Nadir',
-        amiga_profile_lb_slice_link_star_value_stacked(
-            $nadirDisplay,
-            amiga_profile_lb_slice_event_date_stacked_muted($row['lowest_rating_date'] ?? null),
-            $nadirHref
+        'Rating nadir',
+        amiga_profile_lb_slice_value_inline_muted_prefix(
+            amiga_profile_lb_slice_link_star_value($nadirDisplay, $nadirHref),
+            amiga_profile_lb_slice_event_date_stacked_muted($row['lowest_rating_date'] ?? null)
         ),
-        k2_lb_help_amiga_profile_nadir(),
-        null,
-        '',
-        $stackedClass
+        k2_lb_help_amiga_profile_nadir()
     );
     echo amiga_profile_lb_slice_row(
-        'Highest Victim',
+        'Highest rated victim',
         amiga_profile_lb_slice_games_inventory_link(
             k2_fmt_lb_stat($row['HighestRatedVictim'] ?? null, $games),
             $playerId,
@@ -1562,7 +1561,7 @@ function amiga_profile_lb_slice_rows_peak_rating(array $row): void
         k2_lb_help_highest_victim()
     );
     echo amiga_profile_lb_slice_row(
-        'Lowest Culprit',
+        'Lowest rated culprit',
         amiga_profile_lb_slice_games_inventory_link(
             k2_fmt_lb_stat($row['LowestRatedCulprit'] ?? null, $games, 5000.0),
             $playerId,

@@ -39,17 +39,17 @@ function k2_lb_help_games(): string
 
 function k2_lb_help_peak(): string
 {
-    return 'Your career high Elo after 20 rated games.';
+    return 'Your career highest Elo rating after at least 20 games.';
 }
 
 function k2_lb_help_peak_elo_rank(): string
 {
-    return 'Your best career ladder rank (lowest rank number). First attainment wins on ties.';
+    return 'Your best career rank (lower is better).';
 }
 
 function k2_lb_help_peak_rating_date(): string
 {
-    return 'Tournament day when your peak rating was first reached (event finalize, not per-game).';
+    return 'Tournament day when your peak rating was reached.';
 }
 
 function k2_lb_help_online_peak_rating_date(): string
@@ -64,17 +64,17 @@ function k2_lb_help_peak_elo_rank_date(): string
 
 function k2_lb_help_nadir(): string
 {
-    return 'Your career low Elo after 20 rated games. Dash (—) until then.';
+    return 'Your career lowest Elo rating after at least 20 games.';
 }
 
 function k2_lb_help_nadir_date(): string
 {
-    return 'Tournament day when your career nadir was first reached (event finalize, not per-game).';
+    return 'Tournament day when your rating nadir was reached.';
 }
 
 function k2_lb_help_amiga_profile_nadir(): string
 {
-    return 'Your career low Elo after 20 rated games. Date below is the tournament day when that nadir was first reached. Dash (—) until then.';
+    return k2_lb_help_nadir();
 }
 
 function k2_lb_help_opponent_avg(): string
@@ -84,12 +84,12 @@ function k2_lb_help_opponent_avg(): string
 
 function k2_lb_help_highest_victim(): string
 {
-    return 'Highest-rated opponent you have beaten (their pre-game Elo on that win).';
+    return 'Highest-rated opponent you have beaten.';
 }
 
 function k2_lb_help_lowest_culprit(): string
 {
-    return 'Lowest-rated opponent you have lost to (their pre-game Elo on that loss).';
+    return 'Lowest-rated opponent you have lost to.';
 }
 
 /** Goals wing (ranked2). Short headers may use GF/GA; tooltip bodies use scored/conceded and say career vs one game. */
