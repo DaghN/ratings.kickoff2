@@ -7,7 +7,7 @@ declare(strict_types=1);
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_safety.php';
 ?>
 <p class="k2-news-post__prose">
-	What a weekend in Cambridge! The SWOS World Cups (Amiga and PC) took place on Saturday and Sunday, and for an outsider who has not played Sensible Soccer since 1993, it was an absolute thrill to follow the action and cheer for Blazej. The matches were fast, incredibly skilled, unpredictable, with a never-ending stream of clutch moments.
+	What a weekend in Cambridge! The SWOS World Cups (Amiga and PC) took place on Saturday and Sunday, and for an outsider who has not played Sensible Soccer since 1993, it was an absolute thrill to follow the action and cheer for Blazej! The matches were fast, incredibly skilled, unpredictable, and with a never-ending stream of clutch moments.
 </p>
 <p class="k2-news-post__prose">
 	Blazej&rsquo;s road to the Amiga title on Saturday was impressive, but never certain, with fantastic opponents on the verge of knocking him out throughout the day.
