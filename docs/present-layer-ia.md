@@ -375,6 +375,7 @@ Phases **A + C** are the smallest **metadata-complete** slice; **B** makes Misc 
 
 | Date | Change |
 |------|--------|
+| 2026-07-20 | **News fourth post** — Blazej and Playaveli 2026 SWOS World Champions (Amiga + PC); scorecards, trophy photos, results + Twitch VODs. |
 | 2026-07-18 | **Pulse Upcoming tournament** — pane after art; Oslo WC blurb + **World Cup →** → `#2026-07-oslo-wc`. |
 | 2026-07-18 | **About What this is** — folded hero + maintainer into one brief-led card; acknowledgements unchanged. |
 | 2026-07-18 | **About acknowledgements** — Mark Williams (Durban); Robert & Glenn equal billing; Alkis, Spyros, Steve. |

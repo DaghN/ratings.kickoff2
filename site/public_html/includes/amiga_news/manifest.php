@@ -8,6 +8,13 @@ declare(strict_types=1);
 
 return [
     [
+        'id' => '2026-07-swos-wc-2026-champions',
+        'date' => '2026-07-20',
+        'title' => 'Blazej and Playaveli are the 2026 SWOS World Champions!',
+        'author' => 'Dagh Nielsen',
+        'file' => '2026-07-swos-wc-2026-champions.inc.php',
+    ],
+    [
         'id' => '2026-07-sensible-days-2026',
         'date' => '2026-07-18',
         'title' => 'Sensible Days 2026: SWOS World Cup comes home to Cambridge',

@@ -167,6 +167,7 @@
 | 2026-07-18 | **Status pane → links** — `k2-status-panel__more` + arc-link 11→12px. |
 | 2026-07-18 | **Amiga News pulse Online copy** — “KOOL online room” (parallel Amiga-world LB line). |
 | 2026-07-18 | **Amiga News pulse LB copy** — “Who’s on top of the Amiga world right now…”. |
+| 2026-07-20 | **Amiga News fourth post** — SWOS WC 2026 champions (Blazej Amiga / Playaveli PC); scorecards + trophy photos; Twitch VODs — [`present-layer-ia.md`](docs/present-layer-ia.md) §5.5. |
 | 2026-07-18 | **Amiga News pulse Upcoming** — pane after art; Oslo WC blurb + **World Cup →** → `#2026-07-oslo-wc`. |
 | 2026-07-18 | **Amiga News pulse text tone** — Get involved blurb uses muted empty class (match Online/LB/HoF). |
 | 2026-07-18 | **Amiga News pulse Leaderboards** — empty invite pane above HoF (`Leaderboards →` rating wing); living ladder vs record book. |
