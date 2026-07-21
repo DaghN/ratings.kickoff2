@@ -8,7 +8,9 @@ site/config/ko2amiga_config.local.php
 site/config/amiga_ops_password.local.php
 site/public_html/amiga/_ops/amiga_ops_password.local.php
 site/public_html/amiga/_import/*.sql
+site/public_html/amiga/_import/.restore_from_seal.json
 site/public_html/amiga/_export/*.sql
+site/public_html/amiga/_backups/seal-*/
 site/config/ladder.ini
 site/config/ladder-work.ini
 site/config/work-targets.ini

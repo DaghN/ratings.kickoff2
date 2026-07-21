@@ -1,0 +1,92 @@
+# Amiga staging backup and admin delete — policy (Jul 2026)
+
+**Status:** **Locked intent (v1)** — product rules agreed; implementation not required to cite this as decided. Demotion flags and per-tournament ground packs (**L6**) are **out of scope** for this policy.
+
+**Plan / prompt:** [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) · [`orchestration/agent-handoffs/amiga-staging-l5-backup-delete-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-staging-l5-backup-delete-STARTER-PROMPT.md)
+
+**Parents:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) · [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) · [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) · [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) · [`amiga-staging-handoff.md`](amiga-staging-handoff.md)
+
+**Threat model (v1):** Protect against mistakes and a **website** admin (`$admin_password`) — not against WinSCP/SSH filesystem access (Dagh retains that outer key).
+
+---
+
+## 1. Locked picture (v1)
+
+Three roles / mechanisms:
+
+| # | Piece | Rule |
+|---|--------|------|
+| **1** | **Organizers** (`$organizer_password`; admin password also accepted where already wired) | Create kitchens, enter results, void/abandon **never-official** work, **Finish and make official** (incl. finish-confirm Tier E). **No** delete of finalized / published tip events. |
+| **2** | **Admins** (`$admin_password`) | Everything organizers can do **plus** destructive tip ops — notably **delete tournament(s)** on staging — and import/export / backup restore surfaces. Delete is **admin-only** (no lock/unlock matrix, no per-tournament delete password in v1). |
+| **3** | **Backup system** | After every **successful tip-changing** action, seal a **full staging backup pack** (same family as today’s `_import` manifest + SQL parts). Undo / recover = restore a prior seal via Apply import (or equivalent). |
+
+This is **enough** for KOA scale: rare events, trusted small admin set, organizers need publish/cancel-draft — not forensic ladder editing.
+
+---
+
+## 2. Backup rules (BA1–BA8)
+
+| Id | Decision |
+|----|----------|
+| **BA1** | **Artifact** = full DB backup pack equivalent to today’s browser rebuild payload: `ko2amiga_manifest.json` + `ko2amiga_*.sql` parts (KOOL convention, not a generic mysqldump API). |
+| **BA2** | **When** = **after** successful tip-changing actions — at least: **Make official** (append) and **admin delete**. Also after explicit admin “backup now” / successful full import if those exist. **Not** after each score entry. |
+| **BA3** | **Not before delete by default** — pre-delete tip should already be the previous after-Finish (or after-prior-action) seal. Strict rule: tip-changing success implies after-backup (or loud failure). |
+| **BA4** | **Restore** = existing Apply import semantics (replace staged `ko2amiga_db` from a chosen pack). Multi-backup UX may later pick a seal; engine stays the same. |
+| **BA5** | **Retention** = rolling last **N** seals (e.g. 5–10) on server; **reserve** seals (e.g. every 5th, or manual milestone) not swept by the rolling cleaner. Exact N tunable at implement time. |
+| **BA6** | **Web admin vs filesystem** — website admin must **not** be able to bulk-erase reserve seals through PHP. Rolling cleanup may be automatic; reserve delete = WinSCP/Dagh only (or no UI). |
+| **BA7** | **L6 ground packs** = **shelved** — per-tournament packs not planned; full pack is the safety path. |
+| **BA8** | **Demotion / soft-exclude flags** = **not required for v1 safety** — backups + admin hard delete (with repair) suffice; demotion deferred to avoid published-set filter surface. |
+
+---
+
+## 3. Delete rules (AD1–AD6)
+
+| Id | Decision |
+|----|----------|
+| **AD1** | **Admin-only** for removing published / finalized tournaments from staging. |
+| **AD2** | **Organizer cancel** = void / abandon **never-official** only (already in organizer Advanced) — leaves Live, does not commit ratings; not the same as admin delete of an official tip event. |
+| **AD3** | After successful admin delete of a **finalized tip** event: run **anchored repair** appropriate to the case (v1 target = **Case A** unfinalized trash + **Case B** delete latest finalized — re-project present). Prefer PHP live path on staging; do **not** require local `prove`/`simul` as daily delete. Exact verb names follow live-ops §7.4 when implemented. |
+| **AD4** | **Case C (narrow) is in L5 scope** — delete non-tip **M** with later finalized events (e.g. test under real tip): truncate poisoned forward derived; re-project at M−1; **re-finalize forward** via PHP live finalize. Smoke on **short** forward chains first; deep mid-history optional later. Plan: [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md). |
+| **AD5** | **No** organizer lock/unlock delete matrix and **no** per-tournament delete password in v1. |
+| **AD6** | After successful delete + repair: **BA2** backup of the new tip. |
+
+---
+
+## 4. Why this is solid enough
+
+| Need | Covered by |
+|------|------------|
+| Secretaries run leagues | Organizer path + Finish confirm |
+| Drop a bad training night before official | Organizer void |
+| Drop a bad **official** tip kitchen | Admin delete + Case B + backup after |
+| Undo sabotage / bad admin delete (website password only) | Prior seals on server (esp. reserve) + Apply import; WinSCP as outer key |
+| Avoid dual live DBs / demotion UI sprawl | Full packs + hard delete at tip |
+
+**Not claimed:** perfect protection against someone with WinSCP; perfect mid-catalog rewrite without Case C; automatic offline copies (nice later).
+
+---
+
+## 5. Rejected for v1
+
+| Rejected | Why |
+|----------|-----|
+| Demotion-first instead of backups | Extra read-path surface; backups already answer sabotage |
+| Dual raw/main live databases | Sync/authority cost |
+| Per-tournament delete passwords / lock bits | Bookkeeping; A deletes B’s unlocked event |
+| Backup only on admin request | Easy to forget after Finish |
+| Implement L6 ground packs now | Shelved; full pack enough |
+
+---
+
+## 6. Implementation note (not a sprint)
+
+Ship when Track L / live-ops feedback names it (likely around **L5**). Until then: manual rebuild from last local/`_import` pack remains the practical restore (already used). This doc locks **intent** so agents do not invent demotion or L6 as required for “can we delete?”
+
+---
+
+## 7. Changelog
+
+| Date | Change |
+|------|--------|
+| 2026-07-22 | **AD4** — narrow Case C in L5 scope (test-under-real); L5 plan + starter linked. |
+| 2026-07-22 | **Locked v1 intent** — organizer vs admin; backup-after tip actions; admin-only delete; L6/demotion out; retention + web-admin threat model. |

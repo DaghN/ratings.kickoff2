@@ -98,13 +98,13 @@ Only the **current** cycle is live. When fixed and re-checked, clear or archive 
 
 | Field | Value |
 |-------|-------|
-| **Status** | idle — finish-confirm **Phase A complete**; L1 open for next serial feedback |
-| **Format** | — |
+| **Status** | idle — **L5 slices 0–2 done**; next **slice 3** (Case A delete) |
+| **Format** | Ref-League-A (repair smoke) |
 | **Step** | — |
-| **Feedback** | (none open) |
-| **Slice** | — |
+| **Feedback** | (none) |
+| **Slice** | 2 done → 3 |
 
-**Context for next chat:** Organizer finish confirm **Phase A Implemented** (confirm → Tier E → gated Finish; FO9 prefill-only). Optional plan slice 5 = Phase B finish-mode sketch. Do **not** mix Track C / cup templates until named. Starter remains for optional slice 5: [`amiga-organizer-finish-confirm-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-organizer-finish-confirm-STARTER-PROMPT.md).
+**Context for next chat:** Paste [`amiga-staging-l5-backup-delete-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-staging-l5-backup-delete-STARTER-PROMPT.md) (**COPY INTO NEW CHAT** — defaults to **slice 3** Case A). Inventory: plan §5. Backup+restore live; staging↔work parity checked 2026-07-22. Policy [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md). **L6 shelved.**
 
 When a cycle is open, agents read **this table only** — not historical notes — as the work order.
 
@@ -121,13 +121,13 @@ Milestones are **gates**, not a parallel backlog. Advance when Dagh says the pri
 | **L2** | Ref-League-A ×3 | Lifecycle explainable without opening PHP |
 | **L3** | Ref-Cup-A path exists | One cup finalized on staging |
 | **L4** | Ref-Cup-A ×2 | League + cup feel like one product |
-| **L5** | Delete / repair | Training event gone; site coherent; no `prove` |
-| **L6** | Ground pack pull | Staging event on laptop (finer than full pull) |
+| **L5** | Delete / repair + backup seals | Case A/B + narrow Case C; backup-after — plan [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) |
+| **L6** | Ground pack pull | **Shelved** — not planned until further notice (full staging backup pack is enough). Keep mention only. |
 | **L7** | Media on ran event | YouTube URL on staging tournament |
 
-**Current gate:** **L1** — finish-confirm Phase A **complete** (Dagh smoke); next = whatever serial feedback opens, or optional Phase B sketch.
+**Current gate:** **L5 in progress** — slices **0–2 done**; next **slice 3** (Case A). L2 reps optional. **L6 shelved.** Cups deferred.
 
-**Explicit defer until a cycle names them:** structure imprint P2–P3, WC materialize, Lane C media DDL, CR-9 country polish, player-create phase 2, cups before L2 boring.
+**Explicit defer until a cycle names them:** structure imprint P2–P3, WC materialize, Lane C media DDL, CR-9 country polish, player-create phase 2, cups (L3) until named, **L6 ground pack (shelved — full DB backup pack preferred).**
 
 ---
 
@@ -147,6 +147,7 @@ Closed cycles from early drills. Do **not** treat as open work.
 
 | Date | Step | Feedback | Outcome |
 |------|------|----------|---------|
+| 2026-07-21 | L1 | finish-confirm boring | **L1 done** → gate **L2** (Ref-League-A ×3) |
 | 2026-07-21 | WEBSITE / Finish | Finish confirm track | Phase A Implemented (confirm Tier E + gate); FO9 prefill-only; Dagh smoke green |
 | 2026-07-17 | WEBSITE / Finish | #609 WC kitchen: no Finish / no gold | Root cause Tier D vs RR; Reset N/A when completed; durable = finish-confirm policy track (docs); temp Tier C fallback in code |
 | 2026-07-17 | WEBSITE | (none — spot-check green) | Catalog + tournament page + profile effect + gone from Live — **L0 complete**; §4 idle |
@@ -168,6 +169,13 @@ Closed cycles from early drills. Do **not** treat as open work.
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **L5 slice 2 done** — restore stage → Apply import; §4 → next slice 3. |
+| 2026-07-22 | **L5 slice 1 done** — backup seal writer + Finish hook + admin Backup now; §4 → next slice 2. |
+| 2026-07-22 | **L5 slice 0 done** — plan §5 inventory filled; §4 → next slice 1. |
+| 2026-07-22 | **L5 handover** — implementation plan + starter; Case C narrow in scope; §4 → L5 track ready. |
+| 2026-07-22 | **Backup + admin delete intent locked** — [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md): organizer vs admin; backup-after Finish/delete; admin-only delete; L6/demotion out. |
+| 2026-07-21 | **L6 shelved** — per-tournament ground pack not planned until further notice; full staging backup pack (manifest + parts) is the safety path. |
+| 2026-07-21 | **L1 → L2** — finish-confirm boring; gate = Ref-League-A reps (×3); §4 idle pending feedback. |
 | 2026-07-21 | **Finish confirm Phase A complete** — slice 4 FO9 prefill-only; §4 idle; L1 open for next feedback. |
 | 2026-07-21 | **Finish confirm slice 3** — Finish gated on confirmed Tier E; §4 idle → next slice 4 docs/FO9. |
 | 2026-07-21 | **Finish confirm slice 2** — Table confirm UI + Tier E persist; §4 idle → next slice 3 gate Finish. |

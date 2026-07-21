@@ -6,7 +6,7 @@
 
 **Online analogue:** [`ladder-ops-platform.md`](ladder-ops-platform.md) — online prod/staging = `site/public_html/ops/` + `kooldb*`. Amiga live realm = `site/public_html/amiga/ops/` + `ko2amiga_db` + server filesystem for uploads.
 
-**Related:** [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) (**locked Jul 2026** — living ground, day 0 bootstrap, simul; Lane A local authority defers here) · [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) (reference formats, **serial feedback** loop — **start here for implementation**) · [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (**locked Jul 2026** — running vs official universe; Make official = only boundary) · [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md) (**Implemented Phase A** — confirm finishing order / Tier E before Finish) · [`amiga-running-tournament-boundary-inventory.md`](amiga-running-tournament-boundary-inventory.md) · [`amiga-php-finalize-parity-protocol.md`](amiga-php-finalize-parity-protocol.md) (**PHP Finish ↔ simul-oracle fingerprint — signed off Jul 2026**) · [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (organizer newcomer naming — **shipped Jul 2026** PC-1–PC-7) · [`amiga-player-create-implementation-plan.md`](amiga-player-create-implementation-plan.md) · [`amiga-data-contract.md`](amiga-data-contract.md) (layers, table register) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) (L5 writers, prove-only repair today) · [`amiga-staging-handoff.md`](amiga-staging-handoff.md) (export/import loop) · [`amiga-ground-stack.md`](amiga-ground-stack.md) (L0–L5 Access era — archive) · [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (stage/fixture/game model) · [`archive/orchestration/browser-organizer-workflow-checkpoint.md`](archive/orchestration/browser-organizer-workflow-checkpoint.md) (organizer UX gaps) · [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) · [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) · [`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)
+**Related:** [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) (**locked Jul 2026** — living ground, day 0 bootstrap, simul; Lane A local authority defers here) · [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) (reference formats, **serial feedback** loop — **start here for implementation**) · [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (**locked Jul 2026** — running vs official universe; Make official = only boundary) · [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md) (**Implemented Phase A** — confirm finishing order / Tier E before Finish) · [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) (**Locked intent** — organizer vs admin; backup-after tip actions; admin-only delete) · [`amiga-running-tournament-boundary-inventory.md`](amiga-running-tournament-boundary-inventory.md) · [`amiga-php-finalize-parity-protocol.md`](amiga-php-finalize-parity-protocol.md) (**PHP Finish ↔ simul-oracle fingerprint — signed off Jul 2026**) · [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (organizer newcomer naming — **shipped Jul 2026** PC-1–PC-7) · [`amiga-player-create-implementation-plan.md`](amiga-player-create-implementation-plan.md) · [`amiga-data-contract.md`](amiga-data-contract.md) (layers, table register) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) (L5 writers, prove-only repair today) · [`amiga-staging-handoff.md`](amiga-staging-handoff.md) (export/import loop) · [`amiga-ground-stack.md`](amiga-ground-stack.md) (L0–L5 Access era — archive) · [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (stage/fixture/game model) · [`archive/orchestration/browser-organizer-workflow-checkpoint.md`](archive/orchestration/browser-organizer-workflow-checkpoint.md) (organizer UX gaps) · [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) · [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) · [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) · [`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)
 
 ---
 
@@ -80,7 +80,7 @@ This document locks **three operational lanes**, **where code runs**, **timeline
 | Structure + fixtures + results | **Shipped (RTB Jul 2026)** | Running scores on `tournament_fixtures` until **Make official** (`promote_running_tournament` → `finalize_tournament`); broadcast table on organizer + Live hub — [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) |
 | Finalize one tournament | **Shipped** | Browser Table **Make official** or `finalize-tournament` (promote prefix when zero `amiga_games`) |
 | Zero derived | **Shipped** (PHP) | Same runner |
-| Delete/cancel tournament (guarded) | **Not shipped** | Planned ops verbs |
+| Delete/cancel tournament (guarded) | **Intent locked** — admin-only tip delete + backup-after; verbs not shipped | [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md); §7 below |
 | Truncate derived after cutoff N | **Not shipped** | Planned |
 | Project present at N | **Not shipped** | Planned (SQL + PHP helpers) |
 | Re-finalize forward from N+1 | **Not shipped** | Loop live finalize path |
@@ -186,11 +186,13 @@ See [`amiga-staging-handoff.md`](amiga-staging-handoff.md). Staging does **not**
 Once staging owns community tournaments:
 
 ```text
-staging ko2amiga_db → dump / ground pack → import into ko2amiga_work → simul
+staging ko2amiga_db → full dump / backup pack → import into ko2amiga_work → simul
 staging media + metadata → pull for backup (Lane C)
 ```
 
-**Rule:** Community ground on staging may **never** exist on local until **pulled**. Local is a **repair clone**, not a second version of staged ([`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) §2–§3). Local full prove must not be the only recovery path for staged mistakes.
+**Default pull** = full DB (browser export or `pull_ko2amiga_from_staging.ps1`). Per-tournament **ground packs (L6) are shelved** — see [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md).
+
+**Rule:** Community ground on staging may **never** exist on local until **pulled**. Local is a **repair clone**, not a second version of staged ([`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) §2–§3). Local full prove/`simul` must not be the only recovery path for staged mistakes — prefer **admin delete + anchored repair** and/or **restore prior full backup pack**.
 
 ### 6.3 Promotion (optional)
 
@@ -200,11 +202,13 @@ Community ground or media may be **promoted to canon** (git manifest, dispositio
 
 ## 7. Anchored repair (Lane B)
 
-Full `prove` (~30 min) is **canon regression**, not the default fix for:
+Full `prove` / full local `simul` (~30 min prove class) is **canon regression**, not the default fix for:
 
-- Delete secretary training tournament (latest event).
-- Remove a finalized mistake at the catalog tail.
-- Truncate forward derived after a bad finalize.
+- Delete secretary training tournament (latest event) — **admin-only** on staging; see [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md).
+- Remove a finalized mistake at the catalog tip (Case B).
+- Truncate forward derived after a bad finalize (Case C — later).
+
+**After** successful tip delete + repair: seal a **full backup pack** (BA2). Undo a bad delete = restore prior seal (Apply import), not demotion.
 
 ### 7.1 Case A — Unfinalized tournament
 
@@ -299,19 +303,23 @@ OR promote to git on release schedule
 
 ---
 
-## 9. Ground packs and backup
+## 9. Backup packs and ground packs
 
 Tournament **ground** is already in MySQL (L3 games + L4 structure). There is no separate “tournament file format” — only **export granularity**.
 
-### 9.1 Tournament ground pack (L3+L4)
+**Authority for staging safety (v1):** [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) — **full** backup pack (manifest + SQL parts, same family as Apply import), sealed **after** successful tip-changing actions (Finish, admin delete). Rolling + reserve retention; web admin must not wipe reserve seals.
 
-Per `tournament_id`, export:
+### 9.1 Tournament ground pack (L3+L4) — **shelved (L6)**
+
+Per `tournament_id`, export (when/if L6 un-shelved):
 
 - `tournaments`, `amiga_games`, `tournament_entrants`, stages, fixtures, stage players
 - Optional: `amiga_tournament_finish_override`, lifecycle fields
 - **Exclude L5** (recomputable via finalize)
 
-**Uses:** backup before finalize; pull staging community event to local; restore after mistaken delete of **ground only**; handoff between organisers.
+**Status:** **Not planned** until further notice. Vocabulary kept. Do **not** implement as required for delete/backup safety — full pack is enough.
+
+**Former intended uses** (deferred): pull one staging community event to local; restore ground-only; organiser handoff.
 
 ### 9.2 Work git checkpoint (full DB milestone)
 
@@ -321,15 +329,15 @@ When forward repair on **`ko2amiga_work`** is not yet on staged prod, seal a rec
 powershell -ExecutionPolicy Bypass -File scripts\seal_amiga_work_checkpoint.ps1 -Label <name>
 ```
 
-Output: `data/amiga/checkpoints/work-YYYY-MM-DD-<label>/` — export SQL parts + `manifest.json` + `companion/` (videos, disposition register, …). **Opt-in** `.gitignore` allowlist per folder. Convention: [`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md). Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) §7. **Not** a substitute for staged DR — use when local work is ahead of staging.
+Output: `data/amiga/checkpoints/work-YYYY-MM-DD-<label>/` — export SQL parts + `manifest.json` + `companion/` (videos, disposition register, …). **Opt-in** `.gitignore` allowlist per folder. Convention: [`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md). Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) §7. Complements staged **after-action** backup seals; not a substitute for them once seals ship on staging.
 
-### 9.3 Cutoff checkpoint
+### 9.3 Cutoff / disaster dump
 
-Snapshot manifest of **entire DB derived state through cutoff N** OR host mysqldump — for disaster recovery faster than 30-minute prove. Heavier than per-tournament pack; optional ops habit before WC.
+Host mysqldump or full export pack through cutoff N — disaster recovery. Same artifact family as BA1 when used for staging restore.
 
 ### 9.4 Ground pack + media
 
-Include Lane C media metadata + file references in the same pack so cancel/repair does not orphan photos on disk.
+Deferred with L6. Lane C media cancel/repair must not orphan photos when media ship (L7) — independent of L6.
 
 ---
 
@@ -356,15 +364,16 @@ Same **philosophy:** stored timeline truth where needed; present rows for hot re
 |---|----------|------|
 | **ALO1** | **Staging is live ground authority** | Community tournaments and Lane C writes authoritative on staged `ko2amiga_db`; local is canon lab + merge target |
 | **ALO2** | **Three lanes** | A = canon pipeline local; B = ladder ops staged; C = editorial ops staged — do not merge responsibilities |
-| **ALO3** | **Prove is not daily ops** | Full prove = canon/writer regression (~30 min); anchored repair + verify-lite = live mistakes |
+| **ALO3** | **Full prove/`simul` is not daily ops** | Canon/writer regression locally; staged mistakes → anchored repair + verify-lite and/or **restore full backup pack** — [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) |
 | **ALO4** | **Present is disposable** | Repair may truncate timeline and re-project present; snapshots/at-event/realm timelines are authority through N |
 | **ALO5** | **S4 bootstrap** | Finalize/replay forward loads prior **snapshots**, never present rows for cumulative seed |
 | **ALO6** | **No refinalize resurrection** | No single-tournament reopen/refinalize CLI; use anchored repair pipeline or full prove — [`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md) |
 | **ALO7** | **Live media write = DB** | Community YouTube/photo adds write staged DB (+ disk for photos); git JSON is canon archive, not live store |
-| **ALO8** | **Bidirectional flow** | Canon push remains; **pull** ground/media packs from staging is required for community era |
+| **ALO8** | **Bidirectional flow** | Canon/full push remains; **full pull** from staging is required for community era. Per-tournament ground pack pull (**L6**) shelved |
 | **ALO9** | **Lane B/C code in `amiga/ops/`** | Same deploy habit as online ops — WinSCP `public_html/`; not `scripts/` on server for daily paths |
 | **ALO10** | **Editorial ≠ L5** | Media uploads do not invoke finalize writers; optional link to `game_id` is editorial FK only |
 | **ALO11** | **Start = public live** | Generated fixture-backed tournaments with `lifecycle_status = running` appear on `/amiga/live-tournaments.php` automatically — **no config allowlist**. Setup stays private; **Make official** = finalize (N→N+1). No hide toggle in v1. |
+| **ALO12** | **Backup + admin delete** | Organizer ≠ admin tip-delete; backup **after** tip-changing success; full pack restore — [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) |
 
 ---
 
@@ -405,8 +414,8 @@ Do **not** keep an open inventory of every friction. Cosmetic workarounds wait u
 | **L2** | **Ref-League-A ×3** until boring | — | You can narrate lifecycle without opening PHP |
 | **L3** | Minimal **Ref-Cup-A** create path (CLI OK) | — | One cup finalized on staging |
 | **L4** | **Ref-Cup-A ×2** | — | League + cup feel like one product |
-| **L5** | **Mistake-driven repair** — delete training events, fix present projection | Phases **1–3**, **5** (Case B first) | Training tournament removed without full `prove` |
-| **L6** | Pull staging ground you created | Phases **4**, **8** | Ground pack on laptop |
+| **L5** | **Mistake-driven repair** — backup seals + admin delete Case A/B + **narrow Case C** | Phases **1–3**, **5** (+ forward re-finalize) | Plan [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) |
+| **L6** | Pull staging ground you created (per-tournament **ground pack**) | Phases **4**, **8** | **Shelved Jul 2026** — not planned until further notice; prefer full staging backup pack (manifest + parts). Keep row for vocabulary only. |
 | **L7** | Media on a tournament you ran | Phases **6–7**, **10** | YouTube URL on staging event |
 
 **Slice sizing:** one agent chat = **one feedback** → one fix → **same step re-done**. Not “Phases 1–3 in one go.” Not a growing pain log.
@@ -423,11 +432,11 @@ Ship when §12.1 unlocks it. Technical exit criteria unchanged; **behavioural** 
 | **1 — Verify-lite PHP** | `verify-derived` subset on staging | B | **L5+** (after first repair) | Present=timeline checks pass on staging |
 | **2 — Project present** | `project-present-at` + SQL helpers | B | **L5** (paired with delete) | Matches Python oracle on sample DB |
 | **3 — Delete last finalized** | Guarded delete + Case B pipeline | B | **L5** (first motivated infra) | Training tournament removed without `prove` |
-| **4 — Ground pack v0** | Export/import one tournament L3+L4 | B | **L6** | Pull staging event to local |
+| **4 — Ground pack v0** | Export/import one tournament L3+L4 | B | **L6** | **Shelved** with L6 (Jul 2026) — do not implement until L6 un-shelved |
 | **5 — Truncate + refinalize forward** | Case C pipeline | B | After **L5** Case B trusted | Mid-history delete without full `prove` |
 | **6 — Media DDL + upload API** | `amiga_tournament_media` + YouTube form | C | **L7** | Secretary adds URL; tab after approve |
 | **7 — Photo upload** | Filesystem + thumbnails + Photos tab | C | **L7** | Self-hosted serve; pack includes files |
-| **8 — Pull export** | Staging → download ground/media pack | B/C | **L6** | Local dev without manual mysqldump |
+| **8 — Pull export** | Staging → download ground/media pack | B/C | **L6** | **Shelved** with L6 — full DB pull/export remains the path |
 | **9 — L5-only prove flag** | `prove --l5-only` or `replay` without L1–L4 | A | **Track C** | Faster writer sign-off when ground unchanged |
 | **10 — Media read migration** | PHP lib reads DB first, JSON fallback | C | **L7** | Historical JSON fallback; live rows on staging |
 
@@ -482,6 +491,10 @@ Separate agent track. Does **not** gate Ref-League-A / Ref-Cup-A practice.
 - Prod Amiga host: same as staging pattern or separate DB.
 - News/Misc present-layer posts — DB vs static includes ([`present-layer-ia.md`](present-layer-ia.md)) — separate from tournament media but same Lane C habit.
 - Automated pull from staging on schedule vs manual export only.
+- Backup retention **N** and reserve cadence (every kth) — defaults suggested in backup policy; tune at implement.
+- Case C mid-history admin delete — **narrow Case C in L5 plan**; deep long-forward chains after short-chain smoke.
+
+**Closed Jul 2026 (see backup/admin-delete policy):** organizer vs admin tip-delete; backup-after (not before); L6 shelved; demotion not required for v1; no lock/unlock / per-tournament delete password.
 
 ---
 
@@ -489,6 +502,8 @@ Separate agent track. Does **not** gate Ref-League-A / Ref-Cup-A practice.
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **Backup + admin delete policy** — locked intent [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md); §6.2/§7/§9/ALO3/ALO8/ALO12 aligned; L6 shelved. |
+| 2026-07-22 | **L6 shelved** — per-tournament ground pack (phases 4/8) not planned until further notice; full backup pack = safety path. |
 | 2026-07-07 | **RTB shipped** — Lane B running scores on fixtures; Make official = promote + finalize; `verify-running-tournament-boundary` in prove. |
 | 2026-07-07 | **Start=public live + Make official** — removed config allowlist; running generated events auto on Live hub; organizer **Make official** = finalize (ALO11). |
 | 2026-07-16 | **Serial feedback** — practice track retires pain-log inventory; queue depth 1; §12.1 / agent policy aligned. |

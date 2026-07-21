@@ -21,6 +21,7 @@ require_once __DIR__ . '/modules/process_completed_game.php';
 require_once __DIR__ . '/modules/finalize_tournament.php';
 require_once __DIR__ . '/includes/amiga_promote_running_tournament.php';
 require_once __DIR__ . '/includes/amiga_finish_confirm_proposal.php';
+require_once __DIR__ . '/../includes/amiga_backup_seal_lib.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 require_once __DIR__ . '/../includes/amiga_ops_password_lib.php';
 
@@ -3332,7 +3333,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         . ($voided === 1 ? ' was' : 'es were')
                         . ' marked void.';
                 }
-                amiga_fixture_ops_flash_set($msg);
+                // BA2/BA3: seal after successful tip change (loud failure if seal fails).
+                @set_time_limit(600);
+                @ini_set('memory_limit', '512M');
+                $seal = amiga_backup_seal_write_from_config($con, [
+                    'reason' => 'finish',
+                    'tournament_id' => $tournamentId,
+                ]);
+                if ($seal['ok']) {
+                    $msg .= ' Backup seal: ' . (string) $seal['seal_id']
+                        . ' (' . (int) $seal['parts'] . ' parts'
+                        . (!empty($seal['reserve']) ? ', reserve' : '')
+                        . ').';
+                    amiga_fixture_ops_flash_set($msg);
+                } else {
+                    amiga_fixture_ops_flash_set(
+                        $msg . ' WARNING: backup seal FAILED — ' . (string) $seal['error']
+                        . ' (ratings are committed; seal manually via /amiga/run_backup_ko2amiga.php).',
+                        true
+                    );
+                }
             }
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
         } elseif ($action === 'confirm_finish_order') {

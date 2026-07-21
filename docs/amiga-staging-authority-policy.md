@@ -102,40 +102,37 @@ Amiga **community ground** is moving from “local laptop is canon, staging is a
 | Standing **local vs staged diff** UI | Local is not a second branch — it is a repair clone. |
 | **Prove** / full Access reimport for staging mistakes | Oracle archaeology; use anchored repair on staged or pull → repair → push. |
 
-**Ground packs** (per-tournament pull) remain useful for drills and single-event backup — see live-ops §6.2 / L6 roadmap — but **full pull** is the default before schema pushes.
+**Ground packs** (per-tournament pull) — **shelved with live-ops L6 (Jul 2026)** until further notice; vocabulary kept. **Full pull / full backup pack** is the default before schema pushes and for staging safety restore.
 
 ---
 
-## 6. Permissions and lifecycle (open — describe only)
+## 6. Permissions and lifecycle
 
-Two layers (intent, not shipped as full admin product):
+**Locked intent (Jul 2026):** [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md).
 
-| Layer | Typical actors | Intent |
-|-------|----------------|--------|
-| **Organizer** | Tournament secretary | Running scores, entrants, **Make official**, optional per-tournament password (open). |
-| **Admin** | Dagh / trusted ops | Lock tournaments, approve discard, hard delete (if ever), staging-wide hygiene. |
+| Layer | Password | Intent |
+|-------|----------|--------|
+| **Organizer** | `$organizer_password` (admin also OK where wired) | Running scores, entrants, void never-official, **Make official** (+ finish confirm). **No** delete of finalized tip events. |
+| **Admin** | `$admin_password` | Import/export, tip **delete** (+ Case A/B repair when shipped), backup restore surfaces. |
 
-**Open decisions** (do not implement until pull/push habit exists):
+**Rejected for v1** (do not reopen without new policy): lock/unlock delete matrix; per-tournament delete password; demotion-first; soft-discard-as-only-path for official tip events.
 
-- **Discard vs delete** — soft `lifecycle_status` / discard flag vs physical row delete on pull/push.
-- **Lock tiers** — e.g. canon / community / ephemeral test events; who may delete what.
-- **Per-tournament password** — organizer-set gate in addition to global ops password.
-- **Staged admin page** — lock, delete, export ground pack — complements repair shop on local.
-
-**Direction:** prefer **soft discard + admin approval** over silent hard delete for finalized events; align with RTB lifecycle vocabulary where possible.
+**Still open at implement time:** exact admin UI placement; retention N for rolling seals; Case C mid-history delete.
 
 ---
 
-## 7. Backup on git
+## 7. Backup
 
-**Goal:** recoverable snapshots of **good staged prod**, not continuous sync.
+**Staging tip safety (v1 intent):** full backup pack **after** Finish / admin delete — [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md). Restore = Apply import (or equivalent) from a prior seal.
+
+**Also:**
 
 | Mechanism | Role |
 |-----------|------|
-| **Export parts + `ko2amiga_manifest.json`** after a verified push | Same artifacts as staging import; tag or commit manifest; SQL parts often gitignored + WinSCP — optional tagged dump for milestones. |
-| **Work checkpoints (git)** | Milestone seals of local **`ko2amiga_work`** — `data/amiga/checkpoints/work-YYYY-MM-DD-<label>/` + `scripts/seal_amiga_work_checkpoint.ps1`; opt-in gitignore allowlist per folder ([`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md)). |
-| **Periodic mysqldump** of staging `ko2amiga_db` | Disaster recovery; store outside repo or as release artifact if large. **Not automated yet.** |
-| **`data/amiga/day0/`** | Bootstrap witness only — not staged prod backup. |
+| **Export parts + `ko2amiga_manifest.json`** after a verified push | Same artifacts as staging import; last push is a practical restore point today |
+| **Work checkpoints (git)** | Milestone seals of local **`ko2amiga_work`** — `data/amiga/checkpoints/…` |
+| **Periodic mysqldump** of staging | Optional DR; not automated yet |
+| **`data/amiga/day0/`** | Bootstrap witness only — not staged prod backup |
 
 Agents: do not treat local work as the backup of staged unless a pull just happened and simul is green.
 
@@ -194,8 +191,9 @@ Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
 | **PULL-1b** | **Shipped + verified Jul 2026** — `run_export_ko2amiga.php` (export-v4; JSON + download) |
 | **CHECKPOINT-1** | **Shipped Jul 2026** — `seal_amiga_work_checkpoint.ps1` + `data/amiga/checkpoints/` (milestone git seals) |
 | **SYNC-1** | `staging-sync-last.json` + export gate |
-| **ADMIN-1** | Staged admin page (lock / discard / delete) — after permissions sketch firms up |
-| **PACK-1** | Per-tournament ground pack export (live-ops L6) |
+| **ADMIN-1** | Staged admin delete + after-action backup seals — intent locked [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md); implement with Track L **L5** |
+| **PACK-1** | Per-tournament ground pack export (live-ops L6) — **shelved** with L6 until further notice |
+| **BACKUP-1** | Staging after-Finish / after-delete full pack seals + rolling/reserve — same intent doc as ADMIN-1 |
 
 ---
 
@@ -203,6 +201,7 @@ Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **Permissions + backup intent** — §6/§7 aligned with [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md); lock/unlock + per-tournament delete password rejected for v1; ADMIN-1/BACKUP-1; L6/PACK-1 shelved. |
 | 2026-07-11 | **CHECKPOINT-1** — `seal_amiga_work_checkpoint.ps1` + `data/amiga/checkpoints/`; first seal `work-2026-07-11-tail`; §7 work git checkpoint row. |
 | 2026-07-10 | **Export table registry** — `staging_export_tables.py` + JSON manifest; push/pull read same list; `export_ko2amiga_work.ps1` audit preflight (incl. `tournament_stage_scoring_steps`). |
 | 2026-07-08 | **Agent pull ritual** — `kool-workspace.mdc` + `AGENTS.md`: trigger phrases → `pull_ko2amiga_from_staging.ps1 -Force`. |

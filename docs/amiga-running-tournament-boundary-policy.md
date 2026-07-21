@@ -260,8 +260,8 @@ Broadcast paths **read the running package only** and may **compute** standings/
 | Pre-debut public profile for running entrants | UI deferred |
 | Per-match Make official | Whole tournament only (RTB5) |
 | Lane A import/materialize changes | RTB11 |
-| Anchored repair / truncate-after-N | Separate live-ops platform work |
-| Staging ground pack pull | Unaffected |
+| Anchored repair / truncate-after-N | Separate live-ops platform work — admin delete + backup intent [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) |
+| Staging per-tournament ground pack (L6) | **Shelved** — full backup pack is the safety path |
 
 ---
 
@@ -285,6 +285,7 @@ Broadcast paths **read the running package only** and may **compute** standings/
 | 2026-07-16 | **Partial finish** — Finish and make official with unplayed matches: auto-void remaining scheduled; button visible with ≥1 played (Dagh kitchen feedback). |
 | 2026-07-08 | **RTB-9 shipped** — browser **Finish and make official** atomically promote + finalize + lifecycle `completed`; Setup **Mark complete** retired. |
 | 2026-07-08 | **Rev. 2 locked** — one organizer **Finish and make official** action (promote + finalize + lifecycle `completed`); layered vocabulary §2; **Mark complete** retired from happy path; RTB13. |
+| 2026-07-22 | Out of scope: L6 ground pack **shelved**; anchored repair → backup/admin-delete intent doc. |
 | 2026-07-07 | **Implementation shipped (RTB-1–RTB-8)** — running vs official boundary; fixture running columns; promote at Make official. |
 | 2026-07-07 | **Rev. 1 locked** — two-universe split; promote at Make official; broadcast vs official tables. |
 | 2026-07-07 | **Inventory rev. 2** — audit fold-in (lifecycle gates, verify oracles, CLI readers). |

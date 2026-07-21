@@ -219,7 +219,7 @@ Forward changes → **living ground**, not day 0 v2.
 
 | Addition | Layer | How |
 |----------|-------|-----|
-| New tournament (staging, append, KOA evidence) | L3 (+ L4 when structured) | `amiga/ops/`, forward append tool, ground pack merge |
+| New tournament (staging, append, KOA evidence) | L3 (+ L4 when structured) | `amiga/ops/` Finish / forward append — **not** L6 ground-pack merge (shelved) |
 | Structure materialize | L4 ground | Disposition / live builders — **rows persist** |
 | Video link / cache update | Editorial ground | Harvest/build offline; **simul align** |
 | Tier E finish override | L3 witness | Direct row or forward manifest |
@@ -304,7 +304,7 @@ Execute in order. Each slice ends with a recorded check.
 | **PULL-1** | Staging → `ko2amiga_work` pull automation + export one-shot | **Done** — `pull_ko2amiga_from_staging.ps1` + `run_export_ko2amiga.php`; verified Jul 2026 |
 | **CHECKPOINT-1** | Milestone git seals of `ko2amiga_work` | **Done** — `seal_amiga_work_checkpoint.ps1` + `data/amiga/checkpoints/`; first seal `work-2026-07-11-tail` |
 
-**Out of scope for day-one cutover (follow-on):** **SYNC-1** export gate from `staging-sync-last.json` · ground pack pull · `append-event` CLI · retiring L4 pipeline at 100% structure. Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md).
+**Out of scope for day-one cutover (follow-on):** **SYNC-1** export gate from `staging-sync-last.json` · per-tournament ground pack pull (**L6 shelved**) · `append-event` CLI · retiring L4 pipeline at 100% structure. Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) · backup/delete intent [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md).
 
 ---
 

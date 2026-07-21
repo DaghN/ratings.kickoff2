@@ -1,0 +1,2 @@
+# Block web access to backup seals (BA6 / filesystem outer key).
+Require all denied

@@ -252,3 +252,243 @@ function k2_amiga_export_write_pull_dump(mysqli $con, string $host, int $port, s
     $result['bytes'] = (int) filesize($outPath);
     return $result;
 }
+
+/**
+ * Dump one Apply-import part (schema or table data) via mysqldump.
+ *
+ * @param list<string> $mysqldumpFlags e.g. ['--no-data'] or ['--no-create-info', '--where=id >= 1 AND id <= 5000']
+ * @param list<string> $tables
+ * @return array{ok:bool,error:string,method:string,bytes:int}
+ */
+function k2_amiga_export_mysqldump_part(
+    string $host,
+    int $port,
+    string $user,
+    string $pass,
+    string $database,
+    string $outPath,
+    array $mysqldumpFlags,
+    array $tables
+): array {
+    $fail = static function (string $msg): array {
+        return ['ok' => false, 'error' => $msg, 'method' => 'mysqldump', 'bytes' => 0];
+    };
+    $bin = k2_amiga_export_resolve_mysqldump();
+    if ($bin === null) {
+        return $fail('mysqldump not available (exec disabled or binary missing).');
+    }
+    $args = [
+        $bin,
+        '--host=' . $host,
+        '--port=' . (string) $port,
+        '--user=' . $user,
+        '--password=' . $pass,
+        '--single-transaction',
+        '--routines=0',
+        '--triggers=0',
+        '--default-character-set=utf8mb4',
+    ];
+    foreach ($mysqldumpFlags as $flag) {
+        if (!is_string($flag) || $flag === '') {
+            continue;
+        }
+        $args[] = $flag;
+    }
+    $args[] = $database;
+    foreach ($tables as $table) {
+        $safe = preg_replace('/[^a-zA-Z0-9_]/', '', (string) $table) ?? '';
+        if ($safe !== '') {
+            $args[] = $safe;
+        }
+    }
+    $stderrRedirect = DIRECTORY_SEPARATOR === '\\' ? '2>NUL' : '2>/dev/null';
+    $cmd = implode(' ', array_map('escapeshellarg', $args)) . ' > ' . escapeshellarg($outPath) . ' ' . $stderrRedirect;
+    $output = [];
+    $code = 1;
+    exec($cmd, $output, $code);
+    if ($code !== 0 || !is_file($outPath) || filesize($outPath) < 8) {
+        $tail = trim(implode("\n", array_slice($output, -8)));
+        if ($tail === '' && is_file($outPath)) {
+            $tail = substr((string) file_get_contents($outPath), 0, 500);
+        }
+        return $fail('mysqldump part failed (exit ' . $code . '): ' . $tail);
+    }
+    return ['ok' => true, 'error' => '', 'method' => 'mysqldump', 'bytes' => (int) filesize($outPath)];
+}
+
+/**
+ * PHP fallback for one table data part (INSERT only) or schema-only DDL for many tables.
+ *
+ * @param list<string> $tables
+ * @return array{ok:bool,error:string,method:string,bytes:int}
+ */
+function k2_amiga_export_php_part(
+    mysqli $con,
+    string $outPath,
+    array $tables,
+    bool $schemaOnly,
+    ?string $whereSql = null
+): array {
+    $fail = static function (string $msg): array {
+        return ['ok' => false, 'error' => $msg, 'method' => 'php', 'bytes' => 0];
+    };
+    $fh = fopen($outPath, 'wb');
+    if ($fh === false) {
+        return $fail('Could not open part file for writing.');
+    }
+    $written = 0;
+    $write = static function (string $chunk) use ($fh, &$written): bool {
+        $n = fwrite($fh, $chunk);
+        if ($n === false) {
+            return false;
+        }
+        $written += $n;
+        return true;
+    };
+    if (!$write("-- ko2amiga backup/export part (PHP)\n-- generated: " . gmdate('Y-m-d H:i:s') . " UTC\n\n")) {
+        fclose($fh);
+        return $fail('Write failed.');
+    }
+    if ($schemaOnly) {
+        if (!$write("SET FOREIGN_KEY_CHECKS=0;\n\n")) {
+            fclose($fh);
+            return $fail('Write failed.');
+        }
+        foreach ($tables as $table) {
+            if (!k2_amiga_export_table_exists($con, $table)) {
+                if (!$write("-- skip missing table {$table}\n")) {
+                    fclose($fh);
+                    return $fail('Write failed.');
+                }
+                continue;
+            }
+            $safe = preg_replace('/[^a-zA-Z0-9_]/', '', $table) ?? '';
+            $createRes = mysqli_query($con, 'SHOW CREATE TABLE `' . $safe . '`');
+            if (!$createRes) {
+                fclose($fh);
+                return $fail('SHOW CREATE failed for ' . $table . ': ' . mysqli_error($con));
+            }
+            $createRow = mysqli_fetch_assoc($createRes);
+            mysqli_free_result($createRes);
+            $ddl = (string) ($createRow['Create Table'] ?? '');
+            if ($ddl === '') {
+                fclose($fh);
+                return $fail('Empty CREATE TABLE for ' . $table);
+            }
+            if (!$write('DROP TABLE IF EXISTS `' . $safe . "`;\n" . $ddl . ";\n\n")) {
+                fclose($fh);
+                return $fail('Write failed.');
+            }
+        }
+        if (!$write("SET FOREIGN_KEY_CHECKS=1;\n")) {
+            fclose($fh);
+            return $fail('Write failed.');
+        }
+        fclose($fh);
+        return ['ok' => true, 'error' => '', 'method' => 'php', 'bytes' => $written];
+    }
+
+    if (count($tables) !== 1) {
+        fclose($fh);
+        return $fail('PHP data part expects exactly one table.');
+    }
+    $table = $tables[0];
+    if (!k2_amiga_export_table_exists($con, $table)) {
+        fclose($fh);
+        return ['ok' => true, 'error' => '', 'method' => 'php', 'bytes' => $written];
+    }
+    $safe = preg_replace('/[^a-zA-Z0-9_]/', '', $table) ?? '';
+    $sql = 'SELECT * FROM `' . $safe . '`';
+    if ($whereSql !== null && $whereSql !== '') {
+        // Flags come from our seal writer only (numeric id ranges) — not user input.
+        $sql .= ' WHERE ' . $whereSql;
+    }
+    $batchSize = 150;
+    $offset = 0;
+    while (true) {
+        $res = mysqli_query($con, $sql . ' LIMIT ' . (int) $batchSize . ' OFFSET ' . (int) $offset);
+        if (!$res) {
+            fclose($fh);
+            return $fail('SELECT failed for ' . $table . ': ' . mysqli_error($con));
+        }
+        $rows = [];
+        while ($row = mysqli_fetch_assoc($res)) {
+            $rows[] = $row;
+        }
+        mysqli_free_result($res);
+        if ($rows === []) {
+            break;
+        }
+        $columns = array_keys($rows[0]);
+        $colList = '`' . implode('`,`', $columns) . '`';
+        $valueSets = [];
+        foreach ($rows as $row) {
+            $vals = [];
+            foreach ($columns as $col) {
+                $vals[] = k2_amiga_export_sql_literal($con, $row[$col] ?? null);
+            }
+            $valueSets[] = '(' . implode(',', $vals) . ')';
+        }
+        if (!$write('INSERT INTO `' . $safe . '` (' . $colList . ') VALUES ' . implode(',', $valueSets) . ";\n")) {
+            fclose($fh);
+            return $fail('Write failed.');
+        }
+        $offset += count($rows);
+        if (count($rows) < $batchSize) {
+            break;
+        }
+    }
+    fclose($fh);
+    return ['ok' => true, 'error' => '', 'method' => 'php', 'bytes' => $written];
+}
+
+/**
+ * Write one part preferring mysqldump, falling back to PHP.
+ *
+ * @param list<string> $mysqldumpFlags
+ * @param list<string> $tables
+ * @return array{ok:bool,error:string,method:string,bytes:int}
+ */
+function k2_amiga_export_write_part(
+    mysqli $con,
+    string $host,
+    int $port,
+    string $user,
+    string $pass,
+    string $database,
+    string $outPath,
+    array $mysqldumpFlags,
+    array $tables,
+    bool $schemaOnly = false,
+    ?string $whereSql = null
+): array {
+    $tmp = $outPath . '.tmp';
+    if (is_file($tmp)) {
+        @unlink($tmp);
+    }
+    $result = k2_amiga_export_mysqldump_part(
+        $host,
+        $port,
+        $user,
+        $pass,
+        $database,
+        $tmp,
+        $mysqldumpFlags,
+        $tables
+    );
+    if (!$result['ok']) {
+        $result = k2_amiga_export_php_part($con, $tmp, $tables, $schemaOnly, $whereSql);
+    }
+    if (!$result['ok']) {
+        if (is_file($tmp)) {
+            @unlink($tmp);
+        }
+        return $result;
+    }
+    if (!rename($tmp, $outPath)) {
+        @unlink($tmp);
+        return ['ok' => false, 'error' => 'Could not move temp part into place.', 'method' => $result['method'], 'bytes' => 0];
+    }
+    $result['bytes'] = (int) filesize($outPath);
+    return $result;
+}

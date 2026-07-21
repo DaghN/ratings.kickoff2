@@ -94,7 +94,7 @@
 
 - **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~300** videos; unified embed UI; **C06** dedicated Videos column; **With videos** filter; **player profile Videos wing**. **Jul 2026:** **TV-2b DB anchor sync** — `sync_db_ids` + `verify-tournament-videos` in `prove` ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md) §12).
 
-- **Amiga live ops (Jul 2026):** **RTB shipped.** **PHP Finish ↔ simul-oracle parity signed off (Jul 17).** **Track L L0 complete.** **Organizer finish confirm — Phase A Implemented** — confirm → Tier E → gated Make official; FO9 WC kitchen fallback = prefill-only. Optional Phase B = finish-mode sketch (plan slice 5). Policy: [`amiga-organizer-finish-confirm-policy.md`](docs/amiga-organizer-finish-confirm-policy.md) · drill [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md) · RTB [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md).
+- **Amiga live ops (Jul 2026):** **Track L: L5 in progress** — **slices 0–2 done** (inventory + backup seals + restore via stage→Apply); next **slice 3** Case A delete. L0–L1 done; L6 shelved. Policy [`amiga-staging-backup-admin-delete-policy.md`](docs/amiga-staging-backup-admin-delete-policy.md) · plan [`amiga-staging-l5-backup-delete-implementation-plan.md`](docs/amiga-staging-l5-backup-delete-implementation-plan.md) · starter [`amiga-staging-l5-backup-delete-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/amiga-staging-l5-backup-delete-STARTER-PROMPT.md).
 
 - **Amiga format scoring contract (Jul 2026):** **SC-0–SC-9 + SC-11 shipped** — L4b relational contracts, PHP↔Python executor parity, RTB broadcast, L5 `stage_id`, structured ET/pens on games + fixtures (`012_match_extensions.sql`). **SC-10:** non-WC games **100%** `fixture_id` on work (Jul 2026); remaining unlinked games = **unmaterialized WCs** (`wc_deferred`). Policy [`amiga-format-scoring-contract-policy.md`](docs/amiga-format-scoring-contract-policy.md) · plan [`amiga-format-scoring-contract-implementation-plan.md`](docs/amiga-format-scoring-contract-implementation-plan.md).
 
@@ -149,7 +149,15 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-22 | **L5 slice 2 done** — Restore stages seal into `_import/` then Apply import (full replace); smoke PASS (Country probe wiped). Next: slice 3 Case A. |
+| 2026-07-22 | **L5 slice 1 done** — `amiga_backup_seal_lib.php` + Finish seal + `/amiga/run_backup_ko2amiga.php`; rolling/reserve BA5–BA6; local smoke 42 parts / reserve PHP-delete refused. Next: slice 2 restore. |
+| 2026-07-22 | **L5 slice 0 done** — inventory §5 filled (Finish path, pack reuse, 14 derived tables, present re-project, admin UI = import sibling); next slice 1. |
 | 2026-07-21 | **Creative ledger status audit** — [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md): C03 Activity + C04 News v1 → shipped; C02 → sticky v1 successor; birds-eye / open stack / ledger buckets refreshed. Open firm to-dos unchanged (C14 + C08, C01, C16…). |
+| 2026-07-22 | **L5 handover** — plan + starter (backup seals, Case A/B, narrow Case C); practice track §4 L5 ready; AD4 updated. |
+| 2026-07-22 | **Doc sweep** — live-ops §6.2/§7/§9/ALO*, staging-authority §6–7/ADMIN-1, RTB, modern-ground, handoff aligned to backup/admin-delete policy; L6 shelved consistently. |
+| 2026-07-22 | **Backup + admin delete intent locked** — organizer vs admin; backup-after Finish/delete; admin-only tip delete; L6/demotion out — [`amiga-staging-backup-admin-delete-policy.md`](docs/amiga-staging-backup-admin-delete-policy.md). |
+| 2026-07-21 | **L6 shelved** — ground pack not planned until further notice; full staging backup pack preferred. |
+| 2026-07-21 | **Track L → L2** — finish-confirm Phase A boring; practice track gate = Ref-League-A ×3 reps; §4 idle. |
 | 2026-07-21 | **Organizer finish confirm — Phase A complete (slice 4)** — FO9 demoted to prefill-only residual; policy Implemented; practice track L1 idle for next feedback. Optional slice 5 = Phase B finish-mode sketch. |
 | 2026-07-21 | **Organizer finish confirm — slice 3** — Make official gated until finishing order confirmed (server `finish_order_not_confirmed` before void/promote; Finish button hidden until confirm). WinSCP `fixtures.php` + `amiga_finish_confirm_proposal.php`. |
 | 2026-07-21 | **Organizer finish confirm — FO2 ties** — Confirm allows shared places; only 1..N (N = registered entrants). Olympic deferred. Sync `amiga_finish_override_write.php`. |
