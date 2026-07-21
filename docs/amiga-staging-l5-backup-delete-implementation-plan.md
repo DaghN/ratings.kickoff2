@@ -190,6 +190,7 @@ Read-only inventory for slices 1–5. Chrono key: `(tournaments.event_date, tour
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **Session wrap** — slices 0–2 committed/pushed; staging reserve seal + work↔staging parity verified; local compare/smoke dumps cleaned. Next: slice 3. |
 | 2026-07-22 | **Slice 2 done** — Restore stages seal → `_import/` then Apply import (BA4 full replace); import helpers extracted; local smoke PASS (mutate Country → Apply → wiped). Next: slice 3 Case A. |
 | 2026-07-22 | **Slice 1 done** — PHP seal writer (`amiga_backup_seal_lib.php`) → `amiga/_backups/`; Finish wires after Make official; admin `/amiga/run_backup_ko2amiga.php`; rolling N=8 + reserve every 5th; BA6 refuse PHP delete reserve. Local smoke PASS (42 parts, mysqldump). Next: slice 2. |
 | 2026-07-22 | **Slice 0 done** — §5 inventory filled (Finish path, pack reuse, derived/present lists, admin UI placement). Next: slice 1. |

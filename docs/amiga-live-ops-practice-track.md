@@ -169,6 +169,7 @@ Closed cycles from early drills. Do **not** treat as open work.
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **L5 session wrap** — slices 0–2 on `main`; staging reserve seal + work/staging parity checked; local smoke dumps cleaned; §4 still → slice 3. |
 | 2026-07-22 | **L5 slice 2 done** — restore stage → Apply import; §4 → next slice 3. |
 | 2026-07-22 | **L5 slice 1 done** — backup seal writer + Finish hook + admin Backup now; §4 → next slice 2. |
 | 2026-07-22 | **L5 slice 0 done** — plan §5 inventory filled; §4 → next slice 1. |

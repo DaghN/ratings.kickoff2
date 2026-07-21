@@ -149,6 +149,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-22 | **L5 slices 0–2 shipped + pushed** (`2a3b39f1`); staging Backup now **reserve** seal; work↔staging **parity OK** (Nottingham III #607, 27474 games, checksums); local smoke/compare dumps cleaned. Next: slice 3 Case A (starter prompt ready). |
 | 2026-07-22 | **L5 slice 2 done** — Restore stages seal into `_import/` then Apply import (full replace); smoke PASS (Country probe wiped). Next: slice 3 Case A. |
 | 2026-07-22 | **L5 slice 1 done** — `amiga_backup_seal_lib.php` + Finish seal + `/amiga/run_backup_ko2amiga.php`; rolling/reserve BA5–BA6; local smoke 42 parts / reserve PHP-delete refused. Next: slice 2 restore. |
 | 2026-07-22 | **L5 slice 0 done** — inventory §5 filled (Finish path, pack reuse, 14 derived tables, present re-project, admin UI = import sibling); next slice 1. |
