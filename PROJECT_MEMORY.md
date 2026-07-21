@@ -149,6 +149,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-21 | **Creative ledger status audit** — [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md): C03 Activity + C04 News v1 → shipped; C02 → sticky v1 successor; birds-eye / open stack / ledger buckets refreshed. Open firm to-dos unchanged (C14 + C08, C01, C16…). |
 | 2026-07-21 | **Organizer finish confirm — Phase A complete (slice 4)** — FO9 demoted to prefill-only residual; policy Implemented; practice track L1 idle for next feedback. Optional slice 5 = Phase B finish-mode sketch. |
 | 2026-07-21 | **Organizer finish confirm — slice 3** — Make official gated until finishing order confirmed (server `finish_order_not_confirmed` before void/promote; Finish button hidden until confirm). WinSCP `fixtures.php` + `amiga_finish_confirm_proposal.php`. |
 | 2026-07-21 | **Organizer finish confirm — FO2 ties** — Confirm allows shared places; only 1..N (N = registered entrants). Olympic deferred. Sync `amiga_finish_override_write.php`. |

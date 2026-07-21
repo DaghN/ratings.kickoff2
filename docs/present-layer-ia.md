@@ -4,7 +4,7 @@
 
 **Authority:** Dagh's latest chat wins. This doc sits **below** [`hub-ia-agreement.md`](hub-ia-agreement.md) (hub tab contracts) and [`navigation-model.md`](navigation-model.md) (NM1–NM7 invariants). URL shape defers to [`k2-page-structure-checklist.md`](k2-page-structure-checklist.md) and [`url-routes.md`](url-routes.md).
 
-**Related:** [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) (T13 present-only tabs) · [`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md) (online Status landing) · [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) **C04** (News — reframed here) · [`amiga-realm-vision.md`](amiga-realm-vision.md) (Amiga skips Play & Setup hub tab) · [`design-direction.md`](design-direction.md) (chrome, prose link tokens)
+**Related:** [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) (T13 present-only tabs) · [`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md) (online Status landing) · [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) **C04** (News v1 shipped — residual pulse live widgets / Misc here) · [`amiga-realm-vision.md`](amiga-realm-vision.md) (Amiga skips Play & Setup hub tab) · [`design-direction.md`](design-direction.md) (chrome, prose link tokens)
 
 **What this doc is:** Part **spec**, part **policy**, part **intent** for the **completion track** — the IA and editorial surfaces that turn a stats engine into a **complete, shippable product**. Locked rows are citeable as **PL1–PL16**. Open questions stay open until a slice ships.
 
@@ -312,7 +312,7 @@ Amiga: onboarding on News sidebar only (PL6).
 |----------|-----|
 | **T13 / T19** | News, Live, Misc = present-only |
 | **NM1–NM2** | News = place; leaves + about = no pill |
-| **C04** | Scrollable roll + pulse |
+| **C04** | Scrollable roll + pulse — **v1 shipped**; residual = pulse live widgets + Misc (ledger §6.8) |
 | **boxart.php** | Misc **Stories** leaf precedent |
 | **hub-ia-agreement** | Hub tabs = stats + editorial **places** only |
 

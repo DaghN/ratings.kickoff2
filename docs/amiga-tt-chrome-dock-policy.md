@@ -4,7 +4,7 @@
 
 **Parent:** [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`design-direction.md`](design-direction.md)
 
-**Related:** [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) (C02 optional pin — evolved here) · [`with-player-stepper-policy.md`](with-player-stepper-policy.md) · [`hub-ia-agreement.md`](hub-ia-agreement.md) · [`nav-spacing-policy.md`](nav-spacing-policy.md)
+**Related:** [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) (C02 optional pin → CD sticky track; ledger §6.1) · [`with-player-stepper-policy.md`](with-player-stepper-policy.md) · [`hub-ia-agreement.md`](hub-ia-agreement.md) · [`nav-spacing-policy.md`](nav-spacing-policy.md)
 
 **Implementation plan:** deferred — rewrite when implementation starts.
 
