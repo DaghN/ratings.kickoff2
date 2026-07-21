@@ -20,10 +20,12 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_match_extensions.php';
 require_once __DIR__ . '/modules/process_completed_game.php';
 require_once __DIR__ . '/modules/finalize_tournament.php';
 require_once __DIR__ . '/includes/amiga_promote_running_tournament.php';
+require_once __DIR__ . '/includes/amiga_finish_confirm_proposal.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 require_once __DIR__ . '/../includes/amiga_ops_password_lib.php';
 
 const AMIGA_FIXTURE_LIVE_SOURCE_SCORES_ID_BASE = 1000000000;
+const AMIGA_FIXTURE_CONFIRM_FINISH_ORDER_LABEL = 'Confirm finishing order';
 
 $key = 'amiga-fixtures-one-shot';
 $onceValue = (string) ($_GET['once'] ?? $_POST['once'] ?? '');
@@ -850,13 +852,13 @@ function amiga_fixture_organizer_lifecycle_ui(mysqli $con, array $lifecycle): ar
             if ($scheduledRemaining > 0) {
                 $fixtureWord = $scheduledRemaining === 1 ? 'match' : 'matches';
                 $finishHint = $scheduledRemaining . ' unplayed ' . $fixtureWord
-                    . ' remain — you can still use '
+                    . ' remain — on the Table tab, confirm finishing order, then '
                     . AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL
-                    . ' on the Table tab (unplayed matches become void).';
+                    . ' (unplayed matches become void).';
             } else {
-                $finishHint = 'All match results are in — use '
+                $finishHint = 'All match results are in — on the Table tab, confirm finishing order, then '
                     . AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL
-                    . ' on the Table tab to commit ratings and close the league.';
+                    . ' to commit ratings and close the league.';
             }
         }
     }
@@ -2883,6 +2885,17 @@ function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournament
         ];
     }
 
+    // Slice 3: always require confirmed Tier E before promote/finalize (no side effects yet).
+    if (!amiga_ops_finish_confirm_tournament_is_confirmed($con, $tournamentId)) {
+        return [
+            'processed' => 0,
+            'failed_game_id' => null,
+            'skip_reason' => 'finish_order_not_confirmed',
+            'lifecycle_completed' => false,
+            'voided_scheduled' => 0,
+        ];
+    }
+
     $voidedScheduled = amiga_fixture_void_remaining_scheduled_fixtures($con, $tournamentId);
 
     if (amiga_fixture_count_official_tournament_games($con, $tournamentId) === 0) {
@@ -3067,6 +3080,8 @@ $tournamentGameCount = 0;
 $tournamentCanMakeOfficial = false;
 $tournamentRatingFinalized = false;
 $scheduledFixtureRemaining = 0;
+/** @var array<string, mixed>|null */
+$finishConfirmProposal = null;
 /** @var array<int, bool> */
 $fixtureResultRated = [];
 $stages = [];
@@ -3280,6 +3295,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     . ' needs at least one played fixture with scores entered.',
                     true
                 );
+            } elseif ($summary['skip_reason'] === 'finish_order_not_confirmed') {
+                amiga_fixture_ops_flash_set(
+                    'Confirm finishing order on the Table tab first (“Who finished where?”), then '
+                    . AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL
+                    . '.',
+                    true
+                );
             } elseif ($summary['skip_reason'] !== null && str_starts_with((string) $summary['skip_reason'], 'lifecycle_complete_failed:')) {
                 amiga_fixture_ops_flash_set(
                     'Ratings were committed but lifecycle could not be marked finished: '
@@ -3312,6 +3334,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 amiga_fixture_ops_flash_set($msg);
             }
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
+        } elseif ($action === 'confirm_finish_order') {
+            $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
+            if ($tournamentId <= 0) {
+                throw new RuntimeException('Missing tournament id.');
+            }
+            amiga_fixture_require_generated_tournament($con, $tournamentId);
+            $lifecycle = amiga_fixture_load_lifecycle($con, $tournamentId);
+            if ($lifecycle === null || $lifecycle['lifecycle_status'] !== 'running') {
+                throw new RuntimeException(
+                    AMIGA_FIXTURE_CONFIRM_FINISH_ORDER_LABEL
+                    . ' is only available while the league is in progress.'
+                );
+            }
+            if (amiga_ops_tournament_rating_finalized($con, $tournamentId)) {
+                throw new RuntimeException(
+                    'Finishing order cannot be changed after ratings are already committed. '
+                    . 'If Finish stuck mid-way, use Advanced → Reset incomplete finish first.'
+                );
+            }
+            if (amiga_fixture_count_played_fixtures($con, $tournamentId) < 1) {
+                throw new RuntimeException(
+                    AMIGA_FIXTURE_CONFIRM_FINISH_ORDER_LABEL
+                    . ' needs at least one played fixture with scores entered.'
+                );
+            }
+            $postPos = $_POST['finish_pos'] ?? null;
+            if (!is_array($postPos)) {
+                throw new RuntimeException('Missing finishing positions.');
+            }
+            $ladder = amiga_ops_finish_confirm_ladder_from_post($postPos);
+            $summary = amiga_ops_finish_override_replace_full_ladder($con, $tournamentId, $ladder);
+            amiga_fixture_ops_flash_set(
+                'Finishing order confirmed for '
+                . (int) $summary['written']
+                . ' player'
+                . ((int) $summary['written'] === 1 ? '' : 's')
+                . '. You can still edit and confirm again before '
+                . AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL
+                . '.'
+            );
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
         } elseif ($action === 'undo_fixture_result') {
             $fixtureId = max(0, (int) ($_POST['fixture_id'] ?? 0));
@@ -3533,7 +3596,8 @@ if ($res) {
 
 if ($tournamentId > 0) {
     $stmt = $con->prepare(
-        'SELECT id, name, event_date, source_id, format_overrides, lifecycle_status, started_at, completed_at '
+        'SELECT id, name, event_date, source_id, format_overrides, lifecycle_status, started_at, completed_at, '
+        . 'has_league, has_cup, is_world_cup '
         . 'FROM tournaments WHERE id = ?'
     );
     $stmt->bind_param('i', $tournamentId);
@@ -3658,13 +3722,28 @@ foreach (k2_amiga_country_choosable_rows() as $row) {
     }
 }
 
+$organizerTableDisplay = amiga_fixture_organizer_table_rows($standingsRows, $entrants);
+if (
+    $tournamentId > 0
+    && $tournament !== null
+    && $tournamentCanMakeOfficial
+    && $entrants !== []
+) {
+    $finishConfirmProposal = amiga_ops_finish_confirm_build_proposal(
+        $con,
+        $tournamentId,
+        $tournament,
+        $entrants,
+        $organizerTableDisplay['rows']
+    );
+}
+
 mysqli_close($con);
 $fixtureScheduleGroups = amiga_fixture_group_fixtures_for_schedule($fixtures);
 $fixtureResultsPartition = amiga_fixture_partition_for_results($fixtures);
 $fixtureResultsEntryGroups = amiga_fixture_group_fixtures_for_schedule($fixtureResultsPartition['playable']);
 $fixtureResultsPlayedGroups = amiga_fixture_group_fixtures_for_schedule($fixtureResultsPartition['played']);
 $resultsTabUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'results', $status);
-$organizerTableDisplay = amiga_fixture_organizer_table_rows($standingsRows, $entrants);
 $createMatchHint = amiga_fixture_expected_round_robin_fixtures(
     count($createDraft['player_ids']),
     $createDraft['legs']
@@ -4438,7 +4517,95 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
         → <strong>Reset incomplete finish</strong> (explicit), then use Finish once.
       </p>
     <?php } elseif ($tournamentCanMakeOfficial) { ?>
+      <?php if (
+          is_array($finishConfirmProposal)
+          && (int) ($finishConfirmProposal['entrant_count'] ?? 0) > 0
+          && ($finishConfirmProposal['ordered'] ?? []) !== []
+      ) {
+          $finishConfirmN = (int) $finishConfirmProposal['entrant_count'];
+          $finishConfirmOrdered = $finishConfirmProposal['ordered'];
+          ?>
+      <section class="k2-amiga-organizer-finish-confirm" aria-labelledby="k2-amiga-finish-confirm-heading">
+        <h3 id="k2-amiga-finish-confirm-heading" class="k2-amiga-organizer-finish-confirm__title">Who finished where?</h3>
+        <p class="k2-amiga-organizer-table__preview-note">
+          <?php if (!empty($finishConfirmProposal['confirmed'])) { ?>
+            Finishing order is <strong>confirmed</strong>. Edit positions if needed and confirm again before
+            <?php echo k2_h(AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL); ?>.
+          <?php } else { ?>
+            Proposed order from the current table
+            <?php if (($finishConfirmProposal['source'] ?? '') === 'derive'
+                || ($finishConfirmProposal['source'] ?? '') === 'derive_filled') { ?>
+              (auto suggestion)
+            <?php } ?>.
+            Set each player&rsquo;s place (1&ndash;<?php echo (int) $finishConfirmN; ?>), then confirm.
+            This is saved before <?php echo k2_h(AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL); ?>.
+          <?php } ?>
+        </p>
+        <form class="k2-amiga-organizer-finish-confirm__form" method="post" action="<?php echo $self; ?>">
+          <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+          <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+          <input type="hidden" name="action" value="confirm_finish_order">
+          <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+          <input type="hidden" name="view" value="table">
+          <?php if ($status !== '') { ?>
+            <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+          <?php } ?>
+          <table class="k2-amiga-organizer-finish-confirm__table">
+            <thead>
+              <tr>
+                <th scope="col">Place</th>
+                <th scope="col">Player</th>
+                <?php if (!empty($finishConfirmProposal['is_world_cup'])) { ?>
+                  <th scope="col">Medal</th>
+                <?php } ?>
+              </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($finishConfirmOrdered as $row) {
+                $pid = (int) $row['player_id'];
+                $pos = (int) $row['position'];
+                ?>
+              <tr>
+                <td>
+                  <label class="k2-amiga-organizer-finish-confirm__pos-label">
+                    <span class="visually-hidden">Place for <?php echo k2_h((string) $row['player_name']); ?></span>
+                    <input class="k2-amiga-organizer-finish-confirm__pos"
+                           type="number"
+                           name="finish_pos[<?php echo $pid; ?>]"
+                           value="<?php echo $pos; ?>"
+                           min="1"
+                           max="<?php echo (int) $finishConfirmN; ?>"
+                           required="required" />
+                  </label>
+                </td>
+                <td><?php echo k2_h((string) $row['player_name']); ?></td>
+                <?php if (!empty($finishConfirmProposal['is_world_cup'])) { ?>
+                  <td class="k2-amiga-organizer-finish-confirm__medal"><?php
+                    echo k2_h((string) ($row['medal_label'] !== '' ? $row['medal_label'] : '—'));
+                  ?></td>
+                <?php } ?>
+              </tr>
+            <?php } ?>
+            </tbody>
+          </table>
+          <p class="k2-amiga-organizer-finish-confirm__actions">
+            <button type="submit" class="k2-amiga-organizer-lifecycle__action k2-amiga-organizer-lifecycle__action--secondary"><?php echo k2_h(AMIGA_FIXTURE_CONFIRM_FINISH_ORDER_LABEL); ?></button>
+          </p>
+        </form>
+      </section>
+      <?php } ?>
       <div class="k2-amiga-organizer-table__reprocess">
+        <?php
+        $finishOrderConfirmed = is_array($finishConfirmProposal)
+            && !empty($finishConfirmProposal['confirmed']);
+        ?>
+        <?php if (!$finishOrderConfirmed) { ?>
+          <p class="k2-amiga-organizer-table__preview-note k2-amiga-organizer-table__preview-note--warn">
+            <?php echo k2_h(AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL); ?> unlocks after you
+            <strong><?php echo k2_h(AMIGA_FIXTURE_CONFIRM_FINISH_ORDER_LABEL); ?></strong>
+            above. That locks who finished where for ratings and medals.
+          </p>
+        <?php } else { ?>
         <p class="k2-amiga-organizer-table__preview-note">
           Commits played results to ratings and tournament history. This league leaves Live and joins the historical catalog.
           <?php if ($tournamentUnratedGameCount > 0) { ?>
@@ -4448,6 +4615,7 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
             <strong><?php echo (int) $scheduledFixtureRemaining; ?> unplayed match<?php echo $scheduledFixtureRemaining === 1 ? '' : 'es'; ?></strong>
             will be marked void (not played) — for example when someone has to leave early.
           <?php } ?>
+          Finishing order confirmed — ready for Make official.
         </p>
         <form class="k2-amiga-organizer-table__reprocess-form" method="post" action="<?php echo $self; ?>"
           <?php if ($scheduledFixtureRemaining > 0) { ?>
@@ -4464,6 +4632,7 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
           <?php } ?>
           <button type="submit" class="k2-amiga-organizer-lifecycle__action k2-amiga-organizer-lifecycle__action--primary"><?php echo k2_h(AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL); ?></button>
         </form>
+        <?php } ?>
       </div>
     <?php } elseif ($organizerTableDisplay['preview_note'] !== null) { ?>
       <p class="k2-amiga-organizer-table__preview-note"><?php echo k2_h($organizerTableDisplay['preview_note']); ?></p>
@@ -4486,7 +4655,8 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
         $tableTabUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'table', $status);
         ?>
       <p class="k2-amiga-organizer-results__hint k2-amiga-organizer-table__preview-note--warn">
-        When the league is finished, use <strong><?php echo k2_h(AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL); ?></strong> on the
+        When the league is finished, confirm finishing order then
+        <strong><?php echo k2_h(AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL); ?></strong> on the
         <a href="<?php echo htmlspecialchars($tableTabUrl, ENT_QUOTES, 'UTF-8'); ?>">Table tab</a>
         (<?php echo (int) $tournamentUnratedGameCount; ?> result<?php echo $tournamentUnratedGameCount === 1 ? '' : 's'; ?> ready).
       </p>

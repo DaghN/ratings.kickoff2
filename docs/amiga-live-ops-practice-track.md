@@ -98,13 +98,13 @@ Only the **current** cycle is live. When fixed and re-checked, clear or archive 
 
 | Field | Value |
 |-------|-------|
-| **Status** | idle — L1 next = finish-confirm **slice 2** (Table UI) |
+| **Status** | idle — finish-confirm **Phase A complete**; L1 open for next serial feedback |
 | **Format** | — |
 | **Step** | — |
 | **Feedback** | (none open) |
-| **Slice** | finish-confirm 0–1 done → 2 next |
+| **Slice** | — |
 
-**Context for next chat:** Finish-confirm **slice 1** write path shipped (`amiga_finish_override_write.php`). Next = **slice 2** Table confirm UI (prefill + persist). Do **not** mix Track C / cup templates. Starter [`amiga-organizer-finish-confirm-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-organizer-finish-confirm-STARTER-PROMPT.md).
+**Context for next chat:** Organizer finish confirm **Phase A Implemented** (confirm → Tier E → gated Finish; FO9 prefill-only). Optional plan slice 5 = Phase B finish-mode sketch. Do **not** mix Track C / cup templates until named. Starter remains for optional slice 5: [`amiga-organizer-finish-confirm-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-organizer-finish-confirm-STARTER-PROMPT.md).
 
 When a cycle is open, agents read **this table only** — not historical notes — as the work order.
 
@@ -125,7 +125,7 @@ Milestones are **gates**, not a parallel backlog. Advance when Dagh says the pri
 | **L6** | Ground pack pull | Staging event on laptop (finer than full pull) |
 | **L7** | Media on ran event | YouTube URL on staging tournament |
 
-**Current gate:** **L1** — organizer finish confirm **slices 0–1 done**; next **slice 2** (Table UI).
+**Current gate:** **L1** — finish-confirm Phase A **complete** (Dagh smoke); next = whatever serial feedback opens, or optional Phase B sketch.
 
 **Explicit defer until a cycle names them:** structure imprint P2–P3, WC materialize, Lane C media DDL, CR-9 country polish, player-create phase 2, cups before L2 boring.
 
@@ -147,6 +147,7 @@ Closed cycles from early drills. Do **not** treat as open work.
 
 | Date | Step | Feedback | Outcome |
 |------|------|----------|---------|
+| 2026-07-21 | WEBSITE / Finish | Finish confirm track | Phase A Implemented (confirm Tier E + gate); FO9 prefill-only; Dagh smoke green |
 | 2026-07-17 | WEBSITE / Finish | #609 WC kitchen: no Finish / no gold | Root cause Tier D vs RR; Reset N/A when completed; durable = finish-confirm policy track (docs); temp Tier C fallback in code |
 | 2026-07-17 | WEBSITE | (none — spot-check green) | Catalog + tournament page + profile effect + gone from Live — **L0 complete**; §4 idle |
 | 2026-07-17 | WEBSITE | Staging cleaned for parity — old #608 gone | No public event to spot-check; §4 → CREATE new kitchen (L0 restart) |
@@ -167,6 +168,9 @@ Closed cycles from early drills. Do **not** treat as open work.
 
 | Date | Change |
 |------|--------|
+| 2026-07-21 | **Finish confirm Phase A complete** — slice 4 FO9 prefill-only; §4 idle; L1 open for next feedback. |
+| 2026-07-21 | **Finish confirm slice 3** — Finish gated on confirmed Tier E; §4 idle → next slice 4 docs/FO9. |
+| 2026-07-21 | **Finish confirm slice 2** — Table confirm UI + Tier E persist; §4 idle → next slice 3 gate Finish. |
 | 2026-07-17 | **Finish confirm slice 1** — Tier E full-ladder write helper + smoke; §4 idle → next slice 2 Table UI. |
 | 2026-07-17 | **Finish confirm slice 0** — inventory + locks in plan §3a; §4 idle → next slice 1 write path. |
 | 2026-07-17 | **Finish confirm track (docs)** — policy FO1–FO10 + plan + starter; §4 idle pending slice 0; #609 cycle archived (Reset limbo-only clarified). |

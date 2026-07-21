@@ -117,7 +117,7 @@ Covers kitchen marathons, single-phase round-robins.
 | **Podium** | Same knockout medal rules as v1 §4.2 — write **`event_finish_position` 1 / 2 / 3`** (not a separate `wc_medal` column). |
 | **Below podium** | **NULL** (holistic WC rank 4+ deferred). |
 | **Group phase** | Standings only — **never** copied to `event_finish_position`. |
-| **Kitchen / pure-league WC stamp (Jul 2026)** | Organizer can set `is_world_cup` on a kitchen marathon (`has_league=1`, `has_cup=0`). No knockout → Tier D empty. **Temporary fallback:** use Tier C primary-league positions (full 1..N). Real WCs keep `has_cup=1`, so group-only rows still stay empty. **Durable path:** organizer finish confirm (Tier E UI) — [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md) FO4/FO9 — not more WC heuristics. |
+| **Kitchen / pure-league WC stamp (Jul 2026)** | Organizer can set `is_world_cup` on a kitchen marathon (`has_league=1`, `has_cup=0`). No knockout → Tier D empty. **FO9 residual:** derive may fall back to Tier C for **prefill/proposal** only. **Authority:** organizer finish confirm → Tier E — [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md). Do not extend WC finish heuristics. |
 
 **Medal mapping (WC podium):**
 
@@ -131,9 +131,9 @@ Covers kitchen marathons, single-phase round-robins.
 
 `amiga_tournament_finish_override` (`tournament_id`, `player_id`, `event_finish_position`) — L3 DDL `sql/ground/002_tournament_finish_override.sql`. Overrides win over tiers A–D.
 
-**Live organizer (Planned Jul 2026):** secretary **confirm finishing order** before Make official writes the same Tier E table — [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md) (FO1–FO10). Preferred durable fix for kitchen / odd formats vs more WC heuristics.
+**Live organizer (Implemented Phase A Jul 2026):** secretary **confirm finishing order** before Make official writes Tier E — [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md) (FO1–FO10). **Secretary validate:** one row per registered entrant; places in **1..N**; **ties allowed**; Olympic ranking not required yet.
 
-**Ops rule (Jul 2026): full ladder or none** — default. If a tournament needs *any* Tier E row, insert **one row per entrant** — positions `1..N`, no gaps, no duplicates. Do **not** mix “derive 1–(N−1) + patch one slot” (e.g. Milan V had been Sandro-only at 8; expanded to full eight rows). A full table is the canonical honours ladder in ground and survives simul without coupling to tier A–D logic.
+**Ops rule (Jul 2026): full ladder or none** — default for canon repair. If a tournament needs *any* Tier E row, insert **one row per entrant**. Canon repair often uses unique `1..N`; **shared places are valid ground** (derive already emits shared bronze; sparse bands share a place). Do **not** mix “derive 1–(N−1) + patch one slot” without documenting sparse exception. A full table is the canonical honours ladder in ground and survives simul without coupling to tier A–D logic.
 
 **Sparse exception (Jul 2026):** when forum evidence gives podium + one shared band only (e.g. **Milan I, id 89** — 1–4 + **=5** QF losers), insert **only** those rows. When `player_ids` is passed to `derive_event_finish_position` / `amiga_participation_derive_event_finish_position`, entrants **not** in the override table get **NULL** (not tier A–D derivation). Use `refresh-event-finish-snapshots --tournament-id N` after L3 edits. Precedent: 89, 156 (=5 / =9 bands).
 

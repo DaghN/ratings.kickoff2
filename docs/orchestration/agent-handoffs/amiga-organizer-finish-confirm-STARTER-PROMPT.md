@@ -1,38 +1,23 @@
 # Starter prompt — Amiga organizer finish confirm (Tier E UI)
 
-**Use a new chat.** Paste the **COPY INTO NEW CHAT** block below.
+**Phase A is Implemented (Jul 2026).** Use a new chat only for **optional Phase B** (plan slice 5) or a bugfix.
 
-**Mission:** Implement Phase A of organizer **finish confirm** (policy FO1–FO10) — secretary confirms finishing order before Make official; persist Tier E; medals/Winner work for kitchens including WC-stamped RR.
+**Mission (Phase A — done):** Secretary confirms finishing order before Make official; persist Tier E; medals/Winner work for kitchens including WC-stamped RR. FO9 WC kitchen fallback is **prefill-only**.
 
-**Docs first already done.** Do **not** re-debate FO1–FO10 unless Dagh opens a decision. **Slices 0–1 done** (plan §3a + write helper). Default = **Do slice 2** (Table UI confirm) unless he names another.
-
-**Out of scope unless Dagh expands:** Track C, cup templates (L3), post-official repair of completed #609, more WC finish heuristics, silent Finish rewind.
-
-**Related:** [`docs/amiga-organizer-finish-confirm-policy.md`](../../amiga-organizer-finish-confirm-policy.md) · [`docs/amiga-organizer-finish-confirm-implementation-plan.md`](../../amiga-organizer-finish-confirm-implementation-plan.md) · [`docs/amiga-tournament-honours-rules.md`](../../amiga-tournament-honours-rules.md) · [`docs/amiga-running-tournament-boundary-policy.md`](../../amiga-running-tournament-boundary-policy.md) · [`docs/amiga-live-ops-practice-track.md`](../../amiga-live-ops-practice-track.md)
+**Docs:** [`docs/amiga-organizer-finish-confirm-policy.md`](../../amiga-organizer-finish-confirm-policy.md) · [`docs/amiga-organizer-finish-confirm-implementation-plan.md`](../../amiga-organizer-finish-confirm-implementation-plan.md)
 
 ---
 
-## COPY INTO NEW CHAT
+## COPY INTO NEW CHAT (optional slice 5 / Phase B)
 
 ```
-You are Dagh's agent for **Amiga organizer finish confirm** (Phase A).
+You are Dagh's agent for **Amiga organizer finish confirm** — Phase A is Implemented.
 
-**Read first (in order):**
-1. docs/amiga-organizer-finish-confirm-policy.md (FO1–FO10)
-2. docs/amiga-organizer-finish-confirm-implementation-plan.md (slices)
-3. docs/amiga-live-ops-practice-track.md §4 (queue depth 1 — do not mix unrelated secretary feedback)
-4. RTB Finish section in docs/amiga-running-tournament-boundary-policy.md §6 as needed
-5. Honours Tier E in docs/amiga-tournament-honours-rules.md as needed
+**Read first:**
+1. docs/amiga-organizer-finish-confirm-policy.md (FO1–FO10; FO9 = prefill-only)
+2. docs/amiga-organizer-finish-confirm-implementation-plan.md (slice 5 sketch)
 
-**Mission:** Slice-by-slice per the implementation plan. Default = **Do slice 2** (Table UI: prefill A–D, edit/reorder, Confirm → Tier E) unless Dagh says otherwise. Slices 0–1 are done — do not re-inventory or rewrite the write helper unless fixing a bug.
+**Default mission:** Do **slice 5** only if Dagh asks — Phase B finish-mode sketch (doc only unless he expands). Do not reopen FO1–FO10. Do not invent WC finish heuristics.
 
-**Rules:**
-- One slice per session unless Dagh says continue.
-- No Track C / no cup template track / no post-official #609 rewind UI.
-- Do not invent new WC hardcoded finish rules (FO4, FO9).
-- Tier E full ladder for secretary path; ground table already exists.
-- UTF-8: StrReplace existing files; new files via PowerShell UTF8Encoding false (no Write tool for new PHP/MD dumps).
-- After shipping a slice: UPDATE_DOCS Part A (MEMORY + plan changelog + practice track if L1 cycle advances).
-
-**Reply first** with a short understanding summary (FO intent + which slice you will do), then wait for "Do slice N" / "go" if he has not already named the slice.
+**Reply first** with what you will do, then wait for go if he has not named the slice.
 ```

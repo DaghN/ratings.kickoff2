@@ -1,6 +1,6 @@
 # Amiga organizer finish confirm — policy (Jul 2026)
 
-**Status:** **In progress** — FO1–FO10 locked; **slice 0** inventory done; Phase A implementation continues on plan slices 1+. Docs-first track (policy → plan → slices).
+**Status:** **Implemented (Phase A)** — FO1–FO10; Table confirm → Tier E → gated Make official. Phase B (finish mode from structure) deferred — see plan slice 5.
 
 **Purpose:** Before **Finish and make official** commits ratings and history, the secretary can **see, edit, and confirm** the tournament finishing order. That order becomes stored Tier E ground (`amiga_tournament_finish_override`) and drives `event_finish_position`, Winner, and medals — including cases where automatic derive is empty or wrong (e.g. kitchen stamped World Cup with round-robin only).
 
@@ -10,7 +10,7 @@
 
 **Plan / prompt:** [`amiga-organizer-finish-confirm-implementation-plan.md`](amiga-organizer-finish-confirm-implementation-plan.md) · [`orchestration/agent-handoffs/amiga-organizer-finish-confirm-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-organizer-finish-confirm-STARTER-PROMPT.md)
 
-**Motivation (Jul 2026):** Staging #609 “World Cup Kitchen getting wild” finished with ratings but Finish `—`, Winner `—`, no gold — because `is_world_cup` selected Tier D (KO podium) while the kitchen structure was pure league. Heuristic fallbacks (WC + no cup → league table) are **temporary**, not the product end state.
+**Motivation (Jul 2026):** Staging #609 “World Cup Kitchen getting wild” finished with ratings but Finish `—`, Winner `—`, no gold — because `is_world_cup` selected Tier D (KO podium) while the kitchen structure was pure league. Heuristic fallbacks (WC + no cup → league table) are now **prefill-only** (FO9); authority is Confirm → Tier E.
 
 ---
 
@@ -19,14 +19,14 @@
 | Id | Decision |
 |----|----------|
 | **FO1** | **Confirm before commit** — Make official happy path includes an explicit **finishing order** step (review / edit / confirm) **before** promote+finalize commits. Not buried only in Advanced. |
-| **FO2** | **Authority = Tier E ground** — Confirmed order is written to `amiga_tournament_finish_override` (full ladder preferred: one row per entrant, positions `1..N`, no gaps/duplicates). Derive A–D may **prefill**; confirmed Tier E **wins** at finalize (existing honours Tier E rules). |
+| **FO2** | **Authority = Tier E ground** — Confirmed order is written to `amiga_tournament_finish_override` (one row per registered entrant; each place in **1..N**, N = entrant count). **Ties allowed** (shared places). Olympic ranking not required yet. Derive A–D may **prefill**; confirmed Tier E **wins** at finalize (existing honours Tier E rules). |
 | **FO3** | **Manual-first when derive is empty or wrong** — If A–D yield no/partial finishes, secretary can still enter a full finishing list. Empty derive must **not** silently ship with all `NULL` finishes when the secretary intends a winner. |
 | **FO4** | **`is_world_cup` ≠ finish algorithm** — World Cup is a **catalog / slice / counter** flag. Finish algorithm comes from **structure + finish mode** (later) and/or **confirmed ladder**. Do not grow WC-named heuristics as the primary fix. |
 | **FO5** | **Placement** — Table tab, same workspace as Finish (modal, second panel, or gated sub-step immediately before the commit button). One mental place: “table → confirm order → make official.” |
 | **FO6** | **Prefill from current derive** — Show proposed order from tiers A–D (plus any existing overrides). Labels: ordinal + player; for WC stamp, show Gold/Silver/Bronze labels when positions are 1–3 (display only). |
 | **FO7** | **No silent re-Finish of completed events** — Successful `completed` + `rating_finalized` events are out of scope for this UI. Do not revive incomplete-reset as a happy path for “fix finishes after the fact.” Post-official correction = separate Lane B repair track. |
 | **FO8** | **Structure-declared finish mode is Phase B** — Templates / StructureSpec may later declare finish mode (pure league, league+cup, KO podium, WC-style KO podium, …). Phase A ships confirm UI on today’s kitchen + flags; Phase B wires mode → default prefill without secretary inventing rules. |
-| **FO9** | **Temporary kitchen WC fallback** — Code that maps `is_world_cup` + `has_league` + `!has_cup` → Tier C league finish may remain until Phase A ships; **retire or demote** once confirm UI is the secretary path. Do not extend that heuristic family. |
+| **FO9** | **Kitchen WC fallback = prefill only** — Code that maps `is_world_cup` + `has_league` + `!has_cup` → Tier C league finish remains as a **derive proposal** helper (Confirm UI prefill). **Authority at Finish = Tier E.** Do not extend that heuristic family; full removal optional later if unused. |
 | **FO10** | **Partial finish unchanged** — Unplayed fixtures still auto-void at Finish ([RTB §6.2](amiga-running-tournament-boundary-policy.md)). Confirm order applies to **entrants** (or played participants — lock in plan if needed); do not block Finish solely because some fixtures voided. |
 
 ---
@@ -105,6 +105,10 @@ Offline / CLI Tier E (full ladder or sparse band) and `refresh-event-finish-snap
 
 | Date | Change |
 |------|--------|
+| 2026-07-21 | **Implemented (Phase A)** — slices 0–4; FO9 demoted to prefill-only residual; Finish gated on Confirm → Tier E. |
+| 2026-07-21 | **In progress** — slices 0–3 done (Finish gated on confirm); FO1–FO10; Finish gate = done. |
+| 2026-07-21 | **FO2 ties** — secretary ladder: places in 1..N only; shared places allowed; Olympic deferred. |
+| 2026-07-21 | **In progress** — slices 0–2 done (Table confirm UI); FO1–FO10 unchanged; Finish gate = slice 3. |
 | 2026-07-17 | **In progress** — slices 0–1 done (inventory + write helper); FO1–FO10 unchanged. |
 | 2026-07-17 | **In progress** — slice 0 inventory + locks (plan §3a); FO1–FO10 unchanged. |
 | 2026-07-17 | **Planned** — FO1–FO10 locked from L1 #609 / finish-pipeline advice; docs-first before implementation. |

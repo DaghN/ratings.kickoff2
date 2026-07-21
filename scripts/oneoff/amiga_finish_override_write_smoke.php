@@ -13,6 +13,7 @@
 declare(strict_types=1);
 
 require __DIR__ . '/../../site/public_html/amiga/ops/includes/amiga_finish_override_write.php';
+require __DIR__ . '/../../site/public_html/amiga/ops/includes/amiga_finish_confirm_proposal.php';
 
 $fail = static function (string $step, string $message): void {
     fwrite(STDERR, "FAIL {$step}: {$message}\n");
@@ -49,9 +50,8 @@ $expectFail('V3', static function () use ($entrants): void {
     amiga_ops_finish_override_validate_full_ladder([10 => 1, 20 => 2, 99 => 3], $entrants);
 }, 'registered entrants');
 
-$expectFail('V4', static function () use ($entrants): void {
-    amiga_ops_finish_override_validate_full_ladder([10 => 1, 20 => 1, 30 => 3], $entrants);
-}, 'duplicate position');
+amiga_ops_finish_override_validate_full_ladder([10 => 1, 20 => 1, 30 => 3], $entrants);
+$pass('V4', 'shared place 1 allowed (ties)');
 
 $expectFail('V5', static function () use ($entrants): void {
     amiga_ops_finish_override_validate_full_ladder([10 => 1, 20 => 2, 30 => 4], $entrants);
@@ -61,9 +61,31 @@ $expectFail('V6', static function (): void {
     amiga_ops_finish_override_validate_full_ladder([], []);
 }, 'no registered entrants');
 
-$expectFail('V7', static function () use ($entrants): void {
-    amiga_ops_finish_override_validate_full_ladder([10 => 1, 20 => 3, 30 => 3], $entrants);
-}, 'duplicate position');
+amiga_ops_finish_override_validate_full_ladder([10 => 1, 20 => 3, 30 => 3], $entrants);
+$pass('V7', 'shared place 3 allowed (ties)');
+
+$expectFail('V7b', static function () use ($entrants): void {
+    amiga_ops_finish_override_validate_full_ladder([10 => 0, 20 => 2, 30 => 3], $entrants);
+}, '1..3');
+
+amiga_ops_finish_override_validate_full_ladder([10 => 2, 20 => 2, 30 => 2], $entrants);
+$pass('V7c', 'all tied at 2 within 1..N');
+
+$dense = amiga_ops_finish_confirm_densify_ladder(
+    [10, 20, 30],
+    [10 => 2, 20 => null, 30 => 1],
+    [10 => 0, 20 => 1, 30 => 2]
+);
+if ($dense !== [30 => 1, 10 => 2, 20 => 3]) {
+    $fail('V8', 'densify unexpected: ' . json_encode($dense));
+}
+$pass('V8', 'densify partial derive → 1..3');
+
+$fromPost = amiga_ops_finish_confirm_ladder_from_post(['10' => '1', '20' => '2', 'bad' => 'x']);
+if (($fromPost[10] ?? null) !== 1 || ($fromPost[20] ?? null) !== 2 || isset($fromPost[0])) {
+    $fail('V9', 'post parse unexpected: ' . json_encode($fromPost));
+}
+$pass('V9', 'post ladder parse');
 
 if (!in_array('--db', $argv, true)) {
     echo "OK validation-only (pass --db for work-DB round-trip under rollback)\n";
@@ -146,6 +168,41 @@ try {
     $con->rollback();
     $pass('DB6', 'rolled back (no lasting DB change)');
 }
+
+// Proposal build (read-only) for same tournament
+$tstmt = $con->prepare(
+    'SELECT id, name, has_league, has_cup, is_world_cup FROM tournaments WHERE id = ? LIMIT 1'
+);
+$tstmt->bind_param('i', $tid);
+$tstmt->execute();
+$tres = $tstmt->get_result();
+$trow = $tres ? $tres->fetch_assoc() : null;
+$tstmt->close();
+if ($trow === null) {
+    $fail('DB7', 'tournament row missing');
+}
+$entrantsRows = [];
+foreach ($entrantIds as $pid) {
+    $entrantsRows[] = [
+        'player_id' => $pid,
+        'player_name' => 'P' . $pid,
+        'status' => 'registered',
+    ];
+}
+$tableRows = [];
+foreach ($entrantIds as $i => $pid) {
+    $tableRows[] = ['player_id' => $pid, 'player_name' => 'P' . $pid, 'position' => $i + 1];
+}
+$proposal = amiga_ops_finish_confirm_build_proposal($con, $tid, $trow, $entrantsRows, $tableRows);
+if ((int) $proposal['entrant_count'] !== $n || count($proposal['ordered']) !== $n) {
+    $fail('DB7', 'proposal size mismatch: ' . json_encode($proposal));
+}
+try {
+    amiga_ops_finish_override_validate_full_ladder($proposal['ladder'], $entrantIds);
+} catch (InvalidArgumentException $e) {
+    $fail('DB7', 'proposal ladder invalid: ' . $e->getMessage());
+}
+$pass('DB7', 'proposal source=' . $proposal['source'] . ' confirmed=' . ($proposal['confirmed'] ? '1' : '0'));
 
 $con->close();
 echo "OK validation + db smoke\n";

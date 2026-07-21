@@ -366,8 +366,9 @@ def derive_event_finish_position(
     wc_event = is_world_cup if is_world_cup is not None else is_world_cup_tournament(tournament_name)
     if wc_event:
         finish = compute_tier_d_wc_finish(standing_rows)
-        # Kitchen / pure-league WC stamp: no knockout podium → Tier C league ladder.
-        # Real WCs keep has_cup=1; group-only rows stay empty (Tier D).
+        # FO9 residual (Phase A shipped): kitchen WC stamp + pure league → Tier C for
+        # *proposal/prefill* only. Secretary Confirm → Tier E is authority at Finish.
+        # Do not extend this heuristic family (FO4/FO9).
         if not finish and has_league and not has_cup and primary_league:
             finish = primary_league
     elif has_league and has_cup and primary_league:

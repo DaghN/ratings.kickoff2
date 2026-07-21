@@ -51,6 +51,9 @@ function amiga_ops_finish_override_registered_entrant_ids(mysqli $con, int $tour
 /**
  * Validate a full finishing ladder against registered entrants.
  *
+ * Secretary path (Jul 2026): one row per registered entrant; each place in 1..N
+ * (N = entrant count). Ties (shared places) allowed. Olympic ranking not enforced yet.
+ *
  * @param array<int, int> $ladder player_id => event_finish_position
  * @param list<int> $entrantIds registered entrant player ids
  */
@@ -90,7 +93,6 @@ function amiga_ops_finish_override_validate_full_ladder(array $ladder, array $en
         );
     }
 
-    $positions = [];
     foreach ($ladder as $playerId => $position) {
         $playerId = (int) $playerId;
         if ($playerId < 1) {
@@ -105,21 +107,7 @@ function amiga_ops_finish_override_validate_full_ladder(array $ladder, array $en
         if ($position < 1 || $position > $n) {
             throw new InvalidArgumentException(
                 "finish override refused: position {$position} for player {$playerId} "
-                . "must be in 1..{$n}."
-            );
-        }
-        if (isset($positions[$position])) {
-            throw new InvalidArgumentException(
-                "finish override refused: duplicate position {$position}."
-            );
-        }
-        $positions[$position] = $playerId;
-    }
-
-    for ($i = 1; $i <= $n; $i++) {
-        if (!isset($positions[$i])) {
-            throw new InvalidArgumentException(
-                "finish override refused: missing position {$i} (full ladder 1..{$n} required)."
+                . "must be in 1..{$n} (N = registered entrants)."
             );
         }
     }

@@ -10,8 +10,8 @@ header('Expires: 0');
 <title>Kick Off 2 — Status</title>
 
 <?php
-$k2OgTitle = 'Kick Off 2 ratings — Status';
-$k2MetaDescription = "Who's online and what's live on the Kick Off 2 ladder.";
+$k2OgTitle = 'Kick Off 2 ratings';
+$k2MetaDescription = 'Live Kick Off 2 ladder and Amiga 500 statistics.';
 include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php';
 ?>
 <link href="stylesheets/flatpickr.min.css?v=<?php echo (int) @filemtime($_SERVER['DOCUMENT_ROOT'] . '/stylesheets/flatpickr.min.css'); ?>" rel="stylesheet" type="text/css" />

@@ -94,7 +94,7 @@
 
 - **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~300** videos; unified embed UI; **C06** dedicated Videos column; **With videos** filter; **player profile Videos wing**. **Jul 2026:** **TV-2b DB anchor sync** — `sync_db_ids` + `verify-tournament-videos` in `prove` ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md) §12).
 
-- **Amiga live ops (Jul 2026):** **RTB shipped.** **PHP Finish ↔ simul-oracle parity signed off (Jul 17).** **Track L L0 complete.** **Organizer finish confirm — In progress** — FO1–FO10; **slices 0–1 done** (inventory + Tier E write helper); next **slice 2** Table UI. Starter [`amiga-organizer-finish-confirm-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/amiga-organizer-finish-confirm-STARTER-PROMPT.md). Temporary kitchen WC→league finish fallback until UI ships. Policy: [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md) · drill [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md).
+- **Amiga live ops (Jul 2026):** **RTB shipped.** **PHP Finish ↔ simul-oracle parity signed off (Jul 17).** **Track L L0 complete.** **Organizer finish confirm — Phase A Implemented** — confirm → Tier E → gated Make official; FO9 WC kitchen fallback = prefill-only. Optional Phase B = finish-mode sketch (plan slice 5). Policy: [`amiga-organizer-finish-confirm-policy.md`](docs/amiga-organizer-finish-confirm-policy.md) · drill [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md) · RTB [`amiga-running-tournament-boundary-policy.md`](docs/amiga-running-tournament-boundary-policy.md).
 
 - **Amiga format scoring contract (Jul 2026):** **SC-0–SC-9 + SC-11 shipped** — L4b relational contracts, PHP↔Python executor parity, RTB broadcast, L5 `stage_id`, structured ET/pens on games + fixtures (`012_match_extensions.sql`). **SC-10:** non-WC games **100%** `fixture_id` on work (Jul 2026); remaining unlinked games = **unmaterialized WCs** (`wc_deferred`). Policy [`amiga-format-scoring-contract-policy.md`](docs/amiga-format-scoring-contract-policy.md) · plan [`amiga-format-scoring-contract-implementation-plan.md`](docs/amiga-format-scoring-contract-implementation-plan.md).
 
@@ -149,6 +149,11 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-21 | **Organizer finish confirm — Phase A complete (slice 4)** — FO9 demoted to prefill-only residual; policy Implemented; practice track L1 idle for next feedback. Optional slice 5 = Phase B finish-mode sketch. |
+| 2026-07-21 | **Organizer finish confirm — slice 3** — Make official gated until finishing order confirmed (server `finish_order_not_confirmed` before void/promote; Finish button hidden until confirm). WinSCP `fixtures.php` + `amiga_finish_confirm_proposal.php`. |
+| 2026-07-21 | **Organizer finish confirm — FO2 ties** — Confirm allows shared places; only 1..N (N = registered entrants). Olympic deferred. Sync `amiga_finish_override_write.php`. |
+| 2026-07-21 | **Organizer finish confirm — slice 2** — Table “Who finished where?” panel + `confirm_finish_order` → Tier E; prefill from derive/Tier E/table; Finish still ungated (slice 3). WinSCP `fixtures.php` + `amiga-tournament.css` + `amiga_finish_confirm_*.php` / write helper when testing staging. |
+| 2026-07-20 | **Root share card** — `status.php` OG title/description = site-wide default (root `/` redirects here); WhatsApp refresh via Facebook Sharing Debugger. |
 | 2026-07-20 | **Victims mosaic BL/BW** — written out as Biggest loss victims / Biggest win culprits; tooltip Loss/Win → lowercase (profile + Victims LB). |
 | 2026-07-20 | **Victims mosaic casing** — mid-line `victims`/`culprits` lowercase (DD/CS/MGC/BL/MGS/BW); standalone Victims·Culprits stay title case; tooltips already matched. |
 | 2026-07-20 | **Amiga profile mosaic labels** — Goals / DDs & CSs / Victims DD·CS / Tournament honours / Calendar & geo; peak year+count + Peak rating Peak/rank/Nadir dates **inline** (muted date, wide gap); `amiga_profile_lb_slices.php` + `player-feast-sections.css`. |

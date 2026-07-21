@@ -1097,6 +1097,67 @@ body.k2-site .k2-amiga-organizer-lifecycle__action:focus-visible {
 	margin: 0 0 0.75rem;
 }
 
+/* Finish-confirm panel (Table tab) */
+.k2-amiga-organizer-finish-confirm {
+	margin: 0 0 1rem;
+	padding: 0.75rem 0.85rem;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: color-mix(in srgb, var(--k2-bg-elevated) 80%, transparent);
+}
+
+.k2-amiga-organizer-finish-confirm__title {
+	margin: 0 0 0.5rem;
+	font-size: 1.05rem;
+	font-weight: 600;
+}
+
+.k2-amiga-organizer-finish-confirm__table {
+	width: 100%;
+	max-width: 28rem;
+	border-collapse: collapse;
+	margin: 0 0 0.75rem;
+	font-size: 0.92rem;
+}
+
+.k2-amiga-organizer-finish-confirm__table th,
+.k2-amiga-organizer-finish-confirm__table td {
+	padding: 0.35rem 0.5rem;
+	text-align: left;
+	border-bottom: 1px solid var(--k2-border-subtle);
+	vertical-align: middle;
+}
+
+.k2-amiga-organizer-finish-confirm__table th {
+	font-weight: 600;
+	color: var(--k2-text-secondary);
+	font-size: 0.8rem;
+}
+
+.k2-amiga-organizer-finish-confirm__pos {
+	width: 3.25rem;
+	padding: 0.2rem 0.35rem;
+	font: inherit;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-sm);
+	background: var(--k2-bg);
+	color: var(--k2-text-primary);
+}
+
+.k2-amiga-organizer-finish-confirm__medal {
+	color: var(--k2-text-secondary);
+	white-space: nowrap;
+}
+
+.k2-amiga-organizer-finish-confirm__actions {
+	margin: 0;
+}
+
+.k2-amiga-organizer-finish-confirm__pos-label {
+	display: inline-block;
+	margin: 0;
+}
+
 .k2-amiga-organizer-results__undo-form {
 	margin: 0;
 }

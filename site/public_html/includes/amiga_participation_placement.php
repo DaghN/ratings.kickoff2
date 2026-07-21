@@ -421,8 +421,9 @@ function amiga_participation_derive_event_finish_position(
     $wcEvent = $isWorldCup ?? amiga_tournament_is_world_cup_by_name($tournamentName);
     if ($wcEvent) {
         $finish = amiga_participation_compute_tier_d_wc_finish($standingRows);
-        // Kitchen / pure-league WC stamp: no knockout podium → Tier C league ladder.
-        // Real WCs keep has_cup=1; group-only rows stay empty (Tier D).
+        // FO9 residual (Phase A shipped): kitchen WC stamp + pure league → Tier C for
+        // *proposal/prefill* only. Secretary Confirm → Tier E is authority at Finish.
+        // Do not extend this heuristic family (FO4/FO9).
         if ($finish === [] && $hasLeague && !$hasCup && $primaryLeague !== []) {
             $finish = $primaryLeague;
         }

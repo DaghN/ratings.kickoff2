@@ -1,6 +1,6 @@
 # Amiga organizer finish confirm — implementation plan (Jul 2026)
 
-**Status:** **In progress** — slices **0–1 done**; next = slice **2** (Table UI).
+**Status:** **Phase A complete** — slices **0–4 done**. Slice **5** (Phase B finish-mode sketch) optional.
 
 **Policy:** [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md) (FO1–FO10).
 
@@ -33,9 +33,9 @@ Phase B (finish mode from structure/templates) is sketched only — do not block
 |-------|-------------|--------|------|
 | **0** | Inventory: where Table Finish posts today; how PHP loads Tier E into `amiga_participation_derive_event_finish_position`; whether overrides can be written mid-running before promote; UX placement options (modal vs panel). Short note in plan changelog or handoff. | Read-only | **Done** — §3a |
 | **1** | **Write path** — ops helper to replace full-ladder overrides for `tournament_id` (validate 1..N, one per entrant). Idempotent replace. | Unit / small PHP smoke on work or staging kitchen | **Done** — `amiga_finish_override_write.php` + smoke |
-| **2** | **Table UI** — show proposed order (A–D prefill); edit/reorder; Confirm persists Tier E; copy per FO. | Browser on staging/local kitchen | STOP before changing Finish commit transaction |
-| **3** | **Gate Finish** — Make official requires confirmed ladder when derive would leave all finishes NULL **or** always requires confirm once (prefer **always confirm** for generated kitchens — lock in slice 0 notes). Wire so finalize sees overrides. | Kitchen Finish → event-stats Finish filled; profile gold for position 1 | WinSCP sync |
-| **4** | **Docs / heuristic** — mark FO9 temporary fallback for retirement or “prefill only”; practice track L1 cycle green; policy status → Implemented (Phase A). | UPDATE_DOCS Part A | — |
+| **2** | **Table UI** — show proposed order (A–D prefill); edit/reorder; Confirm persists Tier E; copy per FO. | Browser on staging/local kitchen | **Done** — panel + `confirm_finish_order` (Finish still ungated) |
+| **3** | **Gate Finish** — Make official requires confirmed ladder when derive would leave all finishes NULL **or** always requires confirm once (prefer **always confirm** for generated kitchens — lock in slice 0 notes). Wire so finalize sees overrides. | Kitchen Finish → event-stats Finish filled; profile gold for position 1 | **Done** — server + UI gate (`finish_order_not_confirmed`) |
+| **4** | **Docs / heuristic** — mark FO9 temporary fallback for retirement or “prefill only”; practice track L1 cycle green; policy status → Implemented (Phase A). | UPDATE_DOCS Part A | **Done** — FO9 = prefill-only; Phase A Implemented |
 | **5** | **Phase B sketch only** (optional same chat or later) — finish mode enum on template / format_overrides; map to A–D prefill. No requirement for Phase A close. | Doc only unless Dagh expands | — |
 
 ---
@@ -70,14 +70,14 @@ amiga_finalize_tournament
 
 Python parity: `_load_finish_overrides` + `derive_event_finish_position(..., overrides=)` in `player_tournament_participation.py` / `participation_placement.py`.
 
-**Secretary path implication:** Confirm must write a **full ladder** (1..N, every entrant) or none — sparse band stays canon/CLI only (FO2 / honours Tier E).
+**Secretary path implication:** Confirm must write **one row per registered entrant**; each place in **1..N** (N = entrant count). **Ties allowed.** Olympic ranking deferred. Sparse band stays canon/CLI only.
 
 ### Mid-running writeability
 
 | Question | Answer |
 |----------|--------|
 | Can Tier E rows exist before promote? | **Yes.** Table is L3 ground; FKs only to `tournaments` + `amiga_players`. No lifecycle column / trigger. |
-| Organizer writer today? | **None.** Only CLI/oneoffs (e.g. WC Tier E scripts) + import/export packs. |
+| Organizer writer today? | **Slice 2:** Table tab **Confirm finishing order** → `amiga_ops_finish_override_replace_full_ladder`. Canon CLI/oneoffs remain. |
 | Finalize reads them? | **Yes** — same SELECT as above, after promote rebuilds L5 standings. |
 
 Safe to persist confirm **before** Make official; finalize does not need a second write if Tier E already holds the ladder.
@@ -88,7 +88,7 @@ Safe to persist confirm **before** Make official; finalize does not need a secon
 |------|----------|
 | **Authority** | Human-confirmed Tier E **freezes** finishing order. Post-promote L5 standings reshuffle must **not** change medals without another confirm. |
 | **Prefill UI** | Proposal only: call derive A–D (plus any existing overrides) using **organizer Table / broadcast** standings while running (`amiga_running_tournament_standings_rows` path already feeds Table). Do **not** require L5 `amiga_tournament_standings` to exist before confirm. |
-| **After confirm** | Stored Tier E is ground truth at finalize regardless of A–D outcome (including FO9 temporary WC kitchen fallback). |
+| **After confirm** | Stored Tier E is ground truth at finalize regardless of A–D outcome (FO9 WC kitchen fallback is prefill-only). |
 
 ### Gate Finish (locked for slice 3)
 
@@ -125,6 +125,8 @@ Prefer **registered** `tournament_entrants` (same roster `amiga_fixture_organize
 | Derive | PHP `amiga_participation_derive_event_finish_position(..., $overrides)`; Python `derive_event_finish_position(..., overrides=)` |
 | Load overrides today | `amiga_post_game_participation.php` / Python `_load_finish_overrides` |
 | **Write full ladder (slice 1)** | `amiga/ops/includes/amiga_finish_override_write.php` — `amiga_ops_finish_override_replace_full_ladder()`; validate 1..N vs registered entrants; smoke `scripts/oneoff/amiga_finish_override_write_smoke.php` |
+| **Table confirm UI (slice 2)** | `amiga_finish_confirm_proposal.php` + Table panel in `fixtures.php` (`action=confirm_finish_order`); prefill derive/Tier E/table; place number inputs |
+| **Gate Finish (slice 3)** | `amiga_fixture_reprocess_tournament_derived` refuses before void/promote if Tier E not confirmed; Finish button hidden until confirmed |
 | Finish button | `amiga/ops/fixtures.php` Table tab — RTB §6 |
 | Prefill | Call same derive used at finalize **before** commit, with current standings (broadcast/official as available while running) |
 | Entrants | Prefer all `tournament_entrants` / stage players for full ladder; align with honours “full ladder or none” |
@@ -136,12 +138,12 @@ Prefer **registered** `tournament_entrants` (same roster `amiga_fixture_organize
 
 ## 5. Verification checklist (Phase A done)
 
-- [ ] Generated kitchen (no WC stamp): confirm → Finish → Finish column + Winner on event-stats; gold on winner profile.
-- [ ] Generated kitchen **with** WC stamp, RR only: same (no empty Finish).
-- [ ] Confirm edit changes who gets gold vs prefill.
-- [ ] Finish refused or blocked until confirm when required (per slice 3 lock).
-- [ ] Advanced Reset incomplete still limbo-only; no new “reset completed” control.
-- [ ] No Track C / cup template work in the same slices.
+- [x] Generated kitchen (no WC stamp): confirm → Finish → Finish column + Winner on event-stats; gold on winner profile. *(Dagh staging smoke Jul 2026; also #608-class)*
+- [x] Generated kitchen **with** WC stamp, RR only: same (no empty Finish). *(#609 motivation; Confirm → Tier E)*
+- [x] Confirm edit changes who gets gold vs prefill. *(secretary-chosen order on event-stats)*
+- [x] Finish refused or blocked until confirm when required (per slice 3 lock).
+- [x] Advanced Reset incomplete still limbo-only; no new “reset completed” control.
+- [x] No Track C / cup template work in the same slices.
 
 ---
 
@@ -149,6 +151,10 @@ Prefer **registered** `tournament_entrants` (same roster `amiga_fixture_organize
 
 | Date | Change |
 |------|--------|
+| 2026-07-21 | **Slice 4** — FO9 demoted to prefill-only residual (code comments + policy); Phase A **Implemented**; checklist green from Dagh smoke. Slice 5 optional. |
+| 2026-07-21 | **Slice 3** — Finish gated on confirmed Tier E (server before void/promote; UI hides Finish until confirm). Next = slice 4 docs/FO9. |
+| 2026-07-21 | **FO2 ties** — validator allows shared places; only 1..N bounds (N = entrants). Olympic not enforced. |
+| 2026-07-21 | **Slice 2** — Table “Who finished where?” panel; Confirm → Tier E; Finish still ungated (slice 3). Proposal helper + smoke densify/proposal. Next = gate Finish. |
 | 2026-07-17 | **Slice 1** — `amiga_finish_override_write.php` full-ladder validate + idempotent replace; smoke validation + `--db` rollback on work. Next = slice 2 Table UI. |
 | 2026-07-17 | **Slice 0** — inventory + locks (§3a): Finish = `reprocess_tournament_derived`; Tier E readable mid-running / at finalize; always-confirm kitchens; prefill = broadcast Table + Tier E freeze; UX lean = inline panel. Next = slice 1 write path. |
 | 2026-07-17 | Initial plan — slices 0–5; Phase A confirm UI; Phase B finish mode deferred. |
