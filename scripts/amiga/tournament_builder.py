@@ -160,6 +160,7 @@ def create_kitchen_marathon_tournament(
         "generated_by": BUILDER_NAME,
         "round_robin_legs": legs,
         "fixture_count": len(fixtures),
+        "live_visible": 1,
     }
 
     with conn.cursor() as cur:
@@ -262,6 +263,7 @@ def create_swiss_tournament(
         "scheduled_rounds": [1],
         "fixture_count": len(round1),
         "round_1_bye_player_id": bye_player,
+        "live_visible": 1,
     }
 
     with conn.cursor() as cur:
@@ -516,6 +518,7 @@ def create_double_elimination_tournament(
         "fixture_count": len(round0),
         "expected_fixture_count": expected_fixture_count(bracket_size),
         "seeds": {str(k): v for k, v in seeds.items()},
+        "live_visible": 1,
     }
 
     with conn.cursor() as cur:
@@ -701,6 +704,7 @@ def create_group_knockout_tournament(
         "group_fixture_count": group_fixture_count,
         "knockout_fixture_count": 1,
         "knockout_policy": "top group players must be assigned manually after groups",
+        "live_visible": 1,
     }
 
     with conn.cursor() as cur:

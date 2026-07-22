@@ -1,14 +1,16 @@
 # Amiga organizer workspace simplification — policy (Jul 2026)
 
-**Status:** **Locked intent (v1)** — product principles agreed; implementation not started.
+**Status:** **Implemented** (Jul 2026) — slices 0–6; happy-path chrome shipped in `fixtures.php`.
 
-**Plan:** [`amiga-organizer-workspace-simplification-implementation-plan.md`](amiga-organizer-workspace-simplification-implementation-plan.md)
+**Deferred (explicit, not blockers):** OW12 on-the-fly stage builder UX; mid-event add-player into a full RR (fixture regen). Storage may still use `lifecycle_status = running` for Open (OW14).
+
+**Plan:** [`amiga-organizer-workspace-simplification-implementation-plan.md`](amiga-organizer-workspace-simplification-implementation-plan.md) (**done**).
 
 **Parents:** [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (Open/running package vs Official — **kept**) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) · [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) · [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md) · [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) (admin Case A delete)
 
 **Audience:** Dagh, Cursor agents.
 
-**Motivation:** Organizer fixtures grew as a browser skin over lifecycle/ops machinery (Start, void, six tabs, Advanced theatre). Secretaries need **minimal → advanced**: create → play (stage-scoped) → finish. This doc locks that product model. UI pixel detail and migration slices live in the plan.
+**Motivation:** Organizer fixtures grew as a browser skin over lifecycle/ops machinery (Start, void, six tabs, Advanced theatre). Secretaries need **minimal → advanced**: create → play (stage-scoped) → finish. This doc locks that product model. UI pixel detail lived in the plan (closed).
 
 ---
 
@@ -70,7 +72,7 @@ No mandatory Start click.
 
 ## 5. Hide (Live visibility)
 
-- First-class **Hide** / **Show on Live** on the Open workspace chrome (placement = plan; not “under Setup”).
+- First-class **Hide** / **Show on Live** on the Open workspace chrome (header; not “under Setup”).
 - Affects **spectator Live only**.
 - Hidden Open tournaments stay in **Recent tournaments**.
 - Finish allowed while Hidden.
@@ -95,16 +97,17 @@ Essential shape:
 |-----------|------|
 | Tournament meta, Hide/Show Live | Admin Case A delete; limbo/repair; raw ops |
 
-| Today | Policy |
-|-------|--------|
-| Fixtures tab + Results tab | **One play surface**, stage navigator |
-| Setup Start / void | **Gone** from happy path |
-| Advanced as normal peer tab | **Not** happy path |
-| Players withdraw/replace | **Abandoned** |
-| Recent leagues (all generated) | **Recent tournaments** (Open only) |
-| Table + Finish confirm | Keep clear end-of-night path; exact panel layout = plan (FO5 may be revised when chrome ships) |
+| Shipped | Policy |
+|---------|--------|
+| One **Play** tab (`view=play`, optional `stage_id`) | Stage-scoped play surface |
+| No Start / no void on happy path | Gone |
+| Advanced → muted **Technical / repair tools** | Not peer happy-path tab |
+| Setup | **Create / Recent landing only** — not an in-tournament peer tab |
+| Players withdraw/replace | Abandoned (CLI may remain) |
+| Recent tournaments (Open only) | Includes Hidden |
+| Table + Finish confirm (FO5) | End-of-night path |
 
-Exact tab names and layout → plan. Future cups may add controls **without** restoring Start/void/dual match tabs.
+Future cups may add controls **without** restoring Start/void/dual match tabs.
 
 ---
 
@@ -127,15 +130,15 @@ Unchanged in intent: **Finish and make official** (+ finish-confirm as shipped).
 
 - **Keep:** running package vs Official; no L3/L5 until Finish; Live as broadcast surface; promote+finalize on Finish.
 - **Supersede (organizer-facing):** mandatory Start; void/Abandon-as-lifecycle; draft/ready/running as secretary UX; dual Fixtures/Results; withdraw/replace.
-- RTB docs may still say `lifecycle_status = running` until an implementation pass remaps vocabulary — agents follow **this policy** for new organizer UX work.
+- Storage may still use `lifecycle_status = running` for Open — agents follow **this policy** for organizer UX copy and chrome.
 
 ---
 
 ## 11. Explicitly out of this policy
 
-- Pixel layout, control placement, tab labels (beyond OW8–OW10).
-- On-the-fly stage builder UX.
-- RR mid-event “add player” mechanic.
+- Pixel layout beyond OW8–OW10 (shipped in-tournament tabs: Players · Play · Table; Setup = create/Recent landing only).
+- On-the-fly stage builder UX (**deferred**).
+- RR mid-event “add player” mechanic (**deferred**).
 - Migrating historical `void` rows (irrelevant edge; handle opportunistically in code if needed — not a policy epic).
 - Case B/C tip delete (L5).
 
@@ -156,4 +159,5 @@ Unchanged in intent: **Finish and make official** (+ finish-confirm as shipped).
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **Implemented** — slices 0–6; OW12 stage builder / mid-event RR add deferred; RTB boundary kept. |
 | 2026-07-22 | **Locked intent v1** — Open/Official + Live visible; no Start/void; merge stage-scoped play surface; strip lifecycle chrome; abandon withdraw/replace; Case A no auto-seal; plan separate. |

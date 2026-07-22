@@ -186,7 +186,18 @@ function amiga_fixture_parse_player_ids(string $raw): array
 }
 
 /** @var list<string> */
-const AMIGA_FIXTURE_OPS_VIEWS = ['setup', 'players', 'fixtures', 'table', 'results', 'advanced'];
+const AMIGA_FIXTURE_OPS_VIEWS = ['setup', 'players', 'play', 'table', 'advanced'];
+
+/** Legacy views remapped to the stage-scoped play surface (OW8). */
+const AMIGA_FIXTURE_OPS_LEGACY_VIEW_MAP = [
+    'fixtures' => 'play',
+    'results' => 'play',
+];
+
+function amiga_fixture_ops_normalize_view(string $view): string
+{
+    return AMIGA_FIXTURE_OPS_LEGACY_VIEW_MAP[$view] ?? $view;
+}
 
 function amiga_fixture_ops_session_start(): void
 {
@@ -222,12 +233,14 @@ function amiga_fixture_ops_redirect(
     string $pwd,
     int $tournamentId,
     string $view,
-    string $status = ''
+    string $status = '',
+    array $extra = []
 ): void {
-    $params = [
+    $view = amiga_fixture_ops_normalize_view($view);
+    $params = array_merge([
         'once' => $onceKey,
         'view' => $view,
-    ];
+    ], $extra);
     if ($tournamentId > 0) {
         $params['tournament_id'] = $tournamentId;
     }
@@ -573,6 +586,7 @@ function amiga_fixture_ops_url(
     string $status = '',
     array $extra = []
 ): string {
+    $view = amiga_fixture_ops_normalize_view($view);
     $params = array_merge([
         'once' => $onceKey,
         'view' => $view,
@@ -744,10 +758,8 @@ function amiga_fixture_browser_allowed_lifecycle_targets(mysqli $con, array $lif
 
     $current = $lifecycle['lifecycle_status'];
     $tournamentId = $lifecycle['id'];
-    if ($current === 'draft' || $current === 'registration') {
-        return ['ready'];
-    }
-    if ($current === 'ready') {
+    if ($current === 'draft' || $current === 'registration' || $current === 'ready') {
+        // OW3: Open workspaces are scoreable as running; no mandatory Start step.
         return ['running'];
     }
     if ($current === 'running') {
@@ -758,9 +770,7 @@ function amiga_fixture_browser_allowed_lifecycle_targets(mysqli $con, array $lif
         ) {
             $targets[] = 'completed';
         }
-        if (amiga_fixture_count_official_tournament_games($con, $tournamentId) === 0) {
-            $targets[] = 'void';
-        }
+        // OW5: void/Abandon retired from browser happy path — use Hide from Live instead.
 
         return $targets;
     }
@@ -815,6 +825,7 @@ function amiga_fixture_organizer_status_badge_modifier(string $status): string
  *
  * Status mapping: draft/registration → Not started; ready → Ready to start;
  * running → In progress; completed/archived → Finished; void → Void.
+ * OW3: Start is retired from the happy path (can_start always false).
  *
  * @param array{id:int,name:string,source_id:?int,lifecycle_status:string,started_at:?string,completed_at:?string} $lifecycle
  * @return array{
@@ -840,12 +851,9 @@ function amiga_fixture_organizer_lifecycle_ui(mysqli $con, array $lifecycle): ar
     $gameCount = amiga_running_tournament_broadcast_mode($con, $lifecycle['id'])
         ? $playedFixtureCount
         : $officialGameCount;
-    $allowed = $isImported ? [] : amiga_fixture_browser_allowed_lifecycle_targets($con, $lifecycle);
 
-    $canStart = !$isImported
-        && in_array($rawStatus, ['draft', 'registration', 'ready'], true)
-        && (in_array('running', $allowed, true) || in_array('ready', $allowed, true));
-    $canVoid = !$isImported && in_array('void', $allowed, true);
+    $canStart = false;
+    $canVoid = false;
 
     $finishHint = null;
     if ($rawStatus === 'running' && !$isImported) {
@@ -897,54 +905,30 @@ function amiga_fixture_organizer_lifecycle_ui(mysqli $con, array $lifecycle): ar
  */
 function amiga_fixture_apply_organizer_lifecycle_action(mysqli $con, int $tournamentId, string $action): array
 {
-    $validActions = ['start_tournament', 'void_tournament'];
-    if (!in_array($action, $validActions, true)) {
-        throw new RuntimeException('Unknown organizer lifecycle action.');
+    if ($action === 'void_tournament') {
+        throw new RuntimeException(
+            'Abandon/void is retired. Use Hide from Live for spectator visibility, '
+            . 'or admin Case A delete for never-official junk.'
+        );
     }
-
-    $lifecycle = amiga_fixture_load_lifecycle($con, $tournamentId);
-    if ($lifecycle === null) {
-        throw new RuntimeException("Tournament {$tournamentId} not found.");
-    }
-
-    $previousStatus = $lifecycle['lifecycle_status'];
-    $steps = [];
-
     if ($action === 'start_tournament') {
-        if (!in_array($previousStatus, ['draft', 'registration', 'ready'], true)) {
-            throw new RuntimeException(
-                "Tournament {$tournamentId} cannot be started from status '{$previousStatus}'."
-            );
+        // OW3: Start retired — ensure Open scoreable (heals leftover draft/ready kitchens).
+        $ensured = amiga_fixture_ensure_open_scoreable($con, $tournamentId);
+        $lifecycle = amiga_fixture_load_lifecycle($con, $tournamentId);
+        if ($lifecycle === null) {
+            throw new RuntimeException("Tournament {$tournamentId} not found.");
         }
-        if (in_array($previousStatus, ['draft', 'registration'], true)) {
-            $readySummary = amiga_fixture_set_lifecycle_status($con, $tournamentId, 'ready');
-            if ($readySummary['changed']) {
-                $steps[] = "{$previousStatus} → ready";
-            }
-        }
-        $runningSummary = amiga_fixture_set_lifecycle_status($con, $tournamentId, 'running');
 
         return [
             'tournament_id' => $tournamentId,
             'action' => $action,
-            'previous_status' => $previousStatus,
-            'lifecycle_status' => $runningSummary['lifecycle_status'],
-            'changed' => $previousStatus !== $runningSummary['lifecycle_status'] || $steps !== [],
-            'steps' => array_merge($steps, $runningSummary['changed'] ? ['ready → running'] : []),
+            'previous_status' => $ensured['changed'] ? 'pre-open' : $lifecycle['lifecycle_status'],
+            'lifecycle_status' => $lifecycle['lifecycle_status'],
+            'changed' => $ensured['changed'],
+            'steps' => $ensured['changed'] ? ['→ running (Open scoreable)'] : [],
         ];
     }
-
-    $targetStatus = 'void';
-    $summary = amiga_fixture_set_lifecycle_status($con, $tournamentId, $targetStatus);
-
-    return [
-        'tournament_id' => $tournamentId,
-        'action' => $action,
-        'previous_status' => $summary['previous_status'],
-        'lifecycle_status' => $summary['lifecycle_status'],
-        'changed' => $summary['changed'],
-        'steps' => $summary['changed'] ? ["{$summary['previous_status']} → {$targetStatus}"] : [],
-    ];
+    throw new RuntimeException('Unknown organizer lifecycle action.');
 }
 
 function amiga_fixture_organizer_fixture_status_label(string $status): string
@@ -1226,6 +1210,8 @@ function amiga_fixture_set_lifecycle_status(mysqli $con, int $tournamentId, stri
 
 function amiga_fixture_require_running_lifecycle(mysqli $con, int $tournamentId): void
 {
+    amiga_fixture_ensure_open_scoreable($con, $tournamentId);
+
     $stmt = $con->prepare(
         'SELECT lifecycle_status FROM tournaments WHERE id = ? LIMIT 1'
     );
@@ -1245,9 +1231,60 @@ function amiga_fixture_require_running_lifecycle(mysqli $con, int $tournamentId)
     if ((string) $row['lifecycle_status'] !== 'running') {
         throw new RuntimeException(
             "Tournament {$tournamentId} lifecycle_status is '{$row['lifecycle_status']}'; "
-            . 'result entry is allowed only when lifecycle_status is running.'
+            . 'result entry is allowed only while the tournament is Open (in progress).'
         );
     }
+}
+
+/**
+ * OW3: promote leftover draft/registration/ready generated kitchens to running (scoreable + Live-eligible).
+ *
+ * @return array{changed:bool,lifecycle_status:string}
+ */
+function amiga_fixture_ensure_open_scoreable(mysqli $con, int $tournamentId): array
+{
+    $stmt = $con->prepare(
+        'SELECT id, name, source_id, format_overrides, lifecycle_status '
+        . 'FROM tournaments WHERE id = ? LIMIT 1'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare open-scoreable load: ' . $con->error);
+    }
+    $stmt->bind_param('i', $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute open-scoreable load: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+    if ($row === null) {
+        throw new RuntimeException("Tournament {$tournamentId} not found.");
+    }
+
+    $status = (string) $row['lifecycle_status'];
+    $normalized = [
+        'id' => (int) $row['id'],
+        'name' => (string) $row['name'],
+        'source_id' => $row['source_id'] !== null ? (int) $row['source_id'] : null,
+        'format_overrides' => $row['format_overrides'] !== null ? (string) $row['format_overrides'] : null,
+        'lifecycle_status' => $status,
+    ];
+    if (!amiga_fixture_is_eligible_generated_tournament($normalized)) {
+        return ['changed' => false, 'lifecycle_status' => $status];
+    }
+    if (amiga_ops_tournament_rating_finalized($con, $tournamentId)) {
+        return ['changed' => false, 'lifecycle_status' => $status];
+    }
+    if (!in_array($status, ['draft', 'registration', 'ready'], true)) {
+        return ['changed' => false, 'lifecycle_status' => $status];
+    }
+
+    $summary = amiga_fixture_set_lifecycle_status($con, $tournamentId, 'running');
+
+    return [
+        'changed' => $summary['changed'],
+        'lifecycle_status' => $summary['lifecycle_status'],
+    ];
 }
 
 function amiga_fixture_require_active_entrant(mysqli $con, int $tournamentId, int $playerId): void
@@ -1346,6 +1383,71 @@ function amiga_fixture_is_eligible_generated_tournament(array $row): bool
     }
 
     return false;
+}
+
+/**
+ * Spectator Live visibility from format_overrides.live_visible (OW2/OW4).
+ * Missing key / non-JSON ⇒ visible (default on).
+ */
+function amiga_fixture_live_visible_from_overrides(?string $formatOverrides): bool
+{
+    $overrides = json_decode((string) ($formatOverrides ?? ''), true);
+    if (!is_array($overrides) || !array_key_exists('live_visible', $overrides)) {
+        return true;
+    }
+
+    return (int) $overrides['live_visible'] === 1;
+}
+
+/**
+ * @return array{tournament_id:int,live_visible:bool,changed:bool}
+ */
+function amiga_fixture_set_live_visible(mysqli $con, int $tournamentId, bool $visible): array
+{
+    $tournament = amiga_fixture_require_generated_tournament($con, $tournamentId);
+    if (amiga_ops_tournament_rating_finalized($con, $tournamentId)) {
+        throw new RuntimeException(
+            "Tournament {$tournamentId} is already official; Live visibility no longer applies."
+        );
+    }
+    $status = (string) $tournament['lifecycle_status'];
+    if (in_array($status, ['completed', 'archived', 'void'], true)) {
+        throw new RuntimeException(
+            "Tournament {$tournamentId} lifecycle_status is '{$status}'; "
+            . 'Hide/Show on Live is only for Open workspaces.'
+        );
+    }
+
+    $overrides = json_decode((string) ($tournament['format_overrides'] ?? ''), true);
+    if (!is_array($overrides)) {
+        $overrides = [
+            'generated_by' => 'site.public_html.amiga.ops.fixtures',
+        ];
+    }
+    $previous = amiga_fixture_live_visible_from_overrides($tournament['format_overrides']);
+    $overrides['live_visible'] = $visible ? 1 : 0;
+    $encoded = json_encode($overrides, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    if ($encoded === false) {
+        throw new RuntimeException('Could not encode tournament overrides.');
+    }
+
+    $stmt = $con->prepare(
+        'UPDATE tournaments SET format_overrides = ? WHERE id = ? AND source_id IS NULL'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare live_visible update: ' . $con->error);
+    }
+    $stmt->bind_param('si', $encoded, $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute live_visible update: ' . $stmt->error);
+    }
+    $stmt->close();
+
+    return [
+        'tournament_id' => $tournamentId,
+        'live_visible' => $visible,
+        'changed' => $previous !== $visible,
+    ];
 }
 
 /**
@@ -2319,6 +2421,7 @@ function amiga_fixture_create_kitchen_tournament(
         'generated_by' => 'site.public_html.amiga.ops.fixtures',
         'round_robin_legs' => $legs,
         'fixture_count' => count($fixtures),
+        'live_visible' => 1,
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     if ($overrides === false) {
         throw new RuntimeException('Could not encode tournament overrides.');
@@ -2332,22 +2435,25 @@ function amiga_fixture_create_kitchen_tournament(
         $hasCup = 0;
         $isCup = 0;
         $isWorldCupInt = $isWorldCup ? 1 : 0;
-        $lifecycleStatus = 'draft';
+        $lifecycleStatus = 'running';
+        $startedAt = gmdate('Y-m-d H:i:s');
         $stmt = $con->prepare(
             'INSERT INTO tournaments '
             . '(source_id, name, chrono, event_date, is_cup, country, equal_teams, player_count, '
-            . 'format_template_id, format_overrides, has_league, has_cup, is_world_cup, lifecycle_status) '
-            . 'VALUES (NULL, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            . 'format_template_id, format_overrides, has_league, has_cup, is_world_cup, '
+            . 'lifecycle_status, started_at) '
+            . 'VALUES (NULL, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         if ($stmt === false) {
             throw new RuntimeException('prepare tournament insert: ' . $con->error);
         }
         // Types: name s, event_date s, is_cup i, country s, equal_teams i,
         // player_count i, format_template_id i, format_overrides s, has_league i,
-        // has_cup i, is_world_cup i, lifecycle_status s.
-        // (Wrong 'ssisiisiisis' stored format_overrides as 0 — Recent leagues hid the row.)
+        // has_cup i, is_world_cup i, lifecycle_status s, started_at s.
+        // (Wrong 'ssisiisiisis' stored format_overrides as 0 — Recent tournaments hid the row.)
+        // OW3: create as running + started_at — Open and scoreable immediately (no Start).
         $stmt->bind_param(
-            'ssisiiisiiis',
+            'ssisiiisiiiss',
             $name,
             $eventDate,
             $isCup,
@@ -2359,7 +2465,8 @@ function amiga_fixture_create_kitchen_tournament(
             $hasLeague,
             $hasCup,
             $isWorldCupInt,
-            $lifecycleStatus
+            $lifecycleStatus,
+            $startedAt
         );
         if (!$stmt->execute()) {
             throw new RuntimeException('execute tournament insert: ' . $stmt->error);
@@ -2469,7 +2576,7 @@ function amiga_fixture_create_kitchen_tournament(
 
 /**
  * Repair kitchen leagues whose format_overrides were stored as "0" (bad bind_param types).
- * Restores JSON from stage config + fixture count so Recent leagues / eligibility work again.
+ * Restores JSON from stage config + fixture count so Recent tournaments / eligibility work again.
  *
  * @return int Number of tournaments repaired
  */
@@ -2528,6 +2635,7 @@ function amiga_fixture_repair_broken_kitchen_format_overrides(mysqli $con): int
             'generated_by' => $marker,
             'round_robin_legs' => $legs,
             'fixture_count' => $fixtureCount,
+            'live_visible' => 1,
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         if ($overrides === false) {
             continue;
@@ -3048,15 +3156,21 @@ if (!in_array($status, ['', 'scheduled', 'played', 'void'], true)) {
     $status = '';
 }
 $view = isset($_GET['view']) ? (string) $_GET['view'] : '';
+$view = amiga_fixture_ops_normalize_view($view);
 if (!in_array($view, AMIGA_FIXTURE_OPS_VIEWS, true)) {
     $view = '';
 }
 if ($tournamentId > 0) {
-    if ($view === '') {
-        $view = 'fixtures';
+    if ($view === '' || $view === 'setup') {
+        // Setup is create/Recent landing only — not an in-tournament peer tab.
+        $view = 'play';
     }
 } else {
     $view = 'setup';
+}
+$playStageId = isset($_GET['stage_id']) ? max(0, (int) $_GET['stage_id']) : 0;
+if (isset($_POST['stage_id'])) {
+    $playStageId = max(0, (int) $_POST['stage_id']);
 }
 $createDraft = amiga_fixture_create_draft_from_request();
 $createSelectedPlayers = [];
@@ -3083,6 +3197,8 @@ $tournamentRatingFinalized = false;
 $scheduledFixtureRemaining = 0;
 /** @var array<string, mixed>|null */
 $finishConfirmProposal = null;
+$tournamentLiveVisible = true;
+$canToggleLiveVisible = false;
 /** @var array<int, bool> */
 $fixtureResultRated = [];
 $stages = [];
@@ -3092,7 +3208,6 @@ $stagePlayersByStage = [];
 $stageOpsEligible = false;
 $playerSearchQuery = isset($_GET['player_search']) ? trim((string) $_GET['player_search']) : '';
 $playerSearchResults = [];
-$replacePlayerId = isset($_GET['replace_player_id']) ? max(0, (int) $_GET['replace_player_id']) : 0;
 $sessionFlash = amiga_fixture_ops_flash_consume();
 $flash = $sessionFlash !== null ? (string) $sessionFlash['message'] : null;
 $flashIsError = $sessionFlash !== null ? (bool) $sessionFlash['error'] : false;
@@ -3225,8 +3340,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $createDraft['legs'],
                 (bool) $createDraft['is_world_cup']
             );
-            amiga_fixture_ops_flash_set('Created league #' . $tournamentId . '. Fixtures are ready to preview.');
-            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'fixtures');
+            amiga_fixture_ops_flash_set(
+                'Created league #' . $tournamentId
+                . '. Open and ready for scores — enter results on the Play tab '
+                . '(on Live unless you Hide).'
+            );
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'play');
         } elseif ($action === 'assign_players') {
             $fixtureId = max(0, (int) ($_POST['fixture_id'] ?? 0));
             amiga_fixture_assign_players(
@@ -3266,7 +3385,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 . AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL
                 . ' on the Table tab when finished.'
             );
-            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'results', $postStatus);
+            $playRedirectExtra = $playStageId > 0 ? ['stage_id' => $playStageId] : [];
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'play', $postStatus, $playRedirectExtra);
         } elseif ($action === 'reprocess_tournament_derived') {
             $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
             if ($tournamentId <= 0) {
@@ -3282,7 +3402,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif ($summary['skip_reason'] === 'finalize_limbo') {
                 amiga_fixture_ops_flash_set(
                     'Finish is stuck mid-way (ratings flagged, catalog incomplete). '
-                    . 'Do not click Finish again — use Advanced → Reset incomplete finish, then Finish once.',
+                    . 'Do not click Finish again — use Technical / repair tools → Reset incomplete finish, then Finish once.',
                     true
                 );
             } elseif ($summary['skip_reason'] === 'lifecycle_not_running') {
@@ -3307,7 +3427,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 amiga_fixture_ops_flash_set(
                     'Ratings were committed but lifecycle could not be marked finished: '
                     . substr((string) $summary['skip_reason'], strlen('lifecycle_complete_failed: '))
-                    . ' Use Advanced lifecycle or CLI repair.',
+                    . ' Use Technical / repair tools or CLI repair.',
                     true
                 );
             } elseif ($summary['failed_game_id'] !== null) {
@@ -3371,7 +3491,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (amiga_ops_tournament_rating_finalized($con, $tournamentId)) {
                 throw new RuntimeException(
                     'Finishing order cannot be changed after ratings are already committed. '
-                    . 'If Finish stuck mid-way, use Advanced → Reset incomplete finish first.'
+                    . 'If Finish stuck mid-way, use Technical / repair tools → Reset incomplete finish first.'
                 );
             }
             if (amiga_fixture_count_played_fixtures($con, $tournamentId) < 1) {
@@ -3396,6 +3516,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 . '.'
             );
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
+        } elseif ($action === 'set_live_visible') {
+            $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
+            if ($tournamentId <= 0) {
+                throw new RuntimeException('Missing tournament id.');
+            }
+            $wantVisible = (($_POST['live_visible'] ?? '') === '1');
+            $summary = amiga_fixture_set_live_visible($con, $tournamentId, $wantVisible);
+            if ($summary['live_visible']) {
+                amiga_fixture_ops_flash_set(
+                    $summary['changed']
+                        ? 'Shown on Live — spectators see this league while it is in progress.'
+                        : 'Already shown on Live.'
+                );
+            } else {
+                amiga_fixture_ops_flash_set(
+                    $summary['changed']
+                        ? 'Hidden from Live — still Open here; Finish still works.'
+                        : 'Already hidden from Live.'
+                );
+            }
+            $liveVisView = trim((string) ($_POST['view'] ?? 'play'));
+            if (!in_array($liveVisView, AMIGA_FIXTURE_OPS_VIEWS, true) || $liveVisView === 'setup') {
+                $liveVisView = 'play';
+            }
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, $liveVisView, $postStatus);
         } elseif ($action === 'undo_fixture_result') {
             $fixtureId = max(0, (int) ($_POST['fixture_id'] ?? 0));
             if ($fixtureId <= 0) {
@@ -3406,7 +3551,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $tournamentId = max(0, (int) $_POST['tournament_id']);
             }
             amiga_fixture_ops_flash_set('Removed unprocessed result for fixture #' . $fixtureId . '. Match is scheduled again.');
-            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'results', $postStatus);
+            $playRedirectExtra = $playStageId > 0 ? ['stage_id' => $playStageId] : [];
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'play', $postStatus, $playRedirectExtra);
         } elseif ($action === 'set_lifecycle_status') {
             $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
             if ($tournamentId <= 0) {
@@ -3421,9 +3567,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     "Tournament #{$tournamentId} lifecycle: {$summary['previous_status']} → {$newStatus}."
                 );
             }
-            $lifecycleRedirectView = trim((string) ($_POST['view'] ?? 'setup'));
-            if (!in_array($lifecycleRedirectView, AMIGA_FIXTURE_OPS_VIEWS, true)) {
-                $lifecycleRedirectView = 'setup';
+            $lifecycleRedirectView = trim((string) ($_POST['view'] ?? 'advanced'));
+            if (!in_array($lifecycleRedirectView, AMIGA_FIXTURE_OPS_VIEWS, true) || $lifecycleRedirectView === 'setup') {
+                $lifecycleRedirectView = 'advanced';
             }
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, $lifecycleRedirectView, $postStatus);
         } elseif ($action === 'organizer_lifecycle_action') {
@@ -3434,21 +3580,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $lifecycleAction = trim((string) ($_POST['lifecycle_action'] ?? ''));
             $summary = amiga_fixture_apply_organizer_lifecycle_action($con, $tournamentId, $lifecycleAction);
             if (!$summary['changed']) {
-                if ($lifecycleAction === 'start_tournament') {
-                    amiga_fixture_ops_flash_set('Tournament is already in progress.');
-                } else {
-                    amiga_fixture_ops_flash_set('Tournament is already void.');
-                }
-            } elseif ($lifecycleAction === 'start_tournament') {
-                amiga_fixture_ops_flash_set('Tournament started — you can now enter results on the Results tab.');
+                amiga_fixture_ops_flash_set('Tournament is already Open and scoreable.');
             } else {
                 amiga_fixture_ops_flash_set(
-                    'League abandoned (void). It left Live and will not be made official.'
+                    'Tournament is now Open — enter results on the Play tab.'
                 );
             }
-            $lifecycleActionView = trim((string) ($_POST['view'] ?? 'setup'));
-            if (!in_array($lifecycleActionView, AMIGA_FIXTURE_OPS_VIEWS, true)) {
-                $lifecycleActionView = 'setup';
+            $lifecycleActionView = trim((string) ($_POST['view'] ?? 'advanced'));
+            if (!in_array($lifecycleActionView, AMIGA_FIXTURE_OPS_VIEWS, true) || $lifecycleActionView === 'setup') {
+                $lifecycleActionView = 'advanced';
             }
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, $lifecycleActionView, $postStatus);
         } elseif ($action === 'reset_incomplete_finalize') {
@@ -3483,43 +3623,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 . ' Use stage placement / fixture assignment separately when needed.'
             );
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'players', $postStatus);
-        } elseif ($action === 'withdraw_entrant') {
+        } elseif ($action === 'withdraw_entrant' || $action === 'replace_entrant') {
+            // OW11: withdraw/replace abandoned from organizer browser; CLI may still repair.
             $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
-            if ($tournamentId <= 0) {
-                throw new RuntimeException('Missing tournament id.');
-            }
-            $playerId = max(0, (int) ($_POST['player_id'] ?? 0));
-            if ($playerId <= 0) {
-                throw new RuntimeException('Missing player id.');
-            }
-            $noteRaw = trim((string) ($_POST['note'] ?? ''));
-            $note = $noteRaw === '' ? null : $noteRaw;
-            $summary = amiga_fixture_withdraw_entrant($con, $tournamentId, $playerId, $note);
-            amiga_fixture_ops_flash_set(
-                'Withdrew player #' . $summary['player_id'] . ' ('
-                . $summary['fixture_slots_cleared'] . ' fixture slot(s) cleared, '
-                . $summary['stage_player_rows_removed'] . ' stage-player row(s) removed).'
+            throw new RuntimeException(
+                'Withdraw and replace are not available in the organizer. '
+                . 'Leave unplayed matches blank (Finish voids leftovers), or use CLI repair tools.'
             );
-            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'players', $postStatus);
-        } elseif ($action === 'replace_entrant') {
-            $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
-            if ($tournamentId <= 0) {
-                throw new RuntimeException('Missing tournament id.');
-            }
-            $oldPlayerId = max(0, (int) ($_POST['old_player_id'] ?? 0));
-            $newPlayerId = max(0, (int) ($_POST['new_player_id'] ?? 0));
-            if ($oldPlayerId <= 0 || $newPlayerId <= 0) {
-                throw new RuntimeException('Old and new player ids are required.');
-            }
-            $noteRaw = trim((string) ($_POST['note'] ?? ''));
-            $note = $noteRaw === '' ? null : $noteRaw;
-            $summary = amiga_fixture_replace_entrant($con, $tournamentId, $oldPlayerId, $newPlayerId, $note);
-            amiga_fixture_ops_flash_set(
-                'Replaced player #' . $summary['old_player_id'] . ' with #' . $summary['new_player_id']
-                . ' (entrant #' . $summary['new_entrant_id'] . ', seed '
-                . ($summary['seed_no'] !== null ? (string) $summary['seed_no'] : 'none') . ').'
-            );
-            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'players', $postStatus);
         } elseif ($action === 'place_stage_entrant') {
             $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
             if ($tournamentId <= 0) {
@@ -3568,20 +3678,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_POST['tournament_id'])) {
                 $tournamentId = max(0, (int) $_POST['tournament_id']);
             }
-            $errorView = 'fixtures';
+            $errorView = 'play';
             if (in_array($action, ['add_entrant', 'withdraw_entrant', 'replace_entrant'], true)) {
                 $errorView = 'players';
             } elseif (in_array($action, ['record_result', 'undo_fixture_result'], true)) {
-                $errorView = 'results';
+                $errorView = 'play';
             } elseif ($action === 'reprocess_tournament_derived') {
                 $errorView = 'table';
-            } elseif ($action === 'reset_incomplete_finalize' || $action === 'place_stage_entrant') {
+            } elseif ($action === 'reset_incomplete_finalize' || $action === 'place_stage_entrant'
+                || $action === 'set_lifecycle_status' || $action === 'organizer_lifecycle_action') {
                 $errorView = 'advanced';
-            } elseif ($action === 'set_lifecycle_status' || $action === 'organizer_lifecycle_action') {
-                $errorView = 'setup';
+            } elseif ($action === 'set_live_visible') {
+                $postedView = isset($_POST['view']) ? amiga_fixture_ops_normalize_view((string) $_POST['view']) : 'play';
+                $errorView = in_array($postedView, AMIGA_FIXTURE_OPS_VIEWS, true) ? $postedView : 'play';
             }
             amiga_fixture_ops_flash_set($e->getMessage(), true);
-            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, $errorView, $postStatus);
+            $errorExtra = ($errorView === 'play' && $playStageId > 0) ? ['stage_id' => $playStageId] : [];
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, $errorView, $postStatus, $errorExtra);
         }
     }
 }
@@ -3590,6 +3703,7 @@ if ($tournamentId <= 0) {
     $createSelectedPlayers = amiga_fixture_load_player_summaries($con, $createDraft['player_ids']);
 }
 
+// OW6: Recent tournaments = Open workspaces only (incl. Hidden — live_visible does not filter here).
 $sql = "
     SELECT t.id, t.name, t.event_date,
            COUNT(DISTINCT s.id) AS stage_count,
@@ -3603,6 +3717,8 @@ $sql = "
         COALESCE(t.format_overrides, '') LIKE '%scripts.amiga.tournament_builder%'
         OR COALESCE(t.format_overrides, '') LIKE '%site.public_html.amiga.ops.fixtures%'
       )
+      AND COALESCE(t.rating_finalized, 0) = 0
+      AND t.lifecycle_status IN ('draft', 'registration', 'ready', 'running')
     GROUP BY t.id, t.name, t.event_date
     ORDER BY t.id DESC
     LIMIT 50";
@@ -3628,10 +3744,43 @@ if ($tournamentId > 0) {
 
     if ($tournament !== null) {
         $lifecycle = amiga_fixture_load_lifecycle($con, $tournamentId);
+        if ($lifecycle !== null
+            && $lifecycle['source_id'] === null
+            && in_array($lifecycle['lifecycle_status'], ['draft', 'registration', 'ready'], true)
+        ) {
+            // OW3 heal: leftover pre-Start kitchens become Open/scoreable on open.
+            amiga_fixture_ensure_open_scoreable($con, $tournamentId);
+            $lifecycle = amiga_fixture_load_lifecycle($con, $tournamentId);
+            $stmt = $con->prepare(
+                'SELECT id, name, event_date, source_id, format_overrides, lifecycle_status, started_at, completed_at, '
+                . 'has_league, has_cup, is_world_cup '
+                . 'FROM tournaments WHERE id = ?'
+            );
+            if ($stmt !== false) {
+                $stmt->bind_param('i', $tournamentId);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                $reloaded = $res ? $res->fetch_assoc() : null;
+                $stmt->close();
+                if ($reloaded !== null) {
+                    $tournament = $reloaded;
+                }
+            }
+        }
         if ($lifecycle !== null) {
             $lifecycleTargets = amiga_fixture_browser_allowed_lifecycle_targets($con, $lifecycle);
             $organizerLifecycleUi = amiga_fixture_organizer_lifecycle_ui($con, $lifecycle);
         }
+        $tournamentLiveVisible = amiga_fixture_live_visible_from_overrides(
+            $tournament['format_overrides'] !== null ? (string) $tournament['format_overrides'] : null
+        );
+        $canToggleLiveVisible = $organizerLifecycleUi !== null
+            && empty($organizerLifecycleUi['is_imported'])
+            && empty($organizerLifecycleUi['is_read_only']);
+    } else {
+        // Bad tournament_id → bounce to create/Recent landing.
+        amiga_fixture_ops_flash_set('That tournament could not be found.', true);
+        amiga_fixture_ops_redirect($self, $key, $pwdValue, 0, 'setup');
     }
 
     $sql = "
@@ -3759,11 +3908,36 @@ if (
 }
 
 mysqli_close($con);
-$fixtureScheduleGroups = amiga_fixture_group_fixtures_for_schedule($fixtures);
-$fixtureResultsPartition = amiga_fixture_partition_for_results($fixtures);
-$fixtureResultsEntryGroups = amiga_fixture_group_fixtures_for_schedule($fixtureResultsPartition['playable']);
-$fixtureResultsPlayedGroups = amiga_fixture_group_fixtures_for_schedule($fixtureResultsPartition['played']);
-$resultsTabUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'results', $status);
+
+// OW9: stage-scoped play surface — default to first stage when unset/invalid.
+$playStage = null;
+if ($stages !== []) {
+    $playStageIds = [];
+    foreach ($stages as $stageRow) {
+        $playStageIds[] = (int) $stageRow['id'];
+    }
+    if ($playStageId <= 0 || !in_array($playStageId, $playStageIds, true)) {
+        $playStageId = (int) $stages[0]['id'];
+    }
+    foreach ($stages as $stageRow) {
+        if ((int) $stageRow['id'] === $playStageId) {
+            $playStage = $stageRow;
+            break;
+        }
+    }
+}
+
+$playFixtures = [];
+if ($playStageId > 0) {
+    foreach ($fixtures as $fixtureRow) {
+        if ((int) ($fixtureRow['stage_id'] ?? 0) === $playStageId) {
+            $playFixtures[] = $fixtureRow;
+        }
+    }
+}
+$playPartition = amiga_fixture_partition_for_results($playFixtures);
+$playEntryGroups = amiga_fixture_group_fixtures_for_schedule($playPartition['playable']);
+$playPlayedGroups = amiga_fixture_group_fixtures_for_schedule($playPartition['played']);
 $createMatchHint = amiga_fixture_expected_round_robin_fixtures(
     count($createDraft['player_ids']),
     $createDraft['legs']
@@ -3773,7 +3947,7 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
 <header class="k2-hub-page-intro-head" style="padding:0 1.25rem">
   <h1 class="k2-hub-intro" style="margin:0 0 0.5rem">Tournament organizer</h1>
   <p class="k2-hub-intro" style="margin:0 0 1rem;color:var(--k2-text-secondary)">
-    Internal league workflow: create a league, choose players, preview fixtures and table, start the tournament, then enter results.
+    Internal league workflow: create a league, enter results, confirm finishing order, then Finish and make official.
   </p>
   <nav class="k2-player-nav k2-nav-pills k2-amiga-tournament-nav" aria-label="Live tournament tools" style="margin-bottom:1rem">
     <div class="k2-player-nav__links">
@@ -3794,26 +3968,57 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
     <?php if ($organizerLifecycleUi !== null) { ?>
       <p class="k2-amiga-organizer-lifecycle__header-status">
         <span class="k2-amiga-tournament-badge k2-amiga-tournament-badge--lifecycle k2-amiga-tournament-badge--<?php echo k2_h($organizerLifecycleUi['badge_modifier']); ?>"><?php echo k2_h($organizerLifecycleUi['label']); ?></span>
+        <?php if (!$tournamentLiveVisible && $canToggleLiveVisible) { ?>
+          <span class="k2-amiga-tournament-badge k2-amiga-tournament-badge--lifecycle k2-amiga-tournament-badge--default">Hidden from Live</span>
+        <?php } ?>
       </p>
+    <?php } ?>
+    <?php if ($canToggleLiveVisible) { ?>
+      <div class="k2-amiga-organizer-lifecycle__actions" style="margin-top:.5rem">
+        <form class="k2-amiga-organizer-lifecycle__action-form" method="post" action="<?php echo $self; ?>">
+          <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+          <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+          <input type="hidden" name="action" value="set_live_visible">
+          <input type="hidden" name="live_visible" value="<?php echo $tournamentLiveVisible ? '0' : '1'; ?>">
+          <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+          <input type="hidden" name="view" value="<?php echo htmlspecialchars($view, ENT_QUOTES, 'UTF-8'); ?>">
+          <?php if ($status !== '') { ?>
+            <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+          <?php } ?>
+          <button type="submit" class="k2-amiga-organizer-lifecycle__action k2-amiga-organizer-lifecycle__action--secondary"><?php
+            echo $tournamentLiveVisible ? 'Hide from Live' : 'Show on Live';
+          ?></button>
+        </form>
+      </div>
     <?php } ?>
   </div>
   <nav class="k2-amiga-organizer-tabs" aria-label="Tournament views">
     <?php
+    // Peer happy path: Players · Play · Table. Setup = create/Recent landing only.
     $tabLabels = [
-        'setup' => 'Setup',
         'players' => 'Players',
-        'fixtures' => 'Fixtures',
+        'play' => 'Play',
         'table' => 'Table',
-        'results' => 'Results',
-        'advanced' => 'Advanced',
     ];
     foreach ($tabLabels as $tabView => $tabLabel) {
-        $tabUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, $tabView, $status);
+        $tabExtra = ($tabView === 'play' && $playStageId > 0) ? ['stage_id' => $playStageId] : [];
+        $tabUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, $tabView, $status, $tabExtra);
         $isActive = $view === $tabView;
         ?>
     <a href="<?php echo htmlspecialchars($tabUrl, ENT_QUOTES, 'UTF-8'); ?>" class="k2-amiga-organizer-tabs__tab<?php echo $isActive ? ' is-active' : ''; ?>"<?php echo $isActive ? ' aria-current="page"' : ''; ?>><?php echo htmlspecialchars($tabLabel, ENT_QUOTES, 'UTF-8'); ?></a>
     <?php } ?>
   </nav>
+  <?php
+    $advancedToolsUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'advanced', $status);
+    ?>
+  <p class="k2-amiga-live-ops__muted k2-amiga-organizer-tabs__technical" style="margin:.35rem 0 0;font-size:.9em">
+    <?php if ($view === 'advanced') { ?>
+      <span>Technical / repair tools</span>
+      · <a href="<?php echo htmlspecialchars(amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'play', $status, $playStageId > 0 ? ['stage_id' => $playStageId] : []), ENT_QUOTES, 'UTF-8'); ?>">Back to Play</a>
+    <?php } else { ?>
+      <a href="<?php echo htmlspecialchars($advancedToolsUrl, ENT_QUOTES, 'UTF-8'); ?>">Technical / repair tools</a>
+    <?php } ?>
+  </p>
 <?php } ?>
 
 <div class="k2-amiga-organizer-panel">
@@ -3938,59 +4143,6 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
       </div>
     </form>
   </div>
-  <?php } elseif ($tournament === null) { ?>
-    <p class="k2-amiga-live-ops__muted">That tournament could not be found. <a href="<?php echo htmlspecialchars(amiga_fixture_ops_url($self, $key, $pwdValue, 0, 'setup'), ENT_QUOTES, 'UTF-8'); ?>">Create or open a league</a> from the list below.</p>
-  <?php } elseif ($lifecycle !== null && $organizerLifecycleUi !== null) { ?>
-    <div class="k2-amiga-live-ops__section k2-amiga-organizer-lifecycle">
-      <h3>Tournament status</h3>
-      <p class="k2-amiga-organizer-lifecycle__summary">
-        <span class="k2-amiga-tournament-badge k2-amiga-tournament-badge--lifecycle k2-amiga-tournament-badge--<?php echo k2_h($organizerLifecycleUi['badge_modifier']); ?>"><?php echo k2_h($organizerLifecycleUi['label']); ?></span>
-      </p>
-      <?php if ($organizerLifecycleUi['raw_status'] === 'running') { ?>
-        <p class="k2-amiga-live-ops__muted">This league is <strong>public on the Live hub</strong> while in progress —
-          <a href="<?php echo k2_h(amiga_live_tournament_url($tournamentId)); ?>">view public page</a>.</p>
-      <?php } ?>
-      <dl class="k2-amiga-organizer-lifecycle__meta">
-        <dt>Started</dt>
-        <dd><?php echo $lifecycle['started_at'] !== null ? k2_h($lifecycle['started_at']) : '<span class="k2-amiga-live-ops__muted">not set</span>'; ?></dd>
-        <dt>Completed</dt>
-        <dd><?php echo $lifecycle['completed_at'] !== null ? k2_h($lifecycle['completed_at']) : '<span class="k2-amiga-live-ops__muted">not set</span>'; ?></dd>
-        <dt>Internal status</dt>
-        <dd><span class="k2-amiga-live-ops__muted"><?php echo k2_h($organizerLifecycleUi['raw_status']); ?></span></dd>
-      </dl>
-      <?php if ($organizerLifecycleUi['is_imported']) { ?>
-        <p class="k2-amiga-live-ops__muted">Historical import — lifecycle changes are CLI-only.</p>
-      <?php } elseif ($organizerLifecycleUi['raw_status'] === 'void') { ?>
-        <p class="k2-amiga-live-ops__muted">This tournament was voided. No further lifecycle actions are available in the browser.</p>
-      <?php } elseif ($organizerLifecycleUi['is_read_only']) { ?>
-        <p class="k2-amiga-live-ops__muted">This tournament is finished. No further lifecycle actions are available in the browser.</p>
-      <?php } else { ?>
-        <div class="k2-amiga-organizer-lifecycle__actions">
-          <?php if ($organizerLifecycleUi['can_start']) { ?>
-            <form class="k2-amiga-organizer-lifecycle__action-form" method="post" action="<?php echo $self; ?>">
-              <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
-              <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
-              <input type="hidden" name="action" value="organizer_lifecycle_action">
-              <input type="hidden" name="lifecycle_action" value="start_tournament">
-              <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
-              <input type="hidden" name="view" value="setup">
-              <?php if ($status !== '') { ?>
-                <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
-              <?php } ?>
-              <button type="submit" class="k2-amiga-organizer-lifecycle__action k2-amiga-organizer-lifecycle__action--primary">Start tournament</button>
-            </form>
-          <?php } ?>
-        </div>
-        <?php if ($organizerLifecycleUi['raw_status'] === 'running') { ?>
-          <p class="k2-amiga-organizer-lifecycle__hint">Next: enter scores on the <strong>Results</strong> tab. When the table looks right, use <strong><?php echo k2_h(AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL); ?></strong> on the Table tab.</p>
-        <?php } elseif ($organizerLifecycleUi['finish_hint'] !== null) { ?>
-          <p class="k2-amiga-organizer-lifecycle__hint"><?php echo k2_h($organizerLifecycleUi['finish_hint']); ?></p>
-        <?php } ?>
-      <?php } ?>
-      <?php if ($organizerLifecycleUi['raw_status'] !== 'running') { ?>
-        <p class="k2-amiga-live-ops__muted">Result entry unlocks after you start the tournament.</p>
-      <?php } ?>
-    </div>
   <?php } ?>
 <?php } ?>
 
@@ -4004,19 +4156,10 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
               $registeredPlayerIds[$entrantRow['player_id']] = true;
           }
       }
-      $replaceEntrant = null;
-      if ($replacePlayerId > 0) {
-          foreach ($entrants as $entrantRow) {
-              if ($entrantRow['player_id'] === $replacePlayerId) {
-                  $replaceEntrant = $entrantRow;
-                  break;
-              }
-          }
-      }
       ?>
   <div class="k2-amiga-live-ops__section">
     <h3>Tournament entrants</h3>
-    <p class="k2-amiga-live-ops__muted">Generated tournament only. Add, withdraw, or replace existing players with the same guardrails as the CLI.</p>
+    <p class="k2-amiga-live-ops__muted">Roster for this Open workspace. Unplayed matches stay blank — Finish voids leftovers. Withdraw/replace are not part of the organizer (CLI repair only).</p>
     <?php if ($entrants === []) { ?>
       <p class="k2-amiga-live-ops__muted">No entrants registered yet.</p>
     <?php } else { ?>
@@ -4028,7 +4171,6 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
             <th>Seed</th>
             <th>Status</th>
             <th class="k2-table-cell--left">Note</th>
-            <th class="k2-table-cell--left">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -4038,37 +4180,6 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
             <td><?php echo $entrantRow['seed_no'] !== null ? (int) $entrantRow['seed_no'] : '<span class="k2-amiga-live-ops__muted">—</span>'; ?></td>
             <td><span class="k2-amiga-tournament-badge"><?php echo k2_h($entrantRow['status']); ?></span></td>
             <td class="k2-table-cell--left"><?php echo $entrantRow['note'] !== null && $entrantRow['note'] !== '' ? k2_h($entrantRow['note']) : '<span class="k2-amiga-live-ops__muted">—</span>'; ?></td>
-            <td class="k2-table-cell--left">
-              <?php if ($entrantRow['status'] === 'registered') { ?>
-                <form class="k2-amiga-live-ops__inline-form" method="post" action="<?php echo $self; ?>" style="margin-bottom:.35rem">
-                  <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
-                  <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
-                  <input type="hidden" name="action" value="withdraw_entrant">
-                  <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
-                  <input type="hidden" name="view" value="players">
-                  <?php if ($status !== '') { ?>
-                    <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
-                  <?php } ?>
-                  <input type="hidden" name="player_id" value="<?php echo (int) $entrantRow['player_id']; ?>">
-                  <input type="text" name="note" maxlength="120" placeholder="note (optional)" aria-label="Withdrawal note for player <?php echo (int) $entrantRow['player_id']; ?>">
-                  <button type="submit">Withdraw</button>
-                </form>
-                <?php
-                $replaceUrl = amiga_fixture_ops_url(
-                    $self,
-                    $key,
-                    $pwdValue,
-                    $tournamentId,
-                    'players',
-                    $status,
-                    ['replace_player_id' => (int) $entrantRow['player_id']]
-                );
-                ?>
-                <a href="<?php echo htmlspecialchars($replaceUrl, ENT_QUOTES, 'UTF-8'); ?>">Replace…</a>
-              <?php } else { ?>
-                <span class="k2-amiga-live-ops__muted">—</span>
-              <?php } ?>
-            </td>
           </tr>
         <?php } ?>
         </tbody>
@@ -4076,12 +4187,9 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
       </div>
     <?php } ?>
 
-    <h4 style="margin-top:1.25rem">Search existing players</h4>
-    <?php if ($replaceEntrant !== null) { ?>
-      <p class="k2-amiga-live-ops__muted">Replacing <?php echo k2_h($replaceEntrant['player_name']); ?> (#<?php echo (int) $replaceEntrant['player_id']; ?>). Pick a replacement below.</p>
-    <?php } elseif (!$canRegisterEntrants && $replacePlayerId <= 0) { ?>
-      <p class="k2-amiga-live-ops__muted">New entrant registration requires lifecycle draft, registration, or ready.</p>
-    <?php } ?>
+    <?php if ($canRegisterEntrants) { ?>
+    <h4 style="margin-top:1.25rem">Add entrant</h4>
+    <p class="k2-amiga-live-ops__muted">Only while the kitchen is still pre-Open leftover (draft/registration/ready). Normal create already builds the roster.</p>
     <form class="k2-amiga-live-ops__inline-form" method="get" action="<?php echo $self; ?>">
       <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
@@ -4090,18 +4198,10 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
       <?php if ($status !== '') { ?>
         <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
       <?php } ?>
-      <?php if ($replacePlayerId > 0) { ?>
-        <input type="hidden" name="replace_player_id" value="<?php echo (int) $replacePlayerId; ?>">
-      <?php } ?>
       <label>Player id or name
         <input type="search" name="player_search" value="<?php echo k2_h($playerSearchQuery); ?>" placeholder="id or name fragment" required>
       </label>
       <button type="submit">Search</button>
-      <?php if ($replacePlayerId > 0) {
-          $cancelReplaceUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'players', $status);
-          ?>
-        <a href="<?php echo htmlspecialchars($cancelReplaceUrl, ENT_QUOTES, 'UTF-8'); ?>">Cancel replace</a>
-      <?php } ?>
     </form>
 
     <?php if ($playerSearchQuery !== '') { ?>
@@ -4121,46 +4221,23 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
               <td class="k2-table-cell--left"><?php echo k2_h($playerRow['name']); ?> <span class="k2-amiga-live-ops__muted">#<?php echo (int) $playerRow['id']; ?></span></td>
               <td class="k2-table-cell--left"><?php echo $playerRow['country'] !== null && $playerRow['country'] !== '' ? k2_h($playerRow['country']) : '<span class="k2-amiga-live-ops__muted">—</span>'; ?></td>
               <td class="k2-table-cell--left">
-                <?php if ($replaceEntrant !== null && $playerRow['id'] !== $replaceEntrant['player_id']) { ?>
-                  <?php if ($isRegisteredEntrant) { ?>
-                    <span class="k2-amiga-live-ops__muted">already an entrant</span>
-                  <?php } else { ?>
-                    <form class="k2-amiga-live-ops__inline-form" method="post" action="<?php echo $self; ?>">
-                      <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
-                      <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
-                      <input type="hidden" name="action" value="replace_entrant">
-                      <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
-                      <input type="hidden" name="view" value="players">
-                      <?php if ($status !== '') { ?>
-                        <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
-                      <?php } ?>
-                      <input type="hidden" name="old_player_id" value="<?php echo (int) $replaceEntrant['player_id']; ?>">
-                      <input type="hidden" name="new_player_id" value="<?php echo (int) $playerRow['id']; ?>">
-                      <input type="text" name="note" maxlength="120" placeholder="note (optional)" aria-label="Replacement note">
-                      <button type="submit">Replace with this player</button>
-                    </form>
-                  <?php } ?>
-                <?php } elseif ($replaceEntrant === null && $canRegisterEntrants) { ?>
-                  <?php if ($isRegisteredEntrant) { ?>
-                    <span class="k2-amiga-live-ops__muted">already an entrant</span>
-                  <?php } else { ?>
-                    <form class="k2-amiga-live-ops__inline-form" method="post" action="<?php echo $self; ?>">
-                      <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
-                      <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
-                      <input type="hidden" name="action" value="add_entrant">
-                      <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
-                      <input type="hidden" name="view" value="players">
-                      <?php if ($status !== '') { ?>
-                        <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
-                      <?php } ?>
-                      <input type="hidden" name="player_id" value="<?php echo (int) $playerRow['id']; ?>">
-                      <input type="number" name="seed_no" min="1" placeholder="seed" aria-label="Seed for player <?php echo (int) $playerRow['id']; ?>">
-                      <input type="text" name="note" maxlength="120" placeholder="note (optional)" aria-label="Registration note for player <?php echo (int) $playerRow['id']; ?>">
-                      <button type="submit">Add entrant</button>
-                    </form>
-                  <?php } ?>
+                <?php if ($isRegisteredEntrant) { ?>
+                  <span class="k2-amiga-live-ops__muted">already an entrant</span>
                 <?php } else { ?>
-                  <span class="k2-amiga-live-ops__muted">—</span>
+                  <form class="k2-amiga-live-ops__inline-form" method="post" action="<?php echo $self; ?>">
+                    <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+                    <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+                    <input type="hidden" name="action" value="add_entrant">
+                    <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+                    <input type="hidden" name="view" value="players">
+                    <?php if ($status !== '') { ?>
+                      <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+                    <?php } ?>
+                    <input type="hidden" name="player_id" value="<?php echo (int) $playerRow['id']; ?>">
+                    <input type="number" name="seed_no" min="1" placeholder="seed" aria-label="Seed for player <?php echo (int) $playerRow['id']; ?>">
+                    <input type="text" name="note" maxlength="120" placeholder="note (optional)" aria-label="Registration note for player <?php echo (int) $playerRow['id']; ?>">
+                    <button type="submit">Add entrant</button>
+                  </form>
                 <?php } ?>
               </td>
             </tr>
@@ -4169,6 +4246,7 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
         </table>
         </div>
       <?php } ?>
+    <?php } ?>
     <?php } ?>
   </div>
   <?php } elseif ($tournament !== null && $tournament['source_id'] !== null) { ?>
@@ -4179,8 +4257,8 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
 <?php if ($view === 'advanced' && $tournamentId > 0 && $tournament !== null) { ?>
   <?php if ($lifecycle !== null) { ?>
   <div class="k2-amiga-live-ops__section k2-amiga-organizer-lifecycle-advanced">
-    <h3>Lifecycle (advanced)</h3>
-    <p class="k2-amiga-live-ops__muted">Internal status transitions for operators. Prefer <strong>Start tournament</strong> on Setup and <strong><?php echo k2_h(AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL); ?></strong> on the Table tab for normal league nights.</p>
+    <h3>Technical / repair</h3>
+    <p class="k2-amiga-live-ops__muted">Operator tools only — not needed for a normal Open → Play → Finish night. Prefer <strong>Hide from Live</strong> in the header and <strong><?php echo k2_h(AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL); ?></strong> on Table. Start and Abandon/void are retired from the happy path.</p>
     <dl class="k2-amiga-organizer-lifecycle__meta">
       <dt>Internal status</dt>
       <dd><span class="k2-amiga-live-ops__muted"><?php echo k2_h($lifecycle['lifecycle_status']); ?></span></dd>
@@ -4239,29 +4317,6 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
             <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
           <?php } ?>
           <button type="submit" class="k2-amiga-organizer-lifecycle__action k2-amiga-organizer-lifecycle__action--secondary">Reset incomplete finish</button>
-        </form>
-      </div>
-    <?php } ?>
-    <?php if ($organizerLifecycleUi !== null && !empty($organizerLifecycleUi['can_void'])) { ?>
-      <div class="k2-amiga-organizer-lifecycle-advanced__void" style="margin-top:1.25rem">
-        <h4>Abandon league (void)</h4>
-        <p class="k2-amiga-live-ops__muted">
-          Marks this league as abandoned: it leaves the Live hub and will <strong>not</strong> be made official
-          (no ratings, no historical catalog). Use this for a practice night you are throwing away.
-          It does not delete the row from the database — full cleanup comes later.
-        </p>
-        <form class="k2-amiga-organizer-lifecycle__action-form" method="post" action="<?php echo $self; ?>"
-              onsubmit="return confirm('Abandon this league? It will leave Live and cannot be made official.');">
-          <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
-          <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
-          <input type="hidden" name="action" value="organizer_lifecycle_action">
-          <input type="hidden" name="lifecycle_action" value="void_tournament">
-          <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
-          <input type="hidden" name="view" value="advanced">
-          <?php if ($status !== '') { ?>
-            <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
-          <?php } ?>
-          <button type="submit" class="k2-amiga-organizer-lifecycle__action k2-amiga-organizer-lifecycle__action--secondary">Abandon league (void)</button>
         </form>
       </div>
     <?php } ?>
@@ -4460,56 +4515,155 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
   <?php } ?>
 <?php } ?>
 
-<?php if ($view === 'fixtures' && $tournamentId > 0 && $tournament !== null) { ?>
-  <div class="k2-amiga-live-ops__section k2-amiga-organizer-schedule">
-    <h2>Match schedule</h2>
-    <p class="k2-amiga-live-ops__muted"><?php echo count($fixtures); ?> match<?php echo count($fixtures) === 1 ? '' : 'es'; ?><?php echo $status !== '' ? ' (' . htmlspecialchars($status, ENT_QUOTES, 'UTF-8') . ' filter active — change on Advanced)' : ''; ?>. Technical ids and assignment controls are on the Advanced tab.<?php
-      if (
-          $lifecycle !== null
-          && $lifecycle['lifecycle_status'] === 'running'
-          && $fixtureResultsPartition['playable'] !== []
-      ) {
-          echo ' <a href="' . htmlspecialchars($resultsTabUrl, ENT_QUOTES, 'UTF-8') . '">Enter scores on the Results tab</a>.';
-      }
-    ?></p>
-    <?php if ($fixtures === []) { ?>
-      <p class="k2-amiga-live-ops__muted">No fixtures for this tournament yet.</p>
+<?php if ($view === 'play' && $tournamentId > 0 && $tournament !== null) {
+    $lifecycleRunning = $lifecycle !== null && $lifecycle['lifecycle_status'] === 'running';
+    $tableTabUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'table', $status);
+    ?>
+  <div class="k2-amiga-live-ops__section k2-amiga-organizer-play">
+    <h2>Play</h2>
+    <?php if ($tournamentUnratedGameCount > 0 && $lifecycleRunning) { ?>
+      <p class="k2-amiga-organizer-results__hint k2-amiga-organizer-table__preview-note--warn">
+        When the league is finished, confirm finishing order then
+        <strong><?php echo k2_h(AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL); ?></strong> on the
+        <a href="<?php echo htmlspecialchars($tableTabUrl, ENT_QUOTES, 'UTF-8'); ?>">Table tab</a>
+        (<?php echo (int) $tournamentUnratedGameCount; ?> result<?php echo $tournamentUnratedGameCount === 1 ? '' : 's'; ?> ready).
+      </p>
+    <?php } ?>
+    <?php if ($stages === []) { ?>
+      <p class="k2-amiga-live-ops__muted">No stages defined for this tournament yet.</p>
     <?php } else { ?>
-      <?php foreach ($fixtureScheduleGroups as $scheduleGroup) { ?>
-        <section class="k2-amiga-organizer-schedule__group">
-          <h3 class="k2-amiga-organizer-schedule__heading"><?php echo k2_h($scheduleGroup['label']); ?></h3>
-          <ul class="k2-amiga-organizer-schedule__matches">
-          <?php foreach ($scheduleGroup['fixtures'] as $row) {
-              $statusModifier = amiga_fixture_organizer_fixture_status_modifier((string) $row['status']);
-              $playerA = (string) ($row['player_a_name'] ?? 'TBD');
-              $playerB = (string) ($row['player_b_name'] ?? 'TBD');
+      <?php if (count($stages) > 1) { ?>
+        <nav class="k2-amiga-organizer-play__stages k2-nav-pills" aria-label="Tournament stages" style="margin-bottom:1rem">
+          <div class="k2-player-nav__links">
+          <?php foreach ($stages as $stageRow) {
+              $sid = (int) $stageRow['id'];
+              $stageUrl = amiga_fixture_ops_url(
+                  $self,
+                  $key,
+                  $pwdValue,
+                  $tournamentId,
+                  'play',
+                  $status,
+                  ['stage_id' => $sid]
+              );
+              $stageActive = $sid === $playStageId;
               ?>
-            <li class="k2-amiga-organizer-schedule__match">
-              <div class="k2-amiga-organizer-schedule__match-main">
-                <span class="k2-amiga-organizer-schedule__matchup"><?php echo k2_h($playerA); ?> <span class="k2-amiga-organizer-schedule__vs">vs</span> <?php echo k2_h($playerB); ?></span>
-                <?php if (amiga_running_tournament_fixture_has_result($row)) { ?>
-                  <span class="k2-amiga-organizer-schedule__score"><?php echo (int) $row['goals_a']; ?>–<?php echo (int) $row['goals_b']; ?></span>
-                <?php } ?>
-                <span class="k2-amiga-organizer-schedule__status k2-amiga-organizer-schedule__status--<?php echo k2_h($statusModifier); ?>"><?php echo k2_h(amiga_fixture_organizer_fixture_status_label((string) $row['status'])); ?></span>
-              </div>
-              <?php if (
-                  $row['status'] === 'scheduled'
-                  && $row['player_a_id'] !== null
-                  && $row['player_b_id'] !== null
-                  && $lifecycle !== null
-                  && $lifecycle['lifecycle_status'] !== 'running'
-              ) { ?>
-                <p class="k2-amiga-organizer-schedule__hint k2-amiga-live-ops__muted">Start the tournament on Setup to enter results.</p>
-              <?php } elseif (
-                  $row['status'] === 'scheduled'
-                  && ($row['player_a_id'] === null || $row['player_b_id'] === null)
-              ) { ?>
-                <p class="k2-amiga-organizer-schedule__hint k2-amiga-live-ops__muted">Players not assigned — use Advanced to assign slots.</p>
-              <?php } ?>
-            </li>
+            <a href="<?php echo htmlspecialchars($stageUrl, ENT_QUOTES, 'UTF-8'); ?>"
+               class="k2-player-nav__btn<?php echo $stageActive ? ' is-active' : ''; ?>"
+               <?php echo $stageActive ? ' aria-current="page"' : ''; ?>><?php echo k2_h((string) $stageRow['name']); ?></a>
           <?php } ?>
-          </ul>
-        </section>
+          </div>
+        </nav>
+      <?php } elseif ($playStage !== null) { ?>
+        <p class="k2-amiga-live-ops__muted" style="margin-bottom:0.75rem"><?php echo k2_h((string) $playStage['name']); ?></p>
+      <?php } ?>
+
+      <p class="k2-amiga-live-ops__muted"><?php echo count($playFixtures); ?> match<?php echo count($playFixtures) === 1 ? '' : 'es'; ?> in this stage<?php
+        echo $status !== '' ? ' (' . htmlspecialchars($status, ENT_QUOTES, 'UTF-8') . ' filter — technical tools)' : '';
+      ?>. Technical assignment is under Technical / repair tools.</p>
+
+      <?php if ($organizerLifecycleUi !== null && $organizerLifecycleUi['is_imported']) { ?>
+        <p class="k2-amiga-organizer-results__hint k2-amiga-live-ops__muted">Historical import — result entry is read-only in the browser.</p>
+      <?php } elseif (!$lifecycleRunning) { ?>
+        <p class="k2-amiga-organizer-results__hint k2-amiga-live-ops__muted">Result entry is only available while this tournament is Open (in progress).</p>
+      <?php } else { ?>
+        <?php if ($playPartition['skipped_void'] > 0 || $playPartition['skipped_incomplete'] > 0) { ?>
+          <p class="k2-amiga-organizer-results__hint k2-amiga-live-ops__muted"><?php
+              $skipParts = [];
+              if ($playPartition['skipped_incomplete'] > 0) {
+                  $n = $playPartition['skipped_incomplete'];
+                  $skipParts[] = $n . ' incomplete match' . ($n === 1 ? '' : 'es') . ' (assign players under Technical / repair tools)';
+              }
+              if ($playPartition['skipped_void'] > 0) {
+                  $n = $playPartition['skipped_void'];
+                  $skipParts[] = $n . ' void match' . ($n === 1 ? '' : 'es');
+              }
+              echo k2_h(implode('; ', $skipParts)) . ' omitted from entry.';
+          ?></p>
+        <?php } ?>
+
+        <?php if ($playEntryGroups === []) { ?>
+          <p class="k2-amiga-live-ops__muted">No matches waiting for scores<?php echo $playPartition['played'] !== [] ? ' — all listed fixtures in this stage have been entered.' : '.'; ?></p>
+        <?php } else { ?>
+          <?php foreach ($playEntryGroups as $entryGroup) { ?>
+            <section class="k2-amiga-organizer-results__group">
+              <h3 class="k2-amiga-organizer-results__heading"><?php echo k2_h($entryGroup['label']); ?></h3>
+              <ul class="k2-amiga-organizer-results__entries">
+              <?php foreach ($entryGroup['fixtures'] as $row) {
+                  $playerA = (string) ($row['player_a_name'] ?? 'TBD');
+                  $playerB = (string) ($row['player_b_name'] ?? 'TBD');
+                  ?>
+                <li class="k2-amiga-organizer-results__entry">
+                  <form class="k2-amiga-organizer-results__form k2-amiga-live-ops__inline-form" method="post" action="<?php echo $self; ?>">
+                    <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+                    <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+                    <input type="hidden" name="action" value="record_result">
+                    <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+                    <input type="hidden" name="view" value="play">
+                    <input type="hidden" name="stage_id" value="<?php echo (int) $playStageId; ?>">
+                    <?php if ($status !== '') { ?>
+                      <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+                    <?php } ?>
+                    <input type="hidden" name="fixture_id" value="<?php echo (int) $row['id']; ?>">
+                    <span class="k2-amiga-organizer-results__matchup"><?php echo k2_h($playerA); ?> <span class="k2-amiga-organizer-schedule__vs">vs</span> <?php echo k2_h($playerB); ?></span>
+                    <label class="k2-amiga-live-ops__muted"><?php echo k2_h($playerA); ?>
+                      <input type="number" name="goals_a" min="0" max="99" required aria-label="Goals for <?php echo k2_h($playerA); ?>">
+                    </label>
+                    <span aria-hidden="true">–</span>
+                    <label class="k2-amiga-live-ops__muted"><?php echo k2_h($playerB); ?>
+                      <input type="number" name="goals_b" min="0" max="99" required aria-label="Goals for <?php echo k2_h($playerB); ?>">
+                    </label>
+                    <button type="submit">Save result</button>
+                  </form>
+                </li>
+              <?php } ?>
+              </ul>
+            </section>
+          <?php } ?>
+        <?php } ?>
+
+        <?php if ($playPlayedGroups !== []) { ?>
+          <section class="k2-amiga-organizer-results__played">
+            <h3 class="k2-amiga-organizer-results__played-heading">Already entered</h3>
+            <?php foreach ($playPlayedGroups as $playedGroup) { ?>
+              <div class="k2-amiga-organizer-results__played-group">
+                <h4 class="k2-amiga-organizer-results__played-label"><?php echo k2_h($playedGroup['label']); ?></h4>
+                <ul class="k2-amiga-organizer-results__played-list">
+                <?php foreach ($playedGroup['fixtures'] as $row) {
+                    $playerA = (string) ($row['player_a_name'] ?? 'TBD');
+                    $playerB = (string) ($row['player_b_name'] ?? 'TBD');
+                    ?>
+                  <li class="k2-amiga-organizer-results__played-row">
+                    <span class="k2-amiga-organizer-results__matchup"><?php echo k2_h($playerA); ?> <span class="k2-amiga-organizer-schedule__vs">vs</span> <?php echo k2_h($playerB); ?></span>
+                    <span class="k2-amiga-organizer-results__played-score"><?php echo (int) $row['goals_a']; ?>–<?php echo (int) $row['goals_b']; ?></span>
+                    <?php
+                      $fixtureId = (int) $row['id'];
+                      $canUndoResult = $entrantOpsEligible
+                          && $lifecycleRunning
+                          && !$tournamentRatingFinalized
+                          && amiga_running_tournament_fixture_has_result($row);
+                      if ($canUndoResult) { ?>
+                      <form class="k2-amiga-organizer-results__undo-form" method="post" action="<?php echo $self; ?>">
+                        <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="action" value="undo_fixture_result">
+                        <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+                        <input type="hidden" name="view" value="play">
+                        <input type="hidden" name="stage_id" value="<?php echo (int) $playStageId; ?>">
+                        <input type="hidden" name="fixture_id" value="<?php echo $fixtureId; ?>">
+                        <?php if ($status !== '') { ?>
+                          <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
+                        <?php } ?>
+                        <button type="submit" class="k2-amiga-organizer-results__undo">Undo</button>
+                      </form>
+                    <?php } ?>
+                  </li>
+                <?php } ?>
+                </ul>
+              </div>
+            <?php } ?>
+          </section>
+        <?php } ?>
       <?php } ?>
     <?php } ?>
   </div>
@@ -4533,7 +4687,7 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
       <p class="k2-amiga-organizer-table__preview-note k2-amiga-organizer-table__preview-note--warn">
         Finish stopped mid-way: ratings were partially written, but this league is <strong>not</strong> in the catalog.
         Do not click Finish again. Go to
-        <a href="<?php echo htmlspecialchars(amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'advanced', $status), ENT_QUOTES, 'UTF-8'); ?>">Advanced</a>
+        <a href="<?php echo htmlspecialchars(amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'advanced', $status), ENT_QUOTES, 'UTF-8'); ?>">Technical / repair tools</a>
         → <strong>Reset incomplete finish</strong> (explicit), then use Finish once.
       </p>
     <?php } elseif ($tournamentCanMakeOfficial) { ?>
@@ -4665,140 +4819,22 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
   </div>
 <?php } ?>
 
-<?php if ($view === 'results' && $tournamentId > 0 && $tournament !== null) {
-    $lifecycleRunning = $lifecycle !== null && $lifecycle['lifecycle_status'] === 'running';
-    $setupTabUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'setup', $status);
-    ?>
-  <div class="k2-amiga-live-ops__section k2-amiga-organizer-results">
-    <h2>Enter results</h2>
-    <?php if ($tournamentUnratedGameCount > 0) {
-        $tableTabUrl = amiga_fixture_ops_url($self, $key, $pwdValue, $tournamentId, 'table', $status);
-        ?>
-      <p class="k2-amiga-organizer-results__hint k2-amiga-organizer-table__preview-note--warn">
-        When the league is finished, confirm finishing order then
-        <strong><?php echo k2_h(AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL); ?></strong> on the
-        <a href="<?php echo htmlspecialchars($tableTabUrl, ENT_QUOTES, 'UTF-8'); ?>">Table tab</a>
-        (<?php echo (int) $tournamentUnratedGameCount; ?> result<?php echo $tournamentUnratedGameCount === 1 ? '' : 's'; ?> ready).
-      </p>
-    <?php } ?>
-    <?php if ($organizerLifecycleUi !== null && $organizerLifecycleUi['is_imported']) { ?>
-      <p class="k2-amiga-organizer-results__hint k2-amiga-live-ops__muted">Historical import — result entry is read-only in the browser. Use CLI for ops changes.</p>
-    <?php } elseif (!$lifecycleRunning) { ?>
-      <p class="k2-amiga-organizer-results__hint">Result entry unlocks after you <strong>Start tournament</strong> on the <a href="<?php echo htmlspecialchars($setupTabUrl, ENT_QUOTES, 'UTF-8'); ?>">Setup</a> tab.</p>
-    <?php } else { ?>
-      <?php if ($fixtureResultsPartition['skipped_void'] > 0 || $fixtureResultsPartition['skipped_incomplete'] > 0) { ?>
-        <p class="k2-amiga-organizer-results__hint k2-amiga-live-ops__muted"><?php
-            $skipParts = [];
-            if ($fixtureResultsPartition['skipped_incomplete'] > 0) {
-                $n = $fixtureResultsPartition['skipped_incomplete'];
-                $skipParts[] = $n . ' incomplete match' . ($n === 1 ? '' : 'es') . ' (assign players on Advanced)';
-            }
-            if ($fixtureResultsPartition['skipped_void'] > 0) {
-                $n = $fixtureResultsPartition['skipped_void'];
-                $skipParts[] = $n . ' void match' . ($n === 1 ? '' : 'es');
-            }
-            echo k2_h(implode('; ', $skipParts)) . ' omitted from entry.';
-        ?></p>
-      <?php } ?>
-      <?php if ($fixtureResultsEntryGroups === []) { ?>
-        <p class="k2-amiga-live-ops__muted">No matches waiting for scores<?php echo $fixtureResultsPartition['played'] !== [] ? ' — all listed fixtures have been entered.' : '.'; ?></p>
-      <?php } else { ?>
-        <?php foreach ($fixtureResultsEntryGroups as $entryGroup) { ?>
-          <section class="k2-amiga-organizer-results__group">
-            <h3 class="k2-amiga-organizer-results__heading"><?php echo k2_h($entryGroup['label']); ?></h3>
-            <ul class="k2-amiga-organizer-results__entries">
-            <?php foreach ($entryGroup['fixtures'] as $row) {
-                $playerA = (string) ($row['player_a_name'] ?? 'TBD');
-                $playerB = (string) ($row['player_b_name'] ?? 'TBD');
-                ?>
-              <li class="k2-amiga-organizer-results__entry">
-                <form class="k2-amiga-organizer-results__form k2-amiga-live-ops__inline-form" method="post" action="<?php echo $self; ?>">
-                  <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
-                  <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
-                  <input type="hidden" name="action" value="record_result">
-                  <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
-                  <input type="hidden" name="view" value="results">
-                  <?php if ($status !== '') { ?>
-                    <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
-                  <?php } ?>
-                  <input type="hidden" name="fixture_id" value="<?php echo (int) $row['id']; ?>">
-                  <span class="k2-amiga-organizer-results__matchup"><?php echo k2_h($playerA); ?> <span class="k2-amiga-organizer-schedule__vs">vs</span> <?php echo k2_h($playerB); ?></span>
-                  <label class="k2-amiga-live-ops__muted"><?php echo k2_h($playerA); ?>
-                    <input type="number" name="goals_a" min="0" max="99" required aria-label="Goals for <?php echo k2_h($playerA); ?>">
-                  </label>
-                  <span aria-hidden="true">–</span>
-                  <label class="k2-amiga-live-ops__muted"><?php echo k2_h($playerB); ?>
-                    <input type="number" name="goals_b" min="0" max="99" required aria-label="Goals for <?php echo k2_h($playerB); ?>">
-                  </label>
-                  <button type="submit">Save result</button>
-                </form>
-              </li>
-            <?php } ?>
-            </ul>
-          </section>
-        <?php } ?>
-      <?php } ?>
-      <?php if ($fixtureResultsPlayedGroups !== []) { ?>
-        <section class="k2-amiga-organizer-results__played">
-          <h3 class="k2-amiga-organizer-results__played-heading">Already entered</h3>
-          <?php foreach ($fixtureResultsPlayedGroups as $playedGroup) { ?>
-            <div class="k2-amiga-organizer-results__played-group">
-              <h4 class="k2-amiga-organizer-results__played-label"><?php echo k2_h($playedGroup['label']); ?></h4>
-              <ul class="k2-amiga-organizer-results__played-list">
-              <?php foreach ($playedGroup['fixtures'] as $row) {
-                  $playerA = (string) ($row['player_a_name'] ?? 'TBD');
-                  $playerB = (string) ($row['player_b_name'] ?? 'TBD');
-                  ?>
-                <li class="k2-amiga-organizer-results__played-row">
-                  <span class="k2-amiga-organizer-results__matchup"><?php echo k2_h($playerA); ?> <span class="k2-amiga-organizer-schedule__vs">vs</span> <?php echo k2_h($playerB); ?></span>
-                  <span class="k2-amiga-organizer-results__played-score"><?php echo (int) $row['goals_a']; ?>–<?php echo (int) $row['goals_b']; ?></span>
-                  <?php
-                    $fixtureId = (int) $row['id'];
-                    $canUndoResult = $entrantOpsEligible
-                        && $lifecycleRunning
-                        && !$tournamentRatingFinalized
-                        && amiga_running_tournament_fixture_has_result($row);
-                    if ($canUndoResult) { ?>
-                    <form class="k2-amiga-organizer-results__undo-form" method="post" action="<?php echo $self; ?>">
-                      <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
-                      <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
-                      <input type="hidden" name="action" value="undo_fixture_result">
-                      <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
-                      <input type="hidden" name="view" value="results">
-                      <input type="hidden" name="fixture_id" value="<?php echo $fixtureId; ?>">
-                      <?php if ($status !== '') { ?>
-                        <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
-                      <?php } ?>
-                      <button type="submit" class="k2-amiga-organizer-results__undo">Undo</button>
-                    </form>
-                  <?php } ?>
-                </li>
-              <?php } ?>
-              </ul>
-            </div>
-          <?php } ?>
-        </section>
-      <?php } ?>
-    <?php } ?>
-  </div>
-<?php } ?>
-
 </div><!-- .k2-amiga-organizer-panel -->
 
 <?php if ($view === 'setup' && ($tournamentId <= 0 || $tournament === null)) { ?>
 <div class="k2-amiga-live-ops__section">
-  <h2>Recent leagues</h2>
+  <h2>Recent tournaments</h2>
   <?php if ($generatedTournaments === []) { ?>
-    <p class="k2-amiga-live-ops__muted">No leagues yet — create one above.</p>
+    <p class="k2-amiga-live-ops__muted">No open tournaments yet — create one above.</p>
   <?php } else { ?>
     <div class="k2-table-wrap">
     <table class="k2-table k2-table--numeric-default k2-table--calm-stats">
       <thead>
-        <tr><th class="k2-table-cell--left">League</th><th>Date</th><th>Fixtures</th><th>Games</th><th class="k2-table-cell--left"></th></tr>
+        <tr><th class="k2-table-cell--left">Tournament</th><th>Date</th><th>Fixtures</th><th>Games</th><th class="k2-table-cell--left"></th></tr>
       </thead>
       <tbody>
       <?php foreach ($generatedTournaments as $row) {
-          $viewUrl = amiga_fixture_ops_url($self, $key, $pwdValue, (int) $row['id'], 'fixtures');
+          $viewUrl = amiga_fixture_ops_url($self, $key, $pwdValue, (int) $row['id'], 'play');
           ?>
         <tr>
           <td class="k2-table-cell--left"><?php echo k2_h((string) $row['name']); ?></td>

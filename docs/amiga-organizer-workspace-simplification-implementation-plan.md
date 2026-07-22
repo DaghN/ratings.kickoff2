@@ -1,12 +1,12 @@
 # Amiga organizer workspace simplification — implementation plan (Jul 2026)
 
-**Status:** **Planned** — policy locked; start at slice 0 when Dagh opens the track.
+**Status:** **Done** — slices **0–6** complete (Jul 2026). Happy-path chrome shipped; docs/RTB vocabulary closed.
 
-**Policy:** [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md) (OW1–OW14).
+**Policy:** [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md) (**Implemented**; OW12 stage builder deferred).
 
 **Parents:** same as policy · practice track · fixtures.php inventory in slice 0.
 
-**Starter:** [`orchestration/agent-handoffs/amiga-organizer-workspace-simplification-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-organizer-workspace-simplification-STARTER-PROMPT.md) (defaults to **slice 0**).
+**Starter:** [`orchestration/agent-handoffs/amiga-organizer-workspace-simplification-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-organizer-workspace-simplification-STARTER-PROMPT.md) (**track complete** — do not open new OW slices unless Dagh expands).
 
 ---
 
@@ -57,37 +57,85 @@ Ship organizer UX and gates that match OW1–OW14 without breaking RTB Finish or
 
 ---
 
-## 5. Slice 0 inventory (fill in slice 0)
+## 5. Slice 0 inventory (2026-07-22)
 
-_Placeholder — executing agent replaces this section._
+Read-only map of today’s organizer + Live gates. Primary file: `site/public_html/amiga/ops/fixtures.php`. Live eligibility: `site/public_html/includes/amiga_tournament_lib.php`. Finish confirm: FO5 on Table tab (`amiga_finish_confirm_proposal.php` + Table panel).
 
-### 5.1 Gates on `running` / pre-start
-- …
+**Create (slice 3):** kitchen insert sets `lifecycle_status = 'running'` + `started_at` (Open, scoreable, Live-eligible when `live_visible`). Leftover draft/ready kitchens auto-heal to running on open / result entry.
 
-### 5.2 Void / Abandon / Live eligibility
-- …
+### 5.1 Gates on `running` / pre-start (slice 3 update)
 
-### 5.3 Recent leagues query
-- …
+| Concern | Gate / symbol | Allowed when | Notes |
+|---------|---------------|--------------|-------|
+| **Result entry (server)** | `amiga_fixture_ensure_open_scoreable()` then `require_running_lifecycle` | Promotes draft\|registration\|ready → **running**; then requires running | OW3 shipped |
+| **Result entry (UI)** | Play tab `$lifecycleRunning` | Forms when running (create lands on Play) | Start copy removed; Fixtures+Results merged (slice 4) |
+| **Add entrant** | registration lifecycles only | draft\|registration\|ready | Still blocked once running (create already has roster) |
+| **Stage placement** | same pre-start set | Blocked once running | OW12 later |
+| **Start** | **Retired** happy path (`can_start` always false; button removed) | — | Heal + create-as-running |
+| **Finish** | `$tournamentCanMakeOfficial` / reprocess | generated + **running** + ≥1 played + confirm | Unchanged; create-as-running keeps Finish OK |
+| **Live** | running + generated + live_visible | Appears after create when not Hidden | Intentional with OW3 |
 
-### 5.4 Withdraw / replace call sites
-- …
+### 5.2 Void / Abandon / Live eligibility (slice 2 shipped)
+
+| Surface | Behaviour |
+|---------|-----------|
+| **Hide / Show** | `format_overrides.live_visible` (`1` default at create; `0` = Hidden). Header chrome **Hide from Live** / **Show on Live** on Open workspaces. Does not change lifecycle; does not block Finish |
+| **Live hub** | `lifecycle_status = running` **and** generated **and** live_visible (missing key ⇒ visible) — `amiga_live_tournament_live_visible_where()` |
+| **Abandon / void** | **Retired** from browser happy path (button removed; `void_tournament` refused; void not in Advanced lifecycle targets). Fixture void-on-Finish **kept** |
+| **Recent tournaments** | Still Open-only by lifecycle; **includes** Hidden (`live_visible=0`) |
+
+### 5.3 Recent tournaments query (slice 1 shipped)
+
+**Where:** Create/Recent landing only — `$view === 'setup' && $tournamentId <= 0` — heading **“Recent tournaments”**.
+
+**SQL** (`fixtures.php` — Open-only as of slice 1):
+
+```sql
+… WHERE t.source_id IS NULL
+  AND (format_overrides LIKE builder OR fixtures ops marker)
+  AND COALESCE(t.rating_finalized, 0) = 0
+  AND t.lifecycle_status IN ('draft', 'registration', 'ready', 'running')
+…
+```
+
+**Includes:** draft / registration / ready / running generated kitchens (Hidden Open still in this set).  
+**Excludes:** Official tip (`rating_finalized = 1` and/or completed/archived) and `void`. Open link lands on **Play** tab.
+
+### 5.4 Withdraw / replace call sites (slice 5 — browser abandoned)
+
+| Layer | Sites |
+|-------|--------|
+| **Browser UI** | **Removed** from Players (OW11). Roster table is read-only for actions; add-entrant search only for leftover draft/registration/ready kitchens |
+| **POST handlers** | `withdraw_entrant` / `replace_entrant` **refused** with flash (CLI repair still available) |
+| **PHP impl** | Functions kept for CLI parity: `amiga_fixture_withdraw_entrant` / `amiga_fixture_replace_entrant` |
+| **CLI (parity)** | `scripts/amiga/tournament_fixtures.py`: `withdraw-entrant`, `replace-entrant` — repair only, not OW product surface |
 
 ### 5.5 Tab / chrome map
-- …
+
+Peer happy-path tabs: `players` · `play` · `table`. `setup` = create + Recent tournaments landing only (no `tournament_id`). Legacy `view=fixtures` / `view=results` → `play`. In-tournament `view=setup` remaps → `play`.
+
+| Tab / surface | Label | Role |
+|---------------|-------|------|
+| Landing (`setup`, no id) | Create / Recent | Create league; Recent tournaments Open-only |
+| `players` | Players | Roster read; rare pre-Open add |
+| `play` | Play | Stage-scoped score entry |
+| `table` | Table | FO5 + Finish |
+| `advanced` | Technical / repair tools | Demoted muted link |
+
+**Outer chrome:** Live hub link · organizer active · **Create new league** (→ setup landing) · lifecycle badge + Hide/Show in header · Technical / repair tools link.
 
 ---
 
 ## 6. Verification checklist (track done)
 
-- [ ] Create → score → Finish with no Start / no void
-- [ ] One stage-scoped play surface
-- [ ] Hide/Show Live; Finish while Hidden
-- [ ] Recent tournaments = Open only (incl. Hidden)
-- [ ] No withdraw/replace on happy path
-- [ ] Advanced not required for Ref-League-A
-- [ ] RTB Finish still promotes correctly
-- [ ] Policy status → Implemented (or Partially if stage builder deferred)
+- [x] Create → score → Finish with no Start / no void — **Start retired slice 3**; void retired slice 2; Finish path unchanged
+- [x] One stage-scoped play surface — **slice 4** (`view=play` + optional `stage_id`)
+- [x] Hide/Show Live; Finish while Hidden — **slice 2 shipped** (`format_overrides.live_visible`)
+- [x] Recent tournaments = Open only (incl. Hidden) — **slice 1 + Hidden via slice 2**
+- [x] No withdraw/replace on happy path — **slice 5** (POST refused; CLI may remain)
+- [x] Advanced not required for Ref-League-A — **slice 5** (demoted to Technical / repair tools)
+- [x] RTB Finish still promotes correctly — **unchanged** by OW chrome; boundary kept in RTB policy
+- [x] Policy status → **Implemented** (OW12 stage builder / mid-event RR add deferred) — **slice 6**
 
 ---
 
@@ -95,5 +143,13 @@ _Placeholder — executing agent replaces this section._
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **Follow-up** — Setup dropped from in-tournament tab row (create/Recent landing only; `view=setup`+id → Play). |
+| 2026-07-22 | **Slice 6 done** — policy Implemented; practice-track + RTB vocabulary aligned; track closed. |
+| 2026-07-22 | **Slice 5 done** — Advanced demoted; withdraw/replace abandoned in browser; Setup slim meta; next slice 6 docs. |
+| 2026-07-22 | **Slice 4 done** — Fixtures+Results → stage-scoped **Play** (`view=play`, `stage_id`); legacy URLs remap; next slice 5. |
+| 2026-07-22 | **Slice 3 done** — create as running; Start retired; draft/ready auto-heal; next slice 4. |
+| 2026-07-22 | **Slice 2 done** — Hide/Show Live (`live_visible` in format_overrides); Abandon/void retired from browser; next slice 3. |
+| 2026-07-22 | **Slice 1 done** — Recent tournaments rename + Open-only SQL filter; next slice 2. |
+| 2026-07-22 | **Slice 0 done** — §5 inventory filled; next slice 1. |
 | 2026-07-22 | Starter prompt added (slice 0 default). |
 | 2026-07-22 | Initial plan — slices 0–6 from locked OW policy. |

@@ -78,15 +78,15 @@ Use these as the **step** name in feedback. Advance only when the current step i
 
 | # | Step | Success looks like |
 |---|------|--------------------|
-| 1 | **CREATE** | Name, date, country from registry; players by search (not raw ids); optional newcomer create |
-| 2 | **START** | Lifecycle in progress; league listed on Live hub |
-| 3 | **PLAY** | Results on fixtures only; `amiga_games` count for this id stays **0** while running |
+| 1 | **CREATE** | Name, date, country from registry; players by search; optional newcomer create → **Open** workspace (scoreable immediately; Live visible on unless you Hide) |
+| 2 | **OPEN** | Listed on Live hub when visible; on **Recent tournaments** (incl. Hidden). **No Start** — former START step is a no-op for OW kitchens |
+| 3 | **PLAY** | Stage-scoped **Play** tab; results on fixtures only; `amiga_games` count for this id stays **0** while Open |
 | 4 | **TABLE** | Broadcast standings match expectation |
-| 5 | **MAKE OFFICIAL** | Table tab → **Finish and make official** (promote + finalize) |
-| 6 | **WEBSITE** | Running page while live; historical tournament + rating spot-check after official |
-| 7 | **CLEANUP** | Abandoned never-official workspace removable without orphan L3 games |
+| 5 | **MAKE OFFICIAL** | Table tab → finish confirm → **Finish and make official** (promote + finalize) → **Official** |
+| 6 | **WEBSITE** | Public Live page while Open; historical tournament + rating spot-check after Official |
+| 7 | **CLEANUP** | Never-official Open junk → admin Case A delete (or Hide if only spectator cleanup). Hide ≠ delete |
 
-**Make official:** Table tab (promote → `amiga_games`, then `finalize_tournament`). CLI: `python -m scripts.amiga finalize-tournament --tournament-id N`. See [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md).
+**Make official:** Table tab (promote → `amiga_games`, then `finalize_tournament`). CLI: `python -m scripts.amiga finalize-tournament --tournament-id N`. Organizer chrome: [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md). Boundary: [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md).
 
 **WinSCP:** sync `site/public_html/amiga/ops/` before staging cycles after local UX fixes.
 
@@ -127,7 +127,9 @@ Milestones are **gates**, not a parallel backlog. Advance when Dagh says the pri
 
 **Current gate:** **L5 in progress** — slices **0–3 done**; next **slice 4** (Case B). L2 reps optional. **L6 shelved.** Cups deferred.
 
-**Explicit defer until a cycle names them:** structure imprint P2–P3, WC materialize, Lane C media DDL, CR-9 country polish, player-create phase 2, cups (L3) until named, **L6 ground pack (shelved — full DB backup pack preferred)**, **organizer workspace simplification** (policy locked — implement when named; [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md)).
+**Explicit defer until a cycle names them:** structure imprint P2–P3, WC materialize, Lane C media DDL, CR-9 country polish, player-create phase 2, cups (L3) until named, **L6 ground pack (shelved — full DB backup pack preferred)**.
+
+**Named separately from L5:** **organizer workspace simplification** — **done** (slices 0–6, 2026-07-22); policy [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md) **Implemented**. Happy path: Create → Play → Table/Finish; Hide optional; no Start/void/withdraw/replace. Do **not** mix into L5 Case B chats.
 
 ---
 
@@ -169,6 +171,14 @@ Closed cycles from early drills. Do **not** treat as open work.
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **OW follow-up** — Setup not an in-tournament tab (create/Recent landing only). |
+| 2026-07-22 | **OW slice 6** — policy Implemented; §3 CREATE/OPEN/PLAY vocabulary; OW track closed. |
+| 2026-07-22 | **OW slice 5** — Advanced demoted; withdraw/replace abandoned in browser; next OW slice 6 docs. |
+| 2026-07-22 | **OW slice 4** — stage-scoped Play surface (Fixtures+Results merged); next OW slice 5. |
+| 2026-07-22 | **OW slice 3** — No Start; create Open/scoreable; next OW slice 4. |
+| 2026-07-22 | **OW slice 2** — Hide/Show Live + Abandon retired; next OW slice 3. |
+| 2026-07-22 | **OW slice 1** — Recent tournaments rename + Open-only SQL; next OW slice 2. |
+| 2026-07-22 | **OW slice 0** — organizer workspace inventory in plan §5; named separately from L5; next OW slice 1. |
 | 2026-07-22 | **Organizer workspace simplification** — OW policy + plan locked (Open/Hide; no Start/void; stage-scoped play merge). Implement when named; §4 unchanged (L5). |
 | 2026-07-22 | **L5 slice 3b** — Case A no auto-seal; §4 still → slice 4. WinSCP slice 3 PHP for Case A UI on staging. |
 | 2026-07-22 | **L5 slice 3 done** — Case A admin delete + seal after; §4 → next slice 4 Case B. |

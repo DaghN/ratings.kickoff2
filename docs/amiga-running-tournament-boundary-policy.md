@@ -4,7 +4,7 @@
 
 **Status:** **Policy locked (Jul 2026, rev. 2)** — two-universe split: **Running** vs **Official**. RTB-1–RTB-9 shipped Jul 2026 (organizer **Finish and make official** = promote + finalize + lifecycle `completed`).
 
-**Organizer UX (Jul 2026):** Happy-path Start / void / dual Fixtures·Results / withdraw·replace are **superseded** for new work by [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md) (Open + Live visible; stage-scoped play). **Keep** this doc’s running-package vs Official boundary. Internal `lifecycle_status = running` may remain until that track remaps gates.
+**Organizer UX (Jul 2026):** [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md) **Implemented** — secretary model **Open** / **Official** / **Deleted** + optional **Hide** from Live; Create → stage-scoped **Play** → Finish; no Start / void / withdraw·replace on the happy path. **Keep** this doc’s running-package vs Official boundary. Storage may still use `lifecycle_status = running` for Open.
 
 **Parent:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (Lane B) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (L3–L5) · [`amiga-data-contract.md`](amiga-data-contract.md) · **Scoring contract:** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md) (RTB14)
 
@@ -45,8 +45,8 @@ Use the right term per layer — do not put **finalize** on the primary organize
 
 | Term | Meaning |
 |------|---------|
-| **Running tournament** | `tournaments.lifecycle_status = running` (after Start tournament). Lives in the **running universe**. |
-| **Official tournament** | `rating_finalized = 1` **and** `lifecycle_status IN ('completed', 'archived')`. Lives in the **official universe** and on the historical catalog. |
+| **Running tournament** | Open workspace — storage often `lifecycle_status = running` (create opens scoreable; no Start click). Lives in the **running universe**. Organizer-facing: **Open**. |
+| **Official tournament** | `rating_finalized = 1` **and** `lifecycle_status IN ('completed', 'archived')`. Lives in the **official universe** and on the historical catalog. Organizer-facing: **Official**. |
 | **Running package** | L4 structure + in-tournament results for one `tournament_id` while running — **not** `amiga_games`. |
 | **Broadcast** | Read/compute paths for Live hub and organizer UI that read **only** the running universe. No writes to L3/L5. |
 | **Promote** | L3 insert step inside the organizer finish action — copy played fixtures into `amiga_games`. Not organizer-facing copy. |
@@ -55,7 +55,7 @@ Use the right term per layer — do not put **finalize** on the primary organize
 
 | Term | Fate |
 |------|------|
-| **Mark complete** | **Retired** from the happy path (Setup tab button). Was lifecycle-only (`running` → `completed`) with no rating commit. Repair / Advanced tab / CLI only. |
+| **Mark complete** | **Retired** from the happy path (Setup tab button). Was lifecycle-only (`running` → `completed`) with no rating commit. Repair / Technical tools / CLI only. |
 | **Make official** (standalone button) | **Retired** as a separate half-step. Folded into **Finish and make official**, which also sets lifecycle `completed`. Policy prose may still say “make official” as the *effect* (entering the official universe). |
 | **Finalize** | **Not** primary UI copy. Ops/code/contract name for the derive pipeline step. |
 | **Reprocess** | **Retired** from UI (`reprocess_tournament_derived` is an internal POST action name only). |
@@ -156,12 +156,12 @@ Undo/edit before Make official mutates **fixture running fields only**.
 
 | Element | Rule |
 |---------|------|
-| **Placement** | Table tab (`view=table`) — primary workspace when the secretary is ready to commit (all results **or** early finish). Results tab may link here; no second finish control on Setup. |
+| **Placement** | Table tab (`view=table`) — primary workspace when the secretary is ready to commit (all results **or** early finish). Play tab may hint here; no second finish control on Setup. |
 | **Button** | **Finish and make official** (or **Finish & make official** when width-constrained). |
 | **Helper** | One line under the button: commits to ratings and tournament history; leaves Live hub; joins historical catalog. |
-| **Finish confirm (Planned)** | Before commit, secretary reviews/edits finishing order → Tier E — [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md). |
-| **Retired on Setup** | **Mark complete** button and “finish lifecycle only” happy path removed. Setup keeps **Start tournament** and **Void tournament** only. |
-| **Advanced / CLI** | Raw `lifecycle_status` transitions and `finalize-tournament` remain for operators; not the secretary happy path. |
+| **Finish confirm** | Before commit, secretary reviews/edits finishing order → Tier E — [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md) (Phase A shipped). |
+| **Retired on Setup** | **Mark complete**, **Start**, and **Void/Abandon** removed from happy path. Hide/Show Live is **header** chrome on Open workspaces — [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md). |
+| **Technical / repair / CLI** | Raw `lifecycle_status` transitions and `finalize-tournament` remain for operators (`view=advanced`); not the secretary happy path. |
 
 ### 6.2 Preconditions (gate)
 
@@ -218,9 +218,9 @@ Finalize **must not** read running fixture score columns after promote — it re
 
 | Situation | Action |
 |-----------|--------|
-| `rating_finalized = 1` but `lifecycle_status = running` (RTB-1–8 limbo) | CLI `fixtures set-lifecycle-status` → `completed`, or Advanced tab — one-off hygiene after RTB-9 ships. |
-| Finish refused / limbo | Honest message; **do not** silent-rewind on Finish. Advanced **Reset incomplete finish** is **limbo-only** (`lifecycle` still `running` + half-official). It is **not** available after successful `completed` Finish — do not tell secretaries to Reset a green event. Prefer pull→repair or a future post-official correction verb. |
-| Void never-official test league | **Abandon league (void)** on Advanced — separate from finish; no promote. |
+| `rating_finalized = 1` but `lifecycle_status = running` (RTB-1–8 limbo) | CLI `fixtures set-lifecycle-status` → `completed`, or Technical / repair tools — one-off hygiene after RTB-9 ships. |
+| Finish refused / limbo | Honest message; **do not** silent-rewind on Finish. **Reset incomplete finish** (Technical / repair) is **limbo-only** (`lifecycle` still `running` + half-official). It is **not** available after successful `completed` Finish — do not tell secretaries to Reset a green event. Prefer pull→repair or a future post-official correction verb. |
+| Never-official spectator cleanup | Prefer **Hide from Live** (reversible). Hard delete never-official Open junk = admin Case A ([`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md)). Historical void/Abandon is retired from the happy path. |
 
 ---
 
@@ -232,8 +232,8 @@ Broadcast paths **read the running package only** and may **compute** standings/
 |---------|---------------|--------|
 | Live index | Mostly fixtures ✓ | Unchanged |
 | Live detail scores | `LEFT JOIN amiga_games` | Fixture running columns |
-| Organizer Results tab | Inserts `amiga_games` | Write fixture running columns |
-| Organizer Table tab | Reads `amiga_tournament_standings` | Compute from running package |
+| Organizer Play tab | Was Results/Fixtures dual tabs | Stage-scoped Play writes fixture running columns |
+| Organizer Table tab | Reads `amiga_tournament_standings` when official | Compute from running package while Open |
 | Player links in live view | Profile links | **Deferred** — UI polish; not policy blocker |
 
 **No broadcast write** may insert into official tables (§5.3).
@@ -251,7 +251,7 @@ Broadcast paths **read the running package only** and may **compute** standings/
 - Separate **Make official** (Table) + **Mark complete** (Setup) as two secretary steps
 - Finish derive without lifecycle `completed` (limbo: official ratings but still on Live hub)
 
-**Repair-only (kept):** Advanced lifecycle dropdown; CLI `set-lifecycle-status`; **Void tournament** for abort without promote.
+**Repair-only (kept):** Technical / repair tools lifecycle dropdown; CLI `set-lifecycle-status`; limbo reset. Spectator cleanup = **Hide**; never-official hard delete = admin Case A (not Abandon-as-lifecycle).
 
 ---
 
@@ -281,6 +281,7 @@ Broadcast paths **read the running package only** and may **compute** standings/
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **OW vocabulary** — Open/Official/Hide; Play tab; Technical / repair; Hide/Case A replace Abandon happy path. Boundary unchanged. |
 | 2026-07-16 | **No silent Finish rewind** — `rating_finalized` only after full derive succeeds; limbo → Advanced explicit reset (narrow). Partial finish + SCH-043 strip retained. |
 | 2026-07-17 | **Community scan limbo parity** — PHP (and Python) tournament-host community scan uses `(rating_finalized = 1 OR id = as_of)` so Finish can keep limbo-safe late `rating_finalized` without under-counting the tournament being finalized. Simul-oracle #608 re-fingerprint: community headline/facts match. |
 | 2026-07-16 | **Promote chrono parity** — PHP `amiga_promote_next_tournament_chrono` matches Python `next_tournament_chrono` (same-day bump, else global append). Fork fingerprint: was PHP `chrono=1` vs Py `599` on new event_date. |

@@ -94,7 +94,7 @@
 
 - **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~300** videos; unified embed UI; **C06** dedicated Videos column; **With videos** filter; **player profile Videos wing**. **Jul 2026:** **TV-2b DB anchor sync** — `sync_db_ids` + `verify-tournament-videos` in `prove` ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md) §12).
 
-- **Amiga live ops (Jul 2026):** **Track L: L5 in progress** — slices **0–3 done** (Case A no auto-seal); next **slice 4** Case B. **Organizer workspace simplification** — policy locked (OW1–OW14): Open/Official + Hide; no Start/void; merge stage-scoped play surface; abandon withdraw/replace — [`amiga-organizer-workspace-simplification-policy.md`](docs/amiga-organizer-workspace-simplification-policy.md) · plan [`amiga-organizer-workspace-simplification-implementation-plan.md`](docs/amiga-organizer-workspace-simplification-implementation-plan.md). L6 shelved. L5: [`amiga-staging-backup-admin-delete-policy.md`](docs/amiga-staging-backup-admin-delete-policy.md).
+- **Amiga live ops (Jul 2026):** **Track L: L5 in progress** — slices **0–3 done** (Case A no auto-seal); next **slice 4** Case B. **Organizer workspace simplification** — **done** (slices 0–6); policy **Implemented** — [`amiga-organizer-workspace-simplification-policy.md`](docs/amiga-organizer-workspace-simplification-policy.md). L6 shelved. L5: [`amiga-staging-backup-admin-delete-policy.md`](docs/amiga-staging-backup-admin-delete-policy.md).
 
 - **Amiga format scoring contract (Jul 2026):** **SC-0–SC-9 + SC-11 shipped** — L4b relational contracts, PHP↔Python executor parity, RTB broadcast, L5 `stage_id`, structured ET/pens on games + fixtures (`012_match_extensions.sql`). **SC-10:** non-WC games **100%** `fixture_id` on work (Jul 2026); remaining unlinked games = **unmaterialized WCs** (`wc_deferred`). Policy [`amiga-format-scoring-contract-policy.md`](docs/amiga-format-scoring-contract-policy.md) · plan [`amiga-format-scoring-contract-implementation-plan.md`](docs/amiga-format-scoring-contract-implementation-plan.md).
 
@@ -149,6 +149,14 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-22 | **OW follow-up** — Setup removed from in-tournament tabs (Players · Play · Table); create/Recent via “Create new league” landing only. |
+| 2026-07-22 | **OW slice 6 (track done)** — policy **Implemented**; practice-track §3 CREATE/OPEN/PLAY; RTB organizer vocabulary aligned; OW12 stage builder deferred. Happy path: Create → Play → Finish (+ optional Hide). |
+| 2026-07-22 | **OW slice 5** — Advanced demoted to muted Technical / repair tools; withdraw/replace UI + browser POST abandoned (CLI kept); Setup slim Open meta (Hide stays header). Next: slice 6 docs/RTB vocabulary. |
+| 2026-07-22 | **OW slice 4** — Fixtures+Results merged into stage-scoped **Play** (`view=play` + `stage_id`); create/Open land on Play; legacy fixtures/results URLs remap. Next: slice 5 Advanced demote + strip withdraw/replace. |
+| 2026-07-22 | **OW slice 3** — create as `running`+`started_at`; Start UI retired; draft/ready auto-heal to Open; Results landing after create. Live still = running + live_visible. Next: slice 4 play surface merge. |
+| 2026-07-22 | **OW slice 2** — Hide/Show Live via `format_overrides.live_visible` (default on); Live hub filters hidden; Abandon/void retired from browser; Finish unaffected. Next: slice 3 No Start. |
+| 2026-07-22 | **OW slice 1** — Recent tournaments rename + Open-only filter (`rating_finalized=0`, lifecycle draft|registration|ready|running; void/Official excluded). Next: slice 2 Hide/Show Live. |
+| 2026-07-22 | **OW slice 0 inventory** — plan §5 filled (gates, Live=`running`, Recent leagues SQL, withdraw/replace, tab map). Next: slice 1 Open-only Recent tournaments. No PHP/UI changes. |
 | 2026-07-22 | **Organizer workspace simplification locked** — OW1–OW14 policy + thin plan (Open/Hide; no Start/void; stage-scoped play merge; drop withdraw/replace). Code not started. |
 | 2026-07-22 | **L5 slice 3b** — dropped Case A auto-seal (policy: tip-changing only). Case A UI needs WinSCP of `run_backup_ko2amiga.php` + `delete_unfinalized_tournament.php` (look for Build `l5-s3b-…`). Next: slice 4 Case B. |
 | 2026-07-22 | **L5 slice 3 done** — Case A `delete-unfinalized-tournament` (admin backup page + ops module/CLI); refuse finalized tip; (auto-seal later dropped — 3b); local smoke PASS. Next: slice 4 Case B. |

@@ -11,7 +11,8 @@ const AMIGA_TOURNAMENT_PUBLIC_LIFECYCLE_STATUSES = ['completed', 'archived'];
 
 /**
  * Lifecycle for the public live hub (/amiga/live-tournaments.php) while a community event is in progress.
- * Start tournament in ops ⇒ running ⇒ visible here until finalize + completed moves to historical catalog.
+ * Start tournament in ops ⇒ running ⇒ visible here when live_visible (default on) until finalize + completed.
+ * Hide from Live sets format_overrides.live_visible=0 without changing lifecycle (OW2/OW4).
  */
 const AMIGA_LIVE_TOURNAMENT_PUBLIC_LIFECYCLE_STATUS = 'running';
 const AMIGA_LIVE_TOURNAMENT_INDEX_ANCHOR_COL = 0;
@@ -238,14 +239,31 @@ function amiga_live_tournament_fixture_generated_where(string $tableAlias = 't')
 }
 
 /**
- * SQL fragment: public live hub eligibility (running generated fixture-backed events).
+ * SQL fragment: spectator Live visibility (OW2/OW4).
+ * Missing or non-JSON overrides ⇒ visible (default on). Explicit live_visible=0 ⇒ hidden.
+ */
+function amiga_live_tournament_live_visible_where(string $tableAlias = 't'): string
+{
+    $ov = "COALESCE({$tableAlias}.format_overrides, '{}')";
+
+    return '('
+        . "JSON_VALID({$ov}) = 0"
+        . " OR JSON_EXTRACT({$ov}, '$.live_visible') IS NULL"
+        . " OR CAST(JSON_UNQUOTE(JSON_EXTRACT({$ov}, '$.live_visible')) AS UNSIGNED) = 1"
+        . ')';
+}
+
+/**
+ * SQL fragment: public live hub eligibility (running + Live-visible generated events).
  */
 function amiga_live_tournament_public_eligibility_where(string $tableAlias = 't'): string
 {
     return $tableAlias . '.lifecycle_status = \''
         . AMIGA_LIVE_TOURNAMENT_PUBLIC_LIFECYCLE_STATUS
         . '\' AND '
-        . amiga_live_tournament_fixture_generated_where($tableAlias);
+        . amiga_live_tournament_fixture_generated_where($tableAlias)
+        . ' AND '
+        . amiga_live_tournament_live_visible_where($tableAlias);
 }
 
 function amiga_live_tournament_url(int $tournamentId): string

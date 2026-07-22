@@ -6,6 +6,7 @@ Lightweight index: **what we built** and **cutover status**. Agents update on **
 
 | Feature | Level | Schema | Ops simul | `kooldb1` proof | Live cutover | Periodic | Notes |
 |---------|-------|--------|-----------|-----------------|--------------|----------|-------|
+| Amiga organizer workspace simplification | L0 | — | — | **Shipped** Jul 2026 (slices 0–6 + Setup landing follow-up) | WinSCP `amiga/ops/fixtures.php` + `includes/amiga_tournament_lib.php` | — | Policy **Implemented** — Open/Hide; no Start/void; stage-scoped Play; Players·Play·Table; Setup = create/Recent only; Advanced demoted; withdraw/replace abandoned — [`amiga-organizer-workspace-simplification-policy.md`](../amiga-organizer-workspace-simplification-policy.md) |
 | Amiga ops dual passwords + POST gate | L0 | — | — | — | **Local done**; WinSCP sync `amiga/_ops/` + PHP | — | `$admin_password` / `$organizer_password`; POST + session; no `?pwd=` — `amiga_ops_password_lib.php` |
 | Amiga PHP Finish ↔ simul-oracle parity | — | — | — | **Done** local Jul 2026-17 (#608 kitchen) | Sync promote + community scan PHP | — | Fork protocol (no rewind); chrono + community limbo fixes — [`amiga-php-finalize-parity-protocol.md`](../amiga-php-finalize-parity-protocol.md) |
 | Amiga live ops practice method | — | — | — | — | — | — | **Jul 2026-16** — serial feedback (queue depth 1) replaces pain-log inventory — [`amiga-live-ops-practice-track.md`](../amiga-live-ops-practice-track.md) · platform §12.1 |
