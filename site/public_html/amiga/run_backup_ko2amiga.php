@@ -1,19 +1,21 @@
 <?php
 /**
- * Amiga staging backup seals — Backup now + Restore (stage → Apply import) (L5 slices 1–2).
+ * Amiga staging backup seals — Backup now + Restore + Case A admin delete (L5 slices 1–3).
  *
  * Open:  /amiga/run_backup_ko2amiga.php?once=ko2amiga-backup-one-shot
  * Gate:  admin password only.
  *
  * Restore = copy seal into amiga/_import/ then Apply import (full replace / BA4).
+ * Case A = delete-unfinalized-tournament (never-official generated kitchen). No auto-seal (not tip-changing).
  * Password file: amiga/_ops/amiga_ops_password.local.php ($admin_password).
  */
 declare(strict_types=1);
 
-const AMIGA_BACKUP_PAGE_BUILD = 'l5-s2-2026-07-22';
+const AMIGA_BACKUP_PAGE_BUILD = 'l5-s3b-2026-07-22';
 
 require_once __DIR__ . '/includes/amiga_ops_password_lib.php';
 require_once __DIR__ . '/includes/amiga_backup_seal_lib.php';
+require_once __DIR__ . '/ops/modules/delete_unfinalized_tournament.php';
 
 $key = 'ko2amiga-backup-one-shot';
 $onceValue = (string) ($_POST['once'] ?? $_GET['once'] ?? '');
@@ -42,10 +44,19 @@ if (!$gate['ok']) {
             $hidden['seal_id'] = $sid;
         }
     }
+    if ($action === 'case_a_delete') {
+        $tid = (string) ($_POST['tournament_id'] ?? '');
+        if ($tid !== '') {
+            $hidden['tournament_id'] = $tid;
+        }
+        if (isset($_POST['confirm_case_a']) && (string) $_POST['confirm_case_a'] === '1') {
+            $hidden['confirm_case_a'] = '1';
+        }
+    }
     amiga_ops_render_password_form(
         $self,
         'Amiga backup seals — admin password',
-        'Admin password required (backup / restore / list seals).',
+        'Admin password required (backup / restore / Case A delete).',
         $hidden,
         $gate['provided'],
         'Admin password'
@@ -57,6 +68,7 @@ $self = (string) ($_SERVER['SCRIPT_NAME'] ?? '/amiga/run_backup_ko2amiga.php');
 $flashOk = '';
 $flashErr = '';
 $stagedSealId = '';
+$caseACandidates = [];
 
 if ($action === 'backup_now') {
     set_time_limit(600);
@@ -107,11 +119,66 @@ if ($action === 'backup_now') {
     } else {
         $flashErr = $del['error'];
     }
+} elseif ($action === 'case_a_delete') {
+    $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
+    $confirmed = isset($_POST['confirm_case_a']) && (string) $_POST['confirm_case_a'] === '1';
+    if ($tournamentId <= 0) {
+        $flashErr = 'Case A delete requires a tournament id.';
+    } elseif (!$confirmed) {
+        $flashErr = 'Case A delete requires the confirm checkbox (admin-only hard delete of ground).';
+    } else {
+        set_time_limit(600);
+        ini_set('memory_limit', '512M');
+        include __DIR__ . '/../../config/ko2amiga_config.php';
+        $dbName = (string) ($database ?? '');
+        if ($dbName !== 'ko2amiga_db' && $dbName !== 'ko2amiga_work') {
+            $flashErr = 'config database must be ko2amiga_db (staging) or ko2amiga_work (local); got ' . $dbName . '.';
+        } else {
+            mysqli_report(MYSQLI_REPORT_OFF);
+            $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+            if ($con->connect_errno) {
+                $flashErr = 'connect failed: ' . $con->connect_error;
+            } else {
+                $con->set_charset('utf8mb4');
+                $deleted = amiga_delete_unfinalized_tournament($con, $tournamentId, false);
+                if (!$deleted['ok']) {
+                    $flashErr = 'Case A delete refused: ' . (string) $deleted['error'];
+                    mysqli_close($con);
+                } else {
+                    mysqli_close($con);
+                    // Case A is not tip-changing — no auto-seal (BA2/AD6 apply to Finish + Case B/C tip deletes).
+                    $flashOk = 'Case A deleted tournament #' . (int) $deleted['tournament_id']
+                        . ' (' . (string) $deleted['name'] . ')'
+                        . ' (lifecycle was ' . (string) $deleted['lifecycle_status'] . '; '
+                        . (int) $deleted['games_deleted'] . ' game(s) removed'
+                        . '; orphan live players: ' . count($deleted['orphan_players_deleted'])
+                        . '). Tip unchanged — no backup seal (use Backup now if you want one).';
+                }
+            }
+        }
+    }
 }
 
 $seals = amiga_backup_seal_list();
 $marker = amiga_backup_restore_marker_read();
 $importApplyUrl = '/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot';
+
+// Candidate list for Case A UI (best-effort; page still works if DB down).
+try {
+    include __DIR__ . '/../../config/ko2amiga_config.php';
+    $dbNameList = (string) ($database ?? '');
+    if ($dbNameList === 'ko2amiga_db' || $dbNameList === 'ko2amiga_work') {
+        mysqli_report(MYSQLI_REPORT_OFF);
+        $conList = @new mysqli($dbhost, $username, $password, $database, $dbportnum);
+        if (!$conList->connect_errno) {
+            $conList->set_charset('utf8mb4');
+            $caseACandidates = amiga_case_a_list_candidates($conList, 40);
+            mysqli_close($conList);
+        }
+    }
+} catch (Throwable $e) {
+    $caseACandidates = [];
+}
 
 header('Content-Type: text/html; charset=utf-8');
 echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Amiga backup seals</title>';
@@ -124,7 +191,8 @@ echo 'a.btn-danger,button.btn-danger{background:#b71c1c}</style></head><body>';
 echo '<h1>Amiga backup seals</h1>';
 echo '<p class="muted">Build ' . htmlspecialchars(AMIGA_BACKUP_PAGE_BUILD, ENT_QUOTES, 'UTF-8')
     . ' · Packs under <code>amiga/_backups/</code>. Restore stages a seal into <code>_import/</code>, then Apply import '
-    . 'replaces <code>ko2amiga_db</code> (same engine as push import — BA4). Reserve seals cannot be erased via PHP (BA6).</p>';
+    . 'replaces <code>ko2amiga_db</code> (same engine as push import — BA4). Reserve seals cannot be erased via PHP (BA6). '
+    . 'Case A admin delete = unfinalized generated kitchen only (AD1); organizer Abandon/void stays on fixtures Advanced (AD2).</p>';
 
 if ($flashOk !== '') {
     echo '<p class="ok">' . htmlspecialchars($flashOk, ENT_QUOTES, 'UTF-8') . '</p>';
@@ -168,6 +236,37 @@ echo '</form>';
 
 echo '<p class="muted">Rolling keep = ' . (int) AMIGA_BACKUP_ROLLING_KEEP
     . ' non-reserve · auto-reserve every ' . (int) AMIGA_BACKUP_RESERVE_EVERY . 'th seal.</p>';
+
+echo '<h2>Case A — delete unfinalized kitchen</h2>';
+echo '<p class="muted">Admin-only. Deletes L3+L4 ground for a <strong>never-official</strong> generated tournament '
+    . '(no <code>rating_finalized</code>, no L5 timeline). No present re-project. '
+    . '<strong>No auto-seal</strong> — tip unchanged (BA2/AD6 are for Finish and tip deletes). '
+    . 'Finalized tips → Case B later — not this form. Organizers use Abandon/void on fixtures Advanced, not tip-delete.</p>';
+echo '<form method="post" action="' . htmlspecialchars($self, ENT_QUOTES, 'UTF-8') . '" '
+    . 'onsubmit="return confirm(\'Permanently delete this unfinalized kitchen (ground + games)? Tip is unchanged; no backup seal will be written.\');">';
+echo '<input type="hidden" name="once" value="' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '">';
+echo '<input type="hidden" name="action" value="case_a_delete">';
+echo '<p><label>Tournament id <input type="number" name="tournament_id" min="1" required style="width:8rem"></label></p>';
+echo '<p><label><input type="checkbox" name="confirm_case_a" value="1" required> I understand this hard-deletes ground and cannot be undone except by restoring a prior seal</label></p>';
+echo '<p><button class="btn btn-danger" type="submit">Delete Case A…</button></p>';
+echo '</form>';
+
+if ($caseACandidates === []) {
+    echo '<p class="muted">No unfinalized generated kitchens currently listed (or DB unreachable).</p>';
+} else {
+    echo '<table><thead><tr><th>Id</th><th>Name</th><th>Lifecycle</th><th>Date</th><th>Games</th><th>Entrants</th></tr></thead><tbody>';
+    foreach ($caseACandidates as $cand) {
+        echo '<tr>';
+        echo '<td><code>' . (int) $cand['id'] . '</code></td>';
+        echo '<td>' . htmlspecialchars((string) $cand['name'], ENT_QUOTES, 'UTF-8') . '</td>';
+        echo '<td>' . htmlspecialchars((string) $cand['lifecycle_status'], ENT_QUOTES, 'UTF-8') . '</td>';
+        echo '<td>' . htmlspecialchars((string) ($cand['event_date'] ?? ''), ENT_QUOTES, 'UTF-8') . '</td>';
+        echo '<td>' . (int) $cand['games'] . '</td>';
+        echo '<td>' . (int) $cand['entrants'] . '</td>';
+        echo '</tr>';
+    }
+    echo '</tbody></table>';
+}
 
 echo '<h2>Seals on disk</h2>';
 if ($seals === []) {

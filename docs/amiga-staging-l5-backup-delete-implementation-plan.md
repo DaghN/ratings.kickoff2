@@ -1,6 +1,6 @@
 # Amiga Track L5 — staging backup + admin delete — implementation plan (Jul 2026)
 
-**Status:** **In progress** — **slices 0–2 done**. Next: **slice 3** (Case A delete).
+**Status:** **In progress** — **slices 0–3 done**. Next: **slice 4** (Case B delete + present re-project).
 
 **Policy (locked intent):** [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) (BA*, AD*).
 
@@ -58,7 +58,7 @@ Case B is Case C with an empty forward set — implement shared primitives, then
 | **0** | Inventory + locks: where Finish commits; export pack writer today (`export_ko2amiga_work` / staging export lib); which derived tables Case B must clear; how present re-project should mirror verify oracles; admin surface placement (ops page vs fixtures Advanced). Write notes into this plan §5. | Read-only | No staging destructive smoke yet |
 | **1** | **Backup seal writer** — after successful Make official (and callable from admin): write dated full pack under server `_backups/` (or agreed path); rolling N + reserve rule (BA5–BA6). Prefer reuse of existing dump/part logic. | Staging or local smoke: Finish → pack appears; reserve not deletable via PHP | Do not wire delete yet |
 | **2** | **Restore path** — list seals; restore = feed Apply import (copy into `_import` or import-from-path). Admin password only. | Restore prior seal wipes a post-seal kitchen | STOP if replace semantics unclear |
-| **3** | **Case A delete** — admin deletes unfinalized / void-eligible generated tournament; no present re-project. Backup after (AD6). | Kitchen draft/running abandoned → gone; seal after | — |
+| **3** | **Case A delete** — admin deletes unfinalized / void-eligible generated tournament; no present re-project. **No auto-seal** (not tip-changing). | Kitchen draft/running abandoned → gone | — |
 | **4** | **Case B delete** — admin deletes latest finalized tip; clear derived for that id; `project-present-at` prior tip; backup after. | Tip kitchen gone; profiles/LB tip coherent; restore undoes | Prefer work DB or staging with backup first |
 | **5** | **Case C narrow** — admin deletes M with ≥1 finalized after; truncate forward derived; re-project; loop PHP finalize for remaining events in chrono order; backup after. | Test-under-real scenario on staging/work: delete test, real tip re-derived; site coherent | Limit smoke to **short** forward chain (1–3 events) |
 | **6** | **Docs / practice track** — policy status Implemented (or Partially if C limited); L5 gate note; UPDATE_DOCS Part A; reject inventing L6/demotion | — | — |
@@ -155,7 +155,7 @@ Read-only inventory for slices 1–5. Chrono key: `(tournaments.event_date, tour
 | fixtures Advanced / Table | Organizer gate; AD2 void ≠ tip delete; plan §5.5 |
 | Stuffing delete into import page alone | Import already large; prefer thin hub or dedicated admin page with cross-links |
 
-**Today:** no browser tip-delete; Advanced = Abandon (void) + Reset incomplete finish only. CLI Case A-ish: `fixtures cleanup-generated`. Planned verbs live under `amiga/ops/` modules, UI under `/amiga/` admin surface.
+**Today:** no browser tip-delete for finalized events; Advanced = Abandon (void) + Reset incomplete finish only. **Case A (slice 3):** admin delete of unfinalized generated kitchens on `/amiga/run_backup_ko2amiga.php` (+ CLI `delete-unfinalized-tournament`). Case B/C verbs still planned under `amiga/ops/` modules.
 
 ---
 
@@ -177,11 +177,11 @@ Read-only inventory for slices 1–5. Chrono key: `(tournaments.event_date, tour
 
 - [x] Finish kitchen → backup seal on server  
 - [x] Admin restore previous seal → tip matches that seal  
-- [ ] Case A: remove never-official generated league  
+- [x] Case A: remove never-official generated league  
 - [ ] Case B: remove latest finalized training tip; present coherent  
 - [ ] Case C: test under real → delete test → real remains correct after re-finalize  
-- [ ] Organizer cannot tip-delete  
-- [ ] Reserve seals not erasable via website admin UI  
+- [x] Organizer cannot tip-delete  
+- [x] Reserve seals not erasable via website admin UI  
 - [ ] No L6 / demotion invented  
 
 ---
@@ -190,6 +190,8 @@ Read-only inventory for slices 1–5. Chrono key: `(tournaments.event_date, tour
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **Case A no auto-seal** — BA2/AD6 clarified (tip-changing only); dropped seal from Case A UI/CLI. Staging needs WinSCP of slice 3 PHP (`Build l5-s3b-…`). |
+| 2026-07-22 | **Slice 3 done** — Case A `amiga_delete_unfinalized_tournament` + admin UI on `run_backup_ko2amiga.php` + CLI verb; refuse finalized / imported / L5 timeline; (seal-after later dropped — see above); smoke PASS. Next: slice 4 Case B. |
 | 2026-07-22 | **Session wrap** — slices 0–2 committed/pushed; staging reserve seal + work↔staging parity verified; local compare/smoke dumps cleaned. Next: slice 3. |
 | 2026-07-22 | **Slice 2 done** — Restore stages seal → `_import/` then Apply import (BA4 full replace); import helpers extracted; local smoke PASS (mutate Country → Apply → wiped). Next: slice 3 Case A. |
 | 2026-07-22 | **Slice 1 done** — PHP seal writer (`amiga_backup_seal_lib.php`) → `amiga/_backups/`; Finish wires after Make official; admin `/amiga/run_backup_ko2amiga.php`; rolling N=8 + reserve every 5th; BA6 refuse PHP delete reserve. Local smoke PASS (42 parts, mysqldump). Next: slice 2. |

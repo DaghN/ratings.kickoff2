@@ -15,6 +15,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/amiga_ops_bootstrap.php';
 require_once __DIR__ . '/modules/process_completed_game.php';
 require_once __DIR__ . '/modules/finalize_tournament.php';
+require_once __DIR__ . '/modules/delete_unfinalized_tournament.php';
 
 amiga_ops_require_cli();
 
@@ -24,13 +25,14 @@ function amiga_ops_print_help(): void
     fwrite(STDOUT, "Verbs:\n");
     fwrite(STDOUT, "  zero-derived          Clear derived tables incl. realm snapshots (ground kept)\n");
     fwrite(STDOUT, "  finalize-tournament   Batch finalize one tournament (frozen Elo + rating events)\n");
+    fwrite(STDOUT, "  delete-unfinalized-tournament  Case A: delete never-official generated kitchen\n");
     fwrite(STDOUT, "  replay-to             Removed — use python -m scripts.amiga prove\n");
     fwrite(STDOUT, "  process-one           Deprecated for tournament games — use finalize-tournament\n");
     fwrite(STDOUT, "  verify                Row counts + derived_gap + standings spot-checks\n");
     fwrite(STDOUT, "  help\n");
     fwrite(STDOUT, "Options:\n");
     fwrite(STDOUT, "  --game-id N           process-one target\n");
-    fwrite(STDOUT, "  --tournament-id N     finalize-tournament target\n");
+    fwrite(STDOUT, "  --tournament-id N     finalize-tournament / delete-unfinalized-tournament target\n");
     fwrite(STDOUT, "  --limit N             replay-to (deprecated)\n");
     fwrite(STDOUT, "  --until-game-id G     replay-to (deprecated)\n");
     fwrite(STDOUT, "  --dry-run\n");
@@ -111,6 +113,32 @@ if ($verb === 'finalize-tournament') {
     } catch (AmigaFinalizeLockException $e) {
         fwrite(STDERR, $e->getMessage() . PHP_EOL);
         exit(1);
+    } finally {
+        $con->close();
+    }
+    exit(0);
+}
+
+if ($verb === 'delete-unfinalized-tournament') {
+    if ($tournamentId === null || $tournamentId <= 0) {
+        fwrite(STDERR, "delete-unfinalized-tournament requires --tournament-id N\n");
+        exit(1);
+    }
+    $con = amiga_ops_connect();
+    try {
+        $result = amiga_delete_unfinalized_tournament($con, $tournamentId, $dryRun);
+        if (!$result['ok']) {
+            fwrite(STDERR, 'Case A refuse: ' . $result['error'] . PHP_EOL);
+            exit(1);
+        }
+        amiga_ops_log(
+            'delete-unfinalized-tournament done: id=' . $result['tournament_id']
+            . ' name=' . $result['name']
+            . ' games=' . $result['games_deleted']
+            . ' orphans=' . count($result['orphan_players_deleted'])
+            . ($dryRun ? ' (dry-run)' : '')
+        );
+        // Case A is not tip-changing — no auto-seal.
     } finally {
         $con->close();
     }

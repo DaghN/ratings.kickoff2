@@ -94,7 +94,7 @@
 
 - **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~300** videos; unified embed UI; **C06** dedicated Videos column; **With videos** filter; **player profile Videos wing**. **Jul 2026:** **TV-2b DB anchor sync** — `sync_db_ids` + `verify-tournament-videos` in `prove` ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md) §12).
 
-- **Amiga live ops (Jul 2026):** **Track L: L5 in progress** — **slices 0–2 done** (inventory + backup seals + restore via stage→Apply); next **slice 3** Case A delete. L0–L1 done; L6 shelved. Policy [`amiga-staging-backup-admin-delete-policy.md`](docs/amiga-staging-backup-admin-delete-policy.md) · plan [`amiga-staging-l5-backup-delete-implementation-plan.md`](docs/amiga-staging-l5-backup-delete-implementation-plan.md) · starter [`amiga-staging-l5-backup-delete-STARTER-PROMPT.md`](docs/orchestration/agent-handoffs/amiga-staging-l5-backup-delete-STARTER-PROMPT.md).
+- **Amiga live ops (Jul 2026):** **Track L: L5 in progress** — slices **0–3 done** (Case A no auto-seal); next **slice 4** Case B. **Organizer workspace simplification** — policy locked (OW1–OW14): Open/Official + Hide; no Start/void; merge stage-scoped play surface; abandon withdraw/replace — [`amiga-organizer-workspace-simplification-policy.md`](docs/amiga-organizer-workspace-simplification-policy.md) · plan [`amiga-organizer-workspace-simplification-implementation-plan.md`](docs/amiga-organizer-workspace-simplification-implementation-plan.md). L6 shelved. L5: [`amiga-staging-backup-admin-delete-policy.md`](docs/amiga-staging-backup-admin-delete-policy.md).
 
 - **Amiga format scoring contract (Jul 2026):** **SC-0–SC-9 + SC-11 shipped** — L4b relational contracts, PHP↔Python executor parity, RTB broadcast, L5 `stage_id`, structured ET/pens on games + fixtures (`012_match_extensions.sql`). **SC-10:** non-WC games **100%** `fixture_id` on work (Jul 2026); remaining unlinked games = **unmaterialized WCs** (`wc_deferred`). Policy [`amiga-format-scoring-contract-policy.md`](docs/amiga-format-scoring-contract-policy.md) · plan [`amiga-format-scoring-contract-implementation-plan.md`](docs/amiga-format-scoring-contract-implementation-plan.md).
 
@@ -121,7 +121,7 @@
 | `player_milestones` row-count timeline | `docs/archive/replay-register-2026-05.md` § Milestone unlock row counts |
 | Prod cutover | `docs/prod-coordination.md`, `site/public_html/ops/docs/post-dagh-live-story.md` |
 | Ladder ops platform (Steve, `ops/`, sim) | `docs/ladder-ops-platform.md` |
-| Amiga live ops (staging authority, repair, media) | [`amiga-live-ops-platform.md`](docs/amiga-live-ops-platform.md) · drill [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md) · finish confirm [`amiga-organizer-finish-confirm-policy.md`](docs/amiga-organizer-finish-confirm-policy.md) |
+| Amiga live ops (staging authority, repair, media) | [`amiga-live-ops-platform.md`](docs/amiga-live-ops-platform.md) · drill [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md) · finish confirm [`amiga-organizer-finish-confirm-policy.md`](docs/amiga-organizer-finish-confirm-policy.md) · **workspace UX** [`amiga-organizer-workspace-simplification-policy.md`](docs/amiga-organizer-workspace-simplification-policy.md) |
 | DB copies (local + staging names) | `docs/coordination/database-copies-2026-06.md` |
 | Work DB prepare / simul | `docs/work-db-prepare.md` |
 | Ground vs derived columns | `docs/replay-v1-scope-and-reset.md`, `docs/ground-truth-manifest.md` (online) · **`docs/amiga-data-contract.md`** (Amiga) |
@@ -149,6 +149,9 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-22 | **Organizer workspace simplification locked** — OW1–OW14 policy + thin plan (Open/Hide; no Start/void; stage-scoped play merge; drop withdraw/replace). Code not started. |
+| 2026-07-22 | **L5 slice 3b** — dropped Case A auto-seal (policy: tip-changing only). Case A UI needs WinSCP of `run_backup_ko2amiga.php` + `delete_unfinalized_tournament.php` (look for Build `l5-s3b-…`). Next: slice 4 Case B. |
+| 2026-07-22 | **L5 slice 3 done** — Case A `delete-unfinalized-tournament` (admin backup page + ops module/CLI); refuse finalized tip; (auto-seal later dropped — 3b); local smoke PASS. Next: slice 4 Case B. |
 | 2026-07-22 | **L5 slices 0–2 shipped + pushed** (`2a3b39f1`); staging Backup now **reserve** seal; work↔staging **parity OK** (Nottingham III #607, 27474 games, checksums); local smoke/compare dumps cleaned. Next: slice 3 Case A (starter prompt ready). |
 | 2026-07-22 | **L5 slice 2 done** — Restore stages seal into `_import/` then Apply import (full replace); smoke PASS (Country probe wiped). Next: slice 3 Case A. |
 | 2026-07-22 | **L5 slice 1 done** — `amiga_backup_seal_lib.php` + Finish seal + `/amiga/run_backup_ko2amiga.php`; rolling/reserve BA5–BA6; local smoke 42 parts / reserve PHP-delete refused. Next: slice 2 restore. |

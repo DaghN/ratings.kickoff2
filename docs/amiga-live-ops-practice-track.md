@@ -98,13 +98,13 @@ Only the **current** cycle is live. When fixed and re-checked, clear or archive 
 
 | Field | Value |
 |-------|-------|
-| **Status** | idle — **L5 slices 0–2 done**; next **slice 3** (Case A delete) |
+| **Status** | idle — **L5 slices 0–3 done**; next **slice 4** (Case B delete + present re-project) |
 | **Format** | Ref-League-A (repair smoke) |
 | **Step** | — |
 | **Feedback** | (none) |
-| **Slice** | 2 done → 3 |
+| **Slice** | 3 done → 4 |
 
-**Context for next chat:** Paste [`amiga-staging-l5-backup-delete-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-staging-l5-backup-delete-STARTER-PROMPT.md) (**COPY INTO NEW CHAT** — defaults to **slice 3** Case A). Inventory: plan §5. Backup+restore live; staging↔work parity checked 2026-07-22. Policy [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md). **L6 shelved.**
+**Context for next chat:** Paste [`amiga-staging-l5-backup-delete-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-staging-l5-backup-delete-STARTER-PROMPT.md) (**COPY INTO NEW CHAT** — defaults to **slice 4** Case B). Case A live on admin backup page; backup+restore live. Policy [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md). **L6 shelved.**
 
 When a cycle is open, agents read **this table only** — not historical notes — as the work order.
 
@@ -125,9 +125,9 @@ Milestones are **gates**, not a parallel backlog. Advance when Dagh says the pri
 | **L6** | Ground pack pull | **Shelved** — not planned until further notice (full staging backup pack is enough). Keep mention only. |
 | **L7** | Media on ran event | YouTube URL on staging tournament |
 
-**Current gate:** **L5 in progress** — slices **0–2 done**; next **slice 3** (Case A). L2 reps optional. **L6 shelved.** Cups deferred.
+**Current gate:** **L5 in progress** — slices **0–3 done**; next **slice 4** (Case B). L2 reps optional. **L6 shelved.** Cups deferred.
 
-**Explicit defer until a cycle names them:** structure imprint P2–P3, WC materialize, Lane C media DDL, CR-9 country polish, player-create phase 2, cups (L3) until named, **L6 ground pack (shelved — full DB backup pack preferred).**
+**Explicit defer until a cycle names them:** structure imprint P2–P3, WC materialize, Lane C media DDL, CR-9 country polish, player-create phase 2, cups (L3) until named, **L6 ground pack (shelved — full DB backup pack preferred)**, **organizer workspace simplification** (policy locked — implement when named; [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md)).
 
 ---
 
@@ -169,6 +169,9 @@ Closed cycles from early drills. Do **not** treat as open work.
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **Organizer workspace simplification** — OW policy + plan locked (Open/Hide; no Start/void; stage-scoped play merge). Implement when named; §4 unchanged (L5). |
+| 2026-07-22 | **L5 slice 3b** — Case A no auto-seal; §4 still → slice 4. WinSCP slice 3 PHP for Case A UI on staging. |
+| 2026-07-22 | **L5 slice 3 done** — Case A admin delete + seal after; §4 → next slice 4 Case B. |
 | 2026-07-22 | **L5 session wrap** — slices 0–2 on `main`; staging reserve seal + work/staging parity checked; local smoke dumps cleaned; §4 still → slice 3. |
 | 2026-07-22 | **L5 slice 2 done** — restore stage → Apply import; §4 → next slice 3. |
 | 2026-07-22 | **L5 slice 1 done** — backup seal writer + Finish hook + admin Backup now; §4 → next slice 2. |

@@ -4,9 +4,11 @@
 
 **Status:** **Policy locked (Jul 2026, rev. 2)** — two-universe split: **Running** vs **Official**. RTB-1–RTB-9 shipped Jul 2026 (organizer **Finish and make official** = promote + finalize + lifecycle `completed`).
 
+**Organizer UX (Jul 2026):** Happy-path Start / void / dual Fixtures·Results / withdraw·replace are **superseded** for new work by [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md) (Open + Live visible; stage-scoped play). **Keep** this doc’s running-package vs Official boundary. Internal `lifecycle_status = running` may remain until that track remaps gates.
+
 **Parent:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (Lane B) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (L3–L5) · [`amiga-data-contract.md`](amiga-data-contract.md) · **Scoring contract:** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md) (RTB14)
 
-**Related:** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (fixture = one match) · [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (permanent `amiga_players` at create) · [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) (Make official writers) · [`amiga-php-finalize-parity-protocol.md`](amiga-php-finalize-parity-protocol.md) (PHP Finish ↔ simul-oracle fingerprint)
+**Related:** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (fixture = one match) · [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (permanent `amiga_players` at create) · [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) (Make official writers) · [`amiga-php-finalize-parity-protocol.md`](amiga-php-finalize-parity-protocol.md) (PHP Finish ↔ simul-oracle fingerprint) · [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md)
 
 **Inventory / implementation:** [`amiga-running-tournament-boundary-inventory.md`](amiga-running-tournament-boundary-inventory.md) · [`amiga-running-tournament-boundary-implementation-plan.md`](amiga-running-tournament-boundary-implementation-plan.md)
 

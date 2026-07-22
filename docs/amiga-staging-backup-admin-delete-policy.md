@@ -29,7 +29,7 @@ This is **enough** for KOA scale: rare events, trusted small admin set, organize
 | Id | Decision |
 |----|----------|
 | **BA1** | **Artifact** = full DB backup pack equivalent to today’s browser rebuild payload: `ko2amiga_manifest.json` + `ko2amiga_*.sql` parts (KOOL convention, not a generic mysqldump API). |
-| **BA2** | **When** = **after** successful tip-changing actions — at least: **Make official** (append) and **admin delete**. Also after explicit admin “backup now” / successful full import if those exist. **Not** after each score entry. |
+| **BA2** | **When** = **after** successful **tip-changing** actions — at least: **Make official** (append) and **admin tip delete** (Case B/C — finalized tip / mid-history with repair). Also after explicit admin “backup now” / successful full import if those exist. **Not** after each score entry. **Not** after Case A (unfinalized trash — tip unchanged). |
 | **BA3** | **Not before delete by default** — pre-delete tip should already be the previous after-Finish (or after-prior-action) seal. Strict rule: tip-changing success implies after-backup (or loud failure). |
 | **BA4** | **Restore** = existing Apply import semantics (replace staged `ko2amiga_db` from a chosen pack). Multi-backup UX may later pick a seal; engine stays the same. |
 | **BA5** | **Retention** = rolling last **N** seals (e.g. 5–10) on server; **reserve** seals (e.g. every 5th, or manual milestone) not swept by the rolling cleaner. Exact N tunable at implement time. |
@@ -44,11 +44,11 @@ This is **enough** for KOA scale: rare events, trusted small admin set, organize
 | Id | Decision |
 |----|----------|
 | **AD1** | **Admin-only** for removing published / finalized tournaments from staging. |
-| **AD2** | **Organizer cancel** = void / abandon **never-official** only (already in organizer Advanced) — leaves Live, does not commit ratings; not the same as admin delete of an official tip event. |
+| **AD2** | **Organizer cancel** = historically void / abandon never-official (Advanced). **Superseded for new UX** by **Hide** (Live visibility) + admin Case A delete — [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md). Not the same as admin delete of an official tip event. |
 | **AD3** | After successful admin delete of a **finalized tip** event: run **anchored repair** appropriate to the case (v1 target = **Case A** unfinalized trash + **Case B** delete latest finalized — re-project present). Prefer PHP live path on staging; do **not** require local `prove`/`simul` as daily delete. Exact verb names follow live-ops §7.4 when implemented. |
 | **AD4** | **Case C (narrow) is in L5 scope** — delete non-tip **M** with later finalized events (e.g. test under real tip): truncate poisoned forward derived; re-project at M−1; **re-finalize forward** via PHP live finalize. Smoke on **short** forward chains first; deep mid-history optional later. Plan: [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md). |
 | **AD5** | **No** organizer lock/unlock delete matrix and **no** per-tournament delete password in v1. |
-| **AD6** | After successful delete + repair: **BA2** backup of the new tip. |
+| **AD6** | After successful **tip** delete + repair (Case B/C): **BA2** backup of the new tip. **Case A** (unfinalized trash) does **not** auto-seal — tip unchanged; optional Backup now. |
 
 ---
 
@@ -88,5 +88,7 @@ Ship when Track L / live-ops feedback names it (likely around **L5**). Until the
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **AD2 note** — organizer void superseded by Hide + Case A (workspace simplification policy). |
+| 2026-07-22 | **AD6/BA2 clarified** — Case A (unfinalized) does not auto-seal; seals after tip-changing only (Finish, Case B/C). |
 | 2026-07-22 | **AD4** — narrow Case C in L5 scope (test-under-real); L5 plan + starter linked. |
 | 2026-07-22 | **Locked v1 intent** — organizer vs admin; backup-after tip actions; admin-only delete; L6/demotion out; retention + web-admin threat model. |
