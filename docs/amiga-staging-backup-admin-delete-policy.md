@@ -31,7 +31,7 @@ This is **enough** for KOA scale: rare events, trusted small admin set, organize
 | **BA1** | **Artifact** = full DB backup pack equivalent to today’s browser rebuild payload: `ko2amiga_manifest.json` + `ko2amiga_*.sql` parts (KOOL convention, not a generic mysqldump API). |
 | **BA2** | **When** = **after** successful **tip-changing** actions — at least: **Make official** (append) and **admin tip delete** (Case B/C — finalized tip / mid-history with repair). Also after explicit admin “backup now” / successful full import if those exist. **Not** after each score entry. **Not** after Case A (unfinalized trash — tip unchanged). |
 | **BA3** | **Not before delete by default** — pre-delete tip should already be the previous after-Finish (or after-prior-action) seal. Strict rule: tip-changing success implies after-backup (or loud failure). |
-| **BA4** | **Restore** = existing Apply import semantics (replace staged `ko2amiga_db` from a chosen pack). Multi-backup UX may later pick a seal; engine stays the same. |
+| **BA4** | **Restore** = full replace of staged `ko2amiga_db` from a chosen seal pack (same Apply-import engine). **Primary UX:** apply **directly from** `amiga/_backups/<seal>/` (multi-part, auto-continue) — **does not** overwrite `amiga/_import/` (push tray). Optional advanced: copy seal into `_import` for tray/Apply. |
 | **BA5** | **Retention** = rolling last **N** seals (e.g. 5–10) on server; **reserve** seals (e.g. every 5th, or manual milestone) not swept by the rolling cleaner. Exact N tunable at implement time. |
 | **BA6** | **Web admin vs filesystem** — website admin must **not** be able to bulk-erase reserve seals through PHP. Rolling cleanup may be automatic; reserve delete = WinSCP/Dagh only (or no UI). |
 | **BA7** | **L6 ground packs** = **shelved** — per-tournament packs not planned; full pack is the safety path. |
@@ -89,6 +89,6 @@ Ship when Track L / live-ops feedback names it (likely around **L5**). Until the
 | Date | Change |
 |------|--------|
 | 2026-07-22 | **AD2 note** — organizer void superseded by Hide + Case A (workspace simplification policy). |
-| 2026-07-22 | **AD6/BA2 clarified** — Case A (unfinalized) does not auto-seal; seals after tip-changing only (Finish, Case B/C). |
+| 2026-07-22 | **BA4 restore UX** — primary apply-from-`_backups/` (Build `l5-s4j`); `_import` copy optional. |
 | 2026-07-22 | **AD4** — narrow Case C in L5 scope (test-under-real); L5 plan + starter linked. |
 | 2026-07-22 | **Locked v1 intent** — organizer vs admin; backup-after tip actions; admin-only delete; L6/demotion out; retention + web-admin threat model. |

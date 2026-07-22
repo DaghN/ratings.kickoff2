@@ -46,8 +46,54 @@ function amiga_backup_restore_marker_read(): ?array
 }
 
 /**
- * Copy a seal pack into amiga/_import/ so Apply import can restore (BA4).
- * Overwrites the current push payload parts listed in the seal manifest.
+ * Resolve and validate a seal pack directory for direct BA4 restore (no _import copy).
+ *
+ * @return array{ok:bool,error:string,seal_id:string,pack_dir:string,parts:list<string>}
+ */
+function amiga_backup_seal_validate_for_restore(string $sealId): array
+{
+    $fail = static function (string $msg): array {
+        return [
+            'ok' => false,
+            'error' => $msg,
+            'seal_id' => '',
+            'pack_dir' => '',
+            'parts' => [],
+        ];
+    };
+
+    $sealId = basename($sealId);
+    if (!str_starts_with($sealId, 'seal-')) {
+        return $fail('Invalid seal id.');
+    }
+    $sealDir = amiga_backup_seals_root() . DIRECTORY_SEPARATOR . $sealId;
+    if (!is_dir($sealDir)) {
+        return $fail('Seal not found: ' . $sealId);
+    }
+    require_once __DIR__ . '/amiga_staging_import_lib.php';
+    $parts = k2_amiga_import_manifest_parts_from_dir($sealDir);
+    if ($parts === [] || ($parts[0] === 'ko2amiga_db.sql' && !is_file($sealDir . DIRECTORY_SEPARATOR . 'ko2amiga_manifest.json'))) {
+        return $fail('Seal missing usable ko2amiga_manifest.json parts list.');
+    }
+    foreach ($parts as $base) {
+        if (!is_file($sealDir . DIRECTORY_SEPARATOR . $base)) {
+            return $fail('Seal part missing on disk: ' . $base);
+        }
+    }
+
+    return [
+        'ok' => true,
+        'error' => '',
+        'seal_id' => $sealId,
+        'pack_dir' => $sealDir,
+        'parts' => $parts,
+    ];
+}
+
+/**
+ * Copy a seal pack into amiga/_import/ (optional push-tray path).
+ * Prefer {@see amiga_backup_seal_validate_for_restore()} + apply-from-seal-dir for BA4 restore —
+ * that does not overwrite a pending push payload.
  *
  * @return array{ok:bool,error:string,seal_id:?string,parts:int,import_dir:?string,marker:?string}
  */

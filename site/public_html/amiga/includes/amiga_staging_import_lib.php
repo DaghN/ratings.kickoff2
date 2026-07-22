@@ -47,7 +47,18 @@ function k2_amiga_import_stmt_label(string $stmt): string
  */
 function k2_amiga_import_manifest_parts(): array
 {
-    $manifestPath = AMIGA_IMPORT_DIR . '/ko2amiga_manifest.json';
+    return k2_amiga_import_manifest_parts_from_dir(AMIGA_IMPORT_DIR);
+}
+
+/**
+ * Read pack part list from any directory that has ko2amiga_manifest.json.
+ *
+ * @return list<string>
+ */
+function k2_amiga_import_manifest_parts_from_dir(string $packDir): array
+{
+    $packDir = rtrim(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $packDir), DIRECTORY_SEPARATOR);
+    $manifestPath = $packDir . DIRECTORY_SEPARATOR . 'ko2amiga_manifest.json';
     if (is_file($manifestPath)) {
         $raw = (string) file_get_contents($manifestPath);
         if (strncmp($raw, "\xEF\xBB\xBF", 3) === 0) {
@@ -55,11 +66,153 @@ function k2_amiga_import_manifest_parts(): array
         }
         $json = json_decode($raw, true);
         if (is_array($json) && !empty($json['parts']) && is_array($json['parts'])) {
-            return array_values(array_map('strval', $json['parts']));
+            $parts = [];
+            foreach ($json['parts'] as $part) {
+                if (!is_string($part) || $part === '') {
+                    continue;
+                }
+                $base = basename($part);
+                if ($base !== $part || !str_starts_with($base, 'ko2amiga_') || !str_ends_with($base, '.sql')) {
+                    continue;
+                }
+                $parts[] = $base;
+            }
+            if ($parts !== []) {
+                return $parts;
+            }
         }
     }
 
     return ['ko2amiga_db.sql'];
+}
+
+/**
+ * Apply one 1-based part from a pack directory (seal dir or _import).
+ *
+ * @return array{
+ *   ok:bool,
+ *   error:string,
+ *   part:int,
+ *   parts_total:int,
+ *   file:string,
+ *   statements:int,
+ *   elapsed:float,
+ *   done:bool,
+ *   next_part:?int
+ * }
+ */
+function k2_amiga_import_apply_one_part(
+    mysqli $con,
+    string $packDir,
+    int $part1Based,
+    bool $echoProgress = false,
+): array {
+    $packDir = rtrim(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $packDir), DIRECTORY_SEPARATOR);
+    $parts = k2_amiga_import_manifest_parts_from_dir($packDir);
+    $total = count($parts);
+    $fail = static function (string $msg, int $part, int $total, string $file = '') use ($parts): array {
+        return [
+            'ok' => false,
+            'error' => $msg,
+            'part' => $part,
+            'parts_total' => $total,
+            'file' => $file,
+            'statements' => 0,
+            'elapsed' => 0.0,
+            'done' => false,
+            'next_part' => null,
+        ];
+    };
+    if ($total < 1) {
+        return $fail('Pack has no parts.', $part1Based, 0);
+    }
+    if ($part1Based < 1 || $part1Based > $total) {
+        return $fail('Invalid part number.', $part1Based, $total);
+    }
+    $file = $parts[$part1Based - 1];
+    $path = $packDir . DIRECTORY_SEPARATOR . $file;
+    $read = k2_amiga_import_read_dump($path);
+    if (!$read['ok']) {
+        return $fail('Part ' . $part1Based . ' (' . $file . '): ' . $read['error'], $part1Based, $total, $file);
+    }
+    $started = microtime(true);
+    $run = k2_amiga_import_run_sql($con, $read['sql'], $echoProgress);
+    $elapsed = round(microtime(true) - $started, 2);
+    if (!$run['ok']) {
+        return [
+            'ok' => false,
+            'error' => 'Part ' . $part1Based . ' (' . $file . '): ' . $run['error'],
+            'part' => $part1Based,
+            'parts_total' => $total,
+            'file' => $file,
+            'statements' => (int) $run['statements'],
+            'elapsed' => $elapsed,
+            'done' => false,
+            'next_part' => null,
+        ];
+    }
+    $done = $part1Based >= $total;
+
+    return [
+        'ok' => true,
+        'error' => '',
+        'part' => $part1Based,
+        'parts_total' => $total,
+        'file' => $file,
+        'statements' => (int) $run['statements'],
+        'elapsed' => $elapsed,
+        'done' => $done,
+        'next_part' => $done ? null : ($part1Based + 1),
+    ];
+}
+
+/**
+ * Apply all staged _import parts (CLI / smoke). Same semantics as browser Apply.
+ *
+ * @return array{ok:bool,error:string,parts:int,statements:int,elapsed:float}
+ */
+function k2_amiga_import_apply_all_parts(mysqli $con, bool $echoProgress = false): array
+{
+    return k2_amiga_import_apply_all_parts_from_dir($con, AMIGA_IMPORT_DIR, $echoProgress);
+}
+
+/**
+ * Apply every part from a pack directory (seal or _import).
+ *
+ * @return array{ok:bool,error:string,parts:int,statements:int,elapsed:float}
+ */
+function k2_amiga_import_apply_all_parts_from_dir(
+    mysqli $con,
+    string $packDir,
+    bool $echoProgress = false,
+): array {
+    $started = microtime(true);
+    $parts = k2_amiga_import_manifest_parts_from_dir($packDir);
+    $statements = 0;
+    foreach ($parts as $i => $_file) {
+        $one = k2_amiga_import_apply_one_part($con, $packDir, $i + 1, $echoProgress);
+        if (!$one['ok']) {
+            return [
+                'ok' => false,
+                'error' => $one['error'],
+                'parts' => $i,
+                'statements' => $statements + (int) $one['statements'],
+                'elapsed' => round(microtime(true) - $started, 2),
+            ];
+        }
+        $statements += (int) $one['statements'];
+        if ($echoProgress) {
+            echo 'part ' . ($i + 1) . '/' . count($parts) . ' OK: ' . $one['file'] . "\n";
+        }
+    }
+
+    return [
+        'ok' => true,
+        'error' => '',
+        'parts' => count($parts),
+        'statements' => $statements,
+        'elapsed' => round(microtime(true) - $started, 2),
+    ];
 }
 
 /**
@@ -191,50 +344,4 @@ function k2_amiga_import_counts(mysqli $con): array
     }
 
     return $out;
-}
-
-/**
- * Apply all staged _import parts (CLI / smoke). Same semantics as browser Apply.
- *
- * @return array{ok:bool,error:string,parts:int,statements:int,elapsed:float}
- */
-function k2_amiga_import_apply_all_parts(mysqli $con, bool $echoProgress = false): array
-{
-    $started = microtime(true);
-    $parts = k2_amiga_import_manifest_parts();
-    $statements = 0;
-    foreach ($parts as $i => $file) {
-        $path = AMIGA_IMPORT_DIR . '/' . $file;
-        $read = k2_amiga_import_read_dump($path);
-        if (!$read['ok']) {
-            return [
-                'ok' => false,
-                'error' => 'Part ' . ($i + 1) . ' (' . $file . '): ' . $read['error'],
-                'parts' => $i,
-                'statements' => $statements,
-                'elapsed' => round(microtime(true) - $started, 2),
-            ];
-        }
-        $run = k2_amiga_import_run_sql($con, $read['sql'], $echoProgress);
-        if (!$run['ok']) {
-            return [
-                'ok' => false,
-                'error' => 'Part ' . ($i + 1) . ' (' . $file . '): ' . $run['error'],
-                'parts' => $i,
-                'statements' => $statements + (int) $run['statements'],
-                'elapsed' => round(microtime(true) - $started, 2),
-            ];
-        }
-        $statements += (int) $run['statements'];
-        if ($echoProgress) {
-            echo 'part ' . ($i + 1) . '/' . count($parts) . ' OK: ' . $file . "\n";
-        }
-    }
-    return [
-        'ok' => true,
-        'error' => '',
-        'parts' => count($parts),
-        'statements' => $statements,
-        'elapsed' => round(microtime(true) - $started, 2),
-    ];
 }

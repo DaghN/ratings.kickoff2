@@ -4,7 +4,7 @@
 
 **Authority (when documents disagree):** `PROJECT_BRIEF.md` defines purpose and taste. **`docs/design-direction.md`** governs visual identity and cosmetics-track work. **Dagh’s latest message in chat wins** on scope and direction. This file records **logistics, recent work, and near-term intent** — not a second brief. Rituals and agent rules: **`AGENTS.md`**.
 
-**Amiga agents (Jul 2026):** Forward = **`ko2amiga_work`** + **`simul`**. **Pull staged** = `pull_ko2amiga_from_staging.ps1 -Force` · **Push staged** = `export_ko2amiga_work.ps1`. Legacy **`prove`** / Access L0–L5 = oracle only — [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md) §0.
+**Amiga agents (Jul 2026):** Forward = **`ko2amiga_work`** + **`simul`**. **Pull staged** = `pull_ko2amiga_from_staging.ps1 -Force` · **Side-pull compare** = `-TargetDatabase ko2amiga_staging_cmp` (work untouched) · **Push staged** = `export_ko2amiga_work.ps1`. Legacy **`prove`** / Access L0–L5 = oracle only — [`amiga-modern-ground-platform.md`](docs/amiga-modern-ground-platform.md) §0.
 
 ---
 
@@ -94,7 +94,7 @@
 
 - **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~300** videos; unified embed UI; **C06** dedicated Videos column; **With videos** filter; **player profile Videos wing**. **Jul 2026:** **TV-2b DB anchor sync** — `sync_db_ids` + `verify-tournament-videos` in `prove` ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md) §12).
 
-- **Amiga live ops (Jul 2026):** **Track L: L5 in progress** — slices **0–4 done** (Case B + `project-present-at`); next **slice 5** Case C narrow. **Organizer workspace simplification** — **done** (slices 0–6); policy **Implemented** — [`amiga-organizer-workspace-simplification-policy.md`](docs/amiga-organizer-workspace-simplification-policy.md). L6 shelved. L5: [`amiga-staging-backup-admin-delete-policy.md`](docs/amiga-staging-backup-admin-delete-policy.md).
+- **Amiga live ops (Jul 2026):** **Track L: L5 in progress** — slices **0–4 hardened** (Case B + `project-present-at` proven vs Jul 18 GitHub seal after staging repair; BA4 **Restore into DB now** from `_backups/`; side-pull `-TargetDatabase`). Next **slice 5** Case C narrow. Build **`l5-s4j-2026-07-22`**. OW **done**. L6 shelved. L5: [`amiga-staging-backup-admin-delete-policy.md`](docs/amiga-staging-backup-admin-delete-policy.md) · plan [`amiga-staging-l5-backup-delete-implementation-plan.md`](docs/amiga-staging-l5-backup-delete-implementation-plan.md).
 
 - **Amiga format scoring contract (Jul 2026):** **SC-0–SC-9 + SC-11 shipped** — L4b relational contracts, PHP↔Python executor parity, RTB broadcast, L5 `stage_id`, structured ET/pens on games + fixtures (`012_match_extensions.sql`). **SC-10:** non-WC games **100%** `fixture_id` on work (Jul 2026); remaining unlinked games = **unmaterialized WCs** (`wc_deferred`). Policy [`amiga-format-scoring-contract-policy.md`](docs/amiga-format-scoring-contract-policy.md) · plan [`amiga-format-scoring-contract-implementation-plan.md`](docs/amiga-format-scoring-contract-implementation-plan.md).
 
@@ -149,10 +149,11 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-22 | **L5 slice 4 hardened + restore UX** — After botched Case B, present repair: inverse = **pointer recount** (Jul 15 ghosts; not snap cols / empty changelog); matchups = **JOIN pairs** + txn (not MariaDB EXISTS); HTTP phases `player_current`→`matchups`→`rest`; **Diagnose** counts/timing (MariaDB `max_statement_time`). Staging tip #607 **PERFECT MATCH** vs GitHub `work-2026-07-18-forum` (restore seal + side-pull `ko2amiga_staging_cmp`). Local `ko2amiga_work` rebuilt from same seal. **BA4:** **Restore into DB now** from `_backups/` (no `_import` clobber); Copy→`_import` secondary. Side-pull: `pull_ko2amiga_from_staging.ps1 -TargetDatabase …`. Build **`l5-s4j`**. Next: slice 5 Case C. |
 | 2026-07-22 | **OW follow-up** — Setup removed from in-tournament tabs (Players · Play · Table); create/Recent via “Create new league” landing only. |
 | 2026-07-22 | **OW slice 6 (track done)** — policy **Implemented**; practice-track §3 CREATE/OPEN/PLAY; RTB organizer vocabulary aligned; OW12 stage builder deferred. Happy path: Create → Play → Finish (+ optional Hide). |
 | 2026-07-22 | **OW slice 5** — Advanced demoted to muted Technical / repair tools; withdraw/replace UI + browser POST abandoned (CLI kept); Setup slim Open meta (Hide stays header). Next: slice 6 docs/RTB vocabulary. |
-| 2026-07-22 | **L5 slice 4 done** — Case B `delete-last-finalized-tournament` + `project-present-at`; admin backup cockpit (Open links + tip/prior); seal after (AD6); smoke PASS refuse/dry-run/reproject (tip #607 not deleted). Next: slice 5 Case C narrow. WinSCP Build `l5-s4-…`. |
+| 2026-07-22 | **L5 Case A Open → organizer Play** — `/amiga/ops/fixtures.php?once=…&view=play&tournament_id=` (not catalog). Build `l5-s4c`. |
 | 2026-07-22 | **OW slice 4** — Fixtures+Results merged into stage-scoped **Play** (`view=play` + `stage_id`); create/Open land on Play; legacy fixtures/results URLs remap. Next: slice 5 Advanced demote + strip withdraw/replace. |
 | 2026-07-22 | **OW slice 3** — create as `running`+`started_at`; Start UI retired; draft/ready auto-heal to Open; Results landing after create. Live still = running + live_visible. Next: slice 4 play surface merge. |
 | 2026-07-22 | **OW slice 2** — Hide/Show Live via `format_overrides.live_visible` (default on); Live hub filters hidden; Abandon/void retired from browser; Finish unaffected. Next: slice 3 No Start. |

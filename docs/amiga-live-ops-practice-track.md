@@ -98,13 +98,13 @@ Only the **current** cycle is live. When fixed and re-checked, clear or archive 
 
 | Field | Value |
 |-------|-------|
-| **Status** | idle — **L5 slices 0–4 done**; next **slice 5** (Case C narrow — truncate + re-finalize) |
+| **Status** | idle — **L5 slices 0–4 hardened**; next **slice 5** (Case C narrow — truncate + re-finalize) |
 | **Format** | Ref-League-A (repair smoke) |
 | **Step** | — |
 | **Feedback** | (none) |
-| **Slice** | 3 done → 4 |
+| **Slice** | 4 hardened → 5 |
 
-**Context for next chat:** Paste [`amiga-staging-l5-backup-delete-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-staging-l5-backup-delete-STARTER-PROMPT.md) (**COPY INTO NEW CHAT** — defaults to **slice 5** Case C). Case A/B + `project-present-at` on admin backup page; backup+restore live. Policy [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md). **L6 shelved.** WinSCP Build `l5-s4-…` for Case B UI.
+**Context for next chat:** Paste [`amiga-staging-l5-backup-delete-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-staging-l5-backup-delete-STARTER-PROMPT.md) (**COPY INTO NEW CHAT** — defaults to **slice 5** Case C). Case A/B + hardened `project-present-at` (pointer inverse, JOIN matchups, phased re-project) on admin backup page; **Restore into DB now** from `_backups/`. Policy [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md). **L6 shelved.** WinSCP Build **`l5-s4j-2026-07-22`**. Do **not** rebuild projector / restore UX.
 
 When a cycle is open, agents read **this table only** — not historical notes — as the work order.
 
@@ -125,7 +125,7 @@ Milestones are **gates**, not a parallel backlog. Advance when Dagh says the pri
 | **L6** | Ground pack pull | **Shelved** — not planned until further notice (full staging backup pack is enough). Keep mention only. |
 | **L7** | Media on ran event | YouTube URL on staging tournament |
 
-**Current gate:** **L5 in progress** — slices **0–4 done**; next **slice 5** (Case C narrow). L2 reps optional. **L6 shelved.** Cups deferred.
+**Current gate:** **L5 in progress** — slices **0–4 hardened** (Case B present repair proven vs Jul 18 GitHub seal); next **slice 5** (Case C narrow). L2 reps optional. **L6 shelved.** Cups deferred.
 
 **Explicit defer until a cycle names them:** structure imprint P2–P3, WC materialize, Lane C media DDL, CR-9 country polish, player-create phase 2, cups (L3) until named, **L6 ground pack (shelved — full DB backup pack preferred)**.
 
@@ -171,6 +171,7 @@ Closed cycles from early drills. Do **not** treat as open work.
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **L5 slice 4 harden + BA4** — pointer inverse; JOIN matchups; phased re-project; Restore from `_backups/`; tip #607 = forum seal. §4 → slice 5. Build `l5-s4j`. |
 | 2026-07-22 | **OW follow-up** — Setup not an in-tournament tab (create/Recent landing only). |
 | 2026-07-22 | **OW slice 6** — policy Implemented; §3 CREATE/OPEN/PLAY vocabulary; OW track closed. |
 | 2026-07-22 | **OW slice 5** — Advanced demoted; withdraw/replace abandoned in browser; next OW slice 6 docs. |

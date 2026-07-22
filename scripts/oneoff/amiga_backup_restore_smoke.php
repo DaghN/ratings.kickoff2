@@ -1,7 +1,9 @@
 <?php
 declare(strict_types=1);
 /**
- * L5 slice 2 smoke — stage seal → mutate → full Apply → mutation gone.
+ * L5 restore smoke — direct apply from pack dir (BA4; does not require _import).
+ *
+ * Prefer newest amiga/_backups/seal-*; else GitHub checkpoint pack.
  * CLI: php scripts/oneoff/amiga_backup_restore_smoke.php
  */
 $root = dirname(__DIR__, 2);
@@ -15,42 +17,34 @@ if ($dbName !== 'ko2amiga_db' && $dbName !== 'ko2amiga_work') {
     exit(1);
 }
 
+$packDir = '';
+$label = '';
 $seals = amiga_backup_seal_list();
-if ($seals === []) {
-    fwrite(STDERR, "No seals in _backups — run slice 1 smoke first.\n");
-    exit(1);
-}
-$sealId = (string) $seals[count($seals) - 1]['id'];
-echo "Using seal {$sealId}\n";
-
-$staged = amiga_backup_seal_stage_for_import($sealId);
-if (!$staged['ok']) {
-    fwrite(STDERR, 'STAGE FAIL: ' . $staged['error'] . "\n");
-    exit(1);
-}
-echo 'OK staged parts=' . $staged['parts'] . "\n";
-
-$marker = amiga_backup_restore_marker_read();
-if (!is_array($marker) || ($marker['seal_id'] ?? '') !== $sealId) {
-    fwrite(STDERR, "Restore marker missing or mismatched\n");
-    exit(1);
-}
-echo "OK restore marker\n";
-
-// Byte-compare first/last part vs seal
-$manifest = json_decode((string) file_get_contents(amiga_backup_import_dir() . '/ko2amiga_manifest.json'), true);
-$parts = $manifest['parts'] ?? [];
-$first = (string) $parts[0];
-$last = (string) $parts[count($parts) - 1];
-foreach ([$first, $last] as $p) {
-    $a = amiga_backup_seals_root() . DIRECTORY_SEPARATOR . $sealId . DIRECTORY_SEPARATOR . $p;
-    $b = amiga_backup_import_dir() . DIRECTORY_SEPARATOR . $p;
-    if (!is_file($a) || !is_file($b) || filesize($a) !== filesize($b)) {
-        fwrite(STDERR, "Part size mismatch: {$p}\n");
+if ($seals !== []) {
+    $sealId = (string) $seals[count($seals) - 1]['id'];
+    $validated = amiga_backup_seal_validate_for_restore($sealId);
+    if (!$validated['ok']) {
+        fwrite(STDERR, 'VALIDATE FAIL: ' . $validated['error'] . "\n");
         exit(1);
     }
+    $packDir = (string) $validated['pack_dir'];
+    $label = 'seal ' . $sealId;
+    echo "OK validate {$sealId} parts=" . count($validated['parts']) . "\n";
+} else {
+    $checkpoint = $root . '/data/amiga/checkpoints/work-2026-07-18-forum';
+    if (!is_dir($checkpoint) || !is_file($checkpoint . '/ko2amiga_manifest.json')) {
+        fwrite(STDERR, "No _backups seals and no GitHub checkpoint pack found.\n");
+        exit(1);
+    }
+    $parts = k2_amiga_import_manifest_parts_from_dir($checkpoint);
+    if ($parts === []) {
+        fwrite(STDERR, "Checkpoint has no parts.\n");
+        exit(1);
+    }
+    $packDir = $checkpoint;
+    $label = 'checkpoint work-2026-07-18-forum';
+    echo 'OK using ' . $label . ' parts=' . count($parts) . "\n";
 }
-echo "OK staged files match seal sizes ({$first}, {$last})\n";
 
 mysqli_report(MYSQLI_REPORT_OFF);
 $con = new mysqli($dbhost, $username, $password, $database, (int) $dbportnum);
@@ -85,8 +79,8 @@ if (($cRow['Country'] ?? '') !== $probe) {
 }
 echo "OK mutated player {$pid} Country -> {$probe} (was {$origCountry})\n";
 
-echo "Applying all staged parts (full replace)...\n";
-$apply = k2_amiga_import_apply_all_parts($con, false);
+echo "Applying all parts from {$label} (direct pack dir; _import untouched)...\n";
+$apply = k2_amiga_import_apply_all_parts_from_dir($con, $packDir, false);
 if (!$apply['ok']) {
     fwrite(STDERR, 'APPLY FAIL: ' . $apply['error'] . "\n");
     exit(1);
@@ -104,13 +98,10 @@ if ($after === $probe) {
     fwrite(STDERR, "RESTORE FAIL: probe Country still present after Apply\n");
     exit(1);
 }
-if ($after !== $origCountry) {
-    fwrite(STDERR, "RESTORE WARN: Country={$after} expected {$origCountry} (still wiped probe)\n");
-}
 echo "OK probe wiped (Country now '{$after}', original '{$origCountry}')\n";
 
 $counts = k2_amiga_import_counts($con);
 echo 'OK counts players=' . $counts['players'] . ' games=' . $counts['games'] . "\n";
 mysqli_close($con);
-echo "SMOKE PASS\n";
+echo "SMOKE PASS (direct restore path)\n";
 exit(0);

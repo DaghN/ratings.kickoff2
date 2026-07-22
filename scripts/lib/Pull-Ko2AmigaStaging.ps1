@@ -87,12 +87,18 @@ function Invoke-Ko2AmigaStagingPull {
 
     if (-not $Force) {
         Write-Host ''
-        Write-Host 'This REPLACES local ko2amiga_work with staged ground.' -ForegroundColor Yellow
-        Write-Host 'Unpushed local repair-shop changes will be lost.' -ForegroundColor Yellow
+        Write-Host "This REPLACES local database $TargetDatabase with staged ground." -ForegroundColor Yellow
+        if ($TargetDatabase -eq 'ko2amiga_work') {
+            Write-Host 'Unpushed local repair-shop changes will be lost.' -ForegroundColor Yellow
+        } else {
+            Write-Host 'ko2amiga_work is NOT touched (side-database pull).' -ForegroundColor Green
+        }
         $answer = Read-Host 'Type YES to continue'
         if ($answer -ne 'YES') {
             throw 'Aborted.'
         }
+    } elseif ($TargetDatabase -ne 'ko2amiga_work') {
+        Write-Host "Side pull into $TargetDatabase (ko2amiga_work left untouched)." -ForegroundColor Green
     }
 
     $base = $StagingBaseUrl.TrimEnd('/')
@@ -278,7 +284,10 @@ WinSCP sync these files to staging, then re-run pull:
     Write-Host "Wrote $SyncManifest"
 
     Write-Host ''
-    Write-Host 'Pull complete. Local ko2amiga_work now mirrors staged ground.' -ForegroundColor Green
+    Write-Host "Pull complete. Local $TargetDatabase now mirrors staged ground." -ForegroundColor Green
+    if ($TargetDatabase -ne 'ko2amiga_work') {
+        Write-Host 'ko2amiga_work was not modified.' -ForegroundColor Green
+    }
     if (-not $Simul) {
         Write-Host 'Simul not run (default). When needed: python -m scripts.amiga simul' -ForegroundColor Yellow
     }

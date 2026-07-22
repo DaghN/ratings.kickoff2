@@ -1,6 +1,6 @@
 # Amiga Track L5 — staging backup + admin delete — implementation plan (Jul 2026)
 
-**Status:** **In progress** — **slices 0–4 done**. Next: **slice 5** (Case C narrow — truncate forward + re-finalize).
+**Status:** **In progress** — **slices 0–4 hardened** (Case B present repair + BA4 restore proven vs Jul 18 GitHub seal). Next: **slice 5** (Case C narrow — truncate forward + re-finalize).
 
 **Policy (locked intent):** [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) (BA*, AD*).
 
@@ -19,7 +19,7 @@ Ship Track **L5** organizer-ops closure for Ref-League-A:
    - **Case A** — never-finalized / never-official trash
    - **Case B** — delete **latest** finalized tip + re-project present
    - **Case C (narrow, in scope)** — delete non-tip **M** when later events exist; truncate poisoned derived; re-project at M−1; **re-finalize forward** remaining tip events via **PHP live finalize** (typical accident: test kitchen under a real tip)
-3. Restore = Apply import (or picker) from a prior seal — undo without demotion / L6.
+3. Restore = **Restore into DB now** from a prior seal under `amiga/_backups/` (full replace; `_import` push tray untouched) — undo without demotion / L6.
 
 **Exit (behavioural):** Dagh can Finish a kitchen → seal exists; admin can delete a tip training event and a under-tip test event; site coherent; restore from previous seal works; no local `prove` required for the happy repair path.
 
@@ -57,9 +57,9 @@ Case B is Case C with an empty forward set — implement shared primitives, then
 |-------|-------------|--------|------|
 | **0** | Inventory + locks: where Finish commits; export pack writer today (`export_ko2amiga_work` / staging export lib); which derived tables Case B must clear; how present re-project should mirror verify oracles; admin surface placement (ops page vs fixtures Advanced). Write notes into this plan §5. | Read-only | No staging destructive smoke yet |
 | **1** | **Backup seal writer** — after successful Make official (and callable from admin): write dated full pack under server `_backups/` (or agreed path); rolling N + reserve rule (BA5–BA6). Prefer reuse of existing dump/part logic. | Staging or local smoke: Finish → pack appears; reserve not deletable via PHP | Do not wire delete yet |
-| **2** | **Restore path** — list seals; restore = feed Apply import (copy into `_import` or import-from-path). Admin password only. | Restore prior seal wipes a post-seal kitchen | STOP if replace semantics unclear |
+| **2** | **Restore path** — list seals; **Restore into DB now** applies pack from `_backups/<seal>/` (BA4; `_import` untouched). Optional Copy→`_import`. | Restore prior seal wipes a post-seal kitchen | STOP if replace semantics unclear |
 | **3** | **Case A delete** — admin deletes unfinalized / void-eligible generated tournament; no present re-project. **No auto-seal** (not tip-changing). | Kitchen draft/running abandoned → gone | — |
-| **4** | **Case B delete** — admin deletes latest finalized tip; clear derived for that id; `project-present-at` prior tip; backup after. | Tip kitchen gone; profiles/LB tip coherent; restore undoes | Prefer work DB or staging with backup first |
+| **4** | **Case B delete** — admin deletes latest finalized tip; clear derived for that id; `project-present-at` prior tip (phased; pointer inverse; JOIN matchups); backup after. | Tip kitchen gone; present = prior tip; restore undoes. **Proven** tip #607 vs GitHub forum seal | Prefer work DB or staging with backup first |
 | **5** | **Case C narrow** — admin deletes M with ≥1 finalized after; truncate forward derived; re-project; loop PHP finalize for remaining events in chrono order; backup after. | Test-under-real scenario on staging/work: delete test, real tip re-derived; site coherent | Limit smoke to **short** forward chain (1–3 events) |
 | **6** | **Docs / practice track** — policy status Implemented (or Partially if C limited); L5 gate note; UPDATE_DOCS Part A; reject inventing L6/demotion | — | — |
 
@@ -101,7 +101,7 @@ Read-only inventory for slices 1–5. Chrono key: `(tournaments.event_date, tour
 
 **Manifest shape:** `{ generated, source_database, staging_database, parts: [...] }`. Parts: `01` schema → `02`–`09` ground → chunked games/ratings → derived tail. Table list: `staging_export_tables.json` ← `scripts/amiga/staging_export_tables.py`.
 
-**Import/restore:** `run_import_ko2amiga.php` (`amiga_ops_gate('admin')`) reads `_import/` one part per request. **Slice 2 shipped:** Restore… on backup page → `amiga_backup_seal_stage_for_import()` copies seal into `_import/` (+ `.restore_from_seal.json` marker) → Apply import = **full replace** (schema DROP+CREATE + data; same engine as push). Helpers: `amiga_staging_import_lib.php`.
+**Import/restore:** `run_import_ko2amiga.php` still applies `_import/` (push). **Backup page** primary restore = `restore_apply` from `_backups/<seal>/` via shared `k2_amiga_import_apply_one_part()` (Build `l5-s4j`). Helpers: `amiga_staging_import_lib.php`, `amiga_backup_seal_validate_for_restore()`.
 
 **Slice 1 shipped:** PHP ports chunking + manifest into `amiga/_backups/seal-*/` (includes `inverse_count` part missing from older PS1 packs). Admin Backup now + Finish auto-seal.
 
@@ -136,15 +136,26 @@ Read-only inventory for slices 1–5. Chrono key: `(tournaments.event_date, tour
 
 | Present | From timeline |
 |---------|---------------|
-| `amiga_player_current` | latest `amiga_player_event_snapshots` ≤ N (+ elo rank + inverse-count overlay) |
+| `amiga_player_current` | latest `amiga_player_event_snapshots` ≤ N (+ elo rank overlay + **inverse pointer recount** — not snapshot inverse cols; Jul 15 ghosts) |
 | `amiga_generalstats` id=1 | latest `amiga_realm_snapshots` ≤ N |
-| `amiga_player_matchup_summary` | from `matchup_at_event` at N + orphan-pair cleanup (**not** simple copy) |
+| `amiga_player_matchup_summary` | latest `matchup_at_event` ≤ N **INNER JOIN** directed pairs from `amiga_games` (orphan filter; not correlated EXISTS — MariaDB gateway) + txn |
 | `amiga_community_stats` id=1 | latest `amiga_community_stats_snapshots` ≤ N |
 | `amiga_community_stat_facts` | facts at N |
 | `amiga_player_slice_totals` / `amiga_country_slice_totals` | latest slice_at_event ≤ N |
 | `amiga_wc_hof_present` id=1 | latest `amiga_wc_hof_snapshots` ≤ N |
 
-**Oracle = verify SQL** (no shipped `project-present-at` yet): `verify_event_snapshots`, `verify_realm_snapshots`, `verify_community_stats`, `verify_player_slice`, `verify_country_slice`, `verify_wc_hof`, `verify_player_matchups`, `verify_inverse_count_changelog`. PHP finalize writers are tip-incremental only — slice 4–5 must implement `project-present-at` mirroring those oracles. FK CASCADE on tournament delete does **not** refresh present → ghost tip until re-project.
+**Oracle:** `verify_event_snapshots`, `verify_realm_snapshots`, `verify_community_stats`, `verify_player_slice`, `verify_country_slice`, `verify_wc_hof`, `verify_player_matchups`, `verify_inverse_count_changelog`. PHP finalize writers are tip-incremental only — `project-present-at` mirrors these oracles. FK CASCADE on tournament delete does **not** refresh present → ghost tip until re-project.
+
+**Shipped (slice 4 + harden, Build `l5-s4j`):**
+
+| Concern | Implementation |
+|---------|----------------|
+| Module | `ops/modules/project_present_at.php` — `amiga_ops_project_present_at()` / `_phase()` |
+| HTTP gateway (~30s) | Admin **Re-project** / Case B phase 1: auto-chain phases `player_current` → `matchups` → `rest` (not one request) |
+| Inverse (Jul 15) | Overlay = **pointer recount** on projected current (ghosts). Never snapshot inverse authority; never zero-fill from empty changelog (older seals/pulls may ship schema-only changelog = 0 rows) |
+| Matchups | Latest `matchup_at_event` ≤ N **INNER JOIN** directed pairs from `amiga_games` (same orphan rule as verify). **Not** correlated `EXISTS` (MariaDB nested-loop ≥8s / gateway 500). DELETE+INSERT in one InnoDB txn |
+| Diagnose | Admin **Diagnose present (counts only)** + optional `time_no_exists` / `time_exists` probes (`max_statement_time` on MariaDB) |
+| Proven | Staging tip #607 after repair **PERFECT MATCH** vs GitHub checkpoint `data/amiga/checkpoints/work-2026-07-18-forum` |
 
 ### 5.5 Admin UI placement
 
@@ -155,7 +166,7 @@ Read-only inventory for slices 1–5. Chrono key: `(tournaments.event_date, tour
 | fixtures Advanced / Table | Organizer gate; AD2 void ≠ tip delete; plan §5.5 |
 | Stuffing delete into import page alone | Import already large; prefer thin hub or dedicated admin page with cross-links |
 
-**Today:** admin tip ops live on `/amiga/run_backup_ko2amiga.php` (Build `l5-s4-…`). **Case A:** `delete-unfinalized-tournament`. **Case B:** `delete-last-finalized-tournament` + `project-present-at` + auto-seal. Advanced = Hide / Reset incomplete finish (not tip-delete). Case C verbs still planned.
+**Today:** admin tip ops live on `/amiga/run_backup_ko2amiga.php` (Build **`l5-s4j-2026-07-22`**). **Case A:** `delete-unfinalized-tournament`. **Case B:** `delete-last-finalized-tournament` + phased `project-present-at` + seal (split requests). **Restore:** **Restore into DB now** from `_backups/<seal>/` (does not touch `_import`); optional **Copy → _import**. **Repair:** Re-project present (phased) + Diagnose. Advanced = Hide / Reset incomplete finish (not tip-delete). Case C verbs still planned (slice 5).
 
 ---
 
@@ -169,16 +180,18 @@ Read-only inventory for slices 1–5. Chrono key: `(tournaments.event_date, tour
 | Web admin deletes reserves | BA6: no PHP delete for reserve |
 | Long Case C runtime | Narrow smoke only; timeout/progress UX later |
 | Staging PHP export ≠ Apply pack | Slice 1 ported PS1 chunking+manifest to PHP seals; pull monolith remains pull-only |
-| No `project-present-at` yet | Slice 4–5 implement from verify oracles (§5.4); matchup_summary needs orphan cleanup |
+| Gateway ~30s on present re-project / matchup EXISTS | Phased HTTP + JOIN orphan filter (not EXISTS); diagnose probes |
+| Force-pull over only healthy local | Side-pull `-TargetDatabase ko2amiga_staging_cmp`; never Force-pull work as compare target |
+| Empty inverse changelog in packs | Present re-project uses pointer oracle; TT still needs changelog data (push/simul) |
 
 ---
 
 ## 7. Verification checklist (L5 done)
 
 - [x] Finish kitchen → backup seal on server  
-- [x] Admin restore previous seal → tip matches that seal  
+- [x] Admin restore previous seal → tip matches that seal *(direct Restore into DB now; proven vs GitHub `work-2026-07-18-forum`)*  
 - [x] Case A: remove never-official generated league  
-- [x] Case B: remove latest finalized training tip; present coherent *(local smoke: refuse/dry-run/`project-present-at` PASS; full tip delete via admin UI / `--apply` when wanted)*  
+- [x] Case B: remove latest finalized training tip; present coherent *(staging repair: phased re-project; tip #607 PERFECT MATCH vs Jul 18 seal)*  
 - [ ] Case C: test under real → delete test → real remains correct after re-finalize  
 - [x] Organizer cannot tip-delete  
 - [x] Reserve seals not erasable via website admin UI  
@@ -190,6 +203,7 @@ Read-only inventory for slices 1–5. Chrono key: `(tournaments.event_date, tour
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **Slice 4 harden + BA4 restore UX** — inverse pointer overlay; matchup JOIN+txn; phased re-project; diagnose; side-pull `-TargetDatabase`; **Restore into DB now** from `_backups/` (Build `l5-s4j`). Staging+work tip #607 PERFECT MATCH vs GitHub forum seal. Next: slice 5 Case C. |
 | 2026-07-22 | **Slice 4 done** — Case B `delete_last_finalized_tournament.php` + `project_present_at.php`; admin UI tip/prior + Open links; seal after (AD6); CLI verbs; smoke PASS (refuse/dry-run/reproject on work tip #607). Next: slice 5 Case C. |
 | 2026-07-22 | **Case A no auto-seal** — BA2/AD6 clarified (tip-changing only); dropped seal from Case A UI/CLI. Staging needs WinSCP of slice 3 PHP (`Build l5-s3b-…`). |
 | 2026-07-22 | **Slice 3 done** — Case A `amiga_delete_unfinalized_tournament` + admin UI on `run_backup_ko2amiga.php` + CLI verb; refuse finalized / imported / L5 timeline; (seal-after later dropped — see above); smoke PASS. Next: slice 4 Case B. |

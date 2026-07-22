@@ -151,6 +151,8 @@ For these four metrics only, define hero state at cutoff *T* as:
 
 **Do not** use hero's sparse snapshot column as TT authority for these four metrics.
 
+**`project-present-at` (L5 Case B/C):** rebuild present inverse via **pointer recount** on the just-projected `amiga_player_current` (same oracle as `verify-inverse-count-changelog` present check). Do **not** copy snapshot inverse columns, and do **not** zero-fill then refill from changelog when the changelog pack may be empty (older seals / staging pulls shipped schema-only → wipe). Changelog remains the TT/LB hot path when populated.
+
 ### 5.4 Writer
 
 At end of `finalize_tournament` (after in-memory `players` dict is final for the event):
@@ -238,4 +240,4 @@ Write all four values for every established player every finalize (~174k rows).
 
 ---
 
-*Last updated: Jul 2026 — implemented after audit; changelog ~3,423 rows on `ko2amiga_work`.*
+*Last updated: Jul 2026 — implemented after audit; changelog ~3,423 rows on healthy simul work. L5 `project-present-at` present overlay = pointer recount (seals/pulls may ship empty changelog).*

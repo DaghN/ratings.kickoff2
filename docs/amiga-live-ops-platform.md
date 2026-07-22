@@ -208,7 +208,7 @@ Full `prove` / full local `simul` (~30 min prove class) is **canon regression**,
 - Remove a finalized mistake at the catalog tip (Case B).
 - Truncate forward derived after a bad finalize (Case C — later).
 
-**After** successful **tip** delete + repair (Case B/C): seal a **full backup pack** (BA2). Case A (unfinalized trash) does **not** auto-seal. Undo a bad tip delete = restore prior seal (Apply import), not demotion.
+**After** successful **tip** delete + repair (Case B/C): seal a **full backup pack** (BA2). Case A (unfinalized trash) does **not** auto-seal. Undo a bad tip delete = **Restore into DB now** from a prior seal under `amiga/_backups/` (BA4; does not clobber `_import`), not demotion.
 
 ### 7.1 Case A — Unfinalized tournament
 
@@ -218,9 +218,11 @@ Delete L3+L4 ground (tournament, games, entrants, fixtures, standings). **No L5 
 
 1. Delete tournament **ground** (if removing entirely) or fix ground in place.
 2. Delete all **derived rows keyed to that `tournament_id`** (snapshots, at-event, realm snapshot, community facts, game_ratings, etc.).
-3. **Re-project all present tables** from max timeline at previous cutoff N (same queries as verify oracles).
+3. **Re-project all present tables** from max timeline at previous cutoff N (`project-present-at` — see §7.4 notes).
 4. Fix **cumulative stores** that are not simple projections if the event had games (e.g. reproject `matchup_summary` from `matchup_at_event` at N; delete orphan summary pairs only created in removed event).
 5. Run **verify-lite** (staging PHP or pulled DB + Python verify subset).
+
+**Shipped (L5 slice 4 + harden, Build `l5-s4j`):** admin cockpit `/amiga/run_backup_ko2amiga.php` — Case B delete, phased **Re-project present**, **Diagnose**, seal after (split HTTP requests for ~30s gateway). Present inverse = **pointer recount** (Jul 15 ghosts — not snapshot inverse cols). Matchups = latest at_event ≤ N **JOIN** directed pairs from `amiga_games` (not correlated `EXISTS` — MariaDB timeout). Proven tip #607 **PERFECT MATCH** vs GitHub `work-2026-07-18-forum`.
 
 **No full prove required** if verify passes.
 
@@ -242,11 +244,11 @@ Deleting event N+1 **poisons** all forward timeline rows computed including its 
 | Verb | Guard | Effect | Status |
 |------|-------|--------|--------|
 | `delete-unfinalized-tournament` | No `rating_finalized`; generated kitchen; no L5 timeline | L3+L4 delete (**no** auto-seal) | **Shipped** (L5 slice 3) — `ops/modules/delete_unfinalized_tournament.php`; admin UI on `/amiga/run_backup_ko2amiga.php` |
-| `delete-last-finalized-tournament` | Chrono-last finalized | Case B pipeline | **Shipped** (L5 slice 4) — `ops/modules/delete_last_finalized_tournament.php`; admin UI + seal after |
+| `delete-last-finalized-tournament` | Chrono-last finalized | Case B pipeline | **Shipped** (L5 slice 4) — `ops/modules/delete_last_finalized_tournament.php`; admin UI + seal after (split from re-project) |
 | `truncate-derived-after` | Cutoff tournament id | Case C step 2–3 | Planned (slice 5) |
-| `project-present-at` | Cutoff tournament id | Rebuild all present projections | **Shipped** (L5 slice 4) — `ops/modules/project_present_at.php` |
+| `project-present-at` | Cutoff tournament id | Rebuild all present projections | **Shipped + hardened** (`project_present_at.php`) — phases `player_current` / `matchups` / `rest` / `all`; inverse = **pointer recount** on projected current ([`amiga-player-inverse-count-timeline-policy.md`](amiga-player-inverse-count-timeline-policy.md)); matchups = JOIN pairs + txn; admin diagnose |
 | `refinalize-forward-from` | After truncate + project | Case C step 5 loop | Planned (slice 5) |
-| `verify-derived` | — | Read-only checks (subset of prove verify) | Planned |
+| `verify-derived` | — | Read-only checks (subset of prove verify) | Planned (admin **Diagnose present** = counts/timing lite) |
 
 Implement under `site/public_html/amiga/ops/` with same CLI/bootstrap habits as `run_process_game.php`.
 
@@ -430,8 +432,8 @@ Ship when §12.1 unlocks it. Technical exit criteria unchanged; **behavioural** 
 |-------|-------------|------|------------|----------------|
 | **0 — Doc** | This policy + practice track | — | Done | Agents cite ALO1–ALO11 + practice-first |
 | **1 — Verify-lite PHP** | `verify-derived` subset on staging | B | **L5+** (after first repair) | Present=timeline checks pass on staging |
-| **2 — Project present** | `project-present-at` + SQL helpers | B | **L5** (paired with delete) | Matches Python oracle on sample DB |
-| **3 — Delete last finalized** | Guarded delete + Case B pipeline | B | **L5** (first motivated infra) | Training tournament removed without `prove` |
+| **2 — Project present** | `project-present-at` + SQL helpers | B | **L5** (paired with delete) | **Shipped + hardened** — pointer inverse + JOIN matchups; tip #607 = GitHub forum seal |
+| **3 — Delete last finalized** | Guarded delete + Case B pipeline | B | **L5** (first motivated infra) | **Shipped** — Case B admin path; seal after tip repair |
 | **4 — Ground pack v0** | Export/import one tournament L3+L4 | B | **L6** | **Shelved** with L6 (Jul 2026) — do not implement until L6 un-shelved |
 | **5 — Truncate + refinalize forward** | Case C pipeline | B | After **L5** Case B trusted | Mid-history delete without full `prove` |
 | **6 — Media DDL + upload API** | `amiga_tournament_media` + YouTube form | C | **L7** | Secretary adds URL; tab after approve |
@@ -502,6 +504,7 @@ Separate agent track. Does **not** gate Ref-League-A / Ref-Cup-A practice.
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **L5 slice 4 harden + BA4** — `project-present-at` pointer inverse + JOIN matchups + phased HTTP; **Restore into DB now** from `_backups/`; side-pull `-TargetDatabase`; §7.2/§7.4/§12.2 phases 2–3. Build `l5-s4j`. |
 | 2026-07-22 | **Organizer workspace simplification** — OW policy locked (Open/Hide; no Start/void; stage-scoped play); Related link. |
 | 2026-07-22 | **L5 slice 3b** — Case A no auto-seal (BA2 tip-changing only); AD6 clarified. |
 | 2026-07-22 | **L5 slice 3** — Case A `delete-unfinalized-tournament` shipped (admin backup page + ops module/CLI); §7.4 status column. |

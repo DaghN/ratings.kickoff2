@@ -38,6 +38,8 @@ function amiga_ops_project_present_tuple_cutoff_sql(string $dateCol, string $chr
 /**
  * Rebuild all present projections at cutoff tournament N.
  *
+ * Prefer {@see amiga_ops_project_present_at_phase()} on HTTP (gateway ~30s).
+ *
  * @return array{
  *   cutoff_tournament_id:int,
  *   cutoff_name:string,
@@ -47,23 +49,74 @@ function amiga_ops_project_present_tuple_cutoff_sql(string $dateCol, string $chr
  *   country_slice_totals:int,
  *   generalstats:bool,
  *   community_stats:bool,
- *   wc_hof_present:bool
+ *   wc_hof_present:bool,
+ *   phase:string,
+ *   next_phase:?string
  * }
  */
 function amiga_ops_project_present_at(mysqli $con, int $cutoffTournamentId): array
 {
+    return amiga_ops_project_present_at_phase($con, $cutoffTournamentId, 'all');
+}
+
+/**
+ * Phased present rebuild (HTTP-safe under ~30s gateway).
+ *
+ * Phases: player_current → matchups → rest. Pass phase=all for CLI / local.
+ *
+ * @param 'all'|'player_current'|'matchups'|'rest' $phase
+ * @return array{
+ *   cutoff_tournament_id:int,
+ *   cutoff_name:string,
+ *   player_current:int,
+ *   matchup_summary:int,
+ *   player_slice_totals:int,
+ *   country_slice_totals:int,
+ *   generalstats:bool,
+ *   community_stats:bool,
+ *   wc_hof_present:bool,
+ *   phase:string,
+ *   next_phase:?string
+ * }
+ */
+function amiga_ops_project_present_at_phase(mysqli $con, int $cutoffTournamentId, string $phase): array
+{
     if ($cutoffTournamentId <= 0) {
         throw new AmigaProjectPresentException('cutoff tournament_id must be positive');
     }
+    if (!in_array($phase, ['all', 'player_current', 'matchups', 'rest'], true)) {
+        throw new AmigaProjectPresentException('unknown project phase: ' . $phase);
+    }
     $cutoff = amiga_ops_project_present_load_cutoff($con, $cutoffTournamentId);
 
-    $playerCurrent = amiga_ops_project_player_current_at($con, $cutoff);
-    $generalOk = amiga_ops_project_generalstats_at($con, $cutoff);
-    $matchupRows = amiga_ops_project_matchup_summary_at($con, $cutoff);
-    $communityOk = amiga_ops_project_community_headline_at($con, $cutoff);
-    $playerSlice = amiga_ops_project_player_slice_totals_at($con, $cutoff);
-    $countrySlice = amiga_ops_project_country_slice_totals_at($con, $cutoff);
-    $wcHofOk = amiga_ops_project_wc_hof_present_at($con, $cutoff);
+    $playerCurrent = 0;
+    $matchupRows = 0;
+    $playerSlice = 0;
+    $countrySlice = 0;
+    $generalOk = false;
+    $communityOk = false;
+    $wcHofOk = false;
+    $nextPhase = null;
+
+    if ($phase === 'all' || $phase === 'player_current') {
+        $playerCurrent = amiga_ops_project_player_current_at($con, $cutoff);
+        if ($phase === 'player_current') {
+            $nextPhase = 'matchups';
+        }
+    }
+    if ($phase === 'all' || $phase === 'matchups') {
+        $matchupRows = amiga_ops_project_matchup_summary_at($con, $cutoff);
+        if ($phase === 'matchups') {
+            $nextPhase = 'rest';
+        }
+    }
+    if ($phase === 'all' || $phase === 'rest') {
+        $generalOk = amiga_ops_project_generalstats_at($con, $cutoff);
+        $communityOk = amiga_ops_project_community_headline_at($con, $cutoff);
+        $playerSlice = amiga_ops_project_player_slice_totals_at($con, $cutoff);
+        $countrySlice = amiga_ops_project_country_slice_totals_at($con, $cutoff);
+        $wcHofOk = amiga_ops_project_wc_hof_present_at($con, $cutoff);
+    }
 
     return [
         'cutoff_tournament_id' => (int) $cutoff['tournament_id'],
@@ -75,6 +128,8 @@ function amiga_ops_project_present_at(mysqli $con, int $cutoffTournamentId): arr
         'generalstats' => $generalOk,
         'community_stats' => $communityOk,
         'wc_hof_present' => $wcHofOk,
+        'phase' => $phase,
+        'next_phase' => $nextPhase,
     ];
 }
 
@@ -124,6 +179,8 @@ function amiga_ops_project_player_current_at(mysqli $con, array $cutoff): int
     }
 
     $written = 0;
+    $batch = [];
+    $batchSize = 50;
     while ($snap = $res->fetch_assoc()) {
         unset($snap['rn']);
         $current = amiga_ops_current_row_from_snapshot($snap);
@@ -134,12 +191,23 @@ function amiga_ops_project_player_current_at(mysqli $con, array $cutoff): int
         if (!array_key_exists('peak_elo_rank_tournament_id', $current)) {
             $current['peak_elo_rank_tournament_id'] = $snap['peak_elo_rank_tournament_id'] ?? null;
         }
-        amiga_ops_upsert_row($con, 'amiga_player_current', $current, ['player_id']);
-        $written++;
+        $batch[] = $current;
+        if (count($batch) >= $batchSize) {
+            amiga_ops_insert_rows_batch($con, 'amiga_player_current', $batch);
+            $written += count($batch);
+            $batch = [];
+        }
+    }
+    if ($batch !== []) {
+        amiga_ops_insert_rows_batch($con, 'amiga_player_current', $batch);
+        $written += count($batch);
     }
     $stmt->close();
 
+    // elo_rank + peak_elo_rank: overlay from amiga_player_elo_rank_at_event (verify-event-snapshots).
     amiga_ops_project_overlay_elo_ranks_at($con, $cutoff);
+    // Inverse counts: NOT snapshot authority (Jul 15 — ghosts). Rebuild from pointer oracle
+    // on the just-projected current rows (same as verify-inverse-count-changelog present check).
     amiga_ops_project_overlay_inverse_counts_at($con, $cutoff);
 
     return $written;
@@ -221,20 +289,36 @@ function amiga_ops_project_overlay_elo_ranks_at(mysqli $con, array $cutoff): voi
 }
 
 /**
- * Overlay inverse-count columns from latest changelog ≤ cutoff (sparse).
+ * Overlay inverse-count columns from pointer oracle on projected current.
+ *
+ * Jul 15 policy (amiga-player-inverse-count-timeline-policy.md): these four
+ * counts change when *someone else* plays (credit transfer). Sparse snapshots
+ * only write participants, so hero snapshot columns go stale for ghosts.
+ * Authority for present rebuild is COUNT of players whose pointer names the
+ * hero — same oracle as verify-inverse-count-changelog present check.
+ *
+ * Do NOT:
+ * - leave snapshot-projected inverse columns as present authority
+ * - zero-fill then refill from sparse changelog when changelog may be empty
+ *   (export packs / Case B clears can leave 0 rows → wipe present)
+ *
+ * Changelog remains the TT/LB hot-path store when populated; present reproject
+ * uses the pointer recount so Case B works even if changelog data is missing.
  *
  * @param array{event_date: string, chrono: float|int, tournament_id: int} $cutoff
  */
 function amiga_ops_project_overlay_inverse_counts_at(mysqli $con, array $cutoff): void
 {
+    unset($cutoff); // present overlay uses projected current pointers at cutoff
+
     $metrics = [
-        'mgs_culprits' => 'MostGoalsScoredCulprits',
-        'bw_culprits' => 'BiggestWinCulprits',
-        'mgc_victims' => 'MostGoalsConcededVictims',
-        'bl_victims' => 'BiggestLossVictims',
+        ['count' => 'MostGoalsScoredCulprits', 'ptr' => 'MostGoalsScoredVictimID'],
+        ['count' => 'BiggestWinCulprits', 'ptr' => 'BiggestWinVictimID'],
+        ['count' => 'MostGoalsConcededVictims', 'ptr' => 'MostGoalsConcededCulpritID'],
+        ['count' => 'BiggestLossVictims', 'ptr' => 'BiggestLossCulpritID'],
     ];
 
-    // Default all four to 0, then apply changelog tips.
+    // Reset, then apply pointer recount (heroes with no pointers stay 0).
     if (!$con->query(
         'UPDATE amiga_player_current SET '
         . 'MostGoalsScoredCulprits = 0, BiggestWinCulprits = 0, '
@@ -243,55 +327,23 @@ function amiga_ops_project_overlay_inverse_counts_at(mysqli $con, array $cutoff)
         throw new AmigaProjectPresentException('reset inverse counts: ' . $con->error);
     }
 
-    $tuple = amiga_ops_project_present_tuple_cutoff_sql(
-        'inv.event_date',
-        'inv.event_chrono',
-        'inv.tournament_id'
-    );
-    $sql = "
-        SELECT inv.player_id, inv.metric, inv.value_after
-        FROM (
-            SELECT inv.*,
-                   ROW_NUMBER() OVER (
-                       PARTITION BY inv.player_id, inv.metric
-                       ORDER BY inv.event_date DESC, inv.event_chrono DESC, inv.tournament_id DESC
-                   ) AS rn
-            FROM amiga_player_inverse_count_at_event inv
-            WHERE {$tuple}
-        ) inv
-        WHERE inv.rn = 1
-    ";
-    $stmt = $con->prepare($sql);
-    if ($stmt === false) {
-        throw new AmigaProjectPresentException('prepare inverse overlay: ' . $con->error);
-    }
-    $eventDate = (string) $cutoff['event_date'];
-    $chrono = (float) $cutoff['chrono'];
-    $tid = (int) $cutoff['tournament_id'];
-    $stmt->bind_param('sdi', $eventDate, $chrono, $tid);
-    if (!$stmt->execute()) {
-        throw new AmigaProjectPresentException('execute inverse overlay: ' . $stmt->error);
-    }
-    $res = $stmt->get_result();
-    if ($res === false) {
-        $stmt->close();
-        throw new AmigaProjectPresentException('get_result inverse overlay');
-    }
-
-    while ($row = $res->fetch_assoc()) {
-        $metric = (string) $row['metric'];
-        if (!isset($metrics[$metric])) {
-            continue;
-        }
-        $col = $metrics[$metric];
-        $pid = (int) $row['player_id'];
-        $val = (int) ($row['value_after'] ?? 0);
-        $sqlUp = "UPDATE amiga_player_current SET `{$col}` = {$val} WHERE player_id = {$pid}";
-        if (!$con->query($sqlUp)) {
-            throw new AmigaProjectPresentException("inverse update {$col}: " . $con->error);
+    foreach ($metrics as $m) {
+        $col = $m['count'];
+        $ptr = $m['ptr'];
+        $sql = "
+            UPDATE amiga_player_current c
+            INNER JOIN (
+                SELECT `{$ptr}` AS hero_id, COUNT(*) AS n
+                FROM amiga_player_current
+                WHERE `{$ptr}` IS NOT NULL AND `{$ptr}` > 0
+                GROUP BY `{$ptr}`
+            ) inv ON inv.hero_id = c.player_id
+            SET c.`{$col}` = inv.n
+        ";
+        if (!$con->query($sql)) {
+            throw new AmigaProjectPresentException("pointer inverse {$col}: " . $con->error);
         }
     }
-    $stmt->close();
 }
 
 /**
@@ -363,14 +415,18 @@ function amiga_ops_project_generalstats_at(mysqli $con, array $cutoff): bool
 }
 
 /**
+ * Rebuild matchup present from latest at_event ≤ cutoff.
+ *
+ * Orphan filter = pairs that still exist in amiga_games (same rule as verify).
+ * Use INNER JOIN to a once-materialized directed pair set — not correlated EXISTS
+ * (MariaDB nested-loop EXISTS blew the ~30s gateway on staging).
+ *
+ * DELETE + INSERT run in one transaction so a killed request rolls back.
+ *
  * @param array{event_date: string, chrono: float|int, tournament_id: int} $cutoff
  */
 function amiga_ops_project_matchup_summary_at(mysqli $con, array $cutoff): int
 {
-    if (!$con->query('DELETE FROM amiga_player_matchup_summary')) {
-        throw new AmigaProjectPresentException('DELETE matchup_summary: ' . $con->error);
-    }
-
     $cols = amiga_matchup_pair_columns();
     $colList = 'player_id, opponent_id, `' . implode('`, `', $cols) . '`';
     $selectCols = 'e.player_id, e.opponent_id, e.`' . implode('`, e.`', $cols) . '`';
@@ -393,26 +449,47 @@ function amiga_ops_project_matchup_summary_at(mysqli $con, array $cutoff): int
             FROM amiga_player_matchup_at_event mae
             WHERE {$tuple}
         ) e
+        INNER JOIN (
+            SELECT player_a_id AS player_id, player_b_id AS opponent_id
+            FROM amiga_games
+            UNION
+            SELECT player_b_id AS player_id, player_a_id AS opponent_id
+            FROM amiga_games
+        ) pairs
+            ON pairs.player_id = e.player_id
+           AND pairs.opponent_id = e.opponent_id
         WHERE e.rn = 1
-          AND EXISTS (
-              SELECT 1 FROM amiga_games g
-              WHERE (g.player_a_id = e.player_id AND g.player_b_id = e.opponent_id)
-                 OR (g.player_b_id = e.player_id AND g.player_a_id = e.opponent_id)
-          )
     ";
-    $stmt = $con->prepare($sql);
-    if ($stmt === false) {
-        throw new AmigaProjectPresentException('prepare matchup project: ' . $con->error);
+
+    if (!$con->begin_transaction()) {
+        throw new AmigaProjectPresentException('begin matchup project txn: ' . $con->error);
     }
-    $eventDate = (string) $cutoff['event_date'];
-    $chrono = (float) $cutoff['chrono'];
-    $tid = (int) $cutoff['tournament_id'];
-    $stmt->bind_param('sdi', $eventDate, $chrono, $tid);
-    if (!$stmt->execute()) {
-        throw new AmigaProjectPresentException('execute matchup project: ' . $stmt->error);
+    try {
+        if (!$con->query('DELETE FROM amiga_player_matchup_summary')) {
+            throw new AmigaProjectPresentException('DELETE matchup_summary: ' . $con->error);
+        }
+        $stmt = $con->prepare($sql);
+        if ($stmt === false) {
+            throw new AmigaProjectPresentException('prepare matchup project: ' . $con->error);
+        }
+        $eventDate = (string) $cutoff['event_date'];
+        $chrono = (float) $cutoff['chrono'];
+        $tid = (int) $cutoff['tournament_id'];
+        $stmt->bind_param('sdi', $eventDate, $chrono, $tid);
+        if (!$stmt->execute()) {
+            $err = $stmt->error;
+            $stmt->close();
+            throw new AmigaProjectPresentException('execute matchup project: ' . $err);
+        }
+        $written = (int) $stmt->affected_rows;
+        $stmt->close();
+        if (!$con->commit()) {
+            throw new AmigaProjectPresentException('commit matchup project: ' . $con->error);
+        }
+    } catch (Throwable $e) {
+        $con->rollback();
+        throw $e;
     }
-    $written = (int) $stmt->affected_rows;
-    $stmt->close();
 
     return $written;
 }
@@ -703,4 +780,245 @@ function amiga_ops_project_wc_hof_present_at(mysqli $con, array $cutoff): bool
     );
 
     return true;
+}
+
+/**
+ * Read-only diagnosis for present re-project (no DELETE/INSERT).
+ *
+ * Phases (HTTP-safe):
+ * - counts — tip + row counts + inverse pointer sample (fast)
+ * - time_no_exists — SELECT COUNT of latest matchup pairs (window only)
+ * - time_exists — same + EXISTS on amiga_games (phase matchups shape)
+ *
+ * Timing phases set MySQL MAX_EXECUTION_TIME (ms) and MariaDB max_statement_time (sec)
+ * so a slow probe returns an error flash instead of a bare gateway 500.
+ *
+ * @param 'counts'|'time_no_exists'|'time_exists' $phase
+ * @return array{
+ *   tip_id:int,
+ *   tip_name:string,
+ *   phase:string,
+ *   next_phase:?string,
+ *   counts:array<string,int>,
+ *   timings_ms:array<string,int|null>,
+ *   notes:list<string>,
+ *   ok:bool
+ * }
+ */
+function amiga_ops_diagnose_project_present(
+    mysqli $con,
+    string $phase = 'counts',
+    int $maxExecutionTimeMs = 8000,
+): array {
+    if (!in_array($phase, ['counts', 'time_no_exists', 'time_exists'], true)) {
+        throw new AmigaProjectPresentException('unknown diagnose phase: ' . $phase);
+    }
+
+    $resTip = $con->query(
+        'SELECT id, name FROM tournaments '
+        . 'WHERE COALESCE(rating_finalized, 0) = 1 '
+        . 'ORDER BY event_date DESC, chrono DESC, id DESC LIMIT 1'
+    );
+    if ($resTip === false) {
+        throw new AmigaProjectPresentException('tip query: ' . $con->error);
+    }
+    $tipRow = $resTip->fetch_assoc();
+    $resTip->free();
+    if ($tipRow === null) {
+        throw new AmigaProjectPresentException('No finalized tip');
+    }
+    $cutoff = amiga_ops_project_present_load_cutoff($con, (int) $tipRow['id']);
+    $eventDate = (string) $cutoff['event_date'];
+    $chrono = (float) $cutoff['chrono'];
+    $tid = (int) $cutoff['tournament_id'];
+
+    $counts = [];
+    $timings = [
+        'matchup_latest_pairs_no_exists_ms' => null,
+        'matchup_latest_pairs_with_exists_ms' => null,
+    ];
+    $notes = [];
+    $nextPhase = null;
+
+    if ($phase === 'counts') {
+        $countSql = [
+            'player_current' => 'SELECT COUNT(*) AS n FROM amiga_player_current',
+            'matchup_summary' => 'SELECT COUNT(*) AS n FROM amiga_player_matchup_summary',
+            'matchup_at_event' => 'SELECT COUNT(*) AS n FROM amiga_player_matchup_at_event',
+            'games' => 'SELECT COUNT(*) AS n FROM amiga_games',
+            'inverse_changelog' => 'SELECT COUNT(*) AS n FROM amiga_player_inverse_count_at_event',
+        ];
+        foreach ($countSql as $key => $sql) {
+            $res = $con->query($sql);
+            if ($res === false) {
+                throw new AmigaProjectPresentException("count {$key}: " . $con->error);
+            }
+            $counts[$key] = (int) ($res->fetch_assoc()['n'] ?? 0);
+            $res->free();
+        }
+
+        $ptrDiffs = 0;
+        $ptrSql = '
+            SELECT COUNT(*) AS n FROM amiga_player_current c
+            LEFT JOIN (
+                SELECT MostGoalsScoredVictimID AS hero_id, COUNT(*) AS n
+                FROM amiga_player_current
+                WHERE MostGoalsScoredVictimID IS NOT NULL AND MostGoalsScoredVictimID > 0
+                GROUP BY MostGoalsScoredVictimID
+            ) inv ON inv.hero_id = c.player_id
+            WHERE COALESCE(c.MostGoalsScoredCulprits, 0) <> COALESCE(inv.n, 0)
+        ';
+        $res = $con->query($ptrSql);
+        if ($res !== false) {
+            $ptrDiffs = (int) ($res->fetch_assoc()['n'] ?? 0);
+            $res->free();
+        }
+        $counts['inverse_mgs_ptr_diffs'] = $ptrDiffs;
+
+        if ($counts['matchup_summary'] === 0 && $counts['games'] > 0) {
+            $notes[] = 'matchup_summary is EMPTY while games exist — phase matchups likely DELETE-committed then aborted before INSERT finished.';
+        } elseif ($counts['matchup_summary'] > 0) {
+            $notes[] = 'matchup_summary has rows — DELETE may not have run, or INSERT finished after browser 500, or prior good state remains.';
+        }
+        if ($ptrDiffs === 0) {
+            $notes[] = 'MGS inverse present matches pointer oracle (phase player_current likely OK).';
+        } else {
+            $notes[] = "MGS inverse present vs pointer diffs={$ptrDiffs}.";
+        }
+        $notes[] = 'Counts-only phase done. Next optional: time_no_exists (window query).';
+        $nextPhase = 'time_no_exists';
+    }
+
+    if ($phase === 'time_no_exists' || $phase === 'time_exists') {
+        amiga_ops_diagnose_apply_statement_timeout($con, $maxExecutionTimeMs, $notes);
+
+        $tuple = amiga_ops_project_present_tuple_cutoff_sql(
+            'event_date',
+            'event_chrono',
+            'as_of_tournament_id'
+        );
+        $inner = "
+            SELECT mae.player_id, mae.opponent_id,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY mae.player_id, mae.opponent_id
+                       ORDER BY mae.event_date DESC, mae.event_chrono DESC,
+                                mae.as_of_tournament_id DESC
+                   ) AS rn
+            FROM amiga_player_matchup_at_event mae
+            WHERE {$tuple}
+        ";
+
+        if ($phase === 'time_no_exists') {
+            $sql = "SELECT COUNT(*) AS n FROM ({$inner}) e WHERE e.rn = 1";
+            $timings['matchup_latest_pairs_no_exists_ms'] = amiga_ops_diagnose_timed_count(
+                $con,
+                $sql,
+                $eventDate,
+                $chrono,
+                $tid,
+                $notes,
+                'no-EXISTS'
+            );
+            $nextPhase = 'time_exists';
+        } else {
+            $sql = "SELECT COUNT(*) AS n FROM ({$inner}) e WHERE e.rn = 1
+                AND EXISTS (
+                    SELECT 1 FROM amiga_games g
+                    WHERE (g.player_a_id = e.player_id AND g.player_b_id = e.opponent_id)
+                       OR (g.player_b_id = e.player_id AND g.player_a_id = e.opponent_id)
+                )";
+            $timings['matchup_latest_pairs_with_exists_ms'] = amiga_ops_diagnose_timed_count(
+                $con,
+                $sql,
+                $eventDate,
+                $chrono,
+                $tid,
+                $notes,
+                'with-EXISTS'
+            );
+            $nextPhase = null;
+            $notes[] = 'Timing phases done.';
+        }
+
+        $con->query('SET SESSION MAX_EXECUTION_TIME = 0');
+        $con->query('SET SESSION max_statement_time = 0');
+    }
+
+    return [
+        'tip_id' => $tid,
+        'tip_name' => (string) $cutoff['tournament_name'],
+        'phase' => $phase,
+        'next_phase' => $nextPhase,
+        'counts' => $counts,
+        'timings_ms' => $timings,
+        'notes' => $notes,
+        'ok' => true,
+    ];
+}
+
+/**
+ * Best-effort statement timeout for MySQL (ms) and MariaDB (seconds).
+ *
+ * @param list<string> $notes
+ */
+function amiga_ops_diagnose_apply_statement_timeout(mysqli $con, int $maxExecutionTimeMs, array &$notes): void
+{
+    $limitMs = max(1000, $maxExecutionTimeMs);
+    $limitSec = max(1, (int) ceil($limitMs / 1000));
+    $okMysql = @$con->query('SET SESSION MAX_EXECUTION_TIME = ' . (int) $limitMs);
+    $okMaria = @$con->query('SET SESSION max_statement_time = ' . (int) $limitSec);
+    $notes[] = 'statement timeout request: MAX_EXECUTION_TIME=' . $limitMs . 'ms ('
+        . ($okMysql ? 'ok' : 'fail') . '), max_statement_time=' . $limitSec . 's ('
+        . ($okMaria ? 'ok' : 'fail') . ')';
+    $ver = $con->query('SELECT VERSION() AS v');
+    if ($ver) {
+        $v = (string) ($ver->fetch_assoc()['v'] ?? '');
+        $ver->free();
+        $notes[] = 'server VERSION=' . $v;
+    }
+}
+
+/**
+ * @param list<string> $notes
+ */
+function amiga_ops_diagnose_timed_count(
+    mysqli $con,
+    string $sql,
+    string $eventDate,
+    float $chrono,
+    int $tid,
+    array &$notes,
+    string $label,
+): ?int {
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        $notes[] = "{$label}: prepare failed: " . $con->error;
+
+        return null;
+    }
+    $stmt->bind_param('sdi', $eventDate, $chrono, $tid);
+    $t0 = microtime(true);
+    $ok = $stmt->execute();
+    $ms = (int) round((microtime(true) - $t0) * 1000);
+    if (!$ok) {
+        $err = $stmt->error !== '' ? $stmt->error : $con->error;
+        $stmt->close();
+        $notes[] = "{$label}: FAILED after {$ms}ms — {$err}";
+        if (stripos($err, 'maximum statement execution time') !== false
+            || stripos($err, 'max_execution_time') !== false
+            || stripos($err, 'max_statement_time') !== false
+            || stripos($err, 'Query execution was interrupted') !== false
+        ) {
+            $notes[] = "{$label}: confirmed slow — DB killed the statement at statement timeout "
+                . '(same shape as phase matchups; gateway 500 expected if INSERT runs longer).';
+        }
+
+        return null;
+    }
+    $res = $stmt->get_result();
+    $n = $res ? (int) ($res->fetch_assoc()['n'] ?? 0) : -1;
+    $stmt->close();
+    $notes[] = "{$label}: OK count={$n} in {$ms}ms";
+
+    return $ms;
 }

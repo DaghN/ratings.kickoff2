@@ -123,7 +123,7 @@ Amiga **community ground** is moving from “local laptop is canon, staging is a
 
 ## 7. Backup
 
-**Staging tip safety (v1 intent):** full backup pack **after** Finish / admin delete — [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md). Restore = Apply import (or equivalent) from a prior seal.
+**Staging tip safety (v1):** full backup pack **after** Finish / admin tip repair — [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md). **Restore** = **Restore into DB now** from `amiga/_backups/<seal>/` on `/amiga/run_backup_ko2amiga.php` (does not clobber `_import` push tray); optional Copy→`_import` + Apply import.
 
 **Also:**
 
@@ -191,9 +191,9 @@ Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
 | **PULL-1b** | **Shipped + verified Jul 2026** — `run_export_ko2amiga.php` (export-v4; JSON + download) |
 | **CHECKPOINT-1** | **Shipped Jul 2026** — `seal_amiga_work_checkpoint.ps1` + `data/amiga/checkpoints/` (milestone git seals) |
 | **SYNC-1** | `staging-sync-last.json` + export gate |
-| **ADMIN-1** | Staged admin delete + after-action backup seals — intent locked [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md); implement with Track L **L5** |
+| **ADMIN-1** | Staged admin delete + after-action backup seals — **L5 slices 0–4 hardened** (Case A/B + `project-present-at` + BA4 restore); next Case C (slice 5) — [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) |
 | **PACK-1** | Per-tournament ground pack export (live-ops L6) — **shelved** with L6 until further notice |
-| **BACKUP-1** | Staging after-Finish / after-delete full pack seals + rolling/reserve — same intent doc as ADMIN-1 |
+| **BACKUP-1** | Staging after-Finish / after-delete full pack seals + rolling/reserve — **shipped** L5 slices 1–2 (+ BA4 restore harden); same intent doc as ADMIN-1 |
 
 ---
 
@@ -201,6 +201,7 @@ Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
 
 | Date | Change |
 |------|--------|
+| 2026-07-22 | **ADMIN-1 progress** — L5 slices 0–4 hardened; BA4 restore from `_backups/`; §7 tip safety wording. Next: Case C. |
 | 2026-07-22 | **Permissions + backup intent** — §6/§7 aligned with [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md); lock/unlock + per-tournament delete password rejected for v1; ADMIN-1/BACKUP-1; L6/PACK-1 shelved. |
 | 2026-07-11 | **CHECKPOINT-1** — `seal_amiga_work_checkpoint.ps1` + `data/amiga/checkpoints/`; first seal `work-2026-07-11-tail`; §7 work git checkpoint row. |
 | 2026-07-10 | **Export table registry** — `staging_export_tables.py` + JSON manifest; push/pull read same list; `export_ko2amiga_work.ps1` audit preflight (incl. `tournament_stage_scoring_steps`). |

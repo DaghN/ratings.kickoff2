@@ -214,6 +214,60 @@ function amiga_ops_upsert_row(mysqli $con, string $table, array $row, array $key
 }
 
 /**
+ * Multi-row INSERT (table must be empty or ignore PK conflicts — caller deletes first).
+ *
+ * @param list<array<string, mixed>> $rows non-empty; all rows share the same key order
+ */
+function amiga_ops_insert_rows_batch(mysqli $con, string $table, array $rows): void
+{
+    if ($rows === []) {
+        return;
+    }
+    $columns = array_keys($rows[0]);
+    $colList = implode(', ', array_map(static fn (string $c): string => "`{$c}`", $columns));
+    $onePlaceholders = '(' . implode(', ', array_fill(0, count($columns), '?')) . ')';
+    $allPlaceholders = implode(', ', array_fill(0, count($rows), $onePlaceholders));
+    $sql = "INSERT INTO `{$table}` ({$colList}) VALUES {$allPlaceholders}";
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException("prepare {$table} batch insert: " . $con->error);
+    }
+
+    $types = '';
+    $values = [];
+    foreach ($rows as $row) {
+        foreach ($columns as $col) {
+            $val = $row[$col] ?? null;
+            if ($val === null) {
+                $types .= 's';
+                $values[] = null;
+            } elseif (is_int($val)) {
+                $types .= 'i';
+                $values[] = $val;
+            } elseif (is_float($val)) {
+                $types .= 'd';
+                $values[] = $val;
+            } else {
+                $types .= 's';
+                $values[] = (string) $val;
+            }
+        }
+    }
+
+    $bind = [$types];
+    foreach ($values as $i => $v) {
+        $bind[] = &$values[$i];
+    }
+    call_user_func_array([$stmt, 'bind_param'], $bind);
+    if (!$stmt->execute()) {
+        $err = $stmt->error;
+        $stmt->close();
+        throw new RuntimeException("execute {$table} batch insert: " . $err);
+    }
+    $stmt->close();
+}
+
+/**
  * @param array<string, mixed> $snapshot
  * @return array<string, mixed>
  */

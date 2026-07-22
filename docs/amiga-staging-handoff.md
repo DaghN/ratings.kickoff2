@@ -12,6 +12,14 @@
 
 **Agents — pull staged → local (repair shop):** Run `powershell -ExecutionPolicy Bypass -File scripts\pull_ko2amiga_from_staging.ps1 -Force` when Dagh says **pull staged Amiga** (or: pull Amiga from staged · refresh `ko2amiga_work` from staging). **Execute the script** — do not hand-wave WinSCP/mysqldump. Sync to staging first if export PHP changed: `run_export_ko2amiga.php` + `includes/amiga_staging_export_lib.php` (export build **v4+**). **Does not run simul by default** — `-Simul` only when sign-off needs it. Writes `data/amiga/modern/staging-sync-last.json`. Manual URLs below. Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) §8.
 
+**Side-pull (compare / never overwrite only healthy work):** After a botched tip op, pull staging into a **separate** local DB — do **not** Force-pull over the only healthy `ko2amiga_work`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\pull_ko2amiga_from_staging.ps1 -Force -TargetDatabase ko2amiga_staging_cmp
+```
+
+Then compare with `scripts/oneoff/amiga_compare_two_dbs.php` or `scripts/compare_ko2amiga_seal_to_work.ps1` (GitHub seals under `data/amiga/checkpoints/`).
+
 **Work git checkpoint (milestone backup — not staging push):** When forward **`ko2amiga_work`** must be recoverable before push (structure tail, Tier E, etc.), seal a named checkpoint:
 
 ```powershell
@@ -49,6 +57,7 @@ Online `kooldb*` is untouched. Credentials mirror staging config1 user/password;
 - https://ratings.kickoff2.com/amiga/tournament.php?id=372 (London XXIII — adjust id after import)
 - https://ratings.kickoff2.com/amiga/player/profile.php?id=1
 - https://ratings.kickoff2.com/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot (organizer password POST form — **Create player** on compose league after prove/export/import)
+- https://ratings.kickoff2.com/amiga/run_backup_ko2amiga.php?once=ko2amiga-backup-one-shot (admin — **Backup now**, **Restore into DB now** from `_backups/`, Case A/B tip ops, **Re-project present**, Diagnose; Build `l5-s4j`)
 
 ---
 
@@ -60,7 +69,7 @@ Online `kooldb*` is untouched. Credentials mirror staging config1 user/password;
 powershell -ExecutionPolicy Bypass -File scripts\pull_ko2amiga_from_staging.ps1 -Force
 ```
 
-Triggers staging export PHP (`generate=1&format=json`), downloads dump, **replaces** local **`ko2amiga_work`**, writes `data/amiga/modern/staging-sync-last.json`. **Simul opt-in:** `-Simul` (~20 min; not default). Requires Laragon MySQL + synced export PHP on staging (`run_export_ko2amiga.php` + `includes/amiga_staging_export_lib.php`, build **v4+**).
+Triggers staging export PHP (`generate=1&format=json`), downloads dump, **replaces** local **`ko2amiga_work`** (default), writes `data/amiga/modern/staging-sync-last.json`. **Side-pull:** `-TargetDatabase ko2amiga_staging_cmp` (or other name) imports into that DB only — **work untouched**. **Simul opt-in:** `-Simul` (~20 min; not default). Requires Laragon MySQL + synced export PHP on staging (`run_export_ko2amiga.php` + `includes/amiga_staging_export_lib.php`, build **v4+**).
 
 **File retention:** Staging keeps **one** SQL file (overwrite). Local pull keeps `ko2amiga_staging_pull_latest.sql` (overwrite) plus one timestamped archive per run under `data/amiga/pulls/` (gitignored).
 
