@@ -16,6 +16,8 @@ require_once __DIR__ . '/includes/amiga_ops_bootstrap.php';
 require_once __DIR__ . '/modules/process_completed_game.php';
 require_once __DIR__ . '/modules/finalize_tournament.php';
 require_once __DIR__ . '/modules/delete_unfinalized_tournament.php';
+require_once __DIR__ . '/modules/delete_last_finalized_tournament.php';
+require_once __DIR__ . '/modules/project_present_at.php';
 
 amiga_ops_require_cli();
 
@@ -26,13 +28,15 @@ function amiga_ops_print_help(): void
     fwrite(STDOUT, "  zero-derived          Clear derived tables incl. realm snapshots (ground kept)\n");
     fwrite(STDOUT, "  finalize-tournament   Batch finalize one tournament (frozen Elo + rating events)\n");
     fwrite(STDOUT, "  delete-unfinalized-tournament  Case A: delete never-official generated kitchen\n");
+    fwrite(STDOUT, "  delete-last-finalized-tournament  Case B: delete tip + project-present-at prior (no seal)\n");
+    fwrite(STDOUT, "  project-present-at    Rebuild present tables at --tournament-id cutoff\n");
     fwrite(STDOUT, "  replay-to             Removed — use python -m scripts.amiga prove\n");
     fwrite(STDOUT, "  process-one           Deprecated for tournament games — use finalize-tournament\n");
     fwrite(STDOUT, "  verify                Row counts + derived_gap + standings spot-checks\n");
     fwrite(STDOUT, "  help\n");
     fwrite(STDOUT, "Options:\n");
     fwrite(STDOUT, "  --game-id N           process-one target\n");
-    fwrite(STDOUT, "  --tournament-id N     finalize-tournament / delete-unfinalized-tournament target\n");
+    fwrite(STDOUT, "  --tournament-id N     finalize / Case A/B / project-present-at target\n");
     fwrite(STDOUT, "  --limit N             replay-to (deprecated)\n");
     fwrite(STDOUT, "  --until-game-id G     replay-to (deprecated)\n");
     fwrite(STDOUT, "  --dry-run\n");
@@ -139,6 +143,67 @@ if ($verb === 'delete-unfinalized-tournament') {
             . ($dryRun ? ' (dry-run)' : '')
         );
         // Case A is not tip-changing — no auto-seal.
+    } finally {
+        $con->close();
+    }
+    exit(0);
+}
+
+if ($verb === 'delete-last-finalized-tournament') {
+    if ($tournamentId === null || $tournamentId <= 0) {
+        fwrite(STDERR, "delete-last-finalized-tournament requires --tournament-id N\n");
+        exit(1);
+    }
+    $con = amiga_ops_connect();
+    try {
+        $result = amiga_delete_last_finalized_tournament($con, $tournamentId, $dryRun);
+        if (!$result['ok']) {
+            fwrite(STDERR, 'Case B refuse: ' . $result['error'] . PHP_EOL);
+            exit(1);
+        }
+        amiga_ops_log(
+            'delete-last-finalized-tournament done: id=' . $result['tournament_id']
+            . ' name=' . $result['name']
+            . ' prior=' . $result['prior_tournament_id']
+            . ' games=' . $result['games_deleted']
+            . ' orphans=' . count($result['orphan_players_deleted'])
+            . ($dryRun ? ' (dry-run)' : '')
+        );
+        if (!$dryRun) {
+            fwrite(STDOUT, "NOTE: Case B does not seal here — use admin backup page or "
+                . "amiga_backup_seal_write_from_config after success (AD6).\n");
+        }
+    } finally {
+        $con->close();
+    }
+    exit(0);
+}
+
+if ($verb === 'project-present-at') {
+    if ($tournamentId === null || $tournamentId <= 0) {
+        fwrite(STDERR, "project-present-at requires --tournament-id N\n");
+        exit(1);
+    }
+    if ($dryRun) {
+        fwrite(STDOUT, "project-present-at dry-run: would rebuild present at cutoff={$tournamentId}\n");
+        exit(0);
+    }
+    $con = amiga_ops_connect();
+    try {
+        $result = amiga_ops_project_present_at($con, $tournamentId);
+        amiga_ops_log(
+            'project-present-at done: cutoff=' . $result['cutoff_tournament_id']
+            . ' current=' . $result['player_current']
+            . ' matchups=' . $result['matchup_summary']
+            . ' player_slice=' . $result['player_slice_totals']
+            . ' country_slice=' . $result['country_slice_totals']
+            . ' gst=' . ($result['generalstats'] ? '1' : '0')
+            . ' community=' . ($result['community_stats'] ? '1' : '0')
+            . ' wc_hof=' . ($result['wc_hof_present'] ? '1' : '0')
+        );
+    } catch (Throwable $e) {
+        fwrite(STDERR, 'project-present-at failed: ' . $e->getMessage() . PHP_EOL);
+        exit(1);
     } finally {
         $con->close();
     }

@@ -242,10 +242,10 @@ Deleting event N+1 **poisons** all forward timeline rows computed including its 
 | Verb | Guard | Effect | Status |
 |------|-------|--------|--------|
 | `delete-unfinalized-tournament` | No `rating_finalized`; generated kitchen; no L5 timeline | L3+L4 delete (**no** auto-seal) | **Shipped** (L5 slice 3) — `ops/modules/delete_unfinalized_tournament.php`; admin UI on `/amiga/run_backup_ko2amiga.php` |
-| `delete-last-finalized-tournament` | Chrono-last finalized | Case B pipeline | Planned (slice 4) |
-| `truncate-derived-after` | Cutoff tournament id | Case C step 2–3 | Planned |
-| `project-present-at` | Cutoff tournament id | Rebuild all present projections | Planned (slice 4–5) |
-| `refinalize-forward-from` | After truncate + project | Case C step 5 loop | Planned |
+| `delete-last-finalized-tournament` | Chrono-last finalized | Case B pipeline | **Shipped** (L5 slice 4) — `ops/modules/delete_last_finalized_tournament.php`; admin UI + seal after |
+| `truncate-derived-after` | Cutoff tournament id | Case C step 2–3 | Planned (slice 5) |
+| `project-present-at` | Cutoff tournament id | Rebuild all present projections | **Shipped** (L5 slice 4) — `ops/modules/project_present_at.php` |
+| `refinalize-forward-from` | After truncate + project | Case C step 5 loop | Planned (slice 5) |
 | `verify-derived` | — | Read-only checks (subset of prove verify) | Planned |
 
 Implement under `site/public_html/amiga/ops/` with same CLI/bootstrap habits as `run_process_game.php`.
