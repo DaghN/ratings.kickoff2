@@ -346,7 +346,7 @@ Run **after** Case C insert ships on staging/work. Symmetric to Phase C delete p
 | Forward finalize without inverse changelog seed (Jul 23 poison) |
 | Double promote on retry |
 
-**Status:** `[ ]` not started — implement code first (plan slices 1–5).
+**Status:** `[ ]` staged proof pending — code shipped Jul 2026 on `fixtures.php`; run D1–D2 on staging after WinSCP deploy.
 
 ---
 

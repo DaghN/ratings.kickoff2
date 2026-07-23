@@ -21,6 +21,8 @@ require_once __DIR__ . '/modules/process_completed_game.php';
 require_once __DIR__ . '/modules/finalize_tournament.php';
 require_once __DIR__ . '/includes/amiga_promote_running_tournament.php';
 require_once __DIR__ . '/includes/amiga_finish_confirm_proposal.php';
+require_once __DIR__ . '/modules/insert_finalized_mid_tournament.php';
+require_once __DIR__ . '/modules/project_present_at.php';
 require_once __DIR__ . '/../includes/amiga_backup_seal_lib.php';
 include __DIR__ . '/../../../config/ko2amiga_config.php';
 require_once __DIR__ . '/../includes/amiga_ops_password_lib.php';
@@ -225,6 +227,57 @@ function amiga_fixture_ops_flash_consume(): ?array
     unset($_SESSION['amiga_ops_flash']);
 
     return $flash;
+}
+
+/**
+ * @param array<string, mixed> $chain
+ */
+function amiga_fixture_insert_finish_chain_set(array $chain): void
+{
+    amiga_fixture_ops_session_start();
+    $_SESSION['amiga_insert_finish_chain'] = $chain;
+}
+
+/**
+ * @return array<string, mixed>|null
+ */
+function amiga_fixture_insert_finish_chain_get(): ?array
+{
+    amiga_fixture_ops_session_start();
+    $chain = $_SESSION['amiga_insert_finish_chain'] ?? null;
+
+    return is_array($chain) ? $chain : null;
+}
+
+function amiga_fixture_insert_finish_chain_clear(): void
+{
+    amiga_fixture_ops_session_start();
+    unset($_SESSION['amiga_insert_finish_chain']);
+}
+
+/**
+ * @return list<int>
+ */
+function amiga_fixture_insert_finish_chain_ids(string $csv): array
+{
+    if ($csv === '') {
+        return [];
+    }
+
+    return array_values(array_filter(array_map('intval', explode(',', $csv)), static function (int $id): bool {
+        return $id > 0;
+    }));
+}
+
+function amiga_fixture_insert_finish_chain_next_after(int $currentId, string $csv): int
+{
+    $ids = amiga_fixture_insert_finish_chain_ids($csv);
+    $idx = array_search($currentId, $ids, true);
+    if ($idx === false) {
+        return 0;
+    }
+
+    return (int) ($ids[$idx + 1] ?? 0);
 }
 
 function amiga_fixture_ops_redirect(
@@ -2942,11 +2995,15 @@ function amiga_fixture_reset_incomplete_finalize(mysqli $con, int $tournamentId)
  *   failed_game_id:?int,
  *   skip_reason:?string,
  *   lifecycle_completed:bool,
- *   voided_scheduled:int
+ *   voided_scheduled:int,
+ *   insert_chain:?array<string,mixed>
  * }
  */
-function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournamentId): array
-{
+function amiga_fixture_reprocess_tournament_derived(
+    mysqli $con,
+    int $tournamentId,
+    bool $confirmMidHistoryFinish = false
+): array {
     amiga_fixture_require_generated_tournament($con, $tournamentId);
     if (amiga_ops_tournament_rating_finalized($con, $tournamentId)) {
         $lifecycle = amiga_fixture_load_lifecycle($con, $tournamentId);
@@ -2958,6 +3015,7 @@ function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournament
                 'skip_reason' => 'finalize_limbo',
                 'lifecycle_completed' => false,
                 'voided_scheduled' => 0,
+                'insert_chain' => null,
             ];
         }
         $lifecycleCompleted = amiga_fixture_try_complete_official_tournament_lifecycle($con, $tournamentId);
@@ -2968,6 +3026,7 @@ function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournament
             'skip_reason' => $lifecycleCompleted ? 'lifecycle_repaired' : 'already_finalized',
             'lifecycle_completed' => $lifecycleCompleted,
             'voided_scheduled' => 0,
+            'insert_chain' => null,
         ];
     }
 
@@ -2979,6 +3038,7 @@ function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournament
             'skip_reason' => 'lifecycle_not_running',
             'lifecycle_completed' => false,
             'voided_scheduled' => 0,
+            'insert_chain' => null,
         ];
     }
 
@@ -2991,6 +3051,7 @@ function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournament
             'skip_reason' => 'no_played_fixtures',
             'lifecycle_completed' => false,
             'voided_scheduled' => 0,
+            'insert_chain' => null,
         ];
     }
 
@@ -3002,10 +3063,65 @@ function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournament
             'skip_reason' => 'finish_order_not_confirmed',
             'lifecycle_completed' => false,
             'voided_scheduled' => 0,
+            'insert_chain' => null,
+        ];
+    }
+
+    $probe = amiga_case_c_insert_finish_probe($con, $tournamentId);
+    if ($probe['is_mid_history'] && !$confirmMidHistoryFinish) {
+        return [
+            'processed' => 0,
+            'failed_game_id' => null,
+            'skip_reason' => 'mid_history_confirm_required',
+            'lifecycle_completed' => false,
+            'voided_scheduled' => 0,
+            'insert_chain' => null,
         ];
     }
 
     $voidedScheduled = amiga_fixture_void_remaining_scheduled_fixtures($con, $tournamentId);
+
+    if ($probe['is_mid_history']) {
+        if ($probe['n'] === null) {
+            return [
+                'processed' => 0,
+                'failed_game_id' => null,
+                'skip_reason' => 'no_prior_finalized_for_insert',
+                'lifecycle_completed' => false,
+                'voided_scheduled' => $voidedScheduled,
+                'insert_chain' => null,
+            ];
+        }
+        $prep = amiga_case_c_insert_finish_prepare($con, $tournamentId);
+        if (!$prep['ok']) {
+            return [
+                'processed' => 0,
+                'failed_game_id' => null,
+                'skip_reason' => 'insert_prepare_failed: ' . (string) $prep['error'],
+                'lifecycle_completed' => false,
+                'voided_scheduled' => $voidedScheduled,
+                'insert_chain' => null,
+            ];
+        }
+
+        return [
+            'processed' => 0,
+            'failed_game_id' => null,
+            'skip_reason' => 'insert_finish_prepared',
+            'lifecycle_completed' => false,
+            'voided_scheduled' => $voidedScheduled,
+            'insert_chain' => [
+                'tournament_id' => $tournamentId,
+                'tournament_name' => (string) $prep['name'],
+                'cutoff_id' => (int) $prep['cutoff_id'],
+                'cutoff_name' => (string) $prep['cutoff_name'],
+                'finalize_chain_csv' => (string) $prep['finalize_chain_csv'],
+                'stage' => 'project',
+                'project_phase' => 'player_current',
+                'forward_count' => $probe['forward_count'],
+            ],
+        ];
+    }
 
     if (amiga_fixture_count_official_tournament_games($con, $tournamentId) === 0) {
         $promote = amiga_promote_running_tournament($con, $tournamentId, false);
@@ -3016,6 +3132,7 @@ function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournament
                 'skip_reason' => 'promote_refused_games_exist',
                 'lifecycle_completed' => false,
                 'voided_scheduled' => $voidedScheduled,
+                'insert_chain' => null,
             ];
         }
     }
@@ -3031,6 +3148,7 @@ function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournament
             'skip_reason' => $e->getMessage(),
             'lifecycle_completed' => false,
             'voided_scheduled' => $voidedScheduled,
+            'insert_chain' => null,
         ];
     }
 
@@ -3045,6 +3163,7 @@ function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournament
             'skip_reason' => 'lifecycle_complete_failed: ' . $e->getMessage(),
             'lifecycle_completed' => false,
             'voided_scheduled' => $voidedScheduled,
+            'insert_chain' => null,
         ];
     }
 
@@ -3054,6 +3173,7 @@ function amiga_fixture_reprocess_tournament_derived(mysqli $con, int $tournament
         'skip_reason' => null,
         'lifecycle_completed' => $lifecycleCompleted,
         'voided_scheduled' => $voidedScheduled,
+        'insert_chain' => null,
     ];
 }
 
@@ -3197,6 +3317,10 @@ $tournamentRatingFinalized = false;
 $scheduledFixtureRemaining = 0;
 /** @var array<string, mixed>|null */
 $finishConfirmProposal = null;
+/** @var array<string, mixed>|null */
+$insertFinishProbe = null;
+/** @var array<string, mixed>|null */
+$insertFinishChain = amiga_fixture_insert_finish_chain_get();
 $tournamentLiveVisible = true;
 $canToggleLiveVisible = false;
 /** @var array<int, bool> */
@@ -3388,12 +3512,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $playRedirectExtra = $playStageId > 0 ? ['stage_id' => $playStageId] : [];
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'play', $postStatus, $playRedirectExtra);
         } elseif ($action === 'reprocess_tournament_derived') {
+            @ignore_user_abort(true);
+            @set_time_limit(900);
+            @ini_set('memory_limit', '512M');
             $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
             if ($tournamentId <= 0) {
                 throw new RuntimeException('Missing tournament id.');
             }
-            $summary = amiga_fixture_reprocess_tournament_derived($con, $tournamentId);
-            if ($summary['skip_reason'] === 'lifecycle_repaired') {
+            $confirmMidHistory = isset($_POST['confirm_mid_history_finish'])
+                && (string) $_POST['confirm_mid_history_finish'] === '1';
+            $summary = amiga_fixture_reprocess_tournament_derived($con, $tournamentId, $confirmMidHistory);
+            if ($summary['skip_reason'] === 'insert_finish_prepared') {
+                $chain = $summary['insert_chain'] ?? null;
+                if (!is_array($chain)) {
+                    amiga_fixture_ops_flash_set('Mid-history Finish prepare succeeded but chain state missing.', true);
+                } else {
+                    $chain['voided_scheduled'] = (int) ($summary['voided_scheduled'] ?? 0);
+                    amiga_fixture_insert_finish_chain_set($chain);
+                    amiga_fixture_ops_flash_set(
+                        'Preparing catalog repair for '
+                        . (string) ($chain['tournament_name'] ?? 'this league')
+                        . ' — rebuilding present tables (stay on this page)…'
+                    );
+                }
+            } elseif ($summary['skip_reason'] === 'mid_history_confirm_required') {
+                amiga_fixture_ops_flash_set(
+                    'Confirm the mid-history Finish warning on the Table tab, then try again.',
+                    true
+                );
+            } elseif ($summary['skip_reason'] === 'no_prior_finalized_for_insert') {
+                amiga_fixture_ops_flash_set(
+                    'Cannot finish this league in catalog order — no prior official event to rebuild from. '
+                    . 'Contact admin or restore from backup.',
+                    true
+                );
+            } elseif ($summary['skip_reason'] !== null
+                && str_starts_with((string) $summary['skip_reason'], 'insert_prepare_failed:')
+            ) {
+                amiga_fixture_ops_flash_set(
+                    'Mid-history Finish could not start: '
+                    . substr((string) $summary['skip_reason'], strlen('insert_prepare_failed: ')),
+                    true
+                );
+            } elseif ($summary['skip_reason'] === 'lifecycle_repaired') {
                 amiga_fixture_ops_flash_set(
                     'League was already official — lifecycle marked finished so it leaves Live and appears in the tournament catalog.'
                 );
@@ -3473,6 +3634,157 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         true
                     );
                 }
+            }
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
+        } elseif ($action === 'insert_finish_project') {
+            @ignore_user_abort(true);
+            @set_time_limit(900);
+            @ini_set('memory_limit', '512M');
+            $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
+            $chain = amiga_fixture_insert_finish_chain_get();
+            if ($chain === null || (int) ($chain['tournament_id'] ?? 0) !== $tournamentId) {
+                amiga_fixture_ops_flash_set('Mid-history Finish session expired — try Finish again from the Table tab.', true);
+                amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
+            }
+            $cutoffId = (int) ($chain['cutoff_id'] ?? 0);
+            $phase = (string) ($_POST['project_phase'] ?? (string) ($chain['project_phase'] ?? 'player_current'));
+            if (!in_array($phase, ['player_current', 'matchups', 'rest'], true)) {
+                $phase = 'player_current';
+            }
+            try {
+                $proj = amiga_ops_project_present_at_phase($con, $cutoffId, $phase);
+                $next = $proj['next_phase'] ?? null;
+                if (is_string($next) && $next !== '') {
+                    $chain['stage'] = 'project';
+                    $chain['project_phase'] = $next;
+                    amiga_fixture_insert_finish_chain_set($chain);
+                    amiga_fixture_ops_flash_set(
+                        'Rebuilding present tables — phase '
+                        . $phase
+                        . ' complete; continuing with '
+                        . $next
+                        . '…'
+                    );
+                } else {
+                    $ids = amiga_fixture_insert_finish_chain_ids((string) ($chain['finalize_chain_csv'] ?? ''));
+                    $firstId = (int) ($ids[0] ?? 0);
+                    if ($firstId <= 0) {
+                        amiga_fixture_ops_flash_set('Mid-history Finish: project done but no finalize chain.', true);
+                    } else {
+                        $chain['stage'] = 'finalize';
+                        $chain['finalize_id'] = $firstId;
+                        amiga_fixture_insert_finish_chain_set($chain);
+                        amiga_fixture_ops_flash_set(
+                            'Present tables rebuilt at N=#'
+                            . $cutoffId
+                            . '. Making this league official…'
+                        );
+                    }
+                }
+            } catch (Throwable $e) {
+                amiga_fixture_ops_flash_set(
+                    'Mid-history Finish project failed (phase ' . $phase . '): ' . $e->getMessage(),
+                    true
+                );
+            }
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
+        } elseif ($action === 'insert_finish_finalize') {
+            @ignore_user_abort(true);
+            @set_time_limit(900);
+            @ini_set('memory_limit', '512M');
+            $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
+            $finalizeId = max(0, (int) ($_POST['finalize_id'] ?? 0));
+            $chain = amiga_fixture_insert_finish_chain_get();
+            if ($chain === null || (int) ($chain['tournament_id'] ?? 0) !== $tournamentId) {
+                amiga_fixture_ops_flash_set('Mid-history Finish session expired — try Finish again from the Table tab.', true);
+                amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
+            }
+            if ($finalizeId <= 0) {
+                $finalizeId = (int) ($chain['finalize_id'] ?? 0);
+            }
+            if ($finalizeId <= 0) {
+                amiga_fixture_ops_flash_set('Mid-history Finish: missing tournament id to finalize.', true);
+                amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
+            }
+            $fin = amiga_case_c_insert_finish_finalize_one($con, $finalizeId);
+            if (!$fin['ok']) {
+                amiga_fixture_ops_flash_set(
+                    'Mid-history Finish finalize refused for #' . $finalizeId . ': ' . (string) $fin['error'],
+                    true
+                );
+            } else {
+                $csv = (string) ($chain['finalize_chain_csv'] ?? '');
+                $nextId = amiga_fixture_insert_finish_chain_next_after($finalizeId, $csv);
+                if ($nextId <= 0) {
+                    $nextId = (int) $fin['next_id'];
+                }
+                if ($nextId > 0) {
+                    $chain['stage'] = 'finalize';
+                    $chain['finalize_id'] = $nextId;
+                    amiga_fixture_insert_finish_chain_set($chain);
+                    amiga_fixture_ops_flash_set(
+                        'Finalized #' . (int) $fin['tournament_id']
+                        . ' (' . (string) $fin['name'] . '). Refreshing later event #'
+                        . $nextId
+                        . '…'
+                    );
+                } else {
+                    $chain['stage'] = 'seal';
+                    unset($chain['finalize_id']);
+                    amiga_fixture_insert_finish_chain_set($chain);
+                    amiga_fixture_ops_flash_set(
+                        'All events finalized. Saving backup seal…'
+                    );
+                }
+            }
+            amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
+        } elseif ($action === 'insert_finish_complete') {
+            @ignore_user_abort(true);
+            @set_time_limit(900);
+            @ini_set('memory_limit', '512M');
+            $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
+            $chain = amiga_fixture_insert_finish_chain_get();
+            if ($chain === null || (int) ($chain['tournament_id'] ?? 0) !== $tournamentId) {
+                amiga_fixture_ops_flash_set('Mid-history Finish session expired.', true);
+                amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
+            }
+            try {
+                $lifecycleSummary = amiga_fixture_set_lifecycle_status($con, $tournamentId, 'completed');
+                if ($lifecycleSummary['lifecycle_status'] !== 'completed') {
+                    throw new RuntimeException('lifecycle could not be marked completed.');
+                }
+            } catch (Throwable $e) {
+                amiga_fixture_ops_flash_set(
+                    'Ratings are committed but lifecycle could not be marked finished: ' . $e->getMessage()
+                    . ' Use Technical / repair tools.',
+                    true
+                );
+                amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
+            }
+            $voided = (int) ($chain['voided_scheduled'] ?? 0);
+            $msg = 'League finished and made official (mid-history repair) — catalog and later events refreshed.';
+            if ($voided > 0) {
+                $msg .= ' ' . $voided . ' unplayed match'
+                    . ($voided === 1 ? ' was' : 'es were')
+                    . ' marked void.';
+            }
+            $seal = amiga_backup_seal_write_from_config($con, [
+                'reason' => 'case_c_insert',
+                'tournament_id' => $tournamentId,
+            ]);
+            amiga_fixture_insert_finish_chain_clear();
+            if ($seal['ok']) {
+                $msg .= ' Backup seal: ' . (string) $seal['seal_id']
+                    . ' (' . (int) $seal['parts'] . ' parts'
+                    . (!empty($seal['reserve']) ? ', reserve' : '')
+                    . ').';
+                amiga_fixture_ops_flash_set($msg);
+            } else {
+                amiga_fixture_ops_flash_set(
+                    $msg . ' WARNING: backup seal FAILED — ' . (string) $seal['error']
+                    . ' (ratings are committed; seal manually via /amiga/run_backup_ko2amiga.php).',
+                    true
+                );
             }
             amiga_fixture_ops_redirect($self, $key, $pwdValue, $tournamentId, 'table', $postStatus);
         } elseif ($action === 'confirm_finish_order') {
@@ -3683,7 +3995,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errorView = 'players';
             } elseif (in_array($action, ['record_result', 'undo_fixture_result'], true)) {
                 $errorView = 'play';
-            } elseif ($action === 'reprocess_tournament_derived') {
+            } elseif ($action === 'reprocess_tournament_derived'
+                || in_array($action, ['insert_finish_project', 'insert_finish_finalize', 'insert_finish_complete'], true)
+            ) {
                 $errorView = 'table';
             } elseif ($action === 'reset_incomplete_finalize' || $action === 'place_stage_entrant'
                 || $action === 'set_lifecycle_status' || $action === 'organizer_lifecycle_action') {
@@ -3905,6 +4219,12 @@ if (
         $entrants,
         $organizerTableDisplay['rows']
     );
+    if (!empty($finishConfirmProposal['confirmed'])) {
+        $probeRow = amiga_case_c_insert_finish_probe($con, $tournamentId);
+        if ($probeRow['is_mid_history']) {
+            $insertFinishProbe = $probeRow;
+        }
+    }
 }
 
 mysqli_close($con);
@@ -3960,6 +4280,54 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
 <div class="k2-amiga-live-ops k2-amiga-organizer">
 <?php if ($flash !== null) { ?>
   <div class="k2-amiga-live-ops__flash<?php echo $flashIsError ? ' k2-amiga-live-ops__flash--error' : ''; ?>"><?php echo k2_h($flash); ?></div>
+<?php } ?>
+<?php
+if (
+    $insertFinishChain !== null
+    && $tournamentId > 0
+    && (int) ($insertFinishChain['tournament_id'] ?? 0) === $tournamentId
+) {
+    $chainStage = (string) ($insertFinishChain['stage'] ?? '');
+    ?>
+  <div class="k2-amiga-live-ops__section k2-amiga-insert-finish-progress">
+    <p><strong>Mid-history Finish in progress</strong></p>
+    <?php if ($chainStage === 'project') {
+        $nextPhase = (string) ($insertFinishChain['project_phase'] ?? 'player_current');
+        ?>
+    <p class="k2-amiga-live-ops__muted">Rebuilding present tables at cutoff N=#<?php echo (int) ($insertFinishChain['cutoff_id'] ?? 0); ?>
+      (<?php echo k2_h((string) ($insertFinishChain['cutoff_name'] ?? '')); ?>) — phase <?php echo k2_h($nextPhase); ?>…</p>
+    <form id="k2-insert-finish-next" method="post" action="<?php echo $self; ?>">
+      <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="action" value="insert_finish_project">
+      <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+      <input type="hidden" name="project_phase" value="<?php echo k2_h($nextPhase); ?>">
+      <input type="hidden" name="view" value="table">
+    </form>
+    <?php } elseif ($chainStage === 'finalize') {
+        $fid = (int) ($insertFinishChain['finalize_id'] ?? 0);
+        ?>
+    <p class="k2-amiga-live-ops__muted">Finalizing tournament #<?php echo $fid; ?>…</p>
+    <form id="k2-insert-finish-next" method="post" action="<?php echo $self; ?>">
+      <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="action" value="insert_finish_finalize">
+      <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+      <input type="hidden" name="finalize_id" value="<?php echo $fid; ?>">
+      <input type="hidden" name="view" value="table">
+    </form>
+    <?php } else { ?>
+    <p class="k2-amiga-live-ops__muted">Saving backup seal…</p>
+    <form id="k2-insert-finish-next" method="post" action="<?php echo $self; ?>">
+      <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pwdValue, ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="action" value="insert_finish_complete">
+      <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
+      <input type="hidden" name="view" value="table">
+    </form>
+    <?php } ?>
+    <script>setTimeout(function(){var f=document.getElementById('k2-insert-finish-next');if(f){f.submit();}},400);</script>
+  </div>
 <?php } ?>
 <?php if ($tournamentId > 0 && $tournament !== null) { ?>
   <div class="k2-amiga-organizer__header">
@@ -4779,7 +5147,10 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
             <strong><?php echo k2_h(AMIGA_FIXTURE_CONFIRM_FINISH_ORDER_LABEL); ?></strong>
             above. That locks who finished where for ratings and medals.
           </p>
-        <?php } else { ?>
+        <?php } else {
+            $insertFinishInProgress = $insertFinishChain !== null
+                && (int) ($insertFinishChain['tournament_id'] ?? 0) === $tournamentId;
+            if (!$insertFinishInProgress) { ?>
         <p class="k2-amiga-organizer-table__preview-note">
           Commits played results to ratings and tournament history. This league leaves Live and joins the historical catalog.
           <?php if ($tournamentUnratedGameCount > 0) { ?>
@@ -4791,9 +5162,42 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
           <?php } ?>
           Finishing order confirmed — ready for Make official.
         </p>
+        <?php
+            if (is_array($insertFinishProbe) && (int) ($insertFinishProbe['forward_count'] ?? 0) > 0) {
+                $fwdNameList = [];
+                foreach ($insertFinishProbe['forward'] as $fwdRow) {
+                    $fwdNameList[] = (string) ($fwdRow['name'] ?? '');
+                }
+                $fwdNameSummary = amiga_case_c_insert_finish_forward_names_summary($fwdNameList);
+                $fwdCount = (int) $insertFinishProbe['forward_count'];
+                ?>
+        <p class="k2-amiga-organizer-table__preview-note k2-amiga-organizer-table__preview-note--warn">
+          <strong>This league&rsquo;s date places it before <?php echo $fwdCount; ?> event<?php echo $fwdCount === 1 ? '' : 's'; ?>
+            already made official</strong><?php if ($fwdNameSummary !== '') { ?>
+            (<?php echo k2_h($fwdNameSummary); ?>)<?php } ?>.
+          Finishing will <strong>recompute ratings and standings</strong> for those later events so the ladder matches catalog order.
+          This may take a few minutes — stay on this page until it completes.
+        </p>
+                <?php
+            }
+            $finishOnsubmit = '';
+            if ($scheduledFixtureRemaining > 0) {
+                $finishOnsubmit .= "if(!confirm('Finish with "
+                    . (int) $scheduledFixtureRemaining
+                    . " unplayed match(es)? They will be marked void and will not count as games.')){return false;}";
+            }
+            if (is_array($insertFinishProbe) && (int) ($insertFinishProbe['forward_count'] ?? 0) > 0) {
+                $fwdCount = (int) $insertFinishProbe['forward_count'];
+                $finishOnsubmit .= "if(!confirm('Recompute "
+                    . $fwdCount
+                    . " later official event"
+                    . ($fwdCount === 1 ? '' : 's')
+                    . " and finish this league? This cannot be undone from the browser.')){return false;}";
+            }
+            ?>
         <form class="k2-amiga-organizer-table__reprocess-form" method="post" action="<?php echo $self; ?>"
-          <?php if ($scheduledFixtureRemaining > 0) { ?>
-              onsubmit="return confirm('Finish with <?php echo (int) $scheduledFixtureRemaining; ?> unplayed match(es)? They will be marked void and will not count as games.');"
+          <?php if ($finishOnsubmit !== '') { ?>
+              onsubmit="return (function(){<?php echo $finishOnsubmit; ?>return true;})();"
           <?php } ?>
         >
           <input type="hidden" name="once" value="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
@@ -4801,11 +5205,17 @@ amiga_fixture_render_chrome_start('Amiga — Tournament organizer', true, $view 
           <input type="hidden" name="action" value="reprocess_tournament_derived">
           <input type="hidden" name="tournament_id" value="<?php echo (int) $tournamentId; ?>">
           <input type="hidden" name="view" value="table">
+          <?php if (is_array($insertFinishProbe) && (int) ($insertFinishProbe['forward_count'] ?? 0) > 0) { ?>
+          <input type="hidden" name="confirm_mid_history_finish" value="1">
+          <?php } ?>
           <?php if ($status !== '') { ?>
             <input type="hidden" name="status" value="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>">
           <?php } ?>
           <button type="submit" class="k2-amiga-organizer-lifecycle__action k2-amiga-organizer-lifecycle__action--primary"><?php echo k2_h(AMIGA_FIXTURE_ORGANIZER_FINISH_LABEL); ?></button>
         </form>
+        <?php } else { ?>
+        <p class="k2-amiga-organizer-table__preview-note">Mid-history Finish is running — see the progress panel above.</p>
+        <?php } ?>
         <?php } ?>
       </div>
     <?php } elseif ($organizerTableDisplay['preview_note'] !== null) { ?>

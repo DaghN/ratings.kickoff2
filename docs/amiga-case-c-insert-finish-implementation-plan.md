@@ -1,6 +1,6 @@
 # Amiga Case C insert — mid-history Finish — implementation plan (Jul 2026)
 
-**Status:** **Design locked** — policy + verb/UI/proof specs ready; **code not started**.
+**Status:** **Code shipped (slices 1–5)** Jul 2026 — organizer mid-history Finish on `fixtures.php`; **staged proof pending** (Dagh).
 
 **Policy:** [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) **AD7** · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) §7.3.1 · [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) §6.7.
 
@@ -281,4 +281,5 @@ Record runs in new section of [`amiga-export-inverse-roundtrip-test-plan.md`](am
 
 | Date | Change |
 |------|--------|
+| 2026-07-23 | **Code shipped** — `insert_finalized_mid_tournament.php` + phased Finish on `fixtures.php` (slices 1–5); staged smoke D pending. |
 | 2026-07-23 | **Design locked** — policy AD7 + live-ops §7.3.1 + RTB §6.7; verb/UI/proof specs (slices 0). |

@@ -224,7 +224,7 @@ Finalize **must not** read running fixture score columns after promote — it re
 
 ### 6.7 Mid-history Finish (Case C insert) — design locked
 
-When running **M** has catalog `(event_date, chrono, id)` **before** ≥1 already-finalized tournament, plain Finish (§6.4) **poisons** derived state. **Not shipped** — target behaviour locked Jul 2026:
+When running **M** has catalog order **before** ≥1 already-finalized tournament, plain Finish (§6.4) **poisoned** derived state before Jul 2026 insert repair. **Shipped Jul 2026** on organizer `fixtures.php`:
 
 | Element | Rule |
 |---------|------|

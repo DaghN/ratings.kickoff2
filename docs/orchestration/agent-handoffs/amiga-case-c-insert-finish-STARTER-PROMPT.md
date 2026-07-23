@@ -2,7 +2,7 @@
 
 **Track:** Case C insert (mid-history **Finish and make official**).
 
-**Status:** Design locked Jul 2026 — **code not started**. Do not implement until Dagh names a slice.
+**Status:** **Code shipped** Jul 2026 — design locked; staged smoke D pending.
 
 **Read first (order):**
 
