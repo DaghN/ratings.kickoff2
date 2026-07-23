@@ -207,6 +207,12 @@ function amiga_post_game_player_load(mysqli $con, int $playerId, int $beforeGame
         }
     }
 
+    // Ghost loads use current; still seed inverse from changelog when pack exists.
+    require_once __DIR__ . '/amiga_inverse_count_changelog_lib.php';
+    $one = [$playerId => $st];
+    amiga_ops_seed_inverse_counts_from_changelog($con, $one);
+    $st = $one[$playerId];
+
     return $st;
 }
 
@@ -222,6 +228,7 @@ function amiga_ops_load_player_states_for_finalize(
     array $participantIds,
 ): array {
     require_once __DIR__ . '/amiga_event_snapshot_persist.php';
+    require_once __DIR__ . '/amiga_inverse_count_changelog_lib.php';
 
     $players = [];
     foreach (
@@ -229,6 +236,8 @@ function amiga_ops_load_player_states_for_finalize(
     ) {
         $players[$pid] = amiga_post_game_player_state_from_db_row($row);
     }
+    // Inverse authority = changelog (ghost-safe). Snapshot cols are stale for Case C.
+    amiga_ops_seed_inverse_counts_from_changelog($con, $players);
 
     return $players;
 }

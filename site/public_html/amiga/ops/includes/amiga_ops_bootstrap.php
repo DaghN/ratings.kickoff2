@@ -1,10 +1,14 @@
 <?php
 /**
- * CLI bootstrap for Amiga post-game ops (ko2amiga_db only).
+ * CLI bootstrap for Amiga post-game ops.
+ * Allows staging ko2amiga_db and local repair shop ko2amiga_work.
  */
 declare(strict_types=1);
 
 const AMIGA_OPS_EXPECTED_DATABASE = 'ko2amiga_db';
+
+/** @var list<string> */
+const AMIGA_OPS_ALLOWED_DATABASES = ['ko2amiga_db', 'ko2amiga_work'];
 
 /** Contract chronology — mirrors scripts/amiga/replay.py GAME_SELECT. */
 const AMIGA_GAME_CHRONOLOGY_ORDER_ASC = <<<'SQL'
@@ -45,8 +49,9 @@ function amiga_ops_connect(): mysqli
     require $configFile;
 
     $database = $database ?? '';
-    if ($database !== AMIGA_OPS_EXPECTED_DATABASE) {
-        fwrite(STDERR, "Refusing connect: expected " . AMIGA_OPS_EXPECTED_DATABASE . ", got {$database}\n");
+    if (!in_array($database, AMIGA_OPS_ALLOWED_DATABASES, true)) {
+        fwrite(STDERR, 'Refusing connect: expected ko2amiga_db or ko2amiga_work, got '
+            . $database . "\n");
         exit(1);
     }
 
@@ -69,8 +74,9 @@ function amiga_ops_connect(): mysqli
     }
     $row = $res->fetch_assoc();
     $res->free();
-    if (($row['db'] ?? '') !== AMIGA_OPS_EXPECTED_DATABASE) {
-        fwrite(STDERR, 'DATABASE()=' . ($row['db'] ?? '') . ' != ' . AMIGA_OPS_EXPECTED_DATABASE . PHP_EOL);
+    $liveDb = (string) ($row['db'] ?? '');
+    if (!in_array($liveDb, AMIGA_OPS_ALLOWED_DATABASES, true)) {
+        fwrite(STDERR, 'DATABASE()=' . $liveDb . " not in allowed Amiga ops DBs\n");
         exit(1);
     }
 

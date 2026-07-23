@@ -36,3 +36,4 @@ Then add a **gitignore allowlist** for that folder (copy the `work-2026-07-18-fo
 
 - **Milestone only** — not every `export_ko2amiga_work.ps1` run.
 - **Opt-in per folder** — default `data/amiga/checkpoints/**` is gitignored; un-ignore SQL for sealed checkpoints only.
+- **Preferred healthy tip (Jul 2026-23):** `work-2026-07-23-inverse-roundtrip` — full inverse changelog (**3423** rows), tip #607, #16 present. Prefer this over `work-2026-07-18-forum` when TT inverse / Case C baselines matter (forum seal may ship schema-only inverse).

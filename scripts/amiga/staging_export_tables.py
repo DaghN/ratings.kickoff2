@@ -1,11 +1,15 @@
 """Canonical Amiga staging export table list (local work -> staged ko2amiga_db, pull dump).
 
 Single source of truth for:
-- scripts/lib/Export-Ko2AmigaStaging.ps1 (schema + data parts)
-- site/public_html/amiga/includes/amiga_staging_export_lib.php (pull mysqldump)
+- ``scripts/lib/Export-Ko2AmigaStaging.ps1`` — schema + **all multipart data parts**
+  (iterates this list; only special-case = chunked ``amiga_games`` / ``amiga_game_ratings``)
+- ``amiga_backup_seal_lib.php`` (L5 seals) — same JSON-driven data parts
+- ``amiga_staging_export_lib.php`` (pull mysqldump / table list)
 
 Regenerate JSON before export: ``python -m scripts.amiga write-staging-export-tables``
 Preflight gate: ``python -m scripts.amiga audit-staging-export --database ko2amiga_work``
+
+Do **not** maintain a second hardcoded dump table list in PS1 or PHP seal code.
 """
 
 from __future__ import annotations

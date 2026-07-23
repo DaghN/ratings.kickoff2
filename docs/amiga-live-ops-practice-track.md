@@ -98,13 +98,13 @@ Only the **current** cycle is live. When fixed and re-checked, clear or archive 
 
 | Field | Value |
 |-------|-------|
-| **Status** | idle — **L5 slices 0–4 hardened**; next **slice 5** (Case C narrow — truncate + re-finalize) |
+| **Status** | **idle** — **L5 v1 complete** (slices 0–6, 2026-07-23); Case C thorough + inverse seed proven |
 | **Format** | Ref-League-A (repair smoke) |
 | **Step** | — |
 | **Feedback** | (none) |
-| **Slice** | 4 hardened → 5 |
+| **Slice** | L5 closed |
 
-**Context for next chat:** Paste [`amiga-staging-l5-backup-delete-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-staging-l5-backup-delete-STARTER-PROMPT.md) (**COPY INTO NEW CHAT** — defaults to **slice 5** Case C). Case A/B + hardened `project-present-at` (pointer inverse, JOIN matchups, phased re-project) on admin backup page; **Restore into DB now** from `_backups/`. Policy [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md). **L6 shelved.** WinSCP Build **`l5-s4j-2026-07-22`**. Do **not** rebuild projector / restore UX.
+**Context for next chat:** L5 backup/admin-delete is **done** — do not reopen Case A/B/C unless a new bug. Policy [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) **Implemented**. Round-trip proof [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md). Build **`l5-case-c-inv-seed-2026-07-23`**. **L6 shelved.**
 
 When a cycle is open, agents read **this table only** — not historical notes — as the work order.
 
@@ -121,11 +121,11 @@ Milestones are **gates**, not a parallel backlog. Advance when Dagh says the pri
 | **L2** | Ref-League-A ×3 | Lifecycle explainable without opening PHP |
 | **L3** | Ref-Cup-A path exists | One cup finalized on staging |
 | **L4** | Ref-Cup-A ×2 | League + cup feel like one product |
-| **L5** | Delete / repair + backup seals | Case A/B + narrow Case C; backup-after — plan [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) |
+| **L5** | Delete / repair + backup seals | **Done** Case A/B/C + seals + thorough Case C M=#16 — plan [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) **Complete (v1)** |
 | **L6** | Ground pack pull | **Shelved** — not planned until further notice (full staging backup pack is enough). Keep mention only. |
 | **L7** | Media on ran event | YouTube URL on staging tournament |
 
-**Current gate:** **L5 in progress** — slices **0–4 hardened** (Case B present repair proven vs Jul 18 GitHub seal); next **slice 5** (Case C narrow). L2 reps optional. **L6 shelved.** Cups deferred.
+**Current gate:** **L5 complete** — practice idle / next serial feedback. L2 reps optional. **L6 shelved.** Cups deferred.
 
 **Explicit defer until a cycle names them:** structure imprint P2–P3, WC materialize, Lane C media DDL, CR-9 country polish, player-create phase 2, cups (L3) until named, **L6 ground pack (shelved — full DB backup pack preferred)**.
 
@@ -154,7 +154,7 @@ Closed cycles from early drills. Do **not** treat as open work.
 | 2026-07-17 | WEBSITE / Finish | #609 WC kitchen: no Finish / no gold | Root cause Tier D vs RR; Reset N/A when completed; durable = finish-confirm policy track (docs); temp Tier C fallback in code |
 | 2026-07-17 | WEBSITE | (none — spot-check green) | Catalog + tournament page + profile effect + gone from Live — **L0 complete**; §4 idle |
 | 2026-07-17 | WEBSITE | Staging cleaned for parity — old #608 gone | No public event to spot-check; §4 → CREATE new kitchen (L0 restart) |
-| 2026-07-16 | MAKE OFFICIAL | `as_of_tournament_id` on slice_totals INSERT | Strip chrono cols from totals upsert; WC-only gate — **Finish success reported**; §4 had → WEBSITE (void after staging clean) |
+| 2026-07-16 | MAKE OFFICIAL | `as_of_tournament_id` on slice_totals INSERT | Strip chrono cols from totals upsert; **player** WC-only gate was a misread of Python (corrected Jul 2026 — participate checkpoints again; country stay WC-only) — **Finish success reported**; §4 had → WEBSITE (void after staging clean) |
 | 2026-07-16 | MAKE OFFICIAL limbo | Staging #608 extent unclear | **Push local oracle** (`export_ko2amiga_work`) — not browser rewind/repair |
 | 2026-07-16 | MAKE OFFICIAL | Silent rewind unsafe | Removed; `rating_finalized` only after full derive; Advanced explicit reset |
 | 2026-07-16 | MAKE OFFICIAL | LowestRatingGameID INSERT + limbo | Strip retired GameID cols; (rewind approach superseded — see above) |
@@ -171,6 +171,8 @@ Closed cycles from early drills. Do **not** treat as open work.
 
 | Date | Change |
 |------|--------|
+| 2026-07-23 | **L5 v1 complete** — Case C thorough M=#16 + inverse seed; export round-trip A/B/C; triple agreement; §4 idle. Build `l5-case-c-inv-seed-2026-07-23`. |
+| 2026-07-23 | **Export/inverse round-trip plan** — [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md) (JSON dump fix proof + Case C follow-on). |
 | 2026-07-22 | **L5 slice 4 harden + BA4** — pointer inverse; JOIN matchups; phased re-project; Restore from `_backups/`; tip #607 = forum seal. §4 → slice 5. Build `l5-s4j`. |
 | 2026-07-22 | **OW follow-up** — Setup not an in-tournament tab (create/Recent landing only). |
 | 2026-07-22 | **OW slice 6** — policy Implemented; §3 CREATE/OPEN/PLAY vocabulary; OW track closed. |

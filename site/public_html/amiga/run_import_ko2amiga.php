@@ -10,7 +10,7 @@
  */
 declare(strict_types=1);
 
-const AMIGA_IMPORTER_BUILD = 'a2-2026-07-22-l5-s2';
+const AMIGA_IMPORTER_BUILD = 'a2-2026-07-23-no-restore-banner';
 const AMIGA_IMPORT_DIR = __DIR__ . '/_import';
 
 require_once __DIR__ . '/includes/amiga_staging_import_lib.php';
@@ -82,20 +82,6 @@ echo 'a.btn-danger{background:#b71c1c}a.btn:hover{opacity:.9}</style></head><bod
 
 echo '<h1>Import <code>ko2amiga_db</code></h1>';
 echo '<p>Importer build: <code>' . AMIGA_IMPORTER_BUILD . '</code></p>';
-
-$restoreMarkerPath = __DIR__ . '/_import/.restore_from_seal.json';
-if (is_file($restoreMarkerPath)) {
-    $rm = json_decode((string) file_get_contents($restoreMarkerPath), true);
-    if (is_array($rm) && !empty($rm['seal_id'])) {
-        echo '<p class="warn"><strong>Restore pack staged:</strong> seal <code>'
-            . htmlspecialchars((string) $rm['seal_id'], ENT_QUOTES, 'UTF-8')
-            . '</code>';
-        if (!empty($rm['staged_at'])) {
-            echo ' · ' . htmlspecialchars((string) $rm['staged_at'], ENT_QUOTES, 'UTF-8');
-        }
-        echo ' — Apply import replaces the live DB with this seal (full replace).</p>';
-    }
-}
 
 $self = htmlspecialchars($_SERVER['SCRIPT_NAME'] ?? '/amiga/run_import_ko2amiga.php', ENT_QUOTES, 'UTF-8');
 $onceEsc = htmlspecialchars($key, ENT_QUOTES, 'UTF-8');

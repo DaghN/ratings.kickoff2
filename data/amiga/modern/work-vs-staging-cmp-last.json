@@ -1,0 +1,203 @@
+{
+  "started_utc": "2026-07-23T12:18:44.072877Z",
+  "work_database": "ko2amiga_work",
+  "cmp_database": "ko2amiga_staging_cmp",
+  "tip_work": {
+    "id": 607,
+    "name": "Nottingham III",
+    "event_date": "2026-05-31",
+    "chrono": 598.0,
+    "games": 56
+  },
+  "tip_cmp": {
+    "id": 607,
+    "name": "Nottingham III",
+    "event_date": "2026-05-31",
+    "chrono": 598.0,
+    "games": 56
+  },
+  "ok": true,
+  "errors": [],
+  "tables": {
+    "tournament_format_templates": {
+      "work_count": 6,
+      "cmp_count": 6,
+      "work_signature": 4292840710,
+      "cmp_signature": 4292840710
+    },
+    "tournaments": {
+      "work_count": 607,
+      "cmp_count": 607,
+      "work_signature": 1769747984,
+      "cmp_signature": 1769747984
+    },
+    "amiga_players": {
+      "work_count": 469,
+      "cmp_count": 469,
+      "work_signature": 2279694891,
+      "cmp_signature": 2279694891
+    },
+    "tournament_entrants": {
+      "work_count": 8,
+      "cmp_count": 8,
+      "work_signature": 244352572,
+      "cmp_signature": 244352572
+    },
+    "tournament_stages": {
+      "work_count": 1127,
+      "cmp_count": 1127,
+      "work_signature": 1775689897,
+      "cmp_signature": 1775689897
+    },
+    "tournament_stage_players": {
+      "work_count": 41,
+      "cmp_count": 41,
+      "work_signature": 1664173771,
+      "cmp_signature": 1664173771
+    },
+    "tournament_fixtures": {
+      "work_count": 19025,
+      "cmp_count": 19025,
+      "work_signature": 2433403042,
+      "cmp_signature": 2433403042
+    },
+    "amiga_games": {
+      "work_count": 27474,
+      "cmp_count": 27474,
+      "work_signature": 3999064151,
+      "cmp_signature": 3999064151
+    },
+    "amiga_tournament_finish_override": {
+      "work_count": 1264,
+      "cmp_count": 1264,
+      "work_signature": 1136404162,
+      "cmp_signature": 1136404162
+    },
+    "amiga_game_ratings": {
+      "work_count": 27474,
+      "cmp_count": 27474,
+      "work_signature": 367037072,
+      "cmp_signature": 367037072
+    },
+    "amiga_player_event_snapshots": {
+      "work_count": 4547,
+      "cmp_count": 4547,
+      "work_signature": 1304053935,
+      "cmp_signature": 1304053935
+    },
+    "amiga_player_current": {
+      "work_count": 469,
+      "cmp_count": 469,
+      "work_signature": 2706570412,
+      "cmp_signature": 2706570412
+    },
+    "amiga_player_elo_rank_at_event": {
+      "work_count": 173697,
+      "cmp_count": 173697,
+      "work_signature": 1142432827,
+      "cmp_signature": 1142432827
+    },
+    "amiga_player_inverse_count_at_event": {
+      "work_count": 3423,
+      "cmp_count": 3423,
+      "work_signature": 2028211501,
+      "cmp_signature": 2028211501
+    },
+    "amiga_player_matchup_at_event": {
+      "work_count": 211745,
+      "cmp_count": 211745,
+      "work_signature": 2653683397,
+      "cmp_signature": 2653683397
+    },
+    "amiga_player_matchup_summary": {
+      "work_count": 13960,
+      "cmp_count": 13960,
+      "work_signature": 1539559341,
+      "cmp_signature": 1539559341
+    },
+    "amiga_tournament_standings": {
+      "work_count": 7977,
+      "cmp_count": 7977,
+      "work_signature": 235150630,
+      "cmp_signature": 235150630
+    },
+    "amiga_tournament_catalog_stats": {
+      "work_count": 607,
+      "cmp_count": 607,
+      "work_signature": 4181012087,
+      "cmp_signature": 4181012087
+    },
+    "amiga_generalstats": {
+      "work_count": 1,
+      "cmp_count": 1,
+      "work_signature": 3980925509,
+      "cmp_signature": 3980925509
+    },
+    "amiga_realm_snapshots": {
+      "work_count": 607,
+      "cmp_count": 607,
+      "work_signature": 3967651760,
+      "cmp_signature": 3967651760
+    },
+    "amiga_community_stats": {
+      "work_count": 1,
+      "cmp_count": 1,
+      "work_signature": 1292451390,
+      "cmp_signature": 1292451390
+    },
+    "amiga_community_stats_snapshots": {
+      "work_count": 607,
+      "cmp_count": 607,
+      "work_signature": 3345963363,
+      "cmp_signature": 3345963363
+    },
+    "amiga_community_stat_facts": {
+      "work_count": 449260,
+      "cmp_count": 449260,
+      "work_signature": 3831542558,
+      "cmp_signature": 3831542558
+    },
+    "amiga_world_cup_stats": {
+      "work_count": 23,
+      "cmp_count": 23,
+      "work_signature": 437229280,
+      "cmp_signature": 437229280
+    },
+    "amiga_player_slice_totals": {
+      "work_count": 219,
+      "cmp_count": 219,
+      "work_signature": 445032672,
+      "cmp_signature": 445032672
+    },
+    "amiga_player_slice_at_event": {
+      "work_count": 3064,
+      "cmp_count": 3064,
+      "work_signature": 2249880468,
+      "cmp_signature": 2249880468
+    },
+    "amiga_country_slice_totals": {
+      "work_count": 21,
+      "cmp_count": 21,
+      "work_signature": 2932804645,
+      "cmp_signature": 2932804645
+    },
+    "amiga_country_slice_at_event": {
+      "work_count": 353,
+      "cmp_count": 353,
+      "work_signature": 1784527909,
+      "cmp_signature": 1784527909
+    },
+    "amiga_wc_hof_snapshots": {
+      "work_count": 23,
+      "cmp_count": 23,
+      "work_signature": 4275937912,
+      "cmp_signature": 4275937912
+    },
+    "amiga_wc_hof_present": {
+      "work_count": 1,
+      "cmp_count": 1,
+      "work_signature": 826563898,
+      "cmp_signature": 826563898
+    }
+  }
+}

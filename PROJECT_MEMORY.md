@@ -10,7 +10,7 @@
 
 ## Current focus
 
-- **Amiga profile (Jul 2026):** **Track B** — mosaic stat links; **Player chronologies complete for mosaic inventory** — Victims & Culprits + Calendar & geo country unlocks (host/faced/beaten/beaten by); policy [`amiga-player-chronologies-policy.md`](docs/amiga-player-chronologies-policy.md). **Inverse-count timeline shipped** — sparse changelog `amiga_player_inverse_count_at_event` (3,423 rows); mosaic + Victims LB TT read changelog; `verify-inverse-count-changelog` green — [`amiga-player-inverse-count-timeline-policy.md`](docs/amiga-player-inverse-count-timeline-policy.md).
+- **Amiga profile (Jul 2026):** **Track B** — mosaic stat links; **Player chronologies complete for mosaic inventory** — Victims & Culprits + Calendar & geo country unlocks (host/faced/beaten/beaten by); policy [`amiga-player-chronologies-policy.md`](docs/amiga-player-chronologies-policy.md). **Inverse-count timeline shipped + export/Case C proven** — sparse changelog `amiga_player_inverse_count_at_event` (3,423 rows on tip seal); mosaic + Victims LB TT read changelog; PHP finalize seeds from changelog; `verify-inverse-count-changelog` green — [`amiga-player-inverse-count-timeline-policy.md`](docs/amiga-player-inverse-count-timeline-policy.md) · proof [`amiga-export-inverse-roundtrip-test-plan.md`](docs/amiga-export-inverse-roundtrip-test-plan.md).
 
 - **K2 LB SSR (Jul 2026):** **Track A complete** — all hub wings URL landing sort ([`k2-lb-ssr-sort-policy.md`](docs/k2-lb-ssr-sort-policy.md) **Implemented**). Track **B** = profile mosaic stat links.
 
@@ -94,7 +94,7 @@
 
 - **Amiga tournament videos (Jun 2026):** **TV-3 + TV-4 shipped** — manifest **~300** videos; unified embed UI; **C06** dedicated Videos column; **With videos** filter; **player profile Videos wing**. **Jul 2026:** **TV-2b DB anchor sync** — `sync_db_ids` + `verify-tournament-videos` in `prove` ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md) §12).
 
-- **Amiga live ops (Jul 2026):** **Track L: L5 in progress** — slices **0–4 hardened** (Case B + `project-present-at` proven vs Jul 18 GitHub seal after staging repair; BA4 **Restore into DB now** from `_backups/`; side-pull `-TargetDatabase`). Next **slice 5** Case C narrow. Build **`l5-s4j-2026-07-22`**. OW **done**. L6 shelved. L5: [`amiga-staging-backup-admin-delete-policy.md`](docs/amiga-staging-backup-admin-delete-policy.md) · plan [`amiga-staging-l5-backup-delete-implementation-plan.md`](docs/amiga-staging-l5-backup-delete-implementation-plan.md).
+- **Amiga live ops (Jul 2026):** **Track L5 complete (v1)** — backup seals + Case A/B/C + restore; thorough Case C M=#16 PASS after inverse finalize seed (Build **`l5-case-c-inv-seed-2026-07-23`**). Export/seal JSON data parts; round-trip plan A/B/C PASS; triple agreement seal ≡ work ≡ staged (`work-2026-07-23-inverse-roundtrip`, inverse **3423**). OW **done**. L6 shelved. Policy [`amiga-staging-backup-admin-delete-policy.md`](docs/amiga-staging-backup-admin-delete-policy.md) **Implemented** · plan [`amiga-staging-l5-backup-delete-implementation-plan.md`](docs/amiga-staging-l5-backup-delete-implementation-plan.md) **Complete**.
 
 - **Amiga format scoring contract (Jul 2026):** **SC-0–SC-9 + SC-11 shipped** — L4b relational contracts, PHP↔Python executor parity, RTB broadcast, L5 `stage_id`, structured ET/pens on games + fixtures (`012_match_extensions.sql`). **SC-10:** non-WC games **100%** `fixture_id` on work (Jul 2026); remaining unlinked games = **unmaterialized WCs** (`wc_deferred`). Policy [`amiga-format-scoring-contract-policy.md`](docs/amiga-format-scoring-contract-policy.md) · plan [`amiga-format-scoring-contract-implementation-plan.md`](docs/amiga-format-scoring-contract-implementation-plan.md).
 
@@ -149,6 +149,13 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-23 | **Session wrap (L5 + inverse)** — L5 v1 **Implemented**; export JSON data parts; Case C inverse seed; round-trip A/B/C PASS; staged Case C retest PASS; triple agreement GitHub `work-2026-07-23-inverse-roundtrip` ≡ work ≡ staged (#16, inverse 3423). Docs: backup policy, L5 plan, live-ops, practice track, inverse policy, handoff, feature-log. Build **`l5-case-c-inv-seed-2026-07-23`**. |
+| 2026-07-23 | **Triple agreement PASS** — seal ≡ work ≡ staged (side-pull cmp): tip #607, #16, inverse **3423/3423**, full P-1 **PASS**. |
+| 2026-07-23 | **Case C staged retest PASS** — seed fix → restore pre-#16 → Case C #16 → seal `…-120630Z-case_c_delete` → cmp vs work: present_mm **0**, inverse **3406≡3406**. |
+| 2026-07-23 | **Case C inverse seed** — PHP finalize seeds four inverse counts from changelog (not snapshot cols). First Phase C FAIL → fix → re-proof. |
+| 2026-07-23 | **Export/seal = JSON list** — PS1 + L5 seals iterate `staging_export_tables.json` (fixes Jul 18 inverse data omission). Round-trip plan A/B PASS. |
+| 2026-07-23 | **PHP player WC slice = Python** — participate checkpoints every finalize (`tournaments_played > 0`); country/V2 stay WC-only. |
+| 2026-07-22 | **L5 slice 5 Case C** — truncate > N + delete M + project N + refinalize + seal; local smoke PASS. Build **`l5-s5`**. |
 | 2026-07-22 | **L5 slice 4 hardened + restore UX** — After botched Case B, present repair: inverse = **pointer recount** (Jul 15 ghosts; not snap cols / empty changelog); matchups = **JOIN pairs** + txn (not MariaDB EXISTS); HTTP phases `player_current`→`matchups`→`rest`; **Diagnose** counts/timing (MariaDB `max_statement_time`). Staging tip #607 **PERFECT MATCH** vs GitHub `work-2026-07-18-forum` (restore seal + side-pull `ko2amiga_staging_cmp`). Local `ko2amiga_work` rebuilt from same seal. **BA4:** **Restore into DB now** from `_backups/` (no `_import` clobber); Copy→`_import` secondary. Side-pull: `pull_ko2amiga_from_staging.ps1 -TargetDatabase …`. Build **`l5-s4j`**. Next: slice 5 Case C. |
 | 2026-07-22 | **OW follow-up** — Setup removed from in-tournament tabs (Players · Play · Table); create/Recent via “Create new league” landing only. |
 | 2026-07-22 | **OW slice 6 (track done)** — policy **Implemented**; practice-track §3 CREATE/OPEN/PLAY; RTB organizer vocabulary aligned; OW12 stage builder deferred. Happy path: Create → Play → Finish (+ optional Hide). |

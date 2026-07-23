@@ -237,6 +237,8 @@ Deleting event N+1 **poisons** all forward timeline rows computed including its 
 5. **Re-finalize forward** in chrono order using **live finalize path** (each step loads prior snapshots from DB — no day-zero in-memory replay required).
 6. Verify-lite, then optional local full prove as oracle.
 
+**Shipped (L5 slice 5 + Jul 23 harden):** Case C on `/amiga/run_backup_ko2amiga.php` — truncate > N → delete M → project N → one finalize per request → seal. **Thorough proven** M=#16 World Cup XXI (10 forward events) after **PHP inverse changelog seed** at finalize bootstrap (Build **`l5-case-c-inv-seed-2026-07-23`**). Without seed, forward re-finalize reloads stale snapshot inverse cols and poisons present/changelog — [`amiga-player-inverse-count-timeline-policy.md`](amiga-player-inverse-count-timeline-policy.md) §5.3 · [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md).
+
 **Retired:** single-tournament refinalize without forward truncate — [`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md).
 
 ### 7.4 Planned ops verbs (Lane B)
@@ -245,9 +247,10 @@ Deleting event N+1 **poisons** all forward timeline rows computed including its 
 |------|-------|--------|--------|
 | `delete-unfinalized-tournament` | No `rating_finalized`; generated kitchen; no L5 timeline | L3+L4 delete (**no** auto-seal) | **Shipped** (L5 slice 3) — `ops/modules/delete_unfinalized_tournament.php`; admin UI on `/amiga/run_backup_ko2amiga.php` |
 | `delete-last-finalized-tournament` | Chrono-last finalized | Case B pipeline | **Shipped** (L5 slice 4) — `ops/modules/delete_last_finalized_tournament.php`; admin UI + seal after (split from re-project) |
-| `truncate-derived-after` | Cutoff tournament id | Case C step 2–3 | Planned (slice 5) |
+| `truncate-derived-after` | Cutoff tournament id | Case C step 2 | **Shipped** (L5 slice 5) — `amiga_ops_truncate_derived_after()` in `delete_finalized_mid_tournament.php` |
 | `project-present-at` | Cutoff tournament id | Rebuild all present projections | **Shipped + hardened** (`project_present_at.php`) — phases `player_current` / `matchups` / `rest` / `all`; inverse = **pointer recount** on projected current ([`amiga-player-inverse-count-timeline-policy.md`](amiga-player-inverse-count-timeline-policy.md)); matchups = JOIN pairs + txn; admin diagnose |
-| `refinalize-forward-from` | After truncate + project | Case C step 5 loop | Planned (slice 5) |
+| `refinalize-forward-from` | After truncate + project | Case C forward finalize (one id) | **Shipped** (L5 slice 5) — `amiga_ops_refinalize_forward_one()`; admin one-per-request; **requires** inverse changelog seed in finalize bootstrap |
+| `delete-finalized-mid-tournament` | Finalized non-tip M with later tips | Case C phase 1 (truncate + delete M + reset forward) | **Shipped** (L5 slice 5) — admin UI + CLI `--apply` |
 | `verify-derived` | — | Read-only checks (subset of prove verify) | Planned (admin **Diagnose present** = counts/timing lite) |
 
 Implement under `site/public_html/amiga/ops/` with same CLI/bootstrap habits as `run_process_game.php`.
@@ -416,7 +419,7 @@ Do **not** keep an open inventory of every friction. Cosmetic workarounds wait u
 | **L2** | **Ref-League-A ×3** until boring | — | You can narrate lifecycle without opening PHP |
 | **L3** | Minimal **Ref-Cup-A** create path (CLI OK) | — | One cup finalized on staging |
 | **L4** | **Ref-Cup-A ×2** | — | League + cup feel like one product |
-| **L5** | **Mistake-driven repair** — backup seals + admin delete Case A/B + **narrow Case C** | Phases **1–3**, **5** (+ forward re-finalize) | Plan [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) |
+| **L5** | **Mistake-driven repair** — backup seals + admin delete Case A/B/C | Phases **1–3**, **5** (+ forward re-finalize) | **Done (v1)** Jul 2026 — plan **Complete**; thorough Case C M=#16 |
 | **L6** | Pull staging ground you created (per-tournament **ground pack**) | Phases **4**, **8** | **Shelved Jul 2026** — not planned until further notice; prefer full staging backup pack (manifest + parts). Keep row for vocabulary only. |
 | **L7** | Media on a tournament you ran | Phases **6–7**, **10** | YouTube URL on staging event |
 
@@ -435,7 +438,7 @@ Ship when §12.1 unlocks it. Technical exit criteria unchanged; **behavioural** 
 | **2 — Project present** | `project-present-at` + SQL helpers | B | **L5** (paired with delete) | **Shipped + hardened** — pointer inverse + JOIN matchups; tip #607 = GitHub forum seal |
 | **3 — Delete last finalized** | Guarded delete + Case B pipeline | B | **L5** (first motivated infra) | **Shipped** — Case B admin path; seal after tip repair |
 | **4 — Ground pack v0** | Export/import one tournament L3+L4 | B | **L6** | **Shelved** with L6 (Jul 2026) — do not implement until L6 un-shelved |
-| **5 — Truncate + refinalize forward** | Case C pipeline | B | After **L5** Case B trusted | Mid-history delete without full `prove` |
+| **5 — Truncate + refinalize forward** | Case C pipeline | B | **L5** slice 5 | **Shipped + thorough proven** — M=#16 (10 forward); inverse changelog seed required |
 | **6 — Media DDL + upload API** | `amiga_tournament_media` + YouTube form | C | **L7** | Secretary adds URL; tab after approve |
 | **7 — Photo upload** | Filesystem + thumbnails + Photos tab | C | **L7** | Self-hosted serve; pack includes files |
 | **8 — Pull export** | Staging → download ground/media pack | B/C | **L6** | **Shelved** with L6 — full DB pull/export remains the path |
@@ -494,9 +497,9 @@ Separate agent track. Does **not** gate Ref-League-A / Ref-Cup-A practice.
 - News/Misc present-layer posts — DB vs static includes ([`present-layer-ia.md`](present-layer-ia.md)) — separate from tournament media but same Lane C habit.
 - Automated pull from staging on schedule vs manual export only.
 - Backup retention **N** and reserve cadence (every kth) — defaults suggested in backup policy; tune at implement.
-- Case C mid-history admin delete — **narrow Case C in L5 plan**; deep long-forward chains after short-chain smoke.
+- Case C mid-history admin delete — **narrow Case C shipped + thorough M=#16 proven**; deep mid-2000s long-forward chains still optional.
 
-**Closed Jul 2026 (see backup/admin-delete policy):** organizer vs admin tip-delete; backup-after (not before); L6 shelved; demotion not required for v1; no lock/unlock / per-tournament delete password.
+**Closed Jul 2026 (see backup/admin-delete policy):** organizer vs admin tip-delete; backup-after (not before); L6 shelved; demotion not required for v1; no lock/unlock / per-tournament delete password; L5 v1 Implemented.
 
 ---
 
@@ -504,6 +507,8 @@ Separate agent track. Does **not** gate Ref-League-A / Ref-Cup-A practice.
 
 | Date | Change |
 |------|--------|
+| 2026-07-23 | **L5 v1 complete** — Case C thorough + inverse seed; export JSON data parts; §7.3 note; open Q Case C narrowed. Build `l5-case-c-inv-seed-2026-07-23`. |
+| 2026-07-22 | **L5 slice 5 Case C** — `truncate-derived-after` / `delete-finalized-mid-tournament` / `refinalize-forward-from` shipped; §7.3/§7.4. Build `l5-s5`. |
 | 2026-07-22 | **L5 slice 4 harden + BA4** — `project-present-at` pointer inverse + JOIN matchups + phased HTTP; **Restore into DB now** from `_backups/`; side-pull `-TargetDatabase`; §7.2/§7.4/§12.2 phases 2–3. Build `l5-s4j`. |
 | 2026-07-22 | **Organizer workspace simplification** — OW policy locked (Open/Hide; no Start/void; stage-scoped play); Related link. |
 | 2026-07-22 | **L5 slice 3b** — Case A no auto-seal (BA2 tip-changing only); AD6 clarified. |

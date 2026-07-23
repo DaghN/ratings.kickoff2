@@ -1,10 +1,12 @@
 # Amiga staging backup and admin delete — policy (Jul 2026)
 
-**Status:** **Locked intent (v1)** — product rules agreed; implementation not required to cite this as decided. Demotion flags and per-tournament ground packs (**L6**) are **out of scope** for this policy.
+**Status:** **Implemented (v1)** — Jul 2026: L5 slices 0–5 + thorough Case C (M=#16) + inverse finalize seed; slice 6 docs close. Demotion flags and per-tournament ground packs (**L6**) remain **out of scope**.
 
-**Plan / prompt:** [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) · [`orchestration/agent-handoffs/amiga-staging-l5-backup-delete-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-staging-l5-backup-delete-STARTER-PROMPT.md)
+**Plan / prompt:** [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) · starter archived as track-complete note in that plan §8.
 
 **Parents:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) · [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) · [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) · [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) · [`amiga-staging-handoff.md`](amiga-staging-handoff.md)
+
+**Related proof:** [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md) (export packing + Case C inverse) · Build **`l5-case-c-inv-seed-2026-07-23`**.
 
 **Threat model (v1):** Protect against mistakes and a **website** admin (`$admin_password`) — not against WinSCP/SSH filesystem access (Dagh retains that outer key).
 
@@ -46,7 +48,7 @@ This is **enough** for KOA scale: rare events, trusted small admin set, organize
 | **AD1** | **Admin-only** for removing published / finalized tournaments from staging. |
 | **AD2** | **Organizer cancel** = historically void / abandon never-official (Advanced). **Superseded for new UX** by **Hide** (Live visibility) + admin Case A delete — [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md). Not the same as admin delete of an official tip event. |
 | **AD3** | After successful admin delete of a **finalized tip** event: run **anchored repair** appropriate to the case (v1 target = **Case A** unfinalized trash + **Case B** delete latest finalized — re-project present). Prefer PHP live path on staging; do **not** require local `prove`/`simul` as daily delete. Exact verb names follow live-ops §7.4 when implemented. |
-| **AD4** | **Case C (narrow) is in L5 scope** — delete non-tip **M** with later finalized events (e.g. test under real tip): truncate poisoned forward derived; re-project at M−1; **re-finalize forward** via PHP live finalize. Smoke on **short** forward chains first; deep mid-history optional later. Plan: [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md). |
+| **AD4** | **Case C (narrow) is in L5 scope** — delete non-tip **M** with later finalized events (e.g. test under real tip): truncate poisoned forward derived; re-project at M−1; **re-finalize forward** via PHP live finalize. **Proven Jul 2026-23:** thorough M=#16 (10 forward events) after inverse changelog seed fix — [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md). Deep mid-2000s chains still optional later. Plan: [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md). |
 | **AD5** | **No** organizer lock/unlock delete matrix and **no** per-tournament delete password in v1. |
 | **AD6** | After successful **tip** delete + repair (Case B/C): **BA2** backup of the new tip. **Case A** (unfinalized trash) does **not** auto-seal — tip unchanged; optional Backup now. |
 
@@ -88,6 +90,7 @@ Ship when Track L / live-ops feedback names it (likely around **L5**). Until the
 
 | Date | Change |
 |------|--------|
+| 2026-07-23 | **Implemented (v1)** — L5 Case A/B/C + seals + inverse seed; thorough Case C M=#16 PASS; AD4 note; L6 still out. |
 | 2026-07-22 | **AD2 note** — organizer void superseded by Hide + Case A (workspace simplification policy). |
 | 2026-07-22 | **BA4 restore UX** — primary apply-from-`_backups/` (Build `l5-s4j`); `_import` copy optional. |
 | 2026-07-22 | **AD4** — narrow Case C in L5 scope (test-under-real); L5 plan + starter linked. |

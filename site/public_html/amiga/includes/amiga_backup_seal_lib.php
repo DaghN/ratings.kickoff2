@@ -8,10 +8,22 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_staging_export_lib.php';
 
-const AMIGA_BACKUP_SEAL_BUILD = 'l5-s2-2026-07-22';
+const AMIGA_BACKUP_SEAL_BUILD = 'l5-export-json-2026-07-23';
 const AMIGA_BACKUP_ROLLING_KEEP = 8;
 const AMIGA_BACKUP_RESERVE_EVERY = 5;
 const AMIGA_BACKUP_GAMES_CHUNK = 5000;
+
+/**
+ * Part filename slug from registry table name (strip leading amiga_).
+ */
+function amiga_backup_seal_table_part_slug(string $table): string
+{
+    if (str_starts_with($table, 'amiga_')) {
+        return substr($table, strlen('amiga_'));
+    }
+
+    return $table;
+}
 
 function amiga_backup_seals_root(): string
 {
@@ -561,23 +573,36 @@ function amiga_backup_seal_write(mysqli $con, array $db, array $opts = []): arra
         return $err;
     }
 
-    $fixed = [
-        ['ko2amiga_02_format_templates.sql', 'tournament_format_templates'],
-        ['ko2amiga_03_tournaments.sql', 'tournaments'],
-        ['ko2amiga_04_players.sql', 'amiga_players'],
-        ['ko2amiga_05_finish_override.sql', 'amiga_tournament_finish_override'],
-        ['ko2amiga_06_entrants.sql', 'tournament_entrants'],
-        ['ko2amiga_07_stages.sql', 'tournament_stages'],
-        ['ko2amiga_07a_stage_scoring_steps.sql', 'tournament_stage_scoring_steps'],
-        ['ko2amiga_08_stage_players.sql', 'tournament_stage_players'],
-        ['ko2amiga_09_fixtures.sql', 'tournament_fixtures'],
-    ];
-    foreach ($fixed as [$fileName, $table]) {
+    // Data parts follow staging_export_tables.json order (same as Export-Ko2AmigaStaging.ps1).
+    // Only special case: chunk amiga_games + amiga_game_ratings. No second hardcoded table list.
+    $gameIdx = array_search('amiga_games', $tables, true);
+    if ($gameIdx === false) {
+        amiga_backup_seal_rm_tree($sealDir);
+        return $fail('Export registry missing amiga_games.');
+    }
+    if (!isset($tables[$gameIdx + 1]) || $tables[$gameIdx + 1] !== 'amiga_game_ratings') {
+        amiga_backup_seal_rm_tree($sealDir);
+        return $fail('Export registry: amiga_game_ratings must immediately follow amiga_games.');
+    }
+    $earlyTables = array_slice($tables, 0, (int) $gameIdx);
+    $tailTables = array_slice($tables, (int) $gameIdx + 2);
+    $dumped = [];
+
+    $idx = 2;
+    foreach ($earlyTables as $table) {
+        $slug = amiga_backup_seal_table_part_slug($table);
+        if ($table === 'tournament_stage_scoring_steps') {
+            $fileName = 'ko2amiga_07a_stage_scoring_steps.sql';
+        } else {
+            $fileName = sprintf('ko2amiga_%02d_%s.sql', $idx, $slug);
+            $idx++;
+        }
         $err = $addPart($fileName, ['--no-create-info'], [$table], false, null);
         if ($err !== null) {
             amiga_backup_seal_rm_tree($sealDir);
             return $err;
         }
+        $dumped[$table] = true;
     }
 
     $maxId = 0;
@@ -588,59 +613,71 @@ function amiga_backup_seal_write(mysqli $con, array $db, array $opts = []): arra
         $maxId = (int) ($row['m'] ?? 0);
     }
 
-    $idx = 10;
-    $chunk = AMIGA_BACKUP_GAMES_CHUNK;
-    for ($start = 1; $start <= $maxId; $start += $chunk) {
-        $end = min($start + $chunk - 1, $maxId);
-        $gamesWhere = 'id >= ' . $start . ' AND id <= ' . $end;
-        $gamesPart = sprintf('ko2amiga_%02d_games_%d_%d.sql', $idx, $start, $end);
-        $err = $addPart($gamesPart, ['--no-create-info', '--where=' . $gamesWhere], ['amiga_games'], false, $gamesWhere);
-        if ($err !== null) {
-            amiga_backup_seal_rm_tree($sealDir);
-            return $err;
-        }
-        $idx++;
-
-        $ratingWhere = 'game_id >= ' . $start . ' AND game_id <= ' . $end;
-        $ratingsPart = sprintf('ko2amiga_%02d_ratings_%d_%d.sql', $idx, $start, $end);
-        $err = $addPart($ratingsPart, ['--no-create-info', '--where=' . $ratingWhere], ['amiga_game_ratings'], false, $ratingWhere);
-        if ($err !== null) {
-            amiga_backup_seal_rm_tree($sealDir);
-            return $err;
-        }
-        $idx++;
+    if ($idx < 10) {
+        $idx = 10;
     }
+    $chunk = AMIGA_BACKUP_GAMES_CHUNK;
+    if ($maxId <= 0) {
+        $gamesPart = sprintf('ko2amiga_%02d_games_empty.sql', $idx);
+        $err = $addPart($gamesPart, ['--no-create-info'], ['amiga_games'], false, null);
+        if ($err !== null) {
+            amiga_backup_seal_rm_tree($sealDir);
+            return $err;
+        }
+        $idx++;
+        $ratingsPart = sprintf('ko2amiga_%02d_ratings_empty.sql', $idx);
+        $err = $addPart($ratingsPart, ['--no-create-info'], ['amiga_game_ratings'], false, null);
+        if ($err !== null) {
+            amiga_backup_seal_rm_tree($sealDir);
+            return $err;
+        }
+        $idx++;
+    } else {
+        for ($start = 1; $start <= $maxId; $start += $chunk) {
+            $end = min($start + $chunk - 1, $maxId);
+            $gameWhere = 'id >= ' . $start . ' AND id <= ' . $end;
+            $gamesPart = sprintf('ko2amiga_%02d_games_%d_%d.sql', $idx, $start, $end);
+            $err = $addPart($gamesPart, ['--no-create-info', '--where=' . $gameWhere], ['amiga_games'], false, $gameWhere);
+            if ($err !== null) {
+                amiga_backup_seal_rm_tree($sealDir);
+                return $err;
+            }
+            $idx++;
 
-    $derived = [
-        'event_snapshots' => 'amiga_player_event_snapshots',
-        'player_current' => 'amiga_player_current',
-        'elo_rank_at_event' => 'amiga_player_elo_rank_at_event',
-        'inverse_count_at_event' => 'amiga_player_inverse_count_at_event',
-        'matchup_at_event' => 'amiga_player_matchup_at_event',
-        'standings' => 'amiga_tournament_standings',
-        'catalog_stats' => 'amiga_tournament_catalog_stats',
-        'matchup_summary' => 'amiga_player_matchup_summary',
-        'generalstats' => 'amiga_generalstats',
-        'realm_snapshots' => 'amiga_realm_snapshots',
-        'community_stats' => 'amiga_community_stats',
-        'community_stats_snapshots' => 'amiga_community_stats_snapshots',
-        'community_stat_facts' => 'amiga_community_stat_facts',
-        'world_cup_stats' => 'amiga_world_cup_stats',
-        'slice_totals' => 'amiga_player_slice_totals',
-        'slice_at_event' => 'amiga_player_slice_at_event',
-        'country_slice_totals' => 'amiga_country_slice_totals',
-        'country_slice_at_event' => 'amiga_country_slice_at_event',
-        'wc_hof_snapshots' => 'amiga_wc_hof_snapshots',
-        'wc_hof_present' => 'amiga_wc_hof_present',
-    ];
-    foreach ($derived as $slug => $table) {
+            $ratingWhere = 'game_id >= ' . $start . ' AND game_id <= ' . $end;
+            $ratingsPart = sprintf('ko2amiga_%02d_ratings_%d_%d.sql', $idx, $start, $end);
+            $err = $addPart($ratingsPart, ['--no-create-info', '--where=' . $ratingWhere], ['amiga_game_ratings'], false, $ratingWhere);
+            if ($err !== null) {
+                amiga_backup_seal_rm_tree($sealDir);
+                return $err;
+            }
+            $idx++;
+        }
+    }
+    $dumped['amiga_games'] = true;
+    $dumped['amiga_game_ratings'] = true;
+
+    foreach ($tailTables as $table) {
+        $slug = amiga_backup_seal_table_part_slug($table);
         $fileName = sprintf('ko2amiga_%02d_%s.sql', $idx, $slug);
         $err = $addPart($fileName, ['--no-create-info'], [$table], false, null);
         if ($err !== null) {
             amiga_backup_seal_rm_tree($sealDir);
             return $err;
         }
+        $dumped[$table] = true;
         $idx++;
+    }
+
+    $missing = [];
+    foreach ($tables as $table) {
+        if (!isset($dumped[$table])) {
+            $missing[] = $table;
+        }
+    }
+    if ($missing !== []) {
+        amiga_backup_seal_rm_tree($sealDir);
+        return $fail('Seal data parts missing registry table(s): ' . implode(', ', $missing));
     }
 
     $manifest = [

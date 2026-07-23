@@ -17,6 +17,7 @@ require_once __DIR__ . '/modules/process_completed_game.php';
 require_once __DIR__ . '/modules/finalize_tournament.php';
 require_once __DIR__ . '/modules/delete_unfinalized_tournament.php';
 require_once __DIR__ . '/modules/delete_last_finalized_tournament.php';
+require_once __DIR__ . '/modules/delete_finalized_mid_tournament.php';
 require_once __DIR__ . '/modules/project_present_at.php';
 
 amiga_ops_require_cli();
@@ -29,6 +30,9 @@ function amiga_ops_print_help(): void
     fwrite(STDOUT, "  finalize-tournament   Batch finalize one tournament (frozen Elo + rating events)\n");
     fwrite(STDOUT, "  delete-unfinalized-tournament  Case A: delete never-official generated kitchen\n");
     fwrite(STDOUT, "  delete-last-finalized-tournament  Case B: delete tip + project-present-at prior (no seal)\n");
+    fwrite(STDOUT, "  delete-finalized-mid-tournament  Case C: truncate > N, delete M, reset forward (no project/seal)\n");
+    fwrite(STDOUT, "  truncate-derived-after  Case C step: clear §5.3 derived for chrono > --tournament-id (N)\n");
+    fwrite(STDOUT, "  refinalize-forward-from  Case C: finalize one pending forward --tournament-id\n");
     fwrite(STDOUT, "  project-present-at    Rebuild present tables at --tournament-id cutoff\n");
     fwrite(STDOUT, "  replay-to             Removed — use python -m scripts.amiga prove\n");
     fwrite(STDOUT, "  process-one           Deprecated for tournament games — use finalize-tournament\n");
@@ -36,11 +40,12 @@ function amiga_ops_print_help(): void
     fwrite(STDOUT, "  help\n");
     fwrite(STDOUT, "Options:\n");
     fwrite(STDOUT, "  --game-id N           process-one target\n");
-    fwrite(STDOUT, "  --tournament-id N     finalize / Case A/B / project-present-at target\n");
+    fwrite(STDOUT, "  --tournament-id N     finalize / Case A/B/C / project-present-at / truncate cutoff\n");
     fwrite(STDOUT, "  --limit N             replay-to (deprecated)\n");
     fwrite(STDOUT, "  --until-game-id G     replay-to (deprecated)\n");
     fwrite(STDOUT, "  --dry-run\n");
-    fwrite(STDOUT, "Database: ko2amiga_db only (site/config/ko2amiga_config.local.php)\n");
+    fwrite(STDOUT, "  --apply              Case C delete: required to mutate (else dry-run)\n");
+    fwrite(STDOUT, "Database: ko2amiga_db or ko2amiga_work (site/config/ko2amiga_config.local.php)\n");
     fwrite(STDOUT, "\nReplay oracle: python -m scripts.amiga replay\n");
 }
 
@@ -55,6 +60,7 @@ if ($verb === 'help') {
 }
 
 $dryRun = false;
+$apply = false;
 $gameId = null;
 $tournamentId = null;
 $limit = null;
@@ -63,6 +69,8 @@ $untilGameId = null;
 for ($i = 2, $n = count($argv); $i < $n; $i++) {
     if ($argv[$i] === '--dry-run') {
         $dryRun = true;
+    } elseif ($argv[$i] === '--apply') {
+        $apply = true;
     } elseif ($argv[$i] === '--game-id' && isset($argv[$i + 1])) {
         $gameId = (int) $argv[++$i];
     } elseif (str_starts_with($argv[$i], '--game-id=')) {
@@ -173,6 +181,105 @@ if ($verb === 'delete-last-finalized-tournament') {
             fwrite(STDOUT, "NOTE: Case B does not seal here — use admin backup page or "
                 . "amiga_backup_seal_write_from_config after success (AD6).\n");
         }
+    } finally {
+        $con->close();
+    }
+    exit(0);
+}
+
+if ($verb === 'delete-finalized-mid-tournament') {
+    if ($tournamentId === null || $tournamentId <= 0) {
+        fwrite(STDERR, "delete-finalized-mid-tournament requires --tournament-id M\n");
+        exit(1);
+    }
+    // Default dry-run; --apply required to mutate (local work smoke).
+    $caseCDry = !$apply || $dryRun;
+    $con = amiga_ops_connect();
+    try {
+        $result = amiga_delete_finalized_mid_tournament($con, $tournamentId, $caseCDry);
+        if (!$result['ok']) {
+            fwrite(STDERR, 'Case C refuse: ' . $result['error'] . PHP_EOL);
+            exit(1);
+        }
+        amiga_ops_log(
+            'delete-finalized-mid-tournament: M=' . $result['tournament_id']
+            . ' name=' . $result['name']
+            . ' N=' . $result['cutoff_id'] . ' (' . $result['cutoff_name'] . ')'
+            . ' truncate_ids=[' . implode(',', $result['truncated_ids']) . ']'
+            . ' remaining_forward=[' . implode(',', $result['remaining_forward_ids']) . ']'
+            . ' games=' . $result['games_deleted']
+            . ($caseCDry ? ' (dry-run)' : '')
+        );
+        if ($caseCDry) {
+            fwrite(STDOUT, "Planned steps: truncate derived for ids > N; delete M ground; "
+                . "reset remaining forward; then project-present-at N; "
+                . "refinalize-forward-from each remaining; seal (AD6).\n");
+            fwrite(STDOUT, "Re-run with --apply to mutate (prefer ko2amiga_work).\n");
+        } else {
+            fwrite(STDOUT, "NOTE: Case C phase 1 only — next: project-present-at --tournament-id="
+                . $result['cutoff_id'] . " then refinalize-forward-from for each remaining id, then seal.\n");
+        }
+    } finally {
+        $con->close();
+    }
+    exit(0);
+}
+
+if ($verb === 'truncate-derived-after') {
+    if ($tournamentId === null || $tournamentId <= 0) {
+        fwrite(STDERR, "truncate-derived-after requires --tournament-id N (cutoff)\n");
+        exit(1);
+    }
+    $con = amiga_ops_connect();
+    try {
+        $nRow = amiga_case_b_load_tournament($con, $tournamentId);
+        if ($dryRun || !$apply) {
+            $fwd = amiga_case_c_list_tournaments_after($con, $nRow, false);
+            $ids = array_map(static fn (array $r): int => (int) $r['id'], $fwd);
+            amiga_ops_log(
+                'truncate-derived-after dry-run: N=' . $tournamentId
+                . ' would clear ids=[' . implode(',', $ids) . ']'
+            );
+            fwrite(STDOUT, "Re-run with --apply to mutate.\n");
+            exit(0);
+        }
+        $ids = amiga_ops_truncate_derived_after($con, $nRow);
+        amiga_ops_log(
+            'truncate-derived-after done: N=' . $tournamentId
+            . ' cleared=[' . implode(',', $ids) . ']'
+        );
+    } catch (Throwable $e) {
+        fwrite(STDERR, 'truncate-derived-after failed: ' . $e->getMessage() . PHP_EOL);
+        exit(1);
+    } finally {
+        $con->close();
+    }
+    exit(0);
+}
+
+if ($verb === 'refinalize-forward-from') {
+    if ($tournamentId === null || $tournamentId <= 0) {
+        fwrite(STDERR, "refinalize-forward-from requires --tournament-id T (pending forward)\n");
+        exit(1);
+    }
+    if ($dryRun) {
+        fwrite(STDOUT, "refinalize-forward-from dry-run: would finalize tournament_id={$tournamentId}\n");
+        exit(0);
+    }
+    $con = amiga_ops_connect();
+    try {
+        $result = amiga_ops_refinalize_forward_one($con, $tournamentId);
+        if (!$result['ok']) {
+            fwrite(STDERR, 'refinalize-forward-from refuse: ' . $result['error'] . PHP_EOL);
+            exit(1);
+        }
+        amiga_ops_log(
+            'refinalize-forward-from done: id=' . $result['tournament_id']
+            . ' name=' . $result['name']
+            . ' games=' . $result['games']
+            . ($result['skipped'] ? ' skipped' : '')
+            . ' next_id=' . $result['next_id']
+        );
     } finally {
         $con->close();
     }

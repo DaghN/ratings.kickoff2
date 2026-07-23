@@ -45,6 +45,45 @@ function amiga_ops_load_latest_inverse_changelog_values(mysqli $con): array
 }
 
 /**
+ * Seed in-memory inverse counts from changelog (not snapshot/current columns).
+ *
+ * Snapshot career columns are participant-only (S5) and go stale for ghosts —
+ * the Jul 15 bug. Case C forward re-finalize loads participants from prior
+ * snapshots, so without this overlay PHP starts from inflated counts and
+ * persists poison into changelog + current.
+ *
+ * When the changelog pack is empty (older seals), leave loaded values alone —
+ * same hazard as project-present-at (do not zero-fill from an empty pack).
+ *
+ * @param array<int, array<string, mixed>> $players
+ */
+function amiga_ops_seed_inverse_counts_from_changelog(mysqli $con, array &$players): void
+{
+    if ($players === []) {
+        return;
+    }
+    $res = $con->query('SELECT COUNT(*) AS n FROM amiga_player_inverse_count_at_event');
+    if ($res === false) {
+        throw new RuntimeException('count inverse changelog for seed: ' . $con->error);
+    }
+    $row = $res->fetch_assoc();
+    $res->free();
+    if ((int) ($row['n'] ?? 0) === 0) {
+        return;
+    }
+    $prev = amiga_ops_load_latest_inverse_changelog_values($con);
+    $metrics = amiga_ops_inverse_count_metrics();
+    foreach ($players as $pid => &$st) {
+        $pid = (int) $pid;
+        foreach ($metrics as $m) {
+            $key = $pid . '|' . $m['metric'];
+            $st[$m['attr']] = $prev[$key] ?? 0;
+        }
+    }
+    unset($st);
+}
+
+/**
  * @param array<int, array<string, mixed>> $players
  */
 function amiga_ops_persist_inverse_count_changelog_at_tournament(

@@ -107,7 +107,7 @@ Three layers — same idea as matchup pairs and career honours, but scoped to Wo
 
 | Key | `(player_id, slice_key, as_of_tournament_id)` |
 | **Denorm** | `event_date`, `event_chrono` from `as_of_tournament_id` (cutoff queries) |
-| **Write rule** | One row per **participant** at each tournament finalize (carry-forward cumulative slice state; increment only when event ∈ slice) |
+| **Write rule** | One row per **participant** at each tournament finalize (carry-forward cumulative slice state; increment only when event ∈ slice). **PHP + Python** (Jul 2026): live ops `amiga_ops_persist_world_cup_slices` on every finalize for participants with `tournaments_played > 0` — not WC-only. Country slice at-event remains WC finalize only. |
 
 ### 4.3 Column set — V1 (`slice_key = 'world_cup'`)
 
@@ -314,6 +314,7 @@ Add [`amiga-world-cups-leaderboard-implementation-plan.md`](amiga-world-cups-lea
 
 | When | What |
 |------|------|
+| 2026-07-23 | **PHP player WC slice persist** — participate checkpoints on every finalize (`tournaments_played > 0`), matching Python; country slice + V2/awards stay WC-only (§4.2). |
 | 2026-06 | Policy locked — slice tables, folder sub-wings, consolidate `wc_*` off honours block, V1 podium + results + goals |
 | 2026-06-23 | **Dual surface** — hub wing 3 + LB wing share `amiga_wc_players_wing_body.inc.php`; no LB→hub redirect |
 | 2026-06-29 | **LB wing retired** — Player stats hub-only; legacy `/amiga/leaderboards/world-cups/*` 302 → hub; `amiga-lb-world-cups-*` route keys alias hub paths |

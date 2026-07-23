@@ -1,24 +1,28 @@
 <?php
 /**
- * Amiga staging backup seals — Backup now + Restore + Case A/B admin delete (L5 slices 1–4).
+ * Amiga staging backup seals — Backup now + Restore + Case A/B/C admin delete (L5 slices 1–5).
  *
  * Open:  /amiga/run_backup_ko2amiga.php?once=ko2amiga-backup-one-shot
  * Gate:  admin password only.
  *
- * Restore = copy seal into amiga/_import/ then Apply import (full replace / BA4).
+ * Restore = apply seal from amiga/_backups/ (BA4; optional Copy→_import).
  * Case A = delete-unfinalized-tournament (never-official generated kitchen). No auto-seal (not tip-changing).
  * Case B = delete-last-finalized-tournament (tip) + project-present-at prior + auto-seal (AD6).
+ * Case C = delete-finalized-mid-tournament (non-tip M) + truncate > N + project N + refinalize forward + seal.
  * Password file: amiga/_ops/amiga_ops_password.local.php ($admin_password).
  */
 declare(strict_types=1);
 
-const AMIGA_BACKUP_PAGE_BUILD = 'l5-s4j-2026-07-22';
+const AMIGA_BACKUP_PAGE_BUILD = 'l5-case-c-inv-seed-2026-07-23';
 
 require_once __DIR__ . '/includes/amiga_ops_password_lib.php';
 require_once __DIR__ . '/includes/amiga_backup_seal_lib.php';
 require_once __DIR__ . '/includes/amiga_staging_import_lib.php';
 require_once __DIR__ . '/ops/modules/delete_unfinalized_tournament.php';
 require_once __DIR__ . '/ops/modules/delete_last_finalized_tournament.php';
+require_once __DIR__ . '/ops/modules/delete_finalized_mid_tournament.php';
+require_once __DIR__ . '/ops/modules/project_present_at.php';
+require_once __DIR__ . '/ops/modules/finalize_tournament.php';
 
 $key = 'ko2amiga-backup-one-shot';
 $onceValue = (string) ($_POST['once'] ?? $_GET['once'] ?? '');
@@ -73,6 +77,46 @@ if (!$gate['ok']) {
     if ($action === 'case_b_seal') {
         // no extra fields
     }
+    if ($action === 'case_c_delete') {
+        $tid = (string) ($_POST['tournament_id'] ?? '');
+        if ($tid !== '') {
+            $hidden['tournament_id'] = $tid;
+        }
+        if (isset($_POST['confirm_case_c']) && (string) $_POST['confirm_case_c'] === '1') {
+            $hidden['confirm_case_c'] = '1';
+        }
+    }
+    if ($action === 'case_c_project') {
+        $cid = (string) ($_POST['cutoff_id'] ?? '');
+        if ($cid !== '') {
+            $hidden['cutoff_id'] = $cid;
+        }
+        $phase = (string) ($_POST['project_phase'] ?? 'player_current');
+        if ($phase !== '') {
+            $hidden['project_phase'] = $phase;
+        }
+        $fwd = (string) ($_POST['forward_ids'] ?? '');
+        if ($fwd !== '') {
+            $hidden['forward_ids'] = $fwd;
+        }
+    }
+    if ($action === 'case_c_finalize') {
+        $tid = (string) ($_POST['tournament_id'] ?? '');
+        if ($tid !== '') {
+            $hidden['tournament_id'] = $tid;
+        }
+        $cid = (string) ($_POST['cutoff_id'] ?? '');
+        if ($cid !== '') {
+            $hidden['cutoff_id'] = $cid;
+        }
+        $fwd = (string) ($_POST['forward_ids'] ?? '');
+        if ($fwd !== '') {
+            $hidden['forward_ids'] = $fwd;
+        }
+    }
+    if ($action === 'case_c_seal') {
+        // no extra fields
+    }
     if ($action === 'project_present_tip') {
         $phase = (string) ($_POST['project_phase'] ?? 'player_current');
         if ($phase !== '') {
@@ -88,7 +132,7 @@ if (!$gate['ok']) {
     amiga_ops_render_password_form(
         $self,
         'Amiga backup seals — admin password',
-        'Admin password required (backup / restore / Case A/B delete).',
+        'Admin password required (backup / restore / Case A/B/C delete).',
         $hidden,
         $gate['provided'],
         'Admin password'
@@ -102,8 +146,23 @@ $flashErr = '';
 $stagedSealId = '';
 $caseACandidates = [];
 $caseBContext = ['tip' => null, 'prior' => null];
+$caseCCandidates = [];
 /** @var array{deleted_id:int,deleted_name:string,prior_id:int,prior_name:string,games:int}|null */
 $caseBNeedSeal = null;
+/**
+ * Case C continue chain (project → finalize → seal).
+ * @var array{
+ *   stage:string,
+ *   cutoff_id:int,
+ *   cutoff_name:string,
+ *   project_phase?:string,
+ *   next_phase?:string,
+ *   finalize_id?:int,
+ *   forward_ids:string,
+ *   note:string
+ * }|null
+ */
+$caseCNeedNext = null;
 /** @var array{cutoff_id:int,cutoff_name:string,phase:string,next_phase:string,note:string}|null */
 $projectNeedNextPhase = null;
 /** @var array{phase:string,next_phase:string,note:string}|null */
@@ -535,6 +594,236 @@ if ($action === 'backup_now') {
             mysqli_close($con);
         }
     }
+} elseif ($action === 'case_c_delete') {
+    $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
+    $confirmed = isset($_POST['confirm_case_c']) && (string) $_POST['confirm_case_c'] === '1';
+    if ($tournamentId <= 0) {
+        $flashErr = 'Case C delete requires a tournament id M (finalized non-tip with later tips).';
+    } elseif (!$confirmed) {
+        $flashErr = 'Case C delete requires the confirm checkbox.';
+    } else {
+        @ignore_user_abort(true);
+        @set_time_limit(900);
+        @ini_set('memory_limit', '512M');
+        include __DIR__ . '/../../config/ko2amiga_config.php';
+        $dbName = (string) ($database ?? '');
+        if ($dbName !== 'ko2amiga_db' && $dbName !== 'ko2amiga_work') {
+            $flashErr = 'config database must be ko2amiga_db (staging) or ko2amiga_work (local); got ' . $dbName . '.';
+        } else {
+            mysqli_report(MYSQLI_REPORT_OFF);
+            $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+            if ($con->connect_errno) {
+                $flashErr = 'connect failed: ' . $con->connect_error;
+            } else {
+                $con->set_charset('utf8mb4');
+                try {
+                    $deleted = amiga_delete_finalized_mid_tournament($con, $tournamentId, false);
+                    if (!$deleted['ok']) {
+                        $flashErr = 'Case C delete refused: ' . (string) $deleted['error'];
+                    } else {
+                        $fwdCsv = implode(',', $deleted['remaining_forward_ids']);
+                        $caseCNeedNext = [
+                            'stage' => 'project',
+                            'cutoff_id' => (int) $deleted['cutoff_id'],
+                            'cutoff_name' => (string) $deleted['cutoff_name'],
+                            'project_phase' => 'player_current',
+                            'forward_ids' => $fwdCsv,
+                            'note' => 'M deleted; truncated '
+                                . count($deleted['truncated_ids']) . ' id(s); remaining forward=['
+                                . $fwdCsv . ']',
+                        ];
+                        $flashOk = 'Case C phase 1 OK: deleted M #' . (int) $deleted['tournament_id']
+                            . ' (' . (string) $deleted['name'] . '); cutoff N=#'
+                            . (int) $deleted['cutoff_id'] . ' (' . (string) $deleted['cutoff_name'] . '); '
+                            . (int) $deleted['games_deleted'] . ' game(s) removed; remaining forward=['
+                            . $fwdCsv . ']. Next: project-present-at N (phased), then finalize each, then seal.';
+                    }
+                } catch (Throwable $e) {
+                    $flashErr = 'Case C phase 1 failed: ' . $e->getMessage();
+                }
+                mysqli_close($con);
+            }
+        }
+    }
+} elseif ($action === 'case_c_project') {
+    @ignore_user_abort(true);
+    @set_time_limit(900);
+    @ini_set('memory_limit', '512M');
+    include __DIR__ . '/../../config/ko2amiga_config.php';
+    $dbName = (string) ($database ?? '');
+    $cutoffId = max(0, (int) ($_POST['cutoff_id'] ?? 0));
+    $fwdCsv = trim((string) ($_POST['forward_ids'] ?? ''));
+    $phase = (string) ($_POST['project_phase'] ?? 'player_current');
+    if (!in_array($phase, ['player_current', 'matchups', 'rest'], true)) {
+        $phase = 'player_current';
+    }
+    if ($cutoffId <= 0) {
+        $flashErr = 'Case C project requires cutoff_id N.';
+    } elseif ($dbName !== 'ko2amiga_db' && $dbName !== 'ko2amiga_work') {
+        $flashErr = 'config database must be ko2amiga_db (staging) or ko2amiga_work (local); got ' . $dbName . '.';
+    } else {
+        mysqli_report(MYSQLI_REPORT_OFF);
+        $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+        if ($con->connect_errno) {
+            $flashErr = 'connect failed: ' . $con->connect_error;
+        } else {
+            $con->set_charset('utf8mb4');
+            try {
+                $proj = amiga_ops_project_present_at_phase($con, $cutoffId, $phase);
+                $cutoffName = (string) $proj['cutoff_name'];
+                $detail = '';
+                if ($phase === 'player_current') {
+                    $detail = 'current=' . (int) $proj['player_current']
+                        . ' (elo + inverse pointer overlay)';
+                } elseif ($phase === 'matchups') {
+                    $detail = 'matchups=' . (int) $proj['matchup_summary'];
+                } else {
+                    $detail = 'slices/generalstats/community/wc_hof';
+                }
+                $next = $proj['next_phase'] ?? null;
+                if (is_string($next) && $next !== '') {
+                    $caseCNeedNext = [
+                        'stage' => 'project',
+                        'cutoff_id' => $cutoffId,
+                        'cutoff_name' => $cutoffName,
+                        'project_phase' => $next,
+                        'forward_ids' => $fwdCsv,
+                        'note' => $detail,
+                    ];
+                    $flashOk = 'Case C project phase ' . $phase . ' OK at N=#' . $cutoffId
+                        . ' (' . $cutoffName . '): ' . $detail
+                        . '. Continuing with phase ' . $next . '…';
+                } else {
+                    // Project done → first forward finalize.
+                    $firstId = 0;
+                    if ($fwdCsv !== '') {
+                        $parts = array_filter(array_map('intval', explode(',', $fwdCsv)));
+                        $firstId = (int) ($parts[0] ?? 0);
+                    }
+                    if ($firstId <= 0) {
+                        $flashErr = 'Case C project done but no remaining forward ids to finalize.';
+                    } else {
+                        $caseCNeedNext = [
+                            'stage' => 'finalize',
+                            'cutoff_id' => $cutoffId,
+                            'cutoff_name' => $cutoffName,
+                            'finalize_id' => $firstId,
+                            'forward_ids' => $fwdCsv,
+                            'note' => 'project complete; finalize #' . $firstId,
+                        ];
+                        $flashOk = 'Case C project complete at N=#' . $cutoffId
+                            . ' (' . $cutoffName . '). Next: finalize forward #' . $firstId . '…';
+                    }
+                }
+            } catch (Throwable $e) {
+                $flashErr = 'Case C project-present-at failed (phase ' . $phase . '): ' . $e->getMessage();
+            }
+            mysqli_close($con);
+        }
+    }
+} elseif ($action === 'case_c_finalize') {
+    @ignore_user_abort(true);
+    @set_time_limit(900);
+    @ini_set('memory_limit', '512M');
+    include __DIR__ . '/../../config/ko2amiga_config.php';
+    $dbName = (string) ($database ?? '');
+    $tournamentId = max(0, (int) ($_POST['tournament_id'] ?? 0));
+    $cutoffId = max(0, (int) ($_POST['cutoff_id'] ?? 0));
+    $fwdCsv = trim((string) ($_POST['forward_ids'] ?? ''));
+    if ($tournamentId <= 0) {
+        $flashErr = 'Case C finalize requires tournament_id.';
+    } elseif ($dbName !== 'ko2amiga_db' && $dbName !== 'ko2amiga_work') {
+        $flashErr = 'config database must be ko2amiga_db (staging) or ko2amiga_work (local); got ' . $dbName . '.';
+    } else {
+        mysqli_report(MYSQLI_REPORT_OFF);
+        $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+        if ($con->connect_errno) {
+            $flashErr = 'connect failed: ' . $con->connect_error;
+        } else {
+            $con->set_charset('utf8mb4');
+            try {
+                $fin = amiga_ops_refinalize_forward_one($con, $tournamentId);
+                if (!$fin['ok']) {
+                    $flashErr = 'Case C finalize refused: ' . (string) $fin['error'];
+                } else {
+                    $nextId = (int) $fin['next_id'];
+                    // Prefer remaining from POST list after current id.
+                    if ($fwdCsv !== '') {
+                        $parts = array_values(array_filter(array_map('intval', explode(',', $fwdCsv))));
+                        $idx = array_search($tournamentId, $parts, true);
+                        if ($idx !== false && isset($parts[$idx + 1])) {
+                            $nextId = (int) $parts[$idx + 1];
+                        } elseif ($idx !== false) {
+                            $nextId = 0;
+                        }
+                    }
+                    if ($nextId > 0) {
+                        $caseCNeedNext = [
+                            'stage' => 'finalize',
+                            'cutoff_id' => $cutoffId,
+                            'cutoff_name' => '',
+                            'finalize_id' => $nextId,
+                            'forward_ids' => $fwdCsv,
+                            'note' => 'finalized #' . $tournamentId . '; next #' . $nextId,
+                        ];
+                        $flashOk = 'Case C finalize OK: #' . (int) $fin['tournament_id']
+                            . ' (' . (string) $fin['name'] . '), games=' . (int) $fin['games']
+                            . '. Continuing with #' . $nextId . '…';
+                    } else {
+                        $caseCNeedNext = [
+                            'stage' => 'seal',
+                            'cutoff_id' => $cutoffId,
+                            'cutoff_name' => '',
+                            'forward_ids' => $fwdCsv,
+                            'note' => 'all forward finalized; seal next',
+                        ];
+                        $flashOk = 'Case C finalize OK: #' . (int) $fin['tournament_id']
+                            . ' (' . (string) $fin['name'] . '), games=' . (int) $fin['games']
+                            . '. All remaining forward done — seal next (AD6).';
+                    }
+                }
+            } catch (Throwable $e) {
+                $flashErr = 'Case C finalize failed: ' . $e->getMessage();
+            }
+            mysqli_close($con);
+        }
+    }
+} elseif ($action === 'case_c_seal') {
+    @ignore_user_abort(true);
+    @set_time_limit(900);
+    @ini_set('memory_limit', '512M');
+    include __DIR__ . '/../../config/ko2amiga_config.php';
+    $dbName = (string) ($database ?? '');
+    if ($dbName !== 'ko2amiga_db' && $dbName !== 'ko2amiga_work') {
+        $flashErr = 'config database must be ko2amiga_db (staging) or ko2amiga_work (local); got ' . $dbName . '.';
+    } else {
+        mysqli_report(MYSQLI_REPORT_OFF);
+        $con = new mysqli($dbhost, $username, $password, $database, $dbportnum);
+        if ($con->connect_errno) {
+            $flashErr = 'connect failed: ' . $con->connect_error;
+        } else {
+            $con->set_charset('utf8mb4');
+            try {
+                $seal = amiga_backup_seal_write_from_config($con, [
+                    'reason' => 'case_c_delete',
+                    'reserve' => false,
+                ]);
+                if (!$seal['ok']) {
+                    $flashErr = 'Case C seal FAILED: ' . (string) $seal['error']
+                        . ' — ladder may already be repaired; run Backup now (AD6).';
+                } else {
+                    $flashOk = 'Case C seal OK: ' . (string) $seal['seal_id']
+                        . ' (' . (int) $seal['parts'] . ' parts, '
+                        . round(((int) $seal['bytes']) / 1048576, 1) . ' MB, '
+                        . (string) $seal['elapsed'] . 's).';
+                }
+            } catch (Throwable $e) {
+                $flashErr = 'Case C seal exception: ' . $e->getMessage()
+                    . ' — ladder may already be repaired; run Backup now (AD6).';
+            }
+            mysqli_close($con);
+        }
+    }
 }
 
 $seals = amiga_backup_seal_list();
@@ -552,12 +841,14 @@ try {
             $conList->set_charset('utf8mb4');
             $caseACandidates = amiga_case_a_list_candidates($conList, 40);
             $caseBContext = amiga_case_b_tip_context($conList);
+            $caseCCandidates = amiga_case_c_list_candidates($conList, 20);
             mysqli_close($conList);
         }
     }
 } catch (Throwable $e) {
     $caseACandidates = [];
     $caseBContext = ['tip' => null, 'prior' => null];
+    $caseCCandidates = [];
 }
 
 header('Content-Type: text/html; charset=utf-8');
@@ -570,9 +861,11 @@ echo 'a.btn,button.btn{display:inline-block;margin:4px 4px 4px 0;padding:6px 12p
 echo 'a.btn-danger,button.btn-danger{background:#b71c1c}</style></head><body>';
 echo '<h1>Amiga backup seals</h1>';
 echo '<p class="muted">Build ' . htmlspecialchars(AMIGA_BACKUP_PAGE_BUILD, ENT_QUOTES, 'UTF-8')
+    . ' (page) · seal writer <code>' . htmlspecialchars(AMIGA_BACKUP_SEAL_BUILD, ENT_QUOTES, 'UTF-8') . '</code>'
     . ' · Packs under <code>amiga/_backups/</code>. Restore stages a seal into <code>_import/</code>, then Apply import '
     . 'replaces <code>ko2amiga_db</code> (same engine as push import — BA4). Reserve seals cannot be erased via PHP (BA6). '
-    . 'Case A = unfinalized kitchen; Case B = latest finalized tip + present re-project + seal (AD1/AD3/AD6). '
+    . 'Case A = unfinalized kitchen; Case B = latest finalized tip + present re-project + seal; '
+    . 'Case C = mid finalized M (test-under-real) + truncate + project N + re-finalize forward + seal (AD1/AD3/AD4/AD6). '
     . 'Restore = apply a seal pack straight into the live DB from <code>_backups/</code> (BA4; does not touch the push tray). '
     . 'Organizer Abandon/void stays on fixtures Advanced (AD2).</p>';
 
@@ -594,6 +887,56 @@ if ($caseBNeedSeal !== null) {
     echo '<p><button class="btn" type="submit">Write Case B seal…</button></p>';
     echo '</form>';
     echo '<script>setTimeout(function(){var f=document.getElementById("k2-case-b-seal");if(f){f.submit();}},400);</script>';
+    echo '</div>';
+}
+
+if ($caseCNeedNext !== null) {
+    $stage = (string) $caseCNeedNext['stage'];
+    echo '<div class="box">';
+    if ($stage === 'project') {
+        $nextPhase = (string) ($caseCNeedNext['project_phase'] ?? 'player_current');
+        echo '<p><strong>Case C — project phase '
+            . htmlspecialchars($nextPhase, ENT_QUOTES, 'UTF-8') . '</strong></p>';
+        echo '<p class="muted">' . htmlspecialchars((string) $caseCNeedNext['note'], ENT_QUOTES, 'UTF-8')
+            . ' · cutoff N=#' . (int) $caseCNeedNext['cutoff_id'] . ' ('
+            . htmlspecialchars((string) $caseCNeedNext['cutoff_name'], ENT_QUOTES, 'UTF-8')
+            . '). Split across requests (gateway ~30s).</p>';
+        echo '<form id="k2-case-c-next" method="post" action="' . htmlspecialchars($self, ENT_QUOTES, 'UTF-8') . '">';
+        echo '<input type="hidden" name="once" value="' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '">';
+        echo '<input type="hidden" name="action" value="case_c_project">';
+        echo '<input type="hidden" name="cutoff_id" value="' . (int) $caseCNeedNext['cutoff_id'] . '">';
+        echo '<input type="hidden" name="project_phase" value="'
+            . htmlspecialchars($nextPhase, ENT_QUOTES, 'UTF-8') . '">';
+        echo '<input type="hidden" name="forward_ids" value="'
+            . htmlspecialchars((string) $caseCNeedNext['forward_ids'], ENT_QUOTES, 'UTF-8') . '">';
+        echo '<p><button class="btn" type="submit">Continue project '
+            . htmlspecialchars($nextPhase, ENT_QUOTES, 'UTF-8') . '…</button></p>';
+        echo '</form>';
+    } elseif ($stage === 'finalize') {
+        $fid = (int) ($caseCNeedNext['finalize_id'] ?? 0);
+        echo '<p><strong>Case C — finalize forward #' . $fid . '</strong></p>';
+        echo '<p class="muted">' . htmlspecialchars((string) $caseCNeedNext['note'], ENT_QUOTES, 'UTF-8')
+            . '. One tournament per request.</p>';
+        echo '<form id="k2-case-c-next" method="post" action="' . htmlspecialchars($self, ENT_QUOTES, 'UTF-8') . '">';
+        echo '<input type="hidden" name="once" value="' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '">';
+        echo '<input type="hidden" name="action" value="case_c_finalize">';
+        echo '<input type="hidden" name="tournament_id" value="' . $fid . '">';
+        echo '<input type="hidden" name="cutoff_id" value="' . (int) $caseCNeedNext['cutoff_id'] . '">';
+        echo '<input type="hidden" name="forward_ids" value="'
+            . htmlspecialchars((string) $caseCNeedNext['forward_ids'], ENT_QUOTES, 'UTF-8') . '">';
+        echo '<p><button class="btn" type="submit">Finalize #' . $fid . '…</button></p>';
+        echo '</form>';
+    } else {
+        echo '<p><strong>Case C — write seal now</strong></p>';
+        echo '<p class="muted">' . htmlspecialchars((string) $caseCNeedNext['note'], ENT_QUOTES, 'UTF-8')
+            . '. This request only writes the backup pack (AD6). If the browser times out, use <strong>Backup now</strong>.</p>';
+        echo '<form id="k2-case-c-next" method="post" action="' . htmlspecialchars($self, ENT_QUOTES, 'UTF-8') . '">';
+        echo '<input type="hidden" name="once" value="' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '">';
+        echo '<input type="hidden" name="action" value="case_c_seal">';
+        echo '<p><button class="btn" type="submit">Write Case C seal…</button></p>';
+        echo '</form>';
+    }
+    echo '<script>setTimeout(function(){var f=document.getElementById("k2-case-c-next");if(f){f.submit();}},400);</script>';
     echo '</div>';
 }
 
@@ -738,7 +1081,7 @@ if ($caseACandidates === []) {
 echo '<h2>Case B — delete latest finalized tip</h2>';
 echo '<p class="muted">Admin-only. Deletes the <strong>chrono-last</strong> <code>rating_finalized</code> tip, clears its derived rows, '
     . 're-projects present at the prior tip, then (separate request) writes a backup seal (AD6). '
-    . 'Not for mid-history deletes (Case C later). Inspect via Open before deleting.</p>';
+    . 'Mid-history / test-under-real → Case C below. Inspect via Open before deleting.</p>';
 
 $caseBTip = is_array($caseBContext['tip'] ?? null) ? $caseBContext['tip'] : null;
 $caseBPrior = is_array($caseBContext['prior'] ?? null) ? $caseBContext['prior'] : null;
@@ -777,6 +1120,43 @@ if ($caseBTip === null) {
         . 're-projects present, then seals in a follow-up request; undo = restore a prior seal</label></p>';
     echo '<p><button class="btn btn-danger" type="submit">Delete Case B tip…</button></p>';
     echo '</form>';
+}
+
+echo '<h2>Case C — delete finalized mid event (test-under-real)</h2>';
+echo '<p class="muted">Admin-only. Deletes a <strong>non-tip</strong> <code>rating_finalized</code> tournament M that has later '
+    . 'finalized tips (typical: test kitchen under a real tip). Truncates poisoned derived after prior N, deletes M, '
+    . 're-projects present at N, re-finalizes remaining forward events one-by-one, then seals (AD4/AD6). '
+    . 'Phased HTTP — never one-shot. Prefer short forward chains (1–3). Tip-only deletes → Case B.</p>';
+echo '<form method="post" action="' . htmlspecialchars($self, ENT_QUOTES, 'UTF-8') . '" '
+    . 'onsubmit="return confirm(\'Case C phase 1: truncate forward derived, permanently delete M, reset remaining tips for re-finalize? Project/finalize/seal run as follow-up requests.\');">';
+echo '<input type="hidden" name="once" value="' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '">';
+echo '<input type="hidden" name="action" value="case_c_delete">';
+echo '<p><label>Tournament id M <input type="number" name="tournament_id" min="1" required style="width:8rem"></label></p>';
+echo '<p><label><input type="checkbox" name="confirm_case_c" value="1" required> I understand this deletes M, '
+    . 'repairs the ladder via truncate + project + re-finalize, then seals; undo = restore a prior seal</label></p>';
+echo '<p><button class="btn btn-danger" type="submit">Delete Case C mid…</button></p>';
+echo '</form>';
+
+if ($caseCCandidates === []) {
+    echo '<p class="muted">No short-chain Case C candidates listed (need a finalized non-tip with 1–3 later tips; or DB unreachable).</p>';
+} else {
+    echo '<table><thead><tr><th>M</th><th>Name</th><th>Date</th><th>Games</th><th>Forward after M</th><th>N</th><th>Tip</th><th></th></tr></thead><tbody>';
+    foreach ($caseCCandidates as $cand) {
+        $openHref = '/amiga/tournament/event-stats.php?id=' . (int) $cand['id'];
+        echo '<tr>';
+        echo '<td><code>' . (int) $cand['id'] . '</code></td>';
+        echo '<td>' . htmlspecialchars((string) $cand['name'], ENT_QUOTES, 'UTF-8') . '</td>';
+        echo '<td>' . htmlspecialchars((string) ($cand['event_date'] ?? ''), ENT_QUOTES, 'UTF-8') . '</td>';
+        echo '<td>' . (int) $cand['games'] . '</td>';
+        echo '<td>' . (int) $cand['forward_count'] . '</td>';
+        echo '<td><code>' . (int) $cand['prior_id'] . '</code> '
+            . htmlspecialchars((string) $cand['prior_name'], ENT_QUOTES, 'UTF-8') . '</td>';
+        echo '<td><code>' . (int) $cand['tip_id'] . '</code> '
+            . htmlspecialchars((string) $cand['tip_name'], ENT_QUOTES, 'UTF-8') . '</td>';
+        echo '<td><a href="' . htmlspecialchars($openHref, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener">Open</a></td>';
+        echo '</tr>';
+    }
+    echo '</tbody></table>';
 }
 
 echo '<h2>Seals on disk</h2>';

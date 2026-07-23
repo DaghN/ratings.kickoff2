@@ -1,9 +1,10 @@
 # Amiga player inverse-count timeline — policy
 
-> **Status:** **Implemented** (Jul 2026) — audit passed; sparse changelog shipped on `ko2amiga_work`.  
+> **Status:** **Implemented** (Jul 2026) — sparse changelog on work/staged; export packs ship data parts (JSON-driven, Jul 23); PHP finalize **seeds** inverse from changelog (Case C safe); L5 present re-project = pointer recount.  
 > **Purpose:** Inverse victim/culprit counts at TT via sparse changelog (S5 exception).  
 > **Audit:** completed in-session Jul 2026 — root cause confirmed; size ~3.4k rows (not 10–15k).  
-> **Code:** `scripts/amiga/inverse_count_changelog.py` · `sql/derived/051_inverse_count_changelog.sql` · PHP `amiga_inverse_count_*.php` · `verify-inverse-count-changelog`
+> **Code:** `scripts/amiga/inverse_count_changelog.py` · `sql/derived/051_inverse_count_changelog.sql` · PHP `amiga_inverse_count_changelog_lib.php` (+ `amiga_ops_seed_inverse_counts_from_changelog`) · `verify-inverse-count-changelog`  
+> **Proof:** [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md) · checkpoint `work-2026-07-23-inverse-roundtrip` (3423 rows).
 
 **Related:** [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) (S5 non-participants) · [`website-data-contract.md`](website-data-contract.md) § Personal record pointers · [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) (pointer inventory reads) · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5
 
@@ -153,6 +154,8 @@ For these four metrics only, define hero state at cutoff *T* as:
 
 **`project-present-at` (L5 Case B/C):** rebuild present inverse via **pointer recount** on the just-projected `amiga_player_current` (same oracle as `verify-inverse-count-changelog` present check). Do **not** copy snapshot inverse columns, and do **not** zero-fill then refill from changelog when the changelog pack may be empty (older seals / staging pulls shipped schema-only → wipe). Changelog remains the TT/LB hot path when populated.
 
+**PHP finalize bootstrap (Case C / tip):** after loading career state from prior snapshots (or ghost load from current), **seed the four inverse attrs from latest changelog** via `amiga_ops_seed_inverse_counts_from_changelog()` — skip when pack row count is 0 (same empty-pack hazard). Snapshot columns stay stale for ghosts; without this seed, Case C forward re-finalize starts from inflated snapshot values and persists poison into changelog + present (Phase C FAIL Jul 23 before fix).
+
 ### 5.4 Writer
 
 At end of `finalize_tournament` (after in-memory `players` dict is final for the event):
@@ -220,10 +223,13 @@ Write all four values for every established player every finalize (~174k rows).
 | Independent audit | **Passed** (Jul 2026) — root cause confirmed; size corrected to ~3.4k |
 | DDL + finalize writer | **Shipped** — `051_inverse_count_changelog.sql` · `inverse_count_changelog.py` · PHP `amiga_inverse_count_changelog_lib.php` |
 | PHP read paths (LB, mosaic) | **Shipped** — Victims LB TT join + profile mosaic overlay |
+| PHP finalize inverse seed | **Shipped Jul 23** — `amiga_ops_seed_inverse_counts_from_changelog` on participant + ghost bootstrap (Case C forward) |
+| Export / L5 seal data parts | **Shipped Jul 23** — PS1 + `amiga_backup_seal_lib.php` iterate `staging_export_tables.json` (fixes Jul 18 schema-only omission) |
+| Case C thorough + staged retest | **PASS** Jul 23 — M=#16; present oracle 0; pack ≡ simul — round-trip plan |
 | Retire least-metrics in ops | **Deferred** — Amiga UI has no surface; shared `PlayerState`/online ops still write columns |
 | Simul verify script | **Shipped** — `verify-inverse-count-changelog` in modern verify suite |
 
-**Sign-off:** audit pass → implementation → `replay` on `ko2amiga_work` → verify oracle green → read-path switch. **Done** on work DB (3,423 changelog rows).
+**Sign-off:** audit → implementation → replay → verify → export packing → Case C seed. Healthy tip seal: `work-2026-07-23-inverse-roundtrip` (**3423** rows).
 
 ---
 
@@ -240,4 +246,4 @@ Write all four values for every established player every finalize (~174k rows).
 
 ---
 
-*Last updated: Jul 2026 — implemented after audit; changelog ~3,423 rows on healthy simul work. L5 `project-present-at` present overlay = pointer recount (seals/pulls may ship empty changelog).*
+*Last updated: Jul 2026-23 — Case C PHP finalize seeds inverse from changelog (not snapshot cols).*

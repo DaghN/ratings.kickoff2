@@ -644,9 +644,10 @@ function amiga_ops_persist_tournament_event_snapshots(
         $players
     );
 
-    // Parity with Python: only persist WC slice at-event/totals for World Cup events.
+    // Player WC slice at-event: participate checkpoints (Python finalize + policy §4.2).
+    // Persist skips tournaments_played <= 0. V2/awards (above) and country slice stay WC-only.
+    amiga_ops_persist_world_cup_slices($con, $tournamentId, $eventDate, $eventChrono, $sliceByPlayer);
     if (amiga_honours_participation_is_world_cup($participation)) {
-        amiga_ops_persist_world_cup_slices($con, $tournamentId, $eventDate, $eventChrono, $sliceByPlayer);
         amiga_country_slice_rebuild_at_world_cup_finalize(
             $con,
             $tournamentId,
