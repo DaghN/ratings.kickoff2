@@ -78,6 +78,232 @@ function amiga_case_c_insert_finish_m_catalog_tuple(mysqli $con, array $row): ar
 }
 
 /**
+ * Max chrono on event_date excluding one tournament id.
+ */
+function amiga_case_c_insert_chrono_max_on_event_date(mysqli $con, string $eventDate, int $excludeId): float
+{
+    $stmt = $con->prepare(
+        'SELECT COALESCE(MAX(chrono), 0) AS mx FROM tournaments WHERE event_date = ? AND id <> ?'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare insert same-day chrono max: ' . $con->error);
+    }
+    $stmt->bind_param('si', $eventDate, $excludeId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute insert same-day chrono max: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+
+    return (float) ($row['mx'] ?? 0);
+}
+
+/**
+ * Max chrono among tournaments with event_date strictly before $eventDate.
+ */
+function amiga_case_c_insert_chrono_max_before_event_date(mysqli $con, string $eventDate, int $excludeId): float
+{
+    $stmt = $con->prepare(
+        'SELECT COALESCE(MAX(chrono), 0) AS mx FROM tournaments WHERE event_date < ? AND id <> ?'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare insert before-date chrono max: ' . $con->error);
+    }
+    $stmt->bind_param('si', $eventDate, $excludeId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute insert before-date chrono max: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+
+    return (float) ($row['mx'] ?? 0);
+}
+
+/**
+ * Min chrono among tournaments with event_date strictly after $eventDate.
+ */
+function amiga_case_c_insert_chrono_min_after_event_date(mysqli $con, string $eventDate, int $excludeId): float
+{
+    $stmt = $con->prepare(
+        'SELECT MIN(chrono) AS mn FROM tournaments WHERE event_date > ? AND id <> ? AND chrono IS NOT NULL'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare insert after-date chrono min: ' . $con->error);
+    }
+    $stmt->bind_param('si', $eventDate, $excludeId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute insert after-date chrono min: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+    if ($row === null || $row['mn'] === null) {
+        return 0.0;
+    }
+
+    return (float) $row['mn'];
+}
+
+/**
+ * Catalog chrono for mid-history M — slots between prior N and first forward in the
+ * tournament index (chrono DESC) without global append (tip chrono).
+ *
+ * @param array{id:int, event_date:?string} $m
+ * @param array{id:int, event_date:?string, chrono:?float} $n
+ * @param array{id:int, event_date:?string, chrono:?float}|null $firstForward
+ */
+function amiga_case_c_insert_catalog_chrono_for_slot(
+    mysqli $con,
+    array $m,
+    array $n,
+    ?array $firstForward
+): float {
+    $tid = (int) $m['id'];
+    $eventDate = (string) ($m['event_date'] ?? '');
+    if ($eventDate === '') {
+        return amiga_promote_next_tournament_chrono($con, $eventDate, $tid);
+    }
+
+    $nDate = (string) ($n['event_date'] ?? '');
+    $nChrono = (float) ($n['chrono'] ?? 0);
+    if ($eventDate === $nDate && $nDate !== '') {
+        return $nChrono + 1.0;
+    }
+
+    if ($firstForward !== null) {
+        $fDate = (string) ($firstForward['event_date'] ?? '');
+        $fChrono = (float) ($firstForward['chrono'] ?? 0);
+        if ($eventDate === $fDate && $fDate !== '' && $fChrono > 0.0) {
+            $stmt = $con->prepare(
+                'SELECT COALESCE(MAX(chrono), 0) AS mx FROM tournaments '
+                . 'WHERE event_date = ? AND id <> ? AND chrono < ?'
+            );
+            if ($stmt === false) {
+                throw new RuntimeException('prepare insert same-day below forward: ' . $con->error);
+            }
+            $stmt->bind_param('sid', $eventDate, $tid, $fChrono);
+            if (!$stmt->execute()) {
+                throw new RuntimeException('execute insert same-day below forward: ' . $stmt->error);
+            }
+            $res = $stmt->get_result();
+            $row = $res ? $res->fetch_assoc() : null;
+            $stmt->close();
+            $below = (float) ($row['mx'] ?? 0);
+            if ($below > 0.0) {
+                return $below + 1.0;
+            }
+            if ($fChrono > 1.0) {
+                return $fChrono - 1.0;
+            }
+        }
+    }
+
+    $sameDayMax = amiga_case_c_insert_chrono_max_on_event_date($con, $eventDate, $tid);
+    if ($sameDayMax > 0.0) {
+        return $sameDayMax + 1.0;
+    }
+
+    $beforeMax = amiga_case_c_insert_chrono_max_before_event_date($con, $eventDate, $tid);
+    $afterMin = amiga_case_c_insert_chrono_min_after_event_date($con, $eventDate, $tid);
+    $candidate = $beforeMax > 0.0 ? $beforeMax + 1.0 : 1.0;
+
+    if ($afterMin > 0.0 && $candidate >= $afterMin) {
+        if ($afterMin - $beforeMax > 1.0) {
+            return $beforeMax + 1.0;
+        }
+
+        return ($beforeMax + $afterMin) / 2.0;
+    }
+
+    return $candidate;
+}
+
+function amiga_case_c_insert_persist_catalog_chrono(mysqli $con, int $tournamentId, float $chrono): void
+{
+    $stmt = $con->prepare('UPDATE tournaments SET chrono = ? WHERE id = ?');
+    if ($stmt === false) {
+        throw new RuntimeException('prepare insert chrono persist: ' . $con->error);
+    }
+    $stmt->bind_param('di', $chrono, $tournamentId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute insert chrono persist: ' . $stmt->error);
+    }
+    $stmt->close();
+}
+
+/**
+ * Repair catalog chrono when mid-history Finish used global append (index shows wrong order).
+ *
+ * @return array{ok:bool, tournament_id:int, old_chrono:?float, new_chrono:?float, changed:bool, error:string}
+ */
+function amiga_case_c_insert_repair_catalog_chrono(mysqli $con, int $tournamentId): array
+{
+    $fail = static function (string $msg) use ($tournamentId): array {
+        return [
+            'ok' => false,
+            'tournament_id' => $tournamentId,
+            'old_chrono' => null,
+            'new_chrono' => null,
+            'changed' => false,
+            'error' => $msg,
+        ];
+    };
+
+    try {
+        $row = amiga_case_c_insert_finish_load_m_row($con, $tournamentId);
+    } catch (AmigaCaseCInsertException $e) {
+        return $fail($e->getMessage());
+    }
+
+    if ($row['event_date'] === null || $row['event_date'] === '') {
+        return $fail('tournament has no event_date.');
+    }
+
+    $mTuple = [
+        'id' => (int) $row['id'],
+        'event_date' => $row['event_date'],
+        'chrono' => $row['chrono'],
+    ];
+    $n = amiga_case_c_find_prior_finalized($con, $mTuple);
+    if ($n === null) {
+        return $fail('no prior finalized N — not a mid-catalog slot.');
+    }
+
+    $forward = amiga_case_c_list_tournaments_after($con, $mTuple, true);
+    $firstForward = $forward[0] ?? null;
+    $expected = amiga_case_c_insert_catalog_chrono_for_slot(
+        $con,
+        ['id' => (int) $row['id'], 'event_date' => $row['event_date']],
+        $n,
+        $firstForward
+    );
+    $old = $row['chrono'] !== null ? (float) $row['chrono'] : null;
+    if ($old !== null && abs($old - $expected) < 0.0001) {
+        return [
+            'ok' => true,
+            'tournament_id' => $tournamentId,
+            'old_chrono' => $old,
+            'new_chrono' => $expected,
+            'changed' => false,
+            'error' => '',
+        ];
+    }
+
+    amiga_case_c_insert_persist_catalog_chrono($con, $tournamentId, $expected);
+
+    return [
+        'ok' => true,
+        'tournament_id' => $tournamentId,
+        'old_chrono' => $old,
+        'new_chrono' => $expected,
+        'changed' => true,
+        'error' => '',
+    ];
+}
+
+/**
  * @return array{
  *   is_mid_history:bool,
  *   m:array{id:int, name:string, event_date:?string, chrono:?float},
@@ -122,6 +348,14 @@ function amiga_case_c_insert_finish_probe(mysqli $con, int $tournamentId): array
     $n = null;
     if ($forward !== []) {
         $n = amiga_case_c_find_prior_finalized($con, $m);
+        if ($n !== null) {
+            $m['chrono'] = amiga_case_c_insert_catalog_chrono_for_slot(
+                $con,
+                ['id' => (int) $row['id'], 'event_date' => $row['event_date']],
+                $n,
+                $forward[0]
+            );
+        }
     }
 
     return [
@@ -243,6 +477,14 @@ function amiga_case_c_insert_finish_prepare(mysqli $con, int $tournamentId): arr
         foreach ($forwardIds as $fwdId) {
             amiga_case_c_reset_for_refinalize($con, $fwdId);
         }
+
+        $catalogChrono = amiga_case_c_insert_catalog_chrono_for_slot(
+            $con,
+            ['id' => $tournamentId, 'event_date' => $row['event_date']],
+            $n,
+            $probe['forward'][0] ?? null
+        );
+        amiga_case_c_insert_persist_catalog_chrono($con, $tournamentId, $catalogChrono);
 
         $officialCount = 0;
         $stmt = $con->prepare('SELECT COUNT(*) AS n FROM amiga_games WHERE tournament_id = ?');

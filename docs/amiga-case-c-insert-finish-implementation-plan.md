@@ -32,7 +32,7 @@ Ship **mid-history Finish** (“Case C insert”): organizers keep organizer-cho
 | **CI8** | **BA2 seal** after successful mid-history Finish (tip-changing / history-changing). |
 | **CI9** | **Phased HTTP** (~30s gateway) — same habit as admin Case C project/finalize chain; not one long request. |
 | **CI10** | **Concurrency** — same finalize lock family; refuse overlapping Finish / Case B/C / insert repair on staging. |
-| **CI11** | **`game_date`** — v1 keeps append-only tip at promote; document catalog order as ladder authority; synthetic `game_date` bands = later optional. |
+| **CI11** | **Mid-history `chrono`** — slot between prior N and first forward (`amiga_case_c_insert_catalog_chrono_for_slot`); not `global_max + 1` (tournament index sorts `chrono DESC`). `game_date` append at promote unchanged. Repair CLI: `repair-insert-catalog-chrono`. |
 
 ---
 

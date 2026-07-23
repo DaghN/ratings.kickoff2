@@ -18,6 +18,7 @@ require_once __DIR__ . '/modules/finalize_tournament.php';
 require_once __DIR__ . '/modules/delete_unfinalized_tournament.php';
 require_once __DIR__ . '/modules/delete_last_finalized_tournament.php';
 require_once __DIR__ . '/modules/delete_finalized_mid_tournament.php';
+require_once __DIR__ . '/modules/insert_finalized_mid_tournament.php';
 require_once __DIR__ . '/modules/project_present_at.php';
 
 amiga_ops_require_cli();
@@ -33,6 +34,7 @@ function amiga_ops_print_help(): void
     fwrite(STDOUT, "  delete-finalized-mid-tournament  Case C: truncate > N, delete M, reset forward (no project/seal)\n");
     fwrite(STDOUT, "  truncate-derived-after  Case C step: clear §5.3 derived for chrono > --tournament-id (N)\n");
     fwrite(STDOUT, "  refinalize-forward-from  Case C: finalize one pending forward --tournament-id\n");
+    fwrite(STDOUT, "  repair-insert-catalog-chrono  Fix mid-history M chrono for tournaments.php index order\n");
     fwrite(STDOUT, "  project-present-at    Rebuild present tables at --tournament-id cutoff\n");
     fwrite(STDOUT, "  replay-to             Removed — use python -m scripts.amiga prove\n");
     fwrite(STDOUT, "  process-one           Deprecated for tournament games — use finalize-tournament\n");
@@ -280,6 +282,44 @@ if ($verb === 'refinalize-forward-from') {
             . ($result['skipped'] ? ' skipped' : '')
             . ' next_id=' . $result['next_id']
         );
+    } finally {
+        $con->close();
+    }
+    exit(0);
+}
+
+if ($verb === 'repair-insert-catalog-chrono') {
+    if ($tournamentId === null || $tournamentId <= 0) {
+        fwrite(STDERR, "repair-insert-catalog-chrono requires --tournament-id M\n");
+        exit(1);
+    }
+    if ($dryRun || !$apply) {
+        fwrite(STDOUT, "repair-insert-catalog-chrono dry-run: would recompute catalog chrono for M={$tournamentId}\n");
+        fwrite(STDOUT, "Re-run with --apply to mutate.\n");
+        exit(0);
+    }
+    $con = amiga_ops_connect();
+    try {
+        $result = amiga_case_c_insert_repair_catalog_chrono($con, $tournamentId);
+        if (!$result['ok']) {
+            fwrite(STDERR, 'repair-insert-catalog-chrono refuse: ' . $result['error'] . PHP_EOL);
+            exit(1);
+        }
+        amiga_ops_log(
+            'repair-insert-catalog-chrono: id=' . $result['tournament_id']
+            . ' old=' . ($result['old_chrono'] !== null ? (string) $result['old_chrono'] : 'null')
+            . ' new=' . ($result['new_chrono'] !== null ? (string) $result['new_chrono'] : 'null')
+            . ($result['changed'] ? ' changed' : ' unchanged')
+        );
+        if ($result['changed']) {
+            fwrite(STDOUT, "Catalog chrono repaired for #{$tournamentId}: "
+                . ($result['old_chrono'] !== null ? (string) $result['old_chrono'] : 'null')
+                . ' → '
+                . ($result['new_chrono'] !== null ? (string) $result['new_chrono'] : 'null')
+                . PHP_EOL);
+        } else {
+            fwrite(STDOUT, "Catalog chrono already correct for #{$tournamentId}.\n");
+        }
     } finally {
         $con->close();
     }
