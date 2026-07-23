@@ -125,7 +125,7 @@ Milestones are **gates**, not a parallel backlog. Advance when Dagh says the pri
 | **L6** | Ground pack pull | **Shelved** — not planned until further notice (full staging backup pack is enough). Keep mention only. |
 | **L7** | Media on ran event | YouTube URL on staging tournament |
 
-**Current gate:** **L5 complete** — practice idle / next serial feedback. L2 reps optional. **L6 shelved.** Cups deferred.
+**Current gate:** **L5 complete** — practice idle / next serial feedback. **Case C insert** (mid-history Finish) design locked — implement when named ([`amiga-case-c-insert-finish-implementation-plan.md`](amiga-case-c-insert-finish-implementation-plan.md)). L2 reps optional. **L6 shelved.** Cups deferred.
 
 **Explicit defer until a cycle names them:** structure imprint P2–P3, WC materialize, Lane C media DDL, CR-9 country polish, player-create phase 2, cups (L3) until named, **L6 ground pack (shelved — full DB backup pack preferred)**.
 
@@ -171,6 +171,7 @@ Closed cycles from early drills. Do **not** treat as open work.
 
 | Date | Change |
 |------|--------|
+| 2026-07-23 | **Case C insert design** — mid-history Finish policy + implementation plan locked; §4 gate note. Not shipped. |
 | 2026-07-23 | **L5 v1 complete** — Case C thorough M=#16 + inverse seed; export round-trip A/B/C; triple agreement; §4 idle. Build `l5-case-c-inv-seed-2026-07-23`. |
 | 2026-07-23 | **Export/inverse round-trip plan** — [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md) (JSON dump fix proof + Case C follow-on). |
 | 2026-07-22 | **L5 slice 4 harden + BA4** — pointer inverse; JOIN matchups; phased re-project; Restore from `_backups/`; tip #607 = forum seal. §4 → slice 5. Build `l5-s4j`. |

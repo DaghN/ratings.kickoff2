@@ -31,7 +31,7 @@ This is **enough** for KOA scale: rare events, trusted small admin set, organize
 | Id | Decision |
 |----|----------|
 | **BA1** | **Artifact** = full DB backup pack equivalent to today’s browser rebuild payload: `ko2amiga_manifest.json` + `ko2amiga_*.sql` parts (KOOL convention, not a generic mysqldump API). |
-| **BA2** | **When** = **after** successful **tip-changing** actions — at least: **Make official** (append) and **admin tip delete** (Case B/C — finalized tip / mid-history with repair). Also after explicit admin “backup now” / successful full import if those exist. **Not** after each score entry. **Not** after Case A (unfinalized trash — tip unchanged). |
+| **BA2** | **When** = **after** successful **tip-changing** actions — at least: **Make official** (append **or** mid-history insert repair per **AD7**) and **admin tip delete** (Case B/C delete — finalized tip / mid-history with repair). Also after explicit admin “backup now” / successful full import if those exist. **Not** after each score entry. **Not** after Case A (unfinalized trash — tip unchanged). |
 | **BA3** | **Not before delete by default** — pre-delete tip should already be the previous after-Finish (or after-prior-action) seal. Strict rule: tip-changing success implies after-backup (or loud failure). |
 | **BA4** | **Restore** = full replace of staged `ko2amiga_db` from a chosen seal pack (same Apply-import engine). **Primary UX:** apply **directly from** `amiga/_backups/<seal>/` (multi-part, auto-continue) — **does not** overwrite `amiga/_import/` (push tray). Optional advanced: copy seal into `_import` for tray/Apply. |
 | **BA5** | **Retention** = rolling last **N** seals (e.g. 5–10) on server; **reserve** seals (e.g. every 5th, or manual milestone) not swept by the rolling cleaner. Exact N tunable at implement time. |
@@ -48,9 +48,10 @@ This is **enough** for KOA scale: rare events, trusted small admin set, organize
 | **AD1** | **Admin-only** for removing published / finalized tournaments from staging. |
 | **AD2** | **Organizer cancel** = historically void / abandon never-official (Advanced). **Superseded for new UX** by **Hide** (Live visibility) + admin Case A delete — [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md). Not the same as admin delete of an official tip event. |
 | **AD3** | After successful admin delete of a **finalized tip** event: run **anchored repair** appropriate to the case (v1 target = **Case A** unfinalized trash + **Case B** delete latest finalized — re-project present). Prefer PHP live path on staging; do **not** require local `prove`/`simul` as daily delete. Exact verb names follow live-ops §7.4 when implemented. |
-| **AD4** | **Case C (narrow) is in L5 scope** — delete non-tip **M** with later finalized events (e.g. test under real tip): truncate poisoned forward derived; re-project at M−1; **re-finalize forward** via PHP live finalize. **Proven Jul 2026-23:** thorough M=#16 (10 forward events) after inverse changelog seed fix — [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md). Deep mid-2000s chains still optional later. Plan: [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md). |
+| **AD4** | **Case C delete (narrow) shipped in L5** — delete non-tip **M** with later finalized events (e.g. test under real tip): truncate poisoned forward derived; re-project at M−1; **re-finalize forward** via PHP live finalize. **Proven Jul 2026-23:** thorough M=#16 (10 forward events) after inverse changelog seed fix — [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md). Deep mid-2000s chains still optional later. Plan: [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md). |
 | **AD5** | **No** organizer lock/unlock delete matrix and **no** per-tournament delete password in v1. |
-| **AD6** | After successful **tip** delete + repair (Case B/C): **BA2** backup of the new tip. **Case A** (unfinalized trash) does **not** auto-seal — tip unchanged; optional Backup now. |
+| **AD6** | After successful **tip** delete + repair (Case B/C delete): **BA2** backup of the new tip. **Case A** (unfinalized trash) does **not** auto-seal — tip unchanged; optional Backup now. |
+| **AD7** | **Case C insert (mid-history Finish) — design locked, not shipped** — when organizer **Finish and make official** on running **M** whose catalog `(event_date, chrono, id)` sorts **before** ≥1 already-finalized event: **automatic** insert repair (not admin-only, not tip-only refuse). Pipeline: truncate derived > N → reset forward `rating_finalized` (keep ground) → promote M → project-present-at N → finalize M then forward in chrono order → **BA2** seal. Loud secretary confirm listing **k** later events to recompute; phased HTTP like admin Case C. **Authority:** catalog chrono, not wall-clock Finish. Plan: [`amiga-case-c-insert-finish-implementation-plan.md`](amiga-case-c-insert-finish-implementation-plan.md). |
 
 ---
 
@@ -90,6 +91,7 @@ Ship when Track L / live-ops feedback names it (likely around **L5**). Until the
 
 | Date | Change |
 |------|--------|
+| 2026-07-23 | **AD7** — Case C insert / mid-history Finish design locked (organizer path + BA2); implementation plan linked; not shipped. |
 | 2026-07-23 | **Implemented (v1)** — L5 Case A/B/C + seals + inverse seed; thorough Case C M=#16 PASS; AD4 note; L6 still out. |
 | 2026-07-22 | **AD2 note** — organizer void superseded by Hide + Case A (workspace simplification policy). |
 | 2026-07-22 | **BA4 restore UX** — primary apply-from-`_backups/` (Build `l5-s4j`); `_import` copy optional. |

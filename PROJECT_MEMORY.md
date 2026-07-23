@@ -149,6 +149,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-23 | **Case C insert design locked** — mid-history Finish (organizer confirm + phased truncate/project/finalize-forward + BA2); policy AD7, live-ops §7.3.1, RTB §6.7; plan [`amiga-case-c-insert-finish-implementation-plan.md`](docs/amiga-case-c-insert-finish-implementation-plan.md). **Not shipped.** |
 | 2026-07-23 | **Session wrap (L5 + inverse)** — L5 v1 **Implemented**; export JSON data parts; Case C inverse seed; round-trip A/B/C PASS; staged Case C retest PASS; triple agreement GitHub `work-2026-07-23-inverse-roundtrip` ≡ work ≡ staged (#16, inverse 3423). Docs: backup policy, L5 plan, live-ops, practice track, inverse policy, handoff, feature-log. Build **`l5-case-c-inv-seed-2026-07-23`**. |
 | 2026-07-23 | **Triple agreement PASS** — seal ≡ work ≡ staged (side-pull cmp): tip #607, #16, inverse **3423/3423**, full P-1 **PASS**. |
 | 2026-07-23 | **Case C staged retest PASS** — seed fix → restore pre-#16 → Case C #16 → seal `…-120630Z-case_c_delete` → cmp vs work: present_mm **0**, inverse **3406≡3406**. |

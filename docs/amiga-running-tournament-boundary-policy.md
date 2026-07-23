@@ -222,6 +222,22 @@ Finalize **must not** read running fixture score columns after promote — it re
 | Finish refused / limbo | Honest message; **do not** silent-rewind on Finish. **Reset incomplete finish** (Technical / repair) is **limbo-only** (`lifecycle` still `running` + half-official). It is **not** available after successful `completed` Finish — do not tell secretaries to Reset a green event. Prefer pull→repair or a future post-official correction verb. |
 | Never-official spectator cleanup | Prefer **Hide from Live** (reversible). Hard delete never-official Open junk = admin Case A ([`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md)). Historical void/Abandon is retired from the happy path. |
 
+### 6.7 Mid-history Finish (Case C insert) — design locked
+
+When running **M** has catalog `(event_date, chrono, id)` **before** ≥1 already-finalized tournament, plain Finish (§6.4) **poisons** derived state. **Not shipped** — target behaviour locked Jul 2026:
+
+| Element | Rule |
+|---------|------|
+| **Trigger** | Organizer **Finish and make official** after Tier E confirm — same button, not a separate admin verb |
+| **Detection** | After standard §6.2 gates; list finalized events strictly after M in catalog order |
+| **Tip path** | `forward[]` empty → §6.3–6.5 unchanged (tip Finish) |
+| **Insert path** | `forward[]` non-empty → loud confirm: **k** later official events will be recomputed; may take minutes |
+| **Repair** | Truncate derived > N → reset forward flags (keep ground) → promote M → project at N → finalize M then forward → BA2 seal |
+| **Authority** | Catalog chrono — organizer `event_date` at create is intentional; wall-clock Finish order is not ladder truth |
+| **`game_date`** | v1 keeps append-only at promote; catalog order is ladder authority ([`amiga-case-c-insert-finish-implementation-plan.md`](amiga-case-c-insert-finish-implementation-plan.md) CI11) |
+
+**Rejected:** block Finish solely because M is not chrono-last.
+
 ---
 
 ## 7. Broadcast (running reads)
@@ -282,6 +298,7 @@ Broadcast paths **read the running package only** and may **compute** standings/
 | Date | Change |
 |------|--------|
 | 2026-07-22 | **OW vocabulary** — Open/Official/Hide; Play tab; Technical / repair; Hide/Case A replace Abandon happy path. Boundary unchanged. |
+| 2026-07-23 | **§6.7 Case C insert** — mid-history Finish design locked (confirm + phased repair); not shipped. |
 | 2026-07-16 | **No silent Finish rewind** — `rating_finalized` only after full derive succeeds; limbo → Advanced explicit reset (narrow). Partial finish + SCH-043 strip retained. |
 | 2026-07-17 | **Community scan limbo parity** — PHP (and Python) tournament-host community scan uses `(rating_finalized = 1 OR id = as_of)` so Finish can keep limbo-safe late `rating_finalized` without under-counting the tournament being finalized. Simul-oracle #608 re-fingerprint: community headline/facts match. |
 | 2026-07-16 | **Promote chrono parity** — PHP `amiga_promote_next_tournament_chrono` matches Python `next_tournament_chrono` (same-day bump, else global append). Fork fingerprint: was PHP `chrono=1` vs Py `599` on new event_date. |

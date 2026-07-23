@@ -117,7 +117,7 @@ Amiga **community ground** is moving from “local laptop is canon, staging is a
 
 **Rejected for v1** (do not reopen without new policy): lock/unlock delete matrix; per-tournament delete password; demotion-first; soft-discard-as-only-path for official tip events.
 
-**Still open at implement time:** exact admin UI placement; retention N for rolling seals; Case C mid-history delete.
+**Still open at implement time:** retention N for rolling seals; Case C insert / mid-history Finish (AD7 — design locked, not shipped).
 
 ---
 

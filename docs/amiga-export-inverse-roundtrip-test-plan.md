@@ -305,4 +305,49 @@ Do **not** “fix” TT by copying snapshot inverse columns into the changelog �
 
 ---
 
-*Last updated: 2026-07-23 — A/B/C PASS; L5 inverse seed; triple agreement seal ≡ work ≡ staged.*
+## 7. Phase D — Case C insert (mid-history Finish) — **planned, not run**
+
+**Authority:** [`amiga-case-c-insert-finish-implementation-plan.md`](amiga-case-c-insert-finish-implementation-plan.md) §6.
+
+Run **after** Case C insert ships on staging/work. Symmetric to Phase C delete proof but **keeps M ground** (insert, not delete).
+
+### D1 Smoke A — tip Finish unchanged
+
+| Step | Gate |
+|------|------|
+| Finish running kitchen with `event_date` on tip day, no `forward[]` | Same oracles as Phase A/B present + inverse; BA2 seal |
+| Regression | No mid-history confirm UI; single POST |
+
+### D2 Smoke B — scooped Finish (1–2 forward)
+
+| Step | Gate |
+|------|------|
+| Setup | M `event_date` before tip; Finish tip T first; enter M results + Tier E |
+| Act | Finish M with mid-history confirm |
+| G2–G4 | Present + inverse oracles green |
+| Forward tips | Each `forward[]` id still `rating_finalized=1` |
+| M | `rating_finalized=1`, `lifecycle_status=completed` |
+| G5–G6 | Seal has inverse part; side-pull cmp hard match on inverse |
+
+### D3 Thorough C — ~10 forward (optional)
+
+| Step | Gate |
+|------|------|
+| Restore seal with long forward chain (e.g. includes #16) | — |
+| Insert running kitchen dated before mid-catalog M | Phased HTTP completes without gateway timeout |
+| Oracles | Same as D2 + Diagnose present green |
+
+### D4 Regression guards
+
+| Fail if |
+|---------|
+| Tip Finish blocked when `forward_count=0` |
+| Finish refused solely for not being chrono-last (no insert repair offered) |
+| Forward finalize without inverse changelog seed (Jul 23 poison) |
+| Double promote on retry |
+
+**Status:** `[ ]` not started — implement code first (plan slices 1–5).
+
+---
+
+*Last updated: 2026-07-23 — A/B/C PASS; Phase D spec added (Case C insert, not run).*
