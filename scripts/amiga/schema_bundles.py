@@ -61,6 +61,7 @@ DERIVED_SQL: tuple[Path, ...] = (
     _SQL_ROOT / "derived" / "049_player_slice_wc_culprits.sql",
     _SQL_ROOT / "derived" / "050_geo_opponent_countries_beaten_by.sql",
     _SQL_ROOT / "derived" / "051_inverse_count_changelog.sql",
+    _SQL_ROOT / "derived" / "052_matchup_event_chrono_double.sql",
 )
 
 # Legacy flat paths (archaeology / one-off scripts — not apply_schema).

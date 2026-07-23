@@ -698,7 +698,7 @@ def finalize_tournament(
         conn,
         tournament_id,
         tour["event_date"],
-        int(tour["chrono"]),
+        float(tour["chrono"]),
         matchups,
         participant_ids,
     )

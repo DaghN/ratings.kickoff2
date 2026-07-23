@@ -39,7 +39,7 @@ def persist_matchup_at_event(
     conn: pymysql.connections.Connection,
     tournament_id: int,
     event_date: Any,
-    event_chrono: int,
+    event_chrono: float,
     matchups: MatchupCumulative,
     participant_ids: set[int],
 ) -> int:

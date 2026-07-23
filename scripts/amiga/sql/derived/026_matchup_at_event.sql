@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `amiga_player_matchup_at_event` (
   `opponent_id` int(11) NOT NULL,
   `as_of_tournament_id` int(11) NOT NULL,
   `event_date` date NOT NULL,
-  `event_chrono` int(11) NOT NULL,
+  `event_chrono` double NOT NULL,
   `games` smallint(5) unsigned NOT NULL DEFAULT 0,
   `wins` smallint(5) unsigned NOT NULL DEFAULT 0,
   `draws` smallint(5) unsigned NOT NULL DEFAULT 0,

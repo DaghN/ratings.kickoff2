@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated": "2026-07-23T10:35:38Z",
+  "generated": "2026-07-23T15:25:29Z",
   "tables": [
     "tournament_format_templates",
     "tournaments",

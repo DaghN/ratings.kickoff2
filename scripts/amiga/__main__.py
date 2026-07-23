@@ -61,6 +61,10 @@ from scripts.amiga.modern.constants import DAY0_DIR as _SEED_DAY0_DIR
 from scripts.amiga.modern.seal_day0 import _DEFAULT_OUT as _DAY0_OUT, seal_day0
 from scripts.amiga.modern.seed_work import seed_work_from_day0
 from scripts.amiga.modern.simul import run_simul
+from scripts.amiga.modern.chrono_integer import (
+    chrono_integer_compare,
+    renumber_chronos_integers,
+)
 from scripts.amiga.modern.apply_structure import run_apply_structure_work
 from scripts.amiga.modern.parity import run_parity
 from scripts.amiga.modern.verify_structure_work import run_verify_structure_work
@@ -418,6 +422,30 @@ def main(argv: list[str] | None = None) -> int:
         "--allow-ground-shrink",
         action="store_true",
         help="Allow simul when L3/L4 counts dropped since last fingerprint",
+    )
+
+    p_renumber_chrono = sub.add_parser(
+        "renumber-chronos-integers",
+        help="Assign dense integer chronos 1..N in ladder order on ko2amiga_work",
+    )
+    p_renumber_chrono.add_argument("--apply", action="store_true", help="Write updates (default dry-run)")
+    p_renumber_chrono.add_argument("--dry-run", action="store_true")
+
+    p_chrono_compare = sub.add_parser(
+        "chrono-integer-compare",
+        help="Compare live work chronos vs pre-repair baseline JSON",
+    )
+    p_chrono_compare.add_argument(
+        "--baseline",
+        type=Path,
+        default=None,
+        help="Path to chrono_baseline_before.json",
+    )
+    p_chrono_compare.add_argument(
+        "--write-report",
+        type=Path,
+        default=None,
+        help="Optional JSON report output path",
     )
 
     p_apply_structure_work = sub.add_parser(
@@ -978,6 +1006,34 @@ def main(argv: list[str] | None = None) -> int:
             confirm_destroy=args.confirm_destroy,
             allow_ground_shrink=args.allow_ground_shrink,
         )
+
+    if args.cmd == "renumber-chronos-integers":
+        stats = renumber_chronos_integers(apply=args.apply, dry_run=args.dry_run)
+        log.info(
+            "renumber-chronos-integers: applied=%s changed=%s / %s",
+            stats.get("applied"),
+            stats.get("changed_count"),
+            stats.get("tournament_count"),
+        )
+        return 0
+
+    if args.cmd == "chrono-integer-compare":
+        report = chrono_integer_compare(
+            baseline_path=args.baseline,
+            write_report=args.write_report,
+        )
+        log.info(
+            "chrono-integer-compare: mapping_changes=%s before_mae=%s after_mae=%s audit_errors=%s",
+            report.get("chrono_mapping_changes"),
+            report.get("before_mae_row_mismatch"),
+            report.get("after_mae_row_mismatch"),
+            len(report.get("audit_errors") or []),
+        )
+        if report.get("audit_errors"):
+            for err in report["audit_errors"][:10]:
+                log.error("  %s", err)
+            return 1
+        return 0
 
     if args.cmd == "apply-structure-work":
         stats = run_apply_structure_work(

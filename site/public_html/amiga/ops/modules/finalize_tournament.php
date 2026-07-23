@@ -728,7 +728,7 @@ function amiga_finalize_tournament(
     $matchups->recomputeTouchedPerf($con, array_values($touchedMatchupPairs));
 
     $eventDate = (string) $tour['event_date'];
-    $eventChrono = (int) $tour['chrono'];
+    $eventChrono = (float) $tour['chrono'];
     $atEventRows = amiga_ops_persist_matchup_at_event(
         $con,
         $tournamentId,

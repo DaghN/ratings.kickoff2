@@ -434,6 +434,31 @@ def verify_player_matchups(conn: pymysql.connections.Connection) -> list[str]:
         cur.execute(
             """
             SELECT COUNT(*) AS n
+            FROM amiga_player_matchup_at_event m
+            INNER JOIN tournaments t ON t.id = m.as_of_tournament_id
+            WHERE ABS(m.event_chrono - t.chrono) > 0.001
+            """
+        )
+        mismatch = int(cur.fetchone()["n"])
+        if mismatch:
+            errors.append(
+                f"matchup at-event event_chrono != tournaments.chrono for {mismatch} row(s)"
+            )
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM tournaments
+            WHERE chrono IS NOT NULL AND chrono <> FLOOR(chrono)
+            """
+        )
+        frac = int(cur.fetchone()["n"])
+        if frac:
+            errors.append(f"tournaments.chrono is non-integer for {frac} row(s)")
+
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
             FROM amiga_player_event_snapshots s
             INNER JOIN (
                 SELECT player_id, as_of_tournament_id, COUNT(*) AS pair_count

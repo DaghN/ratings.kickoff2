@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__, 3) . '/includes/amiga_tournament_lib.php';
 require_once dirname(__DIR__, 3) . '/includes/k2_amiga_player_naming.php';
+require_once __DIR__ . '/../includes/amiga_chrono_integer_lib.php';
 require_once __DIR__ . '/delete_last_finalized_tournament.php';
 require_once __DIR__ . '/finalize_tournament.php';
 
@@ -37,19 +38,8 @@ class AmigaCaseCNoPriorException extends AmigaCaseCDeleteException
 }
 
 /**
- * Chrono SQL fragment: tournament row is strictly after cutoff N.
- * Bind order: event_date, event_date, chrono, event_date, chrono, id (ssdsdi).
+ * Chrono SQL lives in amiga_chrono_integer_lib.php (amiga_case_c_chrono_after_sql).
  */
-function amiga_case_c_chrono_after_sql(string $alias = 't'): string
-{
-    $a = $alias === '' ? '' : rtrim($alias, '.') . '.';
-
-    return '('
-        . "{$a}event_date > ? "
-        . "OR ({$a}event_date = ? AND {$a}chrono > ?) "
-        . "OR ({$a}event_date = ? AND {$a}chrono = ? AND {$a}id > ?)"
-        . ')';
-}
 
 /**
  * @param array{id:int, event_date:?string, chrono:?float} $cutoff
@@ -557,6 +547,8 @@ function amiga_delete_finalized_mid_tournament(mysqli $con, int $tournamentId, b
             throw new RuntimeException("DELETE tournaments affected {$stmt->affected_rows} rows (expected 1)");
         }
         $stmt->close();
+
+        amiga_chrono_integer_decrement_forward_after_cutoff($con, $n);
 
         foreach ($remainingIds as $fwdId) {
             amiga_case_c_reset_for_refinalize($con, $fwdId);

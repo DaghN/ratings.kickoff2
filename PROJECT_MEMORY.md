@@ -149,7 +149,8 @@
 
 | Date | Note |
 |------|------|
-| 2026-07-23 | **Catalog chrono fix** — mid-history prepare slots chrono between N and forward (not global append); `repair-insert-catalog-chrono` CLI for already-finalized M. |
+| 2026-07-23 | **Chrono integer repair** — dense ints `1…607` on work; `matchup_at_event.event_chrono` → `double`; simul replay; seals `work-2026-07-23-pre-chrono-integer` + `work-2026-07-23-chrono-integer`; Case C insert `+1` / delete `-1` ground bump. Policy [`amiga-chrono-integer-policy.md`](docs/amiga-chrono-integer-policy.md). |
+| 2026-07-23 | **Catalog chrono fix** — superseded by integer bump (CI11); legacy `repair-insert-catalog-chrono` CLI retained. |
 | 2026-07-23 | **Case C insert design locked** — mid-history Finish policy + implementation plan; not shipped. |
 | 2026-07-23 | **Session wrap (L5 + inverse)** — L5 v1 **Implemented**; export JSON data parts; Case C inverse seed; round-trip A/B/C PASS; staged Case C retest PASS; triple agreement GitHub `work-2026-07-23-inverse-roundtrip` ≡ work ≡ staged (#16, inverse 3423). Docs: backup policy, L5 plan, live-ops, practice track, inverse policy, handoff, feature-log. Build **`l5-case-c-inv-seed-2026-07-23`**. |
 | 2026-07-23 | **Triple agreement PASS** — seal ≡ work ≡ staged (side-pull cmp): tip #607, #16, inverse **3423/3423**, full P-1 **PASS**. |

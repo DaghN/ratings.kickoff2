@@ -1,0 +1,4257 @@
+{
+  "database": "ko2amiga_work",
+  "tournament_count": 607,
+  "mae_row_mismatch_count": 2914,
+  "fractional_tournament_count": 21,
+  "tournaments": [
+    {
+      "id": 26,
+      "name": "World Cup I (Dartford)",
+      "event_date": "2001-11-03",
+      "chrono": 1.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 27,
+      "name": "Athens I",
+      "event_date": "2001-12-22",
+      "chrono": 2.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 28,
+      "name": "London I",
+      "event_date": "2002-01-07",
+      "chrono": 3.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 29,
+      "name": "Rome",
+      "event_date": "2002-02-02",
+      "chrono": 4.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 30,
+      "name": "Lund",
+      "event_date": "2002-02-09",
+      "chrono": 5.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 31,
+      "name": "London II",
+      "event_date": "2002-02-23",
+      "chrono": 6.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 32,
+      "name": "Gloucester I",
+      "event_date": "2002-03-23",
+      "chrono": 7.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 75,
+      "name": "Gloucester I Cup",
+      "event_date": "2002-03-23",
+      "chrono": 8.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 33,
+      "name": "Jerez I",
+      "event_date": "2002-04-15",
+      "chrono": 8.600000381469727,
+      "rating_finalized": 1
+    },
+    {
+      "id": 35,
+      "name": "Athens II",
+      "event_date": "2002-04-28",
+      "chrono": 10.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 36,
+      "name": "Grimstad",
+      "event_date": "2002-05-04",
+      "chrono": 11.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 34,
+      "name": "Jerez II",
+      "event_date": "2002-05-05",
+      "chrono": 11.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 37,
+      "name": "London III",
+      "event_date": "2002-05-11",
+      "chrono": 12.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 39,
+      "name": "Gloucester II",
+      "event_date": "2002-05-18",
+      "chrono": 12.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 38,
+      "name": "Jerez III",
+      "event_date": "2002-05-24",
+      "chrono": 13.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 40,
+      "name": "Athens III",
+      "event_date": "2002-05-29",
+      "chrono": 15.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 41,
+      "name": "Groningen I",
+      "event_date": "2002-06-06",
+      "chrono": 16.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 42,
+      "name": "Groningen II",
+      "event_date": "2002-06-13",
+      "chrono": 17.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 49,
+      "name": "Jerez IV",
+      "event_date": "2002-06-15",
+      "chrono": 17.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 43,
+      "name": "Athens IV",
+      "event_date": "2002-06-17",
+      "chrono": 18.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 74,
+      "name": "Athens IV Cup",
+      "event_date": "2002-06-17",
+      "chrono": 18.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 44,
+      "name": "Groningen III",
+      "event_date": "2002-06-20",
+      "chrono": 19.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 45,
+      "name": "Groningen IV",
+      "event_date": "2002-06-29",
+      "chrono": 20.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 46,
+      "name": "Groningen V",
+      "event_date": "2002-07-02",
+      "chrono": 21.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 47,
+      "name": "Groningen VI",
+      "event_date": "2002-07-11",
+      "chrono": 22.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 48,
+      "name": "Groningen VII",
+      "event_date": "2002-07-13",
+      "chrono": 23.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 604,
+      "name": "Groningen VII Cup",
+      "event_date": "2002-07-13",
+      "chrono": 23.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 50,
+      "name": "Groningen VIII",
+      "event_date": "2002-07-18",
+      "chrono": 25.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 51,
+      "name": "Kitchen I",
+      "event_date": "2002-07-24",
+      "chrono": 26.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 52,
+      "name": "Athens V",
+      "event_date": "2002-07-27",
+      "chrono": 27.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 53,
+      "name": "Jerez V",
+      "event_date": "2002-07-29",
+      "chrono": 28.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 54,
+      "name": "Kristiansand",
+      "event_date": "2002-08-02",
+      "chrono": 29.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 55,
+      "name": "Jerez VI",
+      "event_date": "2002-08-07",
+      "chrono": 30.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 56,
+      "name": "Groningen IX",
+      "event_date": "2002-08-09",
+      "chrono": 31.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 57,
+      "name": "London IV",
+      "event_date": "2002-08-09",
+      "chrono": 32.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 58,
+      "name": "London V",
+      "event_date": "2002-08-10",
+      "chrono": 33.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 59,
+      "name": "Athens VI",
+      "event_date": "2002-08-10",
+      "chrono": 34.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 60,
+      "name": "Athens VII",
+      "event_date": "2002-08-17",
+      "chrono": 35.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 61,
+      "name": "Athens VIII",
+      "event_date": "2002-09-21",
+      "chrono": 36.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 62,
+      "name": "Gloucester III",
+      "event_date": "2002-10-12",
+      "chrono": 37.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 605,
+      "name": "Gloucester III Team",
+      "event_date": "2002-10-12",
+      "chrono": 37.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 63,
+      "name": "Athens IX",
+      "event_date": "2002-10-19",
+      "chrono": 38.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 64,
+      "name": "Venice",
+      "event_date": "2002-10-20",
+      "chrono": 39.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 65,
+      "name": "Mediterrenean",
+      "event_date": "2002-10-27",
+      "chrono": 40.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 66,
+      "name": "World Cup II (Athens)",
+      "event_date": "2002-11-02",
+      "chrono": 41.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 67,
+      "name": "Kitchen II",
+      "event_date": "2002-11-12",
+      "chrono": 42.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 68,
+      "name": "Groningen X",
+      "event_date": "2002-11-17",
+      "chrono": 43.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 69,
+      "name": "Athens X",
+      "event_date": "2002-11-23",
+      "chrono": 44.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 70,
+      "name": "Jerez VII",
+      "event_date": "2002-11-23",
+      "chrono": 45.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 71,
+      "name": "Kitchen III",
+      "event_date": "2002-12-10",
+      "chrono": 46.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 72,
+      "name": "Athens XI",
+      "event_date": "2002-12-22",
+      "chrono": 47.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 73,
+      "name": "Jerez VIII",
+      "event_date": "2002-12-22",
+      "chrono": 48.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 76,
+      "name": "London VI",
+      "event_date": "2003-01-08",
+      "chrono": 49.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 77,
+      "name": "Athens XII",
+      "event_date": "2003-01-21",
+      "chrono": 50.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 78,
+      "name": "Helland",
+      "event_date": "2003-01-26",
+      "chrono": 51.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 79,
+      "name": "Groningen XI",
+      "event_date": "2003-02-07",
+      "chrono": 52.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 80,
+      "name": "Athens XIII",
+      "event_date": "2003-03-05",
+      "chrono": 53.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 81,
+      "name": "KMAB",
+      "event_date": "2003-03-22",
+      "chrono": 54.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 82,
+      "name": "Jerez International",
+      "event_date": "2003-04-16",
+      "chrono": 55.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 83,
+      "name": "Athens XV",
+      "event_date": "2003-04-24",
+      "chrono": 56.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 84,
+      "name": "London VII",
+      "event_date": "2003-04-24",
+      "chrono": 57.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 85,
+      "name": "Jerez X",
+      "event_date": "2003-05-03",
+      "chrono": 58.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 86,
+      "name": "Athens XVI",
+      "event_date": "2003-05-04",
+      "chrono": 59.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 87,
+      "name": "Athens XVII",
+      "event_date": "2003-05-10",
+      "chrono": 60.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 89,
+      "name": "Milan",
+      "event_date": "2003-05-10",
+      "chrono": 61.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 88,
+      "name": "Wolverhampton",
+      "event_date": "2003-05-17",
+      "chrono": 62.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 90,
+      "name": "London VIII",
+      "event_date": "2003-05-29",
+      "chrono": 63.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 91,
+      "name": "Kitchen IV",
+      "event_date": "2003-06-14",
+      "chrono": 64.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 92,
+      "name": "Beard Clan Wars I",
+      "event_date": "2003-06-17",
+      "chrono": 65.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 94,
+      "name": "Wolverhampton II",
+      "event_date": "2003-06-21",
+      "chrono": 66.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 93,
+      "name": "Athens XVIII",
+      "event_date": "2003-06-22",
+      "chrono": 67.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 95,
+      "name": "London IX",
+      "event_date": "2003-06-29",
+      "chrono": 68.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 96,
+      "name": "Beard Tuesday I",
+      "event_date": "2003-07-01",
+      "chrono": 69.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 97,
+      "name": "Beard Tuesday II",
+      "event_date": "2003-07-08",
+      "chrono": 70.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 98,
+      "name": "Athens XIX",
+      "event_date": "2003-07-12",
+      "chrono": 71.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 99,
+      "name": "Dungeon I",
+      "event_date": "2003-07-15",
+      "chrono": 72.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 100,
+      "name": "London X",
+      "event_date": "2003-07-19",
+      "chrono": 73.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 101,
+      "name": "Beard Tuesday III",
+      "event_date": "2003-07-22",
+      "chrono": 74.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 102,
+      "name": "Athens XX",
+      "event_date": "2003-07-26",
+      "chrono": 75.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 103,
+      "name": "Kitchen V",
+      "event_date": "2003-07-29",
+      "chrono": 76.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 104,
+      "name": "Sheffield",
+      "event_date": "2003-08-02",
+      "chrono": 77.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 105,
+      "name": "Athens XXI",
+      "event_date": "2003-09-13",
+      "chrono": 78.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 116,
+      "name": "Igersheim I",
+      "event_date": "2003-09-20",
+      "chrono": 78.19999694824219,
+      "rating_finalized": 1
+    },
+    {
+      "id": 110,
+      "name": "Kristiansand II",
+      "event_date": "2003-09-20",
+      "chrono": 78.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 111,
+      "name": "Kristiansand II Cup",
+      "event_date": "2003-09-20",
+      "chrono": 78.80000305175781,
+      "rating_finalized": 1
+    },
+    {
+      "id": 107,
+      "name": "London XI",
+      "event_date": "2003-09-25",
+      "chrono": 79.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 106,
+      "name": "Athens XXII",
+      "event_date": "2003-10-02",
+      "chrono": 80.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 108,
+      "name": "Grimstad II",
+      "event_date": "2003-10-03",
+      "chrono": 82.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 109,
+      "name": "Grimstad III",
+      "event_date": "2003-10-10",
+      "chrono": 83.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 112,
+      "name": "Newent I",
+      "event_date": "2003-10-30",
+      "chrono": 84.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 113,
+      "name": "Athens XXIII",
+      "event_date": "2003-11-01",
+      "chrono": 85.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 114,
+      "name": "London XII",
+      "event_date": "2003-11-04",
+      "chrono": 86.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 115,
+      "name": "World Cup III (Groningen)",
+      "event_date": "2003-11-08",
+      "chrono": 87.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 117,
+      "name": "Newent II",
+      "event_date": "2003-11-26",
+      "chrono": 88.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 118,
+      "name": "London XIII",
+      "event_date": "2003-12-16",
+      "chrono": 89.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 121,
+      "name": "Norwegian Champs",
+      "event_date": "2003-12-23",
+      "chrono": 89.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 119,
+      "name": "Igersheim II",
+      "event_date": "2003-12-25",
+      "chrono": 90.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 120,
+      "name": "Milan II",
+      "event_date": "2003-12-27",
+      "chrono": 91.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 123,
+      "name": "Osnabruck I",
+      "event_date": "2004-01-09",
+      "chrono": 91.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 122,
+      "name": "Athens XXIV",
+      "event_date": "2004-01-11",
+      "chrono": 92.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 124,
+      "name": "Athens XXV",
+      "event_date": "2004-01-18",
+      "chrono": 93.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 125,
+      "name": "London XIV",
+      "event_date": "2004-01-26",
+      "chrono": 94.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 126,
+      "name": "Newent III",
+      "event_date": "2004-02-02",
+      "chrono": 95.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 128,
+      "name": "Milan III",
+      "event_date": "2004-02-21",
+      "chrono": 95.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 127,
+      "name": "Newent IV",
+      "event_date": "2004-03-02",
+      "chrono": 96.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 129,
+      "name": "Igersheim III",
+      "event_date": "2004-03-20",
+      "chrono": 97.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 130,
+      "name": "Newent V",
+      "event_date": "2004-03-25",
+      "chrono": 98.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 131,
+      "name": "Jerez International II",
+      "event_date": "2004-04-18",
+      "chrono": 99.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 132,
+      "name": "Newent VI",
+      "event_date": "2004-04-21",
+      "chrono": 100.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 133,
+      "name": "Athens XXVI",
+      "event_date": "2004-04-24",
+      "chrono": 101.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 134,
+      "name": "Milan IV",
+      "event_date": "2004-05-15",
+      "chrono": 102.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 135,
+      "name": "Nottingham",
+      "event_date": "2004-06-05",
+      "chrono": 103.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 136,
+      "name": "Athens XXVII",
+      "event_date": "2004-06-12",
+      "chrono": 104.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 137,
+      "name": "Homburg",
+      "event_date": "2004-06-12",
+      "chrono": 105.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 138,
+      "name": "London XV",
+      "event_date": "2004-09-24",
+      "chrono": 106.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 139,
+      "name": "Athens XXVIII",
+      "event_date": "2004-10-16",
+      "chrono": 107.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 140,
+      "name": "World Cup IV (Milan)",
+      "event_date": "2004-11-13",
+      "chrono": 108.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 141,
+      "name": "Athens XXIX",
+      "event_date": "2004-12-18",
+      "chrono": 109.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 142,
+      "name": "Holmes Chapel",
+      "event_date": "2004-12-21",
+      "chrono": 110.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 143,
+      "name": "Helland 2",
+      "event_date": "2005-01-29",
+      "chrono": 111.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 144,
+      "name": "London XVI",
+      "event_date": "2005-01-30",
+      "chrono": 112.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 145,
+      "name": "Milan V",
+      "event_date": "2005-02-13",
+      "chrono": 113.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 146,
+      "name": "Milan VI",
+      "event_date": "2005-05-12",
+      "chrono": 114.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 147,
+      "name": "Igersheim IV",
+      "event_date": "2005-05-14",
+      "chrono": 115.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 148,
+      "name": "Rome II",
+      "event_date": "2005-05-17",
+      "chrono": 116.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 149,
+      "name": "Milan VII",
+      "event_date": "2005-05-19",
+      "chrono": 117.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 150,
+      "name": "Athens XXX",
+      "event_date": "2005-06-05",
+      "chrono": 118.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 151,
+      "name": "Milan VIII",
+      "event_date": "2005-06-09",
+      "chrono": 119.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 152,
+      "name": "Homburg II",
+      "event_date": "2005-06-25",
+      "chrono": 120.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 153,
+      "name": "Milan IX",
+      "event_date": "2005-07-07",
+      "chrono": 121.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 154,
+      "name": "Rome III",
+      "event_date": "2005-07-08",
+      "chrono": 122.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 155,
+      "name": "Athens XXXI",
+      "event_date": "2005-07-16",
+      "chrono": 123.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 156,
+      "name": "Milan X",
+      "event_date": "2005-07-16",
+      "chrono": 124.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 157,
+      "name": "Stoke",
+      "event_date": "2005-07-30",
+      "chrono": 125.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 158,
+      "name": "Stoke Cup",
+      "event_date": "2005-07-31",
+      "chrono": 126.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 159,
+      "name": "Athens XXXII",
+      "event_date": "2005-09-18",
+      "chrono": 127.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 160,
+      "name": "Milan XI",
+      "event_date": "2005-09-29",
+      "chrono": 128.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 161,
+      "name": "London XVII",
+      "event_date": "2005-10-04",
+      "chrono": 129.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 162,
+      "name": "London XVIII",
+      "event_date": "2005-10-11",
+      "chrono": 130.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 163,
+      "name": "Kelkheim",
+      "event_date": "2005-10-15",
+      "chrono": 131.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 164,
+      "name": "Manchester",
+      "event_date": "2005-10-26",
+      "chrono": 132.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 165,
+      "name": "London XIX",
+      "event_date": "2005-10-30",
+      "chrono": 133.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 166,
+      "name": "Milan XII",
+      "event_date": "2005-10-30",
+      "chrono": 134.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 167,
+      "name": "Tromso",
+      "event_date": "2005-11-05",
+      "chrono": 135.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 168,
+      "name": "Hertford",
+      "event_date": "2005-11-08",
+      "chrono": 136.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 169,
+      "name": "World Cup V (Cologne)",
+      "event_date": "2005-11-12",
+      "chrono": 137.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 170,
+      "name": "Copenhagen",
+      "event_date": "2005-11-27",
+      "chrono": 139.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 171,
+      "name": "Copenhagen Cup",
+      "event_date": "2005-11-27",
+      "chrono": 140.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 172,
+      "name": "Milan XIII",
+      "event_date": "2006-01-07",
+      "chrono": 141.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 173,
+      "name": "Frankfurt",
+      "event_date": "2006-01-15",
+      "chrono": 142.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 174,
+      "name": "London Marathon",
+      "event_date": "2006-02-05",
+      "chrono": 143.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 177,
+      "name": "Venice II",
+      "event_date": "2006-03-01",
+      "chrono": 143.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 175,
+      "name": "Copenhagen II",
+      "event_date": "2006-03-12",
+      "chrono": 144.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 176,
+      "name": "Milan XIV",
+      "event_date": "2006-03-12",
+      "chrono": 145.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 178,
+      "name": "Athens XXXIII",
+      "event_date": "2006-04-01",
+      "chrono": 146.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 180,
+      "name": "Milan XV",
+      "event_date": "2006-04-07",
+      "chrono": 146.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 179,
+      "name": "Norwich",
+      "event_date": "2006-04-09",
+      "chrono": 147.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 181,
+      "name": "Hertford II",
+      "event_date": "2006-05-07",
+      "chrono": 148.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 182,
+      "name": "Milan XVI",
+      "event_date": "2006-05-28",
+      "chrono": 149.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 183,
+      "name": "Hertford III",
+      "event_date": "2006-05-31",
+      "chrono": 150.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 184,
+      "name": "Ostersund",
+      "event_date": "2006-06-03",
+      "chrono": 151.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 185,
+      "name": "Athens XXXIV",
+      "event_date": "2006-06-25",
+      "chrono": 152.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 186,
+      "name": "Athens XXXV",
+      "event_date": "2006-07-15",
+      "chrono": 153.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 187,
+      "name": "Hertford IV",
+      "event_date": "2006-07-21",
+      "chrono": 154.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 606,
+      "name": "Hertford IV Cup",
+      "event_date": "2006-07-21",
+      "chrono": 154.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 188,
+      "name": "Manchester II",
+      "event_date": "2006-07-29",
+      "chrono": 155.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 189,
+      "name": "Manchester II Cup",
+      "event_date": "2006-07-29",
+      "chrono": 156.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 190,
+      "name": "Tromso II",
+      "event_date": "2006-08-12",
+      "chrono": 157.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 191,
+      "name": "Hertford V",
+      "event_date": "2006-08-16",
+      "chrono": 158.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 192,
+      "name": "Hertford V Cup",
+      "event_date": "2006-08-16",
+      "chrono": 159.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 193,
+      "name": "Ostersund II",
+      "event_date": "2006-09-01",
+      "chrono": 160.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 194,
+      "name": "Reading I",
+      "event_date": "2006-09-04",
+      "chrono": 161.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 195,
+      "name": "London XXI",
+      "event_date": "2006-09-10",
+      "chrono": 162.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 196,
+      "name": "Reading II",
+      "event_date": "2006-09-14",
+      "chrono": 163.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 197,
+      "name": "Tromso III",
+      "event_date": "2006-09-22",
+      "chrono": 164.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 198,
+      "name": "Milan XVII",
+      "event_date": "2006-09-23",
+      "chrono": 165.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 199,
+      "name": "Reading III",
+      "event_date": "2006-09-28",
+      "chrono": 166.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 200,
+      "name": "Kelkheim II",
+      "event_date": "2006-10-05",
+      "chrono": 167.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 201,
+      "name": "Heathrow",
+      "event_date": "2006-10-10",
+      "chrono": 168.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 202,
+      "name": "Kelkheim III",
+      "event_date": "2006-10-14",
+      "chrono": 169.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 203,
+      "name": "Kelkheim IV",
+      "event_date": "2006-10-14",
+      "chrono": 170.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 204,
+      "name": "Newent VII",
+      "event_date": "2006-10-19",
+      "chrono": 171.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 205,
+      "name": "Tromso IV",
+      "event_date": "2006-10-21",
+      "chrono": 172.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 206,
+      "name": "World Cup VI (Rickmansworth)",
+      "event_date": "2006-10-28",
+      "chrono": 173.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 207,
+      "name": "Tromso V",
+      "event_date": "2006-11-04",
+      "chrono": 174.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 208,
+      "name": "Kelkheim V",
+      "event_date": "2006-11-14",
+      "chrono": 175.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 209,
+      "name": "Kelkheim VI",
+      "event_date": "2006-11-14",
+      "chrono": 176.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 210,
+      "name": "Reading IV",
+      "event_date": "2006-11-15",
+      "chrono": 177.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 211,
+      "name": "Angeren I",
+      "event_date": "2006-11-26",
+      "chrono": 178.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 212,
+      "name": "Uxbridge I",
+      "event_date": "2006-11-26",
+      "chrono": 179.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 213,
+      "name": "Ostersund III",
+      "event_date": "2006-11-28",
+      "chrono": 180.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 214,
+      "name": "Milan XVIII",
+      "event_date": "2006-12-07",
+      "chrono": 181.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 215,
+      "name": "Kelkheim VII",
+      "event_date": "2006-12-09",
+      "chrono": 182.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 216,
+      "name": "Kelkheim VIII",
+      "event_date": "2006-12-10",
+      "chrono": 183.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 217,
+      "name": "Kelkheim IX",
+      "event_date": "2006-12-10",
+      "chrono": 184.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 218,
+      "name": "Tromso VI",
+      "event_date": "2007-01-14",
+      "chrono": 185.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 219,
+      "name": "Tromso VII",
+      "event_date": "2007-01-14",
+      "chrono": 186.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 220,
+      "name": "Tromso VIII",
+      "event_date": "2007-01-14",
+      "chrono": 187.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 221,
+      "name": "Ostersund IV",
+      "event_date": "2007-01-15",
+      "chrono": 188.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 224,
+      "name": "Reading V",
+      "event_date": "2007-02-01",
+      "chrono": 189.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 222,
+      "name": "Milan XIX",
+      "event_date": "2007-02-24",
+      "chrono": 190.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 223,
+      "name": "Birmingham I",
+      "event_date": "2007-02-28",
+      "chrono": 191.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 225,
+      "name": "Reading VI",
+      "event_date": "2007-03-15",
+      "chrono": 192.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 226,
+      "name": "Reading VII",
+      "event_date": "2007-03-29",
+      "chrono": 193.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 227,
+      "name": "Reading VIII",
+      "event_date": "2007-04-05",
+      "chrono": 194.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 228,
+      "name": "Birmingham II",
+      "event_date": "2007-04-14",
+      "chrono": 195.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 229,
+      "name": "Hertford VI",
+      "event_date": "2007-04-17",
+      "chrono": 196.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 230,
+      "name": "Reading IX",
+      "event_date": "2007-04-20",
+      "chrono": 197.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 231,
+      "name": "Wiesbaden I",
+      "event_date": "2007-04-21",
+      "chrono": 198.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 232,
+      "name": "Athens XXXVI",
+      "event_date": "2007-04-29",
+      "chrono": 199.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 233,
+      "name": "Braamt I",
+      "event_date": "2007-05-13",
+      "chrono": 200.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 234,
+      "name": "Braamt II",
+      "event_date": "2007-05-13",
+      "chrono": 201.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 235,
+      "name": "Milan XX",
+      "event_date": "2007-06-03",
+      "chrono": 202.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 236,
+      "name": "Birmingham III",
+      "event_date": "2007-06-07",
+      "chrono": 203.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 237,
+      "name": "Reading X",
+      "event_date": "2007-06-10",
+      "chrono": 204.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 238,
+      "name": "Reading XI",
+      "event_date": "2007-06-10",
+      "chrono": 205.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 239,
+      "name": "Dudley I",
+      "event_date": "2007-06-16",
+      "chrono": 206.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 240,
+      "name": "Reading XII",
+      "event_date": "2007-06-19",
+      "chrono": 207.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 241,
+      "name": "Athens XXXVII",
+      "event_date": "2007-06-24",
+      "chrono": 208.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 242,
+      "name": "Dudley II",
+      "event_date": "2007-06-27",
+      "chrono": 209.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 243,
+      "name": "Tromso IX",
+      "event_date": "2007-06-30",
+      "chrono": 210.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 244,
+      "name": "Reading XIII",
+      "event_date": "2007-06-30",
+      "chrono": 211.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 245,
+      "name": "Reading XIV",
+      "event_date": "2007-07-01",
+      "chrono": 212.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 246,
+      "name": "Dudley III",
+      "event_date": "2007-07-19",
+      "chrono": 213.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 247,
+      "name": "Athens XXXVIII",
+      "event_date": "2007-07-20",
+      "chrono": 214.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 248,
+      "name": "Athens XXXVIII Cup",
+      "event_date": "2007-07-20",
+      "chrono": 215.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 249,
+      "name": "Milan XXI",
+      "event_date": "2007-07-21",
+      "chrono": 216.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 250,
+      "name": "Athens XXXIX",
+      "event_date": "2007-07-22",
+      "chrono": 217.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 251,
+      "name": "Athens XL",
+      "event_date": "2007-07-22",
+      "chrono": 218.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 252,
+      "name": "Athens XLI",
+      "event_date": "2007-07-22",
+      "chrono": 219.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 253,
+      "name": "Dudley IV",
+      "event_date": "2007-07-25",
+      "chrono": 220.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 254,
+      "name": "Heathrow II",
+      "event_date": "2007-07-28",
+      "chrono": 221.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 255,
+      "name": "Heathrow III",
+      "event_date": "2007-07-28",
+      "chrono": 222.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 256,
+      "name": "Heathrow IV",
+      "event_date": "2007-07-29",
+      "chrono": 223.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 257,
+      "name": "Athens XLII",
+      "event_date": "2007-07-29",
+      "chrono": 224.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 258,
+      "name": "Wiesbaden II",
+      "event_date": "2007-08-04",
+      "chrono": 225.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 259,
+      "name": "Wiesbaden III",
+      "event_date": "2007-08-04",
+      "chrono": 226.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 260,
+      "name": "Athens XLIII",
+      "event_date": "2007-08-05",
+      "chrono": 227.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 261,
+      "name": "Athens XLIV",
+      "event_date": "2007-08-19",
+      "chrono": 228.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 262,
+      "name": "Ostersund V",
+      "event_date": "2007-08-23",
+      "chrono": 229.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 263,
+      "name": "Tromso X",
+      "event_date": "2007-08-24",
+      "chrono": 230.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 264,
+      "name": "Tromso XI",
+      "event_date": "2007-08-24",
+      "chrono": 231.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 265,
+      "name": "Athens XLV",
+      "event_date": "2007-09-02",
+      "chrono": 232.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 266,
+      "name": "Athens XLVI",
+      "event_date": "2007-09-02",
+      "chrono": 233.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 267,
+      "name": "Seeshaupt",
+      "event_date": "2007-09-08",
+      "chrono": 234.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 268,
+      "name": "Dudley V",
+      "event_date": "2007-09-11",
+      "chrono": 235.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 269,
+      "name": "Cologne I",
+      "event_date": "2007-09-22",
+      "chrono": 236.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 270,
+      "name": "Cologne II",
+      "event_date": "2007-09-22",
+      "chrono": 237.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 271,
+      "name": "Cologne III",
+      "event_date": "2007-09-23",
+      "chrono": 238.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 272,
+      "name": "Athens XLVII",
+      "event_date": "2007-10-14",
+      "chrono": 239.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 273,
+      "name": "Rome IV",
+      "event_date": "2007-10-14",
+      "chrono": 240.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 274,
+      "name": "Birmingham IV",
+      "event_date": "2007-10-20",
+      "chrono": 241.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 275,
+      "name": "Birmingham V",
+      "event_date": "2007-10-20",
+      "chrono": 242.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 276,
+      "name": "Langenfeld",
+      "event_date": "2007-10-20",
+      "chrono": 243.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 277,
+      "name": "Athens XLVIII",
+      "event_date": "2007-10-28",
+      "chrono": 244.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 278,
+      "name": "Heathrow V",
+      "event_date": "2007-10-28",
+      "chrono": 245.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 279,
+      "name": "Athens XLIX",
+      "event_date": "2007-11-04",
+      "chrono": 246.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 280,
+      "name": "World Cup VII (Rome)",
+      "event_date": "2007-11-10",
+      "chrono": 247.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 281,
+      "name": "Athens L",
+      "event_date": "2007-11-18",
+      "chrono": 248.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 282,
+      "name": "Athens LI",
+      "event_date": "2007-11-18",
+      "chrono": 249.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 283,
+      "name": "Athens LII",
+      "event_date": "2007-12-02",
+      "chrono": 250.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 284,
+      "name": "Athens LIII",
+      "event_date": "2007-12-08",
+      "chrono": 251.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 285,
+      "name": "Birmingham VI",
+      "event_date": "2007-12-08",
+      "chrono": 252.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 286,
+      "name": "Athens LIV",
+      "event_date": "2007-12-16",
+      "chrono": 253.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 287,
+      "name": "Athens LV",
+      "event_date": "2007-12-16",
+      "chrono": 254.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 288,
+      "name": "Heathrow VI",
+      "event_date": "2007-12-19",
+      "chrono": 255.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 289,
+      "name": "Droitwich",
+      "event_date": "2007-12-21",
+      "chrono": 256.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 290,
+      "name": "Dudley VI",
+      "event_date": "2007-12-23",
+      "chrono": 257.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 291,
+      "name": "Dudley VII",
+      "event_date": "2007-12-23",
+      "chrono": 258.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 292,
+      "name": "Milan XXII",
+      "event_date": "2007-12-27",
+      "chrono": 259.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 293,
+      "name": "Angeren II",
+      "event_date": "2007-12-30",
+      "chrono": 260.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 294,
+      "name": "Langenfeld II",
+      "event_date": "2008-01-06",
+      "chrono": 261.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 295,
+      "name": "Rome V",
+      "event_date": "2008-01-13",
+      "chrono": 262.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 296,
+      "name": "Heathrow VII",
+      "event_date": "2008-01-13",
+      "chrono": 263.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 297,
+      "name": "Heathrow VIII",
+      "event_date": "2008-01-13",
+      "chrono": 264.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 298,
+      "name": "Heathrow IX",
+      "event_date": "2008-01-13",
+      "chrono": 265.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 299,
+      "name": "Athens LVI",
+      "event_date": "2008-01-20",
+      "chrono": 266.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 300,
+      "name": "Athens LVII",
+      "event_date": "2008-02-03",
+      "chrono": 267.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 301,
+      "name": "London XXII",
+      "event_date": "2008-02-17",
+      "chrono": 268.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 302,
+      "name": "Langenfeld III",
+      "event_date": "2008-02-17",
+      "chrono": 269.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 303,
+      "name": "Langenfeld IV",
+      "event_date": "2008-02-17",
+      "chrono": 270.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 304,
+      "name": "Birmingham VII",
+      "event_date": "2008-02-22",
+      "chrono": 271.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 305,
+      "name": "Droitwich II",
+      "event_date": "2008-03-07",
+      "chrono": 272.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 306,
+      "name": "Cologne IV",
+      "event_date": "2008-03-16",
+      "chrono": 273.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 307,
+      "name": "Langenfeld V",
+      "event_date": "2008-03-30",
+      "chrono": 274.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 308,
+      "name": "Dudley VIII",
+      "event_date": "2008-03-30",
+      "chrono": 275.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 309,
+      "name": "Athens LVIII",
+      "event_date": "2008-04-12",
+      "chrono": 276.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 310,
+      "name": "Hertford VII",
+      "event_date": "2008-04-17",
+      "chrono": 277.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 311,
+      "name": "Athens LIX",
+      "event_date": "2008-04-20",
+      "chrono": 278.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 312,
+      "name": "Duesseldorf I",
+      "event_date": "2008-04-20",
+      "chrono": 279.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 313,
+      "name": "Dudley IX",
+      "event_date": "2008-05-03",
+      "chrono": 280.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 314,
+      "name": "Dudley X",
+      "event_date": "2008-05-03",
+      "chrono": 281.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 315,
+      "name": "Birmingham VIII",
+      "event_date": "2008-05-04",
+      "chrono": 282.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 316,
+      "name": "Birmingham VIII Gold Cup",
+      "event_date": "2008-05-04",
+      "chrono": 283.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 317,
+      "name": "Birmingham VIII Silver Cup",
+      "event_date": "2008-05-04",
+      "chrono": 284.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 318,
+      "name": "Milan XXIII",
+      "event_date": "2008-05-10",
+      "chrono": 285.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 319,
+      "name": "Hamburg I",
+      "event_date": "2008-05-11",
+      "chrono": 286.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 320,
+      "name": "Hamburg II",
+      "event_date": "2008-05-11",
+      "chrono": 287.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 321,
+      "name": "Wiesbaden IV",
+      "event_date": "2008-05-11",
+      "chrono": 288.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 322,
+      "name": "Athens LX",
+      "event_date": "2008-05-18",
+      "chrono": 289.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 323,
+      "name": "Ostersund VI",
+      "event_date": "2008-05-24",
+      "chrono": 290.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 324,
+      "name": "Newent VIII",
+      "event_date": "2008-05-27",
+      "chrono": 291.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 325,
+      "name": "Cologne V",
+      "event_date": "2008-06-01",
+      "chrono": 292.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 326,
+      "name": "Birmingham IX",
+      "event_date": "2008-06-07",
+      "chrono": 293.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 327,
+      "name": "Newent IX",
+      "event_date": "2008-06-16",
+      "chrono": 294.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 328,
+      "name": "Athens LXI",
+      "event_date": "2008-06-29",
+      "chrono": 295.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 329,
+      "name": "Athens LXI Cup",
+      "event_date": "2008-06-29",
+      "chrono": 296.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 330,
+      "name": "Buggio I",
+      "event_date": "2008-06-29",
+      "chrono": 297.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 331,
+      "name": "Dudley XI",
+      "event_date": "2008-07-04",
+      "chrono": 298.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 332,
+      "name": "Langenfeld VI",
+      "event_date": "2008-07-23",
+      "chrono": 299.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 333,
+      "name": "Duesseldorf II",
+      "event_date": "2008-07-27",
+      "chrono": 300.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 334,
+      "name": "Newent X",
+      "event_date": "2008-07-28",
+      "chrono": 301.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 335,
+      "name": "Tromso XII",
+      "event_date": "2008-08-12",
+      "chrono": 302.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 336,
+      "name": "Langenfeld VII",
+      "event_date": "2008-08-17",
+      "chrono": 303.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 337,
+      "name": "Newent XI",
+      "event_date": "2008-08-18",
+      "chrono": 304.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 338,
+      "name": "Seeshaupt II",
+      "event_date": "2008-09-12",
+      "chrono": 305.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 339,
+      "name": "Newent XII",
+      "event_date": "2008-09-15",
+      "chrono": 306.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 340,
+      "name": "Copenhagen III",
+      "event_date": "2008-09-20",
+      "chrono": 307.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 341,
+      "name": "Copenhagen III Cup",
+      "event_date": "2008-09-20",
+      "chrono": 308.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 342,
+      "name": "Athens LXII",
+      "event_date": "2008-09-21",
+      "chrono": 309.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 343,
+      "name": "Birmingham X",
+      "event_date": "2008-09-29",
+      "chrono": 310.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 344,
+      "name": "Heathrow X",
+      "event_date": "2008-10-01",
+      "chrono": 311.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 345,
+      "name": "Voitsberg I",
+      "event_date": "2008-10-04",
+      "chrono": 312.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 346,
+      "name": "Athens LXIII",
+      "event_date": "2008-10-05",
+      "chrono": 313.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 347,
+      "name": "Hertford VIII",
+      "event_date": "2008-10-08",
+      "chrono": 314.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 348,
+      "name": "Athens LXIV",
+      "event_date": "2008-10-11",
+      "chrono": 315.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 349,
+      "name": "Newent XIII",
+      "event_date": "2008-10-13",
+      "chrono": 316.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 350,
+      "name": "Athens LXV",
+      "event_date": "2008-10-25",
+      "chrono": 317.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 351,
+      "name": "Athens LXVI",
+      "event_date": "2008-10-25",
+      "chrono": 318.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 352,
+      "name": "Wiesbaden V",
+      "event_date": "2008-10-25",
+      "chrono": 319.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 353,
+      "name": "Wiesbaden VI",
+      "event_date": "2008-10-25",
+      "chrono": 320.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 354,
+      "name": "Wiesbaden VII",
+      "event_date": "2008-10-26",
+      "chrono": 321.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 355,
+      "name": "Wiesbaden VIII",
+      "event_date": "2008-10-26",
+      "chrono": 322.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 356,
+      "name": "Athens LXVII",
+      "event_date": "2008-11-02",
+      "chrono": 323.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 357,
+      "name": "Newent XIV",
+      "event_date": "2008-11-03",
+      "chrono": 324.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 358,
+      "name": "World Cup VIII (Athens)",
+      "event_date": "2008-11-09",
+      "chrono": 325.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 359,
+      "name": "Helsingborg I",
+      "event_date": "2008-11-14",
+      "chrono": 326.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 360,
+      "name": "Langenfeld VIII",
+      "event_date": "2008-11-15",
+      "chrono": 327.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 361,
+      "name": "Newent XV",
+      "event_date": "2008-12-05",
+      "chrono": 328.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 362,
+      "name": "Sheffield II",
+      "event_date": "2008-12-17",
+      "chrono": 329.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 363,
+      "name": "Langenfeld IX",
+      "event_date": "2008-12-28",
+      "chrono": 330.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 364,
+      "name": "Birmingham XI",
+      "event_date": "2008-12-29",
+      "chrono": 331.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 365,
+      "name": "Worcester I",
+      "event_date": "2009-01-17",
+      "chrono": 332.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 366,
+      "name": "Wiesbaden IX",
+      "event_date": "2009-01-25",
+      "chrono": 333.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 367,
+      "name": "Newent XVI",
+      "event_date": "2009-02-13",
+      "chrono": 334.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 368,
+      "name": "Wiesbaden X",
+      "event_date": "2009-02-22",
+      "chrono": 335.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 369,
+      "name": "Dudley XII",
+      "event_date": "2009-02-22",
+      "chrono": 336.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 370,
+      "name": "Worcester II",
+      "event_date": "2009-03-02",
+      "chrono": 337.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 371,
+      "name": "London XXIII",
+      "event_date": "2009-03-07",
+      "chrono": 338.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 372,
+      "name": "Duesseldorf III",
+      "event_date": "2009-03-15",
+      "chrono": 339.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 373,
+      "name": "Duesseldorf IV",
+      "event_date": "2009-03-15",
+      "chrono": 340.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 374,
+      "name": "Tromso XIII",
+      "event_date": "2009-03-28",
+      "chrono": 341.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 375,
+      "name": "Koenigswinter I",
+      "event_date": "2009-04-15",
+      "chrono": 342.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 376,
+      "name": "Birmingham XII",
+      "event_date": "2009-05-09",
+      "chrono": 343.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 377,
+      "name": "Koenigswinter II",
+      "event_date": "2009-05-15",
+      "chrono": 344.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 378,
+      "name": "Milan XXIV",
+      "event_date": "2009-05-20",
+      "chrono": 345.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 379,
+      "name": "Langenfeld X",
+      "event_date": "2009-05-23",
+      "chrono": 346.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 380,
+      "name": "Langenfeld XI",
+      "event_date": "2009-05-24",
+      "chrono": 347.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 381,
+      "name": "Dudley XIII",
+      "event_date": "2009-06-06",
+      "chrono": 348.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 382,
+      "name": "Dudley XIV",
+      "event_date": "2009-06-06",
+      "chrono": 349.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 383,
+      "name": "Tromso XIV",
+      "event_date": "2009-06-06",
+      "chrono": 350.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 384,
+      "name": "Koenigswinter III",
+      "event_date": "2009-06-20",
+      "chrono": 351.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 385,
+      "name": "Milan XXV",
+      "event_date": "2009-06-27",
+      "chrono": 352.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 386,
+      "name": "Koenigswinter IV",
+      "event_date": "2009-06-30",
+      "chrono": 353.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 387,
+      "name": "Koenigswinter V",
+      "event_date": "2009-07-11",
+      "chrono": 354.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 388,
+      "name": "Koenigswinter VI",
+      "event_date": "2009-07-12",
+      "chrono": 355.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 389,
+      "name": "Wiesbaden XI",
+      "event_date": "2009-07-25",
+      "chrono": 356.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 390,
+      "name": "Koenigswinter VII",
+      "event_date": "2009-08-01",
+      "chrono": 357.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 391,
+      "name": "Helsinborg II",
+      "event_date": "2009-08-02",
+      "chrono": 358.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 392,
+      "name": "Helsinborg III",
+      "event_date": "2009-08-02",
+      "chrono": 359.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 393,
+      "name": "Dudley XV",
+      "event_date": "2009-08-16",
+      "chrono": 360.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 394,
+      "name": "Dudley XVI",
+      "event_date": "2009-08-16",
+      "chrono": 361.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 395,
+      "name": "Darmstadt I",
+      "event_date": "2009-08-22",
+      "chrono": 362.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 396,
+      "name": "Darmstadt II",
+      "event_date": "2009-08-22",
+      "chrono": 363.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 397,
+      "name": "Darmstadt III",
+      "event_date": "2009-08-22",
+      "chrono": 364.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 398,
+      "name": "Athens LXVIII",
+      "event_date": "2009-08-30",
+      "chrono": 365.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 399,
+      "name": "Koenigswinter VIII",
+      "event_date": "2009-09-05",
+      "chrono": 366.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 400,
+      "name": "Koenigswinter IX",
+      "event_date": "2009-09-05",
+      "chrono": 367.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 401,
+      "name": "Koenigswinter X",
+      "event_date": "2009-09-05",
+      "chrono": 368.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 402,
+      "name": "Koenigswinter XI",
+      "event_date": "2009-09-06",
+      "chrono": 369.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 403,
+      "name": "Koenigswinter XII",
+      "event_date": "2009-09-06",
+      "chrono": 370.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 404,
+      "name": "Koenigswinter XIII",
+      "event_date": "2009-09-06",
+      "chrono": 371.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 405,
+      "name": "Birmingham XIII",
+      "event_date": "2009-09-11",
+      "chrono": 372.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 406,
+      "name": "Seeshaupt III",
+      "event_date": "2009-09-12",
+      "chrono": 373.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 407,
+      "name": "Hamburg III",
+      "event_date": "2009-09-25",
+      "chrono": 374.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 408,
+      "name": "Hamburg IV",
+      "event_date": "2009-09-25",
+      "chrono": 375.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 409,
+      "name": "Hamburg V",
+      "event_date": "2009-09-26",
+      "chrono": 376.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 410,
+      "name": "Hamburg VI",
+      "event_date": "2009-09-26",
+      "chrono": 377.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 411,
+      "name": "Lund II",
+      "event_date": "2009-10-10",
+      "chrono": 378.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 412,
+      "name": "Birmingham XIV",
+      "event_date": "2009-10-10",
+      "chrono": 379.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 413,
+      "name": "Birmingham XIV Gold Cup",
+      "event_date": "2009-10-10",
+      "chrono": 380.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 414,
+      "name": "Birmingham XIV Silver Cup",
+      "event_date": "2009-10-10",
+      "chrono": 381.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 415,
+      "name": "Athens LXIX",
+      "event_date": "2009-10-11",
+      "chrono": 382.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 416,
+      "name": "Duesseldorf V",
+      "event_date": "2009-10-18",
+      "chrono": 383.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 417,
+      "name": "Buggio II",
+      "event_date": "2009-11-01",
+      "chrono": 384.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 418,
+      "name": "World Cup IX (Voitsberg)",
+      "event_date": "2009-11-14",
+      "chrono": 385.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 421,
+      "name": "Koenigswinter XIV",
+      "event_date": "2009-11-21",
+      "chrono": 385.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 419,
+      "name": "Athens LXX",
+      "event_date": "2009-11-22",
+      "chrono": 386.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 420,
+      "name": "Athens LXXI",
+      "event_date": "2009-11-22",
+      "chrono": 387.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 422,
+      "name": "London XXV",
+      "event_date": "2009-12-11",
+      "chrono": 388.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 423,
+      "name": "London XXVI",
+      "event_date": "2009-12-11",
+      "chrono": 389.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 424,
+      "name": "Birmingham XV",
+      "event_date": "2009-12-13",
+      "chrono": 390.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 425,
+      "name": "Birmingham XVI",
+      "event_date": "2009-12-13",
+      "chrono": 391.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 426,
+      "name": "Koenigswinter XV",
+      "event_date": "2009-12-19",
+      "chrono": 392.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 427,
+      "name": "Koenigswinter XVI",
+      "event_date": "2009-12-19",
+      "chrono": 393.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 428,
+      "name": "Milan XXVI",
+      "event_date": "2009-12-20",
+      "chrono": 394.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 429,
+      "name": "Koenigswinter XVII",
+      "event_date": "2010-01-16",
+      "chrono": 395.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 430,
+      "name": "Langenfeld XII",
+      "event_date": "2010-01-24",
+      "chrono": 396.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 431,
+      "name": "Mannheim I",
+      "event_date": "2010-02-20",
+      "chrono": 397.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 432,
+      "name": "Athens LXXII",
+      "event_date": "2010-03-07",
+      "chrono": 398.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 433,
+      "name": "Hanau I",
+      "event_date": "2010-03-13",
+      "chrono": 399.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 434,
+      "name": "Copenhagen IV",
+      "event_date": "2010-03-13",
+      "chrono": 400.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 435,
+      "name": "Koenigswinter XVIII",
+      "event_date": "2010-03-19",
+      "chrono": 401.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 436,
+      "name": "Athens LXXIII",
+      "event_date": "2010-03-21",
+      "chrono": 402.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 437,
+      "name": "Cologne VI",
+      "event_date": "2010-03-24",
+      "chrono": 403.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 438,
+      "name": "Birmingham XVII",
+      "event_date": "2010-04-09",
+      "chrono": 404.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 439,
+      "name": "Birmingham XVIII",
+      "event_date": "2010-04-09",
+      "chrono": 405.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 440,
+      "name": "Frankfurt II",
+      "event_date": "2010-04-10",
+      "chrono": 406.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 441,
+      "name": "Koenigswinter XIX",
+      "event_date": "2010-04-17",
+      "chrono": 407.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 442,
+      "name": "Athens LXXIV",
+      "event_date": "2010-04-18",
+      "chrono": 408.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 443,
+      "name": "Birmingham XIX",
+      "event_date": "2010-04-23",
+      "chrono": 409.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 444,
+      "name": "Birmingham XX",
+      "event_date": "2010-04-23",
+      "chrono": 410.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 445,
+      "name": "Dudley XVII",
+      "event_date": "2010-04-24",
+      "chrono": 411.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 446,
+      "name": "Cologne VII",
+      "event_date": "2010-04-25",
+      "chrono": 412.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 447,
+      "name": "Dudley XVIII",
+      "event_date": "2010-04-25",
+      "chrono": 413.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 448,
+      "name": "Dudley XIX",
+      "event_date": "2010-04-25",
+      "chrono": 414.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 449,
+      "name": "Athens LXXV",
+      "event_date": "2010-05-08",
+      "chrono": 415.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 450,
+      "name": "Vienna I",
+      "event_date": "2010-05-22",
+      "chrono": 416.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 451,
+      "name": "Birmingham XXI",
+      "event_date": "2010-05-22",
+      "chrono": 417.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 452,
+      "name": "Birmingham XXI Gold Cup",
+      "event_date": "2010-05-22",
+      "chrono": 418.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 453,
+      "name": "Birmingham XXI Silver Cup",
+      "event_date": "2010-05-22",
+      "chrono": 419.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 454,
+      "name": "Birmingham XXI Bronze Cup",
+      "event_date": "2010-05-22",
+      "chrono": 420.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 455,
+      "name": "Langenfeld XIII",
+      "event_date": "2010-05-22",
+      "chrono": 421.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 457,
+      "name": "Koenigswinter XX",
+      "event_date": "2010-05-29",
+      "chrono": 421.20001220703125,
+      "rating_finalized": 1
+    },
+    {
+      "id": 458,
+      "name": "Koenigswinter XXI",
+      "event_date": "2010-05-29",
+      "chrono": 421.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 456,
+      "name": "Milan XXVII",
+      "event_date": "2010-05-30",
+      "chrono": 422.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 459,
+      "name": "Tromso XV",
+      "event_date": "2010-06-12",
+      "chrono": 423.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 460,
+      "name": "Koenigswinter XXII",
+      "event_date": "2010-06-19",
+      "chrono": 424.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 461,
+      "name": "Frankfurt III",
+      "event_date": "2010-07-03",
+      "chrono": 425.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 462,
+      "name": "Dudley XX",
+      "event_date": "2010-07-09",
+      "chrono": 426.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 463,
+      "name": "Dudley XX Cup",
+      "event_date": "2010-07-09",
+      "chrono": 427.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 464,
+      "name": "Birmingham XXII",
+      "event_date": "2010-07-10",
+      "chrono": 428.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 465,
+      "name": "Wiesbaden XII",
+      "event_date": "2010-07-25",
+      "chrono": 429.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 466,
+      "name": "Birmingham XXIII",
+      "event_date": "2010-08-15",
+      "chrono": 430.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 467,
+      "name": "Volkenrath I",
+      "event_date": "2010-08-21",
+      "chrono": 431.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 468,
+      "name": "Koenigswinter XXIII",
+      "event_date": "2010-08-28",
+      "chrono": 432.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 469,
+      "name": "Koenigswinter XXIV",
+      "event_date": "2010-08-28",
+      "chrono": 433.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 470,
+      "name": "Voitsberg II",
+      "event_date": "2010-08-28",
+      "chrono": 434.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 471,
+      "name": "Seeshaupt IV",
+      "event_date": "2010-09-05",
+      "chrono": 435.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 472,
+      "name": "Birmingham XXIV",
+      "event_date": "2010-09-24",
+      "chrono": 436.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 473,
+      "name": "Koenigswinter XXV",
+      "event_date": "2010-10-02",
+      "chrono": 437.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 474,
+      "name": "Altensteig I",
+      "event_date": "2010-10-02",
+      "chrono": 438.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 475,
+      "name": "Athens LXXVI",
+      "event_date": "2010-10-10",
+      "chrono": 439.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 476,
+      "name": "Koenigswinter XXVI",
+      "event_date": "2010-10-14",
+      "chrono": 440.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 477,
+      "name": "Osnabruck II",
+      "event_date": "2010-10-16",
+      "chrono": 441.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 478,
+      "name": "Athens LXXVII",
+      "event_date": "2010-10-17",
+      "chrono": 442.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 479,
+      "name": "Langenfeld XIV",
+      "event_date": "2010-10-21",
+      "chrono": 443.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 480,
+      "name": "World Cup X (Dusseldorf)",
+      "event_date": "2010-10-23",
+      "chrono": 444.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 481,
+      "name": "Koenigswinter XXVII",
+      "event_date": "2010-10-29",
+      "chrono": 445.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 482,
+      "name": "Koenigswinter XXVIII",
+      "event_date": "2010-10-29",
+      "chrono": 446.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 483,
+      "name": "Birmingham XXV",
+      "event_date": "2010-11-17",
+      "chrono": 447.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 484,
+      "name": "Koenigswinter XXIX",
+      "event_date": "2010-11-25",
+      "chrono": 448.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 485,
+      "name": "Koenigswinter XXX",
+      "event_date": "2010-11-27",
+      "chrono": 449.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 486,
+      "name": "Karst I",
+      "event_date": "2010-11-27",
+      "chrono": 450.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 487,
+      "name": "Koenigswinter XXXI",
+      "event_date": "2010-11-28",
+      "chrono": 451.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 488,
+      "name": "Birmingham XXVI",
+      "event_date": "2010-12-14",
+      "chrono": 452.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 489,
+      "name": "Koenigswinter XXXII",
+      "event_date": "2010-12-18",
+      "chrono": 453.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 490,
+      "name": "Wiesbaden XIII",
+      "event_date": "2011-01-01",
+      "chrono": 454.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 491,
+      "name": "Koenigswinter XXXIII",
+      "event_date": "2011-01-15",
+      "chrono": 455.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 492,
+      "name": "Koenigswinter XXXIV",
+      "event_date": "2011-01-15",
+      "chrono": 456.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 493,
+      "name": "Birmingham XXVII",
+      "event_date": "2011-02-08",
+      "chrono": 457.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 494,
+      "name": "Graz I",
+      "event_date": "2011-02-12",
+      "chrono": 458.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 495,
+      "name": "Dubai I",
+      "event_date": "2011-03-05",
+      "chrono": 459.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 496,
+      "name": "Rodenbach I",
+      "event_date": "2011-03-18",
+      "chrono": 460.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 497,
+      "name": "Koenigswinter XXXV",
+      "event_date": "2011-03-26",
+      "chrono": 461.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 498,
+      "name": "Koenigswinter XXXVI",
+      "event_date": "2011-03-26",
+      "chrono": 462.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 499,
+      "name": "Athens LXXVIII",
+      "event_date": "2011-04-03",
+      "chrono": 463.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 500,
+      "name": "Birmingham XXVIII",
+      "event_date": "2011-04-12",
+      "chrono": 464.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 501,
+      "name": "Dudley XXI",
+      "event_date": "2011-05-06",
+      "chrono": 465.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 502,
+      "name": "Dudley XXII",
+      "event_date": "2011-05-06",
+      "chrono": 466.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 503,
+      "name": "Leicester I",
+      "event_date": "2011-05-07",
+      "chrono": 467.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 504,
+      "name": "Birmingham XXIX",
+      "event_date": "2011-05-07",
+      "chrono": 468.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 505,
+      "name": "Birmingham XXX",
+      "event_date": "2011-05-14",
+      "chrono": 469.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 506,
+      "name": "Milan XXVIII",
+      "event_date": "2011-06-04",
+      "chrono": 470.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 507,
+      "name": "Milan XXIX",
+      "event_date": "2011-06-04",
+      "chrono": 471.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 508,
+      "name": "Athens LXXIX",
+      "event_date": "2011-06-05",
+      "chrono": 472.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 509,
+      "name": "Graz II",
+      "event_date": "2011-06-10",
+      "chrono": 473.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 510,
+      "name": "Voitsberg III",
+      "event_date": "2011-06-11",
+      "chrono": 474.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 511,
+      "name": "Birmingham XXXI",
+      "event_date": "2011-06-14",
+      "chrono": 475.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 512,
+      "name": "Volkenrath II",
+      "event_date": "2011-07-02",
+      "chrono": 476.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 513,
+      "name": "Lund III",
+      "event_date": "2011-07-27",
+      "chrono": 477.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 514,
+      "name": "Lund IV",
+      "event_date": "2011-07-27",
+      "chrono": 478.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 515,
+      "name": "Leonberg I",
+      "event_date": "2011-07-30",
+      "chrono": 479.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 516,
+      "name": "Birmingham XXXII",
+      "event_date": "2011-08-12",
+      "chrono": 480.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 517,
+      "name": "Koenigswinter XXXVII",
+      "event_date": "2011-08-27",
+      "chrono": 481.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 518,
+      "name": "Seeshaupt V",
+      "event_date": "2011-09-11",
+      "chrono": 482.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 519,
+      "name": "Birmingham XXXIII",
+      "event_date": "2011-09-13",
+      "chrono": 483.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 520,
+      "name": "Oldenburg I",
+      "event_date": "2011-09-30",
+      "chrono": 484.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 521,
+      "name": "Oldenburg II",
+      "event_date": "2011-10-01",
+      "chrono": 485.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 522,
+      "name": "Athens LXXX",
+      "event_date": "2011-10-09",
+      "chrono": 486.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 523,
+      "name": "Birmingham XXXIV",
+      "event_date": "2011-10-24",
+      "chrono": 487.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 524,
+      "name": "Birmingham XXXV",
+      "event_date": "2011-10-24",
+      "chrono": 488.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 525,
+      "name": "Athens LXXXI",
+      "event_date": "2011-11-04",
+      "chrono": 489.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 526,
+      "name": "World Cup XI (Birmingham)",
+      "event_date": "2011-11-12",
+      "chrono": 490.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 527,
+      "name": "Koenigswinter XXXVIII",
+      "event_date": "2011-11-25",
+      "chrono": 491.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 528,
+      "name": "Koenigswinter XXXIX",
+      "event_date": "2011-11-25",
+      "chrono": 492.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 529,
+      "name": "Manheim II",
+      "event_date": "2011-11-26",
+      "chrono": 493.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 530,
+      "name": "Birmingham XXXVI",
+      "event_date": "2012-01-22",
+      "chrono": 494.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 531,
+      "name": "Koenigswinter XL",
+      "event_date": "2012-02-04",
+      "chrono": 495.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 532,
+      "name": "Koenigswinter XLI",
+      "event_date": "2012-02-04",
+      "chrono": 496.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 533,
+      "name": "Manheim III",
+      "event_date": "2012-03-11",
+      "chrono": 497.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 534,
+      "name": "Manheim IV",
+      "event_date": "2012-03-11",
+      "chrono": 498.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 535,
+      "name": "Birmingham XXXVII",
+      "event_date": "2012-03-13",
+      "chrono": 499.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 536,
+      "name": "Koenigswinter XLII",
+      "event_date": "2012-03-17",
+      "chrono": 500.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 537,
+      "name": "Voitsberg IV",
+      "event_date": "2012-04-14",
+      "chrono": 501.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 538,
+      "name": "Milan XXX",
+      "event_date": "2012-04-21",
+      "chrono": 502.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 539,
+      "name": "Hanau II",
+      "event_date": "2012-05-05",
+      "chrono": 503.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 540,
+      "name": "Birmingham XXXVIII",
+      "event_date": "2012-05-08",
+      "chrono": 504.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 541,
+      "name": "Volkenrath III",
+      "event_date": "2012-06-03",
+      "chrono": 505.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 542,
+      "name": "Birmingham XXXIX",
+      "event_date": "2012-06-04",
+      "chrono": 506.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 543,
+      "name": "Bournemouth I",
+      "event_date": "2012-06-09",
+      "chrono": 507.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 544,
+      "name": "Bournemouth II",
+      "event_date": "2012-06-09",
+      "chrono": 508.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 545,
+      "name": "Bournemouth III",
+      "event_date": "2012-06-10",
+      "chrono": 509.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 546,
+      "name": "Bournemouth IV",
+      "event_date": "2012-06-10",
+      "chrono": 510.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 547,
+      "name": "Athens LXXXII",
+      "event_date": "2012-06-10",
+      "chrono": 511.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 548,
+      "name": "Birmingham XL",
+      "event_date": "2012-07-10",
+      "chrono": 512.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 549,
+      "name": "Rodenbach II",
+      "event_date": "2012-08-12",
+      "chrono": 513.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 550,
+      "name": "Koenigswinter XLIII",
+      "event_date": "2012-09-22",
+      "chrono": 514.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 551,
+      "name": "Athens LXXXIII",
+      "event_date": "2012-09-23",
+      "chrono": 515.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 552,
+      "name": "Mannheim II",
+      "event_date": "2012-10-06",
+      "chrono": 516.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 553,
+      "name": "Hanau III",
+      "event_date": "2012-10-28",
+      "chrono": 517.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 554,
+      "name": "World Cup XII (Milan)",
+      "event_date": "2012-11-17",
+      "chrono": 518.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 555,
+      "name": "Milan XXXI",
+      "event_date": "2013-01-12",
+      "chrono": 519.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 556,
+      "name": "Birmingham XLI",
+      "event_date": "2013-01-25",
+      "chrono": 520.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 557,
+      "name": "Koenigswinter XLIV",
+      "event_date": "2013-02-09",
+      "chrono": 521.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 558,
+      "name": "Duesseldorf VI",
+      "event_date": "2013-03-17",
+      "chrono": 522.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 559,
+      "name": "Koenigswinter XLV",
+      "event_date": "2013-04-14",
+      "chrono": 523.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 560,
+      "name": "Birmingham XLII",
+      "event_date": "2013-04-19",
+      "chrono": 524.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 563,
+      "name": "Koenigswinter XLVI",
+      "event_date": "2013-05-11",
+      "chrono": 524.5,
+      "rating_finalized": 1
+    },
+    {
+      "id": 561,
+      "name": "Voitsberg V",
+      "event_date": "2013-05-19",
+      "chrono": 525.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 562,
+      "name": "Freiburg I",
+      "event_date": "2013-05-25",
+      "chrono": 526.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 564,
+      "name": "Koenigswinter XLVII",
+      "event_date": "2013-06-01",
+      "chrono": 527.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 565,
+      "name": "Koenigswinter XLVIII",
+      "event_date": "2013-06-28",
+      "chrono": 528.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 566,
+      "name": "Birmingham XLIII",
+      "event_date": "2013-07-09",
+      "chrono": 529.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 567,
+      "name": "Birmingham XLIV",
+      "event_date": "2013-08-04",
+      "chrono": 530.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 568,
+      "name": "Birmingham XLV",
+      "event_date": "2013-08-30",
+      "chrono": 531.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 569,
+      "name": "World Cup XIII (Voitsberg)",
+      "event_date": "2013-11-02",
+      "chrono": 532.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 570,
+      "name": "Volkenrath IV",
+      "event_date": "2013-11-16",
+      "chrono": 533.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 571,
+      "name": "Milan XXXII",
+      "event_date": "2013-12-01",
+      "chrono": 534.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 572,
+      "name": "Voitsberg VI",
+      "event_date": "2014-04-20",
+      "chrono": 535.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 573,
+      "name": "Papozze I",
+      "event_date": "2014-05-03",
+      "chrono": 536.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 574,
+      "name": "Duesseldorf VII",
+      "event_date": "2014-05-25",
+      "chrono": 537.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 575,
+      "name": "Birmingham XLVI",
+      "event_date": "2014-08-03",
+      "chrono": 538.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 576,
+      "name": "Milan XXXIII",
+      "event_date": "2014-09-14",
+      "chrono": 539.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 577,
+      "name": "World Cup XIV (Copenhagen)",
+      "event_date": "2014-11-01",
+      "chrono": 540.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 578,
+      "name": "Landskrona I",
+      "event_date": "2014-12-27",
+      "chrono": 541.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 579,
+      "name": "Milan XXXIV",
+      "event_date": "2014-12-29",
+      "chrono": 542.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 580,
+      "name": "Papozze II",
+      "event_date": "2015-05-02",
+      "chrono": 543.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 581,
+      "name": "Bournemouth V",
+      "event_date": "2015-05-09",
+      "chrono": 544.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 582,
+      "name": "Koenigswinter XLIX",
+      "event_date": "2015-07-11",
+      "chrono": 545.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 583,
+      "name": "Humlebaek I",
+      "event_date": "2015-10-17",
+      "chrono": 546.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 584,
+      "name": "Humlebaek II",
+      "event_date": "2015-10-17",
+      "chrono": 547.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 585,
+      "name": "World Cup XV (Dublin)",
+      "event_date": "2015-11-07",
+      "chrono": 548.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 586,
+      "name": "Landskrona II",
+      "event_date": "2016-01-02",
+      "chrono": 549.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 587,
+      "name": "Landskrona III",
+      "event_date": "2016-01-02",
+      "chrono": 550.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 588,
+      "name": "Athens LXXXIV",
+      "event_date": "2016-01-24",
+      "chrono": 551.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 589,
+      "name": "Humlebaek III",
+      "event_date": "2016-03-19",
+      "chrono": 552.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 590,
+      "name": "Humlebaek IV",
+      "event_date": "2016-03-19",
+      "chrono": 553.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 591,
+      "name": "Amsterdam I",
+      "event_date": "2016-04-02",
+      "chrono": 554.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 592,
+      "name": "Athens LXXXV",
+      "event_date": "2016-05-08",
+      "chrono": 555.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 593,
+      "name": "London XXVII",
+      "event_date": "2016-05-14",
+      "chrono": 556.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 594,
+      "name": "Milan XXXV",
+      "event_date": "2016-06-12",
+      "chrono": 557.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 595,
+      "name": "Landskrona IV",
+      "event_date": "2016-10-30",
+      "chrono": 558.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 596,
+      "name": "World Cup XVI (Milan)",
+      "event_date": "2016-11-12",
+      "chrono": 559.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 597,
+      "name": "Humlebaek V",
+      "event_date": "2017-01-28",
+      "chrono": 560.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 598,
+      "name": "Birmingham XLVII",
+      "event_date": "2017-02-25",
+      "chrono": 567.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 599,
+      "name": "Manchester III",
+      "event_date": "2017-05-06",
+      "chrono": 568.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 600,
+      "name": "Milan XXXVI",
+      "event_date": "2017-06-11",
+      "chrono": 569.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 601,
+      "name": "Furulund I",
+      "event_date": "2017-06-17",
+      "chrono": 570.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 602,
+      "name": "Copenhagen V",
+      "event_date": "2017-09-09",
+      "chrono": 571.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 603,
+      "name": "World Cup XVII (Landskrona)",
+      "event_date": "2017-10-28",
+      "chrono": 572.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 1,
+      "name": "Jerez XI",
+      "event_date": "2018-04-14",
+      "chrono": 573.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 2,
+      "name": "Milan XXXVII",
+      "event_date": "2018-05-19",
+      "chrono": 574.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 3,
+      "name": "Manchester IV",
+      "event_date": "2018-06-02",
+      "chrono": 575.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 4,
+      "name": "Birmingham XLVIII",
+      "event_date": "2018-10-28",
+      "chrono": 576.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 5,
+      "name": "World Cup XVIII (Bournemouth)",
+      "event_date": "2018-11-10",
+      "chrono": 577.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 6,
+      "name": "Jerez XII",
+      "event_date": "2019-01-27",
+      "chrono": 578.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 7,
+      "name": "Milton Keynes I",
+      "event_date": "2019-05-12",
+      "chrono": 579.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 8,
+      "name": "Volkenrath V",
+      "event_date": "2019-06-01",
+      "chrono": 580.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 9,
+      "name": "World Cup XIX (Bremen)",
+      "event_date": "2019-11-01",
+      "chrono": 581.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 10,
+      "name": "Jerez XIII",
+      "event_date": "2020-02-22",
+      "chrono": 582.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 11,
+      "name": "Milan XXXVIII",
+      "event_date": "2021-10-16",
+      "chrono": 583.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 12,
+      "name": "Athens LXXXVI",
+      "event_date": "2021-11-04",
+      "chrono": 584.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 13,
+      "name": "Athens LXXXVII",
+      "event_date": "2022-10-16",
+      "chrono": 585.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 14,
+      "name": "World Cup XX (Athens)",
+      "event_date": "2022-11-05",
+      "chrono": 586.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 15,
+      "name": "Athens LXXXVIII",
+      "event_date": "2023-10-21",
+      "chrono": 587.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 16,
+      "name": "World Cup XXI (Torremolinos)",
+      "event_date": "2023-11-18",
+      "chrono": 588.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 17,
+      "name": "Milan XXXIX",
+      "event_date": "2024-05-25",
+      "chrono": 589.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 18,
+      "name": "Preston I",
+      "event_date": "2024-06-01",
+      "chrono": 590.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 19,
+      "name": "Athens LXXXIX",
+      "event_date": "2024-10-19",
+      "chrono": 591.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 20,
+      "name": "World Cup XXII (Nottingham)",
+      "event_date": "2024-11-10",
+      "chrono": 592.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 21,
+      "name": "Athens XC",
+      "event_date": "2025-01-18",
+      "chrono": 593.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 22,
+      "name": "Athens XCI",
+      "event_date": "2025-04-05",
+      "chrono": 594.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 23,
+      "name": "Nottingham II",
+      "event_date": "2025-06-01",
+      "chrono": 595.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 24,
+      "name": "Athens XCII",
+      "event_date": "2025-09-20",
+      "chrono": 596.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 25,
+      "name": "World Cup XXIII (Milan)",
+      "event_date": "2025-11-01",
+      "chrono": 597.0,
+      "rating_finalized": 1
+    },
+    {
+      "id": 607,
+      "name": "Nottingham III",
+      "event_date": "2026-05-31",
+      "chrono": 598.0,
+      "rating_finalized": 1
+    }
+  ]
+}

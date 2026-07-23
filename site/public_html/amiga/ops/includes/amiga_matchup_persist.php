@@ -55,7 +55,7 @@ function amiga_ops_persist_matchup_at_event(
     mysqli $con,
     int $tournamentId,
     string $eventDate,
-    int $eventChrono,
+    float $eventChrono,
     AmigaMatchupCumulative $matchups,
     array $participantIds
 ): int {
@@ -99,7 +99,7 @@ function amiga_ops_persist_matchup_at_event(
             foreach ($cols as $col) {
                 $params[] = $row[$col];
             }
-            $types = 'iiisi' . amiga_matchup_pair_column_types();
+            $types = 'iiisd' . amiga_matchup_pair_column_types();
             $stmt->bind_param($types, ...$params);
             if (!$stmt->execute()) {
                 throw new RuntimeException('execute matchup at-event insert: ' . $stmt->error);

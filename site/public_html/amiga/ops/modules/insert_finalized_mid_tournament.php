@@ -7,6 +7,7 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/../includes/amiga_chrono_integer_lib.php';
 require_once __DIR__ . '/delete_finalized_mid_tournament.php';
 require_once __DIR__ . '/finalize_tournament.php';
 require_once __DIR__ . '/project_present_at.php';
@@ -349,11 +350,10 @@ function amiga_case_c_insert_finish_probe(mysqli $con, int $tournamentId): array
     if ($forward !== []) {
         $n = amiga_case_c_find_prior_finalized($con, $m);
         if ($n !== null) {
-            $m['chrono'] = amiga_case_c_insert_catalog_chrono_for_slot(
+            $m['chrono'] = (float) amiga_chrono_integer_insert_slot_preview(
                 $con,
-                ['id' => (int) $row['id'], 'event_date' => $row['event_date']],
                 $n,
-                $forward[0]
+                (int) $row['id']
             );
         }
     }
@@ -478,11 +478,10 @@ function amiga_case_c_insert_finish_prepare(mysqli $con, int $tournamentId): arr
             amiga_case_c_reset_for_refinalize($con, $fwdId);
         }
 
-        $catalogChrono = amiga_case_c_insert_catalog_chrono_for_slot(
+        $catalogChrono = (float) amiga_chrono_integer_bump_forward_after_cutoff(
             $con,
-            ['id' => $tournamentId, 'event_date' => $row['event_date']],
             $n,
-            $probe['forward'][0] ?? null
+            $tournamentId
         );
         amiga_case_c_insert_persist_catalog_chrono($con, $tournamentId, $catalogChrono);
 

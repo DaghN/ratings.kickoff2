@@ -1,0 +1,42 @@
+{
+    "checkpoint_id":  "work-2026-07-23-chrono-integer",
+    "tier":  "full",
+    "sealed_utc":  "2026-07-23T15:25:49Z",
+    "label":  "chrono-integer",
+    "notes_text":  "Dense integer chronos 1..607; matchup event_chrono double; mae mismatch 2914-\u003e0.",
+    "source_database":  "ko2amiga_work",
+    "git_commit_at_seal":  "929fd439",
+    "export":  {
+                   "parts_bytes":  75298425,
+                   "parts_bytes_mb":  71.81,
+                   "generated":  "2026-07-23 17:25:41",
+                   "parts_count":  42
+               },
+    "counts":  {
+                   "amiga_players":  469,
+                   "tournament_stages":  1127,
+                   "tournaments":  607,
+                   "amiga_tournament_finish_override":  1264,
+                   "amiga_games":  27474,
+                   "amiga_player_event_snapshots":  4547,
+                   "tournament_fixtures":  19025
+               },
+    "simul_last":  {
+                       "git_head":  "bd4733b9a24fbc37a294191beb7ad062f85f067b",
+                       "duration_sec":  1485.12,
+                       "note":  "Structure edits after this simul may be included in SQL; re-simul if restoring without L5 parts.",
+                       "finished_utc":  "2026-07-15T16:10:56.778277Z"
+                   },
+    "companion_files":  [
+                            "tournament_videos.json",
+                            "tournament_videos_review.csv",
+                            "disposition_register.json",
+                            "match_extensions_verified_register.json",
+                            "video_game_links.csv"
+                        ],
+    "restore":  {
+                    "after_import":  "Point ko2amiga_config.local.php at ko2amiga_work; run python -m scripts.amiga simul if L5 derived looks stale.",
+                    "target_database":  "ko2amiga_work",
+                    "import_parts_in_order":  "ko2amiga_manifest.json parts[]"
+                }
+}
