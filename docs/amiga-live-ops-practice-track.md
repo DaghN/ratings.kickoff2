@@ -58,7 +58,7 @@ Only these two shapes count as live v1 until both are boring.
 | Field | Value |
 |-------|-------|
 | Template | `kitchen_marathon` — one `round_robin` stage |
-| Players | 4–6 |
+| Players | **4–6** (create enforces **≥4**) |
 | Create | Browser — [`/amiga/ops/fixtures.php`](../../site/public_html/amiga/ops/fixtures.php) (password-gated; **country** = registry select: archive-used + **More countries…**) |
 | Host | **Staging** (`ratings.kickoff2.com` / synced ops) |
 
@@ -98,13 +98,13 @@ Only the **current** cycle is live. When fixed and re-checked, clear or archive 
 
 | Field | Value |
 |-------|-------|
-| **Status** | **idle** — **L5 v1 complete** (slices 0–6, 2026-07-23); Case C thorough + inverse seed proven |
-| **Format** | Ref-League-A (repair smoke) |
+| **Status** | **idle** — **organizer vertical v1 complete** (2026-07-23); L5 + Case C insert + chrono integer + staged insert/delete parity |
+| **Format** | Ref-League-A |
 | **Step** | — |
 | **Feedback** | (none) |
-| **Slice** | L5 closed |
+| **Slice** | Next named: Ref-Cup-A / Lane C / serial feedback |
 
-**Context for next chat:** L5 backup/admin-delete is **done** — do not reopen Case A/B/C unless a new bug. Policy [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) **Implemented**. Round-trip proof [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md). Build **`l5-case-c-inv-seed-2026-07-23`**. **L6 shelved.**
+**Context for next chat:** Standing inventory — [`amiga-organizer-track-status.md`](amiga-organizer-track-status.md). L5 + Case C insert + **AD8** (staged smoke PASS). Do not reopen Case A/B/C unless a new bug.
 
 When a cycle is open, agents read **this table only** — not historical notes — as the work order.
 
@@ -125,7 +125,7 @@ Milestones are **gates**, not a parallel backlog. Advance when Dagh says the pri
 | **L6** | Ground pack pull | **Shelved** — not planned until further notice (full staging backup pack is enough). Keep mention only. |
 | **L7** | Media on ran event | YouTube URL on staging tournament |
 
-**Current gate:** **L5 complete** — practice idle / next serial feedback. **Case C insert** (mid-history Finish) design locked — implement when named ([`amiga-case-c-insert-finish-implementation-plan.md`](amiga-case-c-insert-finish-implementation-plan.md)). L2 reps optional. **L6 shelved.** Cups deferred.
+**Current gate:** **L5 complete** — organizer vertical v1 on staging ([`amiga-organizer-track-status.md`](amiga-organizer-track-status.md)). Practice idle / next serial feedback. **AD8** backdate guard staged smoke PASS. L2 reps optional. **L6 shelved.** Cups deferred.
 
 **Explicit defer until a cycle names them:** structure imprint P2–P3, WC materialize, Lane C media DDL, CR-9 country polish, player-create phase 2, cups (L3) until named, **L6 ground pack (shelved — full DB backup pack preferred)**.
 

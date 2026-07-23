@@ -1,6 +1,6 @@
 # Amiga Case C insert — mid-history Finish — implementation plan (Jul 2026)
 
-**Status:** **Code shipped (slices 1–5)** Jul 2026 — organizer mid-history Finish on `fixtures.php`; **staged proof pending** (Dagh).
+**Status:** **Code shipped (slices 1–5)** Jul 2026 — organizer mid-history Finish on `fixtures.php`; **staged proof PASS** Jul 2026-23 (chrono pack import + ~2022 insert/delete parity vs `ko2amiga_work`).
 
 **Policy:** [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) **AD7** · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) §7.3.1 · [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) §6.7.
 

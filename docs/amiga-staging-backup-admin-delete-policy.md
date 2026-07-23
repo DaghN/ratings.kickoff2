@@ -51,7 +51,8 @@ This is **enough** for KOA scale: rare events, trusted small admin set, organize
 | **AD4** | **Case C delete (narrow) shipped in L5** — delete non-tip **M** with later finalized events (e.g. test under real tip): truncate poisoned forward derived; re-project at M−1; **re-finalize forward** via PHP live finalize. **Proven Jul 2026-23:** thorough M=#16 (10 forward events) after inverse changelog seed fix — [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md). Deep mid-2000s chains still optional later. Plan: [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md). |
 | **AD5** | **No** organizer lock/unlock delete matrix and **no** per-tournament delete password in v1. |
 | **AD6** | After successful **tip** delete + repair (Case B/C delete): **BA2** backup of the new tip. **Case A** (unfinalized trash) does **not** auto-seal — tip unchanged; optional Backup now. |
-| **AD7** | **Case C insert (mid-history Finish) — shipped Jul 2026** — when organizer **Finish and make official** on running **M** whose catalog sorts **before** ≥1 already-finalized event: automatic insert repair with loud confirm + phased HTTP on `fixtures.php` → **BA2** seal (`case_c_insert`). Staged proof: [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md) §7. Plan: [`amiga-case-c-insert-finish-implementation-plan.md`](amiga-case-c-insert-finish-implementation-plan.md). |
+| **AD7** | **Case C insert (mid-history Finish) — shipped Jul 2026** — when organizer **Finish and make official** on running **M** whose catalog sorts **before** ≥1 already-finalized event: automatic insert repair with loud confirm + phased HTTP on `fixtures.php` → **BA2** seal (`case_c_insert`). Staged proof: chrono pack import + ~2022 insert/delete parity vs work (Jul 2026-23). Plan: [`amiga-case-c-insert-finish-implementation-plan.md`](amiga-case-c-insert-finish-implementation-plan.md). |
+| **AD8** | **Backdate guard — shipped Jul 2026 · staged smoke PASS Jul 24** — organizer **create** with `event_date` >1 month ago (UTC) requires explicit **admin password** on submit (`backdate_admin_password`); admin session does not bypass. Policy: [`amiga-organizer-backdate-guard-policy.md`](amiga-organizer-backdate-guard-policy.md). |
 
 ---
 
@@ -91,6 +92,9 @@ Ship when Track L / live-ops feedback names it (likely around **L5**). Until the
 
 | Date | Change |
 |------|--------|
+| 2026-07-24 | **AD8 staged smoke PASS** (Dagh). |
+| 2026-07-23 | **AD8 shipped** — create backdate admin password gate. |
+| 2026-07-23 | **AD8** — backdate guard locked (not shipped). **AD7** staged proof PASS. |
 | 2026-07-23 | **AD7** — Case C insert / mid-history Finish design locked (organizer path + BA2); implementation plan linked; not shipped. |
 | 2026-07-23 | **Implemented (v1)** — L5 Case A/B/C + seals + inverse seed; thorough Case C M=#16 PASS; AD4 note; L6 still out. |
 | 2026-07-22 | **AD2 note** — organizer void superseded by Hide + Case A (workspace simplification policy). |

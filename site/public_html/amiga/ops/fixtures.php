@@ -82,6 +82,11 @@ function amiga_fixture_render_chrome_start(string $pageTitle, bool $withDayPicke
             echo '<script type="text/javascript" src="/js/amiga-organizer-player-create.js?v='
                 . (int) @filemtime($organizerPlayerCreateJs) . '" defer="defer"></script>' . "\n";
         }
+        $organizerBackdateJs = $_SERVER['DOCUMENT_ROOT'] . '/js/amiga-organizer-backdate-guard.js';
+        if (is_file($organizerBackdateJs)) {
+            echo '<script type="text/javascript" src="/js/amiga-organizer-backdate-guard.js?v='
+                . (int) @filemtime($organizerBackdateJs) . '" defer="defer"></script>' . "\n";
+        }
     }
 ?>
 </head>
@@ -189,6 +194,9 @@ function amiga_fixture_parse_player_ids(string $raw): array
 
 /** @var list<string> */
 const AMIGA_FIXTURE_OPS_VIEWS = ['setup', 'players', 'play', 'table', 'advanced'];
+
+/** Kitchen create — minimum roster size (Ref-League-A). */
+const AMIGA_FIXTURE_CREATE_MIN_PLAYERS = 4;
 
 /** Legacy views remapped to the stage-scoped play surface (OW8). */
 const AMIGA_FIXTURE_OPS_LEGACY_VIEW_MAP = [
@@ -318,8 +326,10 @@ function amiga_fixture_validate_player_id_list(array $ids): array
         }
     }
     $normalized = array_values(array_unique($normalized));
-    if (count($normalized) < 2) {
-        throw new RuntimeException('At least two players are required.');
+    if (count($normalized) < AMIGA_FIXTURE_CREATE_MIN_PLAYERS) {
+        throw new RuntimeException(
+            'At least ' . AMIGA_FIXTURE_CREATE_MIN_PLAYERS . ' players are required.'
+        );
     }
 
     return $normalized;
@@ -342,7 +352,9 @@ function amiga_fixture_collect_player_ids_from_request(): array
             return amiga_fixture_validate_player_id_list($ids);
         }
     }
-    throw new RuntimeException('At least two players are required.');
+    throw new RuntimeException(
+        'At least ' . AMIGA_FIXTURE_CREATE_MIN_PLAYERS . ' players are required.'
+    );
 }
 
 function amiga_fixture_expected_round_robin_fixtures(int $playerCount, int $legs): int
@@ -482,6 +494,43 @@ function amiga_fixture_validate_create_country(string $country): string
     }
 
     return $country;
+}
+
+/**
+ * AD8 — earliest event_date organizers may create without admin password
+ * (today UTC minus one calendar month). Dates strictly before this need admin.
+ *
+ * @see docs/amiga-organizer-backdate-guard-policy.md
+ */
+function amiga_fixture_backdate_admin_threshold_ymd(?DateTimeImmutable $todayUtc = null): string
+{
+    $today = $todayUtc ?? new DateTimeImmutable('now', new DateTimeZone('UTC'));
+    $today = $today->setTime(0, 0);
+
+    return $today->modify('-1 month')->format('Y-m-d');
+}
+
+/** AD8.1 — true when create event_date is more than one calendar month before today (UTC). */
+function amiga_fixture_event_date_requires_admin_backdate(string $eventDateYmd): bool
+{
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $eventDateYmd)) {
+        return false;
+    }
+
+    return $eventDateYmd < amiga_fixture_backdate_admin_threshold_ymd();
+}
+
+/**
+ * AD8.4 — verify admin password for deep backdate create.
+ * Does not elevate session; organizer password never satisfies.
+ */
+function amiga_fixture_require_admin_backdate_password(string $provided): void
+{
+    if (!amiga_ops_password_matches($provided, 'admin')) {
+        throw new RuntimeException(
+            'Admin password required for dates more than one month ago.'
+        );
+    }
 }
 
 /**
@@ -2442,6 +2491,7 @@ function amiga_fixture_round_robin_plan(array $playerIds, int $legs): array
 
 /**
  * @param list<int> $playerIds
+ * @param bool $adminBackdateAuthorized AD8 — must be true when event_date is >1 month old
  */
 function amiga_fixture_create_kitchen_tournament(
     mysqli $con,
@@ -2451,6 +2501,7 @@ function amiga_fixture_create_kitchen_tournament(
     array $playerIds,
     int $legs,
     bool $isWorldCup = false,
+    bool $adminBackdateAuthorized = false,
 ): int {
     $name = trim($name);
     $country = trim($country);
@@ -2463,6 +2514,18 @@ function amiga_fixture_create_kitchen_tournament(
     }
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $eventDate)) {
         throw new RuntimeException('Event date must be YYYY-MM-DD.');
+    }
+    // AD8 defense-in-depth: never create deep backdates without explicit admin auth flag.
+    // Admin session alone does not set this flag — caller must verify admin password.
+    if (amiga_fixture_event_date_requires_admin_backdate($eventDate) && !$adminBackdateAuthorized) {
+        throw new RuntimeException(
+            'Admin password required for dates more than one month ago.'
+        );
+    }
+    if (count($playerIds) < AMIGA_FIXTURE_CREATE_MIN_PLAYERS) {
+        throw new RuntimeException(
+            'At least ' . AMIGA_FIXTURE_CREATE_MIN_PLAYERS . ' players are required.'
+        );
     }
     foreach ($playerIds as $playerId) {
         amiga_fixture_require_player($con, $playerId);
@@ -3455,6 +3518,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $playerIds = amiga_fixture_collect_player_ids_from_request();
             $createDraft['player_ids'] = $playerIds;
             $createDraft['country'] = amiga_fixture_validate_create_country($createDraft['country']);
+            // AD8: deep backdates require explicit admin password (not organizer/admin session).
+            $adminBackdateAuthorized = false;
+            if (amiga_fixture_event_date_requires_admin_backdate($createDraft['event_date'])) {
+                amiga_fixture_require_admin_backdate_password(
+                    (string) ($_POST['backdate_admin_password'] ?? '')
+                );
+                $adminBackdateAuthorized = true;
+            }
             $tournamentId = amiga_fixture_create_kitchen_tournament(
                 $con,
                 $createDraft['name'],
@@ -3462,7 +3533,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $createDraft['country'],
                 $playerIds,
                 $createDraft['legs'],
-                (bool) $createDraft['is_world_cup']
+                (bool) $createDraft['is_world_cup'],
+                $adminBackdateAuthorized
             );
             amiga_fixture_ops_flash_set(
                 'Created league #' . $tournamentId
@@ -4485,16 +4557,96 @@ if (
           <?php if ($createMatchHint > 0) { ?>
             <p class="k2-amiga-live-ops__muted"><?php echo count($createSelectedPlayers); ?> player<?php echo count($createSelectedPlayers) === 1 ? '' : 's'; ?> → <?php echo $createMatchHint; ?> fixture<?php echo $createMatchHint === 1 ? '' : 's'; ?>.</p>
           <?php } ?>
+          <?php if (count($createSelectedPlayers) < AMIGA_FIXTURE_CREATE_MIN_PLAYERS) { ?>
+            <p class="k2-amiga-live-ops__muted">Add at least <?php echo (int) AMIGA_FIXTURE_CREATE_MIN_PLAYERS; ?> players to create a league.</p>
+          <?php } ?>
         <?php } ?>
       </div>
 
       <h3 class="wide k2-amiga-organizer-create__step">League details</h3>
+      <?php
+        $createEventDateYmd = $createDraft['event_date'] !== '' ? $createDraft['event_date'] : gmdate('Y-m-d');
+        $createBackdateThreshold = amiga_fixture_backdate_admin_threshold_ymd();
+        $createNeedsAdminBackdate = amiga_fixture_event_date_requires_admin_backdate($createEventDateYmd);
+      ?>
       <label>Name
         <input type="text" name="name" required maxlength="120" placeholder="Thursday Kitchen I" value="<?php echo k2_h($createDraft['name']); ?>">
       </label>
       <label>Date
-        <?php k2_render_day_picker('amiga-fixture-event-date', 'event_date', $createDraft['event_date'] !== '' ? $createDraft['event_date'] : gmdate('Y-m-d'), 'Tournament date'); ?>
+        <?php k2_render_day_picker('amiga-fixture-event-date', 'event_date', $createEventDateYmd, 'Tournament date'); ?>
       </label>
+      <div class="wide k2-amiga-organizer-backdate-guard"
+           data-amiga-backdate-guard
+           data-ad8="shipped"
+           data-threshold="<?php echo k2_h($createBackdateThreshold); ?>"
+           data-date-input-id="amiga-fixture-event-date"
+           <?php echo $createNeedsAdminBackdate ? '' : ' hidden="hidden"'; ?>>
+        <p class="k2-amiga-organizer-table__preview-note k2-amiga-organizer-table__preview-note--warn">
+          Only admins can insert tournaments that are more than one month old. Please input admin password.
+        </p>
+        <label for="amiga-organizer-backdate-admin-password">Admin password
+          <input type="password"
+                 name="backdate_admin_password"
+                 id="amiga-organizer-backdate-admin-password"
+                 autocomplete="off"
+                 <?php echo $createNeedsAdminBackdate ? ' required="required"' : ' disabled="disabled"'; ?>>
+        </label>
+      </div>
+      <script type="text/javascript">
+      /* AD8 inline — ships with fixtures.php so panel works even if /js/*.js sync misses */
+      (function () {
+        function syncBackdateGuard(root) {
+          var threshold = root.getAttribute('data-threshold') || '';
+          var inputId = root.getAttribute('data-date-input-id') || 'amiga-fixture-event-date';
+          var dateInput = document.getElementById(inputId);
+          var pwd = document.getElementById('amiga-organizer-backdate-admin-password');
+          if (!dateInput || !pwd || threshold === '') { return; }
+          var ymd = (dateInput.value || '').trim();
+          var needsAdmin = ymd !== '' && ymd < threshold;
+          if (needsAdmin) {
+            root.removeAttribute('hidden');
+            pwd.removeAttribute('disabled');
+            pwd.setAttribute('required', 'required');
+          } else {
+            root.setAttribute('hidden', 'hidden');
+            pwd.removeAttribute('required');
+            pwd.setAttribute('disabled', 'disabled');
+            pwd.value = '';
+          }
+        }
+        function bind(root) {
+          if (!root || root.getAttribute('data-amiga-backdate-bound') === '1') { return; }
+          root.setAttribute('data-amiga-backdate-bound', '1');
+          var inputId = root.getAttribute('data-date-input-id') || 'amiga-fixture-event-date';
+          var dateInput = document.getElementById(inputId);
+          var last = dateInput ? dateInput.value : '';
+          function tick() {
+            if (!dateInput) { return; }
+            if (dateInput.value !== last) {
+              last = dateInput.value;
+              syncBackdateGuard(root);
+            }
+          }
+          if (dateInput) {
+            dateInput.addEventListener('change', tick);
+            dateInput.addEventListener('input', tick);
+          }
+          window.setInterval(tick, 250);
+          syncBackdateGuard(root);
+        }
+        function boot() {
+          var roots = document.querySelectorAll('[data-amiga-backdate-guard]');
+          for (var i = 0; i < roots.length; i++) { bind(roots[i]); }
+        }
+        if (typeof window.k2OnPageReady === 'function') {
+          window.k2OnPageReady(boot);
+        } else if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', boot);
+        } else {
+          boot();
+        }
+      }());
+      </script>
       <?php amiga_fixture_render_create_country_field($createDraft['country'], $createCountryUsedOfficial, $createCountryMoreRows); ?>
       <label>Round-robin format
         <select name="legs">
@@ -4507,7 +4659,10 @@ if (
         World Cup event (name must match <code>World Cup …</code>)
       </label>
       <div class="wide">
-        <button type="submit">Create league</button>
+        <button type="submit"<?php echo count($createSelectedPlayers) < AMIGA_FIXTURE_CREATE_MIN_PLAYERS ? ' disabled="disabled"' : ''; ?>>Create league</button>
+        <?php if (count($createSelectedPlayers) < AMIGA_FIXTURE_CREATE_MIN_PLAYERS) { ?>
+          <p class="k2-amiga-live-ops__muted" style="margin:.5rem 0 0">Need <?php echo (int) AMIGA_FIXTURE_CREATE_MIN_PLAYERS; ?> players minimum.</p>
+        <?php } ?>
       </div>
     </form>
   </div>

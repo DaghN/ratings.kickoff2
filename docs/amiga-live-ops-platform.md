@@ -1,6 +1,6 @@
 # Amiga live operations platform — design (Jul 2026)
 
-**Status:** **Policy locked** — architecture and operational boundaries agreed Jul 2026. **Implementation:** **practice-first** (see §12) — each infra slice ships from **one** secretary feedback cycle (not an open pain inventory); most Lane B/C verbs not shipped yet. **Active track:** [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md).
+**Status:** **Policy locked** — architecture and operational boundaries agreed Jul 2026. **Lane B v1 shipped Jul 2026-23** (organizer path + L5 backup/delete/repair + Case C insert + chrono integer). **Standing summary:** [`amiga-organizer-track-status.md`](amiga-organizer-track-status.md). **Practice:** serial feedback — [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) (idle at L5).
 
 **Audience:** Dagh, Cursor agents, future community organisers / secretaries (via ops UI).
 
@@ -79,13 +79,17 @@ This document locks **three operational lanes**, **where code runs**, **timeline
 |------------|-------------------|----------|
 | Structure + fixtures + results | **Shipped (RTB Jul 2026)** | Running scores on `tournament_fixtures` until **Make official** (`promote_running_tournament` → `finalize_tournament`); broadcast table on organizer + Live hub — [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) |
 | Finalize one tournament | **Shipped** | Browser Table **Make official** or `finalize-tournament` (promote prefix when zero `amiga_games`) |
+| Mid-history Finish (Case C insert) | **Shipped** | Organizer `fixtures.php` — AD7 · [`amiga-case-c-insert-finish-implementation-plan.md`](amiga-case-c-insert-finish-implementation-plan.md) |
 | Zero derived | **Shipped** (PHP) | Same runner |
-| Delete/cancel tournament (guarded) | **Intent locked** — admin-only tip delete + backup-after; verbs not shipped | [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md); §7 below |
-| Truncate derived after cutoff N | **Not shipped** | Planned |
-| Project present at N | **Not shipped** | Planned (SQL + PHP helpers) |
-| Re-finalize forward from N+1 | **Not shipped** | Loop live finalize path |
-| Verify-lite on staging | **Partial** | Python verify local only |
-| Pull ground from staging | **Not shipped** | Ground pack export |
+| Delete/cancel tournament (guarded) | **Shipped (L5 v1)** — Case A/B/C admin delete + BA2 seals | [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md); §7 · `/amiga/run_backup_ko2amiga.php` |
+| Truncate derived after cutoff N | **Shipped** | `amiga_ops_truncate_derived_after()` — Case C delete/insert |
+| Project present at N | **Shipped** | `project_present_at.php` (phased HTTP) |
+| Re-finalize forward from N+1 | **Shipped** | `amiga_ops_refinalize_forward_one()` + organizer insert chain |
+| Backup / restore full pack | **Shipped** | `run_backup_ko2amiga.php` · `_backups/` |
+| Pull staged → local | **Shipped** | `pull_ko2amiga_from_staging.ps1` (side DB: `-TargetDatabase ko2amiga_staging_cmp`) |
+| Verify-lite on staging | **Partial** | Admin **Diagnose**; full verify local Python |
+| Per-tournament ground pack pull | **Shelved (L6)** | Full seal preferred |
+| Backdate guard (>1 month create) | **Shipped (AD8)** | `fixtures.php` create + `amiga-organizer-backdate-guard.js` — [`amiga-organizer-backdate-guard-policy.md`](amiga-organizer-backdate-guard-policy.md) |
 
 **Runtime rule:** Lane B = **`public_html/amiga/ops/` + `ko2amiga_db`**. Same WinSCP sync habit as online `ops/`. **No** requirement for Python on the server for daily ops (optional later for verify).
 
@@ -243,11 +247,9 @@ Deleting event N+1 **poisons** all forward timeline rows computed including its 
 
 ### 7.3.1 Case C insert — mid-history **Finish** (organizer)
 
-**Shipped Jul 2026** on `/amiga/ops/fixtures.php` — symmetric to §7.3 **delete**: later finalized tips exist; catalog order places running **M** before them.
+**Shipped Jul 2026** on `/amiga/ops/fixtures.php` — symmetric to §7.3 **delete**: later finalized tips exist; catalog order places running **M** before them. Integer chrono bump on prepare/delete — [`amiga-chrono-integer-policy.md`](amiga-chrono-integer-policy.md). **Staged proof:** insert + delete ~2022 roundtrip parity vs work (Jul 2026-23).
 
-**Today (footgun):** organizer **Finish and make official** promotes + finalizes M with **no** forward check — poisons present/L5 if `forward[]` non-empty.
-
-**Target pipeline (keep M ground):**
+**Pipeline (keep M ground):**
 
 1. After promote preconditions, probe catalog tuple for M; list finalized `forward[]` after M.
 2. If empty → normal tip Finish (unchanged).

@@ -305,7 +305,7 @@ Do **not** “fix” TT by copying snapshot inverse columns into the changelog �
 
 ---
 
-## 7. Phase D — Case C insert (mid-history Finish) — **planned, not run**
+## 7. Phase D — Case C insert (mid-history Finish) — **PASS (Jul 2026-23)**
 
 **Authority:** [`amiga-case-c-insert-finish-implementation-plan.md`](amiga-case-c-insert-finish-implementation-plan.md) §6.
 
@@ -346,8 +346,8 @@ Run **after** Case C insert ships on staging/work. Symmetric to Phase C delete p
 | Forward finalize without inverse changelog seed (Jul 23 poison) |
 | Double promote on retry |
 
-**Status:** `[ ]` staged proof pending — code shipped Jul 2026 on `fixtures.php`; run D1–D2 on staging after WinSCP deploy.
+**Status:** `[x]` **PASS** — staged chrono-integer import; organizer insert + admin delete ~2022; side-pull `ko2amiga_staging_cmp` vs work: 607 tips / 27474 games; tournament chronos 0 diff; matchup H2W 0 diff; 46 players Rating epsilon only.
 
 ---
 
-*Last updated: 2026-07-23 — A/B/C PASS; Phase D spec added (Case C insert, not run).*
+*Last updated: 2026-07-23 — A/B/C/D PASS; organizer vertical v1 on staging.*
