@@ -1,4 +1,4 @@
-# Alias — safe sandbox setup (never touches ko2unity_db).
+﻿# Alias — safe sandbox setup (never touches ko2unity_db).
 # See scripts\setup_local_prod_sandbox.ps1
 
 $ErrorActionPreference = 'Stop'

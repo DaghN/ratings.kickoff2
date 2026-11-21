@@ -1,4 +1,4 @@
-# Import an Amiga backup seal into a SIDE database and compare to ko2amiga_work.
+﻿# Import an Amiga backup seal into a SIDE database and compare to ko2amiga_work.
 # Does NOT touch ko2amiga_work.
 #
 # Usage:

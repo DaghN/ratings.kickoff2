@@ -1,4 +1,4 @@
-# Refresh work — clone ko2unity_baseline → ko2unity_work (PHP prepare platform v2).
+﻿# Refresh work — clone ko2unity_baseline → ko2unity_work (PHP prepare platform v2).
 # Usage: powershell -ExecutionPolicy Bypass -File scripts\refresh_local_work_db.ps1
 #        powershell -ExecutionPolicy Bypass -File scripts\refresh_local_work_db.ps1 -DryRun
 #

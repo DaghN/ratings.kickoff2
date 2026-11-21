@@ -1,4 +1,4 @@
-# RETIRED (Jun 2026) — obsolete dev scripts retirement, slice 1.
+﻿# RETIRED (Jun 2026) — obsolete dev scripts retirement, slice 1.
 # Legacy wrapper for rebuild_website_derived_data_local.ps1 (also retired).
 #
 # Policy: docs/obsolete-dev-scripts-retirement-policy.md

@@ -1,4 +1,4 @@
-# Pull staged Amiga ground into a local database (default: ko2amiga_work).
+﻿# Pull staged Amiga ground into a local database (default: ko2amiga_work).
 # Triggers staging export PHP, downloads dump, replaces TargetDatabase.
 # Simul is opt-in (-Simul) — default pull does not run it (~20 min).
 #

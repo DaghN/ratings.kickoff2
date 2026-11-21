@@ -1,4 +1,4 @@
-# RETIRED (Jun 2026) — obsolete dev scripts retirement, slice 1.
+﻿# RETIRED (Jun 2026) — obsolete dev scripts retirement, slice 1.
 # Activity wing batch fill on ko2unity_db depended on the retired batch rebuild chain.
 #
 # Use instead (work / kooldb1):

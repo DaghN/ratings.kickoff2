@@ -1,4 +1,4 @@
-# PROMOTE-1 — point local PHP Amiga config at ko2amiga_work (one-time / after clone).
+﻿# PROMOTE-1 — point local PHP Amiga config at ko2amiga_work (one-time / after clone).
 # Usage (repo root): powershell -ExecutionPolicy Bypass -File scripts\promote_ko2amiga_work_local.ps1
 $ErrorActionPreference = 'Stop'
 $RepoRoot = Split-Path -Parent $PSScriptRoot

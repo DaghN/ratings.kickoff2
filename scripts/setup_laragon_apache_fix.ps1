@@ -1,4 +1,4 @@
-# One-time fix: Avast SSLKEYLOGFILE breaks Apache; Stop All leaves httpd-real running.
+﻿# One-time fix: Avast SSLKEYLOGFILE breaks Apache; Stop All leaves httpd-real running.
 # Usage: powershell -ExecutionPolicy Bypass -File scripts\setup_laragon_apache_fix.ps1
 
 $ErrorActionPreference = 'Stop'

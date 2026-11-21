@@ -1,4 +1,4 @@
-# REP-012 + REP-013 on local Laragon dev DB (ko2unity_db).
+﻿# REP-012 + REP-013 on local Laragon dev DB (ko2unity_db).
 # Usage: powershell -ExecutionPolicy Bypass -File scripts\run_league_awards_rebuild.ps1
 
 $ErrorActionPreference = 'Stop'

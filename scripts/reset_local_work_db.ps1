@@ -1,4 +1,4 @@
-# DEPRECATED — use scripts\refresh_local_work_db.ps1 (prepare platform v2).
+﻿# DEPRECATED — use scripts\refresh_local_work_db.ps1 (prepare platform v2).
 # Forwards to refresh_local_work_db.ps1 for backward compatibility.
 
 param([switch]$DryRun)

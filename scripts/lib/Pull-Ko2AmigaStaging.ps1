@@ -1,4 +1,4 @@
-# Pull staged ko2amiga_db -> local ko2amiga_work (PULL-1a).
+﻿# Pull staged ko2amiga_db -> local ko2amiga_work (PULL-1a).
 # Dot-source from scripts\pull_ko2amiga_from_staging.ps1
 
 function Get-AmigaOpsPasswordFromConfig {

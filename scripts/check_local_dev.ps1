@@ -1,4 +1,4 @@
-# Local Laragon + ratings site health check (Windows).
+﻿# Local Laragon + ratings site health check (Windows).
 # Usage: powershell -ExecutionPolicy Bypass -File scripts\check_local_dev.ps1
 
 $ErrorActionPreference = 'Continue'

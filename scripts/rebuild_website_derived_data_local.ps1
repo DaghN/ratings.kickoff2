@@ -1,4 +1,4 @@
-# RETIRED (Jun 2026) — obsolete dev scripts retirement, slice 1.
+﻿# RETIRED (Jun 2026) — obsolete dev scripts retirement, slice 1.
 # Batch website-derived fill on ko2unity_db is not a supported path.
 #
 # Use instead (online work / kooldb1 sign-off):

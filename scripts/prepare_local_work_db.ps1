@@ -1,4 +1,4 @@
-# Full prepare on local work DB: refresh → migrate → seed catalog → zero derived (+ parity checks).
+﻿# Full prepare on local work DB: refresh → migrate → seed catalog → zero derived (+ parity checks).
 # Usage: powershell -ExecutionPolicy Bypass -File scripts\prepare_local_work_db.ps1
 #        powershell -ExecutionPolicy Bypass -File scripts\prepare_local_work_db.ps1 -ZeroOnly
 #        powershell -ExecutionPolicy Bypass -File scripts\prepare_local_work_db.ps1 -DryRun

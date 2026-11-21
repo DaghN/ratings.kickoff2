@@ -1,4 +1,4 @@
-# Shared staging export - dumps a local Amiga DB into ko2amiga_* import parts.
+﻿# Shared staging export - dumps a local Amiga DB into ko2amiga_* import parts.
 # Daily path: scripts\export_ko2amiga_work.ps1 (source ko2amiga_work).
 # Oracle archaeology: scripts\export_ko2amiga_db.ps1 (source ko2amiga_db).
 #

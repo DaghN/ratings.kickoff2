@@ -1,4 +1,4 @@
-# RETIRED (Jun 2026) — obsolete dev scripts retirement, slice 2.
+﻿# RETIRED (Jun 2026) — obsolete dev scripts retirement, slice 2.
 # Was: full ladder replay on frozen ko2unity_db via python -m scripts.ladder run
 #
 # Policy: docs/obsolete-dev-scripts-retirement-policy.md

@@ -8,11 +8,12 @@
 
 ## Habits loaded in every chat (shared with Cursor)
 
-@.cursor/rules/kool-workspace.mdc
+`.cursor/rules/kool-workspace.mdc` is the shared always-apply rule. Claude won't `@`-import a `.mdc` file (tested 2026-11-22), so a **SessionStart hook** in `.claude/settings.json` prints it into context at the start of every session. Edit that `.mdc` file, not a copy. If it isn't in your context, read it before coding.
 
 ## How Claude differs from the Cursor setup
 
-- **Cold start:** `PROJECT_MEMORY.md` is about 180 KB, more than one Read can hold. Read the top: Current focus, Next, and the newest Recent log rows (roughly the first 230 lines). Don't page through the whole log.
+- **Cold start:** `PROJECT_MEMORY.md` fits in one Read. Keep it that way: when the Recent log passes about 60 rows, move the older rows to `docs/archive/session-log-*.md`, following the 2026-11-22 Jul prune.
+- **PowerShell scripts:** Windows PowerShell 5.1 reads UTF-8 `.ps1` files without a BOM as cp1252, and a `—` inside a double-quoted string then breaks parsing. Keep `.ps1` files UTF-8 **with BOM**. Edit keeps an existing BOM; a new `.ps1` created with Write needs one added.
 - **File encoding:** `.cursor/rules/utf8-windows.mdc` works around a Cursor-only bug, so ignore it here. Claude's Write and Edit tools save UTF-8 without a BOM, and Edit keeps the repo's CRLF line endings (verified 2026-11-22). **Never** create source files with PowerShell `Out-File`, `Set-Content` or `>`. Windows PowerShell 5.1 adds a BOM or writes UTF-16, which breaks PHP output.
 - **Shells:**
   - The Bash tool is Git Bash (POSIX), so heredocs work. Use `/c/...` paths.

@@ -1,4 +1,4 @@
-# Download KOOL site fonts (latin woff2) into site/public_html/fonts/
+﻿# Download KOOL site fonts (latin woff2) into site/public_html/fonts/
 # Sources: @fontsource npm mirrors on jsDelivr (OFL/SIL licensed families from Google Fonts)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot

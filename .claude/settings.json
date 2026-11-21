@@ -3,6 +3,20 @@
   "env": {
     "PYTHONIOENCODING": "utf-8"
   },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat \"$CLAUDE_PROJECT_DIR/.cursor/rules/kool-workspace.mdc\"",
+            "timeout": 10,
+            "statusMessage": "Loading kool-workspace rule"
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "allow": [
       "Bash(git status *)",
