@@ -1,6 +1,6 @@
 # PROJECT_MEMORY — running context for agents
 
-**Who reads this:** Primarily Cursor agents between sessions. Keep it **short and current**; trim or archive stale bullets rather than appending forever.
+**Who reads this:** Primarily agents between sessions (Cursor until Jul 2026; Claude Code from Nov 2026 via `CLAUDE.md`). Keep it **short and current**; trim or archive stale bullets rather than appending forever.
 
 **Authority (when documents disagree):** `PROJECT_BRIEF.md` defines purpose and taste. **`docs/design-direction.md`** governs visual identity and cosmetics-track work. **Dagh’s latest message in chat wins** on scope and direction. This file records **logistics, recent work, and near-term intent** — not a second brief. Rituals and agent rules: **`AGENTS.md`**.
 
@@ -149,6 +149,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-11-22 | **Moved from Cursor to Claude Code.** `CLAUDE.md` imports `AGENTS.md` and the `kool-workspace` rule. `.claude/settings.json` adds an allowlist (git, gh read-only, Laragon php/mysql, repo Python and PS1 scripts), denies force-push and `reset --hard`, and sets `PYTHONIOENCODING=utf-8` (the Amiga CLI crashed on cp1252). `.claude/rules/k2-table-php.md` mirrors the Cursor glob rule. Verified: Claude's Write and Edit keep UTF-8 and CRLF, so the UTF-16 rule is Cursor-only. The repo had no commits from 2026-07-24 to 2026-11-22, so pull Amiga from staged before the next Amiga work. |
 | 2026-07-24 | **Create min 4 players** — kitchen create refuses &lt;4; Create button disabled until roster has 4. |
 | 2026-07-24 | **AD8 staged smoke PASS** — deep-backdate create requires admin password on staging; admin session does not bypass. [`amiga-organizer-backdate-guard-policy.md`](docs/amiga-organizer-backdate-guard-policy.md). |
 | 2026-07-23 | **AD8 backdate guard shipped** — create date >1 calendar month (UTC) requires admin password on fixtures create; client panel + server gate. [`amiga-organizer-backdate-guard-policy.md`](docs/amiga-organizer-backdate-guard-policy.md). |

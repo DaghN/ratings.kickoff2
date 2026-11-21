@@ -1,6 +1,6 @@
 # Agent entry point — KOOL ratings site
 
-**For Cursor agents and new chats.** Repo overview for humans: [`README.md`](README.md). Dagh’s habit: end many sessions with **“update docs”** — that means [Part A + maybe Part B in `docs/UPDATE_DOCS.md`](docs/UPDATE_DOCS.md), not “database only.”
+**For agents and new chats (Cursor or Claude Code).** Claude Code loads this file through [`CLAUDE.md`](CLAUDE.md), which imports it and lists the Claude-specific differences. Repo overview for humans: [`README.md`](README.md). Dagh’s habit: end many sessions with **“update docs”** — that means [Part A + maybe Part B in `docs/UPDATE_DOCS.md`](docs/UPDATE_DOCS.md), not “database only.”
 
 ---
 
@@ -123,6 +123,8 @@ When launching subagents (Task tool, parallel agents, etc.):
 **`.cursor/rules/kool-workspace.mdc`** has `alwaysApply: true`.
 
 That means Cursor **automatically** attaches it to **every Agent chat** in this workspace. You do **not** need to say “read AGENTS.md”, “follow rules”, or “update docs” for the habits to apply — though **“update docs”** still works as an extra nudge.
+
+**Claude Code (since Nov 2026):** [`CLAUDE.md`](CLAUDE.md) imports this file and `kool-workspace.mdc`, so every Claude chat gets the same habits. Cursor's glob-scoped rules have Claude copies in `.claude/rules/`. The command allowlist is in `.claude/settings.json`.
 
 | Habit | Automatic? | Your part |
 |-------|------------|-----------|

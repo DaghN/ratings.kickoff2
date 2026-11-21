@@ -51,4 +51,4 @@ If you are continuing from a clone:
 
 ## Using an AI agent
 
-This tree is large enough that an AI coding agent (e.g. in Cursor) is a practical way to explore or dig into one area. Point the agent at [`AGENTS.md`](AGENTS.md); a cold start is [`PROJECT_MEMORY.md`](PROJECT_MEMORY.md) → [`AGENTS.md`](AGENTS.md) → [`docs/PROJECT_MAP.md`](docs/PROJECT_MAP.md). Ask a concrete question ("how does Amiga time travel work?", "where is local setup?", "where do post-game writers live?") rather than "read the whole repo."
+This tree is large enough that an AI coding agent (e.g. Cursor or Claude Code) is a practical way to explore or dig into one area. Point the agent at [`AGENTS.md`](AGENTS.md); a cold start is [`PROJECT_MEMORY.md`](PROJECT_MEMORY.md) → [`AGENTS.md`](AGENTS.md) → [`docs/PROJECT_MAP.md`](docs/PROJECT_MAP.md). Ask a concrete question ("how does Amiga time travel work?", "where is local setup?", "where do post-game writers live?") rather than "read the whole repo."

@@ -46,6 +46,7 @@ Not a greenfield app: legacy online tables (`ratedresults`, `playertable`, …),
 | `data/amiga/day0/` | L3 witness archive (git-tracked) |
 | `data/amiga/checkpoints/` | Milestone **`ko2amiga_work`** git seals — [`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md) |
 | `README.md` | Human repo overview — website + DB/ops backbone, continuity, dive-deeper links (agents → `AGENTS.md`) |
+| `CLAUDE.md` · `.claude/` | **Claude Code entry point.** `CLAUDE.md` imports `AGENTS.md` and the Cursor `kool-workspace` rule, then lists what differs in Claude. `.claude/settings.json` holds the shared command allowlist and env; `.claude/rules/` holds path-scoped rules that mirror `.cursor/rules/`. |
 | `PROJECT_BRIEF.md` | Product purpose / taste / north star (rich KO2 content platform; dual realm) |
 | `PROJECT_MEMORY.md` | **Current focus**, deploy facts, recent log |
 
