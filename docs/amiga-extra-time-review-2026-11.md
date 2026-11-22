@@ -10,7 +10,8 @@
 
 - Access is very reliable for normal scores and much weaker for extra time: 12 of the 77 World Cup matches that went past normal time had a wrong, misplaced or missing note.
 - **Ten matches corrected** (nine extra-time notes and one normal-time score). In all ten the final placings were already right and stay as they were.
-- **Three matches left alone** until someone confirms them (§6).
+- **One match still to correct** with the next Amiga data push: XXI 5th place (§6).
+- **Two old matches left as they are in Access**, closed by Dagh: VIII 15th place and VI places 41-44 (§6).
 - The same day, three placings and one bronze medal were corrected for the opposite reason: there the results were right and the placings wrong (§7).
 
 ## 2. Our convention
@@ -40,7 +41,7 @@ The truth is the game on the Amiga. Everything else is a copy of it.
 | Video | The Amiga screen itself | Decides | Only a few of these matches were filmed |
 | Access `Scores`, normal time | Imported in bulk from result sheets: Access still holds an import error log for an Excel sheet named "Scores" | Very high | In the 20 World Cups with full tables (about 7,450 games), 713 of 741 player totals match our games exactly (708 before the corrections). Of the mismatches we followed up, one was a wrong Access score (World Cup VII); the rest are slips in the totals (§8) |
 | Access `Scores.Extra` | Extra-time text | Moderate | Looks typed by hand: 108 notes in 12 different spellings. 12 of 77 World Cup matches wrong, misplaced or missing |
-| Results images on alkis.org | Pictures of the original result sheets | High, not perfect | Agree with 63 of the 69 Access notes we could compare, and in the other six Access contradicts itself. Known slips: XIV 5th place and XXI 5th place (§6, §8) |
+| Results images on alkis.org | Pictures of the original result sheets | High, not perfect | Agree with 63 of the 69 Access notes we could compare, and in the other six Access contradicts itself. Known slips: XIV 5th place (§8); XXI 5th place shows the score after extra time in the place of the second leg (§6) |
 | Placings: Access `[Tables]` and the alkis.org ranking lists | Made after the event, and they agree with each other | Good, not proof | Wrong in three placement finals (§7) |
 | Player comments on alkis.org | Written by Alkis after the event | Good supporting evidence | They describe matches independently of the score tables |
 
@@ -87,17 +88,31 @@ The table has eleven rows because the XVII note moves from one match to another.
 
 **Effect:** only the World Cup VII game changes Elo, because it goes from a draw to a 2-0 win for Lorenzo C. It is an early game (2007), so small differences run on through later games: 285 current ratings change, 28 by 0.05 or more and 7 by 0.5 or more (largest: Stef K -1.4, Jan T -1.3, Niels T -1.1), and 22 places in the ranking move by one or two. No placing, medal or finish override changes; of the 27,757 games only the eleven rows above differ. Full rebuild and all 29 checks passed on 2026-11-22.
 
-## 6. Left alone
+## 6. The three matches left after the ten
 
-| Match | What the sources say | What we believe | What would settle it |
+### XXI 5th place, Christopher D v Mario F: decided, not yet applied
+
+Nobody doubts the placing: Mario F is 5th and Christopher D 6th in both sources and on our site. Only the scores looked unclear, and the first version of this review read them too strictly.
+
+| Source | Leg 1 | Leg 2 | Elsewhere |
 |---|---|---|---|
-| **VIII 15th place**, Alessandro V v Knut L (game 14230) | Access: `4-5 e.t.`, so Knut L wins 9-8 on aggregate. alkis.org: 4-7, so Alessandro V wins 10-9. Access's placing and the alkis.org ranking list both have Alessandro V 15th | Most likely 4-7. The 17th place final 14 rows earlier in Access has the same `4-5 e.t.` (there the video's title agrees), so it may have been copied down by mistake. But no video or later match proves it | Alkis's original sheet, or one of the players |
-| **VI places 41-44**, Haakon E v Peter S (game 8577) | Access: 3-4 in normal time. alkis.org: 3-3, then 3-4 in extra time | Probably alkis.org: an extra-time line is easy to lose and hard to invent. Peter S wins either way, but 3-3 would change Elo | Alkis's original sheet |
-| **XXI 5th place**, Christopher D v Mario F (games 26309, 26310) | Access: 6-5 and 4-5 (Christopher D first), level 10-10 with no note. alkis.org image: 4-5 and 6-8 | Mario F won and is 5th in both. The image cannot be right either: alkis.org's own win and loss totals only fit one win each. Its goal totals suggest 6-5, 4-5 and then 4-8 after extra time, but that is only our inference | Alkis's original sheet, or one of the players |
+| Access | Christopher D 6-5 Mario F | Mario F 5-4 Christopher D | Level 10-10, no note. Totals: one win each |
+| alkis.org image | Christopher D 4-5 Mario F | Mario F **8-6** Christopher D | Ranking list: one win each, and exactly three more goals for Mario F than in Access |
 
-Question prepared for Alkis:
+**Reading:** these are the same two games. Mario F won one leg 5-4, Christopher D the other 6-5, so it was level 10-10 and needed extra time. Mario F won that 3-0, and the image shows 8-6, the score after extra time, where the second leg should be 6-5. Access lists the legs the other way round here, as it does for the 25th, 27th and 29th place finals of the same World Cup.
 
-> Could you check three World Cup results in your original sheets? 2008 15th place, Alessandro V v Knut L: was it 4-7 or 4-5 after extra time? 2006 places 41-44, Haakon E v Peter S, second leg: 3-3 and then 3-4 in extra time, or 3-4 in normal time? 2023 5th place, Christopher D v Mario F: what were both legs and the extra time?
+**Why we believe it:** Access contradicts itself (level, no decider, Mario F 5th), so by our rule (§4) alkis.org supplies the score. The 5-4 and Christopher D's 6 goals are the same in both sources, and both give each player one win, which two wins for Mario F would not. **What speaks against it:** the image has no `a.e.t.` line here, and Alkis counted these three goals in his totals, which he did not do for the 17th and 29th place finals. So: very likely, not proved. Normal-time scores, Elo and placings do not change either way.
+
+**To apply** (next Amiga data push): game 26309 (Access 26929), Christopher D 6-5 Mario F: `6-8 e.t.`, extra-time goals 0-3, in the three places named in §9, then simul. Until then the Stages page names Christopher D as the winner of this final.
+
+### Two old matches: closed
+
+Dagh, 2026-11-22: too old to spend more time on. They stay as in Access and nobody needs to be asked. Reopen only if a source turns up by itself.
+
+| Match | What the sources say | What we believe |
+|---|---|---|
+| **VIII 15th place**, Alessandro V v Knut L (game 14230) | Access: `4-5 e.t.`, so Knut L wins 9-8 on aggregate. alkis.org: 4-7, so Alessandro V wins 10-9. Access's placing and the alkis.org ranking list both have Alessandro V 15th | Most likely 4-7. The 17th place final 14 rows earlier in Access has the same `4-5 e.t.` (there the video's title agrees), so it may have been copied down by mistake. But no video or later match proves it. The Stages page names Knut L; the placing is Alessandro V |
+| **VI places 41-44**, Haakon E v Peter S (game 8577) | Access: 3-4 in normal time. alkis.org: 3-3, then 3-4 in extra time | Probably alkis.org: an extra-time line is easy to lose and hard to invent. Peter S wins either way, but 3-3 would change Elo |
 
 ## 7. Placings corrected the same day
 
