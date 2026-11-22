@@ -10,10 +10,10 @@
 
 - Access is very reliable for normal scores and much weaker for extra time: 12 of the 77 World Cup matches that went past normal time had a wrong, misplaced or missing note.
 - **Ten matches corrected** (nine extra-time notes and one normal-time score). In all ten the final placings were already right and stay as they were.
-- **Still to correct with the next Amiga data push:** XXI 5th place, once its score is confirmed (§6), and, if Dagh agrees, a World Cup IV group game whose score is turned round (§12).
+- **Still to correct with the next Amiga data push:** XXI 5th place, once its score is confirmed (§6).
 - **Two old matches left as they are in Access**, closed by Dagh: VIII 15th place and VI places 41-44 (§6).
 - The same day, three placings and one bronze medal were corrected for the opposite reason: there the results were right and the placings wrong (§7).
-- **Second check, 2026-11-23** (§12): the ten corrections and the placings hold, nine of the ten with a second witness. It found the World Cup IV game, and it made us less sure of XXI 5th place.
+- **Second check, 2026-11-23** (§12): the ten corrections and the placings hold, nine of the ten with a second witness. It made us less sure of XXI 5th place and left a World Cup IV group game open (§12).
 
 ## 2. Our convention
 
@@ -40,7 +40,7 @@ The truth is the game on the Amiga. Everything else is a copy of it.
 | Source | What it is | Trust | Why |
 |---|---|---|---|
 | Video | The Amiga screen itself | Decides | Only a few of these matches were filmed |
-| Access `Scores`, normal time | Imported in bulk from result sheets: Access still holds an import error log for an Excel sheet named "Scores" | Very high | In World Cups I to XXIII (about 8,270 games), 809 of 840 player totals match our games exactly. Two of the mismatches were wrong Access scores (VII, corrected; IV, §12); nearly all the rest are slips in the totals (§8) |
+| Access `Scores`, normal time | Imported in bulk from result sheets: Access still holds an import error log for an Excel sheet named "Scores" | Very high | In World Cups I to XXIII (about 8,270 games), 809 of 840 player totals match our games exactly. One mismatch was a wrong Access score (VII, corrected), one is open (IV, §12); nearly all the rest are slips in the totals (§8) |
 | Access `Scores.Extra` | Extra-time text | Moderate | Looks typed by hand: 108 notes in 12 different spellings. 12 of 77 World Cup matches wrong, misplaced or missing |
 | Results images on alkis.org | Pictures of the original result sheets | High, not perfect | Agree with 63 of the 69 Access notes we could compare, and in the other six Access contradicts itself. Known slips: XIV 5th place (§8); XXI 5th place has no extra-time mark although Access has the final level (§6) |
 | Placings: Access `[Tables]` and the alkis.org ranking lists | Made after the event, and they agree with each other | Good, not proof | Wrong in three placement finals (§7) |
@@ -142,10 +142,10 @@ Here the results were right and the placing was wrong. Dagh's rule: the result d
 
 ## 8. Looked at and not changed
 
-- **XIV 5th place**, John H v Gianluca T: the alkis.org image shows two legs that are not level (3-4, 2-3) followed by extra time. Access (3-2 and 3-4, then 4-4) is level and gives John H 5th, as both sources say, and the ranking list now on alkis.org has Access's goals. Legs of 4-3 and 2-3 would fit too, with the same winner and the same totals. Access stands.
+- **XIV 5th place**, John H v Gianluca T: the alkis.org image shows two legs that are not level (3-4, 2-3) followed by extra time. Access (3-2 and 3-4, then 4-4) is level and gives John H 5th, as both sources say, and the ranking list now on alkis.org has Access's goals. Legs of 4-3 and 2-3 would fit too, with the same winner and the same totals. The official ranking of December 2014 fits Access's legs. Access stands.
 - **IV KOA Cup:** some winners are placed below the player they beat. Access leaves the KOA Cup out of the World Cup IV placings, so this is not an error.
 - **XX "31st Place Final", Hannes B 2-2 Manfred S:** this is the Game of Shame with the wrong phase label in Access. The score is right.
-- **The 31 player totals that still differ:** walkovers counted as games (XXI, Ian K and Fabien S); goals of two second legs that went to extra time left out (X, three players); five Bronze Cup games left out (XXIII, four players); XV 29th place (§5); the score turned round in IV (§12, two players); three matches in XI and XXI (§12, six players) and a penalty win counted as a win (XI, Wayne L and Thorsten B); one leg turned round (XIV, John H and Gianluca T), since put right on alkis.org; the rest are slips (I, III, V, VIII, XIV).
+- **The 31 player totals that still differ:** walkovers counted as games (XXI, Ian K and Fabien S); goals of two second legs that went to extra time left out (X, three players); five Bronze Cup games left out (XXIII, four players); XV 29th place (§5); the open game in IV (§12, two players); three matches in XI and XXI (§12, six players) and a penalty win counted as a win (XI, Wayne L and Thorsten B); one leg turned round (XIV, John H and Gianluca T), since put right on alkis.org; the rest are slips (I, III, V, VIII, XIV).
 - **Tomasso R = Lorenzo C:** alkis.org lists Tomasso R in World Cups VII and X where Access has Lorenzo C. The placings (26th and 21st) and the VII totals match, so we treat them as one person, as Access does.
 
 ## 9. Where the corrections live
@@ -192,7 +192,15 @@ XXI 5th place taught us three things: a leg in a source can hold the score after
 
 **The placings hold too** (§7). XII bronze: the comment on Andy G says the bronze was lost in extra time. XIX 11th is still the weakest, but extra time cannot explain it: if the second leg's 4-2 includes extra time, it was Frank F who won it, and both players' totals match our games exactly.
 
-**One new error: World Cup IV, Round 1 Group B, Nazim C v Gianni T** (game 4651, Access 4652). Access has 1-7. The picture has 7-1, and so do the group table there (27 and 24 points), the ranking list, and Access's own totals for both players; they fit nothing else. The score was not turned round, as in XXI 17th. By our rule (§4) it should be 7-1. It changes Elo; the group order and the placings stay. **Not applied, waiting for Dagh.**
+**Open: World Cup IV, Round 1 Group B, Nazim C v Gianni T** (game 4651, Access 4652). Access's game list has 1-7; everything else from 2004 fits 7-1. The first version of this section called it an error; that was too sure.
+
+| | Gianni T won 7-1 (as now) | Nazim C won 7-1 |
+|---|---|---|
+| Records | Access's game list only | alkis.org: the group's results picture, the group table beside it (27 and 24 points) and the ranking list. Access: its own copy of the group table, and its totals. All of these may come from one sheet, so they count as one witness |
+| Official KOA ranking, December 2004 (Access `Rankings`) | Would give Gianni T about +125 and Nazim C about 0 | Would give about +35 and +85. Listed: **+45 and +67**. Formula rebuilt from the other 41 players; of 362 games turned round one by one, only games of Nazim C improve the fit clearly |
+| The football | Gianni T had won 5-1 at home the same day, and won 10-0 in 2007. Between players of similar rating, 89 who won one leg by 3 to 5 goals also won the other by 5 to 7; 28 lost it by as much | |
+
+So in 2004 the result counted as 7-1 to Nazim C. What we cannot tell is why the game list differs: a slip when it was put together later, or a correction somebody made there afterwards. Corrections in the game list alone do exist: XIV 5th place and the XIV 12-2 are right there and wrong in the sheet, and the December 2014 ranking already follows the game list for the first. That is also why the rule in §4 is not enough here. **Stays 1-7 until Gianni T or Nazim C confirms.** A change would alter Elo, not the group order or the placings.
 
 **Three matches with the same warning sign as XXI 5th place**
 
