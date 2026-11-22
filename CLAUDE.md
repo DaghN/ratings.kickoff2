@@ -25,7 +25,7 @@
   - If MySQL is down (`mysqladmin.exe -uroot ping` fails), ask Dagh to click **Start All** in Laragon.
 - **Subagents:** the "composer-2.5" rule in AGENTS.md is Cursor-only. Ignore it.
 - **Path-scoped rules:** `.claude/rules/` mirrors the glob-scoped rules in `.cursor/rules/`. Today that is only the K2 table PHP rule.
-- **Git:** commit and push only when Dagh asks. Force-push and `reset --hard` are denied in `.claude/settings.json`.
+- **Git:** commit and push to `main` as you see fit, without asking, and keep GitHub up to date (Dagh, 2026-11-22). Commit finished, checked work; look through the diff for secrets first, because the repo is public. Force-push and `reset --hard` are denied in `.claude/settings.json`. This covers GitHub only: live-site uploads and live Amiga pushes still need Dagh's OK (see WinSCP below).
 - **WinSCP (Claude can do it; set up 2026-11-22):**
   - Saved session `dagh@ratings.kickoff2.com@ratings.kickoff2.com` (SFTP, port 5322); the password is stored in WinSCP and never shown.
   - Run `WinSCP.com /script=<file>` from the **PowerShell** tool. Git Bash mangles `/command`, and inline filemask quoting breaks.
