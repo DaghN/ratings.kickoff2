@@ -112,17 +112,26 @@ self-cancels on pages where `realm-switch.js` already owns the schedule).
 1. Put the MP3 in `site/public_html/audio/amiga/tracks/` (kebab-case name) and add one line to
    `site/public_html/audio/amiga/playlist.json`. `game` is the second line in the list, `title` the first.
    No code changes. To go live, upload those two files.
-2. **Where the tracks come from.** All but one of the files are ready-made 320 kbps MP3s by Alex Menchi,
+2. **Where the tracks come from.** All but two of the files are ready-made 320 kbps MP3s by Alex Menchi,
    <https://worldofmenchi.fr/Amiga/Musics/> (same file names; tags "Amiga 500" / "Amiga Music" / 2016).
    Look there first, in a normal browser: the site refuses scripted downloads (403), so save the file by hand.
-   Giana Sisters is the exception: it came from YouTube and carries the video address in its tags.
-3. **From YouTube**, when no ready-made file exists: `yt-dlp -f 140 --fixup never <url>` saves the m4a audio, then
+   The exceptions: Giana Sisters came from YouTube (the video address is in its tags), and Corruption from Stone
+   Oakvalley's collection, recorded from real Amigas, on a public Debian mirror that allows scripted downloads:
+   <https://cdimage.debian.org/mirror/media/Oakvalley/soamc/000/MP3/>. `_ORG` files are hard left/right, `_MIX` blended;
+   the other jukebox tracks are partly blended, so use `_MIX`.
+3. **From YouTube**, when no ready-made file exists (worked on 2026-11-22 for one clip, then YouTube answered 403): `yt-dlp -f 140 --fixup never <url>` saves the m4a audio, then
    `scripts/oneoff/jukebox_transcode.ps1` makes a WAV (to check or trim) and a 320 kbps MP3. ffmpeg is not installed
    and is not needed.
 4. **Match the others:** 44.1 kHz stereo, 320 kbps, 0 to 0.4 s of silence before the music and 1 to 2 s after it,
    loudness (RMS) between -12 and -21 dB. Listen for a click where a recording stops abruptly.
    Exception: the Magnetic Fields intro has its end silence cut (9.95 s), because it led straight into the game on
    the Amiga and Super Cars II follows it in the list. The cut is at an MP3 frame boundary, so nothing was re-encoded.
+
+**Corruption (3:46) was edited from the `_MIX` recording.** The tune is one 3:35 pass, 2.3 s of silence, then a restart
+that is off the beat. The beat unit is 1.08 s (8.63974 s per eight-unit phrase). Edits: the first 3.52 s come from the
+restart at 217.2536 s, because the first pass lacks its opening left-channel chord; the restart is glued to unit 199
+(214.914 s), where the last note is switched off, and fades out over 10 s. Dagh chose this join by ear over a one-unit
+pause, a smoothed cut and a held note.
 
 ## No Turbo
 

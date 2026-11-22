@@ -19,6 +19,7 @@
     {"id": "giana-sisters-menu", "title": "Menu Theme", "game": "The Great Giana Sisters", "file": "tracks/giana-sisters-menu.mp3"},
     {"id": "battle-squadron-intro", "title": "Intro", "game": "Battle Squadron", "file": "tracks/battle-squadron-intro.mp3"},
     {"id": "battle-squadron-game", "title": "In Game", "game": "Battle Squadron", "file": "tracks/battle-squadron-game.mp3"},
-    {"id": "battle-squadron-high-score", "title": "High Score", "game": "Battle Squadron", "file": "tracks/battle-squadron-high-score.mp3"}
+    {"id": "battle-squadron-high-score", "title": "High Score", "game": "Battle Squadron", "file": "tracks/battle-squadron-high-score.mp3"},
+    {"id": "corruption-theme", "title": "Theme", "game": "Corruption", "file": "tracks/corruption-theme.mp3"}
   ]
 }
