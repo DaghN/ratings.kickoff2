@@ -632,8 +632,31 @@ function k2_status_active_top_rated(mysqli $con, ?string &$error = null): ?array
     return $out;
 }
 
+/** All tables of this connection's database, read once (each question costs a trip to the database server). */
+function k2_status_table_names(mysqli $con): array
+{
+    /** @var WeakMap<mysqli, array<string, true>>|null $cache */
+    static $cache = null;
+    $cache ??= new WeakMap();
+    if (!isset($cache[$con])) {
+        $names = [];
+        $r = mysqli_query($con, 'SELECT table_name AS t FROM information_schema.tables WHERE table_schema = DATABASE()');
+        while ($r && ($row = mysqli_fetch_assoc($r))) {
+            $names[(string) $row['t']] = true;
+        }
+        $cache[$con] = $names;
+    }
+
+    return $cache[$con];
+}
+
 function k2_status_table_exists(mysqli $con, string $tableName): bool
 {
+    if (isset(k2_status_table_names($con)[$tableName])) {
+        return true;
+    }
+
+    // Not in the list: ask, in case the table was created after the list was read.
     static $exists = [];
     if (array_key_exists($tableName, $exists)) {
         return $exists[$tableName];

@@ -1978,6 +1978,39 @@ function amiga_tournament_knockout_pair_scope_key(string $phase, int $playerAId,
 }
 
 /**
+ * The standings tables a tournament has, read once per request. Game lists ask for every row.
+ *
+ * @return array{knockout: array<string, true>, league: array<string, true>, stage: array<int, list<array{scope_type: string, scope_key: string}>>}
+ */
+function amiga_tournament_scope_index(mysqli $con, int $tournamentId): array
+{
+    static $cache = [];
+    if (isset($cache[$tournamentId])) {
+        return $cache[$tournamentId];
+    }
+
+    $index = ['knockout' => [], 'league' => [], 'stage' => []];
+    $res = mysqli_query(
+        $con,
+        'SELECT DISTINCT scope_type, scope_key, stage_id FROM amiga_tournament_standings '
+            . 'WHERE tournament_id = ' . $tournamentId . ' ORDER BY scope_type, scope_key'
+    );
+    while ($res && ($row = mysqli_fetch_assoc($res))) {
+        $type = (string) $row['scope_type'];
+        $key = (string) $row['scope_key'];
+        $index[$type][mb_strtolower($key)] = true; // the column compares without case
+        if ($row['stage_id'] !== null) {
+            $index['stage'][(int) $row['stage_id']][] = ['scope_type' => $type, 'scope_key' => $key];
+        }
+    }
+    if ($res) {
+        mysqli_free_result($res);
+    }
+
+    return $cache[$tournamentId] = $index;
+}
+
+/**
  * @return array{scope_type: string, scope_key: string}|null
  */
 function amiga_tournament_resolve_phase_scope(
@@ -1991,52 +2024,21 @@ function amiga_tournament_resolve_phase_scope(
     if ($phase === '' || $tournamentId < 1) {
         return null;
     }
+    $index = amiga_tournament_scope_index($con, $tournamentId);
 
     if ($playerAId > 0 && $playerBId > 0) {
         $pairKey = amiga_tournament_knockout_pair_scope_key($phase, $playerAId, $playerBId);
-        $stmt = mysqli_prepare(
-            $con,
-            'SELECT 1 FROM amiga_tournament_standings
-             WHERE tournament_id = ? AND scope_type = \'knockout\' AND scope_key = ?
-             LIMIT 1'
-        );
-        if ($stmt !== false) {
-            mysqli_stmt_bind_param($stmt, 'is', $tournamentId, $pairKey);
-            mysqli_stmt_execute($stmt);
-            $res = mysqli_stmt_get_result($stmt);
-            $found = $res && mysqli_fetch_assoc($res);
-            if ($res) {
-                mysqli_free_result($res);
-            }
-            mysqli_stmt_close($stmt);
-            if ($found) {
-                return ['scope_type' => 'knockout', 'scope_key' => $pairKey];
-            }
+        if (isset($index['knockout'][mb_strtolower($pairKey)])) {
+            return ['scope_type' => 'knockout', 'scope_key' => $pairKey];
         }
     }
 
     foreach (amiga_tournament_phase_scope_candidates($phase) as $candidate) {
-        $stmt = mysqli_prepare(
-            $con,
-            'SELECT 1 FROM amiga_tournament_standings
-             WHERE tournament_id = ? AND scope_type = \'league\' AND scope_key = ?
-             LIMIT 1'
-        );
-        if ($stmt === false) {
-            continue;
-        }
-        mysqli_stmt_bind_param($stmt, 'is', $tournamentId, $candidate);
-        mysqli_stmt_execute($stmt);
-        $res = mysqli_stmt_get_result($stmt);
-        $found = $res && mysqli_fetch_assoc($res);
-        if ($res) {
-            mysqli_free_result($res);
-        }
-        mysqli_stmt_close($stmt);
-        if ($found) {
+        if (isset($index['league'][mb_strtolower($candidate)])) {
             return ['scope_type' => 'league', 'scope_key' => $candidate];
         }
     }
+
     return null;
 }
 
@@ -2156,29 +2158,19 @@ function amiga_tournament_resolve_game_phase_scope(
     if ($tournamentId < 1) {
         return null;
     }
-    if ($stageId > 0) {
-        $stmt = mysqli_prepare(
-            $con,
-            'SELECT scope_type, scope_key FROM amiga_tournament_standings
-             WHERE tournament_id = ? AND stage_id = ?
-             LIMIT 1'
-        );
-        if ($stmt !== false) {
-            mysqli_stmt_bind_param($stmt, 'ii', $tournamentId, $stageId);
-            mysqli_stmt_execute($stmt);
-            $res = mysqli_stmt_get_result($stmt);
-            $row = $res ? mysqli_fetch_assoc($res) : false;
-            if ($res) {
-                mysqli_free_result($res);
-            }
-            mysqli_stmt_close($stmt);
-            if (is_array($row)) {
-                return [
-                    'scope_type' => (string) $row['scope_type'],
-                    'scope_key' => (string) $row['scope_key'],
-                ];
+    $stageScopes = $stageId > 0
+        ? (amiga_tournament_scope_index($con, $tournamentId)['stage'][$stageId] ?? [])
+        : [];
+    if ($stageScopes !== []) {
+        // A knockout stage can hold several ties: take this pair's own.
+        $pairEnd = '|' . min($playerAId, $playerBId) . '-' . max($playerAId, $playerBId);
+        foreach ($stageScopes as $scope) {
+            if (str_ends_with($scope['scope_key'], $pairEnd)) {
+                return $scope;
             }
         }
+
+        return $stageScopes[0];
     }
 
     $witnessPhase = trim($witnessPhase);
