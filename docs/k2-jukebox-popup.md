@@ -112,15 +112,14 @@ self-cancels on pages where `realm-switch.js` already owns the schedule).
 1. Put the MP3 in `site/public_html/audio/amiga/tracks/` (kebab-case name) and add one line to
    `site/public_html/audio/amiga/playlist.json`. `game` is the second line in the list, `title` the first.
    No code changes. To go live, upload those two files.
-2. **Where the tracks come from.** All but two of the files are ready-made 320 kbps MP3s by Alex Menchi,
+2. **Where the tracks come from.** All but one of the files are ready-made 320 kbps MP3s by Alex Menchi,
    <https://worldofmenchi.fr/Amiga/Musics/> (same file names; tags "Amiga 500" / "Amiga Music" / 2016).
    Look there first, in a normal browser: the site refuses scripted downloads (403), so save the file by hand.
-   The other two came from YouTube and carry the video address in their tags: Giana Sisters (Jun 2026)
-   and the Magnetic Fields intro (Nov 2026, also listed on Menchi's site).
+   Giana Sisters is the exception: it came from YouTube and carries the video address in its tags.
 3. **From YouTube**, when no ready-made file exists: `yt-dlp -f 140 --fixup never <url>` saves the m4a audio, then
    `scripts/oneoff/jukebox_transcode.ps1` makes a WAV (to check or trim) and a 320 kbps MP3. ffmpeg is not installed
    and is not needed.
-4. **Match the others:** 44.1 kHz stereo, 320 kbps, 0.05 to 0.3 s of silence before the music and about 1.1 s after it,
+4. **Match the others:** 44.1 kHz stereo, 320 kbps, 0 to 0.4 s of silence before the music and 1 to 2 s after it,
    loudness (RMS) between -12 and -21 dB. Listen for a click where a recording stops abruptly.
 
 ## No Turbo
