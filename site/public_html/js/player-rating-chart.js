@@ -35,23 +35,9 @@
         return isNaN(d.getTime()) ? null : d;
     }
 
-    function localCalendarDayKey(d) {
-        var y = d.getFullYear();
-        var m = d.getMonth() + 1;
-        var day = d.getDate();
-        return y + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
-    }
-
-    function utcDayKeyForDate(d) {
-        if (DayTip && DayTip.utcCalendarDayKey) {
-            return DayTip.utcCalendarDayKey(d);
-        }
-        if (!d || isNaN(d.getTime())) {
-            return '';
-        }
-        var m = d.getUTCMonth() + 1;
-        var day = d.getUTCDate();
-        return d.getUTCFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
+    /** UTC day of a game: the dates in the payload are UTC text, so the first ten characters. */
+    function utcDayKeyForDate(dateStr) {
+        return String(dateStr).trim().substring(0, 10);
     }
 
     function buildPerGameDateValues(points) {
@@ -66,7 +52,7 @@
         return values;
     }
 
-    /** Calendar view: one point per local day — last rating after the final game that day. */
+    /** Calendar view: one point per UTC day — last rating after the final game that day. */
     function buildDateChartData(points) {
         var chartData = [];
         var currentDay = null;
@@ -77,7 +63,7 @@
             if (x === null) {
                 continue;
             }
-            var dayKey = localCalendarDayKey(x);
+            var dayKey = utcDayKeyForDate(points[i].date);
             if (dayKey !== currentDay) {
                 if (lastOfDay) {
                     chartData.push(lastOfDay);
@@ -87,13 +73,12 @@
                     x: x,
                     y: points[i].rating,
                     gamesOnDay: 1,
-                    utcDayKey: utcDayKeyForDate(x)
+                    utcDayKey: dayKey
                 };
             } else {
                 lastOfDay.x = x;
                 lastOfDay.y = points[i].rating;
                 lastOfDay.gamesOnDay += 1;
-                lastOfDay.utcDayKey = utcDayKeyForDate(x);
             }
         }
         if (lastOfDay) {
@@ -454,9 +439,6 @@
             var raw = points[0].raw || {};
             var dayEndRating = points[0].parsed.y;
             var dayKey = raw.utcDayKey;
-            if (!dayKey && raw.x) {
-                dayKey = utcDayKeyForDate(new Date(raw.x));
-            }
             if (!dayKey) {
                 hideRatingDayTooltip();
                 return;

@@ -208,7 +208,7 @@ if (!isset($names[$playerId], $names[$opponentId])) {
 }
 
 $sql = 'SELECT id, Date, ActualScore, WinnerID, idA, GoalsA, GoalsB FROM ratedresults '
-    . 'WHERE (idA = ? AND idB = ?) OR (idA = ? AND idB = ?) '
+    . 'WHERE ((idA = ? AND idB = ?) OR (idA = ? AND idB = ?)) AND ActualScore IS NOT NULL '
     . 'ORDER BY Date ASC, id ASC';
 
 $stmt = $con->prepare($sql);

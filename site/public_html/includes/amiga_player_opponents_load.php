@@ -27,7 +27,7 @@ function amiga_player_opponents_normalize_matchup_row(array $row): array
         'opponent_id' => (int) $row['opponent_id'],
         'opponent_name' => (string) $row['opponent_name'],
         'opponent_country' => (string) ($row['opponent_country'] ?? ''),
-        'opponent_rating' => (int) ($row['opponent_rating'] ?? 0),
+        'opponent_rating' => (int) round((float) ($row['opponent_rating'] ?? 0)),
         'games' => (int) $row['games'],
         'wins' => (int) $row['wins'],
         'draws' => (int) $row['draws'],

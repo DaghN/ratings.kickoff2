@@ -2213,6 +2213,7 @@
         var roots = document.querySelectorAll('[data-k2-status-period-competitions]');
         for (var i = 0; i < roots.length; i++) {
             roots[i].setAttribute('data-server-now-epoch', String(epoch));
+            roots[i].setAttribute('data-browser-loaded-epoch', String(Math.floor(Date.now() / 1000)));
             updateMeta(roots[i]);
         }
     }

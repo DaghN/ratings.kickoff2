@@ -134,4 +134,4 @@ Fixed the same day: `extra_time` now comes before `penalty_shootout` in `LEGACY_
 
 ## 11. Known and not fixed
 
-- **Score entry cannot record extra time.** The organizer form has no field for it. The PHP parser behind it would also store the score after extra time as extra-time goals, and "Make official" does not copy the extra-time columns to the official game.
+- **Score entry cannot record extra time.** The organizer form has no field for it. The PHP parser behind it would also store the score after extra time as extra-time goals, and "Make official" does not copy the extra-time columns to the official game. Deferred by Dagh on 2026-11-22; tracked in [`amiga-organizer-track-status.md`](amiga-organizer-track-status.md) §6.

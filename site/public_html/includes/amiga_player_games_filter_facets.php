@@ -929,7 +929,7 @@ function amiga_player_games_validate_filters_career_wide(
     ?AmigaSnapshotContext $snapshotCtx = null,
 ): void {
     $snapshotCtx ??= amiga_snapshot_context_peek();
-    $careerFacets = amiga_player_games_career_wide_facets($con, $playerId, $filters, $snapshotCtx);
+    $careerFacets = amiga_player_games_career_wide_facets($con, $playerId, ['event' => 'all'], $snapshotCtx);
     $yearOptions = array_keys($careerFacets['year']);
     sort($yearOptions, SORT_NUMERIC);
     $filters['since'] = amiga_games_valid_since_year((int) $filters['since'], $yearOptions);

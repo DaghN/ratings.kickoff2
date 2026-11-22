@@ -234,7 +234,7 @@ function k2_fmt_int(mixed $val, string $empty = '-'): string
 function k2_fmt_count(mixed $val, mixed $games = null, string $empty = '-'): string
 {
 	if (!k2_db_is_null($val)) {
-		return (string) (int) $val;
+		return (string) (int) round((float) $val); // also used for rating columns
 	}
 	if ($games !== null && k2_derived_games_started($games)) {
 		return '0';

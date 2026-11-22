@@ -33,7 +33,7 @@
     }
 
     function readPayload() {
-        var el = document.getElementById('k2-amiga-chronology-bw_culprits-chart-data');
+        var el = document.getElementById('k2-amiga-chronology-bw-culprits-chart-data');
         if (!el || !el.textContent) {
             return null;
         }

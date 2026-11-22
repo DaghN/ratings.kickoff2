@@ -43,9 +43,9 @@ function player_h2h_pair_performance_ratings(mysqli $con, int $playerId, int $op
         return ['subject' => null, 'opponent' => null];
     }
 
-    $sql = 'SELECT idA, RatingA, RatingB, ActualScore FROM ratedresults WHERE idA = ? AND idB = ? '
+    $sql = 'SELECT idA, RatingA, RatingB, ActualScore FROM ratedresults WHERE idA = ? AND idB = ? AND ActualScore IS NOT NULL '
         . 'UNION ALL '
-        . 'SELECT idA, RatingA, RatingB, ActualScore FROM ratedresults WHERE idA = ? AND idB = ?';
+        . 'SELECT idA, RatingA, RatingB, ActualScore FROM ratedresults WHERE idA = ? AND idB = ? AND ActualScore IS NOT NULL';
 
     $stmt = $con->prepare($sql);
     if (!$stmt) {

@@ -63,6 +63,7 @@ function amiga_player_opponents_country_rollup_from_pair_rows(array $pairRows): 
             $buckets[$token] = amiga_player_opponents_country_empty_bucket($token);
         }
         $bucket = &$buckets[$token];
+        $isFirst = $bucket['games'] === 0;
 
         $bucket['games'] += (int) $row['games'];
         $bucket['wins'] += (int) $row['wins'];
@@ -72,14 +73,14 @@ function amiga_player_opponents_country_rollup_from_pair_rows(array $pairRows): 
         $bucket['goals_against'] += (int) $row['goals_against'];
         $bucket['max_goals_for'] = max($bucket['max_goals_for'], (int) $row['max_goals_for']);
         $bucket['max_goals_against'] = max($bucket['max_goals_against'], (int) $row['max_goals_against']);
-        $bucket['min_goals_for'] = $bucket['min_goals_for'] === 0
+        $bucket['min_goals_for'] = $isFirst
             ? (int) $row['min_goals_for']
             : min($bucket['min_goals_for'], (int) $row['min_goals_for']);
-        $bucket['min_goals_against'] = $bucket['min_goals_against'] === 0
+        $bucket['min_goals_against'] = $isFirst
             ? (int) $row['min_goals_against']
             : min($bucket['min_goals_against'], (int) $row['min_goals_against']);
         $bucket['max_goal_sum'] = max($bucket['max_goal_sum'], (int) $row['max_goal_sum']);
-        $bucket['min_goal_sum'] = $bucket['min_goal_sum'] === 0
+        $bucket['min_goal_sum'] = $isFirst
             ? (int) $row['min_goal_sum']
             : min($bucket['min_goal_sum'], (int) $row['min_goal_sum']);
         $bucket['double_digits'] += (int) $row['double_digits'];

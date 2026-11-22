@@ -191,7 +191,7 @@ function k2_player_games_facet_result_counts(mysqli $con, int $playerId, array $
 	$sql = 'SELECT CASE '
 		. "WHEN ((r.idA = $playerIdSql AND ABS(r.ActualScore - 1.0) < 0.001) OR (r.idB = $playerIdSql AND ABS(r.ActualScore) < 0.001)) THEN 'win' "
 		. "WHEN ABS(r.ActualScore - 0.5) < 0.001 THEN 'draw' "
-		. "ELSE 'loss' END AS bucket, COUNT(*) AS games "
+		. "WHEN r.ActualScore IS NOT NULL THEN 'loss' END AS bucket, COUNT(*) AS games "
 		. 'FROM ratedresults r WHERE ' . $where . ' GROUP BY bucket';
 
 	$counts = ['win' => 0, 'draw' => 0, 'loss' => 0];
