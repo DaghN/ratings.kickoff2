@@ -6,7 +6,23 @@
 
 **Agents — remind Dagh:** When local `ko2amiga_db` should match staging (any import path, not only Access file changes): export → WinSCP sync → browser import. Script: `public_html/amiga/run_import_ko2amiga.php` (build tag in page header, e.g. `a2-2026-06-06-b4`). Passwords in `amiga/_ops/amiga_ops_password.local.php` (gitignored): **`$admin_password`** for import/export, **`$organizer_password`** for fixtures (admin also accepted). Open the `once=` URL and enter the password on the **POST** form — do not put `pwd=` in the address bar. **Preview:** `/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot` · **Apply:** use **Apply import** on the page (multi-part auto-continues; avoids gateway timeout). Staging base: `https://ratings.kickoff2.com` · local: `http://ratingskickoff.test`. Import payload: `public_html/amiga/_import/ko2amiga_manifest.json` + `ko2amiga_*.sql` part files (gitignored; WinSCP). Full dump `ko2amiga_db.sql` optional (Heidi fallback).
 
-**Agents — when Dagh says “export to staged” (or similar):** **run** `scripts\export_ko2amiga_work.ps1` yourself (dumps local **`ko2amiga_work`** into staging-import `ko2amiga_*` parts; promotes work video manifest first; **regenerates + audits** export table manifest from `schema_bundles` before dump). Use `setup_ko2amiga_db.ps1` only for a full Access oracle rebuild (`export_ko2amiga_db.ps1` shim). Then reply that the dump is **ready for WinSCP sync and staging import** — include preview/apply URLs above. Do not hand-wave “run export locally”; execute it.
+**One-command push (PUSH-1, shipped 2026-11-22):** `powershell -ExecutionPolicy Bypass -File scripts\push_ko2amiga_to_staging.ps1` (agents add `-Force`). It runs these steps with no typed password:
+1. Export `ko2amiga_work`.
+2. **SS-4 gate:** regenerate the staged dump and require a byte-identical fingerprint against the last pull in `staging-sync-last.json`. If anything was entered on staged since, it aborts.
+3. WinSCP-upload the `_import` parts (saved session).
+4. Check that the server preview shows the same manifest.
+5. POST **Apply import** part by part with `$admin_password` read from the git-ignored `amiga/_ops/amiga_ops_password.local.php`.
+6. Side-pull into `ko2amiga_staging_cmp`, then `amiga_compare_two_dbs.php` must print **MATCH**.
+
+Options:
+- `-DryRun`: export and gate only.
+- `-SkipExport`: use the existing parts.
+- `-SkipStagedCheck`: overwrites staged-only data; Dagh's explicit OK only.
+- `-SkipVerify`.
+
+Proven end to end on 2026-11-22 (identical-data push, 3 minutes, MATCH). The manual path below still works as a fallback.
+
+**Agents — when Dagh says “export to staged” (or similar):** prefer the one-command push above when he wants it live; otherwise **run** `scripts\export_ko2amiga_work.ps1` yourself (dumps local **`ko2amiga_work`** into staging-import `ko2amiga_*` parts; promotes work video manifest first; **regenerates + audits** export table manifest from `schema_bundles` before dump). Use `setup_ko2amiga_db.ps1` only for a full Access oracle rebuild (`export_ko2amiga_db.ps1` shim). Then reply that the dump is **ready for WinSCP sync and staging import** — include preview/apply URLs above. Do not hand-wave “run export locally”; execute it.
 
 **Destructive import (read every time):** Staging browser import **replaces** the whole staging `ko2amiga_db` from export parts — it does **not** merge events that exist only on staging. Routine refresh = export **living work** after **simul**, not nuclear `prove` + oracle export. Community mistakes on staging → anchored repair ([`amiga-live-ops-platform.md`](amiga-live-ops-platform.md)), not full reimport from Access.
 

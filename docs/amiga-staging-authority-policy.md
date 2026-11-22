@@ -178,6 +178,7 @@ Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
 1. **Staged prod, local repair** — do not assign “local is ahead of staging” features without pull/push vocabulary.
 2. **Pull from staged** — Dagh says “pull staged Amiga” (or similar) → **run** `pull_ko2amiga_from_staging.ps1 -Force`; not simul unless asked.
 3. **Export to staged** — run `export_ko2amiga_work.ps1` only when work reflects the repair you intend; script regenerates + audits `staging_export_tables.json` against `schema_bundles` before dump (blocks incomplete push). Remind Dagh if staging had community activity since last pull.
+   - **Push to staged (live):** `push_ko2amiga_to_staging.ps1 -Force` (PUSH-1) does export, the SS-4 gate, WinSCP upload, Apply import and the verify MATCH in one go. Ask Dagh before each live push; never pass `-SkipStagedCheck` without his explicit OK.
 4. **Destructive import** — staging browser import still **wipes** unstaged ground; see handoff doc every time.
 5. **Forward authority** — [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0 for simul/work; this doc for **staging sync roles**.
 
@@ -190,7 +191,8 @@ Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
 | **PULL-1a** | **Shipped + verified Jul 2026** — `pull_ko2amiga_from_staging.ps1` + `staging-sync-last.json` |
 | **PULL-1b** | **Shipped + verified Jul 2026** — `run_export_ko2amiga.php` (export-v4; JSON + download) |
 | **CHECKPOINT-1** | **Shipped Jul 2026** — `seal_amiga_work_checkpoint.ps1` + `data/amiga/checkpoints/` (milestone git seals) |
-| **SYNC-1** | `staging-sync-last.json` + export gate |
+| **SYNC-1** | **Shipped 2026-11-22** — push gate. The fresh staged dump fingerprint must equal the last pull's (`staging-sync-last.json`), or the push aborts. Lives in `scripts/lib/Push-Ko2AmigaStaging.ps1`. |
+| **PUSH-1** | **Shipped + verified 2026-11-22** — `push_ko2amiga_to_staging.ps1`: export → SYNC-1 gate → WinSCP upload → POST Apply import (admin password from local file) → side-pull MATCH |
 | **ADMIN-1** | Staged admin delete + after-action backup seals — **L5 slices 0–4 hardened** (Case A/B + `project-present-at` + BA4 restore); next Case C (slice 5) — [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) |
 | **PACK-1** | Per-tournament ground pack export (live-ops L6) — **shelved** with L6 until further notice |
 | **BACKUP-1** | Staging after-Finish / after-delete full pack seals + rolling/reserve — **shipped** L5 slices 1–2 (+ BA4 restore harden); same intent doc as ADMIN-1 |

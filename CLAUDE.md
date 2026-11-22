@@ -31,6 +31,6 @@
   - Run `WinSCP.com /script=<file>` from the **PowerShell** tool. Git Bash mangles `/command`, and inline filemask quoting breaks.
   - In a script, `cd /public_html` first, because the session opens in `/config`.
   - Preview first (`synchronize remote|local -preview -criteria=size`), and ask Dagh before any upload to or deletion on the live site.
-  - **Apply import** still needs Dagh to type `$admin_password` from `site/public_html/amiga/_ops/amiga_ops_password.local.php` (git-ignored); never paste it into chat.
+  - **Amiga push to live** = `scripts\push_ko2amiga_to_staging.ps1 -Force` (Bash tool, `powershell -File …`; the allowlist covers it). Ask Dagh before each live push. The script reads `$admin_password` from git-ignored `site/public_html/amiga/_ops/amiga_ops_password.local.php` itself; never paste the password into chat or a browser form.
   - Steve owns prod and the server. Never touch `ops/config/*.ini` on the server.
 - **Memory:** Claude's own memory folder is only for Claude-side notes. Project memory stays in `PROJECT_MEMORY.md` and `docs/`, updated through `docs/UPDATE_DOCS.md`.
