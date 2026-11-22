@@ -169,7 +169,7 @@ Passwords in `amiga/_ops/amiga_ops_password.local.php` (gitignored): **`$admin_p
 5. **`python -m scripts.amiga simul`** — only when sign-off needs it (`-Simul` on pull script).
 6. Repair if needed; then **push** per [`amiga-staging-handoff.md`](amiga-staging-handoff.md).
 
-Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
+**SYNC-1** (push gate on `staging-sync-last.json`): shipped, see §10.
 
 ---
 
@@ -191,7 +191,7 @@ Follow-on: **SYNC-1** — export gate from `staging-sync-last.json` before push.
 | **PULL-1a** | **Shipped + verified Jul 2026** — `pull_ko2amiga_from_staging.ps1` + `staging-sync-last.json` |
 | **PULL-1b** | **Shipped + verified Jul 2026** — `run_export_ko2amiga.php` (export-v4; JSON + download) |
 | **CHECKPOINT-1** | **Shipped Jul 2026** — `seal_amiga_work_checkpoint.ps1` + `data/amiga/checkpoints/` (milestone git seals) |
-| **SYNC-1** | **Shipped 2026-11-22** — push gate. The fresh staged dump fingerprint must equal the last pull's (`staging-sync-last.json`), or the push aborts. Lives in `scripts/lib/Push-Ko2AmigaStaging.ps1`. |
+| **SYNC-1** | **Shipped 2026-11-22** — push gate. The fresh staged dump fingerprint must equal the push baseline (`staging-sync-last.json`), or the push aborts. The baseline is set only by a full pull into `ko2amiga_work` or a push that verified MATCH. The first version let a side-pull reset it, so a later push could have overwritten staged-only data; fixed the same day. Lives in `scripts/lib/Push-Ko2AmigaStaging.ps1`. |
 | **PUSH-1** | **Shipped + verified 2026-11-22** — `push_ko2amiga_to_staging.ps1`: export → SYNC-1 gate → WinSCP upload → POST Apply import (admin password from local file) → side-pull MATCH |
 | **ADMIN-1** | Staged admin delete + after-action backup seals — **L5 slices 0–4 hardened** (Case A/B + `project-present-at` + BA4 restore); next Case C (slice 5) — [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) |
 | **PACK-1** | Per-tournament ground pack export (live-ops L6) — **shelved** with L6 until further notice |

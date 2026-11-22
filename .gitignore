@@ -47,6 +47,7 @@ data/amiga/checkpoints/**
 !data/amiga/checkpoints/work-2026-11-22-oslo-wc/**
 data/amiga/modern/simul-last.json
 data/amiga/modern/staging-sync-last.json
+data/amiga/modern/staging-sidepull-last.json
 data/amiga/pulls/*.sql
 data/amiga/modern/parity-last.json
 data/amiga/modern/l4-verify-last.json

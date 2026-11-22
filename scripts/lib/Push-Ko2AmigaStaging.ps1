@@ -81,8 +81,59 @@ function Get-Ko2AmigaDumpFingerprint {
     }
 }
 
+function Get-Ko2AmigaPushBaseline {
+    # The staged state that local ko2amiga_work was built on. Accepted only from a full pull
+    # into ko2amiga_work, or from a push that ended in a verified MATCH. Fails closed otherwise.
+    param(
+        [string]$RepoRoot,
+        [string]$StagingBaseUrl
+    )
+    $syncPath = Join-Path $RepoRoot 'data\amiga\modern\staging-sync-last.json'
+    if (-not (Test-Path -LiteralPath $syncPath)) {
+        throw "No push baseline at $syncPath - do a full pull first (pull_ko2amiga_from_staging.ps1)."
+    }
+    $sync = Get-Content -Raw -LiteralPath $syncPath | ConvertFrom-Json
+    $fromFullPull = ([string]$sync.target_database -eq 'ko2amiga_work')
+    $fromVerifiedPush = ([string]$sync.baseline_kind -eq 'push-verified')
+    if (-not ($fromFullPull -or $fromVerifiedPush)) {
+        throw "Push baseline refused: it came from a side pull into '$($sync.target_database)', which says nothing about what ko2amiga_work contains. Do a full pull first."
+    }
+    if ([string]$sync.staging_url -and ([string]$sync.staging_url).TrimEnd('/') -ne $StagingBaseUrl.TrimEnd('/')) {
+        throw "Push baseline refused: it belongs to $($sync.staging_url), not $StagingBaseUrl. Do a full pull first."
+    }
+    # Only the per-pull timestamped dump counts: ..._latest.sql is overwritten by every pull.
+    $dump = [string]$sync.raw_dump_path
+    if (-not $dump -or -not (Test-Path -LiteralPath $dump)) {
+        throw "Push baseline refused: its dump is no longer on disk (pulled_at $($sync.pulled_at)). Do a full pull first."
+    }
+    return [pscustomobject]@{ Sync = $sync; Dump = $dump }
+}
+
+function Set-Ko2AmigaPushBaselineFromVerify {
+    # After a push verified MATCH, staged == work, so this verify pull becomes the new baseline.
+    param(
+        [string]$RepoRoot,
+        [datetime]$NotBefore
+    )
+    $modern = Join-Path $RepoRoot 'data\amiga\modern'
+    $sidePath = Join-Path $modern 'staging-sidepull-last.json'
+    if (-not (Test-Path -LiteralPath $sidePath)) {
+        throw 'Verify pull left no staging-sidepull-last.json - push baseline not updated.'
+    }
+    if ((Get-Item -LiteralPath $sidePath).LastWriteTime -lt $NotBefore) {
+        throw 'staging-sidepull-last.json is older than this push - push baseline not updated.'
+    }
+    $side = Get-Content -Raw -LiteralPath $sidePath | ConvertFrom-Json
+    if ([string]$side.target_database -ne 'ko2amiga_staging_cmp') {
+        throw "Verify pull targeted '$($side.target_database)', expected ko2amiga_staging_cmp - push baseline not updated."
+    }
+    $side | Add-Member -NotePropertyName baseline_kind -NotePropertyValue 'push-verified' -Force
+    $json = $side | ConvertTo-Json -Depth 6
+    [System.IO.File]::WriteAllText((Join-Path $modern 'staging-sync-last.json'), $json + "`n", (New-Object System.Text.UTF8Encoding $false))
+}
+
 function Test-Ko2AmigaStagedUnchanged {
-    # SS-4 gate: staged must still equal the dump from the last pull (staging-sync-last.json).
+    # SS-4 gate: staged must still equal the push baseline (Get-Ko2AmigaPushBaseline).
     param(
         [string]$RepoRoot,
         [string]$StagingBaseUrl,
@@ -91,19 +142,10 @@ function Test-Ko2AmigaStagedUnchanged {
         [string]$Session,
         [string]$WorkDir
     )
-    $syncPath = Join-Path $RepoRoot 'data\amiga\modern\staging-sync-last.json'
-    if (-not (Test-Path $syncPath)) {
-        throw "No $syncPath - pull from staged first (pull_ko2amiga_from_staging.ps1), or pass -SkipStagedCheck."
-    }
-    $sync = Get-Content -Raw -LiteralPath $syncPath | ConvertFrom-Json
-    $baseline = $null
-    foreach ($candidate in @($sync.raw_dump_path, $sync.dump_path)) {
-        if ($candidate -and (Test-Path -LiteralPath $candidate)) { $baseline = $candidate; break }
-    }
-    if (-not $baseline) {
-        throw "Last pull dump not found on disk (pulled_at $($sync.pulled_at)). Pull again first, or pass -SkipStagedCheck."
-    }
-    Write-Host "Staged-unchanged check against last pull ($($sync.pulled_at), $([math]::Round((Get-Item $baseline).Length / 1MB, 1)) MB) ..."
+    $found = Get-Ko2AmigaPushBaseline -RepoRoot $RepoRoot -StagingBaseUrl $StagingBaseUrl
+    $sync = $found.Sync
+    $baseline = $found.Dump
+    Write-Host "Staged-unchanged check against push baseline ($($sync.pulled_at), $([math]::Round((Get-Item $baseline).Length / 1MB, 1)) MB) ..."
 
     $onceKey = 'ko2amiga-export-one-shot'
     $genUri = "{0}/amiga/run_export_ko2amiga.php?once={1}" -f $StagingBaseUrl.TrimEnd('/'), $onceKey
@@ -271,21 +313,24 @@ function Invoke-Ko2AmigaStagingPush {
         Write-Host '  import complete' -ForegroundColor Green
 
         if ($SkipVerify) {
-            Write-Warning 'Verification skipped (-SkipVerify). Next push will need a fresh pull first (staging-sync-last.json is now stale).'
+            Write-Warning 'Verification skipped (-SkipVerify). The push baseline was not updated, so the next push will need a full pull first.'
             return
         }
         Write-Host '== 5. Verify: side-pull staged -> ko2amiga_staging_cmp, compare with ko2amiga_work ==' -ForegroundColor Cyan
+        $verifyStart = Get-Date
         & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $RepoRoot 'scripts\pull_ko2amiga_from_staging.ps1') -Force -TargetDatabase ko2amiga_staging_cmp
         if ($LASTEXITCODE -ne 0) {
-            throw 'Import finished, but the verification pull failed. Re-run: pull_ko2amiga_from_staging.ps1 -Force -TargetDatabase ko2amiga_staging_cmp, then scripts\oneoff\amiga_compare_two_dbs.php ko2amiga_work ko2amiga_staging_cmp.'
+            throw 'Import finished, but the verification pull failed. Re-run: pull_ko2amiga_from_staging.ps1 -Force -TargetDatabase ko2amiga_staging_cmp, then scripts\oneoff\amiga_compare_two_dbs.php ko2amiga_work ko2amiga_staging_cmp. The push baseline was not updated: do a full pull before the next push.'
         }
         $php = Find-LaragonPhpExe
         if (-not $php) { throw 'Laragon php.exe not found for the compare step.' }
         $cmp = & $php (Join-Path $RepoRoot 'scripts\oneoff\amiga_compare_two_dbs.php') ko2amiga_work ko2amiga_staging_cmp 2>&1
         $cmp | Select-Object -Last 4 | ForEach-Object { Write-Host "  $_" }
         if (-not ($cmp -match '^MATCH:')) {
-            throw 'Verification FAILED: staged does not match ko2amiga_work after import. See compare output above.'
+            throw 'Verification FAILED: staged does not match ko2amiga_work after import. See compare output above. The push baseline was not updated.'
         }
+        Set-Ko2AmigaPushBaselineFromVerify -RepoRoot $RepoRoot -NotBefore $verifyStart
+        Write-Host '  push baseline updated (push-verified)'
         Write-Host ''
         Write-Host 'Push complete and verified: staged ko2amiga_db == local ko2amiga_work.' -ForegroundColor Green
     } finally {

@@ -82,7 +82,12 @@ function Invoke-Ko2AmigaStagingPull {
     $Stamp = Get-Date -Format 'yyyy-MM-dd_HHmmss'
     $RawDump = Join-Path $PullDir "ko2amiga_staging_pull_$Stamp.sql"
     $WorkDump = Join-Path $PullDir 'ko2amiga_staging_pull_latest.sql'
-    $SyncManifest = Join-Path $RepoRoot 'data\amiga\modern\staging-sync-last.json'
+    # staging-sync-last.json is the push baseline ("what local work was built on"), so only a
+    # full pull into ko2amiga_work may write it. A side pull leaves work untouched; letting it
+    # move the baseline would let a later push overwrite staged data that work never received.
+    $IsSidePull = ($TargetDatabase -ne 'ko2amiga_work')
+    $SyncName = if ($IsSidePull) { 'staging-sidepull-last.json' } else { 'staging-sync-last.json' }
+    $SyncManifest = Join-Path $RepoRoot "data\amiga\modern\$SyncName"
     New-Item -ItemType Directory -Force -Path (Split-Path $SyncManifest) | Out-Null
 
     if (-not $Force) {
@@ -258,6 +263,7 @@ WinSCP sync these files to staging, then re-run pull:
         source          = 'staging'
         staging_url     = $base
         target_database = $TargetDatabase
+        baseline_kind   = $(if ($IsSidePull) { 'side-pull' } else { 'full-pull' })
         dump_bytes      = $rawBytes
         dump_path       = (Resolve-Path $WorkDump).Path
         raw_dump_path   = (Resolve-Path $RawDump).Path

@@ -378,7 +378,7 @@ New evidence **without Access:**
 
 ## 16. Open questions
 
-- **SYNC-1** — export gate from `staging-sync-last.json` before push (PULL-1 done). Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md).
+- **SYNC-1** — **shipped 2026-11-22** as the push gate on `staging-sync-last.json`. Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md).
 - When to declare **L4 pipeline retired** (structure coverage % threshold).
 - Lane C video DB migration vs JSON read path.
 

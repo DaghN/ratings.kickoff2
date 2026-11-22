@@ -8,7 +8,7 @@
 
 **One-command push (PUSH-1, shipped 2026-11-22):** `powershell -ExecutionPolicy Bypass -File scripts\push_ko2amiga_to_staging.ps1` (agents add `-Force`). It runs these steps with no typed password:
 1. Export `ko2amiga_work`.
-2. **SS-4 gate:** regenerate the staged dump and require a byte-identical fingerprint against the last pull in `staging-sync-last.json`. If anything was entered on staged since, it aborts.
+2. **SS-4 gate:** regenerate the staged dump and require an identical content fingerprint against the **push baseline** (`staging-sync-last.json`). If anything was entered on staged since, it aborts. Only a **full pull into `ko2amiga_work`** or a **push that verified MATCH** sets the baseline. A side-pull never does (it writes `staging-sidepull-last.json`), because it doesn't change what work contains. A missing, foreign or side-pull baseline aborts too. Not covered: something entered on staged during the push itself (about 2 minutes).
 3. WinSCP-upload the `_import` parts (saved session).
 4. Check that the server preview shows the same manifest.
 5. POST **Apply import** part by part with `$admin_password` read from the git-ignored `amiga/_ops/amiga_ops_password.local.php`.
@@ -36,7 +36,7 @@ powershell -ExecutionPolicy Bypass -File scripts\pull_ko2amiga_from_staging.ps1 
 
 Then compare with `scripts/oneoff/amiga_compare_two_dbs.php` or `scripts/compare_ko2amiga_seal_to_work.ps1` (GitHub seals under `data/amiga/checkpoints/`).
 
-**Inverse export round-trip (Jul 2026-23):** **Complete** — [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md) Phases A/B/C PASS. JSON-driven export/seal data parts; Case C requires PHP inverse changelog seed (`l5-case-c-inv-seed-2026-07-23`). Healthy baseline checkpoint: **`work-2026-07-23-chrono-integer`** (in git; inverse **3423**, dense integer chronos). It supersedes `work-2026-07-23-inverse-roundtrip`, which was never committed. The Jul 18 forum seal may still ship schema-only inverse (0 data rows), so use the Jul 23 chrono-integer checkpoint for restores that need TT inverse.
+**Inverse export round-trip (Jul 2026-23):** **Complete** — [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md) Phases A/B/C PASS. JSON-driven export/seal data parts; Case C requires PHP inverse changelog seed (`l5-case-c-inv-seed-2026-07-23`). Healthy baseline checkpoint: **`work-2026-11-22-oslo-wc`** (in git; tip #608, inverse **3445**, dense integer chronos). The pre-Oslo equivalent is `work-2026-07-23-chrono-integer` (tip #607, inverse **3423**); `work-2026-07-23-inverse-roundtrip` was never committed. The Jul 18 forum seal may still ship schema-only inverse (0 data rows), so don't use it for restores that need TT inverse.
 
 **Work git checkpoint (milestone backup — not staging push):** When forward **`ko2amiga_work`** must be recoverable before push (structure tail, Tier E, etc.), seal a named checkpoint:
 
@@ -44,7 +44,7 @@ Then compare with `scripts/oneoff/amiga_compare_two_dbs.php` or `scripts/compare
 powershell -ExecutionPolicy Bypass -File scripts\seal_amiga_work_checkpoint.ps1 -Label tail
 ```
 
-Writes `data/amiga/checkpoints/work-YYYY-MM-DD-<label>/` (export parts + `manifest.json` + `companion/` JSON snapshots). **Opt-in git:** add a `.gitignore` allowlist for that folder (see [`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md)). **Current healthy seals in tree:** `work-2026-07-23-chrono-integer` (preferred: inverse pack full, integer chronos) · `work-2026-07-23-pre-chrono-integer` (reference from before the chrono repair) · `work-2026-07-18-forum` (baseline tip #607; inverse data may be empty). Older seals may be dropped from the tree once superseded (git history retains them). Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) §7.
+Writes `data/amiga/checkpoints/work-YYYY-MM-DD-<label>/` (export parts + `manifest.json` + `companion/` JSON snapshots). **Opt-in git:** add a `.gitignore` allowlist for that folder (see [`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md)). **Current healthy seals in tree:** `work-2026-11-22-oslo-wc` (preferred: tip #608, inverse pack full, integer chronos) · `work-2026-07-23-chrono-integer` (tip #607, before Oslo) · `work-2026-07-23-pre-chrono-integer` (reference from before the chrono repair) · `work-2026-07-18-forum` (baseline tip #607; inverse data may be empty). Older seals may be dropped from the tree once superseded (git history retains them). Policy: [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) §7.
 
 ---
 
@@ -87,7 +87,7 @@ Online `kooldb*` is untouched. Credentials mirror staging config1 user/password;
 powershell -ExecutionPolicy Bypass -File scripts\pull_ko2amiga_from_staging.ps1 -Force
 ```
 
-Triggers staging export PHP (`generate=1&format=json`), downloads dump, **replaces** local **`ko2amiga_work`** (default), writes `data/amiga/modern/staging-sync-last.json`. **Side-pull:** `-TargetDatabase ko2amiga_staging_cmp` (or other name) imports into that DB only — **work untouched**. **Simul opt-in:** `-Simul` (~20 min; not default). Requires Laragon MySQL + synced export PHP on staging (`run_export_ko2amiga.php` + `includes/amiga_staging_export_lib.php`, build **v4+**).
+Triggers staging export PHP (`generate=1&format=json`), downloads dump, **replaces** local **`ko2amiga_work`** (default), writes `data/amiga/modern/staging-sync-last.json`. **Side-pull:** `-TargetDatabase ko2amiga_staging_cmp` (or other name) imports into that DB only — **work untouched**, and it writes `staging-sidepull-last.json` instead, so the push baseline stays put. **Simul opt-in:** `-Simul` (~20 min; not default). Requires Laragon MySQL + synced export PHP on staging (`run_export_ko2amiga.php` + `includes/amiga_staging_export_lib.php`, build **v4+**).
 
 **File retention:** Staging keeps **one** SQL file (overwrite). Local pull keeps `ko2amiga_staging_pull_latest.sql` (overwrite) plus one timestamped archive per run under `data/amiga/pulls/` (gitignored).
 
