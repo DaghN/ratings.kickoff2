@@ -40,9 +40,14 @@ require_once __DIR__ . '/ops_bootstrap.php';
 /** @var array<string, array{summary: string, required: list<string>, optional: list<string>}> */
 const K2_OPS_DISPATCH_REGISTRY = [
     'ProcessCompletedGame' => [
-        'summary' => 'Post-game derived update for one ratedresults row (P0–P7).',
+        'summary' => 'Post-game derived update for one ratedresults row (P0–P7); earlier waiting games first.',
         'required' => ['game_id'],
         'optional' => ['dry_run'],
+    ],
+    'ProcessPending' => [
+        'summary' => 'Process every waiting game in order (cron safety net; dry_run=1 only reports).',
+        'required' => [],
+        'optional' => ['dry_run', 'max_backlog'],
     ],
     'FinalizeLeagueDue' => [
         'summary' => 'PER-003: finalize closed league periods (optional as_of UTC).',
@@ -79,10 +84,12 @@ function k2_ops_dispatch_usage(): void
     $lines[] = '';
     $lines[] = 'Examples:';
     $lines[] = '  php dispatch.php CMD=ProcessCompletedGame game_id=57216 target=staging-work';
+    $lines[] = '  php dispatch.php CMD=ProcessPending target=staging-work dry_run=1';
     $lines[] = '  php dispatch.php CMD=FinalizeLeagueDue target=staging-work as_of=2026-06-03T00:00:01Z';
     $lines[] = '  php dispatch.php CMD=FinalizeUtcDay target=staging-work as_of=2026-06-04T00:00:01Z';
     $lines[] = '';
-    $lines[] = 'Exit codes: 0 ok | 1 error | 2 already processed (no DB change) | 64 usage';
+    $lines[] = 'Exit codes: 0 ok | 1 error, game stays queued | 2 already processed (no DB change)'
+        . ' | 3 refused, needs full recalculation | 64 usage';
     if (K2OpsDispatchHttpContext::$enabled) {
         foreach ($lines as $line) {
             K2OpsDispatchHttpContext::$lines[] = $line;
@@ -214,6 +221,7 @@ function k2_ops_dispatch_run(string $cmd, array $params, bool $dryRun): int
     try {
         $exitCode = match ($cmd) {
             'ProcessCompletedGame' => k2_ops_dispatch_process_completed_game($params, $profileName, $dryRun),
+            'ProcessPending' => k2_ops_dispatch_process_pending($params, $profileName, $dryRun),
             'FinalizeLeagueDue' => k2_ops_dispatch_finalize_league_due($params, $profileName),
             'FinalizeUtcDay' => k2_ops_dispatch_finalize_utc_day($params, $profileName, $dryRun),
             'ProcessPlayerRegistered' => k2_ops_dispatch_process_player_registered($params, $profileName, $dryRun),
@@ -236,6 +244,35 @@ function k2_ops_dispatch_run(string $cmd, array $params, bool $dryRun): int
 }
 
 /**
+ * Seconds one web request may spend on a backlog; the rest waits for the next call. CLI has no limit.
+ */
+function k2_ops_dispatch_backlog_budget(): ?float
+{
+    if (!K2OpsDispatchHttpContext::$enabled) {
+        return null;
+    }
+    ignore_user_abort(true);
+    if (function_exists('set_time_limit')) {
+        set_time_limit(0);
+    }
+
+    return 10.0;
+}
+
+/**
+ * @param list<int> $gameIds
+ */
+function k2_ops_dispatch_format_ids(array $gameIds, int $max = 20): string
+{
+    if ($gameIds === []) {
+        return 'none';
+    }
+    $text = implode(',', array_slice($gameIds, 0, $max));
+
+    return count($gameIds) > $max ? $text . ',... (' . count($gameIds) . ' in all)' : $text;
+}
+
+/**
  * @param array<string, string> $params
  */
 function k2_ops_dispatch_process_completed_game(array $params, string $profileName, bool $dryRun): int
@@ -245,11 +282,41 @@ function k2_ops_dispatch_process_completed_game(array $params, string $profileNa
         k2_ops_dispatch_fail('game_id must be a positive integer', 64);
     }
 
-    require_once dirname(__DIR__) . '/modules/process_completed_game.php';
+    require_once dirname(__DIR__) . '/modules/process_pending_games.php';
 
     $con = k2_ops_dispatch_connect($profileName);
     try {
-        $result = k2_ops_process_completed_game($con, $gameId, $dryRun);
+        if ($dryRun) {
+            $result = k2_ops_process_completed_game($con, $gameId, true);
+        } else {
+            $budget = k2_ops_dispatch_backlog_budget();
+            if (!k2_ops_game_queue_lock($con, 5)) {
+                k2_ops_dispatch_fail('busy: another process is updating the ladder; game ' . $gameId . ' stays queued', 1);
+            }
+            $run = k2_ops_process_game_in_order($con, $gameId, $budget);
+            if ($run['caught_up'] !== []) {
+                k2_ops_dispatch_log(
+                    'ProcessCompletedGame caught up ' . count($run['caught_up']) . ' earlier game(s): '
+                    . k2_ops_dispatch_format_ids($run['caught_up'])
+                );
+            }
+            if ($run['status'] === 'refused') {
+                k2_ops_dispatch_log(
+                    'ProcessCompletedGame game_id=' . $gameId . ' REFUSED: ' . $run['reason']
+                    . '; needs a full recalculation (zero-derived + run_ops_sim.php)'
+                );
+
+                return 3;
+            }
+            if ($run['status'] === 'backlog') {
+                k2_ops_dispatch_fail(
+                    'backlog not cleared yet (' . $run['reason'] . '): ' . $run['remaining']
+                    . ' game(s) left up to game ' . $gameId . '; call again or run CMD=ProcessPending',
+                    1
+                );
+            }
+            $result = $run['result'] ?? ['skipped' => true, 'skip_reason' => $run['reason']];
+        }
         if (!empty($result['skipped'])) {
             $reason = (string) ($result['skip_reason'] ?? 'unknown');
             k2_ops_dispatch_log(
@@ -271,6 +338,56 @@ function k2_ops_dispatch_process_completed_game(array $params, string $profileNa
         );
         if (!$result['committed'] && !$dryRun) {
             k2_ops_dispatch_fail('ProcessCompletedGame did not commit', 1);
+        }
+    } finally {
+        $con->close();
+    }
+
+    return 0;
+}
+
+/**
+ * @param array<string, string> $params
+ */
+function k2_ops_dispatch_process_pending(array $params, string $profileName, bool $dryRun): int
+{
+    require_once dirname(__DIR__) . '/modules/process_pending_games.php';
+
+    $maxBacklog = isset($params['max_backlog']) && (int) $params['max_backlog'] > 0
+        ? (int) $params['max_backlog']
+        : K2_OPS_GAME_QUEUE_MAX_BACKLOG;
+    $con = k2_ops_dispatch_connect($profileName);
+    try {
+        if ($dryRun) {
+            $frontier = k2_ops_game_queue_frontier($con);
+            $pending = array_column(k2_ops_game_queue_pending($con), 'id');
+            $holes = k2_ops_game_queue_holes($con);
+            k2_ops_dispatch_log('ProcessPending last_processed=' . ($frontier['id'] ?? 'none'));
+            k2_ops_dispatch_log(
+                'ProcessPending waiting=' . count($pending) . ' ids=' . k2_ops_dispatch_format_ids($pending)
+            );
+            k2_ops_dispatch_log(
+                'ProcessPending holes=' . count($holes) . ' ids=' . k2_ops_dispatch_format_ids($holes)
+                . ($holes !== [] ? ' (need a full recalculation)' : '')
+            );
+
+            return 0;
+        }
+
+        $budget = k2_ops_dispatch_backlog_budget();
+        if (!k2_ops_game_queue_lock($con, 0)) {
+            k2_ops_dispatch_log('ProcessPending busy=true (another process is updating the ladder)');
+
+            return 0;
+        }
+        $run = k2_ops_process_pending_games($con, null, null, $budget, $maxBacklog);
+        k2_ops_dispatch_log(
+            'ProcessPending processed=' . count($run['processed'])
+            . ' ids=' . k2_ops_dispatch_format_ids($run['processed'])
+            . ' remaining=' . $run['remaining']
+        );
+        if ($run['remaining'] > 0) {
+            k2_ops_dispatch_fail('backlog not cleared yet (time limit reached); call again', 1);
         }
     } finally {
         $con->close();
@@ -310,7 +427,7 @@ function k2_ops_dispatch_finalize_league_due(array $params, string $profileName)
  */
 function k2_ops_dispatch_finalize_utc_day(array $params, string $profileName, bool $dryRun): int
 {
-    require_once dirname(__DIR__) . '/modules/finalize_utc_day.php';
+    require_once dirname(__DIR__) . '/modules/process_pending_games.php';
 
     $asOf = k2_ops_parse_as_of($params['as_of'] ?? null);
     $closedUtcDay = isset($params['closed_utc_day']) && $params['closed_utc_day'] !== ''
@@ -319,7 +436,28 @@ function k2_ops_dispatch_finalize_utc_day(array $params, string $profileName, bo
 
     $con = k2_ops_dispatch_connect($profileName);
     try {
-        $result = k2_ops_finalize_utc_day($con, $asOf, $dryRun, $closedUtcDay);
+        if ($dryRun) {
+            $result = k2_ops_finalize_utc_day($con, $asOf, true, $closedUtcDay);
+        } else {
+            if (!k2_ops_game_queue_lock($con, 300)) {
+                k2_ops_dispatch_fail('busy: another process is updating the ladder; day not finalized', 1);
+            }
+            // A day is closed only after every game of that day is in. A failing game stops here (exit 1).
+            $result = k2_ops_finalize_utc_day_after_pending($con, $asOf, $closedUtcDay);
+            if ($result['caught_up'] !== []) {
+                k2_ops_dispatch_log(
+                    'FinalizeUtcDay caught up ' . count($result['caught_up']) . ' waiting game(s): '
+                    . k2_ops_dispatch_format_ids($result['caught_up'])
+                );
+            }
+            $holes = k2_ops_game_queue_holes($con);
+            if ($holes !== []) {
+                k2_ops_dispatch_log(
+                    '[WARN] ' . count($holes) . ' game(s) were never processed and need a full recalculation: '
+                    . k2_ops_dispatch_format_ids($holes)
+                );
+            }
+        }
         k2_ops_dispatch_log(
             'FinalizeUtcDay'
             . ' closed_utc_day=' . $result['closed_utc_day']

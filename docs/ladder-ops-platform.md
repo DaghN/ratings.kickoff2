@@ -79,6 +79,7 @@ Business logic lives in `ops/modules/` (and shared includes as needed):
 | Module role | Example `CMD` | Typical caller |
 |-------------|-----------------|----------------|
 | Per-game derived | `ProcessCompletedGame` | **Steve** (each live game on prod path) |
+| Waiting games, in order | `ProcessPending` (Nov 2026, not deployed) | Steve scheduler, every minute — [`online-unprocessed-games-2026-11.md`](coordination/online-unprocessed-games-2026-11.md) |
 | Register / lobby | `ProcessPlayerRegistered` | **Steve** after app registration (`player_id` only) → `entered_arena` from `playertable.JoinDate` |
 | Periodic | `FinalizeUtcDay`, … | Steve scheduler / `ops/dispatch.php` |
 | Schema on work DB | `ApplySchema` | Dagh / Steve staging |

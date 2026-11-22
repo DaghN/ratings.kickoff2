@@ -41,12 +41,20 @@ Historical players: `entered_arena` from **`zero-derived`** lobby seed. This CMD
 
 ### `ProcessCompletedGame`
 
-After committed `ratedresults` with ground columns only; **`NewRatingA` NULL**. One transaction: row Elo/flags, both `playertable`, GST, periods, game milestones, streaks.
+After committed `ratedresults` with ground columns only; **`NewRatingA` NULL**. One transaction (**only on InnoDB tables**; MyISAM cannot roll back): row Elo/flags, both `playertable`, GST, periods, game milestones, streaks.
+
+**In order:** earlier waiting games are processed first, one writer at a time (`GET_LOCK`, also held by `zero-derived` and `run_ops_sim.php`). A day change closes the previous UTC day first. A web call waits at most 5 s for the lock and spends at most 10 s on a backlog. Over 1000 waiting games is refused (recalculation in progress).
 
 Same code as `run_ops_sim.php` per-game step. **No** C++ post-game on the same row.
 
 - Exit **0** + `skipped=true`: bad ids, missing goals, etc. — no commit; log and continue.
 - Exit **2**: `skip_reason=already_processed` (`NewRatingA` already set) — safe duplicate dispatch; no commit.
+
+- Exit **3**: refused — later games are already processed; full recalculation needed. Nothing is written.
+
+### `ProcessPending`
+
+All waiting games in order. `dry_run=1` reports `waiting` and `holes` and writes nothing. Lock busy → exit 0, nothing done. `max_backlog=N` overrides the 1000 limit (CLI, after a very long outage).
 
 ### `FinalizeUtcDay`
 
@@ -59,8 +67,9 @@ Same code as `run_ops_sim.php` per-game step. **No** C++ post-game on the same r
 | Code | Meaning | Action |
 |------|---------|--------|
 | **0** | OK / dry-run / skipped game | Continue |
-| **1** | Rolled back | Fix; retry if `NewRatingA` NULL |
+| **1** | Failed, busy, or backlog not cleared; game stays queued (log says **HALF-PROCESSED** if MyISAM tables could not roll back) | Retry or leave to `ProcessPending`; HALF-PROCESSED → full recalculation |
 | **2** | Already processed (game only) | Ignore duplicate |
+| **3** | Refused: later games already processed | Full recalculation |
 | **64** | Bad CLI | Fix args |
 
 Logs: `[dispatch]` prefix.

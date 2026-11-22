@@ -65,6 +65,12 @@ function k2_ops_connect_work(K2OpsWorkTarget $target, bool $allowDevDb = false):
 
 function k2_ops_log(string $message): void
 {
+    // Over HTTP the log belongs in the JSON reply; stdout may be the reply itself.
+    if (class_exists('K2OpsDispatchHttpContext', false) && K2OpsDispatchHttpContext::$enabled) {
+        K2OpsDispatchHttpContext::$lines[] = $message;
+
+        return;
+    }
     fwrite(stdout(), $message . PHP_EOL);
 }
 

@@ -38,7 +38,7 @@
 | **Staging** | `kooldb1` work / `kooldb2` reset (legacy `kooldb` possible) | **No** | WinSCP → `public_html/` | Steve: SQL, replay, ops simul — **not** live play |
 | **Production** | Steve-managed live DB (not in repo) | **Yes** (**PHP ops** since **2026-07-18**; C++ derived retired) | Steve / agreed deploy | Continuous + packets when stored truth changes |
 
-Steve confirmed staging and production are on entirely different physical servers.
+Steve confirmed staging and production are on entirely different physical servers (before the cutover). **Since 2026-07-18 `ratings.kickoff2.com` serves the live games**, so the old "staging" site is the live site — [`coordination/online-unprocessed-games-2026-11.md`](coordination/online-unprocessed-games-2026-11.md) §2.
 
 Full detail: [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md), [`LOCAL_DEV.md`](LOCAL_DEV.md).
 

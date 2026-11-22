@@ -239,7 +239,7 @@ function k2_post_game_update_generalstats_after_game(
     array &$players,
     array $names
 ): int {
-    k2_ops_ensure_generalstatstable($con);
+    // Table is ensured before the transaction (process_completed_game.php): DDL here would commit it.
     if (!k2_ops_table_exists($con, 'generalstatstable')) {
         return 0;
     }

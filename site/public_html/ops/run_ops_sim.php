@@ -13,6 +13,7 @@ declare(strict_types=1);
 $_SERVER['DOCUMENT_ROOT'] = dirname(__DIR__);
 
 require_once __DIR__ . '/includes/ops_bootstrap.php';
+require_once __DIR__ . '/includes/ops_game_queue.php';
 require_once __DIR__ . '/includes/ops_sim.php';
 require_once __DIR__ . '/modules/timeline_sim.php';
 require_once __DIR__ . '/modules/finalize_league_period.php';
@@ -98,6 +99,12 @@ k2_ops_log(
 
 $t0 = microtime(true);
 $con = k2_ops_connect_work($target);
+// Held to the end: games that finish meanwhile stay queued and are processed in order afterwards.
+if (!$dryRun && !k2_ops_game_queue_lock($con, 60)) {
+    fwrite(stderr(), "Refusing ops sim: another process is updating the ladder.
+");
+    exit(1);
+}
 try {
     $result = k2_ops_timeline_sim_run(
         $con,

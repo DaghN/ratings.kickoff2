@@ -5,6 +5,7 @@ Jobs that run on a **schedule** on the server — **not** immediately after each
 | ID | Job | Schedule (prod today) | Action for our releases | Prod status | Notes |
 |----|-----|------------------------|-------------------------|-------------|-------|
 | PER-003 | **UTC day tick** | **Daily ~00:00:01 UTC** (proposed) | `CMD=FinalizeUtcDay` — league finalize + league event milestones + `perfect_day` / `nightmare_day`. Legacy: `FinalizeLeagueDue` (league only). | **Shipped (PHP)** | Steve/cron: `php ops/dispatch.php CMD=FinalizeUtcDay target=staging-work as_of=…`. Dev: `run_finalize_utc_day.php`, `run_timeline_sim.php`. [`ops-orchestration-adr.md`](ops-orchestration-adr.md). |
+| PER-004 | **Waiting games** | **Every minute** (proposed Nov 2026, not scheduled) | `CMD=ProcessPending` — process missed games in order, independent of web access | **Not deployed** | [`online-unprocessed-games-2026-11.md](online-unprocessed-games-2026-11.md) |
 
 **Retired periodic jobs** (do not add rows here): [`../archive/retired-product-decisions.md`](../archive/retired-product-decisions.md).
 

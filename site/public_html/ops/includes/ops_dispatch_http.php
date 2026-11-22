@@ -55,6 +55,8 @@ function k2_ops_dispatch_http_handle(array $query): array
     }
 	
     k2_ops_dispatch_http_begin();
+    // Until a reply is built, dying early must not look like success to the game server.
+    http_response_code(500);
 
     try {
         $exitCode = k2_ops_dispatch_run($parsed['cmd'], $parsed['params'], $parsed['dry_run']);
@@ -71,8 +73,12 @@ function k2_ops_dispatch_http_handle(array $query): array
 function k2_ops_dispatch_http_result(int $exitCode, string $cmd, array $log): array
 {
     $ok = $exitCode === 0 || $exitCode === 2;
+    if (!$ok) {
+        error_log('[k2-ops] cmd=' . $cmd . ' exit=' . $exitCode . ' ' . implode(' | ', array_slice($log, -3)));
+    }
     $httpStatus = match ($exitCode) {
         0, 2 => 200,
+        3 => 409,
         64 => 400,
         default => 500,
     };

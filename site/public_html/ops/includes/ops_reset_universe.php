@@ -7,6 +7,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/ops_prepare_constants.php';
 require_once __DIR__ . '/ops_paths.php';
 require_once __DIR__ . '/ops_bootstrap.php';
+require_once __DIR__ . '/ops_game_queue.php';
 require_once __DIR__ . '/ops_seed_lobby.php';
 
 function k2_ops_split_sql_statements(string $sql): array
@@ -158,6 +159,11 @@ function k2_ops_zero_derived(K2OpsWorkTarget $target, bool $dryRun): void
     k2_ops_log("zero_derived profile={$target->profile} database={$target->workDatabase} dry_run=" . ($dryRun ? 'true' : 'false'));
 
     $con = k2_ops_connect_work($target);
+    if (!$dryRun && !k2_ops_game_queue_lock($con, 60)) {
+        fwrite(stderr(), "Refusing zero-derived: another process is updating the ladder.
+");
+        exit(1);
+    }
     $con->autocommit(false);
     try {
         k2_ops_reset_universe($con, $dryRun);

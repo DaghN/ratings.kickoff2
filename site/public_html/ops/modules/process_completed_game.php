@@ -515,6 +515,9 @@ function k2_ops_process_completed_game(
 
 
 
+    // CREATE TABLE IF NOT EXISTS commits implicitly, so it must stay outside the transaction.
+    k2_ops_ensure_generalstatstable($con);
+
     $con->begin_transaction();
 
     try {
@@ -579,6 +582,24 @@ function k2_ops_process_completed_game(
     } catch (Throwable $e) {
 
         $con->rollback();
+
+        // MyISAM tables ignore rollback. Say so: a retry would be refused as already processed.
+
+        if (k2_ops_load_rated_game_row($con, $gameId)['NewRatingA'] !== null) {
+
+            throw new RuntimeException(
+
+                'game ' . $gameId . ' is HALF-PROCESSED (tables without transactions), needs a full recalculation: '
+
+                . $e->getMessage(),
+
+                0,
+
+                $e
+
+            );
+
+        }
 
         throw $e;
 

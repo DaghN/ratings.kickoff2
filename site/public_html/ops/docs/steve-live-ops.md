@@ -52,9 +52,20 @@ php ops/dispatch.php CMD=ProcessCompletedGame game_id=GAME_ID target=YOUR_TARGET
 | Exit | Meaning |
 |------|---------|
 | **0** | OK — derived committed, or skipped (bad ids / goals — see log) |
-| **1** | Failed — retry after fix if `NewRatingA` still NULL |
+| **1** | Failed, busy, or backlog not cleared yet — the game stays queued; the next game call, `ProcessPending` or midnight run takes it in order |
 | **2** | Already processed (`NewRatingA` set) — safe duplicate; ignore |
+| **3** | Refused: later games are already processed, so this one needs a full recalculation. HTTP **409** |
 | **64** | Bad CLI |
+
+**Missed calls heal themselves:** every call first processes all earlier waiting games, in order.
+
+**Waiting games** (safety net; cron every minute on the web host, so nothing depends on the website being reachable):
+
+```bash
+php ops/dispatch.php CMD=ProcessPending target=YOUR_TARGET
+```
+
+Add `dry_run=1` to only report: `waiting` = games to process, `holes` = games that were overtaken and need a full recalculation. If bots are blocked, keep `dispatch_request.php` reachable for the game server.
 
 **Midnight UTC:**
 
@@ -62,7 +73,7 @@ php ops/dispatch.php CMD=ProcessCompletedGame game_id=GAME_ID target=YOUR_TARGET
 php ops/dispatch.php CMD=FinalizeUtcDay target=YOUR_TARGET
 ```
 
-Use **`FinalizeUtcDay`** only — not **`FinalizeLeagueDue`** (legacy, league-only).
+Use **`FinalizeUtcDay`** only — not **`FinalizeLeagueDue`** (legacy, league-only). It processes the day's waiting games first; exit **1** means the day is **not** finalized (run it again after the fix).
 
 ---
 
