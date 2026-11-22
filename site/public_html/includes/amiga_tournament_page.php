@@ -575,10 +575,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
 
       <?php
       require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_snapshot_url.php';
-      $tournamentGamesAsParam = amiga_snapshot_propagate_as_param();
-      if ($tournamentGamesAsParam !== null) {
-          echo '<input type="hidden" name="as" value="' . k2_h($tournamentGamesAsParam) . '" />';
-      }
+      echo amiga_form_context_inputs();
       ?>
 
     </div>

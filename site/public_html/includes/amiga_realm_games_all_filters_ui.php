@@ -104,6 +104,7 @@ function amiga_realm_games_all_render_filters(
 	data-k2-realm-games-realm="amiga"
 >
 	<div class="k2-realm-games-filters__meta">
+		<?php echo amiga_form_context_inputs(); ?>
 		<input type="hidden" name="player" id="k2-realm-games-player" value="<?php echo (int) $playerId; ?>" />
 		<input type="hidden" name="opponent" id="k2-realm-games-opponent" value="<?php echo (int) $opponentId; ?>" />
 		<input type="hidden" name="player_via" id="k2-realm-games-player-via" value="<?php echo amiga_realm_games_all_h($playerVia); ?>" />

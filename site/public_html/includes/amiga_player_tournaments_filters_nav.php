@@ -16,6 +16,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_player_tournament_lib.php';
+require_once __DIR__ . '/amiga_snapshot_url.php';
 require_once __DIR__ . '/k2_archive_listbox.php';
 require_once __DIR__ . '/k2_table_helpers.php';
 
@@ -157,6 +158,7 @@ $k2PlayerTournamentsSortParams = k2_table_sort_query_params();
 </div>
 <form class="k2-player-games-controls" method="get" action="<?php echo htmlspecialchars($k2PlayerTournamentsFilterAction, ENT_QUOTES, 'UTF-8'); ?>" data-k2-carry-scroll>
 	<div class="k2-player-games-controls__meta">
+		<?php echo amiga_form_context_inputs(); ?>
 		<input type="hidden" name="id" value="<?php echo $k2PlayerTournamentsPlayerId; ?>" />
 <?php if ($k2PlayerTournamentsEventFilter !== 'all') { ?>
 		<input type="hidden" name="filter" value="<?php echo htmlspecialchars($k2PlayerTournamentsEventFilter, ENT_QUOTES, 'UTF-8'); ?>" />

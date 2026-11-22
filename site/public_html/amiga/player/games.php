@@ -228,6 +228,7 @@ $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : 
 <div class="k2-player-games-filters">
     <form class="k2-player-games-controls" method="get" action="<?php echo amiga_games_h(k2_amiga_route('amiga-player-games')); ?>" data-k2-carry-scroll>
         <div class="k2-player-games-controls__meta">
+            <?php echo amiga_form_context_inputs(); ?>
             <input type="hidden" name="id" value="<?php echo $playerId; ?>" />
             <input type="hidden" name="sort" value="<?php echo amiga_games_h($sortKey); ?>" />
             <input type="hidden" name="dir" value="<?php echo amiga_games_h($sortDirection); ?>" />

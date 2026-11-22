@@ -154,6 +154,7 @@ function amiga_player_videos_render_opponent_filter(
     ?>
 <form class="k2-player-games-controls" method="get" action="<?php echo k2_h(k2_amiga_route('amiga-player-videos')); ?>" data-k2-carry-scroll>
   <div class="k2-player-games-controls__meta">
+    <?php echo amiga_form_context_inputs(); ?>
     <input type="hidden" name="id" value="<?php echo (int) $playerId; ?>" />
   </div>
   <div class="k2-player-games-controls__fields k2-amiga-player-games-filter-row">

@@ -110,6 +110,7 @@ Tournament-step **catalog** filters use separate `id_*` params — policy [`with
 **Agent habit (same class as T4 / T16 link carry):**
 
 - **PHP navigation:** `amiga_url_with_context()` / `k2_amiga_route()` — appends request `as_with` when active; `amiga_url_present()` strips `as=` **and** `as_with`.
+- **PHP GET forms** (listbox filters): echo `amiga_form_context_inputs()` inside the form. A GET submit replaces the query string of `action`, so `amiga_url_with_context()` there does **not** carry `as=` / `as_with`.
 - **JS navigation** (header search, chart drill-downs): [`k2-amiga-time-travel-url.js`](../site/public_html/js/k2-amiga-time-travel-url.js) — carry `as=` + `as_with` on hrefs; do **not** hand-roll `as=` only.
 - **Chart/API fetches:** pass **`as=` only** (snapshot cutoff) — with-player params are ribbon/stepper state, not read-path inputs.
 - **Never** auto-enable with-player from page context (T18 retired); user picks the listbox explicitly.

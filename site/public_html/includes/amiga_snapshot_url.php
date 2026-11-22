@@ -8,7 +8,41 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_snapshot_context.php';
 require_once __DIR__ . '/amiga_as_with_url.php';
+require_once __DIR__ . '/k2_safety.php';
 require_once __DIR__ . '/k2_table_helpers.php';
+
+/** Active cutoff for links and forms: loaded context first, else the request. */
+function amiga_snapshot_carry_as_param(?AmigaSnapshotContext $ctx = null): ?string
+{
+    $ctx ??= amiga_snapshot_context_peek();
+    if ($ctx instanceof AmigaSnapshotContext && $ctx->isActive()) {
+        return $ctx->asParam();
+    }
+
+    return amiga_snapshot_propagate_as_param();
+}
+
+/**
+ * Hidden `as` / `as_with` inputs for GET filter forms. Empty string in present day.
+ *
+ * A GET submit replaces the query string of `action`, so amiga_url_with_context() in `action` is not enough.
+ */
+function amiga_form_context_inputs(?AmigaSnapshotContext $ctx = null): string
+{
+    /** @var array<string, scalar|null> $query */
+    $query = [];
+    $asParam = amiga_snapshot_carry_as_param($ctx);
+    if ($asParam !== null) {
+        $query['as'] = $asParam;
+    }
+
+    $html = '';
+    foreach (amiga_as_with_append_to_query($query) as $name => $value) {
+        $html .= '<input type="hidden" name="' . k2_h($name) . '" value="' . k2_h((string) $value) . '" />';
+    }
+
+    return $html;
+}
 
 /**
  * @param array<string, scalar|null> $extraQuery
@@ -43,13 +77,7 @@ function amiga_url_with_context(string $path, array $extraQuery = [], ?AmigaSnap
         $query[$name] = $value;
     }
 
-    $ctx ??= amiga_snapshot_context_peek();
-    $asParam = null;
-    if ($ctx instanceof AmigaSnapshotContext && $ctx->isActive()) {
-        $asParam = $ctx->asParam();
-    } else {
-        $asParam = amiga_snapshot_propagate_as_param();
-    }
+    $asParam = amiga_snapshot_carry_as_param($ctx);
     if ($asParam !== null) {
         $query['as'] = $asParam;
         unset($query['wing'], $query['at']);

@@ -61,11 +61,6 @@ $k2AmigaTournamentIndexVideosTabs = [
 
 $k2AmigaTournamentIndexSortParams = k2_table_sort_query_params();
 $k2AmigaTournamentIndexFormAction = k2_amiga_route('amiga-tournaments');
-$k2AmigaTournamentIndexAsParam = '';
-$k2AmigaTournamentIndexCtx = amiga_snapshot_context_peek();
-if ($k2AmigaTournamentIndexCtx instanceof AmigaSnapshotContext && $k2AmigaTournamentIndexCtx->isActive()) {
-    $k2AmigaTournamentIndexAsParam = (string) ($k2AmigaTournamentIndexCtx->asParam() ?? '');
-}
 ?>
 <div class="k2-player-games-filters k2-amiga-tournament-index-filters">
 <div class="k2-amiga-tournament-index-segment-filters">
@@ -105,9 +100,7 @@ if ($k2AmigaTournamentIndexCtx instanceof AmigaSnapshotContext && $k2AmigaTourna
 </div>
 <form class="k2-player-games-controls" method="get" action="<?php echo htmlspecialchars($k2AmigaTournamentIndexFormAction, ENT_QUOTES, 'UTF-8'); ?>" data-k2-carry-scroll>
 	<div class="k2-player-games-controls__meta">
-<?php if ($k2AmigaTournamentIndexAsParam !== '') { ?>
-		<input type="hidden" name="as" value="<?php echo htmlspecialchars($k2AmigaTournamentIndexAsParam, ENT_QUOTES, 'UTF-8'); ?>" />
-<?php } ?>
+		<?php echo amiga_form_context_inputs(); ?>
 <?php if ($k2AmigaTournamentIndexWcFilter !== '') { ?>
 		<input type="hidden" name="wc" value="<?php echo htmlspecialchars($k2AmigaTournamentIndexWcFilter, ENT_QUOTES, 'UTF-8'); ?>" />
 <?php } ?>
