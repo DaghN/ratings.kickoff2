@@ -3,6 +3,7 @@
   "tracks": [
     {"id": "speedball-2-ice-cream", "title": "Ice Cream", "game": "Speedball 2", "file": "tracks/speedball-2-ice-cream.mp3"},
     {"id": "speedball-2-theme", "title": "Theme", "game": "Speedball 2", "file": "tracks/speedball-2-theme.mp3"},
+    {"id": "magnetic-fields-intro", "title": "Intro", "game": "Magnetic Fields", "file": "tracks/magnetic-fields-intro.mp3"},
     {"id": "super-cars-2-intro", "title": "Intro", "game": "Super Cars II", "file": "tracks/super-cars-2-intro.mp3"},
     {"id": "super-cars-2-option", "title": "Options", "game": "Super Cars II", "file": "tracks/super-cars-2-option.mp3"},
     {"id": "xenon-2-intro", "title": "Intro", "game": "Xenon 2: Megablast", "file": "tracks/xenon-2-intro.mp3"},
