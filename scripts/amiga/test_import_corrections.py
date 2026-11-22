@@ -23,6 +23,7 @@ from scripts.amiga.import_corrections import (
     supplemental_scores_manifest,
     world_cup_catalog_name,
 )
+from scripts.amiga.match_extensions import extract_structured_from_extra
 
 
 class ImportCorrectionsTests(unittest.TestCase):
@@ -208,6 +209,16 @@ class ImportCorrectionsTests(unittest.TestCase):
         changed = {entry["tournament"] for entry in applied}
         self.assertEqual(changed, {"Hertford IV", "Hertford IV Cup"})
 
+    @staticmethod
+    def _with_corrected_rows(scores: list[AccessScore]) -> list[AccessScore]:
+        """Add a stand-in Access row for every correction the test does not spell out."""
+        known = {s.source_id for s in scores}
+        return scores + [
+            AccessScore(c.source_scores_id, c.team_a, c.team_b, 0, 0, c.tournament, None, None)
+            for c in SCORE_CORRECTIONS
+            if c.source_scores_id not in known
+        ]
+
     def test_kristiansand_score_corrections(self) -> None:
         scores = [
             AccessScore(1189, "Aasmund F", "Glenn L", 1, 1, "Kristiansand", None, None),
@@ -217,6 +228,7 @@ class ImportCorrectionsTests(unittest.TestCase):
             AccessScore(15981, "Frederic B", "Cornelius H", 3, 2, "Duesseldorf V", None, None),
             AccessScore(1, "A", "B", 0, 0, "Other", None, None),
         ]
+        scores = self._with_corrected_rows(scores)
         applied = apply_score_corrections(scores)
         self.assertEqual(len(applied), len(SCORE_CORRECTIONS))
         semi = next(s for s in scores if s.source_id == 1189)
@@ -238,6 +250,7 @@ class ImportCorrectionsTests(unittest.TestCase):
             AccessScore(2422, "Gianni T", "Morris C", 0, 5, "Milan", "Round 1 - Group A", None),
             AccessScore(15981, "Frederic B", "Cornelius H", 3, 2, "Duesseldorf V", None, None),
         ]
+        scores = self._with_corrected_rows(scores)
         apply_score_corrections(scores)
         g2421 = next(s for s in scores if s.source_id == 2421)
         self.assertEqual(g2421.team_b, "Marco M")
@@ -248,6 +261,18 @@ class ImportCorrectionsTests(unittest.TestCase):
         g15981 = next(s for s in scores if s.source_id == 15981)
         self.assertEqual(g15981.team_b, "Volker B")
         self.assertEqual((g15981.goals_a, g15981.goals_b), (3, 2))
+
+    def test_world_cup_extra_time_notes_follow_the_convention(self) -> None:
+        """Note = score after extra time in the row's player order; columns = extra-time goals only."""
+        rows = [c for c in SCORE_CORRECTIONS if c.tournament.startswith("World Cup")]
+        self.assertEqual(len(rows), 11)
+        for c in rows:
+            with self.subTest(source_scores_id=c.source_scores_id):
+                ext = extract_structured_from_extra(c.extra, goals_a=c.goals_a, goals_b=c.goals_b)
+                read = (None,) * 4 if ext is None else (ext.goals_et_a, ext.goals_et_b, ext.pens_a, ext.pens_b)
+                self.assertEqual(read, (c.goals_et_a, c.goals_et_b, c.pens_a, c.pens_b))
+                if c.extra is not None:
+                    self.assertRegex(c.extra, r"^(\d+-\d+ e\.t\.|\(\d+-\d+\) \d+-\d+ p\.k\.)$")
 
 
 if __name__ == "__main__":

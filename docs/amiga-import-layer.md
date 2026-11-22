@@ -213,7 +213,7 @@ When Access uses an alternate spelling for the same person (not caught by case/s
 
 ### Scores row corrections (manual)
 
-Forum- or witness-verified patches to existing Access `Scores` rows at L2→L3 (`SCORE_CORRECTIONS`). Full inventory: [`amiga-l3-legacy-fixes-inventory.md`](amiga-l3-legacy-fixes-inventory.md) §5.
+Forum- or witness-verified patches to existing Access `Scores` rows at L2→L3 (`SCORE_CORRECTIONS`). Full inventory: [`amiga-l3-legacy-fixes-inventory.md`](amiga-l3-legacy-fixes-inventory.md) §5 (the eleven World Cup extra-time rows of Nov 2026 are listed only there, §5.2).
 
 | `source_scores_id` | Tournament | Access | Canonical import | Reason |
 |--------------------|------------|--------|------------------|--------|

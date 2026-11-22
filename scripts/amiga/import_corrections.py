@@ -307,6 +307,130 @@ SCORE_CORRECTIONS: tuple[ScoreCorrection, ...] = (
         goals_b=2,
         extra=None,
     ),
+    # World Cup extra-time notes, 2026-11-22 (docs/amiga-l3-legacy-fixes-inventory.md 5.2).
+    ScoreCorrection(
+        source_scores_id=11390,
+        tournament="World Cup VII",
+        team_a="Gunther W",
+        team_b="Lorenzo C",
+        goals_a=0,
+        goals_b=2,
+        extra=None,
+    ),
+    ScoreCorrection(
+        source_scores_id=18836,
+        tournament="World Cup X",
+        team_a="Flavio Z",
+        team_b="Kostas Ka",
+        goals_a=2,
+        goals_b=4,
+        extra="(3-5) 4-5 p.k.",
+        goals_et_a=1,
+        goals_et_b=1,
+        pens_a=4,
+        pens_b=5,
+    ),
+    ScoreCorrection(
+        source_scores_id=18840,
+        tournament="World Cup X",
+        team_a="Flavio Z",
+        team_b="Thorsten B",
+        goals_a=4,
+        goals_b=5,
+        extra="6-5 e.t.",
+        goals_et_a=2,
+        goals_et_b=0,
+    ),
+    ScoreCorrection(
+        source_scores_id=18842,
+        tournament="World Cup X",
+        team_a="Kostas Ka",
+        team_b="Klaus Le",
+        goals_a=2,
+        goals_b=6,
+        extra="4-6 e.t.",
+        goals_et_a=2,
+        goals_et_b=0,
+    ),
+    ScoreCorrection(
+        source_scores_id=18857,
+        tournament="World Cup X",
+        team_a="Rodolfo M",
+        team_b="Lorenzo L",
+        goals_a=4,
+        goals_b=4,
+        extra="4-6 e.t.",
+        goals_et_a=0,
+        goals_et_b=2,
+    ),
+    ScoreCorrection(
+        source_scores_id=23551,
+        tournament="World Cup 2015",
+        team_a="Luke D",
+        team_b="Olly D",
+        goals_a=1,
+        goals_b=2,
+        extra="(1-2) 4-5 p.k.",
+        goals_et_a=0,
+        goals_et_b=0,
+        pens_a=4,
+        pens_b=5,
+    ),
+    ScoreCorrection(
+        source_scores_id=24904,
+        tournament="World Cup XVII",
+        team_a="Robert S",
+        team_b="Frank F",
+        goals_a=2,
+        goals_b=2,
+        extra=None,
+    ),
+    ScoreCorrection(
+        source_scores_id=24922,
+        tournament="World Cup XVII",
+        team_a="John H",
+        team_b="Marco D",
+        goals_a=2,
+        goals_b=3,
+        extra="2-4 e.t.",
+        goals_et_a=0,
+        goals_et_b=1,
+    ),
+    ScoreCorrection(
+        source_scores_id=24928,
+        tournament="World Cup XVII",
+        team_a="Christopher D",
+        team_b="Thor S",
+        goals_a=6,
+        goals_b=4,
+        extra="(8-6) 12-11 p.k.",
+        goals_et_a=2,
+        goals_et_b=2,
+        pens_a=12,
+        pens_b=11,
+    ),
+    ScoreCorrection(
+        source_scores_id=26887,
+        tournament="World Cup XXI",
+        team_a="Frederic G",
+        team_b="Robert S",
+        goals_a=3,
+        goals_b=3,
+        extra="3-4 e.t.",
+        goals_et_a=0,
+        goals_et_b=1,
+    ),
+    ScoreCorrection(
+        source_scores_id=26896,
+        tournament="World Cup XXI",
+        team_a="Cornelius H",
+        team_b="Michele L",
+        goals_a=2,
+        goals_b=2,
+        extra="5-2 e.t.",
+        goals_et_a=3,
+        goals_et_b=0,
+    ),
 )
 
 SCORE_CORRECTION_RATIONALE: dict[int, str] = {
@@ -336,6 +460,52 @@ SCORE_CORRECTION_RATIONALE: dict[int, str] = {
         "Duesseldorf V (2009-10-18): Access Scores g15981 has Frederic B 3–2 Cornelius H; forum final line is "
         "Frederic B 3–2 Volker B (https://ko-gathering.com/forum/viewtopic.php?t=15624). Score unchanged; "
         "Team B only — restores 4p triple round-robin (18g, 9 gp each). amiga_games.id=15974."
+    ),
+    11390: (
+        "World Cup VII Places 25-28: Access has 3-3 with Extra 3-5 e.t. Access [Tables] totals for both players "
+        "only fit 0-2 (Lorenzo C 32-39, Gunther W 28-66), and so does the alkis.org results image (Lorenzo C is "
+        "Tomasso R there). No extra time."
+    ),
+    18836: (
+        "World Cup X Places 25-28 second leg: level 6-6 with Extra NULL in Access; Kostas Ka played on for 25th. "
+        "alkis.org results image: 3-5 a.e.t., 4-5 p.k."
+    ),
+    18840: (
+        "World Cup X 27th Place Final second leg: level 7-7 with Extra NULL in Access; Access places Flavio Z "
+        "27th. alkis.org results image: 6-5 a.e.t."
+    ),
+    18842: (
+        "World Cup X 25th Place Final second leg: level 8-8 with Extra NULL in Access; Access places Kostas Ka "
+        "25th. alkis.org results image: 4-6 a.e.t."
+    ),
+    18857: (
+        "World Cup X 17th Place Final: level 4-4 with Extra NULL in Access; Access places Lorenzo L 17th. "
+        "alkis.org results image: 4-6 a.e.t.; video youtube vLaFZAHJXx8 goes to extra time with Rodolfo M on 4 "
+        "and Lorenzo L ahead."
+    ),
+    23551: (
+        "World Cup XV 29th Place Final second leg: Access Extra (2-1) 4-5 p.k. is impossible (Olly D would lose a "
+        "goal in extra time). alkis.org results image: 1-2 a.e.t., 4-5 p.k."
+    ),
+    24904: (
+        "World Cup XVII Places 9-16 second leg: Access Extra (8-6) 12-11 p.k. belongs to the quarter-final 24928; "
+        "this tie was decided 5-4 in normal time."
+    ),
+    24922: (
+        "World Cup XVII Places 9-12 second leg: Access Extra 3-3 e.t. sends John H through, but Marco D played "
+        "the 9th Place Final. alkis.org results image: 2-4 a.e.t."
+    ),
+    24928: (
+        "World Cup XVII quarter-final second leg: level 10-10 with Extra NULL in Access; its note was on 24904. "
+        "alkis.org results image: 8-6 a.e.t., 12-11 p.k.; Christopher D played the semi-final."
+    ),
+    26887: (
+        "World Cup XXI 17th Place Final: Access Extra 4-3 e.t. has the players the wrong way round. Video youtube "
+        "scSdq-IQXIE, Amiga end screen: Fred 3, Robert 4, 2nd leg 3-3, extra time 0-1, winner Robert."
+    ),
+    26896: (
+        "World Cup XXI 29th Place Final: level 7-7 with Extra NULL in Access; Access places Cornelius H 29th. "
+        "alkis.org results image: this game was the second leg, 5-2 a.e.t."
     ),
 }
 

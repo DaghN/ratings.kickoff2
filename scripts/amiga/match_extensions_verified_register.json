@@ -415,6 +415,111 @@
       "goals_et_a": 0,
       "goals_et_b": 2,
       "note": "Athens LIII 7th Place Final; Stelios T (A) vs George Ka (B); reg 2-2, ET 0-2 George; post-ET 4-2 George 7th"
+    },
+    "18412": {
+      "verified_at": "2026-11-22",
+      "tournament_id": 480,
+      "extension_kinds": ["et", "pens"],
+      "interpretation": "pens_after_et",
+      "regulation": "2-4",
+      "witness": "(3-5) 4-5 p.k.",
+      "goals_et_a": 1,
+      "goals_et_b": 1,
+      "pens_a": 4,
+      "pens_b": 5,
+      "note": "World Cup X Places 25-28 leg 2; Flavio Z (A) vs Kostas Ka; agg 6-6; Access silent; alkis.org results image 3-5 a.e.t., 4-5 p.k.; Kostas Ka played on for 25th"
+    },
+    "18416": {
+      "verified_at": "2026-11-22",
+      "tournament_id": 480,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "4-5",
+      "witness": "6-5 e.t.",
+      "goals_et_a": 2,
+      "goals_et_b": 0,
+      "note": "World Cup X 27th Place Final leg 2; Flavio Z (A) vs Thorsten B; agg 7-7; Access silent; alkis.org results image 6-5 a.e.t.; Flavio Z 27th"
+    },
+    "18418": {
+      "verified_at": "2026-11-22",
+      "tournament_id": 480,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "2-6",
+      "witness": "4-6 e.t.",
+      "goals_et_a": 2,
+      "goals_et_b": 0,
+      "note": "World Cup X 25th Place Final leg 2; Kostas Ka (A) vs Klaus Le; agg 8-8; Access silent; alkis.org results image 4-6 a.e.t.; Kostas Ka 25th"
+    },
+    "18433": {
+      "verified_at": "2026-11-22",
+      "tournament_id": 480,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "4-4",
+      "witness": "4-6 e.t.",
+      "goals_et_a": 0,
+      "goals_et_b": 2,
+      "note": "World Cup X 17th Place Final; Rodolfo M (A) vs Lorenzo L; Access silent; alkis.org results image 4-6 a.e.t.; video youtube vLaFZAHJXx8 goes to extra time, Lorenzo L ahead"
+    },
+    "23041": {
+      "verified_at": "2026-11-22",
+      "tournament_id": 585,
+      "extension_kinds": ["et", "pens"],
+      "interpretation": "pens_after_et",
+      "regulation": "1-2",
+      "witness": "(1-2) 4-5 p.k.",
+      "goals_et_a": 0,
+      "goals_et_b": 0,
+      "pens_a": 4,
+      "pens_b": 5,
+      "note": "World Cup XV 29th Place Final leg 2; Luke D (A) vs Olly D; agg 2-2; Access (2-1) 4-5 p.k. impossible; alkis.org results image 1-2 a.e.t., 4-5 p.k.; Olly D 29th"
+    },
+    "24412": {
+      "verified_at": "2026-11-22",
+      "tournament_id": 603,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "2-3",
+      "witness": "2-4 e.t.",
+      "goals_et_a": 0,
+      "goals_et_b": 1,
+      "note": "World Cup XVII Places 9-12 leg 2; John H (A) vs Marco D; agg 4-4; Access 3-3 e.t. contradicts the next round (Marco D played the 9th Place Final); alkis.org results image 2-4 a.e.t."
+    },
+    "24418": {
+      "verified_at": "2026-11-22",
+      "tournament_id": 603,
+      "extension_kinds": ["et", "pens"],
+      "interpretation": "pens_after_et",
+      "regulation": "6-4",
+      "witness": "(8-6) 12-11 p.k.",
+      "goals_et_a": 2,
+      "goals_et_b": 2,
+      "pens_a": 12,
+      "pens_b": 11,
+      "note": "World Cup XVII quarter-final leg 2; Christopher D (A) vs Thor S; agg 10-10; Access has this note on g24394 (Robert S - Frank F), which had no extra time; Christopher D played the semi-final"
+    },
+    "26267": {
+      "verified_at": "2026-11-22",
+      "tournament_id": 16,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "3-3",
+      "witness": "3-4 e.t.",
+      "goals_et_a": 0,
+      "goals_et_b": 1,
+      "note": "World Cup XXI 17th Place Final; Frederic G (A) vs Robert S; Access 4-3 e.t. has the players the wrong way round; video youtube scSdq-IQXIE end screen: Fred 3, Robert 4, extra time 0-1, winner Robert"
+    },
+    "26276": {
+      "verified_at": "2026-11-22",
+      "tournament_id": 16,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "2-2",
+      "witness": "5-2 e.t.",
+      "goals_et_a": 3,
+      "goals_et_b": 0,
+      "note": "World Cup XXI 29th Place Final, second leg although the lower id; Cornelius H (A) vs Michele L; agg 7-7; Access silent; alkis.org results image 5-2 a.e.t.; Cornelius H 29th"
     }
   }
 }

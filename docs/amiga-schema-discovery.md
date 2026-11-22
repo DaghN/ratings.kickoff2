@@ -65,6 +65,8 @@ Access stores **free text only** — no lookup table, field description, or enum
 | **Unconfirmed** | `WG` (3 rows) | Literal token only — **Access does not define this**. All three: **World Cup IV**, phase `KOA Cup - Round 1`, game ids 4918–4920 (`source_scores_id`); regulation scores are decisive (not draws). Do **not** assume golden goal without original KOA app confirmation. |
 | Parser gaps (SC-11) | `(12-13 p.k.)`, `4-1 p.k.` | Pens-only witness on regulation draws — not yet extracted to `pens_a`/`pens_b` (games 13432, 16977) |
 
+**Writing a note (house style, for corrections and new rows):** `goals_a` / `goals_b` = normal time (Elo uses these); `goals_et_*` = goals in extra time only; `pens_*` = shootout. `extra` = the leg's score **after** extra time in the row's player order: `3-4 e.t.`, or `(8-6) 12-11 p.k.` when penalties follow (the bracket is the score after extra time, also when extra time was goalless). alkis.org writes `a.e.t.` and lists the legs in its own order: turn the score round if the players are the other way. Test: `test_world_cup_extra_time_notes_follow_the_convention`. Background: [`amiga-extra-time-review-2026-11.md`](amiga-extra-time-review-2026-11.md).
+
 **SC-11 backfill:** 103/108 non-empty `extra` rows structured; 5 unparsed (3× `WG` + 2× pen-format gaps above).
 
 ### Proposed mapping → online vocabulary (`ratedresults`)

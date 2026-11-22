@@ -4,9 +4,9 @@
 
 **Authority:** Code in `scripts/amiga/import_corrections.py`, `scripts/amiga/tournament_names.py`, `scripts/amiga/player_names.py`, and `data/amiga/country_registry.json`. Each import writes an audit trail to `data/amiga/exports/import_manifest.json`.
 
-**Related:** [`amiga-import-layer.md`](amiga-import-layer.md) (pipeline + agent policy) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) G5/G9 · [`scripts/amiga/README.md`](../scripts/amiga/README.md)
+**Related:** [`amiga-extra-time-review-2026-11.md`](amiga-extra-time-review-2026-11.md) (extra time: evidence and decisions) · [`amiga-import-layer.md`](amiga-import-layer.md) (pipeline + agent policy) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) G5/G9 · [`scripts/amiga/README.md`](../scripts/amiga/README.md)
 
-**Last verified against:** day-0 seal manifest (`data/amiga/day0/manifests/import_manifest.json`, Jul 2026) — 605 tournaments, 27,418 games, 469 canonical players.
+**Last verified against:** day-0 seal manifest (`data/amiga/day0/manifests/import_manifest.json`, Jul 2026) — 605 tournaments, 27,418 games, 469 canonical players. §5.2 (Nov 2026) is newer than that seal.
 
 ---
 
@@ -123,7 +123,7 @@ Access `Scores` sometimes has wrong regulation goals or **NULL `Extra`** when fo
 | **1189** | Kristiansand semi (Aasmund F vs Glenn L) | `1–1`, Extra NULL (belongs on g1188) | Reg `0–0`; `extra` `(1-0) aet`; `goals_et_a/b` = `1`/`0` (ET period only) | [Forum p=48040](https://ko-gathering.com/forum/viewtopic.php?p=48040#p48040) |
 | **1188** | Kristiansand bronze (Oskar B vs Glenn L) | `0–0`, Extra NULL (reg **1–1** was on semi g1189) | Reg **`1–1`**; `extra` `1-1, (0-0, 7-8 on pens)`; `goals_et` `0–0`; `pens_a/b` = `7`/`8` (Glenn wins bronze as player B) | Same forum thread |
 
-**Note:** Other ET/pens games in the catalog keep Access `Extra` witness text; `backfill-match-extensions` derives structured cols at ops time unless a row lands here. Only add `SCORE_CORRECTIONS` when Access is wrong or silent and evidence is human-verified.
+**Note:** Other ET/pens games in the catalog keep Access `Extra` witness text; `backfill-match-extensions` derives structured cols at ops time unless a row lands here. Only add `SCORE_CORRECTIONS` when Access is wrong or silent and evidence is human-verified. How to write a note: [`amiga-extra-time-review-2026-11.md`](amiga-extra-time-review-2026-11.md) §2.
 
 ### 5.1 Scores row corrections — wrong player assignment (Milan I)
 
@@ -138,6 +138,26 @@ Access `Scores` sometimes assigns the wrong `Team A` / `Team B` while regulation
 **Rationale:** Forum Giornata 4 swapped Gianni↔Sandro in the report; Access/DB already had Gianni right elsewhere but duplicated Gianni–Marco C (g2349 + g2357). Moving g2349 opponent to Marco M yields one game per pair in Group A. Standings points unchanged; L5 rebuild deferred until simul.
 
 **Duesseldorf V:** Access stored the final 3–2 on Frederic–Cornelius instead of Frederic–Volker. Forum lists 18 games = complete 4p triple round-robin; wrong opponent caused 8/9/9/10 per-player counts and tier-C structure audit flag. Finish order unchanged (Oliver · Frederic · Volker · Cornelius); L5 rebuild after work DB patch.
+
+### 5.2 Scores row corrections: World Cup extra-time notes (2026-11-22)
+
+Evidence, grades, beliefs about each source and the three matches left alone: **[`amiga-extra-time-review-2026-11.md`](amiga-extra-time-review-2026-11.md)**. Rule: Access stands unless it contradicts itself or a video; only then does alkis.org supply the score. No placing changes.
+
+| `source_scores_id` | `amiga_games.id` | Event | Access | Canonical | Why |
+|---|---|---|---|---|---|
+| **11390** | 11383 | VII Places 25-28, Gunther W v Lorenzo C | 3-3, `3-5 e.t.` | **0-2**, no note | Access totals only fit 0-2; changes Elo |
+| **18836** | 18412 | X Places 25-28, Flavio Z v Kostas Ka | 2-4, no note | `(3-5) 4-5 p.k.` | Level tie without a decider |
+| **18840** | 18416 | X 27th, Flavio Z v Thorsten B | 4-5, no note | `6-5 e.t.` | Level tie without a decider |
+| **18842** | 18418 | X 25th, Kostas Ka v Klaus Le | 2-6, no note | `4-6 e.t.` | Level tie without a decider |
+| **18857** | 18433 | X 17th, Rodolfo M v Lorenzo L | 4-4, no note | `4-6 e.t.` | Level; video goes to extra time |
+| **23551** | 23041 | XV 29th, Luke D v Olly D | 1-2, `(2-1) 4-5 p.k.` | `(1-2) 4-5 p.k.` | Impossible score |
+| **24904** | 24394 | XVII Places 9-16, Robert S v Frank F | 2-2, `(8-6) 12-11 p.k.` | no note | Note belongs to 24928 |
+| **24928** | 24418 | XVII quarter-final, Christopher D v Thor S | 6-4, no note | `(8-6) 12-11 p.k.` | Note was on 24904 |
+| **24922** | 24412 | XVII Places 9-12, John H v Marco D | 2-3, `3-3 e.t.` | `2-4 e.t.` | Marco D played the 9th place final |
+| **26887** | 26267 | XXI 17th, Frederic G v Robert S | 3-3, `4-3 e.t.` | `3-4 e.t.` | Video: Robert S won |
+| **26896** | 26276 | XXI 29th, Cornelius H v Michele L | 2-2, no note | `5-2 e.t.` | Level tie without a decider |
+
+Applied to `ko2amiga_work` with `scripts/oneoff/amiga_fix_world_cup_extra_time_2026_11.py`. The day-0 seal and older checkpoints hold the Access values: run the script after restoring one, then simul.
 
 ---
 
@@ -234,6 +254,7 @@ Access had a **separate catalog row** for the 2005 KOA Cup consolation bracket. 
 | Supplemental games | 10 (1 tournament) |
 | Scores row corrections (ET / pens) | 2 (Kristiansand g1188–89) |
 | Scores row corrections (wrong player) | 3 (Milan g2421–22; Duesseldorf V g15981) |
+| Scores row corrections (World Cup extra time, Nov 2026, after the seal) | 11 rows in 10 matches (§5.2) |
 | Player country overrides | 4 |
 | Player name merges | 5 groups (1 automatic spacing/case, 4 manual spelling aliases) |
 | Country token normalizations | 2 |
@@ -241,6 +262,8 @@ Access had a **separate catalog row** for the 2005 KOA Cup consolation bracket. 
 | Tier E finish overrides | **0** on day-0 seal (L3 import) |
 
 **Work-DB overlay (Jul 2026):** Tier E rows in `amiga_tournament_finish_override` are **L4 curation** after manual materialize (e.g. multi-group formats **48**, **152**, **284** Athens LIII) — not `import_corrections.py` facts. Survives simul; see runbook §5c.
+
+**Placings corrected against Access (Nov 2026, L4):** World Cup XXIII Milan 25th and 27th and World Cup XIX Bremen 11th listed the loser of the placement final first. Rule and rows: [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) Tier E; evidence: [`amiga-extra-time-review-2026-11.md`](amiga-extra-time-review-2026-11.md) §7.
 
 ---
 
