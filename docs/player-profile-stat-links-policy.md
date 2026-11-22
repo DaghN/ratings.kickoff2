@@ -135,6 +135,7 @@ Update this table when a stat gains a link or a new inventory page ships.
 4. **SSR sort + `#k2-lb-player-{id}`** remains valid for **leaderboard** and **hub** drill-downs ([`k2_table_helpers.php`](../site/public_html/includes/k2_table_helpers.php) `k2_lb_sql_order_from_sort`) — not the default for profile stat clicks under this policy. Target wing SSR = Track A ([`k2-lb-ssr-sort-policy.md`](k2-lb-ssr-sort-policy.md)).
 5. **Track B execution handoff:** [`orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md) — one stat at a time; readback before code.
 6. **Amiga rating LB column indices** are fixed (`AMIGA_LB_RATING_COL_*` in `amiga_lb_lib.php`) — Win rate=8, Opp avg=9; do not reintroduce conditional Δ hide/show without re-auditing HoF and comparison hrefs ([`k2-lb-ssr-sort-policy.md`](k2-lb-ssr-sort-policy.md) SSR-13).
+7. **Hero includes run at page scope.** Prefix every variable in `amiga_player_hero.php` / `player_hero.php` with `$hero`. An unprefixed `$finishFilter` in the medal loop once overwrote the Tournaments tab filter (fixed Nov 2026).
 
 ---
 

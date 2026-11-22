@@ -33,7 +33,7 @@ $heroRankNum = (!$heroPreDebut && isset($rank) && !k2_db_is_null($rank) && (int)
     ? (int) $rank
     : null;
 $heroRank = $heroRankNum !== null ? '#' . $heroRankNum : '—';
-$nameEsc = htmlspecialchars((string) $Name, ENT_QUOTES, 'UTF-8');
+$heroNameEsc = htmlspecialchars((string) $Name, ENT_QUOTES, 'UTF-8');
 $heroPlayerId = isset($id) ? (int) $id : (isset($playerId) ? (int) $playerId : 0);
 $heroProfileHref = $heroPlayerId > 0 ? k2_amiga_player_profile_href($heroPlayerId) : '';
 $heroEventsHref = $heroPlayerId > 0
@@ -54,17 +54,17 @@ $heroEventsLinked = !$heroPreDebut && $heroEventsHref !== '';
 $heroGamesLinked = !$heroPreDebut && $heroGamesHref !== '';
 $heroWorldCupsLinked = !$heroPreDebut && $heroWorldCupsHref !== '';
 $heroCountry = isset($Country) ? trim((string) $Country) : '';
-$heroNameInner = $nameEsc;
+$heroNameInner = $heroNameEsc;
 if ($heroProfileHref !== '') {
-    $heroNameInner = '<a class="k2-player-hero__name-link" href="' . htmlspecialchars($heroProfileHref, ENT_QUOTES, 'UTF-8') . '">' . $nameEsc . '</a>';
+    $heroNameInner = '<a class="k2-player-hero__name-link" href="' . htmlspecialchars($heroProfileHref, ENT_QUOTES, 'UTF-8') . '">' . $heroNameEsc . '</a>';
 }
 $heroNameDisplay = $heroCountry !== ''
     ? k2_amiga_inline_flag_and_link($heroCountry, $heroNameInner)
     : $heroNameInner;
 $heroWcMedals = [];
-foreach ([1 => (int) ($k2AmigaPlayerHeroWcGold ?? 0), 2 => (int) ($k2AmigaPlayerHeroWcSilver ?? 0), 3 => (int) ($k2AmigaPlayerHeroWcBronze ?? 0)] as $place => $medalCount) {
-    if ($medalCount > 0) {
-        $heroWcMedals[$place] = $medalCount;
+foreach ([1 => (int) ($k2AmigaPlayerHeroWcGold ?? 0), 2 => (int) ($k2AmigaPlayerHeroWcSilver ?? 0), 3 => (int) ($k2AmigaPlayerHeroWcBronze ?? 0)] as $heroMedalPlace => $heroMedalCount) {
+    if ($heroMedalCount > 0) {
+        $heroWcMedals[$heroMedalPlace] = $heroMedalCount;
     }
 }
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_player_hero_glow_session.php';
@@ -75,7 +75,7 @@ k2_player_hero_atomic_paint_open();
 	<div class="k2-player-hero__inner">
 		<div class="k2-player-hero__media"><?php
 			if ($heroProfileHref !== '') {
-				?><a class="k2-player-hero__avatar k2-player-hero__avatar-link" href="<?php echo htmlspecialchars($heroProfileHref, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo $nameEsc; ?>"><?php echo htmlspecialchars($heroInitial, ENT_QUOTES, 'UTF-8'); ?></a><?php
+				?><a class="k2-player-hero__avatar k2-player-hero__avatar-link" href="<?php echo htmlspecialchars($heroProfileHref, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo $heroNameEsc; ?>"><?php echo htmlspecialchars($heroInitial, ENT_QUOTES, 'UTF-8'); ?></a><?php
 			} else {
 				?><div class="k2-player-hero__avatar" aria-hidden="true"><?php echo htmlspecialchars($heroInitial, ENT_QUOTES, 'UTF-8'); ?></div><?php
 			}
@@ -137,34 +137,35 @@ k2_player_hero_atomic_paint_open();
                     $heroWcMedalCount = count($heroWcMedals);
                     ?>
 				<div class="k2-player-hero__medals" style="--k2-player-hero-medal-count: <?php echo $heroWcMedalCount; ?>">
-				<?php foreach ($heroWcMedals as $place => $medalCount) {
-                    $medalMeta = amiga_wc_podium_meta((int) $place);
-                    if ($medalMeta === null) {
+				<?php foreach ($heroWcMedals as $heroMedalPlace => $heroMedalCount) {
+                    $heroMedalMeta = amiga_wc_podium_meta((int) $heroMedalPlace);
+                    if ($heroMedalMeta === null) {
                         continue;
                     }
-                    $medalHref = '';
-                    if (!$heroPreDebut && $heroPlayerId > 0 && $medalCount > 0) {
-                        $winnerFilter = (int) $place === 1 ? 'with-win' : '';
-                        $finishFilter = (int) $place === 2 ? 2 : ((int) $place === 3 ? 3 : 0);
-                        $medalHref = amiga_lb_player_tournaments_inventory_href(
+                    $heroMedalHref = '';
+                    if (!$heroPreDebut && $heroPlayerId > 0 && $heroMedalCount > 0) {
+                        // Page scope: the Tournaments tab owns $winnerFilter / $finishFilter, so keep the hero prefix here.
+                        $heroMedalWinnerFilter = (int) $heroMedalPlace === 1 ? 'with-win' : '';
+                        $heroMedalFinishFilter = (int) $heroMedalPlace === 2 ? 2 : ((int) $heroMedalPlace === 3 ? 3 : 0);
+                        $heroMedalHref = amiga_lb_player_tournaments_inventory_href(
                             $heroPlayerId,
                             'world-cup',
                             '',
-                            $winnerFilter,
+                            $heroMedalWinnerFilter,
                             '',
-                            $finishFilter,
+                            $heroMedalFinishFilter,
                         );
                     }
-                    $medalValueHtml = '<span class="k2-country-hero__medal-value k2-country-hero__medal-value--'
-                        . k2_h($medalMeta['variant']) . '">' . k2_h((string) $medalCount) . '</span>';
-                    if ($medalHref !== '') {
-                        $medalValueHtml = '<a class="k2-player-hero__stat-link" href="'
-                            . htmlspecialchars($medalHref, ENT_QUOTES, 'UTF-8') . '">' . $medalValueHtml . '</a>';
+                    $heroMedalValueHtml = '<span class="k2-country-hero__medal-value k2-country-hero__medal-value--'
+                        . k2_h($heroMedalMeta['variant']) . '">' . k2_h((string) $heroMedalCount) . '</span>';
+                    if ($heroMedalHref !== '') {
+                        $heroMedalValueHtml = '<a class="k2-player-hero__stat-link" href="'
+                            . htmlspecialchars($heroMedalHref, ENT_QUOTES, 'UTF-8') . '">' . $heroMedalValueHtml . '</a>';
                     }
                     ?>
 				<div class="k2-player-hero__stat k2-country-hero__stat--medal">
-					<span class="k2-country-hero__medal-label"><?php echo amiga_wc_podium_metal_label_markup((int) $place); ?></span>
-					<?php echo $medalValueHtml; ?>
+					<span class="k2-country-hero__medal-label"><?php echo amiga_wc_podium_metal_label_markup((int) $heroMedalPlace); ?></span>
+					<?php echo $heroMedalValueHtml; ?>
 				</div>
 				<?php } ?>
 				</div>
