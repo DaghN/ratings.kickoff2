@@ -149,6 +149,7 @@ Do not edit legacy policy to contradict prove behaviour; agents implementing wor
 
 | Date | Change |
 |------|--------|
+| 2026-11-22 | **Stream timestamps from YouTube descriptions.** World Cup XXIV day streams (KO2CV_TV) were mapped from Steve C's description chapters (`yt-dlp --skip-download --print "%(description)s"`) into `video_game_links.csv` (61 games). The matcher `scripts/oneoff/amiga_oslo_wc_stream_links.py` is a template for future events: it filters by day, takes the stage from the labels (Semi/Final/Nth Place/Silver Final/GoS), and accepts a link only when `game_links.resolve_fact_link` resolves it uniquely (`leg` = occurrence rank for same players + same score). Skip friendlies and markers. |
 | 2026-11-22 | **§5 step 2 now includes `review.csv`.** The shared `review.csv` is force-refreshed into work on every align (it was seeded only once before, so curation edits in git silently never reached work). Edit the **shared** `data/amiga/tournament_videos/review.csv` (plus `apply_review.py` `ROW_PATCHES` if the row is patched there), then `align-video-work` → `verify-tournament-videos-work` → `promote-video-deploy`. Upload `site/public_html/data/amiga/tournament_videos.json` (+ `tournament_videos/review.csv`); no DB push is needed. First use: the WC 2019 Bremen semi leg swap. |
 | 2026-07-08 | **PROMOTE-1** — `export_ko2amiga_work.ps1`, `promote-video-deploy`, simul video default on. |
 | 2026-07-08 | **V-1 shipped** — work/oracle compartments, align + verify CLIs, simul video wiring; path patch for legacy module imports. |

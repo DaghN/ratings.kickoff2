@@ -118,6 +118,41 @@ MANUAL_ROWS: list[dict[str, str]] = [
         "confidence": "high",
         "notes": "Atmosphere around game 5622 (Rikki F vs Steve C 4-5)",
     },
+    # @KO2CV_TV/streams — World Cup XXIV (Oslo 2026) day streams. Per-game links come from
+    # Steve C's description timestamps (video_game_links.csv), built by
+    # scripts/oneoff/amiga_oslo_wc_stream_links.py (2026-11-22).
+    {
+        "youtube_id": "SW3Ry0t53FI",
+        "title": "Kick Off 2 World Cup 2026 - Oslo, Norway - Day 1",
+        "duration_sec": "32196",
+        "guessed_tournament_id": "608",
+        "tournament_guess_label": "World Cup XXIV (Oslo)",
+        "year": "2026",
+        "kind": "stream",
+        "stage": "day1",
+        "game_link_mode": "stream_map",
+        "source": "manual",
+        "source_channel": "ko2cv",
+        "verified": "Y",
+        "confidence": "high",
+        "notes": "KO2CV_TV live stream archive; 27 of 33 description timestamps (Steve C) mapped in video_game_links.csv; non-game/friendly markers skipped",
+    },
+    {
+        "youtube_id": "H7YSe23l708",
+        "title": "Kick Off 2 World Cup 2026 - Oslo, Norway - Day 2",
+        "duration_sec": "41284",
+        "guessed_tournament_id": "608",
+        "tournament_guess_label": "World Cup XXIV (Oslo)",
+        "year": "2026",
+        "kind": "stream",
+        "stage": "day2",
+        "game_link_mode": "stream_map",
+        "source": "manual",
+        "source_channel": "ko2cv",
+        "verified": "Y",
+        "confidence": "high",
+        "notes": "KO2CV_TV live stream archive; 34 of 38 description timestamps (Steve C) mapped in video_game_links.csv; non-game/friendly markers skipped",
+    },
     # @KO2CV_TV/streams — Steve C live archives (manual map Jun 2026; no auto-matcher)
     {
         "youtube_id": "p1HKrcUCHMA",
