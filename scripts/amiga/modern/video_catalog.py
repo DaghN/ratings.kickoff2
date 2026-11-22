@@ -37,7 +37,11 @@ _SHARED_FILES = (
 )
 
 # Editorial canon lives in git shared paths — always refreshed into work on align.
+# review.csv joined 2026-11-22: before then, curation edits in the git copy never reached
+# the gitignored work copy after its first seed (align then failed with id_mismatch).
+# The work-only cache columns are recomputed by align on every run, so nothing is lost.
 _SHARED_EDITORIAL_ALWAYS_REFRESH = (
+    "review.csv",
     "video_game_links.csv",
     "dropped.csv",
 )

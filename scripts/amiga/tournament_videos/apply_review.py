@@ -928,15 +928,29 @@ ROW_PATCHES: dict[str, dict[str, str]] = {
         "score": "8-5",
         "game_id_guess": "25454",
     },
+    # WC 2019 Bremen semi Thor S v Gianni T: YouTube titles name the players in reverse,
+    # so title-based matching linked each video to the other leg. Corrected by Dagh 2026-11-22.
     "I8YSVVTWK44": {
+        "player_a_guess": "Thor S",
+        "player_a_id_guess": "440",
+        "player_b_guess": "Gianni T",
+        "player_b_id_guess": "149",
         "leg": "1",
-        "score": "4-6",
-        "game_id_guess": "25456",
-    },
-    "4YchXF8E5VU": {
-        "leg": "2",
         "score": "7-7",
         "game_id_guess": "25455",
+        "confidence": "high",
+        "verified": "Y",
+    },
+    "4YchXF8E5VU": {
+        "player_a_guess": "Gianni T",
+        "player_a_id_guess": "149",
+        "player_b_guess": "Thor S",
+        "player_b_id_guess": "440",
+        "leg": "2",
+        "score": "4-6",
+        "game_id_guess": "25456",
+        "confidence": "high",
+        "verified": "Y",
     },
     # WC 2014 Copenhagen — separate per-leg KO2CV uploads; 2nd leg must not dual-link when leg-1 video exists.
     "2_AnWxbb6ho": {

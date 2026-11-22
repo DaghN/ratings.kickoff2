@@ -149,6 +149,7 @@ Do not edit legacy policy to contradict prove behaviour; agents implementing wor
 
 | Date | Change |
 |------|--------|
+| 2026-11-22 | **§5 step 2 now includes `review.csv`.** The shared `review.csv` is force-refreshed into work on every align (it was seeded only once before, so curation edits in git silently never reached work). Edit the **shared** `data/amiga/tournament_videos/review.csv` (plus `apply_review.py` `ROW_PATCHES` if the row is patched there), then `align-video-work` → `verify-tournament-videos-work` → `promote-video-deploy`. Upload `site/public_html/data/amiga/tournament_videos.json` (+ `tournament_videos/review.csv`); no DB push is needed. First use: the WC 2019 Bremen semi leg swap. |
 | 2026-07-08 | **PROMOTE-1** — `export_ko2amiga_work.ps1`, `promote-video-deploy`, simul video default on. |
 | 2026-07-08 | **V-1 shipped** — work/oracle compartments, align + verify CLIs, simul video wiring; path patch for legacy module imports. |
 | 2026-07-08 | Policy locked — canonical `amiga_games.id` on work, file compartments, V-1 slices; legacy fact-remap scoped to prove path. |
