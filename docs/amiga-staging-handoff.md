@@ -22,6 +22,12 @@ Options:
 
 Proven end to end on 2026-11-22 (identical-data push, 3 minutes, MATCH). The manual path below still works as a fallback.
 
+**Push without web access (done 2026-11-22):** when live refuses web requests from this PC but SFTP works, Dagh presses the buttons on a phone (mobile data) and the agent does the rest over SFTP. The push script cannot be used, because it generates and applies over the web.
+1. **Dagh:** `run_export_ko2amiga.php` → **Generate dump**.
+2. **Agent:** fetch `_export/ko2amiga_staging_pull.sql`. Compare `Get-Ko2AmigaDumpFingerprint` with the baseline from `Get-Ko2AmigaPushBaseline` (`scripts/lib/Push-Ko2AmigaStaging.ps1`). **Different: stop.** Same: `export_ko2amiga_work.ps1`, upload the parts and the manifest to `_import/`, read them back and compare hashes.
+3. **Dagh:** `run_import_ko2amiga.php` → check the `generated` time and the part count → **Apply import** until **All parts finished** (keep the screen on; **Continue now** if it stops) → **Generate dump** again.
+4. **Agent:** fetch the new dump, import it into `ko2amiga_staging_cmp` (replace `ko2amiga_db` in the text, as the pull script does), run `amiga_compare_two_dbs.php ko2amiga_work ko2amiga_staging_cmp`. On MATCH write `staging-sidepull-last.json` and call `Set-Ko2AmigaPushBaselineFromVerify`, so that the next push has the right baseline.
+
 **Agents — when Dagh says “export to staged” (or similar):** prefer the one-command push above when he wants it live; otherwise **run** `scripts\export_ko2amiga_work.ps1` yourself (dumps local **`ko2amiga_work`** into staging-import `ko2amiga_*` parts; promotes work video manifest first; **regenerates + audits** export table manifest from `schema_bundles` before dump). Use `setup_ko2amiga_db.ps1` only for a full Access oracle rebuild (`export_ko2amiga_db.ps1` shim). Then reply that the dump is **ready for WinSCP sync and staging import** — include preview/apply URLs above. Do not hand-wave “run export locally”; execute it.
 
 **Destructive import (read every time):** Staging browser import **replaces** the whole staging `ko2amiga_db` from export parts — it does **not** merge events that exist only on staging. Routine refresh = export **living work** after **simul**, not nuclear `prove` + oracle export. Community mistakes on staging → anchored repair ([`amiga-live-ops-platform.md`](amiga-live-ops-platform.md)), not full reimport from Access.
