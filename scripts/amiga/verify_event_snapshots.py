@@ -24,6 +24,13 @@ from scripts.amiga.peak_rating_event import (
     compute_lowest_rating_tournament_id,
     compute_peak_rating_tournament_id,
 )
+from scripts.amiga.inverse_count_changelog import INVERSE_COUNT_METRICS
+
+# The four inverse victim/culprit counts change for non-participants ("ghosts"), so
+# amiga_player_current legitimately runs ahead of the participant-only snapshot columns.
+# Authority = amiga_player_inverse_count_at_event, checked by verify-inverse-count-changelog.
+# See docs/amiga-player-inverse-count-timeline-policy.md (snapshot cols demoted, Jul 2026).
+_INVERSE_COUNT_COLUMNS = frozenset(col for _, _, col in INVERSE_COUNT_METRICS)
 
 _TOLERANCE = 1e-5
 _SAMPLE_LIMIT = 5
@@ -92,8 +99,12 @@ def _current_latest_mismatch_sql() -> str:
     for current_col, snap_col in meta_map:
         clauses.append(_null_safe_neq(f"c.`{current_col}`", f"l.`{snap_col}`", current_col))
     for col in CAREER_COLUMNS:
+        if col in _INVERSE_COUNT_COLUMNS:
+            continue
         clauses.append(_null_safe_neq(f"c.`{col}`", f"l.`{col}`", col))
     for col in HONOURS_CURRENT_COLUMNS:
+        if col in _INVERSE_COUNT_COLUMNS:
+            continue
         clauses.append(_null_safe_neq(f"c.`{col}`", f"l.`{col}`", col))
     clauses.append(
         _null_safe_neq(

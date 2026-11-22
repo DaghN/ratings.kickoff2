@@ -53,8 +53,8 @@
                   "ko2amiga_17_ratings_15001_20000.sql",
                   "ko2amiga_18_games_20001_25000.sql",
                   "ko2amiga_19_ratings_20001_25000.sql",
-                  "ko2amiga_20_games_25001_27474.sql",
-                  "ko2amiga_21_ratings_25001_27474.sql",
+                  "ko2amiga_20_games_25001_27757.sql",
+                  "ko2amiga_21_ratings_25001_27757.sql",
                   "ko2amiga_22_player_event_snapshots.sql",
                   "ko2amiga_23_player_current.sql",
                   "ko2amiga_24_player_elo_rank_at_event.sql",
@@ -76,7 +76,7 @@
                   "ko2amiga_40_wc_hof_snapshots.sql",
                   "ko2amiga_41_wc_hof_present.sql"
               ],
-    "generated":  "2026-07-23 17:25:41",
+    "generated":  "2026-11-22 03:19:36",
     "source_database":  "ko2amiga_work",
     "staging_database":  "ko2amiga_db"
 }

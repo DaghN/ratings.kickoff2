@@ -1,0 +1,42 @@
+{
+    "checkpoint_id":  "work-2026-11-22-oslo-wc",
+    "tier":  "full",
+    "sealed_utc":  "2026-11-22T01:15:41Z",
+    "label":  "oslo-wc",
+    "notes_text":  "World Cup XXIV (Oslo) appended as tournament 608 (chrono 608, 283 games, 4 newcomers); simul + 29-step verify green.",
+    "source_database":  "ko2amiga_work",
+    "git_commit_at_seal":  "69e68261",
+    "export":  {
+                   "parts_bytes":  75808293,
+                   "parts_bytes_mb":  72.3,
+                   "generated":  "2026-11-22 03:15:08",
+                   "parts_count":  42
+               },
+    "counts":  {
+                   "amiga_players":  473,
+                   "tournament_stages":  1127,
+                   "tournaments":  608,
+                   "amiga_tournament_finish_override":  1290,
+                   "amiga_games":  27757,
+                   "amiga_player_event_snapshots":  4573,
+                   "tournament_fixtures":  19025
+               },
+    "simul_last":  {
+                       "git_head":  "bd4733b9a24fbc37a294191beb7ad062f85f067b",
+                       "duration_sec":  1485.12,
+                       "note":  "Structure edits after this simul may be included in SQL; re-simul if restoring without L5 parts.",
+                       "finished_utc":  "2026-07-15T16:10:56.778277Z"
+                   },
+    "companion_files":  [
+                            "tournament_videos.json",
+                            "tournament_videos_review.csv",
+                            "disposition_register.json",
+                            "match_extensions_verified_register.json",
+                            "video_game_links.csv"
+                        ],
+    "restore":  {
+                    "after_import":  "Point ko2amiga_config.local.php at ko2amiga_work; run python -m scripts.amiga simul if L5 derived looks stale.",
+                    "target_database":  "ko2amiga_work",
+                    "import_parts_in_order":  "ko2amiga_manifest.json parts[]"
+                }
+}

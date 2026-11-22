@@ -1,0 +1,336 @@
+# 24th Kick Off 2 World Cup (Oslo / Lillestrøm, 14–15 Nov 2026) — results as posted on the KOA forum.
+# Source: https://www.ko-gathering.com/forum/viewtopic.php?t=17982 (posts by alkis21, 17 Nov 2026).
+# Transcribed 2026-11-22. Lines starting with '#' are notes and are not part of the posted text.
+# '## POST n' marks the start of each forum post; the text below each marker is that post's content verbatim.
+## POST 1
+Round 1
+Steve Cl 2 - 2 Jan G
+Dagh N 12 - 0 John H
+Sandro T 9 - 2 Heiko W
+Jan G 0 - 11 Dagh N
+Sandro T 3 - 1 Nikos A
+Heiko W 3 - 3 Steve Cl
+Heiko W 3 - 1 Jan G
+John H 4 - 2 Sandro T
+Steve Cl 2 - 6 Nikos A
+Steve Cl 0 - 5 John H
+Nikos A 5 - 1 Heiko W
+Dagh N 10 - 3 Sandro T
+Jan G 0 - 3 Nikos A
+Dagh N 11 - 1 Steve Cl
+Heiko W 1 - 11 John H
+Sandro T 7 - 3 Jan G
+Heiko W 3 - 12 Dagh N
+John H 3 - 2 Nikos A
+Jan G 1 - 8 John H
+Steve Cl 1 - 5 Sandro T
+Nikos A 1 - 10 Dagh N
+Jan G 1 - 3 Steve Cl
+John H 2 - 12 Dagh N
+Heiko W 2 - 3 Sandro T
+Dagh N 13 - 1 Jan G
+Nikos A 5 - 3 Sandro T
+Steve Cl 1 - 1 Heiko W
+Jan G 1 - 2 Heiko W
+Sandro T 6 - 3 John H
+Nikos A 6 - 2 Steve Cl
+John H 4 - 1 Steve Cl
+Heiko W 0 - 1 Nikos A
+Sandro T 8 - 11 Dagh N
+Nikos A 4 - 1 Jan G
+Steve Cl 1 - 12 Dagh N
+John H 6 - 0 Heiko W
+Jan G 1 - 7 Sandro T
+Dagh N 11 - 2 Heiko W
+Nikos A 5 - 3 John H
+John H 6 - 2 Jan G
+Sandro T 6 - 1 Steve Cl
+Dagh N 11 - 2 Nikos A
+Jon L 4 - 6 Rodolfo M
+Gianni T 12 - 4 Steve C
+Ilker C 16 - 1 Terje S
+Rodolfo M 0 - 9 Gianni T
+Ilker C 7 - 5 Mark W
+Terje S 3 - 3 Jon L
+Terje S 1 - 5 Rodolfo M
+Steve C 9 - 3 Ilker C
+Jon L 4 - 6 Mark W
+Jon L 2 - 3 Steve C
+Mark W 4 - 2 Terje S
+Gianni T 9 - 4 Ilker C
+Rodolfo M 4 - 4 Mark W
+Gianni T 13 - 1 Jon L
+Terje S 3 - 8 Steve C
+Ilker C 7 - 2 Rodolfo M
+Terje S 0 - 15 Gianni T
+Steve C 2 - 3 Mark W
+Rodolfo M 3 - 14 Steve C
+Jon L 1 - 10 Ilker C
+Mark W 2 - 7 Gianni T
+Rodolfo M 5 - 6 Jon L
+Steve C 3 - 7 Gianni T
+Terje S 3 - 7 Ilker C
+Gianni T 11 - 0 Rodolfo M
+Mark W 2 - 2 Ilker C
+Jon L 5 - 1 Terje S
+Rodolfo M 4 - 3 Terje S
+Ilker C 5 - 3 Steve C
+Mark W 2 - 0 Jon L
+Steve C 8 - 7 Jon L
+Terje S 6 - 4 Mark W
+Ilker C 4 - 11 Gianni T
+Mark W 7 - 0 Rodolfo M
+Jon L 0 - 16 Gianni T
+Steve C 7 - 3 Terje S
+Rodolfo M 3 - 12 Ilker C
+Gianni T 12 - 2 Terje S
+Mark W 1 - 3 Steve C
+Steve C 8 - 1 Rodolfo M
+Ilker C 10 - 4 Jon L
+Gianni T 12 - 2 Mark W
+Robert S 5 - 1 Ian K
+Thor S 7 - 2 Jacob K
+Steve B 7 - 3 Martin H
+Ian K 0 - 6 Steve B
+Martin H 2 - 11 Thor S
+Jacob K 9 - 2 Robert S
+Jacob K 9 - 1 Ian K
+Robert S 2 - 2 Martin H
+Thor S 3 - 6 Steve B
+Ian K 0 - 10 Thor S
+Steve B 4 - 0 Robert S
+Martin H 0 - 7 Jacob K
+Martin H 3 - 2 Ian K
+Jacob K 5 - 8 Steve B
+Robert S 2 - 7 Thor S
+Ian K 3 - 2 Robert S
+Jacob K 8 - 10 Thor S
+Martin H 2 - 9 Steve B
+Steve B 7 - 3 Ian K
+Thor S 10 - 0 Martin H
+Robert S 1 - 8 Jacob K
+Ian K 3 - 11 Jacob K
+Martin H 0 - 4 Robert S
+Steve B 2 - 7 Thor S
+Thor S 10 - 3 Ian K
+Robert S 2 - 5 Steve B
+Jacob K 8 - 1 Martin H
+Ian K 6 - 2 Martin H
+Steve B 4 - 3 Jacob K
+Thor S 10 - 1 Robert S
+Frank F 6 - 3 Jørn F
+Fabio F 8 - 3 Alessandro V
+Chris D 5 - 3 Mick C
+Jørn F 2 - 9 Chris D
+Mick C 0 - 10 Fabio F
+Alessandro V 6 - 1 Frank F
+Alessandro V 5 - 1 Jørn F
+Frank F 4 - 1 Mick C
+Fabio F 8 - 7 Chris D
+Jørn F 1 - 10 Fabio F
+Chris D 7 - 1 Frank F
+Mick C 3 - 7 Alessandro V
+Mick C 6 - 3 Jørn F
+Alessandro V 2 - 4 Chris D
+Frank F 1 - 10 Fabio F
+Jørn F 2 - 4 Frank F
+Alessandro V 3 - 10 Fabio F
+Mick C 0 - 8 Chris D
+Chris D 10 - 0 Jørn F
+Fabio F 7 - 1 Mick C
+Frank F 2 - 3 Alessandro V
+Jørn F 1 - 6 Alessandro V
+Mick C 2 - 7 Frank F
+Chris D 5 - 5 Fabio F
+Fabio F 11 - 4 Jørn F
+Frank F 1 - 6 Chris D
+Alessandro V 8 - 3 Mick C
+Jørn F 3 - 3 Mick C
+Chris D 9 - 7 Alessandro V
+Fabio F 11 - 0 Frank F
+Game of Shame
+Jan G 2 - 6 Jørn F
+## POST 2
+Silver Cup
+Terje S 3 - 1 Steve Cl
+Martin H 1 - 6 Jørn F
+Mick C 3 - 4 Ian K
+Heiko W 5 - 2 Jon L
+Jan G 2 - 4 Rodolfo M
+Steve Cl 2 - 1 Mick C
+Heiko W 3 - 3 Martin H
+Jan G 3 - 2 Terje S
+Rodolfo M 2 - 3 Jørn F
+Jon L 3 - 2 Ian K
+Jan G 1 - 1 Steve Cl
+Rodolfo M 5 - 2 Heiko W
+Jon L 1 - 3 Mick C
+Ian K 4 - 3 Martin H
+Jørn F 5 - 3 Terje S
+Steve Cl 3 - 5 Jon L
+Ian K 5 - 3 Rodolfo M
+Jørn F 3 - 4 Jan G
+Terje S 4 - 1 Heiko W
+Martin H 3 - 5 Mick C
+Jørn F 4 - 2 Steve Cl
+Terje S 7 - 4 Ian K
+Martin H 2 - 3 Jon L
+Mick C 3 - 1 Rodolfo M
+Heiko W 1 - 3 Jan G
+Steve Cl 2 - 2 Martin H
+Mick C 3 - 4 Terje S
+Heiko W 1 - 7 Jørn F
+Jan G 1 - 4 Ian K
+Rodolfo M 4 - 6 Jon L
+Heiko W 2 - 2 Steve Cl
+Jan G 3 - 7 Mick C
+Rodolfo M 3 - 3 Martin H
+Jon L 4 - 5 Terje S
+Ian K 3 - 1 Jørn F
+Steve Cl 2 - 1 Rodolfo M
+Jon L 2 - 4 Jan G
+Ian K 3 - 0 Heiko W
+Jørn F 2 - 1 Mick C
+Terje S 3 - 2 Martin H
+Ian K 3 - 2 Steve Cl
+Jørn F 5 - 1 Jon L
+Terje S 2 7 Rodolfo M
+Martin H 3 1 Jan G
+Mick C 7 2 Heiko W
+Silver Cup semi-finals
+Ian K 2 - 3 Mick C
+Mick C 2 - 2 Ian K
+Terje S 2 - 3 Jørn F
+Jørn F 2 - 0 Terje S
+19th place final
+Ian K 3 - 0 Terje S
+Silver Cup final
+Mick C 1 - 0 Jorn F
+## POST 3
+World Cup
+John H 1 - 3 Jacob K
+Chris D 4 - 6 Mark W
+Dagh N 10 - 6 Steve B
+Gianni T 14 - 2 Alessandro V
+Jacob K 2 - 11 Dagh N
+Gianni T 7 - 2 Chris D
+Alessandro V 4 - 2 John H
+Steve B 8 - 4 Mark W
+Alessandro V 3 - 3 Jacob K
+Steve B 4 - 8 Gianni T
+Mark W 2 - 12 Dagh N
+John H 2 - 6 Chris D
+Jacob K 5 - 3 Mark W
+John H 3 - 8 Steve B
+Chris D 6 - 3 Alessandro V
+Dagh N 6 - 5 Gianni T
+Chris D 8 - 1 Jacob K
+Dagh N 12 - 0 John H
+Gianni T 7 - 4 Mark W
+Alessandro V 6 - 4 Steve B
+Jacob K 6 - 8 Gianni T
+Alessandro V 3 - 13 Dagh N
+Steve B 4 - 5 Chris D
+Mark W 8 - 3 John H
+Steve B 7 - 4 Jacob K
+Mark W 7 - 4 Alessandro V
+John H 2 - 11 Gianni T
+Chris D 5 - 5 Dagh N
+Robert S 2 - 4 Nikos A
+Ilker C 10 - 0 Frank F
+Thor S 7 - 4 Sandro T
+Fabio F 8 - 3 Steve C
+Nikos A 5 - 7 Thor S
+Fabio F 10 - 3 Ilker C
+Steve C 6 - 1 Robert S
+Sandro T 5 - 4 Frank F
+Steve C 2 - 2 Nikos A
+Sandro T 6 - 7 Fabio F
+Frank F 2 - 11 Thor S
+Robert S 3 - 1 Ilker C
+Nikos A 6 - 0 Frank F
+Robert S 4 - 4 Sandro T
+Ilker C 3 - 5 Steve C
+Thor S 4 - 8 Fabio F
+Ilker C 4 - 8 Nikos A
+Thor S 3 - 3 Robert S
+Fabio F 10 - 2 Frank F
+Steve C 4 - 7 Sandro T
+Nikos A 2 - 7 Fabio F
+Steve C 7 - 8 Thor S
+Sandro T 2 - 10 Ilker C
+Frank F 1 - 3 Robert S
+Sandro T 4 - 9 Nikos A
+Frank F 2 - 2 Steve C
+Robert S 2 - 13 Fabio F
+Ilker C 4 - 7 Thor S
+15th place final
+John H 3 - 1 Frank F
+Frank F 4 - 3 John H
+13th place final
+Alessandro V 8 - 8 Ilker C
+Ilker C 4 - 8 Alessandro V
+11th place final
+Jacob K 5 - 4 Sandro T
+Sandro T 5 - 7 Jacob K
+9th place final
+Mark W 3 - 1 Robert S
+Robert S 3 - 3 Mark W
+Quarter finals
+Dagh N 13 - 5 Steve C
+Steve C 6 - 6 Dagh N
+Thor S 9 - 7 Chris D
+Chris D 5 - 4 Thor S
+Gianni T 9 - 1 Nikos A
+Nikos A 4 - 6 Gianni T
+Fabio F 9 - 2 Steve B
+Steve B 2 - 9 Fabio F
+Places 5-8
+Steve C 6 - 6 Chris D
+Chris D 4 - 5 Steve C
+Nikos A 6 - 6 Steve B
+Steve B 7 - 1 Nikos A
+7th place final
+Chris D 6 - 4 Nikos A
+Nikos A 2 - 7 Chris D
+5th place final
+Steve C 4 - 2 Steve B
+Steve B 5 - 6 Steve C
+Semi finals
+Dagh N 8 - 4 Thor S
+Thor S 2 - 12 Dagh N
+Gianni T 10 - 5 Fabio F
+Fabio F 3 - 3 Gianni T
+3rd place final
+Thor S 2 - 7 Fabio F
+Final
+Dagh N 7 - 5 Gianni T
+Gianni T 3 - 5 Dagh N
+## POST 4
+Final Standings
+1. Dagh N - World Champion, Top Scorer, Best Defense
+2. Gianni T
+3. Fabio F
+4. Thor S
+5. Steve C
+6. Steve B
+7. Chris D
+8. Nikos A
+9. Mark W
+10. Robert S
+11. Jacob K - Lifetime Achievement Award
+12. Sandro T
+13. Alessandro V
+14. Ilker C
+15. John H
+16. Frank F
+17. Mick C - Silver Cup
+18. Jørn F
+19. Ian K
+20. Terje S
+21. Jan G - Shirt of Shame
+22. Jon L
+23. Rodolfo M
+24. Steve Cl
+25. Martin H
+26. Heiko W

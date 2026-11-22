@@ -36,4 +36,5 @@ Then add a **gitignore allowlist** for that folder (copy the `work-2026-07-18-fo
 
 - **Milestone only** — not every `export_ko2amiga_work.ps1` run.
 - **Opt-in per folder** — default `data/amiga/checkpoints/**` is gitignored; un-ignore SQL for sealed checkpoints only.
-- **Preferred healthy tip (Jul 2026-23):** `work-2026-07-23-chrono-integer` — dense integer chronos + matchup `event_chrono` parity (mae mismatch **0**). Reference before repair: `work-2026-07-23-pre-chrono-integer` (`companion/chrono_baseline_before.json`). Prior: `work-2026-07-23-inverse-roundtrip`.
+- **Preferred healthy tip (2026-11-22):** `work-2026-11-22-oslo-wc`. It is the chrono-integer tip plus World Cup XXIV (Oslo): tournament 608, chrono 608, 283 games, 4 newcomers. Simul and the 29-step verify suite are green.
+- **Previous tip (Jul 2026-23):** `work-2026-07-23-chrono-integer` — dense integer chronos + matchup `event_chrono` parity (mae mismatch **0**). Reference before repair: `work-2026-07-23-pre-chrono-integer` (`companion/chrono_baseline_before.json`). Prior: `work-2026-07-23-inverse-roundtrip`.
