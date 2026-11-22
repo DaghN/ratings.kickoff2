@@ -1,6 +1,6 @@
 # Session log archive — 2026 Jul prune
 
-**Archived 2026-11-22.** These rows were moved out of the PROJECT_MEMORY.md Recent log, covering about 2026-07-01 to 2026-07-19 in file order. For the current focus see [../PROJECT_MEMORY.md](../PROJECT_MEMORY.md).
+**Archived 2026-11-22.** These rows were moved out of the PROJECT_MEMORY.md Recent log, covering about 2026-07-01 to 2026-07-22 in file order (Jul 20–22 added in a second move the same day). For the current focus see [../PROJECT_MEMORY.md](../PROJECT_MEMORY.md).
 
 ---
 
@@ -8,6 +8,38 @@
 
 | Date | Note |
 |------|------|
+| 2026-07-22 | **L5 slice 5 Case C** — truncate > N + delete M + project N + refinalize + seal; local smoke PASS. Build **`l5-s5`**. |
+| 2026-07-22 | **L5 slice 4 hardened + restore UX** — After botched Case B, present repair: inverse = **pointer recount** (Jul 15 ghosts; not snap cols / empty changelog); matchups = **JOIN pairs** + txn (not MariaDB EXISTS); HTTP phases `player_current`→`matchups`→`rest`; **Diagnose** counts/timing (MariaDB `max_statement_time`). Staging tip #607 **PERFECT MATCH** vs GitHub `work-2026-07-18-forum` (restore seal + side-pull `ko2amiga_staging_cmp`). Local `ko2amiga_work` rebuilt from same seal. **BA4:** **Restore into DB now** from `_backups/` (no `_import` clobber); Copy→`_import` secondary. Side-pull: `pull_ko2amiga_from_staging.ps1 -TargetDatabase …`. Build **`l5-s4j`**. Next: slice 5 Case C. |
+| 2026-07-22 | **OW follow-up** — Setup removed from in-tournament tabs (Players · Play · Table); create/Recent via “Create new league” landing only. |
+| 2026-07-22 | **OW slice 6 (track done)** — policy **Implemented**; practice-track §3 CREATE/OPEN/PLAY; RTB organizer vocabulary aligned; OW12 stage builder deferred. Happy path: Create → Play → Finish (+ optional Hide). |
+| 2026-07-22 | **OW slice 5** — Advanced demoted to muted Technical / repair tools; withdraw/replace UI + browser POST abandoned (CLI kept); Setup slim Open meta (Hide stays header). Next: slice 6 docs/RTB vocabulary. |
+| 2026-07-22 | **L5 Case A Open → organizer Play** — `/amiga/ops/fixtures.php?once=…&view=play&tournament_id=` (not catalog). Build `l5-s4c`. |
+| 2026-07-22 | **OW slice 4** — Fixtures+Results merged into stage-scoped **Play** (`view=play` + `stage_id`); create/Open land on Play; legacy fixtures/results URLs remap. Next: slice 5 Advanced demote + strip withdraw/replace. |
+| 2026-07-22 | **OW slice 3** — create as `running`+`started_at`; Start UI retired; draft/ready auto-heal to Open; Results landing after create. Live still = running + live_visible. Next: slice 4 play surface merge. |
+| 2026-07-22 | **OW slice 2** — Hide/Show Live via `format_overrides.live_visible` (default on); Live hub filters hidden; Abandon/void retired from browser; Finish unaffected. Next: slice 3 No Start. |
+| 2026-07-22 | **OW slice 1** — Recent tournaments rename + Open-only filter (`rating_finalized=0`, lifecycle draft|registration|ready|running; void/Official excluded). Next: slice 2 Hide/Show Live. |
+| 2026-07-22 | **OW slice 0 inventory** — plan §5 filled (gates, Live=`running`, Recent leagues SQL, withdraw/replace, tab map). Next: slice 1 Open-only Recent tournaments. No PHP/UI changes. |
+| 2026-07-22 | **Organizer workspace simplification locked** — OW1–OW14 policy + thin plan (Open/Hide; no Start/void; stage-scoped play merge; drop withdraw/replace). Code not started. |
+| 2026-07-22 | **L5 slice 3b** — dropped Case A auto-seal (policy: tip-changing only). Case A UI needs WinSCP of `run_backup_ko2amiga.php` + `delete_unfinalized_tournament.php` (look for Build `l5-s3b-…`). Next: slice 4 Case B. |
+| 2026-07-22 | **L5 slice 3 done** — Case A `delete-unfinalized-tournament` (admin backup page + ops module/CLI); refuse finalized tip; (auto-seal later dropped — 3b); local smoke PASS. Next: slice 4 Case B. |
+| 2026-07-22 | **L5 slices 0–2 shipped + pushed** (`2a3b39f1`); staging Backup now **reserve** seal; work↔staging **parity OK** (Nottingham III #607, 27474 games, checksums); local smoke/compare dumps cleaned. Next: slice 3 Case A (starter prompt ready). |
+| 2026-07-22 | **L5 slice 2 done** — Restore stages seal into `_import/` then Apply import (full replace); smoke PASS (Country probe wiped). Next: slice 3 Case A. |
+| 2026-07-22 | **L5 slice 1 done** — `amiga_backup_seal_lib.php` + Finish seal + `/amiga/run_backup_ko2amiga.php`; rolling/reserve BA5–BA6; local smoke 42 parts / reserve PHP-delete refused. Next: slice 2 restore. |
+| 2026-07-22 | **L5 slice 0 done** — inventory §5 filled (Finish path, pack reuse, 14 derived tables, present re-project, admin UI = import sibling); next slice 1. |
+| 2026-07-21 | **Creative ledger status audit** — [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md): C03 Activity + C04 News v1 → shipped; C02 → sticky v1 successor; birds-eye / open stack / ledger buckets refreshed. Open firm to-dos unchanged (C14 + C08, C01, C16…). |
+| 2026-07-22 | **L5 handover** — plan + starter (backup seals, Case A/B, narrow Case C); practice track §4 L5 ready; AD4 updated. |
+| 2026-07-22 | **Doc sweep** — live-ops §6.2/§7/§9/ALO*, staging-authority §6–7/ADMIN-1, RTB, modern-ground, handoff aligned to backup/admin-delete policy; L6 shelved consistently. |
+| 2026-07-22 | **Backup + admin delete intent locked** — organizer vs admin; backup-after Finish/delete; admin-only tip delete; L6/demotion out — [`amiga-staging-backup-admin-delete-policy.md`](docs/amiga-staging-backup-admin-delete-policy.md). |
+| 2026-07-21 | **L6 shelved** — ground pack not planned until further notice; full staging backup pack preferred. |
+| 2026-07-21 | **Track L → L2** — finish-confirm Phase A boring; practice track gate = Ref-League-A ×3 reps; §4 idle. |
+| 2026-07-21 | **Organizer finish confirm — Phase A complete (slice 4)** — FO9 demoted to prefill-only residual; policy Implemented; practice track L1 idle for next feedback. Optional slice 5 = Phase B finish-mode sketch. |
+| 2026-07-21 | **Organizer finish confirm — slice 3** — Make official gated until finishing order confirmed (server `finish_order_not_confirmed` before void/promote; Finish button hidden until confirm). WinSCP `fixtures.php` + `amiga_finish_confirm_proposal.php`. |
+| 2026-07-21 | **Organizer finish confirm — FO2 ties** — Confirm allows shared places; only 1..N (N = registered entrants). Olympic deferred. Sync `amiga_finish_override_write.php`. |
+| 2026-07-21 | **Organizer finish confirm — slice 2** — Table “Who finished where?” panel + `confirm_finish_order` → Tier E; prefill from derive/Tier E/table; Finish still ungated (slice 3). WinSCP `fixtures.php` + `amiga-tournament.css` + `amiga_finish_confirm_*.php` / write helper when testing staging. |
+| 2026-07-20 | **Root share card** — `status.php` OG title/description = site-wide default (root `/` redirects here); WhatsApp refresh via Facebook Sharing Debugger. |
+| 2026-07-20 | **Victims mosaic BL/BW** — written out as Biggest loss victims / Biggest win culprits; tooltip Loss/Win → lowercase (profile + Victims LB). |
+| 2026-07-20 | **Victims mosaic casing** — mid-line `victims`/`culprits` lowercase (DD/CS/MGC/BL/MGS/BW); standalone Victims·Culprits stay title case; tooltips already matched. |
+| 2026-07-20 | **Amiga profile mosaic labels** — Goals / DDs & CSs / Victims DD·CS / Tournament honours / Calendar & geo; peak year+count + Peak rating Peak/rank/Nadir dates **inline** (muted date, wide gap); `amiga_profile_lb_slices.php` + `player-feast-sections.css`. |
 | 2026-07-19 | **Status Leagues ongoing→shorter** — live week/year tab switch lands today/this month (not Mon/Jan); `data-live-keys` + heal in `status-period-competitions.js`. |
 | 2026-07-19 | **Live goal glow→reveal** — scoring cell blooms ~2 s, then digit updates (SRL-11). WinSCP `js/status-room-live.js`. |
 | 2026-07-19 | **Status live clock smooth** — removed 4 s tick cap (stutter); client sync_epoch; held after 6 s no decrease. WinSCP `js/status-room-live.js`. |

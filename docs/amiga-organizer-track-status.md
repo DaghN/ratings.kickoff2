@@ -87,6 +87,7 @@ Local: replace host with `http://ratingskickoff.test`. Use POST password forms �
 | **Demotion / soft-exclude flags** | Backups + hard delete suffice | Rejected v1 |
 | **Staging verify-derived suite** | Diagnose lite on admin page; full prove stays local | Planned |
 | **Pull single tournament from staging** | Full pull script exists; per-id pack shelved with L6 | — |
+| **Safe saving** (a repeated or interrupted Make official, finishing order after a changed result, smaller ones) | Deferred by Dagh 2026-11-22. Faults, fixes, order and proof: [`amiga-organizer-reliability-plan.md`](amiga-organizer-reliability-plan.md); its §1 says how to work until then | Before the organizer is called mature |
 | **Extra time and penalties in score entry** | Must be done before the organizer is mature; deferred by Dagh 2026-11-22. (1) No form field: `fixtures.php` reads `$_POST['extra']`, nothing sends it. (2) PHP `amiga_extract_structured_from_extra()` stores the score after extra time as extra-time goals; Python subtracts the normal-time score. (3) `amiga_promote_running_tournament.php` drops `goals_et_*` / `pens_*`; the Python version keeps them. Convention: [`amiga-extra-time-review-2026-11.md`](amiga-extra-time-review-2026-11.md) §2 | Before knockouts in the browser (L3–L4) |
 
 ---
@@ -96,6 +97,7 @@ Local: replace host with `http://ratingskickoff.test`. Use POST password forms �
 1. **Ref-Cup-A** — smallest KO browser create after another Ref-League-A ×3 cycle feels boring. Needs extra time and penalties in score entry (§6).
 2. **Lane C** — one YouTube URL on a finalized tournament (L7).
 3. Serial UX feedback on Ref-League-A happy path (practice track).
+4. **Reliability plan** R3, R1, R2 ([`amiga-organizer-reliability-plan.md`](amiga-organizer-reliability-plan.md)) — before more organizers use it.
 
 ---
 
@@ -103,7 +105,7 @@ Local: replace host with `http://ratingskickoff.test`. Use POST password forms �
 
 | Date | Change |
 |------|--------|
-| 2026-11-22 | **Gap recorded:** score entry cannot hold extra time or penalties (§6). |
+| 2026-11-22 | **Gaps recorded:** score entry cannot hold extra time or penalties (§6); saving faults and their fixes in [`amiga-organizer-reliability-plan.md`](amiga-organizer-reliability-plan.md). |
 | 2026-07-24 | **AD8 staged smoke PASS** — deep-backdate create requires admin password; admin session does not bypass. |
 | 2026-07-23 | **AD8 shipped** — create backdate admin password gate. |
 | 2026-07-23 | **Initial status doc** — post chrono-integer export, staged insert/delete parity, L5 + Case C insert stack declared v1 complete; AD8 backdate guard locked not shipped. |

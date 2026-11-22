@@ -145,7 +145,7 @@ Direct `?as=` on **editorial / live-ops** paths (News, live tournaments) → red
 | Surface | Rule |
 |---------|------|
 | **Games** hub | `/amiga/games/recent.php` (+ Highlights · All games) — counts and rows at cutoff via `amiga_lb_games_count()` + snapshot SQL. **All games:** the tournament-catalog totals are used only without a player filter; the player pickers list players rated by the cutoff, with their rating then (Nov 2026) |
-| **Header search** (Amiga pages) | `player-search.js` sends `as=`; `api/player_search.php` then returns Amiga players rated by the cutoff, with their rating then (Nov 2026) |
+| **Header search** | **Independent of time travel** (Dagh, 2026-11-22): it finds every player of both realms with today's rating, on every page. Only the link to an Amiga profile carries `as=` |
 | **Tournaments** hub | `/amiga/tournaments.php` — catalog rows ≤ cutoff; filter pills + listboxes preserve `as=` (`k2_amiga_route('amiga-tournaments')`); **With videos** filter kept under TT (manifest discovery) |
 
 ### 4.3 Player wings (time-travel lens — wire at cutoff)
