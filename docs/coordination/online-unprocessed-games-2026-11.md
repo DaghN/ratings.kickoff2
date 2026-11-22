@@ -1,6 +1,6 @@
 # Online games that were never processed (Nov 2026)
 
-**Status:** investigated 2026-11-22. Our scripts are fixed and tested in the repo, **not uploaded**. The live ladder still needs one full recalculation. **Message (§5) sent to Steve by Dagh 2026-11-22 (WhatsApp); waiting for the answer.** Until then do not upload `ops/` or `includes/league_standings.php`.
+**Status:** investigated 2026-11-22. Our scripts are fixed and tested in the repo, **not uploaded**. The live ladder still needs one full recalculation. **Message (§5) sent to Steve by Dagh 2026-11-22 (WhatsApp); first answers 2026-11-23 (§5), the rest still open.** Until then do not upload `ops/` or `includes/league_standings.php`.
 
 **Audience:** Dagh, Steve, agents. **Code:** `ops/includes/ops_game_queue.php` · `ops/modules/process_pending_games.php` · test `scripts/test_ops_game_queue.php`.
 
@@ -41,6 +41,9 @@ A game counts as processed when `ratedresults.NewRatingA` is set. Read from `gam
 | Today the game app, the old site and our website use **one** database | The old site shows the same newest game and the same ratings as ours, and those ratings come from our scripts |
 | That database is **not on the web server** | Online pages take about 19 ms per database statement, in step with the number of statements. Amiga pages, whose database is on the web server, take almost none |
 | It is very likely on **joshua** | The July template for `work-targets.ini` has a `[live-game]` target with its own host and port |
+| The Amiga database is on the web server, "not joshua" | Steve, 2026-11-23. With the 19 ms line this makes joshua near certain for the online database |
+| The databases use MyISAM | Steve, 2026-11-23 |
+| One machine runs PHP 8.6.0 | Steve, 2026-11-23; which one was not said. Our `ops` scripts use none of the functions that PHP 8.4 and 8.5 gave up; 8.6 itself is not tested (local: 8.3.30) |
 | The website's database settings file was last changed June 4 | File date. Not explained: it does not fit a switch on July 18 |
 
 **Not known, Steve to confirm:** the machine and name of the live database, how the July switch was done, and whether the old copies on the web server are still used.
@@ -133,6 +136,16 @@ LORENZOL 2241→2188 · Micro 1600→1633 · Canvarol 1976→1953 · geo4444 184
 ---
 
 ## 5. Message to Steve
+
+**Answers so far (2026-11-23):**
+
+| Question | Answer |
+|---|---|
+| 1. Which machines | In part: the Amiga database is on the web server, not on joshua. Name of the live online database and the role of the old copies: open |
+| 2. How to recalculate | Open. PHP 8.6.0 would be enough for way A (§4) if it is joshua's |
+| 3. MyISAM, change to InnoDB | MyISAM, yes. The change: open |
+| 4. Does the app wait for the reply | Open |
+
 
 Split of work: **we** write and upload the scripts; **Steve** runs the server, the database, the scheduled jobs and the game app. A failed call needs no action from the app any more.
 
