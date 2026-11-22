@@ -1,6 +1,6 @@
 # Online games that were never processed (Nov 2026)
 
-**Status:** investigated 2026-11-22. Our scripts are fixed and tested in the repo, **not uploaded**. The live ladder still needs one full recalculation. **Next:** Dagh sends Steve the message (§5).
+**Status:** investigated 2026-11-22. Our scripts are fixed and tested in the repo, **not uploaded**. The live ladder still needs one full recalculation. **Message (§5) sent to Steve by Dagh 2026-11-22 (WhatsApp); waiting for the answer.** Until then do not upload `ops/` or `includes/league_standings.php`.
 
 **Audience:** Dagh, Steve, agents. **Code:** `ops/includes/ops_game_queue.php` · `ops/modules/process_pending_games.php` · test `scripts/test_ops_game_queue.php`.
 
