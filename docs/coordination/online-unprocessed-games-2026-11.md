@@ -146,7 +146,7 @@ Split of work: **we** write and upload the scripts; **Steve** runs the server, t
 > 1. Back up the live database.
 > 2. Convert the tables to InnoDB, if you agree.
 > 3. Run the recalculation. We send the exact commands.
-> 4. Add this next to the midnight job, with the same target: `* * * * * cd /path/to/public_html && php ops/dispatch.php CMD=ProcessPending target=live-game`
+> 4. Once the new scripts are up, add this next to the midnight job, with the same target: `* * * * * cd /path/to/public_html && php ops/dispatch.php CMD=ProcessPending target=live-game`
 >
 > We upload the new scripts as usual, when you are ready. With the job in place you can close the website whenever you need to: games are then processed within a minute anyway.
 >
