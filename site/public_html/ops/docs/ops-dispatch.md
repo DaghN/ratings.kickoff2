@@ -43,7 +43,7 @@ Historical players: `entered_arena` from **`zero-derived`** lobby seed. This CMD
 
 After committed `ratedresults` with ground columns only; **`NewRatingA` NULL**. One transaction (**only on InnoDB tables**; MyISAM cannot roll back): row Elo/flags, both `playertable`, GST, periods, game milestones, streaks.
 
-**In order:** earlier waiting games are processed first, one writer at a time (`GET_LOCK`, also held by `zero-derived` and `run_ops_sim.php`). A day change closes the previous UTC day first. A web call waits at most 5 s for the lock and spends at most 10 s on a backlog. Over 1000 waiting games is refused (recalculation in progress).
+**In order:** earlier waiting games are processed first, one writer at a time (`GET_LOCK`, also held by `zero-derived` and `run_ops_sim.php`). A day change closes the previous UTC day first. A web call waits at most 15 s for the lock and spends at most 10 s on a backlog. Over 1000 waiting games is refused (recalculation in progress).
 
 Same code as `run_ops_sim.php` per-game step. **No** C++ post-game on the same row.
 

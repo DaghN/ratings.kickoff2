@@ -290,7 +290,7 @@ function k2_ops_dispatch_process_completed_game(array $params, string $profileNa
             $result = k2_ops_process_completed_game($con, $gameId, true);
         } else {
             $budget = k2_ops_dispatch_backlog_budget();
-            if (!k2_ops_game_queue_lock($con, 5)) {
+            if (!k2_ops_game_queue_lock($con, 15)) {
                 k2_ops_dispatch_fail('busy: another process is updating the ladder; game ' . $gameId . ' stays queued', 1);
             }
             $run = k2_ops_process_game_in_order($con, $gameId, $budget);

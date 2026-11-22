@@ -864,6 +864,20 @@ function k2_league_finalize_due_periods(mysqli $con, ?DateTimeImmutable $asOf = 
     $asOf = $asOf ?? new DateTimeImmutable('now', new DateTimeZone('UTC'));
     $finalized = 0;
 
+    // One query, not one per period: live has thousands, and the database is not on the PHP machine.
+    $done = [];
+    $res = mysqli_query(
+        $con,
+        'SELECT league_kind, period_type, period_start FROM league_period WHERE finalized_at IS NOT NULL'
+    );
+    if ($res === false) {
+        throw new RuntimeException('league_period finalized list: ' . mysqli_error($con));
+    }
+    while ($row = mysqli_fetch_assoc($res)) {
+        $done[$row['league_kind'] . '|' . $row['period_type'] . '|' . $row['period_start']] = true;
+    }
+    mysqli_free_result($res);
+
     foreach (k2_league_list_period_instances($con) as $inst) {
         $periodType = $inst['period_type'];
         $periodStart = $inst['period_start'];
@@ -871,20 +885,7 @@ function k2_league_finalize_due_periods(mysqli $con, ?DateTimeImmutable $asOf = 
             continue;
         }
         foreach (K2_LEAGUE_KINDS as $leagueKind) {
-            $check = mysqli_prepare(
-                $con,
-                'SELECT finalized_at FROM league_period WHERE league_kind = ? AND period_type = ? AND period_start = ?'
-            );
-            if ($check === false) {
-                continue;
-            }
-            mysqli_stmt_bind_param($check, 'sss', $leagueKind, $periodType, $periodStart);
-            mysqli_stmt_execute($check);
-            $res = mysqli_stmt_get_result($check);
-            $row = mysqli_fetch_assoc($res);
-            mysqli_free_result($res);
-            mysqli_stmt_close($check);
-            if ($row !== null && $row['finalized_at'] !== null) {
+            if (isset($done[$leagueKind . '|' . $periodType . '|' . $periodStart])) {
                 continue;
             }
             if (k2_league_finalize_instance($con, $leagueKind, $periodType, $periodStart, $asOf, true)) {

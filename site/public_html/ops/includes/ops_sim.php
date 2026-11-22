@@ -7,6 +7,16 @@ declare(strict_types=1);
 require_once __DIR__ . '/ops_bootstrap.php';
 
 /**
+ * On a live ladder the last game's day may still be running: never simulate past now, or that day is closed early.
+ */
+function k2_ops_sim_not_after_now(DateTimeImmutable $stopAt): DateTimeImmutable
+{
+    $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+
+    return $stopAt > $now ? $now : $stopAt;
+}
+
+/**
  * stop-at slightly after the last game day so FinalizeUtcDay runs for that UTC day.
  */
 function k2_ops_stop_at_after_game_id(mysqli $con, int $gameId): DateTimeImmutable
@@ -31,7 +41,7 @@ function k2_ops_stop_at_after_game_id(mysqli $con, int $gameId): DateTimeImmutab
 
     $gameAt = new DateTimeImmutable((string) $row['Date'], new DateTimeZone('UTC'));
 
-    return $gameAt->modify('+1 day')->setTime(0, 10, 0);
+    return k2_ops_sim_not_after_now($gameAt->modify('+1 day')->setTime(0, 10, 0));
 }
 
 /**
@@ -51,5 +61,5 @@ function k2_ops_default_sim_stop_at(mysqli $con): DateTimeImmutable
 
     $maxAt = new DateTimeImmutable((string) $row['max_date'], new DateTimeZone('UTC'));
 
-    return $maxAt->modify('+1 day')->setTime(0, 10, 0);
+    return k2_ops_sim_not_after_now($maxAt->modify('+1 day')->setTime(0, 10, 0));
 }

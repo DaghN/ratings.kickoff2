@@ -3,7 +3,7 @@
 > **`kooldb` (May 2026):** **Frozen** — historical batch-rebuild logs only; **no agent tasks.**  
 > **Forward proof / ops work:** **`kooldb1`** (staging work) and **`ko2unity_work`** (local work).  
 > **Cutover status:** [`cutover-readiness.md`](cutover-readiness.md).  
-> **Nov 2026:** this page describes June 2026. Since the July 18 cutover `ratings.kickoff2.com` **is the live site** (live game writes); which database it uses is in Steve's `work-targets.ini` — [`online-unprocessed-games-2026-11.md`](online-unprocessed-games-2026-11.md) §2.
+> **Nov 2026:** this page describes June 2026. Live today is **one** database, not on the web server and very likely on joshua; what is known and what Steve must confirm — [`online-unprocessed-games-2026-11.md`](online-unprocessed-games-2026-11.md) §2.
 
 **Status:** **Local sandbox done** (Jun 2026). **Staging DB names confirmed** (Jun 2026): `kooldb1` / `kooldb2` via config1/config2.
 
