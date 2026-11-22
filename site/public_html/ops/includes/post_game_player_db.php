@@ -50,13 +50,104 @@ function k2_post_game_load_player_ratings(mysqli $con, int $idA, int $idB): arra
     }
     $stmt->close();
 
-    // Mirror Python players.setdefault: rated game may reference IDs not in playertable yet.
-    $start = K2_POST_GAME_START_RATING;
+    // No playertable row = deleted account: the rating after its last processed game, or the start rating.
+    foreach ([$idA, $idB] as $pid) {
+        if (!isset($ratings[$pid])) {
+            $ratings[$pid] = k2_post_game_deleted_account_rating($con, $pid);
+        }
+    }
 
     return [
-        'a' => $ratings[$idA] ?? $start,
-        'b' => $ratings[$idB] ?? $start,
+        'a' => $ratings[$idA],
+        'b' => $ratings[$idB],
     ];
+}
+
+function k2_post_game_deleted_account_rating(mysqli $con, int $playerId): float
+{
+    $stmt = $con->prepare(
+        'SELECT idA, NewRatingA, NewRatingB FROM ratedresults '
+        . 'WHERE NewRatingA IS NOT NULL AND (idA = ? OR idB = ?) ORDER BY id DESC LIMIT 1'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare deleted account rating: ' . $con->error);
+    }
+    $stmt->bind_param('ii', $playerId, $playerId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute deleted account rating: ' . $stmt->error);
+    }
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    if (!is_array($row)) {
+        return K2_POST_GAME_START_RATING;
+    }
+
+    return (float) ((int) $row['idA'] === $playerId ? $row['NewRatingA'] : $row['NewRatingB']);
+}
+
+/**
+ * Career state of a deleted account (games, but no playertable row to keep the state in), rebuilt from
+ * its processed games. Without this every game would be a debut at the start rating.
+ * Not covered: counters that other players' records move (MGC/LGS/BL victims and similar). They live
+ * only on playertable, and nothing reads them for an account without a row.
+ *
+ * @return array<string, mixed>
+ */
+function k2_post_game_deleted_account_state(mysqli $con, int $playerId, int $beforeGameId): array
+{
+    $stmt = $con->prepare(
+        'SELECT id, `Date`, idA, idB, GoalsA, GoalsB, ActualScore, GoalDifference, SumOfGoals, '
+        . 'DDPlayerA, DDPlayerB, RatingA, RatingB, NewRatingA, NewRatingB, AdjustmentA, AdjustmentB '
+        . 'FROM ratedresults WHERE id < ? AND NewRatingA IS NOT NULL AND (idA = ? OR idB = ?) ORDER BY id ASC'
+    );
+    if ($stmt === false) {
+        throw new RuntimeException('prepare deleted account state: ' . $con->error);
+    }
+    $stmt->bind_param('iii', $beforeGameId, $playerId, $playerId);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute deleted account state: ' . $stmt->error);
+    }
+    $games = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    // Throwaway states for the opponents: their own counters already include these games.
+    $players = [$playerId => k2_post_game_player_state_new()];
+    foreach ($games as $g) {
+        $opponentId = (int) $g['idA'] === $playerId ? (int) $g['idB'] : (int) $g['idA'];
+        $players[$opponentId] = k2_post_game_player_state_new();
+    }
+
+    foreach ($games as $g) {
+        $isA = (int) $g['idA'] === $playerId;
+        $scoreA = (float) $g['ActualScore'];
+        $goalsFor = (int) ($isA ? $g['GoalsA'] : $g['GoalsB']);
+        $goalsAgainst = (int) ($isA ? $g['GoalsB'] : $g['GoalsA']);
+        k2_post_game_player_apply_match(
+            $con,
+            $players,
+            $playerId,
+            (int) ($isA ? $g['idB'] : $g['idA']),
+            (float) ($isA ? $g['RatingB'] : $g['RatingA']),
+            $goalsFor,
+            $goalsAgainst,
+            $isA ? $scoreA : ($scoreA === 0.5 ? 0.5 : 1.0 - $scoreA),
+            (int) $g['GoalDifference'],
+            (int) $g['SumOfGoals'],
+            (int) ($isA ? $g['DDPlayerA'] : $g['DDPlayerB']) === 1,
+            $goalsAgainst === 0,
+            (float) ($isA ? $g['RatingA'] : $g['RatingB']),
+            (float) ($isA ? $g['NewRatingA'] : $g['NewRatingB']),
+            (float) ($isA ? $g['AdjustmentA'] : $g['AdjustmentB']),
+            (int) $g['id'],
+            (string) $g['Date'],
+            (int) $g['id']
+        );
+    }
+
+    $st = $players[$playerId];
+    unset($st['game_flags']);
+
+    return $st;
 }
 
 /**
@@ -274,11 +365,11 @@ function k2_post_game_player_load(mysqli $con, int $playerId, int $beforeGameId)
     $row = $res ? $res->fetch_assoc() : false;
     $stmt->close();
     if ($row === false || $row === null) {
-        $st = k2_post_game_player_state_new();
+        $st = k2_post_game_deleted_account_state($con, $playerId, $beforeGameId);
     } else {
         $st = k2_post_game_player_state_from_db_row($row);
     }
-    $network = k2_post_game_build_network_sets($con, $playerId, $beforeGameId);
+    $network =k2_post_game_build_network_sets($con, $playerId, $beforeGameId);
     foreach ($network as $key => $set) {
         $st[$key] = $set;
         $countKey = match ($key) {

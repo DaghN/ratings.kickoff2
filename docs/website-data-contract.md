@@ -91,6 +91,8 @@ Canonical current per-player ladder state and many legacy/extreme stats. Some co
 
 Schema reference: `docs/playertable-schema.md`.
 
+**Deleted accounts** (games in `ratedresults`, no `playertable` row) keep their rating and career. The writer rebuilds their state from their earlier processed games (`k2_post_game_deleted_account_state()`, `ops/includes/post_game_player_db.php`), so a later game is not a debut at 1600. They count once in `NumberOfPlayers`.
+
 #### Career peak and nadir (`PeakRating`, `LowestRating`)
 
 **Purpose:** Per-player **career** high and low Elo after the player is **established** (same story as `K2_ESTABLISHED_MIN_GAMES` = **20** rated games). Shown on the Peak rating leaderboard wing (`leaderboards/peak-rating.php`), profile/feast (tooltips TBD), and anywhere else that reads these columns.
@@ -1021,6 +1023,8 @@ Records such as `MostGamesPlayed`, `MostWins`, `MostGoalsScored`, `MostDoubleDig
 **Rebuild:** Chronological replay through all games in `Date ASC, id ASC` order, applying the tie policy at each game. **PHP:** `k2_post_game_server_records()` in `ops/includes/post_game_server_records.php`. **Library reference:** `scripts/k2_rating_core/server_records.py` (`_try_int_max`, `_try_float_max`, `_try_pair_max` — all use strict `>`).
 
 **Post-game rule:** After a new game, for each applicable record column, compare the new value with the stored record value. Update only if new value **strictly exceeds** the stored value. This is a **behavior change** from the legacy C++ code which uses `>=` (see records exception doc).
+
+**Peak rating (special case):** `BiggestPeakRating` is compared only in the game that set the player's peak (`PeakRatingGameID` = this game). `PeakRating` is stored with 2 decimals; rounded up, it would beat the 6-decimal record in the holder's next game and move the record date.
 
 **Streak records (special case):** Compare the player’s **career longest** (`LongestWinningStreak` / `LongestNonLossStreak` on `playertable`), not the **current** streak, and use strict `>`. Legacy C++ compares `WinningStreakA >= LongestWinningStreakS`; if prod instead uses `LongestWinningStreakA >= …`, the record holder’s date is rewritten on every later game (GianniT: staging showed Dec 2023 instead of 2020/2022). Detail: `docs/coordination/records-post-game-exception.md` § PG-004c.
 

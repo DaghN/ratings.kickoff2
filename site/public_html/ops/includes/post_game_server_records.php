@@ -217,13 +217,17 @@ function k2_post_game_update_server_records_after_game(
             $pname,
             $gameDate
         );
-        k2_post_game_server_try_float_max(
-            $state['biggest_peak_rating'],
-            (float) $st['peak_rating'],
-            $pid,
-            $pname,
-            $gameDate
-        );
+        // Only when this game set the peak: a stored PeakRating is rounded to 2 decimals and, rounded
+        // up, would "beat" the 6-decimal record in the holder's next game and move its date.
+        if ((int) ($st['peak_rating_game_id'] ?? 0) === $gameId) {
+            k2_post_game_server_try_float_max(
+                $state['biggest_peak_rating'],
+                (float) $st['peak_rating'],
+                $pid,
+                $pname,
+                $gameDate
+            );
+        }
         k2_post_game_server_try_int_max(
             $state['longest_win_streak'],
             (int) $st['longest_winning_streak'],

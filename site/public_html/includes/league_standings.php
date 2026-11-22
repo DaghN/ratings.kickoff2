@@ -68,6 +68,9 @@ function k2_league_period_is_closed(string $periodType, string $periodStart, ?Da
 }
 
 /**
+ * Each player's earliest game in the period, on either side (docs/leagues-rules-spec.md: A and B
+ * rows must be ranked together, or the player's first game as B hides an earlier one as A).
+ *
  * @return array<int, array{first_game_id: int, first_game_side: string}>
  */
 function k2_league_load_first_games(
@@ -96,15 +99,17 @@ function k2_league_load_first_games(
 
     $sql = <<<SQL
 SELECT player_id, game_id, side FROM (
-  SELECT idA AS player_id, id AS game_id, 'A' AS side,
-         ROW_NUMBER() OVER (PARTITION BY idA ORDER BY `Date` ASC, id ASC) AS rn
-  FROM ratedresults
-  WHERE `Date` >= ? AND `Date` < ? AND NewRatingA IS NOT NULL{$maxClause}
-  UNION ALL
-  SELECT idB AS player_id, id AS game_id, 'B' AS side,
-         ROW_NUMBER() OVER (PARTITION BY idB ORDER BY `Date` ASC, id ASC) AS rn
-  FROM ratedresults
-  WHERE `Date` >= ? AND `Date` < ? AND NewRatingA IS NOT NULL{$maxClause}
+  SELECT player_id, game_id, side,
+         ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY game_date ASC, game_id ASC) AS rn
+  FROM (
+    SELECT idA AS player_id, id AS game_id, 'A' AS side, `Date` AS game_date
+    FROM ratedresults
+    WHERE `Date` >= ? AND `Date` < ? AND NewRatingA IS NOT NULL{$maxClause}
+    UNION ALL
+    SELECT idB AS player_id, id AS game_id, 'B' AS side, `Date` AS game_date
+    FROM ratedresults
+    WHERE `Date` >= ? AND `Date` < ? AND NewRatingA IS NOT NULL{$maxClause}
+  ) sides
 ) ranked
 WHERE rn = 1
 SQL;
@@ -699,10 +704,13 @@ function k2_league_sync_win_milestones(mysqli $con): void
 
     foreach (K2_LEAGUE_WIN_MILESTONE_THRESHOLDS as $milestoneKey => $threshold) {
         $sql = <<<'SQL'
-SELECT w.player_id, w.period_end
+SELECT w.player_id, w.period_end, w.league_kind, w.period_type, w.period_start
 FROM (
-  SELECT player_id, period_end,
-         ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY period_end ASC, period_start ASC, league_kind ASC) AS win_num
+  SELECT player_id, period_end, league_kind, period_type, period_start,
+         ROW_NUMBER() OVER (
+           PARTITION BY player_id
+           ORDER BY period_end ASC, league_kind ASC, period_type ASC, period_start ASC
+         ) AS win_num
   FROM player_league_award
   WHERE is_winner = 1
 ) w
@@ -728,11 +736,11 @@ SQL;
                     'milestone_key' => $milestoneKey,
                     'achieved_at' => (string) $row['period_end'],
                     'value' => $threshold,
-                    'source_kind' => null,
+                    'source_kind' => 'league',
                     'source_game_id' => null,
-                    'source_league_kind' => null,
-                    'source_period_type' => null,
-                    'source_period_start' => null,
+                    'source_league_kind' => (string) $row['league_kind'],
+                    'source_period_type' => (string) $row['period_type'],
+                    'source_period_start' => (string) $row['period_start'],
                 ]);
             }
             mysqli_free_result($res);

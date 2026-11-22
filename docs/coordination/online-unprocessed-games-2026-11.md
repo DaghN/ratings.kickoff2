@@ -74,12 +74,27 @@ The June recalculation took 2 h 18 min because scripts and database were on the 
 
 **Limits:** a web call waits at most 15 s for its turn and spends at most 10 s on a backlog, then answers exit 1; the next call or the one-minute job continues. More than 1000 waiting games is treated as a recalculation in progress and refused.
 
+### Four more faults fixed for the same recalculation (2026-11-22)
+
+They change stored results, so they belong in the same upload and the same recalculation.
+
+| # | Before | Now (repo) |
+|---|--------|------------|
+| 10 | Activity leagues: the tie-break took the first game as player B instead of the first game on either side (`includes/league_standings.php`) | One ranking over both sides. Of 7,422 past periods, 172 had a wrong podium (161 days, 10 weeks, 1 month; 33 golds). Points leagues were right |
+| 11 | Deleted accounts (287 and 354, 17 games) were new players at 1600 in every game (`ops/includes/post_game_player_db.php`) | Rating and career are rebuilt from their earlier games, as in the Python replay. One player, one debut, one record per player. Effect on Elo (May 2026 ladder): 4 players by 0.5 or more (rowstu -5.8, Freshy +3.8, BountyBob +1.0, MandhirS +0.6) |
+| 12 | `league_wins_*` milestones were stored without their league | Stored from the award of the Nth win, ordered `period_end, league_kind, period_type, period_start` (the order of the May fill: 84 of 84 rows equal) |
+| 13 | Hall of Fame peak rating: a stored peak rounded up to 2 decimals "beat" the record in the holder's next game and moved its date (`ops/includes/post_game_server_records.php`) | Only the game that set the peak can set the record |
+
+The medals of some past activity leagues, and the league milestones that follow from them, move to other players in the recalculation.
+
 ### Proof
 
+- `php scripts/test_ops_stored_results.php` (faults 10-13 on an invented ladder): all pass; 9 of the 10 checks fail on the old code.
+- Faults 11-13 against an independent replay of 693 real games with both deleted accounts: no difference left; the old code had 90 wrong Elo rows and 20 wrong counters. On 501 games without deleted accounts, only the medals and milestones that depend on the tie-break or the source differ from the old code.
 - `php scripts/test_ops_game_queue.php --engine=MyISAM|InnoDB` compares every table with a full recalculation of the same games: normal days, outage with and without the midnight job, every seventh call lost, no calls at all, time-limited calls, a database fault, and 40 calls sent twice, eight at a time, in random order. All pass on both engines.
 - Full size (May 2026 ladder, 74,870 games, plus real live games 77900–78260 with the real outage): the first call after the outage caught up all 150 games, and every table ended identical to an in-order run.
 - The command sequence in §4 with only the two folders `ops` and `includes`, while ten games arrived: the games waited, were processed afterwards, today stayed open, `run_verify_ops_sim.php` 0 failures, every table identical to a run that knew all games from the start.
-- Full recalculation with the old and the new scripts: identical in every table.
+- Full recalculation with the old and the new scripts, faults 1-9 only: identical in every table.
 
 **Not tested:** the live server, the game app's reaction to a slower reply, and a recalculation at today's size.
 
