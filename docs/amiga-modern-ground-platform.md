@@ -326,6 +326,11 @@ Execute in order. Each slice ends with a recorded check.
 New evidence **without Access:**
 
 - Catalog-tail tournament: insert L3 rows + `finalize-tournament` (or staging Make official).
+  - **On `ko2amiga_work`:** the legacy `finalize-tournament` CLI (and `players` CLI) refuse any database other than `ko2amiga_db`. Insert the L3 ground, then run **`simul`**: it finalizes the new tip in chrono order and runs the verify suite.
+  - **World Cup worked example (2026-11-22):** `scripts/oneoff/amiga_append_world_cup_2026_oslo.py` + source `data/amiga/forward/2026-11-14-world-cup-xxiv-oslo/koa_results.txt`.
+    - Order: hash-verify the KOA post → validate (round robins, two-leg ties, placement finals, scores vs any published Elo table) → create newcomers (`player_registry.create_player` with a work connection) → `--apply` (tournament + games in the `source_scores_id` ≥ 1e9 live range + `amiga_tournament_finish_override` placings) → `simul` → checkpoint → export → WinSCP → Apply import.
+    - Phase labels follow earlier World Cups. Use `Places X-Y` for two-leg mini brackets, not `Positions X-Y`, which parses as a league.
+  - **Lifecycle:** set `lifecycle_status='completed'` on the appended row. `structure/008_tournament_lifecycle.sql` now only backfills rows still at `draft`; before 2026-11-22 every simul reset fixture-less forward tournaments to `running`, which hides them from public tournament pages.
 - Mid-history insert: anchored repair (Case C) — [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) §7 — not day 0 rewind.
 - Corrections: `amiga_tournament_finish_override`, direct ground fix with audit note.
 

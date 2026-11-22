@@ -21,12 +21,18 @@ ALTER TABLE `tournaments`
 ALTER TABLE `tournaments`
   ADD KEY `idx_tournaments_lifecycle_status` (`lifecycle_status`);
 
+-- One-time backfill when the column is first added (every row then holds the 'draft'
+-- default). Simul re-applies this bundle on every run, so each UPDATE below must only
+-- touch rows still at 'draft'; explicit statuses written later (organizer flow, or
+-- forward catalog-tail appends such as World Cup XXIV) must survive re-application.
+
 -- Historical Access imports: finished events with canonical games.
 UPDATE `tournaments`
 SET
   `lifecycle_status` = 'completed',
   `completed_at` = TIMESTAMP(`event_date`)
-WHERE `source_id` IS NOT NULL;
+WHERE `source_id` IS NOT NULL
+  AND `lifecycle_status` = 'draft';
 
 -- Generated fixture-backed tournaments with at least one game: treat as in progress.
 UPDATE `tournaments` t
@@ -38,6 +44,7 @@ SET
     WHERE g.tournament_id = t.id
   )
 WHERE t.source_id IS NULL
+  AND t.lifecycle_status = 'draft'
   AND EXISTS (SELECT 1 FROM amiga_games g WHERE g.tournament_id = t.id);
 
 -- Generated tournaments where every fixture is played: mark completed.

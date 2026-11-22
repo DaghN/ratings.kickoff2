@@ -24,9 +24,9 @@ declare(strict_types=1);
 	</section>
 
 	<section class="k2-status-panel k2-status-panel--tight k2-amiga-news-pulse__panel" aria-labelledby="k2-amiga-news-pulse-upcoming">
-		<h2 id="k2-amiga-news-pulse-upcoming" class="k2-panel-heading">Upcoming tournament</h2>
-		<p class="k2-status-panel__empty">24th Kick Off 2 World Cup &mdash; Oslo, November 14&ndash;15, 2026.</p>
-		<p class="k2-amiga-news-pulse__link"><a class="k2-link-star" href="/amiga/news.php#2026-07-oslo-wc">World Cup &rarr;</a></p>
+		<h2 id="k2-amiga-news-pulse-upcoming" class="k2-panel-heading">Latest tournament</h2>
+		<p class="k2-status-panel__empty">24th Kick Off 2 World Cup &mdash; Oslo, November 14&ndash;15, 2026. 26 players, 283 games; Dagh N world champion, Mick C won the Silver Cup.</p>
+		<p class="k2-amiga-news-pulse__link"><a class="k2-link-star" href="/amiga/tournament/stages.php?id=608">Results &rarr;</a></p>
 	</section>
 
 	<section class="k2-status-panel k2-status-panel--tight k2-amiga-news-pulse__panel" aria-labelledby="k2-amiga-news-pulse-online">

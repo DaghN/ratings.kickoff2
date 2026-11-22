@@ -137,9 +137,11 @@
 
 2. **Amiga Tournaments hub — tournament stats wing (C14)** — metadata leaderboards (most debuts, largest field, …) beside chronological catalog; WC hub pattern. **Approved** — [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) §6.4; pairs **C08** editorial on `tournament.php`; likely extend `amiga_tournament_catalog_stats` at finalize.
 
+3. **World Cup XXIV (Oslo) videos.** The event is live since 2026-11-22 (tournament 608); add tournament video links when available ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md)).
+
 **Steve (ongoing)**
 
-3. **Live PHP ops** — ground insert + invoke dispatch (running since **2026-07-18**) — [`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md) · [`steve-live-ops.md`](site/public_html/ops/docs/steve-live-ops.md). Future schema packets still use migrate / seed / zero / simul / verify before live.
+4. **Live PHP ops** — ground insert + invoke dispatch (running since **2026-07-18**) — [`post-dagh-live-story.md`](site/public_html/ops/docs/post-dagh-live-story.md) · [`steve-live-ops.md`](site/public_html/ops/docs/steve-live-ops.md). Future schema packets still use migrate / seed / zero / simul / verify before live.
 
 **Migration habit (not a numbered task):** stored-truth changes → [`UPDATE_DOCS.md`](docs/UPDATE_DOCS.md) Part B + [`prod-coordination.md`](docs/prod-coordination.md) registers.
 
@@ -149,6 +151,7 @@
 
 | Date | Note |
 |------|------|
+| 2026-11-22 | **World Cup XXIV (Oslo, 14–15 Nov) entered and live on staged.**<br>• Tournament **608**, chrono 608, 283 games, 26 placings; newcomers Steve Cl and Jon L (England), Terje S and Martin H (Norway).<br>• Source: KOA t=17982, hash-verified, in `data/amiga/forward/…`. Appended with `scripts/oneoff/amiga_append_world_cup_2026_oslo.py`, then simul plus a 29-step verify. 24/26 ratings match Dagh's forum table; the Game of Shame (rated, as always) explains Jørn F and Jan G.<br>• Checkpoint `work-2026-11-22-oslo-wc`, pushed via WinSCP + Apply import; work ≡ staged **MATCH**.<br>• Fixes: `structure/008_tournament_lifecycle.sql` no longer resets fixture-less forward tournaments to `running` on simul (608 was hidden until re-import); `verify-event-snapshots` skips the four inverse counts (a 153-player false positive before this event); live `/amiga/activity.php` was a stray online page, now the git 302. News pulse: Upcoming → **Latest tournament**. |
 | 2026-11-22 | **Claude setup follow-through.**<br>• `.mdc` `@`-imports don't expand in Claude, so a SessionStart hook in `.claude/settings.json` now prints `kool-workspace.mdc` into context. Verified in a fresh session.<br>• 20 `scripts/**/*.ps1` files got a UTF-8 BOM. PS 5.1 read them as cp1252, and a `—` inside a double-quoted string broke `check_local_dev.ps1` and `reset_local_work_db.ps1`. All 37 now parse and `check_local_dev` passes.<br>• Recent log pruned: 641 Jul 1–19 rows moved to [`archive/session-log-2026-jul-prune.md`](docs/archive/session-log-2026-jul-prune.md).<br>• Checkpoint pointers in AGENTS.md and `amiga-staging-handoff.md` now name `work-2026-07-23-chrono-integer`; `inverse-roundtrip` was never committed.<br>• Staged Amiga side-pull into `ko2amiga_staging_cmp`, then `amiga_compare_two_dbs.php` work vs staged: **MATCH** (tip #607, 27474 games, inverse 3423). Nothing new on staged since July, so no pull of work was needed. |
 | 2026-11-22 | **Moved from Cursor to Claude Code.** `CLAUDE.md` imports `AGENTS.md` and the `kool-workspace` rule. `.claude/settings.json` adds an allowlist (git, gh read-only, Laragon php/mysql, repo Python and PS1 scripts), denies force-push and `reset --hard`, and sets `PYTHONIOENCODING=utf-8` (the Amiga CLI crashed on cp1252). `.claude/rules/k2-table-php.md` mirrors the Cursor glob rule. Verified: Claude's Write and Edit keep UTF-8 and CRLF, so the UTF-16 rule is Cursor-only. The repo had no commits from 2026-07-24 to 2026-11-22, so pull Amiga from staged before the next Amiga work. |
 | 2026-07-24 | **Create min 4 players** — kitchen create refuses &lt;4; Create button disabled until roster has 4. |

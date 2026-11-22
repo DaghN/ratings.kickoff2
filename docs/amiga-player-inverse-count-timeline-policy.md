@@ -228,8 +228,9 @@ Write all four values for every established player every finalize (~174k rows).
 | Case C thorough + staged retest | **PASS** Jul 23 — M=#16; present oracle 0; pack ≡ simul — round-trip plan |
 | Retire least-metrics in ops | **Deferred** — Amiga UI has no surface; shared `PlayerState`/online ops still write columns |
 | Simul verify script | **Shipped** — `verify-inverse-count-changelog` in modern verify suite |
+| `verify-event-snapshots` current-vs-latest check | **Aligned 2026-11-22.** It skips these four columns, because current legitimately runs ahead of the demoted snapshot columns for ghosts. Before the change it flagged about 153 players on every simul. |
 
-**Sign-off:** audit → implementation → replay → verify → export packing → Case C seed. Healthy tip seal: `work-2026-07-23-inverse-roundtrip` (**3423** rows).
+**Sign-off:** audit → implementation → replay → verify → export packing → Case C seed. Healthy tip seal at sign-off: `work-2026-07-23-inverse-roundtrip` (**3423** rows; never committed to git). The current git tip is `work-2026-11-22-oslo-wc`.
 
 ---
 

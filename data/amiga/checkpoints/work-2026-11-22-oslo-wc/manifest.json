@@ -1,15 +1,15 @@
 {
     "checkpoint_id":  "work-2026-11-22-oslo-wc",
     "tier":  "full",
-    "sealed_utc":  "2026-11-22T01:15:41Z",
+    "sealed_utc":  "2026-11-22T01:54:10Z",
     "label":  "oslo-wc",
-    "notes_text":  "World Cup XXIV (Oslo) appended as tournament 608 (chrono 608, 283 games, 4 newcomers); simul + 29-step verify green.",
+    "notes_text":  "World Cup XXIV (Oslo) appended as tournament 608 (chrono 608, 283 games, 4 newcomers), lifecycle completed; simul + 29-step verify green (second run after lifecycle bundle fix).",
     "source_database":  "ko2amiga_work",
-    "git_commit_at_seal":  "69e68261",
+    "git_commit_at_seal":  "16d216b5",
     "export":  {
-                   "parts_bytes":  75808293,
+                   "parts_bytes":  75808278,
                    "parts_bytes_mb":  72.3,
-                   "generated":  "2026-11-22 03:15:08",
+                   "generated":  "2026-11-22 03:54:03",
                    "parts_count":  42
                },
     "counts":  {
@@ -22,10 +22,10 @@
                    "tournament_fixtures":  19025
                },
     "simul_last":  {
-                       "git_head":  "bd4733b9a24fbc37a294191beb7ad062f85f067b",
-                       "duration_sec":  1485.12,
+                       "git_head":  "16d216b572e8941b91c7d42147c7eb7947f8fe3c",
+                       "duration_sec":  1251.89,
                        "note":  "Structure edits after this simul may be included in SQL; re-simul if restoring without L5 parts.",
-                       "finished_utc":  "2026-07-15T16:10:56.778277Z"
+                       "finished_utc":  "2026-11-22T01:52:46.006468Z"
                    },
     "companion_files":  [
                             "tournament_videos.json",

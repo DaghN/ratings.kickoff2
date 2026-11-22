@@ -31,7 +31,7 @@ CREATE TABLE `tournament_format_templates` (
   `spec_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_tournament_format_templates_slug` (`slug`)
-) ENGINE=InnoDB AUTO_INCREMENT=109 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=115 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -840,7 +840,7 @@ CREATE TABLE `amiga_tournament_standings` (
   CONSTRAINT `fk_amiga_tournament_standings_player` FOREIGN KEY (`player_id`) REFERENCES `amiga_players` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_amiga_tournament_standings_stage` FOREIGN KEY (`stage_id`) REFERENCES `tournament_stages` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_amiga_tournament_standings_tournament` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=197461 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=205532 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1837,4 +1837,4 @@ CREATE TABLE `amiga_wc_hof_present` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-11-22  3:14:58
+-- Dump completed on 2026-11-22  3:53:56

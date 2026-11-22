@@ -26,5 +26,11 @@
 - **Subagents:** the "composer-2.5" rule in AGENTS.md is Cursor-only. Ignore it.
 - **Path-scoped rules:** `.claude/rules/` mirrors the glob-scoped rules in `.cursor/rules/`. Today that is only the K2 table PHP rule.
 - **Git:** commit and push only when Dagh asks. Force-push and `reset --hard` are denied in `.claude/settings.json`.
-- **Staging and prod are unchanged.** Dagh does the WinSCP sync and the browser import, and Steve owns prod.
+- **WinSCP (Claude can do it; set up 2026-11-22):**
+  - Saved session `dagh@ratings.kickoff2.com@ratings.kickoff2.com` (SFTP, port 5322); the password is stored in WinSCP and never shown.
+  - Run `WinSCP.com /script=<file>` from the **PowerShell** tool. Git Bash mangles `/command`, and inline filemask quoting breaks.
+  - In a script, `cd /public_html` first, because the session opens in `/config`.
+  - Preview first (`synchronize remote|local -preview -criteria=size`), and ask Dagh before any upload to or deletion on the live site.
+  - **Apply import** still needs Dagh to type `$admin_password` from `site/public_html/amiga/_ops/amiga_ops_password.local.php` (git-ignored); never paste it into chat.
+  - Steve owns prod and the server. Never touch `ops/config/*.ini` on the server.
 - **Memory:** Claude's own memory folder is only for Claude-side notes. Project memory stays in `PROJECT_MEMORY.md` and `docs/`, updated through `docs/UPDATE_DOCS.md`.
