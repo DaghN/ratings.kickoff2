@@ -89,7 +89,7 @@ function amiga_tournament_render_bracket(array $bracket, string $activeScopeKey 
     </div>
     <?php } ?>
 
-    <p class="k2-amiga-bracket__hint">Click a tie for leg-by-leg scores. Winner by aggregate goals; penalties shown on leg detail when aggregate is tied.</p>
+    <p class="k2-amiga-bracket__hint">Click a tie for leg-by-leg scores. Winner by aggregate goals, then extra time and penalties (shown on the leg detail).</p>
 </section>
     <?php
 }

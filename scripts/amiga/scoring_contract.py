@@ -51,11 +51,13 @@ KNOCKOUT_TIE_DEFAULT_STEPS: Final[tuple[str, ...]] = (
     "penalty_shootout",
 )
 
-# Executor-only KO chain for legacy catalog (NULL DB contract). Preserves GD → GF → pens
+# Executor-only KO chain for legacy catalog (NULL DB contract). Preserves GD → GF → extra time → pens
 # parity until SC-6 backfill; not stored in platform_default_v1 (policy omits GF step).
+# extra_time since Nov 2026: without it a level tie went to the winner of the noted leg.
 LEGACY_KNOCKOUT_BRIDGE_STEPS: Final[tuple[str, ...]] = (
     "aggregate_goal_difference",
     "goals_for",
+    "extra_time",
     "penalty_shootout",
 )
 

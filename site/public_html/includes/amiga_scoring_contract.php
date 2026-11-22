@@ -18,7 +18,7 @@ const AMIGA_SCORING_KNOCKOUT_TIE_DEFAULT_STEPS = ['aggregate_goal_difference', '
 
 /** Executor-only KO chain for NULL DB contracts (catalog parity; mirrors Python LEGACY_KNOCKOUT_BRIDGE_STEPS). */
 /** @var list<string> */
-const AMIGA_SCORING_LEGACY_KNOCKOUT_BRIDGE_STEPS = ['aggregate_goal_difference', 'goals_for', 'penalty_shootout'];
+const AMIGA_SCORING_LEGACY_KNOCKOUT_BRIDGE_STEPS = ['aggregate_goal_difference', 'goals_for', 'extra_time', 'penalty_shootout'];
 
 /**
  * @return list<string>

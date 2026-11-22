@@ -124,9 +124,14 @@ Here the results were right and the placing was wrong. Dagh's rule: the result d
 
 - `SCORE_CORRECTIONS` in `scripts/amiga/import_corrections.py`: the values and the reasons, used by any Access import.
 - `scripts/oneoff/amiga_fix_world_cup_extra_time_2026_11.py`: applies them to `ko2amiga_work` and refuses any row it does not recognise. Run it after restoring an older checkpoint, then simul.
-- Placings: `scripts/oneoff/amiga_fix_placement_overrides_2026_11.py`.
+- Placings: `scripts/oneoff/amiga_fix_placement_overrides_2026_11.py`. Scoring chain: `scripts/oneoff/amiga_add_extra_time_step_2026_11.py` (§10).
 
-## 10. Known and not fixed
+## 10. The winner of a level tie
+
+Until this review, a tie that was level on goals and decided in extra time could go to the wrong player on the Stages page and in the stored stage tables: the old catalog chain (goals, then penalties) had no extra-time step, so it fell back to whoever won the leg that carries the note. The right notes alone would not have helped; in three of the corrected finals the page still named the loser.
+
+Fixed the same day: `extra_time` now comes before `penalty_shootout` in `LEGACY_KNOCKOUT_BRIDGE_STEPS` (Python and PHP) and in the 94 stages that store the old chain (`scripts/oneoff/amiga_add_extra_time_step_2026_11.py`), and the Stages page uses the extra-time and penalty columns. Of 1,337 ties, 28 change winner on the page. 27 of them now agree with the final placing, among them the XVIII semi-final (Fabio F), the XII bronze match (Gianni T) and the Kelkheim VII final (Michael O). The 28th is VIII 15th place, where the page now follows Access's unconfirmed note and names Knut L (§6). No rating changes. One placing does: in Birmingham XL (2012, four players) Darren H lost a semi-final 0-1 in extra time and was placed 5th; now 3rd, shared with the other losing semi-finalist, with a bronze. Full rebuild and all 29 checks passed again.
+
+## 11. Known and not fixed
 
 - **Score entry cannot record extra time.** The organizer form has no field for it. The PHP parser behind it would also store the score after extra time as extra-time goals, and "Make official" does not copy the extra-time columns to the official game.
-- **The Stages page does not use extra-time goals** when it picks the winner of a level tie.

@@ -132,6 +132,40 @@ class ScoringContractValidateTests(unittest.TestCase):
         self.assertEqual(validate_stage_scoring_contract(contract), [])
 
 
+class KnockoutExtraTimeTests(unittest.TestCase):
+    def _order(self, legs: list[dict]) -> list[int]:
+        from scripts.amiga.scoring_contract import LEGACY_KNOCKOUT_BRIDGE_STEPS, default_scoring_context
+        from scripts.amiga.tournament_standings import PlayerStanding, _knockout_positions
+
+        table = {1: PlayerStanding(), 2: PlayerStanding()}
+        for leg in legs:
+            for pid, own, other in (
+                (leg["player_a_id"], leg["goals_a"], leg["goals_b"]),
+                (leg["player_b_id"], leg["goals_b"], leg["goals_a"]),
+            ):
+                table[pid].goals_for += own
+                table[pid].goals_against += other
+        contract = default_scoring_context(1).default_knockout
+        self.assertEqual(contract.steps, LEGACY_KNOCKOUT_BRIDGE_STEPS)
+        return [pid for pid, _st, _pos in sorted(_knockout_positions(table, legs, contract), key=lambda r: r[2])]
+
+    @staticmethod
+    def _leg(a: int, ga: int, gb: int, extra=None, et=(None, None), pens=(None, None)) -> dict:
+        return {
+            "player_a_id": a, "player_b_id": 3 - a, "goals_a": ga, "goals_b": gb, "extra": extra,
+            "goals_et_a": et[0], "goals_et_b": et[1], "pens_a": pens[0], "pens_b": pens[1],
+        }
+
+    def test_extra_time_beats_the_leg_result(self) -> None:
+        # World Cup X 27th: 2 loses the second leg 4-5 in normal time but wins it 6-5 after extra time.
+        legs = [self._leg(1, 2, 3), self._leg(2, 4, 5, "6-5 e.t.", et=(2, 0))]
+        self.assertEqual(self._order(legs), [2, 1])
+
+    def test_penalties_after_level_extra_time(self) -> None:
+        legs = [self._leg(1, 2, 4), self._leg(2, 2, 4, "(3-5) 4-5 p.k.", et=(1, 1), pens=(4, 5))]
+        self.assertEqual(self._order(legs), [1, 2])
+
+
 class FreezeScoringContractTests(unittest.TestCase):
     def _cursor(self, *, fetchone=None, rowcount: int = 0) -> MagicMock:
         cur = MagicMock()

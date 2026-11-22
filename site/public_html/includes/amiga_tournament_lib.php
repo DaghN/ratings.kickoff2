@@ -2297,7 +2297,7 @@ function amiga_tournament_knockout_fixture_games(mysqli $con, int $tournamentId,
     $lo = $parsed['player_lo'];
     $hi = $parsed['player_hi'];
     $sql = 'SELECT g.id, g.source_scores_id, g.game_date, g.player_a_id, g.player_b_id,
-                   g.goals_a, g.goals_b, g.extra,
+                   g.goals_a, g.goals_b, g.extra, g.goals_et_a, g.goals_et_b, g.pens_a, g.pens_b,
                    COALESCE(g.phase, f.phase_label, s.name, s.stage_key) AS phase,
                    pa.name AS player_a_name, pb.name AS player_b_name
             FROM amiga_games g
@@ -2377,7 +2377,7 @@ function amiga_parse_standings_winner(
 }
 
 /**
- * Resolve knockout tie winner from fixture legs (aggregate GD/GF, then extra, then standings fallback).
+ * Resolve knockout tie winner from fixture legs (aggregate GD/GF, extra time, penalties, then standings fallback).
  *
  * @param list<array<string, mixed>> $games
  * @param list<array<string, mixed>> $standingsRows
@@ -2437,21 +2437,18 @@ function amiga_tournament_knockout_resolve_winner(array $games, array $standings
     } elseif ($s2['goals_for'] > $s1['goals_for']) {
         $winnerId = $id2;
     } else {
-        foreach ($games as $g) {
-            $extra = isset($g['extra']) ? (string) $g['extra'] : '';
-            if (trim($extra) === '') {
-                continue;
-            }
-            $wid = amiga_parse_standings_winner(
-                (int) $g['goals_a'],
-                (int) $g['goals_b'],
-                $extra,
-                (int) $g['player_a_id'],
-                (int) $g['player_b_id']
-            );
-            if ($wid !== null) {
-                $winnerId = $wid;
-                break;
+        require_once __DIR__ . '/amiga_match_extensions.php';
+        foreach (['extra_time', 'penalty_shootout'] as $step) {
+            foreach ($games as $g) {
+                $winnerId = amiga_resolve_game_extension_winner(
+                    $g,
+                    $step,
+                    (int) $g['player_a_id'],
+                    (int) $g['player_b_id']
+                );
+                if ($winnerId !== null) {
+                    break 2;
+                }
             }
         }
     }

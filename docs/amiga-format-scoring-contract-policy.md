@@ -99,7 +99,7 @@
 
 **Today:** 3-1-0 + GD/GF/games and KO aggregate GD/GF + `extra` text parse are **hardcoded** in `tournament_standings.py` / `amiga_post_game_standings.php`. Explicit relational contracts **not yet shipped**.
 
-**Bridge:** `platform_default_v1` copies into DB on **stage/tournament create** (SC-1). **Catalog backfill (SC-6)** writes explicit rows on all tournaments/stages; catalog KO stages store the legacy GF chain for Access parity. Live-ops new knockouts still get `platform_default_v1` (extra_time, not GF). Executors read DB contracts (SC-3 / SC-4).
+**Bridge:** `platform_default_v1` copies into DB on **stage/tournament create** (SC-1). **Catalog backfill (SC-6)** writes explicit rows on all tournaments/stages; catalog KO stages store the legacy chain (`aggregate_goal_difference` → `goals_for` → `extra_time` → `penalty_shootout`; `extra_time` since 2026-11-22, see [`amiga-extra-time-review-2026-11.md`](amiga-extra-time-review-2026-11.md) §10). Live-ops new knockouts still get `platform_default_v1` (extra_time, not GF). Executors read DB contracts (SC-3 / SC-4).
 
 ---
 
