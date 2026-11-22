@@ -27,7 +27,7 @@ from scripts.amiga.import_corrections import PLAYER_NAME_ALIASES
 MDB = ROOT / "data" / "amiga" / "source" / "koatd.mdb"
 GROUP_PHASE = re.compile(r"Group|League|Round 1\b")
 KNOCKOUT_PHASE = re.compile(r"Final|Places|Positions")
-SECOND_TIER_LEFT_OUT = {"World Cup II", "World Cup III", "World Cup IV"}  # Access [Tables] skip those games
+PLAYOUTS_LEFT_OUT = {"World Cup II", "World Cup III"}  # Access [Tables] skip those games
 
 
 def main() -> int:
@@ -115,6 +115,8 @@ def main() -> int:
             continue  # a separate event in Access [Tables]
         event = re.sub(r"\s+\(.*\)$", "", g["tournament"])
         event = "World Cup 2015" if event == "World Cup XV" else event
+        if event in PLAYOUTS_LEFT_OUT and (g["phase"] or "").startswith("Playouts"):
+            continue
         for me, you in (("a", "b"), ("b", "a")):
             own, other = g[f"goals_{me}"], g[f"goals_{you}"]
             et_own, et_other = g[f"goals_et_{me}"] or 0, g[f"goals_et_{you}"] or 0
@@ -128,8 +130,6 @@ def main() -> int:
     for player, *want, event in access.cursor().execute(
         "SELECT Player, G, W, D, L, GS, GC, Tournament FROM Tables WHERE Tournament LIKE 'World Cup%'"
     ):
-        if event.strip() in SECOND_TIER_LEFT_OUT:
-            continue
         rows += 1
         got = [way.get((event.strip(), PLAYER_NAME_ALIASES.get(player.strip(), player.strip()))) for way in ways]
         if [int(v) for v in want] in got:

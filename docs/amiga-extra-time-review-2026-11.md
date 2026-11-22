@@ -10,9 +10,10 @@
 
 - Access is very reliable for normal scores and much weaker for extra time: 12 of the 77 World Cup matches that went past normal time had a wrong, misplaced or missing note.
 - **Ten matches corrected** (nine extra-time notes and one normal-time score). In all ten the final placings were already right and stay as they were.
-- **One match still to correct** with the next Amiga data push: XXI 5th place (§6).
+- **Still to correct with the next Amiga data push:** XXI 5th place, once its score is confirmed (§6), and, if Dagh agrees, a World Cup IV group game whose score is turned round (§12).
 - **Two old matches left as they are in Access**, closed by Dagh: VIII 15th place and VI places 41-44 (§6).
 - The same day, three placings and one bronze medal were corrected for the opposite reason: there the results were right and the placings wrong (§7).
+- **Second check, 2026-11-23** (§12): the ten corrections and the placings hold, nine of the ten with a second witness. It found the World Cup IV game, and it made us less sure of XXI 5th place.
 
 ## 2. Our convention
 
@@ -39,9 +40,9 @@ The truth is the game on the Amiga. Everything else is a copy of it.
 | Source | What it is | Trust | Why |
 |---|---|---|---|
 | Video | The Amiga screen itself | Decides | Only a few of these matches were filmed |
-| Access `Scores`, normal time | Imported in bulk from result sheets: Access still holds an import error log for an Excel sheet named "Scores" | Very high | In the 20 World Cups with full tables (about 7,450 games), 713 of 741 player totals match our games exactly (708 before the corrections). Of the mismatches we followed up, one was a wrong Access score (World Cup VII); the rest are slips in the totals (§8) |
+| Access `Scores`, normal time | Imported in bulk from result sheets: Access still holds an import error log for an Excel sheet named "Scores" | Very high | In World Cups I to XXIII (about 8,270 games), 809 of 840 player totals match our games exactly. Two of the mismatches were wrong Access scores (VII, corrected; IV, §12); nearly all the rest are slips in the totals (§8) |
 | Access `Scores.Extra` | Extra-time text | Moderate | Looks typed by hand: 108 notes in 12 different spellings. 12 of 77 World Cup matches wrong, misplaced or missing |
-| Results images on alkis.org | Pictures of the original result sheets | High, not perfect | Agree with 63 of the 69 Access notes we could compare, and in the other six Access contradicts itself. Known slips: XIV 5th place (§8); XXI 5th place shows the score after extra time in the place of the second leg (§6) |
+| Results images on alkis.org | Pictures of the original result sheets | High, not perfect | Agree with 63 of the 69 Access notes we could compare, and in the other six Access contradicts itself. Known slips: XIV 5th place (§8); XXI 5th place has no extra-time mark although Access has the final level (§6) |
 | Placings: Access `[Tables]` and the alkis.org ranking lists | Made after the event, and they agree with each other | Good, not proof | Wrong in three placement finals (§7) |
 | Player comments on alkis.org | Written by Alkis after the event | Good supporting evidence | They describe matches independently of the score tables |
 
@@ -90,20 +91,32 @@ The table has eleven rows because the XVII note moves from one match to another.
 
 ## 6. The three matches left after the ten
 
-### XXI 5th place, Christopher D v Mario F: decided, not yet applied
+### XXI 5th place, Christopher D v Mario F: winner certain, score to be confirmed, not yet applied
 
-Nobody doubts the placing: Mario F is 5th and Christopher D 6th in both sources and on our site. Only the scores looked unclear, and the first version of this review read them too strictly.
+Nobody doubts the placing: Mario F is 5th and Christopher D 6th in both sources and on our site.
 
 | Source | Leg 1 | Leg 2 | Elsewhere |
 |---|---|---|---|
 | Access | Christopher D 6-5 Mario F | Mario F 5-4 Christopher D | Level 10-10, no note. Totals: one win each |
 | alkis.org image | Christopher D 4-5 Mario F | Mario F **8-6** Christopher D | Ranking list: one win each, and exactly three more goals for Mario F than in Access |
 
-**Reading:** these are the same two games. Mario F won one leg 5-4, Christopher D the other 6-5, so it was level 10-10 and needed extra time. Mario F won that 3-0, and the image shows 8-6, the score after extra time, where the second leg should be 6-5. Access lists the legs the other way round here, as it does for the 25th, 27th and 29th place finals of the same World Cup.
+Two readings fit (rewritten 2026-11-23; the first version called extra time "very likely"):
 
-**Why we believe it:** Access contradicts itself (level, no decider, Mario F 5th), so by our rule (§4) alkis.org supplies the score. The 5-4 and Christopher D's 6 goals are the same in both sources, and both give each player one win, which two wins for Mario F would not. **What speaks against it:** the image has no `a.e.t.` line here, and Alkis counted these three goals in his totals, which he did not do for the 17th and 29th place finals. So: very likely, not proved. Normal-time scores, Elo and placings do not change either way.
+| | Extra time | Corrected slip |
+|---|---|---|
+| What happened | Mario F won one leg 5-4, Christopher D the other 6-5; level 10-10; Mario F won extra time 3-0, and the image shows that leg after extra time | Mario F won both legs, 5-4 and 8-6. The 5 in 6-5 was a slip, found because it left the final level |
+| For | Access also lost the note of the 29th place final of this World Cup. Both lists give each player one win | Alkis's pictures mark extra time on 74 matches, not on this one, and he counts no other extra-time goals in this World Cup's totals. His comment on Mario F counts three defeats of Christopher D by Mario F, which needs this leg as one of them |
+| Against | No `a.e.t.` mark; three goals counted | The lists still give Christopher D a win here. But the lists have half-done hand corrections (XIV: Ektoras K got the missing game, the win and the two goals conceded, not the 12 scored) |
+| Elo | No change | This leg becomes a win for Mario F |
 
-**To apply** (next Amiga data push): game 26309 (Access 26929), Christopher D 6-5 Mario F: `6-8 e.t.`, extra-time goals 0-3, in the three places named in §9, then simul. Until then the Stages page names Christopher D as the winner of this final.
+**How to settle it:** the tournament's own results page, <https://playkickoff.com/2023>, named on the [day 2 stream](https://www.youtube.com/watch?v=Dc5AEKcyCxg). It is on the live web server and could not be opened from this PC on 2026-11-23; a phone on mobile data should work. Look at the 5th and the 11th place final (§12).
+
+**To apply** (game 26309, Access 26929, Christopher D 6-5 Mario F), in the three places named in §9, then simul:
+
+- Extra time: `6-8 e.t.`, extra-time goals 0-3. Also the choice if nothing settles it, because it keeps Access's normal-time score (rule in §4).
+- Corrected slip: 6-8 in normal time, no note.
+
+Until then the Stages page names Christopher D as the winner of this final.
 
 ### Two old matches: closed
 
@@ -129,10 +142,10 @@ Here the results were right and the placing was wrong. Dagh's rule: the result d
 
 ## 8. Looked at and not changed
 
-- **XIV 5th place**, John H v Gianluca T: the alkis.org image shows two legs that are not level (3-4, 2-3) followed by extra time. Access (3-2 and 3-4, then 4-4) is level and gives John H 5th, as both sources say. Access is right.
+- **XIV 5th place**, John H v Gianluca T: the alkis.org image shows two legs that are not level (3-4, 2-3) followed by extra time. Access (3-2 and 3-4, then 4-4) is level and gives John H 5th, as both sources say, and the ranking list now on alkis.org has Access's goals. Legs of 4-3 and 2-3 would fit too, with the same winner and the same totals. Access stands.
 - **IV KOA Cup:** some winners are placed below the player they beat. Access leaves the KOA Cup out of the World Cup IV placings, so this is not an error.
 - **XX "31st Place Final", Hannes B 2-2 Manfred S:** this is the Game of Shame with the wrong phase label in Access. The score is right.
-- **The 28 player totals that still differ:** walkovers counted as games (XXI, Ian K and Fabien S); goals of three second legs left out (X, three players); goals or games miscounted (I, V, VIII, XI, XIV, XXI, XXIII); and XV 29th place (§5). Wherever we compared a results image it agrees with our games. Not followed up one by one: I, V and part of XI.
+- **The 31 player totals that still differ:** walkovers counted as games (XXI, Ian K and Fabien S); goals of two second legs that went to extra time left out (X, three players); five Bronze Cup games left out (XXIII, four players); XV 29th place (§5); the score turned round in IV (§12, two players); three matches in XI and XXI (§12, six players) and a penalty win counted as a win (XI, Wayne L and Thorsten B); one leg turned round (XIV, John H and Gianluca T), since put right on alkis.org; the rest are slips (I, III, V, VIII, XIV).
 - **Tomasso R = Lorenzo C:** alkis.org lists Tomasso R in World Cups VII and X where Access has Lorenzo C. The placings (26th and 21st) and the VII totals match, so we treat them as one person, as Access does.
 
 ## 9. Where the corrections live
@@ -151,3 +164,44 @@ Fixed the same day: `extra_time` now comes before `penalty_shootout` in `LEGACY_
 ## 11. Known and not fixed
 
 - **Score entry cannot record extra time.** The organizer form has no field for it. The PHP parser behind it would also store the score after extra time as extra-time goals, and "Make official" does not copy the extra-time columns to the official game. Deferred by Dagh on 2026-11-22; tracked in [`amiga-organizer-track-status.md`](amiga-organizer-track-status.md) §6.
+
+## 12. Second check, 2026-11-23
+
+XXI 5th place taught us three things: a leg in a source can hold the score after extra time or a later correction; totals on alkis.org are partly corrected by hand, so they prove less than we thought; and a difference in totals that would make a tie exactly level is a warning sign. We went through everything again with that in mind.
+
+**What we checked**
+
+1. **Pictures, both ways:** all 74 extra-time or penalty lines in the knockout pictures of World Cups III to XXIII. 72 are the same in our data. The other two are the old matches closed in §6.
+2. **Alkis's player comments:** about 40 mention extra time or penalties. Each names a match we have, with the same winner. (One contradicts the rest: a XVI comment has the XV quarter-final Andy G v Fabio F decided on penalties; the XV comment, the picture and Access all have extra time.)
+3. **Goals per World Cup** on alkis.org (its table counts extra time in some years and not in others) against ours: equal, or explained by a known slip, except XXI (the three goals of §6).
+4. **Player totals**, now also for II to IV: does a difference make a knockout tie level?
+
+**The ten corrections hold.** Second witnesses found for nine:
+
+| Match | Second witness |
+|---|---|
+| XXI 17th | Comment on Frederic G: lost on overtime |
+| XVII quarter-final (and so Robert S v Frank F) | Comment on Thor S: knocked out by Christopher D on penalties |
+| XVII places 9-12 | Comment on Marco D: knocked out Lee W, John H and Frank F |
+| XV 29th | Comment on Olly D: beat his brother on penalty kicks |
+| VII places 25-28 | alkis.org counts 2,150 goals. Ours are 2,150 with 0-2 and would be 2,156 with Access's 3-3 |
+| X places 25-28 and X 25th | Comment on Kostas Ka: won one playoff match on penalties and one on extra time |
+| X 17th | Comment on Rodolfo M: lost the trophy on extra time |
+| X 27th | The totals count the leg Flavio Z lost 4-5 as a win for Flavio Z, which only extra time explains |
+| XXI 29th | None beyond the picture. The tie is level and cannot have ended so |
+
+**The placings hold too** (§7). XII bronze: the comment on Andy G says the bronze was lost in extra time. XIX 11th is still the weakest, but extra time cannot explain it: if the second leg's 4-2 includes extra time, it was Frank F who won it, and both players' totals match our games exactly.
+
+**One new error: World Cup IV, Round 1 Group B, Nazim C v Gianni T** (game 4651, Access 4652). Access has 1-7. The picture has 7-1, and so do the group table there (27 and 24 points), the ranking list, and Access's own totals for both players; they fit nothing else. The score was not turned round, as in XXI 17th. By our rule (§4) it should be 7-1. It changes Elo; the group order and the placings stay. **Not applied, waiting for Dagh.**
+
+**Three matches with the same warning sign as XXI 5th place**
+
+| Match | Access and picture | Totals fit | Would change Elo |
+|---|---|---|---|
+| XXI 11th place, second leg | Frank F 2-9 Steve C | 2-5, so level 7-7 | No |
+| XI 19th place | Wayne L 5-2 Mandhir S | 2-2 | Yes |
+| XI places 25-32 | Mark W 1-2 Peter K | 1-1 | Yes |
+
+Either these went to extra time and only the final score was kept, or a slip was noticed because it left the match level, and was put right everywhere but in the totals. Access and the picture agree and neither has an extra-time mark, so they stay. The winners and the placings are the same either way. The XXI one may be on the results page named in §6.
+
+**What no check can see:** a match whose score after extra time went into every source as a normal score.
