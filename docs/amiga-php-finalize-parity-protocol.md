@@ -1,10 +1,58 @@
 # Amiga PHP Finish ↔ simul-oracle parity protocol
 
-**Status:** **Signed off Jul 2026-17** for probe tournament **#608** (WC-stamped kitchen). Content match vs full chronological **`simul`** oracle; remaining differences are soft (float ~1e-6, wall-clock timestamps, lifecycle complete vs one-shot running).
+**Status:** Since 2026-11-22 the calculation is checked with one command, **§0**. §1–§10 are the July 2026 hand protocol (probe tournament #608), kept because it also covers promote, which the command does not.
 
 **Audience:** Dagh, agents re-running or extending PHP live Finish confidence.
 
 **Related:** [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (RTB12) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) Lane B · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) · starter [`orchestration/agent-handoffs/amiga-php-finalize-parity-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-php-finalize-parity-STARTER-PROMPT.md) · checkpoints [`../data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md)
+
+---
+
+## 0. The command: `python -m scripts.amiga php-finish-check`
+
+The website's Finish (PHP) and simul (Python) calculate the same things with separate code. **Python is the reference.** The command copies the results and structure from `ko2amiga_work` into the throwaway database `ko2amiga_finish_check`, lets the PHP in `site/public_html` calculate every tournament there, oldest first, compares every stored value in every table with what simul stored, and drops the database. About 20 minutes. Local only: no live site, nothing else changed.
+
+### When
+
+After a change to **how something is calculated**, on either side, before the PHP is uploaded: a new statistic or record, a rule (ties, placings, ratings), a speed or safety change to Finish or simul, or a change to the online files Finish shares (`ops/includes/post_game_constants.php`, `post_game_elo.php`, `post_game_outcome.php`, `post_game_player_db.php`, `post_game_player_state.php`).
+
+1. Same change on the other side. 2. `simul`. 3. `php-finish-check` must say `RESULT: SAME`. 4. Upload with Dagh's OK; tell Dagh the result.
+
+**Not needed** for display, text, charts, videos, corrected results without a rule change, or as a routine. The rule reaches agents through `.cursor/rules/amiga-calculation-check.mdc` and its Claude mirror.
+
+### After a tournament is finished on the website
+
+A different check: pull live into `ko2amiga_work`, side-pull a copy, run simul, and compare the two (`scripts/oneoff/compare_work_vs_staging_cmp.py`). It tests what the website really stored, including promote and the clicking. Do it after the first few. By 2026-11-22 there had been none: Nottingham III and Oslo were entered on the PC.
+
+### What it does not cover
+
+The promote step (fixtures to official games), the browser steps, an interrupted or repeated Finish, deleting or inserting tournaments.
+
+### Reading the result
+
+| Word | Meaning |
+|------|---------|
+| `SAME` | No value differs (exit 0) |
+| `DIFFERENT` | Exit 1. Tables, columns, samples and the earliest tournament with a difference; start there |
+| `PHP STOPPED` | Exit 1. PHP raised an error at the named tournament |
+| rounding | One step in the last stored decimal; ratings up to 0.00005; sums of ratings 0.00000001 of their size. Passes |
+| known | `LeastGoalsScoredVictims`, `LeastGoalsConcededCulprits`: shown on no Amiga page, retirement deferred ([`amiga-player-inverse-count-timeline-policy.md`](amiga-player-inverse-count-timeline-policy.md) §6). Passes |
+
+It refuses to start when `ko2amiga_work` is not one complete Python rebuild, or when a Python calculation file changed after that rebuild (run simul first). Options: `--limit N` (first N tournaments), `--site-root PATH` (another `public_html`, for example an older version), `--keep-db`, `--allow-old-python`. Report: `data/amiga/modern/php-finish-check-last.json`. Code: `scripts/amiga/modern/php_finish_check.py`, `php_finish_replay.php`; tests `scripts/amiga/test_php_finish_check.py`.
+
+A new derived table is compared without being listed anywhere. A new **ground** table must be added to `GROUND_TABLES`; until then the check fails.
+
+Finish on the website saves row by row; the command saves once per tournament, which is about three times faster and does not touch the calculation.
+
+### Results
+
+| Date | PHP | Python | Result |
+|------|-----|--------|--------|
+| 2026-11-22 | `e7d2f66a` (live that day) | live data of that morning | Test before the command existed: only rounding and the two known counts |
+| 2026-11-22 | working copy at `de0b7082`, with the extra-time rule, the World Cup podium and the held online fix | simul of 15:58 UTC | **SAME**, 608 tournaments, 8,820,661 values, 19.4 min |
+| 2026-11-22 | `e7d2f66a`, before that day's two rule changes (a one-sided change on purpose) | simul of 15:58 UTC, with both | **DIFFERENT**, as it should be: 33 positions in stage tables (extra-time rule) and 1 value in `amiga_world_cup_stats` (World Cup XII bronze), nothing else. Exit 1 |
+
+Planted faults it caught: K factor 32.001 instead of 32; one clean-sheet condition changed in one of three branches; an error in one tournament.
 
 ---
 
@@ -201,4 +249,5 @@ After chrono + community fixes, re-run from **N+T_running**:
 
 | Date | Change |
 |------|--------|
+| 2026-11-22 | §0: one command replaces the hand comparison for the calculation; run on all 608 tournaments. |
 | 2026-07-17 | Protocol doc — locked simul-oracle vs PHP Finish; #608 sign-off; chrono + community limbo fixes recorded. |

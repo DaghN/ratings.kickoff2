@@ -67,6 +67,7 @@ from scripts.amiga.modern.chrono_integer import (
 )
 from scripts.amiga.modern.apply_structure import run_apply_structure_work
 from scripts.amiga.modern.parity import run_parity
+from scripts.amiga.modern.php_finish_check import run_php_finish_check
 from scripts.amiga.modern.verify_structure_work import run_verify_structure_work
 from scripts.amiga.modern.video_catalog import (
     run_verify_tournament_videos_work,
@@ -480,6 +481,21 @@ def main(argv: list[str] | None = None) -> int:
         "--no-checksum",
         action="store_true",
         help="Row counts + scalar rows only (faster smoke)",
+    )
+
+    p_finish_check = sub.add_parser(
+        "php-finish-check",
+        help="Compare the website's Finish calculation (PHP) with simul (Python) over all tournaments, on a throwaway copy",
+    )
+    p_finish_check.add_argument("--limit", type=int, default=None, help="First N tournaments only (quick look)")
+    p_finish_check.add_argument(
+        "--site-root", type=Path, default=None, help="public_html to test (default: this repo's)"
+    )
+    p_finish_check.add_argument("--keep-db", action="store_true", help="Keep the throwaway database afterwards")
+    p_finish_check.add_argument(
+        "--allow-old-python",
+        action="store_true",
+        help="Compare although Python calculation files changed after the last simul",
     )
 
     p_verify_structure_work = sub.add_parser(
@@ -1050,6 +1066,14 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "parity":
         run_parity(checksum=not args.no_checksum)
         return 0
+
+    if args.cmd == "php-finish-check":
+        return run_php_finish_check(
+            limit=args.limit,
+            site_root=args.site_root,
+            keep_database=args.keep_db,
+            allow_old_python=args.allow_old_python,
+        )
 
     if args.cmd == "verify-structure-work":
         return run_verify_structure_work()

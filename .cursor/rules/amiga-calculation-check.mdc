@@ -1,0 +1,22 @@
+---
+description: Amiga calculation code — PHP Finish and Python simul must give the same results; run php-finish-check before uploading
+globs: site/public_html/amiga/ops/includes/**/*.php,site/public_html/amiga/ops/modules/finalize_tournament.php,site/public_html/amiga/ops/modules/process_completed_game.php,site/public_html/includes/amiga_scoring_contract.php,site/public_html/includes/amiga_participation_placement.php,site/public_html/includes/amiga_match_extensions.php,site/public_html/includes/amiga_perfect_event.php,site/public_html/includes/amiga_player_slice_lib.php,site/public_html/includes/amiga_tournament_lib.php,site/public_html/includes/*performance_rating.php,site/public_html/ops/includes/post_game_constants.php,site/public_html/ops/includes/post_game_elo.php,site/public_html/ops/includes/post_game_outcome.php,site/public_html/ops/includes/post_game_player_db.php,site/public_html/ops/includes/post_game_player_state.php,scripts/amiga/*.py,scripts/amiga/modern/replay.py,scripts/amiga/modern/clear_derived.py,scripts/k2_rating_core/*.py
+alwaysApply: false
+---
+
+# Amiga calculation code
+
+The website's Finish (PHP) and simul (Python) calculate the same things with separate code. Python is the reference.
+
+If you change **how something is calculated** in a matching file:
+
+1. Make the same change on the other side.
+2. `python -m scripts.amiga simul`
+3. `python -m scripts.amiga php-finish-check` (about 20 minutes, local only, changes nothing). It must say `RESULT: SAME`.
+4. Only then upload the PHP (with Dagh's OK), and tell Dagh the result.
+
+Not needed for display, text, charts, videos, or corrected results without a rule change.
+
+Five of the files are shared with the online ladder (`ops/includes/post_game_constants.php`, `post_game_elo.php`, `post_game_outcome.php`, `post_game_player_db.php`, `post_game_player_state.php`): a fix made for the online ladder is also an Amiga change.
+
+Details, limits, known differences: [`docs/amiga-php-finalize-parity-protocol.md`](../../docs/amiga-php-finalize-parity-protocol.md) §0.

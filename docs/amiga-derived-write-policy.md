@@ -26,7 +26,7 @@
 | **`python -m scripts.amiga prove`** | **Oracle only** — L1→L5 nuclear loop on frozen **`ko2amiga_db`** |
 | **`python -m scripts.amiga replay`** | Legacy L5 on **`ko2amiga_db`** (without full L1–L4 reset) |
 | **`python -m scripts.amiga finalize-tournament`** | Single-event finalize (same writer as replay slice) |
-| **PHP `finalize-tournament`** | Staging/live ops — mirrors Python finalize ([`amiga-php-finalize-parity-protocol.md`](amiga-php-finalize-parity-protocol.md) — Finish ↔ simul-oracle fingerprint) |
+| **PHP `finalize-tournament`** | Staging/live ops — mirrors Python finalize, checked with `php-finish-check` ([`amiga-php-finalize-parity-protocol.md`](amiga-php-finalize-parity-protocol.md) §0 — Finish ↔ simul-oracle fingerprint) |
 | **Open-tournament ops** | **Running package only** — `fixtures record-result` / browser Results tab write fixture columns; **no** L5 until Make official ([`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md)) |
 
 **Wrong derived state on `ko2amiga_work`** → run **`simul`** again. **Wrong oracle regression** → run **`prove`** on frozen `ko2amiga_db`. Do not patch derived tables with batch rebuild commands.

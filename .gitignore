@@ -50,6 +50,7 @@ data/amiga/modern/staging-sync-last.json
 data/amiga/modern/staging-sidepull-last.json
 data/amiga/pulls/*.sql
 data/amiga/modern/parity-last.json
+data/amiga/modern/php-finish-check-*.json
 data/amiga/modern/l4-verify-last.json
 data/amiga/modern/video-last.json
 data/amiga/work/
