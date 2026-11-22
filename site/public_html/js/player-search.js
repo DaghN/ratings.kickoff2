@@ -265,6 +265,10 @@
             var url = API_PATH + '?realm=' + encodeURIComponent(realm)
                 + '&q=' + encodeURIComponent(q)
                 + '&limit=15';
+            var asParam = new URLSearchParams(window.location.search).get('as');
+            if (asParam) {
+                url += '&as=' + encodeURIComponent(asParam);
+            }
 
             var fetchOpts = { credentials: 'same-origin' };
             if (root._psAbort) {

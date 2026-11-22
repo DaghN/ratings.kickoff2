@@ -121,7 +121,7 @@
                     x: {
                         type: 'time',
                         min: xMin || undefined,
-                        max: DR ? DR.endOfToday() : undefined,
+                        max: DR ? DR.chartEnd(data) : undefined,
                         time: {
                             unit: 'year',
                             round: 'year',
@@ -176,7 +176,7 @@
         }
 
         if (DR && DR.appendRatingThroughToday) {
-            chartData = DR.appendRatingThroughToday(chartData, lastY);
+            chartData = DR.appendRatingThroughToday(chartData, lastY, DR.chartEnd(data));
         }
 
         if (!chartData.length) {
@@ -233,7 +233,7 @@
                     x: {
                         type: 'time',
                         min: firstX || undefined,
-                        max: DR ? DR.endOfToday() : undefined,
+                        max: DR ? DR.chartEnd(data) : undefined,
                         time: {
                             displayFormats: {
                                 year: 'yyyy',

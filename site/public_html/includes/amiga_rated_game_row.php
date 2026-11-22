@@ -97,7 +97,7 @@ function amiga_rated_game_phase_cell(array $row, ?mysqli $con = null): string
             (int) $game['idB'],
         );
         if ($scope !== null) {
-            $href = amiga_tournament_url($tournamentId, $scope['scope_type'], $scope['scope_key']);
+            $href = amiga_tournament_href(amiga_tournament_url($tournamentId, $scope['scope_type'], $scope['scope_key']));
             $help = $scope['scope_type'] === 'knockout' ? 'Elimination tie' : 'Phase standings';
 
             return '<a href="' . k2_h($href) . '" data-k2-help="' . k2_h($help) . '" data-k2-tooltip-hide-title="1">'

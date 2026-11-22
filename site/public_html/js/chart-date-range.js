@@ -29,6 +29,12 @@
         return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
     }
 
+    /** Right edge of a chart: the time-travel cutoff day in the payload (end_date), else today. */
+    function chartEnd(data) {
+        var end = data && data.end_date ? new Date(data.end_date + 'T23:59:59') : null;
+        return end && !isNaN(end.getTime()) ? end : endOfToday();
+    }
+
     function startOfToday() {
         var now = new Date();
         return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
@@ -189,16 +195,16 @@
     }
 
     /**
-     * Append (or replace same-day tail with) a terminal point at end of today.
+     * Append (or replace same-day tail with) a terminal point at end of today, or at `end`.
      */
-    function appendRatingThroughToday(chartData, currentRating) {
+    function appendRatingThroughToday(chartData, currentRating, end) {
         if (!chartData.length) {
             return chartData;
         }
         var y = typeof currentRating === 'number' && !isNaN(currentRating)
             ? currentRating
             : chartData[chartData.length - 1].y;
-        var terminal = { x: endOfToday(), y: y };
+        var terminal = { x: end || endOfToday(), y: y };
         var out = chartData.slice();
         var last = out[out.length - 1];
         if (sameLocalDay(last.x, terminal.x)) {
@@ -651,6 +657,7 @@
         ratingChartTimeRange: ratingChartTimeRange,
         endOfCurrentMonth: endOfCurrentMonth,
         endOfToday: endOfToday,
+        chartEnd: chartEnd,
         appendRatingThroughToday: appendRatingThroughToday,
         padGamesPerMonth: padGamesPerMonth,
         formatCompareDateTooltipTitle: formatCompareDateTooltipTitle,

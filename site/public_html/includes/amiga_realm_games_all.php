@@ -653,7 +653,7 @@ function amiga_realm_games_all_catalog_years(mysqli $con, AmigaSnapshotContext $
 function amiga_realm_games_all_count(mysqli $con, array $state, AmigaSnapshotContext $ctx): int
 {
     if (amiga_realm_games_all_lean_eligible($state)) {
-        if ($ctx->isActive() || amiga_realm_games_all_catalog_eligible($state)) {
+        if (amiga_realm_games_all_catalog_eligible($state)) {
             return amiga_realm_games_all_catalog_count($con, $ctx);
         }
 
@@ -837,31 +837,51 @@ function amiga_realm_games_all_segment_url(array $state, string $event, string $
 }
 
 /**
+ * Players for the pickers: everyone rated today, or everyone rated by the time-travel cutoff with their rating then.
+ *
+ * @param list<int> $keepIds chosen players to list even when they have not played yet
  * @return list<array{id: int, name: string, rating: int}>
  */
-function amiga_realm_games_all_fetch_players(mysqli $con): array
+function amiga_realm_games_all_fetch_players(mysqli $con, AmigaSnapshotContext $ctx, array $keepIds = []): array
 {
-    $careerTable = amiga_player_career_table($con);
+    $types = '';
+    $params = [];
+    $cutoff = $ctx->isActive() ? $ctx->cutoff() : null;
+    if ($cutoff !== null) {
+        require_once __DIR__ . '/amiga_lb_snapshot_lib.php';
+        $fromSql = amiga_lb_snapshot_from_sql('s');
+        $types = 'sdi';
+        $params = [$cutoff['event_date'], $cutoff['chrono'], $cutoff['tournament_id']];
+    } else {
+        $fromSql = 'FROM amiga_players p INNER JOIN `' . amiga_player_career_table($con) . '` s ON s.player_id = p.id';
+    }
     $rows = amiga_realm_games_hub_query_all(
         $con,
-        'SELECT p.id AS id, p.name AS name, ROUND(s.Rating) AS rating '
-            . 'FROM amiga_players p INNER JOIN `' . $careerTable . '` s ON s.player_id = p.id '
-            . 'WHERE s.NumberGames > 0 AND p.name IS NOT NULL AND TRIM(p.name) <> \'\' '
+        'SELECT p.id AS id, p.name AS name, ROUND(s.Rating) AS rating ' . $fromSql
+            . ' WHERE s.NumberGames > 0 AND p.name IS NOT NULL AND TRIM(p.name) <> \'\' '
             . 'ORDER BY p.name ASC, s.Rating DESC',
-        '',
-        []
+        $types,
+        $params
     );
 
     $players = [];
     foreach ($rows as $row) {
-        $players[] = [
+        $players[(int) $row['id']] = [
             'id' => (int) $row['id'],
             'name' => (string) $row['name'],
             'rating' => (int) $row['rating'],
         ];
     }
+    foreach ($keepIds as $keepId) {
+        if ($keepId < 1 || isset($players[$keepId])) {
+            continue;
+        }
+        foreach (amiga_realm_games_hub_query_all($con, 'SELECT name FROM amiga_players WHERE id = ?', 'i', [$keepId]) as $row) {
+            $players[$keepId] = ['id' => $keepId, 'name' => (string) $row['name'], 'rating' => 1600];
+        }
+    }
 
-    return $players;
+    return array_values($players);
 }
 
 /** @return list<int> */
@@ -878,7 +898,7 @@ function amiga_realm_games_all_fetch_years(mysqli $con, AmigaSnapshotContext $ct
 
     $state = amiga_realm_games_all_request_state();
     if (amiga_realm_games_all_lean_eligible($state)) {
-        if ($ctx->isActive() || amiga_realm_games_all_catalog_eligible($state)) {
+        if (amiga_realm_games_all_catalog_eligible($state)) {
             return $cache[$cacheKey] = amiga_realm_games_all_catalog_years($con, $ctx);
         }
 

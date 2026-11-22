@@ -109,7 +109,7 @@ Tournament-step **catalog** filters use separate `id_*` params — policy [`with
 
 **Agent habit (same class as T4 / T16 link carry):**
 
-- **PHP navigation:** `amiga_url_with_context()` / `k2_amiga_route()` — appends request `as_with` when active; `amiga_url_present()` strips `as=` **and** `as_with`.
+- **PHP navigation:** `amiga_url_with_context()` / `k2_amiga_route()`, and `amiga_tournament_href()` around every `amiga_tournament_url()` that ends up in a link — appends request `as_with` when active; `amiga_url_present()` strips `as=` **and** `as_with`.
 - **PHP GET forms** (listbox filters): echo `amiga_form_context_inputs()` inside the form. A GET submit replaces the query string of `action`, so `amiga_url_with_context()` there does **not** carry `as=` / `as_with`.
 - **JS navigation** (header search, chart drill-downs): [`k2-amiga-time-travel-url.js`](../site/public_html/js/k2-amiga-time-travel-url.js) — carry `as=` + `as_with` on hrefs; do **not** hand-roll `as=` only.
 - **Chart/API fetches:** pass **`as=` only** (snapshot cutoff) — with-player params are ribbon/stepper state, not read-path inputs.
@@ -144,7 +144,8 @@ Direct `?as=` on **editorial / live-ops** paths (News, live tournaments) → red
 
 | Surface | Rule |
 |---------|------|
-| **Games** hub | `/amiga/games/recent.php` (+ Highlights · All games) — counts and rows at cutoff via `amiga_lb_games_count()` + snapshot SQL |
+| **Games** hub | `/amiga/games/recent.php` (+ Highlights · All games) — counts and rows at cutoff via `amiga_lb_games_count()` + snapshot SQL. **All games:** the tournament-catalog totals are used only without a player filter; the player pickers list players rated by the cutoff, with their rating then (Nov 2026) |
+| **Header search** (Amiga pages) | `player-search.js` sends `as=`; `api/player_search.php` then returns Amiga players rated by the cutoff, with their rating then (Nov 2026) |
 | **Tournaments** hub | `/amiga/tournaments.php` — catalog rows ≤ cutoff; filter pills + listboxes preserve `as=` (`k2_amiga_route('amiga-tournaments')`); **With videos** filter kept under TT (manifest discovery) |
 
 ### 4.3 Player wings (time-travel lens — wire at cutoff)
@@ -159,7 +160,8 @@ Player pills stay visible under time travel. Target **T15** + **T16**:
 | **`tournament.php` detail** | Ribbon + `as=` on entry redirects and in-page nav (**shipped** Jun 2026). Event stats / standings read finalize-time truth — unchanged after finalize; URL `as=event:` for a post-cutoff id is not reachable from TT catalog browse |
 | **Opponents** tables | Shipped — `amiga_matchup_snapshot_lib.php` |
 | **Profile rating chart** | Snapshot events ≤ cutoff; date x-axis ends at cutoff (`amiga_player_rating_history_payload`) | **Shipped** Jun 2026 |
-| **Player Videos** | Game-linked manifest rows ≤ cutoff (`amiga_snapshot_rated_game_cutoff_and_sql` on index load) | **Shipped** Jun 2026 |
+| **Player Videos** | Game-linked manifest rows ≤ cutoff (`amiga_snapshot_rated_game_cutoff_and_sql` on index load). A player who has videos, but none by the cutoff, gets the normal page with an empty list (not a 404, Nov 2026) | **Shipped** Jun 2026 |
+| **Chronology graphs** | Bars and line end at the cutoff day (`end_date` in the payload, `chartEnd()` in `chart-date-range.js`) | **Shipped** Nov 2026 |
 | **Profile** blocks | Career / honours at cutoff | **Shipped** Jul 2026-14 — [`amiga-profile-time-travel-policy.md`](amiga-profile-time-travel-policy.md) · plan [`amiga-profile-time-travel-implementation-plan.md`](amiga-profile-time-travel-implementation-plan.md) (hero + charts Jun 2026; mosaic + moments + Videos pill Jul 2026) |
 
 ### 4.4 Transitional defer (visible but not yet at cutoff)

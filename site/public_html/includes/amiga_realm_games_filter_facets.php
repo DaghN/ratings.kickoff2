@@ -82,7 +82,7 @@ function amiga_realm_games_facet_host_country_rows(
     AmigaSnapshotContext $ctx,
 ): array {
     if (amiga_realm_games_all_lean_eligible($state)) {
-        if ($ctx->isActive() || amiga_realm_games_all_catalog_eligible($state)) {
+        if (amiga_realm_games_all_catalog_eligible($state)) {
             $types = '';
             $params = [];
             $sql = 'SELECT TRIM(t.country) AS country, COALESCE(SUM(c.game_count), 0) AS games '

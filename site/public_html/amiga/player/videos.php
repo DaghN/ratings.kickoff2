@@ -37,7 +37,7 @@ $con = k2_db_connect_or_public_error($dbhost, $username, $password, $database, $
 $con->query("SET time_zone = '+00:00'");
 
 $ctx = amiga_snapshot_context_from_request($con);
-if (!amiga_player_has_videos($playerId, $con, $ctx)) {
+if (!amiga_player_has_videos($playerId, $con, AmigaSnapshotContext::present())) {
     mysqli_close($con);
     http_response_code(404);
     exit('Player not found.');

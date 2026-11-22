@@ -22,7 +22,7 @@ $ctx = amiga_lb_context($con);
 
 amiga_realm_games_all_sanitize_filters($con, $state, $ctx);
 
-$realmPlayers = amiga_realm_games_all_fetch_players($con);
+$realmPlayers = amiga_realm_games_all_fetch_players($con, $ctx, [(int) $state['player'], (int) ($state['opponent'] ?? 0)]);
 $opponentRows = $state['player'] > 0
     ? amiga_realm_games_all_opponent_rows($con, $state['player'], $state, $ctx)
     : [];

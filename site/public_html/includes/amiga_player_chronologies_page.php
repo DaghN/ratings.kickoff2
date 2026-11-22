@@ -180,6 +180,15 @@ if ($kind === AMIGA_PLAYER_CHRONOLOGY_KIND_OPPONENTS) {
     $chartPayload = amiga_player_chronology_countries_beaten_by_chart_payload($con, $id, $chronologyRows, $Name);
 }
 
+$chartCutoff = $ctx->isActive() ? $ctx->cutoff() : null;
+if ($chartCutoff !== null && $chartPayload !== []) {
+    $chartPayload['end_date'] = (string) $chartCutoff['event_date'];
+    $chartPayload['years'] = array_values(array_filter(
+        $chartPayload['years'] ?? [],
+        static fn (array $year): bool => (int) $year['year'] <= (int) substr((string) $chartCutoff['event_date'], 0, 4)
+    ));
+}
+
 $k2AmigaPlayerHasVideos = amiga_player_has_videos($id, $con, $ctx);
 mysqli_close($con);
 

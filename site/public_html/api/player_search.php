@@ -2,7 +2,8 @@
 /**
  * JSON player lookup for autocomplete (realm-ready).
  *
- * GET: q (required, min 2 chars), realm (online | amiga | all; default online), limit (default 15, max 30)
+ * GET: q (required, min 2 chars), realm (online | amiga | all; default online), limit (default 15, max 30),
+ *      as (Amiga time travel: only players rated by that date, with their rating then)
  * online / amiga: single-database substring match on Name (LIKE), case-insensitive per collation.
  * all: both databases merged, sorted by name, capped at limit.
  */
@@ -57,13 +58,22 @@ function ko2_escape_like($s)
  */
 function ko2_player_search_rows(mysqli $con, string $pattern, int $limit, string $realmId): array
 {
+    $types = 'si';
+    $params = [$pattern, $limit];
     if ($realmId === 'amiga') {
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_player_current_lib.php';
-        $careerTable = amiga_player_career_table($con);
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_lb_snapshot_lib.php';
         $where = 'p.name IS NOT NULL AND p.name <> \'\' AND LOWER(p.name) LIKE LOWER(?) ESCAPE \'\\\\\'';
+        $ctx = amiga_snapshot_context_from_request($con);
+        $cutoff = $ctx->isActive() ? $ctx->cutoff() : null;
+        if ($cutoff !== null) {
+            $fromSql = amiga_lb_snapshot_from_sql('s');
+            $types = 'sdisi';
+            $params = [$cutoff['event_date'], $cutoff['chrono'], $cutoff['tournament_id'], $pattern, $limit];
+        } else {
+            $fromSql = 'FROM amiga_players p LEFT JOIN `' . amiga_player_career_table($con) . '` s ON s.player_id = p.id';
+        }
         $sql = 'SELECT p.id AS ID, p.name AS Name, ROUND(COALESCE(s.Rating, 1600)) AS ratingRounded '
-            . 'FROM amiga_players p LEFT JOIN `' . $careerTable . '` s ON s.player_id = p.id WHERE '
-            . $where . ' ORDER BY p.name ASC LIMIT ?';
+            . $fromSql . ' WHERE ' . $where . ' ORDER BY p.name ASC LIMIT ?';
     } else {
         $where = 'Name IS NOT NULL AND Name <> \'\' AND LOWER(Name) LIKE LOWER(?) ESCAPE \'\\\\\'';
         $sql = 'SELECT ID, Name, ROUND(COALESCE(Rating, 1600)) AS ratingRounded FROM playertable WHERE '
@@ -75,7 +85,7 @@ function ko2_player_search_rows(mysqli $con, string $pattern, int $limit, string
         return [];
     }
 
-    $stmt->bind_param('si', $pattern, $limit);
+    $stmt->bind_param($types, ...$params);
     $stmt->execute();
     $res = $stmt->get_result();
 
