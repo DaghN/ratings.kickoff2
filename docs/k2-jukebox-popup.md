@@ -121,6 +121,8 @@ self-cancels on pages where `realm-switch.js` already owns the schedule).
    and is not needed.
 4. **Match the others:** 44.1 kHz stereo, 320 kbps, 0 to 0.4 s of silence before the music and 1 to 2 s after it,
    loudness (RMS) between -12 and -21 dB. Listen for a click where a recording stops abruptly.
+   Exception: the Magnetic Fields intro has its end silence cut (9.95 s), because it led straight into the game on
+   the Amiga and Super Cars II follows it in the list. The cut is at an MP3 frame boundary, so nothing was re-encoded.
 
 ## No Turbo
 
