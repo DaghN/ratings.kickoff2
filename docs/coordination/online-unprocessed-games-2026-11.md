@@ -26,6 +26,8 @@ A game counts as processed when `ratedresults.NewRatingA` is set. Read from `gam
 
 **Cause.** The block fits the website being closed because of bots (not confirmed): the calls from the game app go through the website. The game machine itself ran without a restart through those days. The cause of the four singles is unknown; a short network break between the machines is the likeliest (§2). Neither needs a fuller answer, because the new scripts recover from any missed call.
 
+**Second possible cause (2026-11-23, not confirmed).** Steve: the web server blocks an address whose requests end in errors. A failed call from the game machine gets 400, 401 or 500, so a few failures in a row may have blocked the game machine itself. Steve's block list for Oct 30 to Nov 3 can tell.
+
 ---
 
 ## 2. Where things run
@@ -120,6 +122,8 @@ Upload the new scripts first. Then games can be played meanwhile: they wait and 
 | 7 | Agent compares the live ladder with the expected ratings below |
 
 **Upload note:** live `ops/includes/ops_work_target.php` differs by 2 bytes since July 18. Compare before uploading, and never upload `ops/config/`.
+
+**Before the upload:** the game machine's address must be exempt from the web server's block (see §1). The new scripts answer 409 or 500 on a failure, and a block would stop every later call. The one-minute job (`CMD=ProcessPending`) does not go through the web server, so it would still process the games.
 
 **Before Dec 1** if possible: the November league closes Dec 1 00:00 UTC. A later recalculation still corrects it, after the medals have been shown.
 
