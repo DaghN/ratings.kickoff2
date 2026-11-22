@@ -95,14 +95,19 @@ function amiga_world_cup_host_city_from_name(string $name): ?string
 }
 
 /**
+ * Podium from event_finish_position, the canonical finish (overrides included). Raw standings cannot
+ * tell who won a level tie decided in extra time or on penalties. A shared place shows the lowest
+ * player id. Runs after the event's snapshots are written.
+ *
  * @return array{0: ?int, 1: ?int, 2: ?int}
  */
 function amiga_world_cup_load_podium_player_ids(mysqli $con, int $tournamentId): array
 {
     $sql = "
-        SELECT scope_type, scope_key, player_id, position
-        FROM amiga_tournament_standings
-        WHERE tournament_id = ?
+        SELECT event_finish_position AS place, MIN(player_id) AS player_id
+        FROM amiga_player_event_snapshots
+        WHERE tournament_id = ? AND event_finish_position IN (1, 2, 3)
+        GROUP BY event_finish_position
     ";
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
@@ -113,31 +118,13 @@ function amiga_world_cup_load_podium_player_ids(mysqli $con, int $tournamentId):
         throw new RuntimeException('execute world cup podium: ' . $stmt->error);
     }
     $res = $stmt->get_result();
-    $rows = [];
+    $podium = [];
     while ($res && ($row = $res->fetch_assoc())) {
-        $rows[] = $row;
+        $podium[(int) $row['place']] = (int) $row['player_id'];
     }
     $stmt->close();
 
-    $finish = amiga_participation_compute_wc_podium_finish_from_standings($rows);
-    $gold = $silver = $bronze = null;
-    $bronzeCandidates = [];
-    foreach ($finish as $pid => $place) {
-        $place = (int) $place;
-        $pid = (int) $pid;
-        if ($place === 1) {
-            $gold = $pid;
-        } elseif ($place === 2) {
-            $silver = $pid;
-        } elseif ($place === 3) {
-            $bronzeCandidates[] = $pid;
-        }
-    }
-    if ($bronzeCandidates !== []) {
-        $bronze = min($bronzeCandidates);
-    }
-
-    return [$gold, $silver, $bronze];
+    return [$podium[1] ?? null, $podium[2] ?? null, $podium[3] ?? null];
 }
 
 /**

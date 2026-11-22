@@ -116,6 +116,7 @@ Covers kitchen marathons, single-phase round-robins.
 |------|--------|
 | **Podium** | Same knockout medal rules as v1 §4.2 — write **`event_finish_position` 1 / 2 / 3`** (not a separate `wc_medal` column). |
 | **Below podium** | **NULL** (holistic WC rank 4+ deferred). |
+| **`amiga_world_cup_stats` podium** | Read from `event_finish_position` (overrides included), not from raw standings, which cannot tell who won a level tie decided in extra time or on penalties. `verify-world-cup-stats` checks every World Cup (2026-11-22; World Cup XII bronze was wrong before). |
 | **Group phase** | Standings only — **never** copied to `event_finish_position`. |
 | **Kitchen / pure-league WC stamp (Jul 2026)** | Organizer can set `is_world_cup` on a kitchen marathon (`has_league=1`, `has_cup=0`). No knockout → Tier D empty. **FO9 residual:** derive may fall back to Tier C for **prefill/proposal** only. **Authority:** organizer finish confirm → Tier E — [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md). Do not extend WC finish heuristics. |
 
@@ -136,6 +137,8 @@ Covers kitchen marathons, single-phase round-robins.
 **Ops rule (Jul 2026): full ladder or none** — default for canon repair. If a tournament needs *any* Tier E row, insert **one row per entrant**. Canon repair often uses unique `1..N`; **shared places are valid ground** (derive already emits shared bronze; sparse bands share a place). Do **not** mix “derive 1–(N−1) + patch one slot” without documenting sparse exception. A full table is the canonical honours ladder in ground and survives simul without coupling to tier A–D logic.
 
 **Sparse exception (Jul 2026):** when forum evidence gives podium + one shared band only (e.g. **Milan I, id 89** — 1–4 + **=5** QF losers), insert **only** those rows. When `player_ids` is passed to `derive_event_finish_position` / `amiga_participation_derive_event_finish_position`, entrants **not** in the override table get **NULL** (not tier A–D derivation). Use `refresh-event-finish-snapshots --tournament-id N` after L3 edits. Precedent: 89, 156 (=5 / =9 bands).
+
+**The result decides (Dagh, 2026-11-22):** when a placing contradicts the result of its placement final, correct the override. Corrected that day with `scripts/oneoff/amiga_fix_placement_overrides_2026_11.py`: World Cup XXIII Milan (25) 25th Klaus Le / 26th Mick C and 27th Paolo A / 28th Matthias K; World Cup XIX Bremen (9) 11th Frank F / 12th Alessandro V. Older checkpoints and day 0 still hold the old placings: run the script after restoring one, then simul.
 
 **Verify habit:** when `COUNT(*) > 0` for a tournament, expect either `COUNT(*) = entrant_count` with unique positions `1..N`, or a documented sparse band (review queue + disposition register).
 

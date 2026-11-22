@@ -15,7 +15,7 @@ from scripts.amiga.community_game_metrics import (
     rate,
     rated_game_metrics_from_row,
 )
-from scripts.amiga.tournament_honours import compute_wc_podium_finish_from_standings, tournament_is_world_cup
+from scripts.amiga.tournament_honours import tournament_is_world_cup
 from scripts.amiga.world_cup_stats_columns import WORLD_CUP_STATS_COLUMNS
 
 
@@ -31,27 +31,21 @@ def _load_podium_player_ids(
     conn: pymysql.connections.Connection,
     tournament_id: int,
 ) -> tuple[int | None, int | None, int | None]:
+    """Podium from event_finish_position, the canonical finish (overrides included).
+
+    Raw standings cannot tell who won a level tie decided in extra time or on penalties.
+    A shared place shows the lowest player id. Runs after the event's snapshots are written.
+    """
     sql = """
-        SELECT scope_type, scope_key, player_id, position
-        FROM amiga_tournament_standings
-        WHERE tournament_id = %s
+        SELECT event_finish_position AS place, MIN(player_id) AS player_id
+        FROM amiga_player_event_snapshots
+        WHERE tournament_id = %s AND event_finish_position IN (1, 2, 3)
+        GROUP BY event_finish_position
         """
     with conn.cursor() as cur:
         cur.execute(sql, (tournament_id,))
-        rows = cur.fetchall()
-    finish = compute_wc_podium_finish_from_standings(rows)
-    gold = silver = bronze = None
-    bronze_candidates: list[int] = []
-    for pid, place in finish.items():
-        if place == 1:
-            gold = int(pid)
-        elif place == 2:
-            silver = int(pid)
-        elif place == 3:
-            bronze_candidates.append(int(pid))
-    if bronze_candidates:
-        bronze = min(bronze_candidates)
-    return gold, silver, bronze
+        podium = {int(row["place"]): int(row["player_id"]) for row in cur.fetchall()}
+    return podium.get(1), podium.get(2), podium.get(3)
 
 
 def _count_first_time_wc_players(

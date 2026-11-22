@@ -79,6 +79,26 @@ def verify_world_cup_stats(conn: pymysql.connections.Connection) -> list[str]:
             f"world cup stats rows {len(stored_ids)} != catalog WCs {len(wc_ids)}"
         )
 
+    # Podium of every World Cup (the sample below does not cover them all).
+    for medal, place in (("gold", 1), ("silver", 2), ("bronze", 3)):
+        with conn.cursor() as cur:
+            cur.execute(
+                f"""
+                SELECT w.tournament_id, w.{medal}_player_id AS stored_pid, MIN(s.player_id) AS expected_pid
+                FROM amiga_world_cup_stats w
+                LEFT JOIN amiga_player_event_snapshots s
+                  ON s.tournament_id = w.tournament_id AND s.event_finish_position = %s
+                GROUP BY w.tournament_id, w.{medal}_player_id
+                HAVING NOT (stored_pid <=> expected_pid)
+                """,
+                (place,),
+            )
+            for row in cur.fetchall():
+                errors.append(
+                    f"world cup stats {medal}_player_id tournament_id={row['tournament_id']} "
+                    f"stored={row['stored_pid']!r} but place {place} is {row['expected_pid']!r}"
+                )
+
     sample = wc_ids[:3]
     if wc_ids and wc_ids[-1] not in sample:
         sample.append(wc_ids[-1])
