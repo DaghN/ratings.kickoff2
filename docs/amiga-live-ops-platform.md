@@ -19,7 +19,7 @@ The Amiga realm is **two products** that must not be conflated:
 | **Historical canon** | “Rebuild the Access lineage and prove writers still match oracle.” | **Local oracle** — frozen `ko2amiga_db`, legacy `prove`, `koatd.mdb` |
 | **Live community realm** | “Run tournaments, enter results, finalize, attach media, fix mistakes.” | **Staging** (then prod) — PHP `amiga/ops/`, `ko2amiga_db`, server disk |
 
-Today’s habit — **local `simul` on `ko2amiga_work` → `export_ko2amiga_work.ps1` → WinSCP → browser import** — replaces the old **`prove` → export** loop. That old loop made sense when staging was a **read-only mirror of local canon**. It breaks once **community members create tournaments on staging** that never existed on the laptop.
+Today’s habit — **pull → local `simul` on `ko2amiga_work` → `push_ko2amiga_to_staging.ps1`** (gated: stops if staged changed since the pull) — replaces the old **`prove` → export** loop. That old loop made sense when staging was a **read-only mirror of local canon**. It breaks once **community members create tournaments on staging** that never existed on the laptop.
 
 This document locks **three operational lanes**, **where code runs**, **timeline vs present projection** (repair semantics), **bidirectional data flow**, and **editorial media** (YouTube URLs, photos). Full `python -m scripts.amiga prove` on frozen **`ko2amiga_db`** remains the **deep oracle** for Access lineage and writer regression; it is **not** the default response to secretary mistakes, daily staging export, or live uploads.
 
@@ -180,7 +180,7 @@ Present rows are **output** of finalize, not input for the next event’s career
 ### 6.1 Push (repair shop → staging)
 
 ```text
-local simul (ko2amiga_work) → export_ko2amiga_work.ps1 → WinSCP → run_import_ko2amiga.php
+pull → local simul (ko2amiga_work) → push_ko2amiga_to_staging.ps1 -Force (after Dagh's OK; stops if staged changed since the pull)
 ```
 
 See [`amiga-staging-handoff.md`](amiga-staging-handoff.md). Staging does **not** run Python replay on import.

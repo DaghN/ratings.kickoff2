@@ -36,7 +36,7 @@ The Amiga realm adopts a **living ground database** model, matching online ladde
 | **Staging DB name** | **`ko2amiga_db`** (import target on server — same name, different machine) |
 | **Daily sign-off** | `python -m scripts.amiga simul` on work (video on by default) |
 | **DDL / schema bundles** | Edit `sql/ground|structure|derived` → **simul** on work |
-| **Push to staging** | `export_ko2amiga_work.ps1` → WinSCP → browser import |
+| **Push to staging** | `push_ko2amiga_to_staging.ps1 -Force` after Dagh's OK (export, staged-unchanged gate, upload, import, MATCH) |
 | **Forward code** | `scripts/amiga/modern/` only (**MG11** — audit: `python scripts/audit_amiga_modern_compartment.py`) |
 | **Access L0–L5 docs** | **Archived** — [`archive/amiga-access-pipeline-index.md`](archive/amiga-access-pipeline-index.md) |
 | **Community mistakes on staging** | [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) — anchored repair, not full prove |
@@ -48,7 +48,7 @@ The Amiga realm adopts a **living ground database** model, matching online ladde
 | Dagh said | Agent may run | Agent must **not** run |
 |-----------|---------------|------------------------|
 | simul / sign-off | `python -m scripts.amiga simul` | `prove`, `import-witness`, `seed-work` |
-| export / push staged | `export_ko2amiga_work.ps1` (`promote-video-deploy` → export) | `seed-work`, `simul --recreate-schema` / full `apply-structure-work` without destroy consent |
+| push staged · export only | `push_ko2amiga_to_staging.ps1 -Force` · `export_ko2amiga_work.ps1` (`promote-video-deploy` → export) | `seed-work`, `simul --recreate-schema` / full `apply-structure-work` without destroy consent |
 | fix video timestamps | Edit **shared** `data/amiga/tournament_videos/video_game_links.csv` → `align-video-work` | Edit only deploy `tournament_videos.json`; stale work sidecar; legacy `sync_db_ids` / `build_manifest` on work |
 | pull staged | `pull_ko2amiga_from_staging.ps1 -Force` | Push without reminding if staging had unstaged community ground |
 

@@ -2,7 +2,9 @@
 
 **Day-to-day only** — run commands here. Migration tracking: **`docs/UPDATE_DOCS.md`** when you or the agent run **“update docs”**. Registers: **`docs/prod-coordination.md`**.
 
-**Ladder ops (Steve, staging deploy, sim):** [`docs/ladder-ops-platform.md`](ladder-ops-platform.md) — sync **`site/public_html/`** (includes **`ops/`**); DB names in [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md).
+**Ladder ops (Steve, staging deploy, sim):** [`docs/ladder-ops-platform.md`](ladder-ops-platform.md); DB names in [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md).
+
+**Uploading to live:** upload **only the files you changed**, with a WinSCP preview first and Dagh's OK. Do not synchronize all of `site/public_html/`. **On hold since 2026-11-22:** `ops/` and `includes/league_standings.php`, until Steve has answered about the recalculation ([`coordination/online-unprocessed-games-2026-11.md`](coordination/online-unprocessed-games-2026-11.md)).
 
 **Retired dev scripts (Jun 2026):** [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) — do not use batch rebuild or Python ladder CLI for fill/sign-off.
 
@@ -19,7 +21,7 @@
 | **Frozen dev DB (`ko2unity_db`) recovery?** | Re-import May dump (`data/README.md`) — not retired batch/replay CLIs |
 | **Steve prod cutover?** | [`site/public_html/ops/docs/post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md) |
 | **Schema migrations?** | `site/public_html/ops/sql/migrations/` + `run_prepare.php migrate-work` |
-| **Amiga staging DB refresh?** | Agent **runs** `scripts\export_ko2amiga_work.ps1` when Dagh asks to export to staged → tells him **ready for sync + import** → **preview** `/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot` → enter **admin** password (POST form) → **Apply import** on `ratings.kickoff2.com` — [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
+| **Amiga staging DB refresh?** | Agent **runs** `scripts\push_ko2amiga_to_staging.ps1 -Force` after Dagh's OK: export, stop if staged changed since the last pull, upload, import, MATCH check — [`amiga-staging-handoff.md`](amiga-staging-handoff.md). Export only: `scripts\export_ko2amiga_work.ps1`; a manual import overwrites whatever was entered on staged, so pull first |
 
 ---
 
@@ -123,7 +125,7 @@ Prefer ops simul when the job is “recompute from all games in order.”
 
 ## Staging / Steve — what to sync today
 
-**Forward path:** WinSCP-sync **`site/public_html/`** (includes **`ops/`**). Work DB on staging = **`kooldb1`** — prepare + simul per [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md) and [`site/public_html/ops/docs/post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md).
+**Forward path:** upload the changed files (see **Uploading to live** at the top; `ops/` is on hold). Work DB on staging = **`kooldb1`** — prepare + simul per [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md) and [`site/public_html/ops/docs/post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md).
 
 | Task | Command / doc |
 |------|----------------|
@@ -151,9 +153,9 @@ Not online ladder ops. Local build any way you like → export snapshot → sync
 | **Oracle / Access rebuild** | `setup_ko2amiga_db.ps1` or `python -m scripts.amiga prove` on frozen **`ko2amiga_db`** — archaeology only |
 | **Export SQL (agent runs this)** | `scripts\export_ko2amiga_work.ps1` → `site/public_html/amiga/_import/ko2amiga_*.sql` (promotes work video manifest first) |
 | **Work git checkpoint** | `scripts\seal_amiga_work_checkpoint.ps1 -Label <name>` → `data/amiga/checkpoints/work-YYYY-MM-DD-<label>/` (milestone; opt-in git) — [`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md) |
-| Deploy (Dagh) | WinSCP sync `site/public_html/` |
+| Deploy | WinSCP: changed files only, preview first |
 | **Staging import (preview)** | https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot |
-| **Staging import (apply)** | same + `&apply=1` |
+| **Push (normal way)** | `scripts\push_ko2amiga_to_staging.ps1 -Force` after Dagh's OK; the preview page above is the manual fallback (password on the form) |
 | **Local import dry-run** | http://ratingskickoff.test/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot |
 
 Full handoff: [`amiga-staging-handoff.md`](amiga-staging-handoff.md) · scripts: [`scripts/amiga/README.md`](../scripts/amiga/README.md)

@@ -65,7 +65,7 @@ Amiga **community ground** is moving from “local laptop is canon, staging is a
                     └──────────────┬──────────────┘
                                    │ push
                                    ▼
-        export_ko2amiga_work.ps1 → WinSCP → browser import (full replace)
+        push_ko2amiga_to_staging.ps1 (gate, upload, import: full replace)
 ```
 
 | Step | Verb | Notes |
@@ -177,7 +177,7 @@ Passwords in `amiga/_ops/amiga_ops_password.local.php` (gitignored): **`$admin_p
 
 1. **Staged prod, local repair** — do not assign “local is ahead of staging” features without pull/push vocabulary.
 2. **Pull from staged** — Dagh says “pull staged Amiga” (or similar) → **run** `pull_ko2amiga_from_staging.ps1 -Force`; not simul unless asked.
-3. **Export to staged** — run `export_ko2amiga_work.ps1` only when work reflects the repair you intend; script regenerates + audits `staging_export_tables.json` against `schema_bundles` before dump (blocks incomplete push). Remind Dagh if staging had community activity since last pull.
+3. **Push to staged** — run `push_ko2amiga_to_staging.ps1 -Force` (after Dagh's OK) only when work reflects the repair you intend; it stops if staged changed since the last pull. Its export step (`export_ko2amiga_work.ps1`) regenerates + audits `staging_export_tables.json` against `schema_bundles` before dump (blocks incomplete push). If the gate stops, pull again and repeat the repair; never skip the gate without Dagh's explicit OK.
    - **Push to staged (live):** `push_ko2amiga_to_staging.ps1 -Force` (PUSH-1) does export, the SS-4 gate, WinSCP upload, Apply import and the verify MATCH in one go. Ask Dagh before each live push; never pass `-SkipStagedCheck` without his explicit OK.
 4. **Destructive import** — staging browser import still **wipes** unstaged ground; see handoff doc every time.
 5. **Forward authority** — [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0 for simul/work; this doc for **staging sync roles**.

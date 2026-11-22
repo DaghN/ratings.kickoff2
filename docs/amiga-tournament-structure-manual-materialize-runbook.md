@@ -159,7 +159,7 @@ python -m scripts.amiga tournament-structure verify-disposition-register
 
 ### 7. Staging (when ready)
 
-`powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_work.ps1` → WinSCP → import preview/apply. See [`amiga-staging-handoff.md`](amiga-staging-handoff.md).
+`powershell -ExecutionPolicy Bypass -File scripts\push_ko2amiga_to_staging.ps1 -Force`, after Dagh's OK (gated push). See [`amiga-staging-handoff.md`](amiga-staging-handoff.md).
 
 ---
 

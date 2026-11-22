@@ -64,7 +64,7 @@ migrate-work → seed-catalog → zero-derived → run_ops_sim.php → run_verif
 
 Executed checklist (details in post-dagh-live-story — keep as historical / future-packet shape):
 
-1. WinSCP sync `public_html/` incl. `ops/`
+1. WinSCP sync `public_html/` incl. `ops/` (done 2026-07-18; **do not repeat**: `ops/` is on hold since 2026-11-22)
 2. `work-targets.ini` on server
 3. On chosen DB (prod copy first, then live): **migrate-work → seed-catalog → zero-derived**
 4. **run_ops_sim.php run** → **run_verify_ops_sim.php**

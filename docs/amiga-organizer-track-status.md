@@ -14,7 +14,7 @@
 |----------|----------------------------|
 | **Organizer** | Create kitchen league → Play results → Table + finish confirm → **Make official**; optional Hide; newcomer player create; mid-history Finish when later tips exist (Case C insert, loud confirm + auto repair). |
 | **Admin** | Full import/export; **Backup now** + **Restore** from `_backups/`; delete unfinalized junk (Case A); delete tip finalized (Case B); delete mid-history finalized M with forward repair (Case C delete). Auto-seal after tip-changing success (BA2). |
-| **Dagh (local)** | `ko2amiga_work` repair shop; `export_ko2amiga_work.ps1` → WinSCP → staged import; side-pull compare `-TargetDatabase ko2amiga_staging_cmp`. |
+| **Dagh (local)** | `ko2amiga_work` repair shop; `push_ko2amiga_to_staging.ps1` (gated push); side-pull compare `-TargetDatabase ko2amiga_staging_cmp`. |
 
 **Not claimed:** browser cup creation (Ref-Cup-A), Lane C media uploads, per-tournament ground packs (L6), demotion flags, staging-native verify suite.
 

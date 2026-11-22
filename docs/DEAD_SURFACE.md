@@ -56,7 +56,7 @@ Full-corpus audit (`scripts/audit_theme_css_dead_tokens.py`: every class/custom-
 | `player-feast-sections.css` — `.pm3-rivalry-teaser*` | Rivalry placeholder removed from profile (Jun 2026) |
 | `theme.css` — `.k2-status-bridge*` | Status room grid iteration leftover; markup uses `k2-status-room` panels |
 
-**Deploy:** WinSCP sync `site/public_html/` (JS deletes, `status-realm-lab.php`, `theme.css`). Hard refresh.
+**Deploy (done):** WinSCP, the files of that slice (JS deletes, `status-realm-lab.php`, `theme.css`). Hard refresh.
 
 ---
 

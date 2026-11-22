@@ -196,13 +196,11 @@ powershell -ExecutionPolicy Bypass -File scripts\export_ko2amiga_work.ps1
 
 Derived write policy: [`docs/amiga-derived-write-policy.md`](../../docs/amiga-derived-write-policy.md). Forward sign-off = **simul** on work.
 
-Export writes part files + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). **38 parts** (Jun 2026-26): ground + structure through games/ratings chunks, then derived tail — snapshots, current, elo rank, matchup at-event, standings, catalog, matchup summary, generalstats, realm snapshots, community stats (+ snapshots + facts), world cup stats, player slice (+ at-event), **country slice (+ at-event)**. Audit: `python scripts/oneoff/audit_ko2amiga_export_tables.py`. Sync all of `_import/` via WinSCP.
+Export writes part files + `ko2amiga_manifest.json` under `site/public_html/amiga/_import/` (plus optional full `ko2amiga_db.sql`). **38 parts** (Jun 2026-26): ground + structure through games/ratings chunks, then derived tail — snapshots, current, elo rank, matchup at-event, standings, catalog, matchup summary, generalstats, realm snapshots, community stats (+ snapshots + facts), world cup stats, player slice (+ at-event), **country slice (+ at-event)**. Audit: `python scripts/oneoff/audit_ko2amiga_export_tables.py`. 
 
-**Staging refresh:** WinSCP sync `public_html/`, then browser import (verified Jun 2026, A2 schema):
+**Staging refresh:** `scripts\push_ko2amiga_to_staging.ps1 -Force`, after Dagh's OK (export, staged-unchanged gate, upload, import, MATCH check). Manual fallback: [`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md). Type the password on the page's form; never put it in the URL.
 
-- **Preview:** `https://ratings.kickoff2.com/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=YOUR_OPS_PASSWORD` — confirm manifest part count matches export
-- **Apply:** same URL with `&apply=1&part=1` (auto-continues)
-- **Local dry-run:** `http://ratingskickoff.test/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot&pwd=YOUR_OPS_PASSWORD`
+- **Local dry-run:** `http://ratingskickoff.test/amiga/run_import_ko2amiga.php?once=ko2amiga-import-one-shot` (password form)
 
 Script: `site/public_html/amiga/run_import_ko2amiga.php` · payload: `site/public_html/amiga/_import/`
 
@@ -468,7 +466,7 @@ python -m scripts.amiga players create --name "Mark Be" --country "England"
 
 Live tournaments hub (Amiga realm tab): `/amiga/live-tournaments.php` — lists generated events; links to the tournament organizer.
 
-Internal tournament organizer / create / result entry: `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&pwd=YOUR_OPS_PASSWORD&tournament_id=N&view=fixtures` (same site chrome as the hub; default `view=fixtures` when `tournament_id` is set, else `view=setup`).
+Internal tournament organizer / create / result entry: `/amiga/ops/fixtures.php?once=amiga-fixtures-one-shot&tournament_id=N&view=fixtures` (organizer password on the form, never in the URL; same site chrome as the hub; default `view=fixtures` when `tournament_id` is set, else `view=setup`).
 
 Staging pages: `https://ratings.kickoff2.com/amiga/…` — DB config in `site/config/ko2amiga_config.local.php`; handoff [`docs/amiga-staging-handoff.md`](../../docs/amiga-staging-handoff.md).
 

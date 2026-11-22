@@ -115,7 +115,7 @@ php ops/dispatch.php CMD=ProcessCompletedGame game_id=GAME_ID target=YOUR_TARGET
 
 Use the new row’s **`id`** as `game_id`. PHP reads the row; do not pass scores on the command line.
 
-**Exit codes:** `0` OK (committed, or skipped bad row — see log) · `1` failed — retry after fix if `NewRatingA` still NULL · `2` already processed (duplicate dispatch) · `64` bad CLI.
+**Exit codes:** `0` OK (committed, or skipped bad row — see log) · `1` failed, or busy: do not process later games by hand; `CMD=ProcessPending` takes the waiting games in order, and if the same game fails again, tell Dagh · `2` already processed (duplicate dispatch) · `3` refused: later games are already processed, only a full recalculation can place this one · `64` bad CLI. (`3` and `ProcessPending` come with the November 2026 upload; until then: a failed game must be fixed before the next one is processed.)
 
 ### 2.3 UTC midnight (cron)
 
