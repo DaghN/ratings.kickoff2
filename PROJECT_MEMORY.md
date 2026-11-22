@@ -137,7 +137,7 @@
 
 2. **Amiga Tournaments hub — tournament stats wing (C14)** — metadata leaderboards (most debuts, largest field, …) beside chronological catalog; WC hub pattern. **Approved** — [`creative-ideas-july-2026.md`](docs/creative-ideas-july-2026.md) §6.4; pairs **C08** editorial on `tournament.php`; likely extend `amiga_tournament_catalog_stats` at finalize.
 
-3. **World Cup XXIV (Oslo) videos.** **Day streams done 2026-11-22** (61 games linked by timestamp). Still to do: per-match KO2CV uploads if Steve posts them, and Dagh's call on the six unmatched stream lines (probably friendlies: Nikos-Ian, Ian-JohnH, 3× SteveC-Mick, Sandro-Alessandro) ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md)).
+3. **World Cup XXIV (Oslo) videos.** **Day streams done 2026-11-22** (61 games linked by timestamp). 61 of 283 games have video, including the full final, semis, Silver final, Game of Shame and 3rd place. The six unmatched stream lines are friendlies (Dagh confirmed 2026-11-22; he checked Sandro-Alessandro). Still to do: per-match KO2CV uploads if Steve posts them, which could cover the missing quarter-finals and placings ([`amiga-tournament-videos-policy.md`](docs/amiga-tournament-videos-policy.md)).
 
 **Steve (ongoing)**
 
