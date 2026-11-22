@@ -132,13 +132,11 @@ Split of work: **we** write and upload the scripts; **Steve** runs the server, t
 > - After each game, the app calls dispatch_request.php on the web server. At midnight, cron on the web server runs FinalizeUtcDay.
 > - The old copies on the web server (kooldb, kooldb1, kooldb2) are no longer used.
 >
-> We ask because the online pages take about 19 ms per database query, while the Amiga pages take almost none. One game needs about 280 round trips, so about 5 seconds (duration_ms in the reply would show it). A full recalculation over that line would take more than 4 days, so it has to run right next to the database.
+> We ask because the online pages take about 19 ms per database query, while the Amiga pages take almost none. One game needs about 280 round trips, so about 5 seconds (duration_ms in the reply would show it). A full recalculation over that line would take more than 4 days, so it has to run next to the database, or on a copy next to the scripts.
 >
 > **Questions**
 > 1. Is that picture right? If not, which machine and database do the app, the website and our scripts use?
-> 2. Where should the recalculation run?
->    a) On the machine with the database. It needs PHP 8.1+ on the command line and two folders from us, and should take about 2½ hours, as in June on the web server. People can keep playing; their games are processed afterwards. The ladder looks unfinished meanwhile.
->    b) On a copy, then switch, if that is how you did it in July. How did you do the switch?
+> 2. How did you do the full recalculation and the switch in July, and can we do it the same way again? Running it directly on the machine with the database also works, if that is easier for you: it needs PHP 8.1+ on the command line and two folders from us, people can keep playing (their games are processed afterwards), and the ladder looks unfinished meanwhile. It should take about 2.5 hours, as in June on the web server.
 > 3. Are the live tables MyISAM? We would like InnoDB. With MyISAM, if the connection breaks halfway through a game, some tables have the game and others don't, and it can't be undone. With InnoDB the whole game is undone and simply tried again. The app needs no change.
 > 4. Does the app wait for the script's reply before play goes on? After an outage a reply can take up to about 30 seconds. If it waits, we will make the script answer at once and do the work afterwards.
 >
@@ -149,5 +147,3 @@ Split of work: **we** write and upload the scripts; **Steve** runs the server, t
 > 4. Once the new scripts are up, add this next to the midnight job, with the same target: `* * * * * cd /path/to/public_html && php ops/dispatch.php CMD=ProcessPending target=live-game`
 >
 > We upload the new scripts as usual, when you are ready. With the job in place you can close the website whenever you need to: games are then processed within a minute anyway.
->
-> If you like, our scripts could also run permanently on the machine with the database. A game would then take well under a second, and nothing would depend on the web server. Your call.
