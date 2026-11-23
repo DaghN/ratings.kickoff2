@@ -2683,10 +2683,15 @@ function amiga_tournament_knockout_bracket_data(mysqli $con, int $tournamentId, 
     }
     unset($ties);
 
+    // Same first place: the wider block is played first (Places 9-16 before Places 9-12 and 13-16).
+    $blockWidth = static fn (string $phase): int => preg_match('/^places\s+(\d+)-(\d+)$/i', trim($phase), $m) === 1
+        ? (int) $m[2] - (int) $m[1]
+        : 0;
     foreach (['main', 'placement_final', 'placement_bracket'] as $bucket) {
         usort(
             $buckets[$bucket],
             static fn (array $a, array $b): int => ($a['rank'] <=> $b['rank'])
+                ?: ($blockWidth($b['phase']) <=> $blockWidth($a['phase']))
                 ?: strcmp($a['phase'], $b['phase'])
         );
     }
