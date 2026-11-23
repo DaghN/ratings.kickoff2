@@ -733,6 +733,46 @@ function amiga_tournament_has_implicit_league_table(mysqli $con, int $tournament
 }
 
 /**
+ * League scope keys of a tournament in stored stage order (sequence_no; scopes without a stage last,
+ * then A-Z). Null when the query fails, so the caller can fall back to A-Z.
+ *
+ * @return list<string>|null
+ */
+function amiga_tournament_league_scopes_in_stage_order(mysqli $con, int $tournamentId): ?array
+{
+    try {
+        $stmt = mysqli_prepare(
+            $con,
+            'SELECT DISTINCT s.scope_key, st.sequence_no FROM amiga_tournament_standings s
+             LEFT JOIN tournament_stages st ON st.id = s.stage_id
+             WHERE s.tournament_id = ? AND s.scope_type = ?'
+        );
+        if ($stmt === false) {
+            return null;
+        }
+        $scopeType = 'league';
+        mysqli_stmt_bind_param($stmt, 'is', $tournamentId, $scopeType);
+        mysqli_stmt_execute($stmt);
+        $res = mysqli_stmt_get_result($stmt);
+        $order = [];
+        while ($res && ($row = mysqli_fetch_assoc($res))) {
+            $key = (string) $row['scope_key'];
+            $seq = $row['sequence_no'] !== null ? (int) $row['sequence_no'] : PHP_INT_MAX;
+            $order[$key] = min($order[$key] ?? PHP_INT_MAX, $seq);
+        }
+        mysqli_stmt_close($stmt);
+    } catch (Throwable $e) {
+        error_log('amiga_tournament_league_scopes_in_stage_order: ' . $e->getMessage());
+
+        return null;
+    }
+    $keys = array_map('strval', array_keys($order));
+    usort($keys, static fn (string $a, string $b): int => ($order[$a] <=> $order[$b]) ?: strcmp($a, $b));
+
+    return $keys;
+}
+
+/**
  * @return list<string>
  */
 function amiga_tournament_list_scopes(mysqli $con, int $tournamentId, string $scopeType = 'league'): array
@@ -748,34 +788,32 @@ function amiga_tournament_list_scopes(mysqli $con, int $tournamentId, string $sc
         return $cache[$cacheKey];
     }
 
-    // Groups (league scopes) in the stored stage order (World Cups: main cup first, then side cups);
-    // without a stage, or for knockout scopes, A–Z by scope key.
-    $stmt = mysqli_prepare(
-        $con,
-        $scopeType === 'league'
-            ? 'SELECT s.scope_key, MIN(st.sequence_no) AS seq FROM amiga_tournament_standings s
-               LEFT JOIN tournament_stages st ON st.id = s.stage_id
-               WHERE s.tournament_id = ? AND s.scope_type = ?
-               GROUP BY s.scope_key
-               ORDER BY seq IS NULL, seq, s.scope_key'
-            : 'SELECT DISTINCT scope_key FROM amiga_tournament_standings
-               WHERE tournament_id = ? AND scope_type = ?
-               ORDER BY scope_key'
-    );
-    if ($stmt === false) {
-        return [];
-    }
-    mysqli_stmt_bind_param($stmt, 'is', $tournamentId, $scopeType);
-    mysqli_stmt_execute($stmt);
-    $res = mysqli_stmt_get_result($stmt);
-    $keys = [];
-    if ($res) {
-        while ($row = mysqli_fetch_assoc($res)) {
-            $keys[] = (string) $row['scope_key'];
+    // Groups (league scopes) in the stored stage order (World Cups: main cup first, then side cups),
+    // sorted in PHP from a plain query (the live server refused a GROUP BY / ORDER BY form,
+    // 2026-11-23). Knockout scopes, and groups if that query fails: A-Z, as before.
+    $keys = $scopeType === 'league' ? amiga_tournament_league_scopes_in_stage_order($con, $tournamentId) : null;
+    if ($keys === null) {
+        $keys = [];
+        $stmt = mysqli_prepare(
+            $con,
+            'SELECT DISTINCT scope_key FROM amiga_tournament_standings
+             WHERE tournament_id = ? AND scope_type = ?
+             ORDER BY scope_key'
+        );
+        if ($stmt === false) {
+            return [];
         }
-        mysqli_free_result($res);
+        mysqli_stmt_bind_param($stmt, 'is', $tournamentId, $scopeType);
+        mysqli_stmt_execute($stmt);
+        $res = mysqli_stmt_get_result($stmt);
+        if ($res) {
+            while ($row = mysqli_fetch_assoc($res)) {
+                $keys[] = (string) $row['scope_key'];
+            }
+            mysqli_free_result($res);
+        }
+        mysqli_stmt_close($stmt);
     }
-    mysqli_stmt_close($stmt);
     $cache[$cacheKey] = $keys;
 
     return $cache[$cacheKey];
