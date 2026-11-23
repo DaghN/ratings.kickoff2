@@ -1031,6 +1031,14 @@ body.k2-site.k2-activity-charts .k2-chart-panel__status {
 	margin: 0 0 8px 0;
 }
 
+/* Loading line: it takes no height and sits over the empty chart frame below, so nothing moves when it goes away. */
+body.k2-site.k2-activity-charts .k2-chart-panel__status:has(+ .k2-chart-frame),
+body.k2-site .player-feast-body .k2-chart-panel__status:has(+ .k2-chart-frame) {
+	display: flow-root;
+	height: 0;
+	margin: 8px 0 0;
+}
+
 /* Amiga Activity hub — generic panel card (45 charts; no per-panel class list). */
 body.k2-site.k2-amiga-activity-charts main.k2-amiga-activity-hub > .k2-activity-section:first-child .k2-activity-section__head {
 	margin-top: 0;
