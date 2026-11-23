@@ -17,7 +17,7 @@
 1. User says **“Do SC-N”** or **“Continue scoring contract slice N”**.
 2. Agent executes **one slice** unless user asks for multiple.
 3. Run slice **Verification** before handoff.
-4. Handoff: `docs/orchestration/agent-handoffs/` or `docs/archive/orchestration/agent-handoffs/` with prefix `amiga-scoring-contract-`.
+4. Handoff: `docs/orchestration/agent-handoffs/` with prefix `amiga-scoring-contract-` (delete when the track closes; git keeps it).
 5. **Do not git commit --trailer "Co-authored-by: Cursor <cursoragent@cursor.com>"** unless user asks.
 6. Schema / writer slices: **UPDATE_DOCS** Part A + Part B when L4b DDL ships.
 

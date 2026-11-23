@@ -28,7 +28,7 @@
 1. User says **“Do slice N”** or **“Continue with the next slice”**.
 2. Agent executes **only that slice** unless user explicitly asks for multiple slices in one session.
 3. Agent runs slice **Verification** before stopping; fix failures before handoff.
-4. Agent writes handoff: `docs/archive/orchestration/agent-handoffs/2026-06-13-0XX-amiga-tournament-structure-slice-N.md` (increment `XXX` from last structure handoff; start at **001** if none exist).
+4. Agent writes handoff: `docs/orchestration/agent-handoffs/2026-06-13-0XX-amiga-tournament-structure-slice-N.md` (increment `XXX` from last structure handoff; start at **001** if none exist).
 5. At **STOP gates**, agent lists exact browser/SQL/CLI checks and **waits** for user OK.
 6. **Do not git commit** unless user asks.
 7. After slices that change stored truth: **UPDATE_DOCS** Part A; Part B when migration `023` ships (slice 1).

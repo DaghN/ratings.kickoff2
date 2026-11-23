@@ -4,7 +4,7 @@
 
 **Shorthand:** *explore → doc → plan → prompt → slices*
 
-**Handoff storage (Jun 2026):** Active review starters live in [`agent-handoffs/`](agent-handoffs/) (disposition + import split + **theme.css dead-token cleanup**). Completed slice handoffs + retired starters + browser/entrant prompts live in `../archive/orchestration/`.
+**Where the files go (Nov 2026):** while a track runs, its plan sits in `docs/` and its starter prompt and slice handoffs in `docs/orchestration/agent-handoffs/`. **When the track closes, delete the plan, the starter and the handoffs.** Git keeps them; there is no archive folder. The policy doc stays as long as the feature exists. Files removed before 2026-11-23 are at tag `archive/before-cleanup-2026-11-23` ([`amiga-history.md`](../amiga-history.md)).
 
 ---
 
@@ -106,15 +106,7 @@ Phase 4 — Slices      (execute one slice per session; handoff files)
 
 **Slice sizing:** Each slice should be verifiable in one session; end with a green check or a clear failure report.
 
-**Examples:**
-
-| Track | Plan |
-|-------|------|
-| Amiga event finish | `amiga-event-finish-implementation-plan.md` |
-| Amiga standings scope | `amiga-standings-scope-implementation-plan.md` |
-| Amiga tournament structure | [`amiga-tournament-structure-implementation-plan.md`](../amiga-tournament-structure-implementation-plan.md) |
-| Amiga player universe | `amiga-player-universe-implementation-plan.md` |
-| K2 LB SSR sort | `k2-lb-ssr-sort-implementation-plan.md` |
+**Example (open track):** [`amiga-tournament-structure-implementation-plan.md`](../amiga-tournament-structure-implementation-plan.md)
 
 ---
 
@@ -124,7 +116,7 @@ Phase 4 — Slices      (execute one slice per session; handoff files)
 
 **Location (active track):** `docs/orchestration/agent-handoffs/<topic>-STARTER-PROMPT.md`
 
-When a track **closes**, move its starter + slice handoffs to `docs/archive/orchestration/agent-handoffs/` (see `../archive/orchestration/README.md`).
+When a track **closes**, delete its starter and slice handoffs (git keeps them).
 
 **Include:**
 
@@ -137,9 +129,7 @@ When a track **closes**, move its starter + slice handoffs to `docs/archive/orch
   - **Out of scope**
   - **Environment** (DB, paths, verify/replay commands)
   - **Start command** (“Do slice 0” unless user specifies otherwise)
-- Mark **COMPLETE** at top when the track finishes (context only — do not restart migration)
-
-**Examples:** `amiga-event-finish-STARTER-PROMPT.md`, `amiga-standings-scope-STARTER-PROMPT.md`, `k2-lb-ssr-sort-STARTER-PROMPT.md`, `amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`
+- Delete it when the track finishes (see the top of this page)
 
 ---
 
@@ -149,7 +139,7 @@ When a track **closes**, move its starter + slice handoffs to `docs/archive/orch
 
 1. Execute **only** the requested slice (unless you asked for multiple).
 2. Run all **Verification** steps in the plan; fix before stopping.
-3. Write handoff: `docs/archive/orchestration/agent-handoffs/YYYY-MM-DD-NNN-<track>-slice-N.md`
+3. Write handoff: `docs/orchestration/agent-handoffs/YYYY-MM-DD-NNN-<track>-slice-N.md`
 4. At a **STOP gate:** list exact checks; **wait** for your OK.
 5. Same turn as shipping: [`UPDATE_DOCS.md`](../UPDATE_DOCS.md) **Part A**; **Part B** if stored truth / schema / `scripts/ladder/` / registers apply.
 6. **Do not git commit** unless you asked.
@@ -191,9 +181,8 @@ When a track **closes**, move its starter + slice handoffs to `docs/archive/orch
 |----------|---------|
 | Policy | `docs/<area>-<topic>-policy.md` or `docs/<area>-<topic>-rules.md` |
 | Plan | `docs/<area>-<topic>-implementation-plan.md` |
-| Starter (active) | `docs/orchestration/agent-handoffs/<area>-<topic>-STARTER-PROMPT.md` |
-| Starter / handoff (archived) | `docs/archive/orchestration/agent-handoffs/…` |
-| Handoff (per slice) | `docs/archive/orchestration/agent-handoffs/YYYY-MM-DD-NNN-<area>-<topic>-slice-N.md` |
+| Starter | `docs/orchestration/agent-handoffs/<area>-<topic>-STARTER-PROMPT.md` |
+| Handoff (per slice) | `docs/orchestration/agent-handoffs/YYYY-MM-DD-NNN-<area>-<topic>-slice-N.md` |
 
 Use a consistent `<topic>` slug across all four (e.g. `amiga-event-finish`, `rating-events`, `status-leagues-phase-2`).
 
@@ -206,7 +195,7 @@ Use a consistent `<topic>` slug across all four (e.g. `amiga-event-finish`, `rat
 - [ ] Implementation plan written (slice map + verification + STOP gates)
 - [ ] Starter prompt written (first-reply rule + copy block)
 - [ ] `PROJECT_MEMORY.md` — one line under Recent log (planning or complete)
-- [ ] Closure slice: policy status **Implemented**, starter prompt **COMPLETE**, feature-log if user-facing
+- [ ] Closure slice: policy status **Implemented**, feature-log if user-facing, then delete the plan, the starter and the handoffs
 
 ---
 
@@ -221,20 +210,9 @@ Use a consistent `<topic>` slug across all four (e.g. `amiga-event-finish`, `rat
 
 ---
 
-## Reference tracks (completed or active)
+## Earlier tracks
 
-| Track | Policy | Plan | Starter |
-|-------|--------|------|---------|
-| Amiga event finish | [`amiga-tournament-honours-rules.md`](../amiga-tournament-honours-rules.md) | `amiga-event-finish-implementation-plan.md` | `amiga-event-finish-STARTER-PROMPT.md` ✓ |
-| Amiga tournament medals v2 | [`amiga-tournament-honours-rules.md`](../amiga-tournament-honours-rules.md) v2 | `amiga-tournament-medals-unification-implementation-plan.md` | `amiga-tournament-medals-unification-STARTER-PROMPT.md` ✓ |
-| Amiga standings scope | [`amiga-standings-scope-policy.md`](../amiga-standings-scope-policy.md) | `amiga-standings-scope-implementation-plan.md` | `amiga-standings-scope-STARTER-PROMPT.md` |
-| Amiga tournament structure | [`amiga-tournament-structure-policy.md`](../amiga-tournament-structure-policy.md) | [`amiga-tournament-structure-implementation-plan.md`](../amiga-tournament-structure-implementation-plan.md) | `amiga-tournament-structure-STARTER-PROMPT.md` |
-| **Amiga organizer finish confirm (Phase A done)** | [`amiga-organizer-finish-confirm-policy.md`](../amiga-organizer-finish-confirm-policy.md) | `amiga-organizer-finish-confirm-implementation-plan.md` | `amiga-organizer-finish-confirm-STARTER-PROMPT.md` |
-| **Amiga Track L5 backup + admin delete (active)** | [`amiga-staging-backup-admin-delete-policy.md`](../amiga-staging-backup-admin-delete-policy.md) | `amiga-staging-l5-backup-delete-implementation-plan.md` | `amiga-staging-l5-backup-delete-STARTER-PROMPT.md` |
-| Amiga player universe | [`amiga-player-universe-contract.md`](../amiga-player-universe-contract.md) | `amiga-player-universe-implementation-plan.md` | `amiga-player-universe-STARTER-PROMPT.md` |
-| **Amiga disposition review (active)** | [`amiga-tournament-structure-handlers.md`](../amiga-tournament-structure-handlers.md) | [`amiga-tournament-structure-review-queue.md`](../amiga-tournament-structure-review-queue.md) | `amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md` |
-
-Online tracks have used the same handoff folder (e.g. rating-events slices, format-backbone, ops-simul work) — policy may live in a feature spec or contract section rather than a separate `*-policy.md`; the **plan + prompt + slices** shape still applies.
+Their policies stay in `docs/` (e.g. [`amiga-tournament-honours-rules.md`](../amiga-tournament-honours-rules.md), [`amiga-standings-scope-policy.md`](../amiga-standings-scope-policy.md), [`amiga-staging-backup-admin-delete-policy.md`](../amiga-staging-backup-admin-delete-policy.md)). Their plans, starters and handoffs are in git at tag `archive/before-cleanup-2026-11-23`. Online tracks used the same shape; their policy may be a section of a feature spec or contract rather than a separate `*-policy.md`.
 
 ---
 

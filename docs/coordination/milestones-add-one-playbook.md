@@ -45,7 +45,7 @@ Expect spot-check: `play_streak_100` → **100 days of bliss**.
 |------|------|
 | 1 | **Catalog** — Add object to `ops/data/milestones_definitions_seed.json` (`milestone_key`, `display_name`, `tier_band`, `chart_token`, `rule_short`, …). Bump `milestone_count`. |
 | 2 | **Garden order** — Add `milestone_key` to `site/public_html/includes/player_milestones_garden_order.php` in the right tier list. **Within a tier, list runs common → rare** (more holders first, fewer holders later). Regenerate probe: `python scripts/oneoff/milestone_unlock_counts.py --write-doc --export-seed` and read `unlock_veterans`. **0** holders → last in Legendary. **Do not** blindly append every new key after the previous add-one unless probe count is truly lowest (e.g. `year_in_heaven` = **5** holders sits with other 5s like `monthly_regular`, not after `club_10000` at 1). |
-| 3 | **Unlock SQL** — Generator → `docs/archive/batch-rebuild-sql-2026-05/` (archived repair only). **Proof on work:** ops simul, not batch splice on prod. |
+| 3 | **Unlock SQL** — Retired. The batch SQL was removed on 2026-11-23 (git tag `archive/before-cleanup-2026-11-23`). **Proof on work:** ops simul, not batch splice on prod. |
 | 4 | **Full rebuild splice** — **Retired** — update archived SQL generators only; staging/work happy path: ops simul + post-game, not batch splice. |
 | 5 | **Post-game** — Document in `docs/website-data-contract.md` § `player_milestones`; implement PHP reference (and later C++). `play_streak_100`: `k2_play_streak_maybe_unlock_milestone_100()` when day streak hits 100. |
 | 6 | **Parity** — `milestone_definitions` count = N. `COUNT(DISTINCT milestone_key)` in `player_milestones` may be **N−1** if no player has unlocked yet (ultra-rare). |
@@ -76,9 +76,9 @@ If you only need catalog + splice preview on the **dev** DB (not cutover proof):
 ```powershell
 cd "C:\Users\daghn\Desktop\Online and Amiga 500 ELO"
 python scripts/oneoff/load_milestone_definitions.py
-# Apply the new splice SQL (example: year_in_heaven)
-& "C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe" -u root ko2unity_db -e "source C:/Users/daghn/Desktop/Online and Amiga 500 ELO/docs/archive/batch-rebuild-sql-2026-05/player_milestones_rebuild_year_in_heaven.sql"
 ```
+
+The unlocks themselves come from a work DB simul; the old splice SQL is gone.
 
 Hard-refresh (`Ctrl+F5`). **Alternative:** re-import dev dump or use work DB simul — not retired batch PS1.
 

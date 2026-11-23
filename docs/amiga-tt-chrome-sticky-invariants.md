@@ -30,7 +30,7 @@ This register holds **symptoms only**. When you work methodically — one failur
 | **Slice plan** | `docs/amiga-tt-chrome-dock-implementation-plan.md` *(not written yet)* | Slice goals, verification steps, STOP gates — the **todo list** for implementation |
 | **Per-slice record** | `docs/orchestration/agent-handoffs/YYYY-MM-DD-NNN-tt-chrome-sticky-slice-N.md` | **After each slice:** what you tried, **verified cause**, **verified fix**, files changed, smoke results. One slice = one problem (or one coherent slice from the plan). |
 | **Session log** | `PROJECT_MEMORY.md` | One-line “slice N shipped / failure F3 addressed” |
-| **When track ships** | Handoffs move to `docs/archive/orchestration/agent-handoffs/` | Same files; archived for history |
+| **When track ships** | Delete the plan and the handoffs | Git keeps them |
 
 **Workflow example**
 
