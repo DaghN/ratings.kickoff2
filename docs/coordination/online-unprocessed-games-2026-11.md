@@ -45,6 +45,7 @@ A game counts as processed when `ratedresults.NewRatingA` is set. Read from `gam
 | The databases use MyISAM | Steve, 2026-11-23 |
 | One machine runs PHP 8.6.0 | Steve, 2026-11-23; which one was not said. Our `ops` scripts use none of the functions that PHP 8.4 and 8.5 gave up; 8.6 itself is not tested (local: 8.3.30) |
 | The website's database settings file was last changed June 4 | File date. Not explained: it does not fit a switch on July 18 |
+| **That settings file names `kooldb1` on the web server itself** (`localhost`), not a database on joshua | Read over SFTP 2026-11-23. It contradicts the two rows above about the 19 ms line. If it holds, the live online data is `kooldb1` on the web server, and a recalculation can run there directly (§4 way A on the web server). Steve to confirm |
 
 **Not known, Steve to confirm:** the machine and name of the live database, how the July switch was done, and whether the old copies on the web server are still used.
 
