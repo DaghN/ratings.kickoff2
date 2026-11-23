@@ -488,10 +488,10 @@ body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option-
 }
 
 /* Looks being tried (?card=c1 … c5 on a local site, Dagh 2026-11-23). 1: win colour, loser dimmed.
-   2–5: loser's name not dimmed; 2 grey goals, winning goal bold; 3 winning goal in the tint, losing goal grey;
+   2–5: loser's name dimmed less (0.8); 2 grey goals, winning goal bold; 3 winning goal in the tint, losing goal grey;
    4 both goals in the tint, winning goal bold; 5 grey goals, winning goal bright and bold. */
 body.k2-site .k2-amiga-tie:not(.k2-amiga-tie--look-1) .k2-amiga-tie__name.is-loser a {
-	opacity: 1;
+	opacity: 0.8;
 }
 
 body.k2-site .k2-amiga-tie--look-2 .k2-status-score,
