@@ -10,6 +10,6 @@
 
 **L1** (full Access mirror) and **L2** (pruned dump) are separate export pipeline artefacts — not these folders.
 
-Flat files in this directory remain for archaeology and are **not applied**; each starts with a line naming the file in use (12 of them differ from their twin in a bundle folder). Only `002_tournament_standings.sql` and `003_knockout_scope.sql` are still read, by the frozen legacy import. **New DDL → ground/structure/derived bundle only** — applied by `python -m scripts.amiga prove` (`apply_schema_*` in `schema_bundles.py`).
+Only two flat files remain here: `002_tournament_standings.sql` and `003_knockout_scope.sql`, read by the Access import (`import_access.py`, kept as a repair tool). The other flat copies were removed on 2026-11-23 (git tag `archive/before-cleanup-2026-11-23`). **New DDL → ground/structure/derived bundle only** — applied by simul (and by `prove` on the frozen copy) through `apply_schema_*` in `schema_bundles.py`.
 
 Policy: [`docs/amiga-ground-layers-policy.md`](../../../docs/amiga-ground-layers-policy.md) · stack intent: [`docs/amiga-ground-stack.md`](../../../docs/amiga-ground-stack.md)

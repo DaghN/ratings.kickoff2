@@ -1,2 +1,0 @@
--- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/019_tournament_finish_override.sql (its content differs from this copy).
--- Relocated to L3 ground bundle (Jun 2026): sql/ground/002_tournament_finish_override.sql

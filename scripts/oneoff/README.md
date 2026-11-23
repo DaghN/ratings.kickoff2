@@ -56,7 +56,6 @@ Copy `_template.py` for new Steve one-offs → register as OO-00x.
 **Reports / probes**
 
 - `player_name_renames_report.php` — rename inventory (audit-only)
-- `h2h_scoreline_levels_probe.php`, `analyze_rr_equal_games.py`, `analyze_tier_c_ratios.py`, `inspect_stoke_158.py` — ad-hoc probes; safe to delete after grep if spent
 
 ---
 
