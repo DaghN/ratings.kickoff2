@@ -145,8 +145,8 @@ body.k2-site .k2-table--tournament-videos-extras tbody tr.is-active {
 body.k2-site .k2-tournament-videos__play-btn {
 	display: inline-grid;
 	place-items: center;
-	width: 1.75rem;
-	height: 1.75rem;
+	width: 1.25rem;
+	height: 1.25rem;
 	padding: 0;
 	border: 1px solid color-mix(in srgb, var(--k2-accent) 45%, var(--k2-border-subtle));
 	border-radius: 999px;
@@ -169,8 +169,8 @@ body.k2-site .k2-tournament-videos__play-glyph {
 }
 
 body.k2-site .k2-tournament-videos__play-glyph svg {
-	width: 14px;
-	height: 14px;
+	width: 11px;
+	height: 11px;
 	margin-left: 1px;
 }
 
