@@ -62,7 +62,7 @@ Removed from `python -m scripts.amiga` — they bypassed tournament-order finali
 | `performance-rating-rebuild` | Bulk `performance_rating` backfill |
 | `rebuild-event-snapshots` | Bulk event snapshots + current |
 
-Historical context: [`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md) (reopen/refinalize + `verify-php-finalize-parity` retired same era).
+Historical context: `archive/retired-amiga-refinalize-2026-06.md` (reopen/refinalize + `verify-php-finalize-parity` retired same era).
 
 **Do not add** `community-stats-rebuild` or similar batch writers.
 
@@ -89,4 +89,4 @@ These touch **one tournament** or **structure**, not cumulative derived repair a
 
 **Live docs sweep (Jun 2026):** Authority specs + implementation plans updated; `docs/archive/**` left as historical slice context.
 
-*See also:* [`amiga-community-stats-implementation-plan.md`](amiga-community-stats-implementation-plan.md) § Phase 2 (verify hygiene before new grains)
+*See also:* `amiga-community-stats-implementation-plan.md` § Phase 2 (verify hygiene before new grains)

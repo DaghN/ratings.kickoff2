@@ -273,7 +273,7 @@ python -m scripts.amiga verify-tournament-formats
 # Reports: 6 templates, all implemented
 ```
 
-Extension contract: [`docs/amiga-tournament-format-vision.md`](../../docs/amiga-tournament-format-vision.md) §9 · Swiss checklist: [`docs/amiga-format-add-swiss-checklist.md`](../../docs/amiga-format-add-swiss-checklist.md)
+Extension contract: `docs/amiga-tournament-format-vision.md` §9 · Swiss checklist: [`docs/amiga-format-add-swiss-checklist.md`](../../docs/amiga-format-add-swiss-checklist.md)
 
 **Player universe derived tables** (snapshots, current, H2H, server records — contract [`amiga-player-universe-contract.md`](../../docs/amiga-player-universe-contract.md)):
 
@@ -476,6 +476,6 @@ Profile template: [`docs/amiga-profile-v0.md`](../../docs/amiga-profile-v0.md)
 
 - **Import layer:** [`docs/amiga-import-layer.md`](../../docs/amiga-import-layer.md) — archival → ground truth, catalog overrides, supplemental Scores (e.g. Rodenbach II), manifest
 - **Data contract:** [`docs/amiga-data-contract.md`](../../docs/amiga-data-contract.md) — ground / derived / reference layers; **match streaks are not product truth** (§ Match streaks)
-- **Player universe:** [`docs/amiga-player-universe-contract.md`](../../docs/amiga-player-universe-contract.md) · plan [`docs/amiga-player-universe-implementation-plan.md`](../../docs/amiga-player-universe-implementation-plan.md)
+- **Player universe:** [`docs/amiga-player-universe-contract.md`](../../docs/amiga-player-universe-contract.md) · plan `docs/amiga-player-universe-implementation-plan.md`
 - Discovery write-up: [`docs/amiga-schema-discovery.md`](../../docs/amiga-schema-discovery.md)
 - Source layout: [`data/amiga/README.md`](../../data/amiga/README.md)

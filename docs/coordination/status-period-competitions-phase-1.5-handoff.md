@@ -5,5 +5,5 @@
 | Need | Doc |
 |------|-----|
 | Live spec | [`../status-period-competitions.md`](../status-period-competitions.md) |
-| Implementation diary (archive) | [`../archive/status-period-competitions-wip.md`](../archive/status-period-competitions-wip.md) |
-| Full archived handoff (historical) | [`../archive/status-period-competitions-phase-1.5-handoff.md`](../archive/status-period-competitions-phase-1.5-handoff.md) |
+| Implementation diary (archive) | `../archive/status-period-competitions-wip.md` |
+| Full archived handoff (historical) | `../archive/status-period-competitions-phase-1.5-handoff.md` |

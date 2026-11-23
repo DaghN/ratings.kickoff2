@@ -3,7 +3,7 @@
 **Status:** **Proven on `kooldb1` (Jun 2026).** Ops + UI shipped; Steve full bootstrap + simul + `run_verify_ops_sim` **0 fail** (participation, play-streak HoF, SCH-025 reached_at oracle). **Live cutover** = Steve layer C when scheduled. **HoF:** month/year play-streak rows + participation block shipped.
 **Realm:** Online only (`ko2unity_*` / `kooldb*`) — Amiga defers per [`amiga-realm-vision.md`](amiga-realm-vision.md).  
 **Authority:** Product + ops decisions here; table behaviour merges into [`website-data-contract.md`](website-data-contract.md) at track closure.  
-**Implementation:** [`activity-wing-stored-truth-implementation-plan.md`](activity-wing-stored-truth-implementation-plan.md)
+**Implementation:** `activity-wing-stored-truth-implementation-plan.md`
 
 ---
 

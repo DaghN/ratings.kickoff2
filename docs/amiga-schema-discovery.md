@@ -184,7 +184,7 @@ Access stores **no game timestamp**. **Import sort key** (see [`amiga-data-contr
 
 Global `Scores.ID` alone is **mostly** chronological but **not sufficient** (tournaments overlap; IDs span 20+ years).
 
-> **Supersedes Phase A1:** chrono-first import order and per-tournament midnight reset — see [`amiga-chronology-fix-plan.md`](amiga-chronology-fix-plan.md).
+> **Supersedes Phase A1:** chrono-first import order and per-tournament midnight reset — see `amiga-chronology-fix-plan.md`.
 
 ---
 

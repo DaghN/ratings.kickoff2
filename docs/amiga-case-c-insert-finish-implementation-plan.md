@@ -4,9 +4,9 @@
 
 **Policy:** [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) **AD7** · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) §7.3.1 · [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) §6.7.
 
-**Parents:** [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) (Case C delete — **Complete**) · [`amiga-php-finalize-parity-protocol.md`](amiga-php-finalize-parity-protocol.md) · [`amiga-player-inverse-count-timeline-policy.md`](amiga-player-inverse-count-timeline-policy.md) §5.3 (inverse seed).
+**Parents:** `amiga-staging-l5-backup-delete-implementation-plan.md` (Case C delete — **Complete**) · [`amiga-php-finalize-parity-protocol.md`](amiga-php-finalize-parity-protocol.md) · [`amiga-player-inverse-count-timeline-policy.md`](amiga-player-inverse-count-timeline-policy.md) §5.3 (inverse seed).
 
-**Starter:** [`orchestration/agent-handoffs/amiga-case-c-insert-finish-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-case-c-insert-finish-STARTER-PROMPT.md).
+**Starter:** `orchestration/agent-handoffs/amiga-case-c-insert-finish-STARTER-PROMPT.md`.
 
 ---
 
@@ -245,7 +245,7 @@ Replay Jul 23 Case C delete scenario **in reverse**:
 
 ### 6.5 Proof doc
 
-Record runs in new section of [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md) **Phase D — Case C insert** (or sibling `amiga-case-c-insert-finish-test-plan.md` if Dagh prefers split).
+Record runs in new section of `amiga-export-inverse-roundtrip-test-plan.md` **Phase D — Case C insert** (or sibling `amiga-case-c-insert-finish-test-plan.md` if Dagh prefers split).
 
 ---
 

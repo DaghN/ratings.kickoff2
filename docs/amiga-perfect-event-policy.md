@@ -231,7 +231,7 @@ Update `generalstats_columns.py`, `server_records.py`, `realm_incremental.py`, `
 | **5** | UI: WC honours Perfect column (read path §4.6) |
 | **6** | UI: catalog + player tournament filters/badges; profile (optional) |
 
-**Implementation plan:** [`amiga-perfect-event-implementation-plan.md`](amiga-perfect-event-implementation-plan.md)
+**Implementation plan:** `amiga-perfect-event-implementation-plan.md`
 
 ---
 

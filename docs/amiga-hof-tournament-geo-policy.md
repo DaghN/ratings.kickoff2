@@ -1,7 +1,7 @@
 # Amiga HoF — tournament, calendar-year, and geography records
 
 **Status:** Implemented (Jun 2026)  
-**Implementation plan:** [`amiga-hof-tournament-geo-implementation-plan.md`](amiga-hof-tournament-geo-implementation-plan.md)  
+**Implementation plan:** `amiga-hof-tournament-geo-implementation-plan.md`  
 **Parent:** [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.3
 
 ---

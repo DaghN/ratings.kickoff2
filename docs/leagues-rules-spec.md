@@ -1,6 +1,6 @@
 # Leagues — rules & data contract (signed decisions)
 
-**Status:** Rules locked for implementation (May 2026). Supersedes informal medal notes in archived [`status-period-competitions-wip.md`](archive/status-period-competitions-wip.md) for **ordering and persistence**.
+**Status:** Rules locked for implementation (May 2026). Supersedes informal medal notes in archived `status-period-competitions-wip.md` for **ordering and persistence**.
 
 **Related:** [`leagues-project.md`](leagues-project.md) (phase tracker) · [`website-data-contract.md`](website-data-contract.md) (tables, rebuild, periodic job) · [`status-period-competitions.md`](status-period-competitions.md) (Status UI)
 

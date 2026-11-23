@@ -7,7 +7,7 @@
 
 **Authority:** This doc owns **standings scope taxonomy** and **primary league standings resolution** for honours. **Tournament viewer / knockout display end state:** [`amiga-tournament-structure-display-policy.md`](amiga-tournament-structure-display-policy.md). **Scoring contract / executor:** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md) (`scope_type` ≠ scoring primitive). Event finish tiers: [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md). Table grain and participation: [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5. Phase derivation rules: [`amiga-data-contract.md`](amiga-data-contract.md) § Tournament standings.
 
-**Implementation:** [`amiga-standings-scope-implementation-plan.md`](amiga-standings-scope-implementation-plan.md) · starter: [`archive/orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md`](archive/orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md)
+**Implementation:** `amiga-standings-scope-implementation-plan.md` · starter: `archive/orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md`
 
 **History:** Track B introduced `scope_type` enum `overall` | `group` | `placement` | `knockout`. Access `Scores.Phase` NULL mapped to `overall`; any labeled round-robin phase mapped to `group` — including single-phase leagues like `League Stage` (Athens XCI) while NULL-phase marathons (Athens XCII) stayed `overall`. Same product primitive, two stored types. Jun 2026 event-finish migration retired `overall_position` on participation but left standings `overall`, worsening vocabulary collision.
 
@@ -152,5 +152,5 @@ Fresh-install DDL files (`002_tournament_standings.sql`, `004_tournament_catalog
 
 ## Related
 
-- Format vision (empirical league/cup): [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) §3.4
+- Format vision (empirical league/cup): `amiga-tournament-format-vision.md` §3.4
 - Event finish (complete): [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md)

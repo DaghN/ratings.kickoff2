@@ -2,7 +2,7 @@
 
 > **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
 
-**Status:** **Implemented** (v2, Jun 2026) — track complete locally — [`amiga-tournament-medals-unification-implementation-plan.md`](amiga-tournament-medals-unification-implementation-plan.md) · starter [`archive/orchestration/agent-handoffs/amiga-tournament-medals-unification-STARTER-PROMPT.md`](archive/orchestration/agent-handoffs/amiga-tournament-medals-unification-STARTER-PROMPT.md) ✓
+**Status:** **Implemented** (v2, Jun 2026) — track complete locally — `amiga-tournament-medals-unification-implementation-plan.md` · starter `archive/orchestration/agent-handoffs/amiga-tournament-medals-unification-STARTER-PROMPT.md` ✓
 
 **Purpose:** One **tournament** universe. Holistic finish (`event_finish_position`) is canonical for every event including World Cups. Career honours = medal + podium counts over all tournaments, with **World Cup** counters as a **subset filter** — not a parallel event type.
 
@@ -14,7 +14,7 @@
 
 | Version | When | Summary |
 |---------|------|---------|
-| **v1** | Jun 2026 | Event finish migration complete — [`amiga-event-finish-implementation-plan.md`](amiga-event-finish-implementation-plan.md). Dual encoding: WC `wc_medal` + NULL `event_finish_position`; `cup_*` career rollups. |
+| **v1** | Jun 2026 | Event finish migration complete — `amiga-event-finish-implementation-plan.md`. Dual encoding: WC `wc_medal` + NULL `event_finish_position`; `cup_*` career rollups. |
 | **v2** | Jun 2026 | **Unified finish** — WC podium → `event_finish_position` 1/2/3; drop `cup_*`; `event_*` + `wc_*` medal/podium totals; drop `wc_medal` column. **Supersedes v1 §4 and event-finish locked decisions E6–E9.** |
 
 **Pre–v1 history:** Legacy `overall_position` overloaded phase ranks; dropped migration `018`.
@@ -210,8 +210,8 @@ Points / `event_points` suffix rules unchanged (contract §5.2.1).
 
 | Track | Doc |
 |-------|-----|
-| **v1 (complete)** | [`amiga-event-finish-implementation-plan.md`](amiga-event-finish-implementation-plan.md) |
-| **v2 (complete)** | [`amiga-tournament-medals-unification-implementation-plan.md`](amiga-tournament-medals-unification-implementation-plan.md) |
+| **v1 (complete)** | `amiga-event-finish-implementation-plan.md` |
+| **v2 (complete)** | `amiga-tournament-medals-unification-implementation-plan.md` |
 
 **v2 migrations:**
 
@@ -248,7 +248,7 @@ Points / `event_points` suffix rules unchanged (contract §5.2.1).
 | `cup_gold/silver/bronze` | `event_gold/silver/bronze` |
 | Column `podiums` | `event_podiums` + `wc_podiums` |
 
-Event-finish locked **E6–E9** in [`amiga-event-finish-implementation-plan.md`](amiga-event-finish-implementation-plan.md) are **superseded** by **M3–M9** above.
+Event-finish locked **E6–E9** in `amiga-event-finish-implementation-plan.md` are **superseded** by **M3–M9** above.
 
 ---
 

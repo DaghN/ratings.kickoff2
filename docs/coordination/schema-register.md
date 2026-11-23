@@ -23,7 +23,7 @@ php site/public_html/ops/run_prepare.php migrate-work --target local-work
 | SCH-005 | `004_status_performance_and_monthly_league.sql` | `ratedresults.Date` index + legacy monthly table | Yes | **Done** | **Done (2026-07-18)** | Monthly table removed SCH-017 |
 | SCH-006 | `005_period_activity_week_and_peaks.sql` | Week rows + `player_peak_period_games` | Yes | **Done** (simul) | **Done (2026-07-18)** | |
 | SCH-007 | `006_server_daily_activity.sql` | `server_daily_activity` | Yes | **Done** (simul) | **Done (2026-07-18)** | |
-| SCH-008 | `007_stored_truth_expansion.sql` | Five aggregate tables | Yes | **Done** (simul) | **Done (2026-07-18)** | Milestone counts: [`../archive/replay-register-2026-05.md`](../archive/replay-register-2026-05.md) |
+| SCH-008 | `007_stored_truth_expansion.sql` | Five aggregate tables | Yes | **Done** (simul) | **Done (2026-07-18)** | Milestone counts: `../archive/replay-register-2026-05.md` |
 | SCH-009 | `008_league_period_awards.sql` | League awards tables | Yes | **Done** (simul) | **Done (2026-07-18)** | Honours: `leaderboards/league-honours.php` proven on `kooldb1` |
 | SCH-010 | `009_player_league_slice_totals.sql` | Slice totals | Yes | **Done** (simul) | **Done (2026-07-18)** | |
 | SCH-011 | `010_milestone_definitions.sql` | Catalog table | Yes | **Done** (seed-catalog) | **Done (2026-07-18)** | **112** keys in seed Jun 2026 |

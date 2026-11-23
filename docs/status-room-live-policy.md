@@ -4,7 +4,7 @@
 
 **Authority:** Product + [`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md). Dagh's latest chat wins on scope. Visual glow defers to [`design-direction.md`](design-direction.md) accent tokens.
 
-**For agents:** read this before adding Status live polling, pulse APIs, or lobby glow. Implementation slices: [`status-room-live-implementation-plan.md`](status-room-live-implementation-plan.md).
+**For agents:** read this before adding Status live polling, pulse APIs, or lobby glow. Implementation slices: `status-room-live-implementation-plan.md`.
 
 **Pointers:** [`status-period-competitions.md`](status-period-competitions.md) · [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md) (**live environment simulation** — login, register, games; work harness) · [`k2-jukebox-popup.md`](k2-jukebox-popup.md) (glow reference) · [`k2-page-boot.js`](../site/public_html/js/k2-page-boot.js) (`k2OnPageReady`)
 

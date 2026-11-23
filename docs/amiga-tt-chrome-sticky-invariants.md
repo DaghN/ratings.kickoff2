@@ -1,6 +1,6 @@
 # Amiga TT chrome sticky — known failures register
 
-**Status:** **Closed for JS pin attempt (Jul 2026)** — sticky **v1 shipped** (CSS `position:sticky`). Rows F1–F17 below are **historical symptoms** from the reverted JS `position:fixed` + pin track; **closed** per [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md). Re-open only if the **same symptom** recurs on v1.
+**Status:** **Closed for JS pin attempt (Jul 2026)** — sticky **v1 shipped** (CSS `position:sticky`). Rows F1–F17 below are **historical symptoms** from the reverted JS `position:fixed` + pin track; **closed** per `2026-07-04-018`. Re-open only if the **same symptom** recurs on v1.
 
 **Policy (product intent):** [`amiga-tt-chrome-dock-policy.md`](amiga-tt-chrome-dock-policy.md) — CD1–CD10, terminology **§2.4** (**sticky on/off**, **in flow**, **stuck**).
 
@@ -40,7 +40,7 @@ This register holds **symptoms only**. When you work methodically — one failur
 4. In this register, add under F1: `**Resolved:** [link to handoff]` — still no cause/fix text here, just the link.
 5. If the fix changes product rules, update **policy** CD rows; if it changes how slices run, update the **implementation plan**.
 
-Until sticky v1 shipped, there was **no** verified cause/fix doc for TT sticky — only this symptom list and the policy. **Jul 2026:** v1 handoff [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) closes F1–F17 from the JS pin attempt.
+Until sticky v1 shipped, there was **no** verified cause/fix doc for TT sticky — only this symptom list and the policy. **Jul 2026:** v1 handoff `2026-07-04-018` closes F1–F17 from the JS pin attempt.
 
 Convention: [`agent-track-playbook.md`](orchestration/agent-track-playbook.md) Phase 4 (slice handoffs).
 
@@ -89,7 +89,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **What you see** | After chevron or picker navigation, the ribbon is visible first; the temporal stamp appears a moment later (pop-in). |
 | **Try to reproduce** | Rating LB with `as=` — scroll mid-page → chevron step → watch stamp + ribbon on uncloak. |
 | **Touchpoints** | Carry-scroll, chrome markup, stamp render |
-| **Resolved** | **Closed 2026-07-04** — F6 baseline + stamp eval-time init; CSS sticky v1 does not reorder chrome — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Closed 2026-07-04** — F6 baseline + stamp eval-time init; CSS sticky v1 does not reorder chrome — `2026-07-04-018` |
 
 ### F2 — Stamp or ribbon unstable after chrome reorder
 
@@ -98,7 +98,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **What you see** | Stamp blink, missing stamp behaviour, or broken stepper/carry after changing stamp vs ribbon order without a coordinated pass. |
 | **Try to reproduce** | Jul 2026 order-swap experiment pattern: reorder chrome in `.k2-page-nav` only → chevron + toggle entry smoke. |
 | **Touchpoints** | `amiga_snapshot_chrome.php`, `theme.css`, stamp script placement |
-| **Resolved** | **Closed 2026-07-04** — chrome order unchanged (stamp → ribbon); CSS sticky v1 — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Closed 2026-07-04** — chrome order unchanged (stamp → ribbon); CSS sticky v1 — `2026-07-04-018` |
 
 ### F3 — Ribbon vertical flash on navigation (before settled)
 
@@ -107,7 +107,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **What you see** | Full-page nav shows the ribbon briefly at the wrong vertical position, then it snaps to the expected **stuck** or **in flow** place. |
 | **Try to reproduce** | Scroll until ribbon should be **stuck** → chevron → watch first frames after load. |
 | **Touchpoints** | Head boot, pin JS, carry-scroll |
-| **Resolved** | **Closed 2026-07-04** — JS pin removed; CSS sticky + carry-scroll restore (local chevron-from-stuck smoke) — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Closed 2026-07-04** — JS pin removed; CSS sticky + carry-scroll restore (local chevron-from-stuck smoke) — `2026-07-04-018` |
 
 ### F4 — Ribbon wrong position when leaving page **stuck** at viewport top
 
@@ -116,7 +116,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **What you see** | User scrolled until header was gone and ribbon sat at viewport top; chevron nav flashes ribbon under the header or in-flow, then jumps to viewport top. |
 | **Try to reproduce** | Scroll until ribbon **stuck** at `top: 0` → chevron → watch load. |
 | **Touchpoints** | Carry-scroll payload, head boot, pin JS, CSS |
-| **Resolved** | **Closed 2026-07-04** — JS pin removed; scroll position authoritative via CSS sticky + carry-scroll — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Closed 2026-07-04** — JS pin removed; scroll position authoritative via CSS sticky + carry-scroll — `2026-07-04-018` |
 
 ### F5 — Ribbon bar horizontally off-screen or misaligned
 
@@ -125,7 +125,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **What you see** | Ribbon bar partially or fully outside the page column after load or nav. |
 | **Try to reproduce** | Cold load + chevron nav on rating LB Event wing. |
 | **Touchpoints** | Head boot CSS, pin JS bar geometry, `theme.css` |
-| **Resolved** | **Closed 2026-07-04** — no fixed-bar JS geometry; whole section sticky in column — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Closed 2026-07-04** — no fixed-bar JS geometry; whole section sticky in column — `2026-07-04-018` |
 
 ### F6 — Sub-ribbon content blanks on TT ribbon nav at scroll top
 
@@ -136,7 +136,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Try to reproduce** | Rating LB `?as=event:{id}` — scroll to **top** → chevron, wing tab, or picker step → watch from hub chapter downward. Repeat with one wheel-tick of scroll for contrast. |
 | **Touchpoints** | `k2_carry_scroll_restore.php`, cloak CSS, `js/k2-carry-scroll.js` (TT ribbon `data-k2-carry-scroll`) |
 | **Reported** | 2026-07-04 — baseline explore (Dagh); mapped before slice 0 |
-| **Resolved** | **Signed off 2026-07-04 (Dagh S1/S1b)** — iter **3d-b** (narrow snapshot join + slim Δ map + games-count cache) + iter **3d-c** (TT y=0 chrome gate). Only table swaps; chrome stable — [`2026-07-04-003`](orchestration/agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md) · [attempt log § Attempts 4–5](../orchestration/tt-chrome-baseline-f6-attempt-log.md) |
+| **Resolved** | **Signed off 2026-07-04 (Dagh S1/S1b)** — iter **3d-b** (narrow snapshot join + slim Δ map + games-count cache) + iter **3d-c** (TT y=0 chrome gate). Only table swaps; chrome stable — `2026-07-04-003` · attempt log § Attempts 4–5 |
 
 ### F7 — Ribbon vertical jump during nav while **stuck**
 
@@ -145,7 +145,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **What you see** | While **stuck**, navigation shows the ribbon at the wrong vertical position briefly (e.g. not at viewport top), then jumps. |
 | **Try to reproduce** | Scroll until ribbon **stuck** at top → chevron → watch first frames after load. |
 | **Touchpoints** | Pin JS init timing vs carry-scroll completion |
-| **Resolved** | **Closed 2026-07-04** — JS pin removed; CSS sticky + carry-scroll (local chevron-from-stuck) — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Closed 2026-07-04** — JS pin removed; CSS sticky + carry-scroll (local chevron-from-stuck) — `2026-07-04-018` |
 
 ### F8 — Page layout shimmer while scrolling (**stuck**)
 
@@ -154,7 +154,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **What you see** | Table or page content appears to shimmer or shift subpixel-wise while scrolling with ribbon **stuck**; general scroll jank. |
 | **Try to reproduce** | Long rating LB — scroll up/down repeatedly with ribbon **stuck**. |
 | **Touchpoints** | Pin JS scroll handler, bar CSS, section reserve height |
-| **Resolved** | **Closed 2026-07-04** — no scroll-linked pin JS; native CSS sticky — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Closed 2026-07-04** — no scroll-linked pin JS; native CSS sticky — `2026-07-04-018` |
 
 ### F9 — Ribbon visually lags scroll while **stuck**
 
@@ -163,7 +163,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **What you see** | Ribbon **stuck** at viewport top appears to trail scroll by about a frame. |
 | **Try to reproduce** | Scroll rapidly with ribbon **stuck** — watch bar vs content. |
 | **Touchpoints** | Pin JS scroll sync, bar `top` CSS |
-| **Resolved** | **Closed 2026-07-04** — no JS scroll sync; CSS sticky at scroll speed until latch — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Closed 2026-07-04** — no JS scroll sync; CSS sticky at scroll speed until latch — `2026-07-04-018` |
 
 ### F10 — Site header not clickable at scroll top
 
@@ -172,7 +172,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **What you see** | At **`scrollY ≈ 0`**, header controls not clickable, or ribbon covers header though policy expects **in flow** stack (header → stamp → ribbon). |
 | **Try to reproduce** | Scroll to top — click wordmark, mode toggle, search. |
 | **Touchpoints** | Pin JS `top`, z-index in `theme.css` |
-| **Resolved** | **Closed 2026-07-04** — ribbon **in flow** at `scrollY≈0`; no fixed bar over header — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Closed 2026-07-04** — ribbon **in flow** at `scrollY≈0`; no fixed bar over header — `2026-07-04-018` |
 
 ### F11 — Header flash on Present → Time travel toggle
 
@@ -181,7 +181,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **What you see** | Entering time travel via mode toggle: header or chrome flashes incorrectly during arrival. |
 | **Try to reproduce** | Present day → **Time travel** toggle on any Amiga hub page. |
 | **Touchpoints** | Head cloak, pin JS, stamp arrival |
-| **Resolved** | **Closed 2026-07-04** — no pin JS on toggle entry; existing stamp arrival unchanged — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Closed 2026-07-04** — no pin JS on toggle entry; existing stamp arrival unchanged — `2026-07-04-018` |
 
 ### F12 — Sticky off after toggle entry (when policy expects sticky on)
 
@@ -190,7 +190,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **What you see** | After Present → Time travel toggle, ribbon behaves as **sticky off** (scrolls away) though CD2 requires **sticky on** and must **clear** prior pushpin opt-out. |
 | **Try to reproduce** | Opt out via pushpin → return to Present → **Time travel** toggle again → scroll long page. |
 | **Touchpoints** | Storage read on entry, head boot, pin JS (`k2_tt_entry=1`) |
-| **Resolved** | **Superseded 2026-07-04** — v1 has no pushpin / opt-out; sticky always on when `as=` — CD3 deferred — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Superseded 2026-07-04** — v1 has no pushpin / opt-out; sticky always on when `as=` — CD3 deferred — `2026-07-04-018` |
 
 ### F13 — Stamp blank, stuck arrival, or toggle cloak issues
 
@@ -199,7 +199,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **What you see** | Stamp LED empty on load; `k2-tt-arrival-pending` never clears; toggle entry broken. |
 | **Try to reproduce** | Toggle entry + wing tab change. |
 | **Touchpoints** | Stamp script defer/load order, `k2_head.php` |
-| **Resolved** | **Closed 2026-07-04** — F19 stamp eval-time init + CSS sticky v1 (no pin cloak interaction) — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Closed 2026-07-04** — F19 stamp eval-time init + CSS sticky v1 (no pin cloak interaction) — `2026-07-04-018` |
 
 ### F14 — Stamp theatrical motion on chevron steps
 
@@ -208,7 +208,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **What you see** | LED fade or kicker typewriter on chevron/picker steps (product wants this only on toggle/wing per CD7). |
 | **Try to reproduce** | Chevron ×3 on rating LB — watch stamp motion. |
 | **Touchpoints** | `k2-amiga-tt-stamp.js` |
-| **Resolved** | **Closed 2026-07-04** — CD7 baseline unchanged; chevron steps still in-place stamp update — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Closed 2026-07-04** — CD7 baseline unchanged; chevron steps still in-place stamp update — `2026-07-04-018` |
 
 ### F15 — Pushpin looks wrong vs actual sticky state
 
@@ -217,7 +217,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **What you see** | Pushpin accent or `aria-pressed` does not match **sticky on/off** or **stuck** / **in flow**. |
 | **Try to reproduce** | **Stuck** with sticky on; then opt out; compare button state. |
 | **Touchpoints** | Pin button markup, `theme.css`, pin JS |
-| **Resolved** | **Superseded 2026-07-04** — pushpin UI removed; v1 sticky on only — CD3 deferred — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Superseded 2026-07-04** — pushpin UI removed; v1 sticky on only — CD3 deferred — `2026-07-04-018` |
 
 ### F16 — Sticky preference wrong after reload
 
@@ -226,7 +226,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **What you see** | User opted out (or in); reload shows opposite behaviour, or legacy C02 pin state surprises. |
 | **Try to reproduce** | Toggle pushpin → reload → repeat with prior C02 `localStorage` if present. |
 | **Touchpoints** | `localStorage` keys, head boot vs JS read |
-| **Resolved** | **Superseded 2026-07-04** — no sticky `localStorage` in v1 — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Superseded 2026-07-04** — no sticky `localStorage` in v1 — `2026-07-04-018` |
 
 ### F17 — Ribbon fixed on first paint when policy expects **in flow**
 
@@ -236,7 +236,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Try to reproduce** | Fresh load rating LB with `as=` — before any scroll, inspect ribbon position. |
 | **Touchpoints** | Pin JS, head boot, CSS |
 | **Note** | Policy mismatch symptom from the reverted attempt (fixed-from-load). |
-| **Resolved** | **Closed 2026-07-04** — CSS sticky **in flow** at `scrollY≈0`; no fixed-on-load JS — [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| **Resolved** | **Closed 2026-07-04** — CSS sticky **in flow** at `scrollY≈0`; no fixed-on-load JS — `2026-07-04-018` |
 
 ### F18 — TT hub-tab nav whole-page blank (late cutoff; Present OK)
 
@@ -246,7 +246,7 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Try to reproduce** | `countries.php?as=event:{late}` — hub bar between views at scroll top and mid-scroll; compare `countries.php` Present (no `as=`). Repeat with an **early** `as=event:{id}` vs **late** id. WC: `world-cups/chronology.php?as=event:585` — hub tab vs Present same tab. |
 | **Touchpoints** | Hub `data-k2-carry-scroll` nav, `k2_carry_scroll_restore.php`, ranked table cloak (`$k2RankedCloak`), TT snapshot chrome render path, Countries / World Cups hub shell |
 | **Reported** | 2026-07-04 — baseline explore (Dagh); separate thread from F6 though both use carry-scroll |
-| **Resolved** | **Signed off 2026-07-04 (Dagh)** — Countries index + WC facts index + realm query sweep; hub-tab nav no whole-page blank — [`2026-07-04-004`](orchestration/agent-handoffs/2026-07-04-004-amiga-tt-query-optimization-sweep.md) · [attempt log § World Cups hub](../orchestration/tt-chrome-baseline-f6-attempt-log.md) |
+| **Resolved** | **Signed off 2026-07-04 (Dagh)** — Countries index + WC facts index + realm query sweep; hub-tab nav no whole-page blank — `2026-07-04-004` · attempt log § World Cups hub |
 
 | | |
 |--|--|
@@ -263,8 +263,8 @@ Each row: **what it looked like**, **how to try to reproduce**, **touchpoints** 
 | **Try to reproduce** | Countries or rating LB with `?as=month:{late}` — scroll mid-page → click Greece flag → `/amiga/country/roster.php?country=Greece&as=…#k2-country-roster`. Compare Present (no `as=`). Also after hub-pill carry at `y > 0`. |
 | **Touchpoints** | `amiga_country_page.php` (query block after hub nav), `k2_carry_scroll_restore.php` (hash `#k2-country-roster` cloak + 700 ms reveal; optional carried `y > 0`), `k2_amiga_country_roster_href()` hash anchor, `amiga_countries_player_rows()` global fetch |
 | **Reported** | 2026-07-04 — Dagh; same overfetch class as pre-fix Countries index (audit: roster still loads **all** rated players + global elo attach for **one** country) |
-| **Note** | Flag links always append `#k2-country-roster` → hash landing engages body cloak even when scroll carry payload was cleared. **Query slices 2026-07-04:** roster country-filtered fetch (~845 ms → ~208 ms); rivals Track A (~2–3 s → ~0.7–1.1 s panel). Optional chrome follow-up: hash deferral / hero reveal gate — [`2026-07-04-002`](orchestration/agent-handoffs/2026-07-04-002-f20-country-rivals-h2h-audit.md) |
-| **Resolved** | **Signed off 2026-07-04 (Dagh, query slice)** — roster + rivals Track A query fixes; optional hash/reveal chrome deferred — [`2026-07-04-002`](orchestration/agent-handoffs/2026-07-04-002-f20-country-rivals-h2h-audit.md) |
+| **Note** | Flag links always append `#k2-country-roster` → hash landing engages body cloak even when scroll carry payload was cleared. **Query slices 2026-07-04:** roster country-filtered fetch (~845 ms → ~208 ms); rivals Track A (~2–3 s → ~0.7–1.1 s panel). Optional chrome follow-up: hash deferral / hero reveal gate — `2026-07-04-002` |
+| **Resolved** | **Signed off 2026-07-04 (Dagh, query slice)** — roster + rivals Track A query fixes; optional hash/reveal chrome deferred — `2026-07-04-002` |
 
 ---
 
@@ -321,13 +321,13 @@ When a failure is **solved and verified**, add one line under the row: **Resolve
 | 2026-07-04 | **F6 refined** — sub-ribbon blank at scroll top on TT ribbon nav; ribbon stable; old→blank→new; mid-scroll contrast |
 | 2026-07-04 | **F18 added** — TT hub-tab whole-page blank (Countries late cutoff; Present OK); smokes S9–S10 |
 | 2026-07-04 | **F19 added** — TT stamp LED hidden while sub-ribbon loads (F6 sibling) |
-| 2026-07-04 | **F6 attempt log** — informal iter 0–3 notebook — [`tt-chrome-baseline-f6-attempt-log.md`](orchestration/tt-chrome-baseline-f6-attempt-log.md) |
-| 2026-07-04 | **Iter 3a result logged** — Type A/B/C blank framework; Countries + PHP stream order — [`tt-chrome-baseline-f6-attempt-log.md`](orchestration/tt-chrome-baseline-f6-attempt-log.md) |
+| 2026-07-04 | **F6 attempt log** — informal iter 0–3 notebook — `tt-chrome-baseline-f6-attempt-log.md` |
+| 2026-07-04 | **Iter 3a result logged** — Type A/B/C blank framework; Countries + PHP stream order — `tt-chrome-baseline-f6-attempt-log.md` |
 | 2026-07-04 | Baseline: removed pin touchpoint row; sticky-only tensions marked deferred |
 | 2026-07-04 | **F20 added** — TT flag/roster link header flash (y≠0, hash anchor); smoke S11; roster query audit in attempt log |
 | 2026-07-04 | **F18/F19/F20 signed off** — Dagh approval (F20 query slice; hash chrome optional follow-up deferred) |
 | 2026-07-04 | **F6 signed off** — Dagh S1/S1b pass (only table swaps; chrome stable) |
-| 2026-07-04 | **Sticky v1 shipped** — CSS sticky on ``--active``; overflow-x clip on html/body/page-nav — handoff [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md) |
+| 2026-07-04 | **Sticky v1 shipped** — CSS sticky on ``--active``; overflow-x clip on html/body/page-nav — handoff `2026-07-04-018` |
 | 2026-07-04 | **F1–F17 closure** — JS pin attempt symptoms closed/superseded by CSS sticky v1; register status → closed |
 | 2026-07-04 | **Issue closure pass** — F6/F18/F19 resolved in invariants; F20 query slice resolved; links to handoffs 003/004/002 |
 | 2026-07-06 | Integration tensions — TT sticky + carry-scroll anchor when ribbon **stuck** (S3 smoke); fix in `k2-carry-scroll.js` + `k2_carry_scroll_restore.php` |

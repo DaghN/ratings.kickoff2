@@ -5,9 +5,9 @@
 **Status:** **Implemented** (Jun 2026) — tournament finalize commit boundary live in Python + PHP; rating history from `amiga_rating_events`; **staging verified** (24-part import on `ratings.kickoff2.com`)  
 **Scope:** `ko2amiga_db` rating commit model, derived replay, and related read-path policy  
 **Supersedes:** [`amiga-data-contract.md`](amiga-data-contract.md) § Post-game / replay for rating and global career-stat commit rules  
-**Implementation plan:** [`amiga-tournament-finalize-implementation-plan.md`](amiga-tournament-finalize-implementation-plan.md) — slices 0–7 complete  
+**Implementation plan:** `amiga-tournament-finalize-implementation-plan.md` — slices 0–7 complete  
 
-**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-chronology-fix-plan.md`](amiga-chronology-fix-plan.md) · [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) · [`scripts/amiga/README.md`](../scripts/amiga/README.md)
+**Related:** [`amiga-data-contract.md`](amiga-data-contract.md) · `amiga-chronology-fix-plan.md` · `amiga-tournament-format-vision.md` · [`scripts/amiga/README.md`](../scripts/amiga/README.md)
 
 ---
 
@@ -350,7 +350,7 @@ Do not block slice 1 on entrant rating columns.
 ORDER BY tournaments.event_date ASC, tournaments.chrono ASC
 ```
 
-This matches import game-block order: same-day tournaments are sequential blocks, not interleaved rounds ([`amiga-chronology-fix-plan.md`](amiga-chronology-fix-plan.md)).
+This matches import game-block order: same-day tournaments are sequential blocks, not interleaved rounds (`amiga-chronology-fix-plan.md`).
 
 **Do not** use `tournament.id` alone as replay order.
 
@@ -473,7 +473,7 @@ Shared Elo: continue `scripts/ladder/elo.py` / `post_game_elo.php` for formula; 
 ### Slice 6 — Corrections (retired Jun 2026)
 
 - [x] Fixtures ops guardrails when `rating_finalized`
-- [x] ~~`reopen-tournament` / `refinalize-from`~~ — **removed**; repair = `prove` only — [`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)
+- [x] ~~`reopen-tournament` / `refinalize-from`~~ — **removed**; repair = `prove` only — `archive/retired-amiga-refinalize-2026-06.md`
 
 ### Slice 5 — Optional enhancements
 
@@ -546,4 +546,4 @@ python -m scripts.amiga prove
 php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tournament-id=N
 ```
 
-*Handoff: [`docs/archive/orchestration/agent-handoffs/2026-06-08-027-rating-events-slice-7-ship.md`](archive/orchestration/agent-handoffs/2026-06-08-027-rating-events-slice-7-ship.md)*
+*Handoff: `docs/archive/orchestration/agent-handoffs/2026-06-08-027-rating-events-slice-7-ship.md`*

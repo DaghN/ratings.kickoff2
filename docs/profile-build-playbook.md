@@ -4,7 +4,7 @@
 
 **Production:** `site/public_html/player/profile.php`.
 
-**Authority chain:** Dagh’s latest message → this playbook → [`player-profile-feast.md`](player-profile-feast.md) (shipped layout + v1 summary) → v1 detail in [`archive/profile-content-candidates.md`](archive/profile-content-candidates.md).
+**Authority chain:** Dagh’s latest message → this playbook → [`player-profile-feast.md`](player-profile-feast.md) (shipped layout + v1 summary) → v1 detail in `archive/profile-content-candidates.md`.
 
 ---
 
@@ -13,7 +13,7 @@
 | Order | Doc / file | Why |
 |-------|------------|-----|
 | 1 | This playbook | Placement, recipes, waves, acceptance |
-| 2 | [`archive/profile-content-candidates.md`](archive/profile-content-candidates.md) — **Profile content v1** | What to build / reject / defer |
+| 2 | `archive/profile-content-candidates.md` — **Profile content v1** | What to build / reject / defer |
 | 3 | `player-profile-feast.md` — narrative model + surface rhythm | Story zones, panel vs open bg |
 | 4 | `includes/player_feast_blocks.php` + `player_feast_load.php` | Patterns to extend, not replace |
 | 5 | `docs/website-data-contract.md` | Stored tables for new reads |
@@ -96,7 +96,7 @@ C1  Matchups: M09 line → charts → search (+ M12 links in rivalry/moments)
 | **B1** | Is he still around? | Last seen, last game, games this month/year, win streak, play streak |
 | **B2** | What kind of player? | Games, wins, goals, DDs, opponents (+ ranks if useful), victims line, best-year ticker, distinct days |
 
-**Production today:** `player_feast_render_presence_career_duo()` — two bordered panels, HTML stat tables (`pm3efg-duo`). That is the **shipped reference**, not a layout law. Multi-agent lab sandboxes (`individual1-profile-lab{N}.php`) were removed Jun 2026; historical handoff in [`archive/profile-lab-agent-handoff.md`](archive/profile-lab-agent-handoff.md).
+**Production today:** `player_feast_render_presence_career_duo()` — two bordered panels, HTML stat tables (`pm3efg-duo`). That is the **shipped reference**, not a layout law. Multi-agent lab sandboxes (`individual1-profile-lab{N}.php`) were removed Jun 2026; historical handoff in `archive/profile-lab-agent-handoff.md`.
 
 ---
 

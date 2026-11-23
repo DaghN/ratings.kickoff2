@@ -1,6 +1,6 @@
 # Amiga running tournament boundary — policy
 
-> **Live ops policy (Jul 2026):** Lane B running vs official — **active** on staging. Local writer regression = **`simul`** on **`ko2amiga_work`**; oracle **`prove`** was ship path only ([`amiga-running-tournament-boundary-implementation-plan.md`](amiga-running-tournament-boundary-implementation-plan.md)).
+> **Live ops policy (Jul 2026):** Lane B running vs official — **active** on staging. Local writer regression = **`simul`** on **`ko2amiga_work`**; oracle **`prove`** was ship path only (`amiga-running-tournament-boundary-implementation-plan.md`).
 
 **Status:** **Policy locked (Jul 2026, rev. 2)** — two-universe split: **Running** vs **Official**. RTB-1–RTB-9 shipped Jul 2026 (organizer **Finish and make official** = promote + finalize + lifecycle `completed`).
 
@@ -10,7 +10,7 @@
 
 **Related:** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (fixture = one match) · [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (permanent `amiga_players` at create) · [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) (Make official writers) · [`amiga-php-finalize-parity-protocol.md`](amiga-php-finalize-parity-protocol.md) (PHP Finish ↔ simul-oracle fingerprint) · [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md)
 
-**Inventory / implementation:** [`amiga-running-tournament-boundary-inventory.md`](amiga-running-tournament-boundary-inventory.md) · [`amiga-running-tournament-boundary-implementation-plan.md`](amiga-running-tournament-boundary-implementation-plan.md)
+**Inventory / implementation:** [`amiga-running-tournament-boundary-inventory.md`](amiga-running-tournament-boundary-inventory.md) · `amiga-running-tournament-boundary-implementation-plan.md`
 
 ---
 

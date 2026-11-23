@@ -1,6 +1,6 @@
 # One-off scripts
 
-**Policy:** Use **ops simul** for derived history on work/staging ([`docs/coordination/ops-simul-runbook.md`](../../docs/coordination/ops-simul-runbook.md)). Batch REP history: [`docs/archive/replay-register-2026-05.md`](../../docs/archive/replay-register-2026-05.md).
+**Policy:** Use **ops simul** for derived history on work/staging ([`docs/coordination/ops-simul-runbook.md`](../../docs/coordination/ops-simul-runbook.md)). Batch REP history: `docs/archive/replay-register-2026-05.md`.
 
 **Steve-facing one-offs** must have a row in [`docs/coordination/one-off-register.md`](../../docs/coordination/one-off-register.md) before asking him to run anything on staging/prod.
 

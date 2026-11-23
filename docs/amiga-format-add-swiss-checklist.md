@@ -2,7 +2,7 @@
 
 **Status:** Swiss v1 implemented (Jun 2026) — `create-swiss`, `generate-swiss-round`, `smoke-swiss`. Buchholz / PHP live-ops mirror deferred.
 
-**Related:** [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) §13 · [`scripts/amiga/tournament_format.py`](../scripts/amiga/tournament_format.py)
+**Related:** `amiga-tournament-format-vision.md` §13 · [`scripts/amiga/tournament_format.py`](../scripts/amiga/tournament_format.py)
 
 ---
 

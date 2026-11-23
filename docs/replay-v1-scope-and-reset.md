@@ -6,7 +6,7 @@
 
 **Status:** **P1 implemented** (May 2026; library now `scripts/k2_rating_core/`). Verified on local **`ko2unity_db`**: 74,870 games replayed; 0 NULL `NewRating*`; draws `WinnerID = -1` (9,053).
 
-**Authority:** Python replay intent in `docs/ladder-engine-plan.md` (redirect → [`archive/ladder-engine-plan.md`](archive/ladder-engine-plan.md)). If this doc and that plan disagree on v1 scope, **this doc wins** until Dagh says otherwise. **Website aggregates / cutover:** [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md), not replay alone.
+**Authority:** Python replay intent in `docs/ladder-engine-plan.md` (redirect → `archive/ladder-engine-plan.md`). If this doc and that plan disagree on v1 scope, **this doc wins** until Dagh says otherwise. **Website aggregates / cutover:** [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md), not replay alone.
 
 **Database:** Local / dev **`ko2unity_db`** (`ratedresults`, `playertable`). See `docs/LOCAL_DEV.md`.
 
@@ -149,7 +149,7 @@ Per game, after reading current `Rating` for `idA` and `idB`:
 
 ## 7. Safety & verification (local, before first real reset)
 
-**Work DB / staging website aggregates:** use **[`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)** — `ops/run_ops_sim.php` on **`kooldb1`** / **`ko2unity_work`**. **Not** [`STAGING_REPLAY.md`](STAGING_REPLAY.md) (May 2026 archive stub). Historical checklist for frozen `ko2unity_db` — recovery today = re-import dump.
+**Work DB / staging website aggregates:** use **[`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)** — `ops/run_ops_sim.php` on **`kooldb1`** / **`ko2unity_work`**. **Not** `STAGING_REPLAY.md` (May 2026 archive stub). Historical checklist for frozen `ko2unity_db` — recovery today = re-import dump.
 
 1. **Target DB:** confirm `SELECT DATABASE()` → **`ko2unity_db`**.
 2. **Row counts (before):** `SELECT COUNT(*) FROM ratedresults` → expect **~74,870** locally.
@@ -179,7 +179,7 @@ Per game, after reading current `Rating` for `idA` and `idB`:
 | Usage | `scripts/k2_rating_core/README.md` |
 | Website aggregates on work/staging | [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md) — ops simul, not this CLI |
 
-**Verified (2026-05-21, local):** `run` ~198s; top rating spot-check (e.g. game `id=10` → 1616 / 1584). **May 2026 staging one-shot record:** [`archive/STAGING_REPLAY-2026-05.md`](archive/STAGING_REPLAY-2026-05.md) — historical only.
+**Verified (2026-05-21, local):** `run` ~198s; top rating spot-check (e.g. game `id=10` → 1616 / 1584). **May 2026 staging one-shot record:** `archive/STAGING_REPLAY-2026-05.md` — historical only.
 
 ---
 

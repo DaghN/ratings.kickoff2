@@ -42,7 +42,7 @@ powershell -ExecutionPolicy Bypass -File scripts\pull_ko2amiga_from_staging.ps1 
 
 Then compare with `scripts/oneoff/amiga_compare_two_dbs.php` or `scripts/compare_ko2amiga_seal_to_work.ps1` (GitHub seals under `data/amiga/checkpoints/`).
 
-**Inverse export round-trip (Jul 2026-23):** **Complete** — [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md) Phases A/B/C PASS. JSON-driven export/seal data parts; Case C requires PHP inverse changelog seed (`l5-case-c-inv-seed-2026-07-23`). Healthy baseline checkpoint: **`work-2026-11-22-oslo-wc`** (in git; tip #608, inverse **3445**, dense integer chronos). The pre-Oslo equivalent is `work-2026-07-23-chrono-integer` (tip #607, inverse **3423**); `work-2026-07-23-inverse-roundtrip` was never committed. The Jul 18 forum seal may still ship schema-only inverse (0 data rows), so don't use it for restores that need TT inverse.
+**Inverse export round-trip (Jul 2026-23):** **Complete** — `amiga-export-inverse-roundtrip-test-plan.md` Phases A/B/C PASS. JSON-driven export/seal data parts; Case C requires PHP inverse changelog seed (`l5-case-c-inv-seed-2026-07-23`). Healthy baseline checkpoint: **`work-2026-11-22-oslo-wc`** (in git; tip #608, inverse **3445**, dense integer chronos). The pre-Oslo equivalent is `work-2026-07-23-chrono-integer` (tip #607, inverse **3423**); `work-2026-07-23-inverse-roundtrip` was never committed. The Jul 18 forum seal may still ship schema-only inverse (0 data rows), so don't use it for restores that need TT inverse.
 
 **Work git checkpoint (milestone backup — not staging push):** When forward **`ko2amiga_work`** must be recoverable before push (structure tail, Tier E, etc.), seal a named checkpoint:
 

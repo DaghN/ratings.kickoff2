@@ -23,8 +23,8 @@ Single place to see **where the milestone feature is** in the pipeline.
 
 | Phase | Name | Status | Primary docs |
 |-------|------|--------|----------------|
-| 0 | **Discovery** | Done | [`archive/milestones-system-discussion.md`](archive/milestones-system-discussion.md) |
-| 1 | **Idea creation** | Done | [`archive/milestones-ideas-catalog.md`](archive/milestones-ideas-catalog.md) |
+| 0 | **Discovery** | Done | `archive/milestones-system-discussion.md` |
+| 1 | **Idea creation** | Done | `archive/milestones-ideas-catalog.md` |
 | 2 | **Definition** | Done (May 2026) | [`milestones-product-spec.md`](milestones-product-spec.md), seed + generated catalog |
 | 3 | **Data contract + rebuild** | Done (local/work/staging) | [`milestones-facilitation.md`](milestones-facilitation.md), [`website-data-contract.md`](website-data-contract.md) |
 | 4 | **Build & ship** | **v0 shipped** | Profile garden + chronology, `leaderboards/milestones.php`, hub Recent/Catalog/`milestone.php`; future hub phases in hub-ia doc |

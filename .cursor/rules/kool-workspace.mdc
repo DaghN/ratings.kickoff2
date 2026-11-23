@@ -46,7 +46,7 @@ Do **not** block PHP ops, contract, schema, replay, index, aggregate-table, or p
 
 ### Ladder ops — no `staging-scripts/`
 
-**`site/public_html/staging-scripts/` was removed Jun 2026.** Do not recreate it or “fix bugs” in deleted cutover runners. Server ladder work = **`site/public_html/ops/`** only (`run_prepare.php`, `run_process_game.php`, `run_ops_sim.php`, `dispatch.php`, …). Local batch repair / parity = `scripts/ladder/`, `scripts/work_prepare/`, `scripts/rebuild_website_derived_data_local.ps1` (Mode B, not live path). See [`docs/archive/staging-scripts-inventory.md`](docs/archive/staging-scripts-inventory.md).
+**`site/public_html/staging-scripts/` was removed Jun 2026.** Do not recreate it or “fix bugs” in deleted cutover runners. Server ladder work = **`site/public_html/ops/`** only (`run_prepare.php`, `run_process_game.php`, `run_ops_sim.php`, `dispatch.php`, …). Local batch repair / parity = `scripts/ladder/`, `scripts/work_prepare/`, `scripts/rebuild_website_derived_data_local.ps1` (Mode B, not live path).
 
 **Cutover vocabulary:** Prep + **live PHP ops** are **done** (`kooldb1` simul; live **2026-07-18**). Batch `*_rebuild.sql` and `rebuild_website_derived_data_local.ps1` are **legacy repair on `ko2unity_db` only** — not tasks, not prod. Read [`docs/coordination/cutover-readiness.md`](docs/coordination/cutover-readiness.md) before assigning “pending on prod” work.
 

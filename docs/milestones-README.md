@@ -98,4 +98,4 @@ Deploy `milestone_garden_links.json` to `staging-data/` on staging. **Rule copy*
 | [`milestones-facilitation.md`](milestones-facilitation.md) | Rebuild waves & `source_kind` families |
 | [`milestones-hub-ia.md`](milestones-hub-ia.md) | Hub tab IA (WIP) |
 
-**Archived (history only):** [`archive/milestones-system-discussion.md`](archive/milestones-system-discussion.md), [`archive/milestones-ideas-catalog.md`](archive/milestones-ideas-catalog.md), [`archive/milestones-tier-curated.md`](archive/milestones-tier-curated.md), staging cutover packet — stubs at [`coordination/milestones-staging-cutover-packet.md`](coordination/milestones-staging-cutover-packet.md).
+**Archived (history only):** `archive/milestones-system-discussion.md`, `archive/milestones-ideas-catalog.md`, `archive/milestones-tier-curated.md`, staging cutover packet — stubs at [`coordination/milestones-staging-cutover-packet.md`](coordination/milestones-staging-cutover-packet.md).

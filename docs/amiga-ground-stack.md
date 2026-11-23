@@ -4,7 +4,7 @@
 
 **Status:** **Policy locked** (Jun 2026) — strict L0→L5 stack **shipped** (slices 1–11).  
 **Authority:** This doc states **engineering intent** for the koatd pipeline. When it conflicts with older archived wording (e.g. “prove skips L1/L2”), **this doc wins**. Strict stack **shipped** slices 1–11 (Jun 2026).  
-**Parent:** [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md)
+**Parent:** [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · `amiga-ground-layers-implementation-plan.md`
 
 ---
 
@@ -159,7 +159,7 @@ Exact CLI flags are implementation detail; **S1–S3** are the contract.
 | Doc | Role |
 |-----|------|
 | [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) | Layer definitions, G-rules, packs, CLI map |
-| [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md) | Slice schedule + STOP gates |
+| `amiga-ground-layers-implementation-plan.md` | Slice schedule + STOP gates |
 | [`amiga-import-layer.md`](amiga-import-layer.md) | L3 transforms + manifest |
 | [`amiga-schema-discovery.md`](amiga-schema-discovery.md) | L0 Access inventory |
 | [`amiga-data-contract.md`](amiga-data-contract.md) | L3–L5 MySQL register |

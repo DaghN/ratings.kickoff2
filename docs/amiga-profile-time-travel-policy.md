@@ -1,6 +1,6 @@
 # Amiga profile — time travel policy
 
-**Status:** **Implemented** (Jul 2026-14) — Profile tab fully time-travel compliant under `as=`. Plan: [`amiga-profile-time-travel-implementation-plan.md`](amiga-profile-time-travel-implementation-plan.md).
+**Status:** **Implemented** (Jul 2026-14) — Profile tab fully time-travel compliant under `as=`. Plan: `amiga-profile-time-travel-implementation-plan.md`.
 
 **Parent:** [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) (T15 uniform lens · T17 pre-debut) · [`amiga-profile-v0.md`](amiga-profile-v0.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §4
 

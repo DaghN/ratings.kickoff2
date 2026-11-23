@@ -193,7 +193,7 @@ Passwords in `amiga/_ops/amiga_ops_password.local.php` (gitignored): **`$admin_p
 | **CHECKPOINT-1** | **Shipped Jul 2026** — `seal_amiga_work_checkpoint.ps1` + `data/amiga/checkpoints/` (milestone git seals) |
 | **SYNC-1** | **Shipped 2026-11-22** — push gate. The fresh staged dump fingerprint must equal the push baseline (`staging-sync-last.json`), or the push aborts. The baseline is set only by a full pull into `ko2amiga_work` or a push that verified MATCH. The first version let a side-pull reset it, so a later push could have overwritten staged-only data; fixed the same day. Lives in `scripts/lib/Push-Ko2AmigaStaging.ps1`. |
 | **PUSH-1** | **Shipped + verified 2026-11-22** — `push_ko2amiga_to_staging.ps1`: export → SYNC-1 gate → WinSCP upload → POST Apply import (admin password from local file) → side-pull MATCH |
-| **ADMIN-1** | Staged admin delete + after-action backup seals — **L5 slices 0–4 hardened** (Case A/B + `project-present-at` + BA4 restore); next Case C (slice 5) — [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) |
+| **ADMIN-1** | Staged admin delete + after-action backup seals — **L5 slices 0–4 hardened** (Case A/B + `project-present-at` + BA4 restore); next Case C (slice 5) — `amiga-staging-l5-backup-delete-implementation-plan.md` |
 | **PACK-1** | Per-tournament ground pack export (live-ops L6) — **shelved** with L6 until further notice |
 | **BACKUP-1** | Staging after-Finish / after-delete full pack seals + rolling/reserve — **shipped** L5 slices 1–2 (+ BA4 restore harden); same intent doc as ADMIN-1 |
 

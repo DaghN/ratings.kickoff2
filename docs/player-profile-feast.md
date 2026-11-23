@@ -2,8 +2,8 @@
 
 **Status:** **Complete** (Jun 2026) — layout + narrative contract shipped; no active build track (bugfixes / copy tweaks only). **Production page:** `player/profile.php?id={player}`.  
 **Implementing v1 content:** [`docs/profile-build-playbook.md`](profile-build-playbook.md) (placement charter, module recipes, waves).  
-**v1 content decisions (archive):** [`docs/archive/profile-content-candidates.md`](archive/profile-content-candidates.md).  
-**Prior audits:** [`docs/archive/profile-redesign-framing.md`](archive/profile-redesign-framing.md), [`docs/archive/profile-data-audit-pass2.md`](archive/profile-data-audit-pass2.md).  
+**v1 content decisions (archive):** `docs/archive/profile-content-candidates.md`.  
+**Prior audits:** `docs/archive/profile-redesign-framing.md`, `docs/archive/profile-data-audit-pass2.md`.  
 **Opponents hub (shipped Jun 2026):** [`player-opponents-hub.md`](player-opponents-hub.md) — Opponents top pill + inner sub-tabs; H2H poster/charts: [`player-opponents-h2h-poster.md`](player-opponents-h2h-poster.md). Optional Career totals expansion still backlog.  
 **Clickable hero + mosaic stats:** [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) — inventory-first on profile; leaderboards for comparison.
 
@@ -158,7 +158,7 @@ Profile does **not** duplicate those tables.
 
 **Agent jargon:** **“Fold”** = first screen before scroll (above the fold), **not** a named section. Usually hero ± top of Presence/Career — not “the Presence panel” by definition.
 
-**Authority chain for profile content:** Dagh’s latest intent → [`profile-build-playbook.md`](profile-build-playbook.md) → v1 in [`archive/profile-content-candidates.md`](archive/profile-content-candidates.md) → this §.
+**Authority chain for profile content:** Dagh’s latest intent → [`profile-build-playbook.md`](profile-build-playbook.md) → v1 in `archive/profile-content-candidates.md` → this §.
 
 ---
 
@@ -166,7 +166,7 @@ Profile does **not** duplicate those tables.
 
 **Not an active track** — feast v1 shipped Jun 2026. Kept for reference only; do not treat as backlog unless Dagh reopens profile work.
 
-**Curated v1:** [`archive/profile-content-candidates.md`](archive/profile-content-candidates.md). **How to build (historical):** [`profile-build-playbook.md`](profile-build-playbook.md) (waves §7). Below = short summary.
+**Curated v1:** `archive/profile-content-candidates.md`. **How to build (historical):** [`profile-build-playbook.md`](profile-build-playbook.md) (waves §7). Below = short summary.
 
 ### Was planned for v1+ (archived)
 

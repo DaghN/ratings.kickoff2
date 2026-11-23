@@ -8,4 +8,4 @@
 | **Deferred (low)** | **AUD-001** NULL→0 optional; **AUD-003** ranked5 tie policy accepted; **AUD-006** unprocessed row filters on other listings. |
 | **Next** | Staging Live phase — [`../../site/public_html/ops/docs/steve-live-ops.md`](../../site/public_html/ops/docs/steve-live-ops.md) |
 
-**Full audit table (history):** [`../archive/parity-audit-backlog.md`](../archive/parity-audit-backlog.md)
+**Full audit table (history):** `../archive/parity-audit-backlog.md`

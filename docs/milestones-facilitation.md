@@ -39,7 +39,7 @@ Waves 2–6 writers must set these on insert (chronological first-cross for game
 | **2** | Game count / peak / exists / streaks / period / chrono / tail | 90 | Rebuild SQL + generators | Per rated game — see [`website-data-contract.md`](website-data-contract.md) § `player_milestones` post-game |
 | **lobby** | `entered_arena` | 1 | `playertable.JoinDate` | At account register |
 
-Win/loss **streak** keys (`win_hat_trick`, `ten_wins_straight`, `rampage`, `win_streak_30`, `cold_streak`, `win_drought`): use **`playertable` longest-streak columns** at first cross — see [`archive/milestones-tier-curated.md`](archive/milestones-tier-curated.md) § Win-streak milestones.
+Win/loss **streak** keys (`win_hat_trick`, `ten_wins_straight`, `rampage`, `win_streak_30`, `cold_streak`, `win_drought`): use **`playertable` longest-streak columns** at first cross — see `archive/milestones-tier-curated.md` § Win-streak milestones.
 
 ---
 

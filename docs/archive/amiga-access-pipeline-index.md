@@ -15,8 +15,8 @@
 | [`amiga-ground-stack.md`](../amiga-ground-stack.md) | Jun 2026 | Strict L0→L5 chain intent |
 | [`amiga-ground-layers-policy.md`](../amiga-ground-layers-policy.md) | Jun 2026 | Layer glossary, packs, G-rules |
 | [`amiga-import-layer.md`](../amiga-import-layer.md) | Jun 2026 | L2→L3 witness import transforms |
-| [`amiga-ground-layers-implementation-plan.md`](../amiga-ground-layers-implementation-plan.md) | Jun 2026 | Slice plan (complete) |
-| [`amiga-modern-simul-implementation-plan.md`](../amiga-modern-simul-implementation-plan.md) | Jul 2026 | S-1 implementation plan (complete) |
+| `amiga-ground-layers-implementation-plan.md` | Jun 2026 | Slice plan (complete) |
+| `amiga-modern-simul-implementation-plan.md` | Jul 2026 | S-1 implementation plan (complete) |
 
 ## Still active (not archived)
 
@@ -32,6 +32,8 @@
 
 ## Shipped feature plans (historical execution only)
 
+*The plans named below were removed on 2026-11-23; read them at git tag `archive/before-cleanup-2026-11-23` ([`../amiga-history.md`](../amiga-history.md)).*
+
 Jun–Jul 2026 features shipped via legacy **`prove`** on frozen **`ko2amiga_db`**. Banner types at doc top:
 
 | Banner | Meaning |
@@ -45,10 +47,10 @@ Each plan below has the appropriate banner — **do not run prove steps for new 
 
 | Feature | Plan |
 |---------|------|
-| Player create (PC) | [`amiga-player-create-implementation-plan.md`](../amiga-player-create-implementation-plan.md) |
-| Country registry (CR) | [`amiga-country-registry-implementation-plan.md`](../amiga-country-registry-implementation-plan.md) |
-| Running tournament boundary (RTB) | [`amiga-running-tournament-boundary-implementation-plan.md`](../amiga-running-tournament-boundary-implementation-plan.md) |
-| World Cup flag | [`amiga-world-cup-flag-implementation-plan.md`](../amiga-world-cup-flag-implementation-plan.md) |
+| Player create (PC) | `amiga-player-create-implementation-plan.md` |
+| Country registry (CR) | `amiga-country-registry-implementation-plan.md` |
+| Running tournament boundary (RTB) | `amiga-running-tournament-boundary-implementation-plan.md` |
+| World Cup flag | `amiga-world-cup-flag-implementation-plan.md` |
 | Community stats, WC HoF, snapshots, … | Grep `docs/amiga-*-implementation-plan.md` — read the banner before executing steps |
 
 **Product policies** that mention `prove` carry a **Product policy** or domain banner — body text may still describe the ship-era path.

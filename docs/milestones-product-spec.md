@@ -4,7 +4,7 @@
 
 **Status:** **Shipped v0** (May–Jun 2026) — **112/112** keys (rebuild + PHP ops P6); profile garden; Leaderboards **Milestones** wing (`leaderboards/milestones.php`); hub **Recent** + **Catalog** + `milestone.php`.
 
-**Related:** [`milestones-project.md`](milestones-project.md) (phases) · archived brainstorm in [`archive/milestones-ideas-catalog.md`](archive/milestones-ideas-catalog.md)
+**Related:** [`milestones-project.md`](milestones-project.md) (phases) · archived brainstorm in `archive/milestones-ideas-catalog.md`
 
 ---
 
@@ -55,7 +55,7 @@ Chart semantics in [`design-direction.md`](design-direction.md) are **suggestive
 - Public **achiever lists** (newest first) where prominence is warranted
 - Examples of the **profile** of a Key milestone: `dd_merchant_10` (first 10+ goal game), `established_20`, league-defining firsts, etc.
 
-Phase 2 work (complete): Key subset selected from archived [`milestones-ideas-catalog.md`](archive/milestones-ideas-catalog.md) `want` pool; live keys in seed + [`milestones-catalog.md`](milestones-catalog.md).
+Phase 2 work (complete): Key subset selected from archived `milestones-ideas-catalog.md` `want` pool; live keys in seed + [`milestones-catalog.md`](milestones-catalog.md).
 
 ---
 

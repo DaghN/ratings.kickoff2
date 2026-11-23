@@ -38,14 +38,14 @@ Migration **backlog** for Steve/prod. Agents: update when **`docs/UPDATE_DOCS.md
 | [staging-work-steve-brief.md](staging-work-steve-brief.md) | Redirect → post-dagh-live-story |
 | [staging-work-steve-handoff.md](staging-work-steve-handoff.md) | Redirect → post-dagh-live-story |
 | [post-dagh-live-story.md](post-dagh-live-story.md) | Redirect (repo index) → `ops/docs/` |
-| [parity-audit-backlog.md](parity-audit-backlog.md) | **Parity audit (closed Jun 2026)** — summary stub; full table in [`../archive/parity-audit-backlog.md`](../archive/parity-audit-backlog.md) |
+| [parity-audit-backlog.md](parity-audit-backlog.md) | **Parity audit (closed Jun 2026)** — summary stub; full table in `../archive/parity-audit-backlog.md` |
 | [cutover-readiness.md](cutover-readiness.md) | **Prep vs live** — simul on `kooldb1`, Steve cutover checklist |
-| [replay-register.md](replay-register.md) | **Stub** → archived May 2026 batch REP ([`../archive/replay-register-2026-05.md`](../archive/replay-register-2026-05.md)) |
+| [replay-register.md](replay-register.md) | **Stub** → archived May 2026 batch REP (`../archive/replay-register-2026-05.md`) |
 | [post-game-register.md](post-game-register.md) | **Pointer** — PHP ops cutover; contract = behaviour |
 | [records-post-game-exception.md](records-post-game-exception.md) | Hall of Fame / `generalstatstable` C++ exception only |
 | [periodic-register.md](periodic-register.md) | Scheduled server jobs |
 | [one-off-register.md](one-off-register.md) | Rare scripts (`scripts/oneoff/`) |
 | [cutover-packet-template.md](cutover-packet-template.md) | Copy for Steve per release |
-| [staging-scripts-inventory.md](../archive/staging-scripts-inventory.md) | **Retired Jun 2026** — `staging-scripts/` deleted; ops only |
+| staging-scripts-inventory.md | **Retired Jun 2026** — `staging-scripts/` deleted; ops only |
 
 **Retired May 2026:** `cpp-snippets/` per-table packs — do not recreate.

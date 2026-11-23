@@ -4,7 +4,7 @@
 
 **Status:** **Shipped** (Jun 2026). Slices **CRV-1–CRV-7** complete.
 
-**Implementation plan:** [`amiga-country-rivals-implementation-plan.md`](amiga-country-rivals-implementation-plan.md) — slices **CRV-1–CRV-7**.
+**Implementation plan:** `amiga-country-rivals-implementation-plan.md` — slices **CRV-1–CRV-7**.
 
 **Parent:** [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) (CH19 · CH24) · [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) · [`amiga-opponents-wing-policy.md`](amiga-opponents-wing-policy.md) · [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md) (player vs country — sibling grain)
 
@@ -348,7 +348,7 @@ No `prove` gate v1 (read-time only).
 
 ## 13. Agent cold-start checklist
 
-1. Read this policy + [`amiga-country-rivals-implementation-plan.md`](amiga-country-rivals-implementation-plan.md).
+1. Read this policy + `amiga-country-rivals-implementation-plan.md`.
 2. Confirm slice id (**CRV-n**).
 3. Hero = **`country=`** entity param; rival = **`rival=`** — not player ids.
 4. Table aggregates = **second roll-up** on matchup rows — not games scan.

@@ -90,7 +90,7 @@ Full-corpus audit (`scripts/audit_theme_css_dead_tokens.py`: every class/custom-
 | `server1-charts-lab.php` | **302 → `activity.php`** (old Activity lab bookmarks) |
 | `status-realm-lab.php` | **302 → `status.php`** (old realm lab bookmarks) |
 | `scripts/throwaway_*.php` | Schema snapshot / index apply via browser; documented in `ratedresults-schema.md`, `LOCAL_DEV.md`, `one-off-register.md` — **not** in default `site/public_html/` sync |
-| ~~`site/public_html/staging-scripts/`~~ | **Removed Jun 2026** — May 2026 cutover runners; ops replaces all paths ([`archive/staging-scripts-inventory.md`](archive/staging-scripts-inventory.md)) |
+| ~~`site/public_html/staging-scripts/`~~ | **Removed Jun 2026** — May 2026 cutover runners; ops replaces all paths (`archive/staging-scripts-inventory.md`) |
 | `scripts/finalize_league_periods.php` | Thin delegate → `ops/run_finalize_league.php` (documented deprecated) |
 
 ---

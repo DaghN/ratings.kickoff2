@@ -176,7 +176,7 @@ Ingested Jul 2026: `includes/ops_std.php` (`stderr()` / `stdout()` so dispatch w
 
 ### 6.1 Ladder ops location
 
-All server ladder ops live under **`site/public_html/ops/`** (dispatcher, modules, SQL migrations, sim/post-game/periodic CMDs). Legacy **`staging-scripts/`** was removed Jun 2026 — see [`archive/staging-scripts-inventory.md`](archive/staging-scripts-inventory.md). **Do not** recreate cutover runners under `public_html/`; extend `ops/` or use `scripts/oneoff/` locally.
+All server ladder ops live under **`site/public_html/ops/`** (dispatcher, modules, SQL migrations, sim/post-game/periodic CMDs). Legacy **`staging-scripts/`** was removed Jun 2026 — see `archive/staging-scripts-inventory.md`. **Do not** recreate cutover runners under `public_html/`; extend `ops/` or use `scripts/oneoff/` locally.
 
 ### 6.2 Target tree
 

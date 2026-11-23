@@ -4,7 +4,7 @@
 
 **In one line:** Avoid **blasting dates on first load** with active-sort emphasis unless that emphasis is **earned** — prefer **ID default sort** when a game-ID column exists; use **quiet-date tooling** only when the table must open on Date and has no obvious neutral default.
 
-**Authority:** Product + visual contract; defers to [`design-direction.md`](design-direction.md). Table machinery: [`k2-table-and-games-plan.md`](k2-table-and-games-plan.md), [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md). Rollout: [`k2-table-quiet-date-unification-plan.md`](k2-table-quiet-date-unification-plan.md). Dagh's latest chat wins on scope.
+**Authority:** Product + visual contract; defers to [`design-direction.md`](design-direction.md). Table machinery: [`k2-table-and-games-plan.md`](k2-table-and-games-plan.md), [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md). Rollout: `k2-table-quiet-date-unification-plan.md`. Dagh's latest chat wins on scope.
 
 **For agents:** read this when Dagh mentions **bright dates on first load**, **quiet date**, or when designing a sortable table **without** a game-ID column. **Ask Dagh** whether default Date sort should use quiet date — opt-in per table.
 
@@ -144,7 +144,7 @@ WC Chronology · tournament catalog · perf-rating Perfect · player tournament 
 3. **Client-sort:** `data-k2-quiet-default-sort-cols` + `_k2SortUserChosen` in `k2-table.js` (§ Default-load-only gating).
 4. **Shared helpers** in `k2_table_helpers.php` — always pass default-sort context.
 
-Full rollout: [`k2-table-quiet-date-unification-plan.md`](k2-table-quiet-date-unification-plan.md).
+Full rollout: `k2-table-quiet-date-unification-plan.md`.
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Status:** Active method doc (2026-07-04) · **Audience:** agents doing TT performance slices in the Amiga realm
 **Evidence base:** F6 rating LB + three slow wings + World Cups hub fixes — see
-[`tt-chrome-baseline-f6-attempt-log.md`](orchestration/tt-chrome-baseline-f6-attempt-log.md) (Phase 0 audit, Attempts 4-5, "Three slow LB wings", "World Cups hub") and handoff [`2026-07-04-003`](orchestration/agent-handoffs/2026-07-04-003-f6-rating-lb-tt-nav-flawless.md).
+`tt-chrome-baseline-f6-attempt-log.md` (Phase 0 audit, Attempts 4-5, "Three slow LB wings", "World Cups hub") and handoff `2026-07-04-003`.
 
 ---
 
@@ -85,7 +85,7 @@ Numbers: old window 1.7-3.4 s; narrow+join-back (pattern A) still 0.9-2.3 s beca
 | `amiga_community_histogram_lib.php` | `raw_world_cups_played` still uses inline slice window join | Low unless Activity histogram API flagged |
 | `amiga_player_snapshot_lib.php`, `amiga_player_rank_history_lib.php`, `amiga_elo_rank_lib.php`, `amiga_player_h2h_pair_lib.php` | windows filtered by `player_id = ?` (single player / pair) | Cheap; leave unless probed slow |
 | **`amiga_matchup_snapshot_lib.php` (player Opponents + country roll-up)** | ~~`SELECT m.*` at-event window~~ | **Fixed 2026-07-04** — narrow window + PK join-back |
-| **F20 Countries rivals H2H + wdl/goals/dds** | ~~double `rivals_rows` + wide matchup window + perf batch on all table wings~~ | **Fixed 2026-07-04 Track A** — cache + narrow window + scoped perf; Goals/DDs skip perf batch. **Track K (2026-07-04)** — cross-border SQL on matchup + perf batch; pair-game country WHERE; moments normalize ~9 picks only. Handoff [`2026-07-04-008`](orchestration/agent-handoffs/2026-07-04-008-track-k-country-rivals-tt-perf.md). |
+| **F20 Countries rivals H2H + wdl/goals/dds** | ~~double `rivals_rows` + wide matchup window + perf batch on all table wings~~ | **Fixed 2026-07-04 Track A** — cache + narrow window + scoped perf; Goals/DDs skip perf batch. **Track K (2026-07-04)** — cross-border SQL on matchup + perf batch; pair-game country WHERE; moments normalize ~9 picks only. Handoff `2026-07-04-008`. |
 | **Player vs country opponents (`player/opponents/country/*`)** | ~~always perf batch + triple `country_rows` on H2H~~ | **Fixed 2026-07-04** — request cache; W/D/L `withPerf` only; H2H scoped perf + game-row memo |
 | **Player vs player opponents (`player/opponents/{h2h,wdl,goals,dds}.php`)** | ~~double `matchup_rows` on H2H + wide directed pair window + chart API re-fetching game rows~~ | **Fixed 2026-07-04 (Track G)** — request cache; H2H single-pass + `matchup_row_from_rows`; directed pair narrow window; H2H game-row memo |
 | **`amiga/player/games.php` (busy player)** | DB **~15 ms** after player-scoped scan; pagination shipped (Track J) — 500-row pages; residual curl = TT/filter chrome + 500-row HTML | **Fixed Track J** — `K2_PLAYER_GAMES_PAGE_SIZE` + probe `amiga_player_games_pagination_probe.php` |

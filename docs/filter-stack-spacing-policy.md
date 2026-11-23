@@ -1,6 +1,6 @@
 # Filter stack spacing -- policy
 
-**Status:** **Shipped (Jul 2026).** Implementation: [`filter-stack-spacing-implementation-plan.md`](filter-stack-spacing-implementation-plan.md).
+**Status:** **Shipped (Jul 2026).** Implementation: `filter-stack-spacing-implementation-plan.md`.
 **Extends:** [`nav-spacing-policy.md`](nav-spacing-policy.md) N1–N2 (same token, same bottom-only model).
 **Authority:** Product + visual contract; defers to [`design-direction.md`](design-direction.md) for segment grammar. Dagh''s latest chat wins on scope.
 
@@ -97,7 +97,7 @@ Applies to blocks using `.k2-player-games-filters` or `.k2-realm-games-filters` 
 ## Related docs
 
 - [`nav-spacing-policy.md`](nav-spacing-policy.md) — page chrome N1–N10 (parent policy)
-- [`filter-stack-spacing-implementation-plan.md`](filter-stack-spacing-implementation-plan.md) — slices, CSS checklist, smoke URLs
+- `filter-stack-spacing-implementation-plan.md` — slices, CSS checklist, smoke URLs
 - [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) — wing/sub-nav markup (filter includes listed in §1)
 - [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md) — sortable tables below filters
 - [`design-direction.md`](design-direction.md) — segment track grammar

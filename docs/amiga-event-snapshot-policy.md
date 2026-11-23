@@ -3,7 +3,7 @@
 > **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
 
 **Status:** **Locked** (Jun 2026) — design authority; implementation **complete** (Jun 2026).  
-**Implementation plan:** [`amiga-event-snapshot-implementation-plan.md`](amiga-event-snapshot-implementation-plan.md)
+**Implementation plan:** `amiga-event-snapshot-implementation-plan.md`
 
 **Supersedes (for player timeline truth):** sparse V2 intent in [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md) §6 · per-table placement for retired tables in [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.0 (snapshots become the home for career + event-local + honours cumulative at participated-event grain).
 
@@ -137,7 +137,7 @@ Exact column list = union of §4.2–4.5 in implementation plan DDL slice; **def
 
 **Batch replay:** loop finalize only — **no** `commit_heavy_player_derived` or matchup/generalstats/catalog tail batches at end.
 
-**Proof path:** `python -m scripts.amiga prove` — nuclear reset + replay + verify suite. Partial derived repair (reopen + single finalize) is **retired** — unsafe for cumulative truth ([`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)).
+**Proof path:** `python -m scripts.amiga prove` — nuclear reset + replay + verify suite. Partial derived repair (reopen + single finalize) is **retired** — unsafe for cumulative truth (`archive/retired-amiga-refinalize-2026-06.md`).
 
 ---
 
@@ -183,4 +183,4 @@ Exact column list = union of §4.2–4.5 in implementation plan DDL slice; **def
 
 - **Part B** migration registers apply when DDL + finalize writers ship.
 - Do not add new reads from retired tables after cutover.
-- Implementation: [`amiga-event-snapshot-implementation-plan.md`](amiga-event-snapshot-implementation-plan.md) — slices in order in one chat unless Dagh splits.
+- Implementation: `amiga-event-snapshot-implementation-plan.md` — slices in order in one chat unless Dagh splits.

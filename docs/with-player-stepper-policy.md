@@ -1,7 +1,7 @@
 # With player — stepper filter policy
 
 **Status:** **Locked (Jun 2026)** — **all slices shipped** plus post-track extensions: **`as_with=`** (TT Event ribbon), **`id_with=`** + **`id_country=`** (tournament chevrons), **`start_with=`** (league periods), **filter auto-snap** on all three surfaces.  
-**Implementation plan:** [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md) · **Module map:** §10
+**Implementation plan:** `with-player-stepper-implementation-plan.md` · **Module map:** §10
 
 **Parent:** [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) (C02 sticky TT, C13 with-player stepper)
 
@@ -289,7 +289,7 @@ Probe: player-path Event next = hub-path; tournament page with mismatched `id`/`
 
 ## 8. Implementation slices (summary)
 
-Full checklist: [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md).
+Full checklist: `with-player-stepper-implementation-plan.md`.
 
 | Slice | Deliverable |
 |-------|-------------|

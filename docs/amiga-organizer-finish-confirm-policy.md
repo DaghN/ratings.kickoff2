@@ -8,7 +8,7 @@
 
 **Parents:** [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) (tiers A–E) · [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (Make official boundary) · [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) (serial L1 feedback) · [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md) SC13 (finish ≠ rollup) · [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (structure modules — future finish *mode*)
 
-**Plan / prompt:** [`amiga-organizer-finish-confirm-implementation-plan.md`](amiga-organizer-finish-confirm-implementation-plan.md) · [`orchestration/agent-handoffs/amiga-organizer-finish-confirm-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-organizer-finish-confirm-STARTER-PROMPT.md)
+**Plan / prompt:** `amiga-organizer-finish-confirm-implementation-plan.md` · `orchestration/agent-handoffs/amiga-organizer-finish-confirm-STARTER-PROMPT.md`
 
 **Motivation (Jul 2026):** Staging #609 “World Cup Kitchen getting wild” finished with ratings but Finish `—`, Winner `—`, no gold — because `is_world_cup` selected Tier D (KO podium) while the kitchen structure was pure league. Heuristic fallbacks (WC + no cup → league table) are now **prefill-only** (FO9); authority is Confirm → Tier E.
 

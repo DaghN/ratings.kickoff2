@@ -4,7 +4,7 @@
 
 **Deferred (explicit, not blockers):** OW12 on-the-fly stage builder UX; mid-event add-player into a full RR (fixture regen). Storage may still use `lifecycle_status = running` for Open (OW14).
 
-**Plan:** [`amiga-organizer-workspace-simplification-implementation-plan.md`](amiga-organizer-workspace-simplification-implementation-plan.md) (**done**).
+**Plan:** `amiga-organizer-workspace-simplification-implementation-plan.md` (**done**).
 
 **Parents:** [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (Open/running package vs Official — **kept**) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) · [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) · [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md) · [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) (admin Case A delete)
 

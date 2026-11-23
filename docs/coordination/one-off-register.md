@@ -1,6 +1,6 @@
 # One-off scripts register
 
-**Policy:** Prefer **ops simul** ([`ops-simul-runbook.md`](ops-simul-runbook.md)) for derived history. Batch REP: [`../archive/replay-register-2026-05.md`](../archive/replay-register-2026-05.md) (historical). One-offs are for imports, fixes, or experiments — mark **superseded by replay** when migrated.
+**Policy:** Prefer **ops simul** ([`ops-simul-runbook.md`](ops-simul-runbook.md)) for derived history. Batch REP: `../archive/replay-register-2026-05.md` (historical). One-offs are for imports, fixes, or experiments — mark **superseded by replay** when migrated.
 
 **Inventory buckets:** [`scripts/oneoff/README.md`](../../scripts/oneoff/README.md) — registered one-offs (this table) vs local toolkit vs `scripts/throwaway_*.php` browser probes.
 

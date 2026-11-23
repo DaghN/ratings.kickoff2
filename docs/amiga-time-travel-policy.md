@@ -1,7 +1,7 @@
 # Amiga time travel — policy
 
 **Status:** **Phase 1 implemented** (Jun 2026) — local proof + CLI smoke green; staging browser sign-off when Dagh syncs.  
-**Implementation plan (phase 1):** [`amiga-time-travel-implementation-plan.md`](amiga-time-travel-implementation-plan.md)
+**Implementation plan (phase 1):** `amiga-time-travel-implementation-plan.md`
 
 **Parent:** [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · [`amiga-matchup-at-event-policy.md`](amiga-matchup-at-event-policy.md) · [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) · [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md)
 
@@ -162,7 +162,7 @@ Player pills stay visible under time travel. Target **T15** + **T16**:
 | **Profile rating chart** | Snapshot events ≤ cutoff; date x-axis ends at cutoff (`amiga_player_rating_history_payload`) | **Shipped** Jun 2026 |
 | **Player Videos** | Game-linked manifest rows ≤ cutoff (`amiga_snapshot_rated_game_cutoff_and_sql` on index load). A player who has videos, but none by the cutoff, gets the normal page with an empty list (not a 404, Nov 2026) | **Shipped** Jun 2026 |
 | **Chronology graphs** | Bars and line end at the cutoff day (`end_date` in the payload, `chartEnd()` in `chart-date-range.js`) | **Shipped** Nov 2026 |
-| **Profile** blocks | Career / honours at cutoff | **Shipped** Jul 2026-14 — [`amiga-profile-time-travel-policy.md`](amiga-profile-time-travel-policy.md) · plan [`amiga-profile-time-travel-implementation-plan.md`](amiga-profile-time-travel-implementation-plan.md) (hero + charts Jun 2026; mosaic + moments + Videos pill Jul 2026) |
+| **Profile** blocks | Career / honours at cutoff | **Shipped** Jul 2026-14 — [`amiga-profile-time-travel-policy.md`](amiga-profile-time-travel-policy.md) · plan `amiga-profile-time-travel-implementation-plan.md` (hero + charts Jun 2026; mosaic + moments + Videos pill Jul 2026) |
 
 ### 4.4 Transitional defer (visible but not yet at cutoff)
 
@@ -188,7 +188,7 @@ Player pills stay visible under time travel. Target **T15** + **T16**:
 
 ### 5.0 Chrome — product intent (Jun 2026)
 
-> **CD track (Jul 2026, sticky v1 shipped):** [`amiga-tt-chrome-dock-policy.md`](amiga-tt-chrome-dock-policy.md) — **sticky on** via CSS `position:sticky` / **`top: 0`** latch on all `as=` pages; opaque **`var(--k2-bg-page)`** ribbon background. Pushpin **sticky off** deferred. Handoff [`2026-07-04-018`](orchestration/agent-handoffs/2026-07-04-018-tt-ribbon-sticky-v1-css.md).
+> **CD track (Jul 2026, sticky v1 shipped):** [`amiga-tt-chrome-dock-policy.md`](amiga-tt-chrome-dock-policy.md) — **sticky on** via CSS `position:sticky` / **`top: 0`** latch on all `as=` pages; opaque **`var(--k2-bg-page)`** ribbon background. Pushpin **sticky off** deferred. Handoff `2026-07-04-018`.
 
 Phase 1 proved the **data lens**: one `as=` cutoff, correct snapshot reads, link propagation. Browsing still felt like *the same page with different numbers* — correct but not *felt*. The **atmospheric chrome stack** records what we shipped to fix that.
 

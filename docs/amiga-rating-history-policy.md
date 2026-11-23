@@ -3,7 +3,7 @@
 **Status:** **V1 implemented** (Jun 2026). **V2:** superseded by [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) (full event snapshots + `amiga_player_current`).  
 **Purpose:** Historical **rating ladder** snapshots at chosen moments — browse past leaderboards, later animation / bar-chart race inputs.
 
-**Implementation:** [`amiga-rating-history-implementation-plan.md`](amiga-rating-history-implementation-plan.md)
+**Implementation:** `amiga-rating-history-implementation-plan.md`
 
 **Authority:** Rating timeline = [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) · layers = [`amiga-data-contract.md`](amiga-data-contract.md) · player surfaces = [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md)
 
@@ -177,7 +177,7 @@ Amiga hub:  … | History | …
 **Superseded (Jun 2026).** Full player timeline + present projection:
 
 - **Policy:** [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md)
-- **Plan:** [`amiga-event-snapshot-implementation-plan.md`](amiga-event-snapshot-implementation-plan.md)
+- **Plan:** `amiga-event-snapshot-implementation-plan.md`
 
 Summary: `amiga_player_event_snapshots` (canonical, full row per participated event) + `amiga_player_current` (materialized latest). Historical surfaces generalize the V1 read pattern on the wider snapshot rows. Retires `amiga_rating_events`, `amiga_player_stats`, `amiga_player_tournament_participation`, `amiga_player_tournament_totals`.
 

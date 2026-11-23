@@ -12,7 +12,7 @@
 
 **Migration:** **L0** — read-only JSON manifest + PHP UI; no DDL, no `prove`, no Part B registers.
 
-**Next artifact (optional):** [`orchestration/agent-handoffs/amiga-tournament-videos-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-tournament-videos-STARTER-PROMPT.md) for cold-start execution chats.
+**Next artifact (optional):** `orchestration/agent-handoffs/amiga-tournament-videos-STARTER-PROMPT.md` for cold-start execution chats.
 
 ---
 

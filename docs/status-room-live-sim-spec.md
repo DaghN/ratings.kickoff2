@@ -8,7 +8,7 @@
 |-----|------|
 | **This file** | Live sim platform — L1–L3 behaviours, guard, dispatcher boundary, harness, checklist |
 | [`status-room-live-policy.md`](status-room-live-policy.md) | Status pulse product contract (SRL-1…SRL-17); **`live_fp` excludes half-countdown** — client ticks clock locally |
-| [`status-room-live-implementation-plan.md`](status-room-live-implementation-plan.md) | Pulse shipped file map + verification workflow |
+| `status-room-live-implementation-plan.md` | Pulse shipped file map + verification workflow |
 | [`STATUS_PAGE_DATA.md`](STATUS_PAGE_DATA.md) | Status panels, data sources, snapshot vs live |
 
 **This is a platform idea**, not a one-off test hack. We should have had this years ago instead of "refresh prod and see what happens."

@@ -6,7 +6,7 @@
 
 **Parent:** [`amiga-ground-stack.md`](amiga-ground-stack.md) (S7 nationality + host country) · [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (L3 witness) · [`amiga-import-layer.md`](amiga-import-layer.md) (import manifest)
 
-**Related:** [`amiga-country-registry-implementation-plan.md`](amiga-country-registry-implementation-plan.md) · [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) (CH4 country token, CH9 flags, CH17 host vs nationality) · [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (organizer create) · [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) · [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) (H8 token SQL)
+**Related:** `amiga-country-registry-implementation-plan.md` · [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) (CH4 country token, CH9 flags, CH17 host vs nationality) · [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (organizer create) · [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) · [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) (H8 token SQL)
 
 ---
 
@@ -334,7 +334,7 @@ Keep existing routes: `k2_amiga_route('amiga-country-roster', ['country' => $off
 | Surface | Rule |
 |---------|------|
 | **Organizer — create tournament** | `fixtures.php` country field → registry select only |
-| **Organizer — create player** | **Shipped** — [`amiga-player-create-implementation-plan.md`](amiga-player-create-implementation-plan.md) PC-1–PC-7 |
+| **Organizer — create player** | **Shipped** — `amiga-player-create-implementation-plan.md` PC-1–PC-7 |
 | **Free text** | Rejected server-side if not ∈ registry |
 
 ### 8.2 Organizer UI (CR21) — shipped
@@ -384,7 +384,7 @@ Wrong witness country strings → fix registry and/or aliases → **`simul`** on
 | **CR-8** | Staging export sync + spot-check Countries hub, filters, rivals, WC host |
 | **CR-9** | Phase 2 backlog: 301 aliases (CR27), shorthand sitewide toggle (CR18), edit after create (CR28) |
 
-**Implementation plan:** [`amiga-country-registry-implementation-plan.md`](amiga-country-registry-implementation-plan.md) — slices CR-0–CR-8.
+**Implementation plan:** `amiga-country-registry-implementation-plan.md` — slices CR-0–CR-8.
 
 ---
 

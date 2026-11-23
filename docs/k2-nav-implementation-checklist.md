@@ -114,7 +114,7 @@ Adding a **new sub-nav class** to `theme.css`? Add it to the existing sub-nav bl
 - [`k2-page-structure-checklist.md`](k2-page-structure-checklist.md) -- folder paths vs query-param modes (read before this checklist when adding a new page/tab)
 - [`navigation-model.md`](navigation-model.md) -- NM1-NM6: hub bar always present, active pill only on places, entity pages at realm root (the *why* behind active-pill + page-placement choices)
 - [`nav-spacing-policy.md`](nav-spacing-policy.md) -- locked decisions N1-N10, patterns A/B/C
-- [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md) -- shipped phases + smoke URLs
+- `nav-spacing-implementation-plan.md` -- shipped phases + smoke URLs
 - [`filter-stack-spacing-policy.md`](filter-stack-spacing-policy.md) -- Tier 1 filter composites F1-F8 (extends N2; no wrapper vertical gap)
-- [`filter-stack-spacing-implementation-plan.md`](filter-stack-spacing-implementation-plan.md) -- shipped slices + smoke URLs
+- `filter-stack-spacing-implementation-plan.md` -- shipped slices + smoke URLs
 - [`design-direction.md`](design-direction.md) -- segment track visuals, tint picker

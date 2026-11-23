@@ -4,7 +4,7 @@
 
 **Policy (locked):** [`amiga-format-scoring-contract-policy.md`](amiga-format-scoring-contract-policy.md)
 
-**Design history:** [`amiga-format-scoring-contract-design-discussion.md`](amiga-format-scoring-contract-design-discussion.md)
+**Design history:** `amiga-format-scoring-contract-design-discussion.md`
 
 **Parent:** [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) · [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md)
 

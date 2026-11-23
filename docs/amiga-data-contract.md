@@ -14,19 +14,19 @@
 |--------|----------|
 | Access inventory, quirks, chronology | [`amiga-schema-discovery.md`](amiga-schema-discovery.md) |
 | **Import layer** (archival → ground truth) | [`amiga-import-layer.md`](amiga-import-layer.md) |
-| **Ground layers L0–L5** (koatd → mirror → prune → witness → structure → product) | [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · plan [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md) |
-| Chronology fix | [`amiga-chronology-fix-plan.md`](amiga-chronology-fix-plan.md) |
+| **Ground layers L0–L5** (koatd → mirror → prune → witness → structure → product) | [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) · plan `amiga-ground-layers-implementation-plan.md` |
+| Chronology fix | `amiga-chronology-fix-plan.md` |
 | Profile / games UI (v0) | [`amiga-profile-v0.md`](amiga-profile-v0.md) |
 | **Realm vision & roadmap** (inventory, hub IA, phases) | [`amiga-realm-vision.md`](amiga-realm-vision.md) |
-| **Tournament format system** (legacy phases → templates/fixtures vision) | [`amiga-tournament-format-vision.md`](amiga-tournament-format-vision.md) · handoff [`amiga-tournament-format-handoff-prompt.md`](amiga-tournament-format-handoff-prompt.md) |
+| **Tournament format system** (legacy phases → templates/fixtures vision) | `amiga-tournament-format-vision.md` · handoff `amiga-tournament-format-handoff-prompt.md` |
 | **Tournament structure** (stage types, legacy materialize, modules vs graph) | [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) · **display end state:** [`amiga-tournament-structure-display-policy.md`](amiga-tournament-structure-display-policy.md) · plan [`amiga-tournament-structure-implementation-plan.md`](amiga-tournament-structure-implementation-plan.md) · **manual materialize:** [`amiga-tournament-structure-manual-materialize-runbook.md`](amiga-tournament-structure-manual-materialize-runbook.md) |
-| **Tournament finalize & rating events** (commit boundary, replay oracle) | [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) · plan [`amiga-tournament-finalize-implementation-plan.md`](amiga-tournament-finalize-implementation-plan.md) |
-| **Player universe** (derived expansion, participation, honours, H2H) | [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) · slices [`amiga-player-universe-implementation-plan.md`](amiga-player-universe-implementation-plan.md) |
+| **Tournament finalize & rating events** (commit boundary, replay oracle) | [`amiga-tournament-finalize-rating-contract.md`](amiga-tournament-finalize-rating-contract.md) · plan `amiga-tournament-finalize-implementation-plan.md` |
+| **Player universe** (derived expansion, participation, honours, H2H) | [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) · slices `amiga-player-universe-implementation-plan.md` |
 | **Event performance rating** (TPR per tournament) | [`amiga-performance-rating.md`](amiga-performance-rating.md) |
-| **Historical rating ladder snapshots** (V1 shipped) | [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md) · plan [`amiga-rating-history-implementation-plan.md`](amiga-rating-history-implementation-plan.md) |
-| **Event snapshots** (canonical player timeline + `amiga_player_current`) | [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · plan [`amiga-event-snapshot-implementation-plan.md`](amiga-event-snapshot-implementation-plan.md) |
-| **Time travel** (realm-wide `as=` lens; phase 1 **shipped** — LB 8 wings, HoF; **T19** fixed mode-toggle homes; ribbon for in-lens time) | [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · plan [`amiga-time-travel-implementation-plan.md`](amiga-time-travel-implementation-plan.md) · smoke [`scripts/oneoff/amiga_time_travel_smoke.php`](../scripts/oneoff/amiga_time_travel_smoke.php) |
-| **Community stats** (realm-wide Activity aggregates; separate from HoF) | [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · v1 [`amiga-community-stats-implementation-plan.md`](amiga-community-stats-implementation-plan.md) · v2 catalog [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) |
+| **Historical rating ladder snapshots** (V1 shipped) | [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md) · plan `amiga-rating-history-implementation-plan.md` |
+| **Event snapshots** (canonical player timeline + `amiga_player_current`) | [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · plan `amiga-event-snapshot-implementation-plan.md` |
+| **Time travel** (realm-wide `as=` lens; phase 1 **shipped** — LB 8 wings, HoF; **T19** fixed mode-toggle homes; ribbon for in-lens time) | [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · plan `amiga-time-travel-implementation-plan.md` · smoke [`scripts/oneoff/amiga_time_travel_smoke.php`](../scripts/oneoff/amiga_time_travel_smoke.php) |
+| **Community stats** (realm-wide Activity aggregates; separate from HoF) | [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · v1 `amiga-community-stats-implementation-plan.md` · v2 catalog `amiga-community-stats-catalog-plan.md` |
 | **Where to store player×event derived stats** | [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.0 |
 | Staging deploy | [`amiga-staging-handoff.md`](amiga-staging-handoff.md) |
 | **Live ops platform** (staging authority, repair, media, lanes A/B/C) | [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) |
@@ -109,7 +109,7 @@ Access has no per-game timestamp. **Import sort key** (walk only — not used at
 ORDER BY g.game_date ASC, g.id ASC
 ```
 
-`tournaments.chrono` remains imported metadata for import tie-breaks and catalog display — not for replay or API game walks. Verify: `python -m scripts.amiga verify-chronology`. Spec history: [`amiga-chronology-fix-plan.md`](amiga-chronology-fix-plan.md).
+`tournaments.chrono` remains imported metadata for import tie-breaks and catalog display — not for replay or API game walks. Verify: `python -m scripts.amiga verify-chronology`. Spec history: `amiga-chronology-fix-plan.md`.
 
 ### Match streaks — off the table (product policy)
 
@@ -255,7 +255,7 @@ Twenty nullable columns on **`amiga_player_event_snapshots`** and **`amiga_playe
 | Snapshot persist | `snapshot_persist.py` · `amiga_event_snapshot_persist.php` |
 | HoF `*Date` projection | `realm_incremental.py` · `amiga_realm_incremental_lib.php` from holder’s `*_last_rise_event_date` |
 
-`honours_last_event_date` / `honours_last_tournament_id` stay **last participation** only. Year-peak HoF dates unchanged (`peak_year_*_year`). Legacy career HoF rows (`MostGamesPlayed`, …) use rise dates per SCH-030 (not `record_date`). Verify: `verify-hof-geo-year` + `verify-hof-holder-projection` + `verify-stored-id-date-pairs` in `prove`. Policy: [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md) D1–D13. **Broader id/date guardrails:** [`amiga-stored-field-semantics-plan.md`](amiga-stored-field-semantics-plan.md) (phases A–C) · manifest [`amiga-stored-field-semantics.md`](amiga-stored-field-semantics.md).
+`honours_last_event_date` / `honours_last_tournament_id` stay **last participation** only. Year-peak HoF dates unchanged (`peak_year_*_year`). Legacy career HoF rows (`MostGamesPlayed`, …) use rise dates per SCH-030 (not `record_date`). Verify: `verify-hof-geo-year` + `verify-hof-holder-projection` + `verify-stored-id-date-pairs` in `prove`. Policy: [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md) D1–D13. **Broader id/date guardrails:** `amiga-stored-field-semantics-plan.md` (phases A–C) · manifest [`amiga-stored-field-semantics.md`](amiga-stored-field-semantics.md).
 
 ### Tournament format metadata
 
@@ -327,7 +327,7 @@ Twenty nullable columns on **`amiga_player_event_snapshots`** and **`amiga_playe
 
 ### Player identity and KOA naming (internal ops)
 
-**Browser organizer create:** policy locked Jul 2026 — [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (rev. 2.1). **Shipped (Jul 2026):** compose-league **Create player** in `fixtures.php` (preview KOA name + confirm); `player_source` column; orphan delete on draft chip remove; orphan sweep on `fixtures cleanup-generated`. Plan: [`amiga-player-create-implementation-plan.md`](amiga-player-create-implementation-plan.md).
+**Browser organizer create:** policy locked Jul 2026 — [`amiga-player-create-policy.md`](amiga-player-create-policy.md) (rev. 2.1). **Shipped (Jul 2026):** compose-league **Create player** in `fixtures.php` (preview KOA name + confirm); `player_source` column; orphan delete on draft chip remove; orphan sweep on `fixtures cleanup-generated`. Plan: `amiga-player-create-implementation-plan.md`.
 
 - `amiga_players.name` is the canonical display identity. Import normalizes spacing, collapses duplicate case/spacing variants, and strips trailing periods (`scripts/amiga/player_names.py`). The column uses `utf8mb4_bin` collation — exact spelling is unique; identity checks also use casefolded `identity_key` to refuse likely duplicates.
 - **`player_source`** (`enum('import','live_ops')`, default `import`) — live organizer / CLI create sets `live_ops`; import corpus rows stay `import`. Orphan cleanup only deletes `live_ops` rows with zero games and no other entrant links ([`amiga-player-create-policy.md`](amiga-player-create-policy.md) §6.3). DDL in [`ground/001_core.sql`](../scripts/amiga/sql/ground/001_core.sql) via `prove`.
@@ -401,7 +401,7 @@ Do not “fix” these by importing Access snapshots as truth. Re-run: `python -
 - **Finalize:** `php site/public_html/amiga/ops/run_process_game.php finalize-tournament --tournament-id=T` or `python -m scripts.amiga finalize-tournament --tournament-id=T`.
 - **Batch rebuild (forward):** **`python -m scripts.amiga simul`** on **`ko2amiga_work`**.
 - **Batch rebuild (oracle):** `python -m scripts.amiga prove` or `replay` + verify on frozen **`ko2amiga_db`**.
-- **Corrections / derived repair:** **simul** on work; anchored repair on staging per live-ops platform — not nuclear reimport. Reopen/refinalize retired Jun 2026 ([`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)).
+- **Corrections / derived repair:** **simul** on work; anchored repair on staging per live-ops platform — not nuclear reimport. Reopen/refinalize retired Jun 2026 (`archive/retired-amiga-refinalize-2026-06.md`).
 - **New derived tables:** add row to § Table register + post-game rule before implementing
 - **Website:** extend `includes/amiga_*.php`, not online `k2_*` game loaders
 - **Match streaks:** never ship UI or APIs that display `*Streak` / `Longest*Streak` on Amiga — see § Match streaks

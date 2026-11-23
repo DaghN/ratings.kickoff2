@@ -185,7 +185,7 @@ Follow [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md): `amiga_lb_c
 
 ## 9. Implementation pointer
 
-See [`amiga-performance-rating-leaderboard-implementation-plan.md`](amiga-performance-rating-leaderboard-implementation-plan.md) for slices, file list, and verification.
+See `amiga-performance-rating-leaderboard-implementation-plan.md` for slices, file list, and verification.
 
 ---
 

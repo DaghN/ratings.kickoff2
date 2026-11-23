@@ -36,8 +36,8 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | Status hub panels / league | `docs/STATUS_PAGE_DATA.md` |
 | **Status room live polling** | [`status-room-live-policy.md`](status-room-live-policy.md) |
 | **Status room live — local sim** | [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md) (live environment: login, register, games; dispatcher boundary) |
-| Player profile layout / v1 build | `docs/player-profile-feast.md`, `docs/profile-build-playbook.md` (v1 decisions: `docs/archive/profile-content-candidates.md`) |
-| **Player profile stat links (hero + mosaic)** | [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) · Track B prompt [`orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md) |
+| Player profile layout / v1 build | `docs/player-profile-feast.md`, `docs/profile-build-playbook.md` |
+| **Player profile stat links (hero + mosaic)** | [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) |
 | **Amiga inverse victim/culprit counts (sparse changelog)** | [`amiga-player-inverse-count-timeline-policy.md`](amiga-player-inverse-count-timeline-policy.md) · `verify-inverse-count-changelog` |
 | Milestones feature (phases, catalog, tier plan) | `docs/milestones-README.md`, `docs/milestones-catalog.md` (regen script), `docs/milestones-project.md`, `docs/milestones-product-spec.md` |
 | Hub tabs / IA | `docs/hub-ia-agreement.md` |
@@ -47,38 +47,38 @@ Update the doc that owns that area — **if** behaviour or contracts changed:
 | Play & setup / join page | `docs/join-play-setup.md` |
 | Visual identity / theme | `docs/design-direction.md` |
 | **Mobile / smartphone** (audits, responsive, dense tables on phone) | [`k2-mobile-smartphone-policy.md`](k2-mobile-smartphone-policy.md) |
-| **Page nav spacing** (chrome stack gaps) | [`nav-spacing-policy.md`](nav-spacing-policy.md) · [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md) |
-| **Filter stack spacing** (Tier 1 filter composites; extends nav N2) | [`filter-stack-spacing-policy.md`](filter-stack-spacing-policy.md) · [`filter-stack-spacing-implementation-plan.md`](filter-stack-spacing-implementation-plan.md) |
+| **Page nav spacing** (chrome stack gaps) | [`nav-spacing-policy.md`](nav-spacing-policy.md) |
+| **Filter stack spacing** (Tier 1 filter composites; extends nav N2) | [`filter-stack-spacing-policy.md`](filter-stack-spacing-policy.md) |
 | **K2 tooltips** (table headers, chart hovers, control help) | [`k2-tooltip-policy.md`](k2-tooltip-policy.md) |
 | **K2 table entity links** (player/tournament/country names, Amiga inline flags) | [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md) |
 | **K2 tables** (sortable, wide, filter reload, table refactor) | **`docs/k2-table-implementation-checklist.md`** (then `docs/k2-table-and-games-plan.md` if needed) |
-| **K2 LB server-side sort (Track A)** — hub wing URL landing `k2_sort` | [`k2-lb-ssr-sort-policy.md`](k2-lb-ssr-sort-policy.md) · plan [`k2-lb-ssr-sort-implementation-plan.md`](k2-lb-ssr-sort-implementation-plan.md) |
-| **K2 quiet date** (first-load date blast; ID default vs fallback tooling) | [`k2-table-quiet-date-column-policy.md`](k2-table-quiet-date-column-policy.md) · plan [`k2-table-quiet-date-unification-plan.md`](k2-table-quiet-date-unification-plan.md) |
+| **K2 LB server-side sort (Track A)** — hub wing URL landing `k2_sort` | [`k2-lb-ssr-sort-policy.md`](k2-lb-ssr-sort-policy.md) |
+| **K2 quiet date** (first-load date blast; ID default vs fallback tooling) | [`k2-table-quiet-date-column-policy.md`](k2-table-quiet-date-column-policy.md) |
 | **K2 page structure** (new page / tab / mode) | **`docs/k2-page-structure-checklist.md`** (then `url-routes.md`, `navigation-model.md`) |
 | Ladder replay scope / reset rules | `docs/replay-v1-scope-and-reset.md` (rare; big replay changes only) |
 | **Amiga Opponents wing** | [`amiga-opponents-wing-policy.md`](amiga-opponents-wing-policy.md) (port online H2H/WDL/Goals/DDs; incremental slices) |
-| **Amiga Opponents country grain** | [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md) · plan [`amiga-opponents-country-grain-implementation-plan.md`](amiga-opponents-country-grain-implementation-plan.md) |
-| **Amiga country Rivals (country vs country)** | [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) · plan [`amiga-country-rivals-implementation-plan.md`](amiga-country-rivals-implementation-plan.md) · three-grain table §1.1 |
+| **Amiga Opponents country grain** | [`amiga-opponents-country-grain-policy.md`](amiga-opponents-country-grain-policy.md) |
+| **Amiga country Rivals (country vs country)** | [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) · three-grain table §1.1 |
 | **Amiga World Cups LB (slice + columns)** | [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) (data contract; UI = hub Player stats) · **slice V2** [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md) |
-| **Amiga WC HoF** | [`amiga-wc-hof-policy.md`](amiga-wc-hof-policy.md) · [`amiga-wc-hof-implementation-plan.md`](amiga-wc-hof-implementation-plan.md) |
-| **Amiga Countries hub** | [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) · [`amiga-countries-hub-implementation-plan.md`](amiga-countries-hub-implementation-plan.md) |
-| **Amiga country registry** (canonical tokens, JSON registry, L3 normalization) | [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) · [`amiga-country-registry-implementation-plan.md`](amiga-country-registry-implementation-plan.md) |
-| **Amiga `is_world_cup` flag** (L3 catalog membership, snapshot denorm, live checkbox) | [`amiga-world-cup-flag-policy.md`](amiga-world-cup-flag-policy.md) · [`amiga-world-cup-flag-implementation-plan.md`](amiga-world-cup-flag-implementation-plan.md) |
-| **Amiga player create** (KOA naming, permanent roster + orphan cleanup, organizer UX) | [`amiga-player-create-policy.md`](amiga-player-create-policy.md) · [`amiga-player-create-implementation-plan.md`](amiga-player-create-implementation-plan.md) |
-| **Amiga modern ground** (living ground, day 0 L3, simul, Access retired) | [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) · **S-1 plan:** [`amiga-modern-simul-implementation-plan.md`](amiga-modern-simul-implementation-plan.md) · **modern video:** [`amiga-modern-video-policy.md`](amiga-modern-video-policy.md) |
+| **Amiga WC HoF** | [`amiga-wc-hof-policy.md`](amiga-wc-hof-policy.md) |
+| **Amiga Countries hub** | [`amiga-countries-hub-policy.md`](amiga-countries-hub-policy.md) |
+| **Amiga country registry** (canonical tokens, JSON registry, L3 normalization) | [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) |
+| **Amiga `is_world_cup` flag** (L3 catalog membership, snapshot denorm, live checkbox) | [`amiga-world-cup-flag-policy.md`](amiga-world-cup-flag-policy.md) |
+| **Amiga player create** (KOA naming, permanent roster + orphan cleanup, organizer UX) | [`amiga-player-create-policy.md`](amiga-player-create-policy.md) |
+| **Amiga modern ground** (living ground, day 0 L3, simul, Access retired) | [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) · **modern video:** [`amiga-modern-video-policy.md`](amiga-modern-video-policy.md) |
 | **Amiga staging authority** (staged prod, local repair shop, pull → push) | [`amiga-staging-authority-policy.md`](amiga-staging-authority-policy.md) · runbook [`amiga-staging-handoff.md`](amiga-staging-handoff.md) · export registry `scripts/amiga/staging_export_tables.py` |
-| Amiga ground layers / community packs (Access era — archive) | `docs/amiga-ground-stack.md`, `docs/amiga-ground-layers-policy.md`, `docs/amiga-ground-layers-implementation-plan.md` (L0–L5) |
+| Amiga ground layers / community packs (Access era — archive) | `docs/amiga-ground-stack.md`, `docs/amiga-ground-layers-policy.md` (L0–L5) |
 | Amiga derived write policy / simul on work; prove = oracle | `docs/amiga-derived-write-policy.md`, `docs/amiga-data-contract.md` |
-| **Amiga live ops** (staging authority, lanes A/B/C, anchored repair, staging backup packs, community media) | [`amiga-organizer-track-status.md`](amiga-organizer-track-status.md) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) · [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) · RTB + finish confirm + **L5:** [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) · **AD8 backdate:** [`amiga-organizer-backdate-guard-policy.md`](amiga-organizer-backdate-guard-policy.md) · plan [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) · **Case C insert:** [`amiga-case-c-insert-finish-implementation-plan.md`](amiga-case-c-insert-finish-implementation-plan.md) · **L6 shelved** · **organizer workspace UX:** [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md) · plan [`amiga-organizer-workspace-simplification-implementation-plan.md`](amiga-organizer-workspace-simplification-implementation-plan.md) |
-| Amiga event finish / honours / podiums | `docs/amiga-tournament-honours-rules.md`, `docs/amiga-event-finish-implementation-plan.md`, `docs/amiga-player-universe-contract.md` §5.2–§6 · **live confirm UI:** [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md) |
-| **Amiga perfect event** (undefeated events, honours LB, HoF) | [`amiga-perfect-event-policy.md`](amiga-perfect-event-policy.md) · [`amiga-perfect-event-implementation-plan.md`](amiga-perfect-event-implementation-plan.md) |
+| **Amiga live ops** (staging authority, lanes A/B/C, anchored repair, staging backup packs, community media) | [`amiga-organizer-track-status.md`](amiga-organizer-track-status.md) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) · [`amiga-live-ops-practice-track.md`](amiga-live-ops-practice-track.md) · RTB + finish confirm + **L5:** [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) · **AD8 backdate:** [`amiga-organizer-backdate-guard-policy.md`](amiga-organizer-backdate-guard-policy.md) · **Case C insert:** [`amiga-case-c-insert-finish-implementation-plan.md`](amiga-case-c-insert-finish-implementation-plan.md) · **L6 shelved** · **organizer workspace UX:** [`amiga-organizer-workspace-simplification-policy.md`](amiga-organizer-workspace-simplification-policy.md) |
+| Amiga event finish / honours / podiums | `docs/amiga-tournament-honours-rules.md`, `docs/amiga-player-universe-contract.md` §5.2–§6 · **live confirm UI:** [`amiga-organizer-finish-confirm-policy.md`](amiga-organizer-finish-confirm-policy.md) |
+| **Amiga perfect event** (undefeated events, honours LB, HoF) | [`amiga-perfect-event-policy.md`](amiga-perfect-event-policy.md) |
 | **Amiga perf. rating LB sub-wings** (Best · Top 100 · Perfect) | [`amiga-performance-rating-leaderboard-policy.md`](amiga-performance-rating-leaderboard-policy.md) |
 | **Amiga tournament videos** (YouTube embeds, manifest, DB anchor sync) | [`amiga-tournament-videos-policy.md`](amiga-tournament-videos-policy.md) §12 · **[`amiga-tournament-videos-game-links-policy.md`](amiga-tournament-videos-game-links-policy.md)** (match facts, sync/remap, verify) · [`k2-embedded-video-page-policy.md`](k2-embedded-video-page-policy.md) · [`amiga-tournament-videos-implementation-plan.md`](amiga-tournament-videos-implementation-plan.md) (TV-2b) · `scripts/amiga/tournament_videos/README.md` |
 | Hall of Fame record C++ / staging defects | `docs/coordination/records-post-game-exception.md`, `docs/staging-post-game-record-defects.md` (when records behavior changes) |
-| **Amiga Activity charts** | [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) · plan [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) |
+| **Amiga Activity charts** | [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) |
 | **Amiga Activity — Nations player grains** (active players / debuts / roster) | [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md) · plan [`amiga-activity-geography-nations-players-implementation-plan.md`](amiga-activity-geography-nations-players-implementation-plan.md) |
 | **Creative / product brainstorm** (pre-track ideas, ledger updates — no code) | [`creative-ideas-july-2026.md`](creative-ideas-july-2026.md) — update §5 ledger + §8 changelog; one `PROJECT_MEMORY` line; **not** default cold-start read (see doc §4) |
-| **With player stepper** (opt-in filters, tournament/league/TT chevrons; T18 retirement) | [`with-player-stepper-policy.md`](with-player-stepper-policy.md) · plan [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md) |
+| **With player stepper** (opt-in filters, tournament/league/TT chevrons; T18 retirement) | [`with-player-stepper-policy.md`](with-player-stepper-policy.md) |
 | **Amiga tournament structure — manual materialize** (long-tail catalog, one id) | [`amiga-tournament-structure-manual-materialize-runbook.md`](amiga-tournament-structure-manual-materialize-runbook.md) · **display end state:** [`amiga-tournament-structure-display-policy.md`](amiga-tournament-structure-display-policy.md) · handlers [`amiga-tournament-structure-handlers.md`](amiga-tournament-structure-handlers.md) · log [`amiga-tournament-structure-review-queue.md`](amiga-tournament-structure-review-queue.md) |
 | **Amiga tournament knockout display / bracket UI** (structure imprint, stage-native viewer) | [`amiga-tournament-structure-display-policy.md`](amiga-tournament-structure-display-policy.md) · modules [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) · materialize runbook above |
 
@@ -129,7 +129,7 @@ Details: [`prod-coordination.md`](prod-coordination.md#prod-readiness-levels).
 | If… | Update |
 |-----|--------|
 | SQL migration | `site/public_html/ops/sql/migrations/NNN_….sql` + [`schema-register.md`](coordination/schema-register.md) |
-| Ops simul / ladder changes | [`cutover-readiness.md`](coordination/cutover-readiness.md); historical batch log: [`archive/replay-register-2026-05.md`](archive/replay-register-2026-05.md) |
+| Ops simul / ladder changes | [`cutover-readiness.md`](coordination/cutover-readiness.md) |
 | Post-game rules (contract) | Extend [`website-data-contract.md`](website-data-contract.md) § for the table; records only → [`records-post-game-exception.md`](coordination/records-post-game-exception.md) |
 | Periodic job | [`periodic-register.md`](coordination/periodic-register.md) |
 | Ops CMD / Steve live handoff | **Edit** [`site/public_html/ops/docs/`](../site/public_html/ops/docs/) (`steve-live-ops.md`, `ops-dispatch.md`) — WinSCP canonical; `docs/coordination/` stubs redirect |

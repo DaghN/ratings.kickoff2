@@ -1,7 +1,7 @@
 # Obsolete dev scripts — retirement policy
 
 **Status:** **Complete** (Jun 2026) — slices 1–6 executed; holy ops unchanged.  
-**Companion:** [`obsolete-dev-scripts-retirement-implementation-plan.md`](obsolete-dev-scripts-retirement-implementation-plan.md)  
+**Companion:** `obsolete-dev-scripts-retirement-implementation-plan.md`  
 **Audience:** Dagh, Cursor agents.
 
 ---

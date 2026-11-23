@@ -21,7 +21,7 @@
 | Legacy C++ (retiring) | [`ratings_cpp.txt`](../ratings_cpp.txt) — field order reference only |
 | Core ladder column manifest (historical) | [`replay-v1-scope-and-reset.md`](replay-v1-scope-and-reset.md) — holy fill = ops simul |
 | Website aggregates (work/staging/prod copy) | [`cutover-readiness.md`](cutover-readiness.md) — `ops/run_ops_sim.php` + `run_verify_ops_sim.php` |
-| Historical May staging one-shot | [`STAGING_REPLAY.md`](../STAGING_REPLAY.md) → archive stub only |
+| Historical May staging one-shot | `STAGING_REPLAY.md` → archive stub only |
 
 ---
 

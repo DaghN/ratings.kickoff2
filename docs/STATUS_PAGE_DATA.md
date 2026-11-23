@@ -120,7 +120,7 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 | **League stack (legacy)** | Replaced on Status by **Leagues** block (`status_period_competitions_section.php`); old four-panel + `status-league-toggle.js` removed from `status.php` |
 | **League stored truth (SCH-008)** | **Repo + `kooldb1` proof done** (Jun 2026) — `player_period_league` via ops simul on work DB; May batch era on frozen **`kooldb`** only. **Live prod:** schema + PHP post-game at Steve cutover (not repo backlog) |
 | Performance pass | **Local + work/staging proof done** — `idx_ratedresults_date`, `idx_resulttable_live_status`, `player_period_league`; Status loader ~6.6s → ~51ms locally (Jun 2026). **Jul 2026:** current **year** bundle deferred to client prewarm + `k2_league_load_first_games` request memo — first paint ~0.15 s curl (`2026-07-04-017`). Legacy `player_monthly_league` dropped SCH-017 (Jun 2026) |
-| Period activity prep | **Repo + `kooldb1` proof done** — `player_period_games` / peaks via ops simul; historical May **`kooldb`** batch in [`archive/replay-register-2026-05.md`](archive/replay-register-2026-05.md) |
+| Period activity prep | **Repo + `kooldb1` proof done** — `player_period_games` / peaks via ops simul; historical May **`kooldb`** batch in `archive/replay-register-2026-05.md` |
 | **Leagues (period competitions)** | **Shipped** — paired Activity + Points, tab nav, prewarm, Daily games list — [`docs/status-period-competitions.md`](status-period-competitions.md) |
 | **v1.5 live room** | **Shipped (Jul 2026)** — 1 s pulse, cascade on rated finish, **`live_clocks` every heartbeat** (SRL-9 **pending / running / held** — smooth mid-match tick, pre-start hold, pause after 6 s idle), client half clocks, **cascade glow** (active LB Elo for rating gainers; league Activity **Games** + Points **Pts** on finishers), minimal lobby glow, live **`StartTime ASC`** (newest bottom), visibility catch-up, SRL-16 rating re-sort — [`status-room-live-policy.md`](status-room-live-policy.md) § Glow contract · § Production readiness |
 | **v1.5 live testing** | **Work sim harness shipped** — L1–L3 + L2 registration; **wall-clock catch-up** on status load / pulse (cap 600 s) — [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md) · SIM-T13 |
@@ -133,7 +133,7 @@ Earlier single-column / pulse-first ordering; replaced by v1.2 grid above.
 | Doc | Role |
 |-----|------|
 | [`status-room-live-policy.md`](status-room-live-policy.md) | Live polling contract (SRL-1…SRL-17), environments, file map |
-| [`status-room-live-implementation-plan.md`](status-room-live-implementation-plan.md) | SRL slices (shipped) + work verification workflow |
+| `status-room-live-implementation-plan.md` | SRL slices (shipped) + work verification workflow |
 | [`status-room-live-sim-spec.md`](status-room-live-sim-spec.md) | **Live environment sim** — L1–L3, guard, harness, test checklist |
 | [`status-period-competitions.md`](status-period-competitions.md) | Leagues block (integrates with pulse) |
 | [`hub-ia-agreement.md`](hub-ia-agreement.md) | Status hub IA |

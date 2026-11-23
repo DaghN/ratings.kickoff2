@@ -2,7 +2,7 @@
 
 **Status:** **Implemented** (Jul 2026). Track **A** complete — all hub leaderboard wings SSR-sort on URL landing. Track **B** (profile mosaic links) remains separate.
 
-**Authority:** Dagh's latest message → this doc → [`k2-lb-ssr-sort-implementation-plan.md`](k2-lb-ssr-sort-implementation-plan.md). Table stack contract: [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md). Deep-link column indices (HoF): [`amiga_records_hof_links.php`](../site/public_html/includes/amiga_records_hof_links.php) (Amiga) · [`records_hof_links.php`](../site/public_html/includes/records_hof_links.php) (online). **Profile mosaic link wiring** is **Track B** — [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) — not this track.
+**Authority:** Dagh's latest message → this doc → `k2-lb-ssr-sort-implementation-plan.md`. Table stack contract: [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md). Deep-link column indices (HoF): [`amiga_records_hof_links.php`](../site/public_html/includes/amiga_records_hof_links.php) (Amiga) · [`records_hof_links.php`](../site/public_html/includes/records_hof_links.php) (online). **Profile mosaic link wiring** is **Track B** — [`player-profile-stat-links-policy.md`](player-profile-stat-links-policy.md) — not this track.
 
 **For agents:** read this **before** upgrading any hub leaderboard wing for URL landing sort. Copy the shipped reference wings; do not invent a parallel sort mechanism.
 
@@ -137,7 +137,7 @@ Static maps in `amiga_records_hof_links.php` / `records_hof_links.php` were chec
 
 ## 9) Related docs
 
-- Plan + slices: [`k2-lb-ssr-sort-implementation-plan.md`](k2-lb-ssr-sort-implementation-plan.md)
-- Starter prompt: [`orchestration/agent-handoffs/k2-lb-ssr-sort-STARTER-PROMPT.md`](orchestration/agent-handoffs/k2-lb-ssr-sort-STARTER-PROMPT.md)
+- Plan + slices: `k2-lb-ssr-sort-implementation-plan.md`
+- Starter prompt: `orchestration/agent-handoffs/k2-lb-ssr-sort-STARTER-PROMPT.md`
 - K2 table stack: [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md)
 - Entity links / row anchors: [`k2-table-entity-links-policy.md`](k2-table-entity-links-policy.md)

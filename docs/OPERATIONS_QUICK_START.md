@@ -134,7 +134,7 @@ Prefer ops simul when the job is “recompute from all games in order.”
 | Verify | `php ops/run_verify_ops_sim.php --target staging-work` |
 | Live cutover (when scheduled) | [`post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md) |
 
-**Historical May 2026 staging one-shot:** [`archive/STAGING_REPLAY-2026-05.md`](archive/STAGING_REPLAY-2026-05.md). **Not** the cutover recipe.
+**Historical May 2026 staging one-shot:** `archive/STAGING_REPLAY-2026-05.md`. **Not** the cutover recipe.
 
 **Cutover email template:** [`coordination/cutover-packet-template.md`](coordination/cutover-packet-template.md)
 

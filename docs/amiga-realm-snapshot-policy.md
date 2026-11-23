@@ -3,7 +3,7 @@
 > **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
 
 **Status:** **Locked** (Jun 2026) — implementation **complete** (slices 0–8); historical HoF UI follow-on.  
-**Implementation plan:** [`amiga-realm-snapshot-implementation-plan.md`](amiga-realm-snapshot-implementation-plan.md)
+**Implementation plan:** `amiga-realm-snapshot-implementation-plan.md`
 
 **Parent:** [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) (player timeline — complete) · [`amiga-data-contract.md`](amiga-data-contract.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.5
 
@@ -163,4 +163,4 @@ Index: `(event_date, event_chrono, tournament_id)`.
 
 - **Part B** migration registers apply when DDL + finalize writers ship.
 - Extend [`scripts/amiga/server_records.py`](../scripts/amiga/server_records.py) — do not fork a second record-compute implementation.
-- Implementation: [`amiga-realm-snapshot-implementation-plan.md`](amiga-realm-snapshot-implementation-plan.md) — slices in order unless Dagh splits.
+- Implementation: `amiga-realm-snapshot-implementation-plan.md` — slices in order unless Dagh splits.

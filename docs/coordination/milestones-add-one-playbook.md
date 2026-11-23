@@ -107,7 +107,7 @@ python scripts/oneoff/load_milestone_definitions.py
 | Steve / local work | `php ops/run_prepare.php seed-catalog --target staging-work` |
 | Proof | `php ops/run_ops_sim.php run` + `run_verify_ops_sim.php` on **`kooldb1`** |
 
-Historical May 2026 `kooldb` batch path: [`../archive/milestones-staging-cutover-packet.md`](../archive/milestones-staging-cutover-packet.md) — **not** forward cutover.
+Historical May 2026 `kooldb` batch path: `../archive/milestones-staging-cutover-packet.md` — **not** forward cutover.
 
 ---
 

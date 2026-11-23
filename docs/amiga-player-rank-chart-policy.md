@@ -11,7 +11,7 @@
 
 **Authority:** Rank persistence = [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) · data contract = [`amiga-data-contract.md`](amiga-data-contract.md) · profile shell = [`amiga-profile-v0.md`](amiga-profile-v0.md) · time travel = [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · rating chart (parallel) = [`amiga-rating-history-policy.md`](amiga-rating-history-policy.md)
 
-**Implementation plan:** [`amiga-player-rank-chart-implementation-plan.md`](amiga-player-rank-chart-implementation-plan.md)
+**Implementation plan:** `amiga-player-rank-chart-implementation-plan.md`
 
 ---
 

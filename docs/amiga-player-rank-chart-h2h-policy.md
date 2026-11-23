@@ -5,7 +5,7 @@
 
 **Solo chart (shared rules):** [`amiga-player-rank-chart-policy.md`](amiga-player-rank-chart-policy.md) — data source, X-axis, scale types, stepped clip, percentile formula, time travel, empty-band UX.
 
-**Implementation plan:** [`amiga-player-rank-chart-implementation-plan.md`](amiga-player-rank-chart-implementation-plan.md) § H2H slices.
+**Implementation plan:** `amiga-player-rank-chart-implementation-plan.md` § H2H slices.
 
 **Parent wing:** [`amiga-opponents-wing-policy.md`](amiga-opponents-wing-policy.md)
 

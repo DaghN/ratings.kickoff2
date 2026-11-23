@@ -4,7 +4,7 @@
 
 **Policy parent:** [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) (lanes A/B/C, ALO1–ALO11, infra menu §12.2).
 
-**Organizer UX reference:** [`archive/orchestration/browser-organizer-workflow-checkpoint.md`](archive/orchestration/browser-organizer-workflow-checkpoint.md) (ideas menu — not a sprint backlog).
+**Organizer UX reference:** `archive/orchestration/browser-organizer-workflow-checkpoint.md` (ideas menu — not a sprint backlog).
 
 **Structure model:** [`amiga-tournament-structure-policy.md`](amiga-tournament-structure-policy.md) (stage → fixture → game).
 
@@ -121,7 +121,7 @@ Milestones are **gates**, not a parallel backlog. Advance when Dagh says the pri
 | **L2** | Ref-League-A ×3 | Lifecycle explainable without opening PHP |
 | **L3** | Ref-Cup-A path exists | One cup finalized on staging |
 | **L4** | Ref-Cup-A ×2 | League + cup feel like one product |
-| **L5** | Delete / repair + backup seals | **Done** Case A/B/C + seals + thorough Case C M=#16 — plan [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) **Complete (v1)** |
+| **L5** | Delete / repair + backup seals | **Done** Case A/B/C + seals + thorough Case C M=#16 — plan `amiga-staging-l5-backup-delete-implementation-plan.md` **Complete (v1)** |
 | **L6** | Ground pack pull | **Shelved** — not planned until further notice (full staging backup pack is enough). Keep mention only. |
 | **L7** | Media on ran event | YouTube URL on staging tournament |
 
@@ -173,7 +173,7 @@ Closed cycles from early drills. Do **not** treat as open work.
 |------|--------|
 | 2026-07-23 | **Case C insert design** — mid-history Finish policy + implementation plan locked; §4 gate note. Not shipped. |
 | 2026-07-23 | **L5 v1 complete** — Case C thorough M=#16 + inverse seed; export round-trip A/B/C; triple agreement; §4 idle. Build `l5-case-c-inv-seed-2026-07-23`. |
-| 2026-07-23 | **Export/inverse round-trip plan** — [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md) (JSON dump fix proof + Case C follow-on). |
+| 2026-07-23 | **Export/inverse round-trip plan** — `amiga-export-inverse-roundtrip-test-plan.md` (JSON dump fix proof + Case C follow-on). |
 | 2026-07-22 | **L5 slice 4 harden + BA4** — pointer inverse; JOIN matchups; phased re-project; Restore from `_backups/`; tip #607 = forum seal. §4 → slice 5. Build `l5-s4j`. |
 | 2026-07-22 | **OW follow-up** — Setup not an in-tournament tab (create/Recent landing only). |
 | 2026-07-22 | **OW slice 6** — policy Implemented; §3 CREATE/OPEN/PLAY vocabulary; OW track closed. |

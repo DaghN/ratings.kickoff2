@@ -6,7 +6,7 @@
 
 **Related:** [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) (canonical tokens + flags — **shipped Jul 2026**) · [`amiga-world-cups-country-slice-policy.md`](amiga-world-cups-country-slice-policy.md) (WC-only nation roll-ups — sibling surface) · [`amiga-profile-v0.md`](amiga-profile-v0.md) · [`url-routes.md`](url-routes.md) · [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md) · [`k2-table-implementation-checklist.md`](k2-table-implementation-checklist.md)
 
-**Implementation plan:** [`amiga-countries-hub-implementation-plan.md`](amiga-countries-hub-implementation-plan.md) — slices CH-1–CH-6.
+**Implementation plan:** `amiga-countries-hub-implementation-plan.md` — slices CH-1–CH-6.
 
 ---
 
@@ -241,7 +241,7 @@ See [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) — same cutoff
 
 **Placement:** **Rivals** segment of the `country/` entity — `/amiga/country/rivals/{h2h,wdl,goals,dds}.php?country={token}` + `rival=` for H2H drill-down. Shared shell `includes/amiga_country_page.php` + wing nav `includes/amiga_country_rivals_nav.php`.
 
-**Policy · plan:** [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) (**CRV1–CRV16**) · [`amiga-country-rivals-implementation-plan.md`](amiga-country-rivals-implementation-plan.md) (slices **CRV-1–CRV-7**).
+**Policy · plan:** [`amiga-country-rivals-policy.md`](amiga-country-rivals-policy.md) (**CRV1–CRV16**) · `amiga-country-rivals-implementation-plan.md` (slices **CRV-1–CRV-7**).
 
 **Data (v1):** second read-time roll-up from `amiga_player_matchup_summary` / at-event — **not** a games rescan for table aggregates (benchmarked faster Jun 2026). Game-level reads for H2H depth filter `amiga_games` by directed nation pair.
 

@@ -4,7 +4,7 @@
 > **Purpose:** Inverse victim/culprit counts at TT via sparse changelog (S5 exception).  
 > **Audit:** completed in-session Jul 2026 — root cause confirmed; size ~3.4k rows (not 10–15k).  
 > **Code:** `scripts/amiga/inverse_count_changelog.py` · `sql/derived/051_inverse_count_changelog.sql` · PHP `amiga_inverse_count_changelog_lib.php` (+ `amiga_ops_seed_inverse_counts_from_changelog`) · `verify-inverse-count-changelog`  
-> **Proof:** [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md) · checkpoint `work-2026-07-23-inverse-roundtrip` (3423 rows).
+> **Proof:** `amiga-export-inverse-roundtrip-test-plan.md` · checkpoint `work-2026-07-23-inverse-roundtrip` (3423 rows).
 
 **Related:** [`amiga-event-snapshot-policy.md`](amiga-event-snapshot-policy.md) (S5 non-participants) · [`website-data-contract.md`](website-data-contract.md) § Personal record pointers · [`amiga-player-chronologies-policy.md`](amiga-player-chronologies-policy.md) (pointer inventory reads) · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5
 

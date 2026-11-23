@@ -8,7 +8,7 @@
 
 **Parent (do not reopen storage shape):** [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)
 
-**Charts / IA:** [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) §5.3 (Nations wing) · [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) §4 (L1/L2 lenses)
+**Charts / IA:** [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) §5.3 (Nations wing) · `amiga-community-stats-catalog-plan.md` §4 (L1/L2 lenses)
 
 **Question catalog:** [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) — add rows **Q-GEO-016…018** when charts ship (§8 below).
 

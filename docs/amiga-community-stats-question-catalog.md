@@ -1,7 +1,7 @@
 # Amiga community stats — question catalog
 
 **Status:** **Steps 3–6 complete** (Jul 2026) — **50 ship** curated; registry v2 + writers green (`036`/`037`, `prove`); chart IA **locked** — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md). **Jul 2026 extension:** Q-GEO-016…018 (Nations player grains) — [`amiga-activity-geography-nations-players-policy.md`](amiga-activity-geography-nations-players-policy.md); **Q-WC-012** (avg WC games per participant). Activity UI **49 panels / 50 IDs**.  
-**Method:** [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md)  
+**Method:** `amiga-community-stats-catalog-plan.md`  
 **Policy (shape):** [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md)
 
 **How to read this doc**
@@ -250,6 +250,6 @@ Several **cut** volume/texture count charts still need **year facts in finalize*
 | **3** Curation | **Done** — **50 ship** (46 Jun 2026 + Q-GEO-016…018 + Q-WC-012 Jul 2026) |
 | **4** Registry v2 + writers + `prove` | **Done** Jun 2026 (+ Jul 2026 nationality player grains, no DDL) |
 | **5** Chart IA + track plan | **Done** Jul 2026 — [`amiga-activity-charts-policy.md`](amiga-activity-charts-policy.md) |
-| **6** Chart APIs + Activity UI (C0–C9) | **Done** Jul 2026 — [`amiga-activity-charts-implementation-plan.md`](amiga-activity-charts-implementation-plan.md) + Nations player extension |
+| **6** Chart APIs + Activity UI (C0–C9) | **Done** Jul 2026 — `amiga-activity-charts-implementation-plan.md` + Nations player extension |
 
 *Step 3 applied Jun 2026 — Dagh curation; 3 rows added (GEO-013–015, WC-011, TEX-013). Step 4 writers shipped Jun 2026-23. Jul 2026 — Q-GEO-016…018 + 3 Nations panels; `prove` green local.*

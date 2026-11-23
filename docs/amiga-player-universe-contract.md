@@ -95,7 +95,7 @@ A **rich player universe** for the offline Amiga ladder: career stats and extrem
 
 ### Fragmentation (resolved Jun 2026)
 
-Player↔tournament facts and career honours live in **snapshots + current**. H2H and server records use `amiga_player_matchup_summary` and `amiga_generalstats`. Player-universe slices 0–14: [`amiga-player-universe-implementation-plan.md`](amiga-player-universe-implementation-plan.md). Event-snapshot migration slices 0–9: [`amiga-event-snapshot-implementation-plan.md`](amiga-event-snapshot-implementation-plan.md).
+Player↔tournament facts and career honours live in **snapshots + current**. H2H and server records use `amiga_player_matchup_summary` and `amiga_generalstats`. Player-universe slices 0–14: `amiga-player-universe-implementation-plan.md`. Event-snapshot migration slices 0–9: `amiga-event-snapshot-implementation-plan.md`.
 
 ---
 
@@ -286,7 +286,7 @@ Do **not** default to aggregating `amiga_games` (or joining many `amiga_game_rat
 
 **Authoritative policy:** [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md).
 
-**Implementation status:** **Complete** (Jun 2026) — v1 event finish + **v2 medals unification** (`021`–`022`): unified `event_finish_position` (WC podium 1/2/3), `best_knockout_phase`, Tier E overrides; Python + PHP writers; UI read paths; honours totals + LB. Policy: [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) v2. Plans: [`amiga-event-finish-implementation-plan.md`](amiga-event-finish-implementation-plan.md) (historical v1), [`amiga-tournament-medals-unification-implementation-plan.md`](amiga-tournament-medals-unification-implementation-plan.md) (v2).
+**Implementation status:** **Complete** (Jun 2026) — v1 event finish + **v2 medals unification** (`021`–`022`): unified `event_finish_position` (WC podium 1/2/3), `best_knockout_phase`, Tier E overrides; Python + PHP writers; UI read paths; honours totals + LB. Policy: [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) v2. Plans: `amiga-event-finish-implementation-plan.md` (historical v1), `amiga-tournament-medals-unification-implementation-plan.md` (v2).
 
 Ground → product flow:
 
@@ -514,7 +514,7 @@ Steps 2 are idempotent. They must not mutate ground truth.
 
 ## 9. Implementation execution
 
-**Status:** Slices 0–14 **complete** (Jun 2026). Final handoff: [`archive/orchestration/agent-handoffs/2026-06-08-051-player-universe-slice-14.md`](archive/orchestration/agent-handoffs/2026-06-08-051-player-universe-slice-14.md). Plan checklist: [`amiga-player-universe-implementation-plan.md`](amiga-player-universe-implementation-plan.md).
+**Status:** Slices 0–14 **complete** (Jun 2026). Final handoff: `archive/orchestration/agent-handoffs/2026-06-08-051-player-universe-slice-14.md`. Plan checklist: `amiga-player-universe-implementation-plan.md`.
 
 **Verify suite:**
 
@@ -526,7 +526,7 @@ python -m scripts.amiga verify-player-matchups
 python -m scripts.amiga verify-realm-snapshots
 ```
 
-**Surface expansion (slices 0–8, Jun 2026):** **Complete** — Tier A LB wings, profile honours/perf/moments, H2H, event-stats tab, honours LB polish. Handoff: [`archive/orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md`](archive/orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md). Overview deferred items: [`amiga-surface-expansion-overview.md`](amiga-surface-expansion-overview.md) §4.
+**Surface expansion (slices 0–8, Jun 2026):** **Complete** — Tier A LB wings, profile honours/perf/moments, H2H, event-stats tab, honours LB polish. Handoff: `archive/orchestration/agent-handoffs/2026-06-10-009-amiga-surface-expansion-slice-8.md`. Overview deferred items: `amiga-surface-expansion-overview.md` §4.
 
 **Deferred (potential):** Dedicated profile WC medals block; live incremental H2H/generalstats on result entry; `amiga_player_tournament_slice_totals`; tournament **Games** tab (scoped `amiga_games`); Tier C activity; `performance_rating − rating_before` column; `PeakRatingGameID` replay writer; `amiga-tournament-honours-rules.md` for edge-case WC medals.
 

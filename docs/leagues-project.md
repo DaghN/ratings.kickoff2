@@ -49,7 +49,7 @@ Extends Status **Leagues** (Phase 1 shipped) into **persistent awards**, career 
 | [`leagues-rules-spec.md`](leagues-rules-spec.md) | Sort, finality, URLs, timestamps |
 | [`status-period-competitions.md`](status-period-competitions.md) | Status Leagues UI (shipped) |
 | [`website-data-contract.md`](website-data-contract.md) | Table rebuild + post-game + periodic |
-| [`milestones-ideas-catalog.md`](milestones-ideas-catalog.md) | §IIIb–IIIc league milestone keys |
+| `milestones-ideas-catalog.md` | §IIIb–IIIc league milestone keys |
 
 ---
 

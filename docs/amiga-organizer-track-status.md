@@ -49,7 +49,7 @@
 | **Re-project** | Present at cutoff N (phased; inverse pointer recount) | — | `project_present_at.php` |
 | **Import** | Full replace staged DB from `_import/` parts | — | `run_import_ko2amiga.php` |
 
-Policy: [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) **Implemented (v1)**. Plan: [`amiga-staging-l5-backup-delete-implementation-plan.md`](amiga-staging-l5-backup-delete-implementation-plan.md) **Complete**.
+Policy: [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) **Implemented (v1)**. Plan: `amiga-staging-l5-backup-delete-implementation-plan.md` **Complete**.
 
 ---
 
@@ -57,7 +57,7 @@ Policy: [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-adm
 
 | Proof | Result | Artifact |
 |-------|--------|----------|
-| Export inverse round-trip A/B/C | **PASS** | [`amiga-export-inverse-roundtrip-test-plan.md`](amiga-export-inverse-roundtrip-test-plan.md) |
+| Export inverse round-trip A/B/C | **PASS** | `amiga-export-inverse-roundtrip-test-plan.md` |
 | Case C delete thorough (M=#16, 10 forward) | **PASS** | Build `l5-case-c-inv-seed-2026-07-23` |
 | Chrono integer repair on work | **PASS** | seals `work-2026-07-23-pre-chrono-integer` / `chrono-integer` |
 | Staged import of chrono pack + insert/delete ~2022 | **PASS** | side-pull `ko2amiga_staging_cmp` vs work: ground identical; 607 tips / 27474 games; tournament chronos 0 diff; matchup H2H stats 0 diff |

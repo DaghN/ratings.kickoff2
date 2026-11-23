@@ -6,7 +6,7 @@
 
 **Related:** [`amiga-country-registry-policy.md`](amiga-country-registry-policy.md) (nationality on create) · [`amiga-import-layer.md`](amiga-import-layer.md) (historical import merges — separate from live create) · [`scripts/amiga/player_names.py`](../scripts/amiga/player_names.py) (reference algorithms today) · [`scripts/amiga/player_registry.py`](../scripts/amiga/player_registry.py) (today's CLI — already inserts `amiga_players`; aligns with rev. 2 storage)
 
-**Implementation plan:** [`amiga-player-create-implementation-plan.md`](amiga-player-create-implementation-plan.md) — **PC-1–PC-7 shipped Jul 2026** (browser compose create; PC-9 delete league = phase 2). **Running tournament boundary:** [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (**shipped Jul 2026**) — orphan rules count **official** `amiga_games` only; running fixture scores do not block orphan cleanup.
+**Implementation plan:** `amiga-player-create-implementation-plan.md` — **PC-1–PC-7 shipped Jul 2026** (browser compose create; PC-9 delete league = phase 2). **Running tournament boundary:** [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (**shipped Jul 2026**) — orphan rules count **official** `amiga_games` only; running fixture scores do not block orphan cleanup.
 
 ---
 
@@ -77,7 +77,7 @@ Historical Access import keeps its own merge/alias rules (`player_names.py` at L
 
 ### 4.1 What KOA expects
 
-From long-standing KOA forum practice (example locked in [`prompt-008-koa-player-naming-foundation.md`](archive/orchestration/prompt-008-koa-player-naming-foundation.md)):
+From long-standing KOA forum practice (example locked in `prompt-008-koa-player-naming-foundation.md`):
 
 > If the new guy''s name is Mark Bentley, he should be entered as **Mark Be** when **Mark B** already exists.
 

@@ -20,7 +20,7 @@ Deployment status is tracked elsewhere:
 - **Cutover prep vs live:** [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md)
 - Schema DDL: [`coordination/schema-register.md`](coordination/schema-register.md)
 - Features: [`coordination/feature-log.md`](coordination/feature-log.md)
-- Historical batch rebuild log (May 2026): [`archive/replay-register-2026-05.md`](archive/replay-register-2026-05.md)
+- Historical batch rebuild log (May 2026): `archive/replay-register-2026-05.md`
 
 Those registers link here for behavior; they do **not** duplicate post-game rules.
 
@@ -278,7 +278,7 @@ Live/cutover authority is **PHP ops** + this document — not batch SQL on prod.
 
 **Parity check:** `k2_play_streak_oracle_mismatches()` / `scripts/oneoff/verify_activity_wing_parity_work.php` on work DB; HoF value = `MAX(best_streak)` per type from table.
 
-**Implementation:** `site/public_html/includes/player_play_streaks.php`; ops post-game P7; local repair `scripts/rebuild_player_play_streaks.php`. Historical handoff: [`archive/play-streaks-staging-handoff.md`](archive/play-streaks-staging-handoff.md).
+**Implementation:** `site/public_html/includes/player_play_streaks.php`; ops post-game P7; local repair `scripts/rebuild_player_play_streaks.php`. Historical handoff: `archive/play-streaks-staging-handoff.md`.
 
 **UI (read stored truth):** Leaderboards → Activity [`leaderboards/activity/`](../site/public_html/leaderboards/activity/peaks.php) — **Peaks** · **Participation** · **In a row**. Streaks wing = match results only. Hall of Fame play-streak rows deferred (GST populated).
 

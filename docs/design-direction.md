@@ -212,8 +212,8 @@ Current shared chrome:
 Navigation pattern:
 
 - Hub, player, and leaderboard wings use **segment track + outline active cell**.
-- **Page nav vertical spacing** -- Phases 1-3 shipped (Jun 2026): [`nav-spacing-policy.md`](nav-spacing-policy.md) + [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md). **New nav bars:** [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md). Single **`--k2-nav-gap` (12px)**; bottom-only ownership.
-- **Filter stack vertical spacing** -- Shipped (Jul 2026): [`filter-stack-spacing-policy.md`](filter-stack-spacing-policy.md) + [`filter-stack-spacing-implementation-plan.md`](filter-stack-spacing-implementation-plan.md). Same token + bottom-only model; **no wrapper column `gap`** on Tier 1 filter pages; horizontal picker `gap` unchanged.
+- **Page nav vertical spacing** -- Phases 1-3 shipped (Jun 2026): [`nav-spacing-policy.md`](nav-spacing-policy.md) + `nav-spacing-implementation-plan.md`. **New nav bars:** [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md). Single **`--k2-nav-gap` (12px)**; bottom-only ownership.
+- **Filter stack vertical spacing** -- Shipped (Jul 2026): [`filter-stack-spacing-policy.md`](filter-stack-spacing-policy.md) + `filter-stack-spacing-implementation-plan.md`. Same token + bottom-only model; **no wrapper column `gap`** on Tier 1 filter pages; horizontal picker `gap` unchanged.
 - Hub and player nav no longer support A/B style overrides; the preview/tuning scaffolding has been pruned.
 - Tint picker: compact right-anchored **Tint** disclosure pill (current swatch dot when closed); four swatch choices open to its left; closed by default and **closes on any site navigation** (not persisted across page loads); segment-outline active choice; inactive swatches dimmed (`k2_tint_picker.php`, `k2-tint-toggle.js`).
 - Secondary actions can use quiet rounded pills when they act like controls rather than content links (e.g. Player Games `Reset` / pager actions); Status Leagues keeps period tabs separate from its spacious prev/picker/next stepper.

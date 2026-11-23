@@ -2,4 +2,4 @@
 
 **Archived May 2026** — **Done** on staging `kooldb` (**25** holders, **6615** total rows).
 
-- **Full runbook (history):** [`../archive/milestones-staging-diversity-merchant-fix.md`](../archive/milestones-staging-diversity-merchant-fix.md)
+- **Full runbook (history):** `../archive/milestones-staging-diversity-merchant-fix.md`

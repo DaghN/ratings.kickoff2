@@ -4,13 +4,13 @@
 **Handlers reference:** [`amiga-tournament-structure-handlers.md`](amiga-tournament-structure-handlers.md)  
 **Register:** `scripts/amiga/tournament_structure/disposition_register.json`
 
-Legacy disposition review starter (bulk bootstrap): [`amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md)
+Legacy disposition review starter (bulk bootstrap): `amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md`
 
 ---
 
 ## Import splits — do this first
 
-**Starter:** [`amiga-import-split-REVIEW-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-import-split-REVIEW-STARTER-PROMPT.md)
+**Starter:** `amiga-import-split-REVIEW-STARTER-PROMPT.md`
 
 | Parent id | Scores label | Dagh decision |
 |-----------|--------------|---------------|
@@ -184,6 +184,6 @@ Historical bootstrap (Jun 2026): bulk handler assignment closed most tier-A/B; m
 
 ## Superseded starters
 
-- [`amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md) — **use this**
-- [`amiga-tournament-structure-CUP-REVIEW-STARTER-PROMPT.md`](archive/orchestration/agent-handoffs/amiga-tournament-structure-CUP-REVIEW-STARTER-PROMPT.md) — cup subset; merged into disposition review
-- [`amiga-tournament-structure-REVIEW-STARTER-PROMPT.md`](archive/orchestration/agent-handoffs/amiga-tournament-structure-REVIEW-STARTER-PROMPT.md) — old non-WC queue
+- `amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md` — **use this**
+- `amiga-tournament-structure-CUP-REVIEW-STARTER-PROMPT.md` — cup subset; merged into disposition review
+- `amiga-tournament-structure-REVIEW-STARTER-PROMPT.md` — old non-WC queue

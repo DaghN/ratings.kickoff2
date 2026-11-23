@@ -2,8 +2,8 @@
 
 > **Product policy (Jul 2026):** Rules below remain authoritative for product behaviour. **Writer/sign-off at ship** = oracle **`prove`** on frozen **`ko2amiga_db`**; **forward** = **`simul`** on **`ko2amiga_work`**. [`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §0.
 
-**Status:** **Implemented** (Jun 2026-29) — all 8 slices (WCH-1…WCH-8) shipped; Python + PHP finalize parity; `prove` green incl. `verify-wc-hof`, `verify-hof-geo-year`, `verify-realm-snapshots`. Plan [`amiga-wc-hof-implementation-plan.md`](amiga-wc-hof-implementation-plan.md)  
-**Implementation plan:** [`amiga-wc-hof-implementation-plan.md`](amiga-wc-hof-implementation-plan.md)
+**Status:** **Implemented** (Jun 2026-29) — all 8 slices (WCH-1…WCH-8) shipped; Python + PHP finalize parity; `prove` green incl. `verify-wc-hof`, `verify-hof-geo-year`, `verify-realm-snapshots`. Plan `amiga-wc-hof-implementation-plan.md`  
+**Implementation plan:** `amiga-wc-hof-implementation-plan.md`
 **Parent:** [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) · [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) · [`amiga-world-cups-player-slice-v2-policy.md`](amiga-world-cups-player-slice-v2-policy.md) · [`amiga-hof-record-date-policy.md`](amiga-hof-record-date-policy.md)  
 **Related:** [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) · [`amiga-time-travel-policy.md`](amiga-time-travel-policy.md) · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) · [`amiga-data-contract.md`](amiga-data-contract.md)
 
@@ -343,7 +343,7 @@ New verify module(s) in `python -m scripts.amiga prove`, read-only oracles:
 
 ## 12. Implementation sequencing
 
-Detailed slices: **[`amiga-wc-hof-implementation-plan.md`](amiga-wc-hof-implementation-plan.md)** (WCH-0 → WCH-8).
+Detailed slices: **`amiga-wc-hof-implementation-plan.md`** (WCH-0 → WCH-8).
 
 | Phase | Slices |
 |-------|--------|

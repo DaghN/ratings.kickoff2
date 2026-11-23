@@ -4,7 +4,7 @@
 
 **Status:** **Shipped (Jul 2026)** — local `ko2amiga_db` + `prove` green.  
 **Parent:** [`amiga-ground-layers-policy.md`](amiga-ground-layers-policy.md) (L3 witness) · [`amiga-import-layer.md`](amiga-import-layer.md) · [`amiga-data-contract.md`](amiga-data-contract.md)  
-**Related:** [`amiga-world-cup-flag-implementation-plan.md`](amiga-world-cup-flag-implementation-plan.md) · [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) · [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md)
+**Related:** `amiga-world-cup-flag-implementation-plan.md` · [`amiga-world-cups-hub-policy.md`](amiga-world-cups-hub-policy.md) · [`amiga-tournament-honours-rules.md`](amiga-tournament-honours-rules.md) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md)
 
 ---
 

@@ -4,7 +4,7 @@
 
 **Shorthand:** *explore → doc → plan → prompt → slices*
 
-**Handoff storage (Jun 2026):** Active review starters live in [`agent-handoffs/`](agent-handoffs/) (disposition + import split + **theme.css dead-token cleanup**). Completed slice handoffs + retired starters + browser/entrant prompts live in [`../archive/orchestration/`](../archive/orchestration/README.md).
+**Handoff storage (Jun 2026):** Active review starters live in [`agent-handoffs/`](agent-handoffs/) (disposition + import split + **theme.css dead-token cleanup**). Completed slice handoffs + retired starters + browser/entrant prompts live in `../archive/orchestration/`.
 
 ---
 
@@ -110,11 +110,11 @@ Phase 4 — Slices      (execute one slice per session; handoff files)
 
 | Track | Plan |
 |-------|------|
-| Amiga event finish | [`amiga-event-finish-implementation-plan.md`](../amiga-event-finish-implementation-plan.md) |
-| Amiga standings scope | [`amiga-standings-scope-implementation-plan.md`](../amiga-standings-scope-implementation-plan.md) |
+| Amiga event finish | `amiga-event-finish-implementation-plan.md` |
+| Amiga standings scope | `amiga-standings-scope-implementation-plan.md` |
 | Amiga tournament structure | [`amiga-tournament-structure-implementation-plan.md`](../amiga-tournament-structure-implementation-plan.md) |
-| Amiga player universe | [`amiga-player-universe-implementation-plan.md`](../amiga-player-universe-implementation-plan.md) |
-| K2 LB SSR sort | [`k2-lb-ssr-sort-implementation-plan.md`](../k2-lb-ssr-sort-implementation-plan.md) |
+| Amiga player universe | `amiga-player-universe-implementation-plan.md` |
+| K2 LB SSR sort | `k2-lb-ssr-sort-implementation-plan.md` |
 
 ---
 
@@ -124,7 +124,7 @@ Phase 4 — Slices      (execute one slice per session; handoff files)
 
 **Location (active track):** `docs/orchestration/agent-handoffs/<topic>-STARTER-PROMPT.md`
 
-When a track **closes**, move its starter + slice handoffs to `docs/archive/orchestration/agent-handoffs/` (see [`../archive/orchestration/README.md`](../archive/orchestration/README.md)).
+When a track **closes**, move its starter + slice handoffs to `docs/archive/orchestration/agent-handoffs/` (see `../archive/orchestration/README.md`).
 
 **Include:**
 
@@ -139,7 +139,7 @@ When a track **closes**, move its starter + slice handoffs to `docs/archive/orch
   - **Start command** (“Do slice 0” unless user specifies otherwise)
 - Mark **COMPLETE** at top when the track finishes (context only — do not restart migration)
 
-**Examples:** [`amiga-event-finish-STARTER-PROMPT.md`](../archive/orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md), [`amiga-standings-scope-STARTER-PROMPT.md`](../archive/orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md), [`k2-lb-ssr-sort-STARTER-PROMPT.md`](agent-handoffs/k2-lb-ssr-sort-STARTER-PROMPT.md), [`amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`](agent-handoffs/amiga-profile-mosaic-stat-links-STARTER-PROMPT.md)
+**Examples:** `amiga-event-finish-STARTER-PROMPT.md`, `amiga-standings-scope-STARTER-PROMPT.md`, `k2-lb-ssr-sort-STARTER-PROMPT.md`, `amiga-profile-mosaic-stat-links-STARTER-PROMPT.md`
 
 ---
 
@@ -225,14 +225,14 @@ Use a consistent `<topic>` slug across all four (e.g. `amiga-event-finish`, `rat
 
 | Track | Policy | Plan | Starter |
 |-------|--------|------|---------|
-| Amiga event finish | [`amiga-tournament-honours-rules.md`](../amiga-tournament-honours-rules.md) | [`amiga-event-finish-implementation-plan.md`](../amiga-event-finish-implementation-plan.md) | [`amiga-event-finish-STARTER-PROMPT.md`](../archive/orchestration/agent-handoffs/amiga-event-finish-STARTER-PROMPT.md) ✓ |
-| Amiga tournament medals v2 | [`amiga-tournament-honours-rules.md`](../amiga-tournament-honours-rules.md) v2 | [`amiga-tournament-medals-unification-implementation-plan.md`](../amiga-tournament-medals-unification-implementation-plan.md) | [`amiga-tournament-medals-unification-STARTER-PROMPT.md`](../archive/orchestration/agent-handoffs/amiga-tournament-medals-unification-STARTER-PROMPT.md) ✓ |
-| Amiga standings scope | [`amiga-standings-scope-policy.md`](../amiga-standings-scope-policy.md) | [`amiga-standings-scope-implementation-plan.md`](../amiga-standings-scope-implementation-plan.md) | [`amiga-standings-scope-STARTER-PROMPT.md`](../archive/orchestration/agent-handoffs/amiga-standings-scope-STARTER-PROMPT.md) |
-| Amiga tournament structure | [`amiga-tournament-structure-policy.md`](../amiga-tournament-structure-policy.md) | [`amiga-tournament-structure-implementation-plan.md`](../amiga-tournament-structure-implementation-plan.md) | [`amiga-tournament-structure-STARTER-PROMPT.md`](../archive/orchestration/agent-handoffs/amiga-tournament-structure-STARTER-PROMPT.md) |
-| **Amiga organizer finish confirm (Phase A done)** | [`amiga-organizer-finish-confirm-policy.md`](../amiga-organizer-finish-confirm-policy.md) | [`amiga-organizer-finish-confirm-implementation-plan.md`](../amiga-organizer-finish-confirm-implementation-plan.md) | [`amiga-organizer-finish-confirm-STARTER-PROMPT.md`](agent-handoffs/amiga-organizer-finish-confirm-STARTER-PROMPT.md) |
-| **Amiga Track L5 backup + admin delete (active)** | [`amiga-staging-backup-admin-delete-policy.md`](../amiga-staging-backup-admin-delete-policy.md) | [`amiga-staging-l5-backup-delete-implementation-plan.md`](../amiga-staging-l5-backup-delete-implementation-plan.md) | [`amiga-staging-l5-backup-delete-STARTER-PROMPT.md`](agent-handoffs/amiga-staging-l5-backup-delete-STARTER-PROMPT.md) |
-| Amiga player universe | [`amiga-player-universe-contract.md`](../amiga-player-universe-contract.md) | [`amiga-player-universe-implementation-plan.md`](../amiga-player-universe-implementation-plan.md) | [`amiga-player-universe-STARTER-PROMPT.md`](../archive/orchestration/agent-handoffs/amiga-player-universe-STARTER-PROMPT.md) |
-| **Amiga disposition review (active)** | [`amiga-tournament-structure-handlers.md`](../amiga-tournament-structure-handlers.md) | [`amiga-tournament-structure-review-queue.md`](../amiga-tournament-structure-review-queue.md) | [`amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md`](agent-handoffs/amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md) |
+| Amiga event finish | [`amiga-tournament-honours-rules.md`](../amiga-tournament-honours-rules.md) | `amiga-event-finish-implementation-plan.md` | `amiga-event-finish-STARTER-PROMPT.md` ✓ |
+| Amiga tournament medals v2 | [`amiga-tournament-honours-rules.md`](../amiga-tournament-honours-rules.md) v2 | `amiga-tournament-medals-unification-implementation-plan.md` | `amiga-tournament-medals-unification-STARTER-PROMPT.md` ✓ |
+| Amiga standings scope | [`amiga-standings-scope-policy.md`](../amiga-standings-scope-policy.md) | `amiga-standings-scope-implementation-plan.md` | `amiga-standings-scope-STARTER-PROMPT.md` |
+| Amiga tournament structure | [`amiga-tournament-structure-policy.md`](../amiga-tournament-structure-policy.md) | [`amiga-tournament-structure-implementation-plan.md`](../amiga-tournament-structure-implementation-plan.md) | `amiga-tournament-structure-STARTER-PROMPT.md` |
+| **Amiga organizer finish confirm (Phase A done)** | [`amiga-organizer-finish-confirm-policy.md`](../amiga-organizer-finish-confirm-policy.md) | `amiga-organizer-finish-confirm-implementation-plan.md` | `amiga-organizer-finish-confirm-STARTER-PROMPT.md` |
+| **Amiga Track L5 backup + admin delete (active)** | [`amiga-staging-backup-admin-delete-policy.md`](../amiga-staging-backup-admin-delete-policy.md) | `amiga-staging-l5-backup-delete-implementation-plan.md` | `amiga-staging-l5-backup-delete-STARTER-PROMPT.md` |
+| Amiga player universe | [`amiga-player-universe-contract.md`](../amiga-player-universe-contract.md) | `amiga-player-universe-implementation-plan.md` | `amiga-player-universe-STARTER-PROMPT.md` |
+| **Amiga disposition review (active)** | [`amiga-tournament-structure-handlers.md`](../amiga-tournament-structure-handlers.md) | [`amiga-tournament-structure-review-queue.md`](../amiga-tournament-structure-review-queue.md) | `amiga-tournament-disposition-REVIEW-STARTER-PROMPT.md` |
 
 Online tracks have used the same handoff folder (e.g. rating-events slices, format-backbone, ops-simul work) — policy may live in a feature spec or contract section rather than a separate `*-policy.md`; the **plan + prompt + slices** shape still applies.
 

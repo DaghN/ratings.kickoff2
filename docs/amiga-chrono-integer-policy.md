@@ -2,7 +2,7 @@
 
 **Status:** **Locked** — one-time repair on `ko2amiga_work` + forward live-ops rules.
 
-**Plan:** [`amiga-chrono-integer-implementation-plan.md`](amiga-chrono-integer-implementation-plan.md) · **Insert:** [`amiga-case-c-insert-finish-implementation-plan.md`](amiga-case-c-insert-finish-implementation-plan.md) CI11 · **Delete:** [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) Case C.
+**Plan:** `amiga-chrono-integer-implementation-plan.md` · **Insert:** [`amiga-case-c-insert-finish-implementation-plan.md`](amiga-case-c-insert-finish-implementation-plan.md) CI11 · **Delete:** [`amiga-staging-backup-admin-delete-policy.md`](amiga-staging-backup-admin-delete-policy.md) Case C.
 
 ---
 

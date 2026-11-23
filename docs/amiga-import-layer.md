@@ -63,7 +63,7 @@ verify suite (0 errors = shippable) — includes **`verify-tournament-videos`**;
 
 L3 ground is **not** “whatever Access says.” It is what we commit to MySQL after documented transforms on **L2 witness inputs**.
 
-**Strict flow (complete):** [`amiga-ground-stack.md`](amiga-ground-stack.md) · [`amiga-ground-layers-implementation-plan.md`](amiga-ground-layers-implementation-plan.md) (slices 1–11).
+**Strict flow (complete):** [`amiga-ground-stack.md`](amiga-ground-stack.md) · `amiga-ground-layers-implementation-plan.md` (slices 1–11).
 
 ```text
 L0 koatd.mdb

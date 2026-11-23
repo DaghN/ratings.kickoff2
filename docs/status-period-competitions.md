@@ -97,4 +97,4 @@ Mobile: single column, **Activity first**, then Points.
 | 2026-05-30 | Meta/month labels, KOOL listbox, Flatpickr + picker visibility fixes. |
 | 2026-05-27 | **Phase 1 shipped** — paired block, single table slot, prewarm, lock-step, ←/→ + always-visible pickers. |
 
-*Full implementation diary:* [`archive/status-period-competitions-wip.md`](archive/status-period-competitions-wip.md)
+*Full implementation diary:* `archive/status-period-competitions-wip.md`

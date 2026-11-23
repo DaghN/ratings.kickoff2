@@ -1,6 +1,6 @@
 # Page nav spacing -- policy
 
-**Status:** **Locked intent (Jun 2026).** Phases 1-3 shipped -- implementation + audit: [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md).
+**Status:** **Locked intent (Jun 2026).** Phases 1-3 shipped -- implementation + audit: `nav-spacing-implementation-plan.md`.
 **Authority:** Product + visual contract; defers to [`design-direction.md`](design-direction.md) for segment grammar and surface rhythm. Dagh's latest chat wins on scope.
 **Realms:** Online and Amiga -- **one rhythm, two realms** (same tokens and rules in `theme.css`; parallel includes must not fork spacing).
 
@@ -158,7 +158,7 @@ Panel-**internal** navigation stays local until explicitly widened:
 | **2 -- Language** | Bottom-only everywhere; delete `:has()` and dead rules; markup + Amiga parity; drop token aliases |
 | **3 -- Polish** | Grep stray nav margins; tokenize holdouts; delete dead rules; document exceptions |
 
-Detail, file list, smoke URLs: [`nav-spacing-implementation-plan.md`](nav-spacing-implementation-plan.md). **Filter composite stacks (Tier 1 pages):** [`filter-stack-spacing-policy.md`](filter-stack-spacing-policy.md) · [`filter-stack-spacing-implementation-plan.md`](filter-stack-spacing-implementation-plan.md). **Agent checklist (new nav bars):** [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md).
+Detail, file list, smoke URLs: `nav-spacing-implementation-plan.md`. **Filter composite stacks (Tier 1 pages):** [`filter-stack-spacing-policy.md`](filter-stack-spacing-policy.md) · `filter-stack-spacing-implementation-plan.md`. **Agent checklist (new nav bars):** [`k2-nav-implementation-checklist.md`](k2-nav-implementation-checklist.md).
 
 ---
 

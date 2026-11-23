@@ -2,7 +2,7 @@
 
 **Status:** Complete (Jun 2026) — SCH-029 shipped; fixes date semantics for SCH-028 HoF rows  
 **Parent:** [`amiga-hof-tournament-geo-policy.md`](amiga-hof-tournament-geo-policy.md) · [`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) · [`amiga-player-universe-contract.md`](amiga-player-universe-contract.md) §5.5  
-**Implementation plan:** [`amiga-hof-record-date-implementation-plan.md`](amiga-hof-record-date-implementation-plan.md)
+**Implementation plan:** `amiga-hof-record-date-implementation-plan.md`
 
 ---
 

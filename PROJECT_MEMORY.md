@@ -26,7 +26,7 @@
 
 - **Change style:** small, reversible slices.
 
-Finished tracks that used to be listed here (June–July 2026): [`docs/archive/finished-tracks-2026.md`](docs/archive/finished-tracks-2026.md).
+Finished tracks that used to be listed here: git tag `archive/before-cleanup-2026-11-23`, file `docs/archive/finished-tracks-2026.md` ([`amiga-history.md`](docs/amiga-history.md) says how to read it).
 
 ---
 
@@ -44,14 +44,12 @@ Finished tracks that used to be listed here (June–July 2026): [`docs/archive/f
 | Page nav spacing (chrome gaps) | `docs/nav-spacing-policy.md` · `docs/k2-nav-implementation-checklist.md` (agents) |
 | Cutover readiness (prep vs live) | `docs/coordination/cutover-readiness.md` |
 | Schema DDL status | `docs/coordination/schema-register.md` |
-| `player_milestones` row-count timeline | `docs/archive/replay-register-2026-05.md` § Milestone unlock row counts |
 | Prod cutover | `docs/prod-coordination.md`, `site/public_html/ops/docs/post-dagh-live-story.md` |
 | Ladder ops platform (Steve, `ops/`, sim) | `docs/ladder-ops-platform.md` |
 | Amiga live ops (staging authority, repair, media) | [`amiga-live-ops-platform.md`](docs/amiga-live-ops-platform.md) · drill [`amiga-live-ops-practice-track.md`](docs/amiga-live-ops-practice-track.md) · **organizer track status** [`amiga-organizer-track-status.md`](docs/amiga-organizer-track-status.md) · finish confirm [`amiga-organizer-finish-confirm-policy.md`](docs/amiga-organizer-finish-confirm-policy.md) · **workspace UX** [`amiga-organizer-workspace-simplification-policy.md`](docs/amiga-organizer-workspace-simplification-policy.md) |
 | DB copies (local + staging names) | `docs/coordination/database-copies-2026-06.md` |
 | Work DB prepare / simul | `docs/work-db-prepare.md` |
 | Ground vs derived columns | `docs/replay-v1-scope-and-reset.md`, `docs/ground-truth-manifest.md` (online) · **`docs/amiga-data-contract.md`** (Amiga) |
-| Session log archives (older Recent log rows) | [`docs/archive/session-log-2026-nov.md`](docs/archive/session-log-2026-nov.md) · [`docs/archive/session-log-2026-q2.md`](docs/archive/session-log-2026-q2.md) · [`docs/archive/session-log-2026-jun-prune.md`](docs/archive/session-log-2026-jun-prune.md) · [`docs/archive/session-log-2026-jul-prune.md`](docs/archive/session-log-2026-jul-prune.md) |
 
 ---
 
@@ -105,7 +103,7 @@ Finished tracks that used to be listed here (June–July 2026): [`docs/archive/f
 | 2026-11-22 | **Online: 154 games never processed on live** (150 in a row Oct 30 – Nov 3, 4 singles). Counts and ratings otherwise audit clean.<br>• Scripts fixed and tested, **not uploaded**: waiting games first and in order, one writer at a time, late games refused (exit 3), `CMD=ProcessPending` for a one-minute job, day close 15,000 → 37 round trips, recalculation no longer closes the running day. Test `scripts/test_ops_game_queue.php`.<br>• Live database is **not on the web server** (19 ms per statement, very likely joshua), so a recalculation must run next to it.<br>• Message sent to Steve (WhatsApp), waiting for the answer: [`online-unprocessed-games-2026-11.md`](docs/coordination/online-unprocessed-games-2026-11.md) §5. |
 | 2026-11-22 | **Push gate fix (SYNC-1).** The first version let a compare-only side-pull reset the push baseline, so a push after one could have overwritten staged-only data. Now side-pulls write `staging-sidepull-last.json`; only a full pull into `ko2amiga_work` or a push that verified MATCH sets `staging-sync-last.json`, and a missing, foreign or side-pull baseline aborts. Tested: 15 offline cases; a real side-pull leaves the baseline unchanged; the reproduced scenario passes the old gate and aborts on the new one; live dry run OK. The baseline update after a real push is tested offline only (no live push was run). Not covered: edits on staged during the ~2 min push itself. Also: Steve Camber's name corrected in the Oslo stream sources; checkpoint pointers in AGENTS.md and the staging handoff now name `work-2026-11-22-oslo-wc`. |
 
-*Older rows: [docs/archive/session-log-2026-jul-prune.md](docs/archive/session-log-2026-jul-prune.md) (Jul 1–22) · [docs/archive/session-log-2026-jun-prune.md](docs/archive/session-log-2026-jun-prune.md) (before Jul 1).*
+*Older rows: git history (tag `archive/before-cleanup-2026-11-23` has the old session-log files).*
 
 
 ---

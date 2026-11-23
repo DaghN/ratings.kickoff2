@@ -203,7 +203,7 @@ With the junction, that resolves to **`site/config/`** in the repo. Copy from **
 1. Assume **Start Menu Laragon → Start All** is enough if `setup_laragon_apache_fix.ps1` was run; use **`check_local_dev.ps1`** only when diagnosing failures.
 2. DB work: confirm `DATABASE()` = `ko2unity_db`.
 3. Destructive scripts: **dry-run first**; keep pristine SQL dump for re-import.
-4. **Secrets:** do **not** commit `site/config/ko2unitydb_config.php` / `*.local.php` / ops credential ini. **Working** `data/dumps/*.sql` stay untracked by default; **do not** treat that as “databases must never be in git” — sealed continuity backups belong in git ([`README.md`](../README.md) Continuity · [`PROJECT_BRIEF.md`](../PROJECT_BRIEF.md)). **Staging / cutover ladder work:** [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md) + ops simul — **not** Laragon. [`STAGING_REPLAY.md`](STAGING_REPLAY.md) is an **archive redirect** only (May 2026 one-shot record).
+4. **Secrets:** do **not** commit `site/config/ko2unitydb_config.php` / `*.local.php` / ops credential ini. **Working** `data/dumps/*.sql` stay untracked by default; **do not** treat that as “databases must never be in git” — sealed continuity backups belong in git ([`README.md`](../README.md) Continuity · [`PROJECT_BRIEF.md`](../PROJECT_BRIEF.md)). **Staging / cutover ladder work:** [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md) + ops simul — **not** Laragon. `STAGING_REPLAY.md` is an **archive redirect** only (May 2026 one-shot record).
 
 ---
 

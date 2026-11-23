@@ -6,7 +6,7 @@
 
 **Legacy mechanics (frozen oracle path):** [`amiga-tournament-videos-game-links-policy.md`](amiga-tournament-videos-game-links-policy.md) — match-fact remap after nuclear reimport; **still true on `ko2amiga_db` + `prove`**.
 
-**Related:** [`amiga-modern-simul-implementation-plan.md`](amiga-modern-simul-implementation-plan.md) § S-1.8 · [`scripts/amiga/tournament_videos/README.md`](../scripts/amiga/tournament_videos/README.md)
+**Related:** `amiga-modern-simul-implementation-plan.md` § S-1.8 · [`scripts/amiga/tournament_videos/README.md`](../scripts/amiga/tournament_videos/README.md)
 
 ---
 

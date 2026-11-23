@@ -503,7 +503,7 @@ Show **both rows** with same `calendar_year`; disambiguate by `tournament_name` 
 | Doc | Relationship |
 |-----|----------------|
 | [`amiga-community-stats-question-catalog.md`](amiga-community-stats-question-catalog.md) | Backlog origin; cut WC charts; shipped year charts remain |
-| [`amiga-community-stats-catalog-plan.md`](amiga-community-stats-catalog-plan.md) | Step 4 registry; WC table is parallel track |
+| `amiga-community-stats-catalog-plan.md` | Step 4 registry; WC table is parallel track |
 | [`amiga-community-stats-policy.md`](amiga-community-stats-policy.md) | Community shape unchanged; WC table is new grain |
 | [`amiga-world-cups-leaderboard-policy.md`](amiga-world-cups-leaderboard-policy.md) | Player slice — no duplication |
 | [`amiga-data-contract.md`](amiga-data-contract.md) | Register table at implementation |

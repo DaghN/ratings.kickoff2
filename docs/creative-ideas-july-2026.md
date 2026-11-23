@@ -414,7 +414,7 @@ Useful when starting a creative or scheduling chat — not a commitment order:
 | 2026-06-30 | **C14–C15 sparks** — tournament metadata LB wing (debuts etc., WC hub pattern on Tournaments hub); Amiga Highlights **biggest upsets** board (rating gain). C08 notes: winner + debut in editorial band. §6.4–§6.5. |
 | 2026-06-30 | **C13 extensions documented** — `id_country`, faceted counts, filter auto-snap; policy §5.8 + §10. |
 | 2026-06-30 | **C13 with-player stepper shipped** — slices 0–3 complete; moved to shipped. |
-| 2026-06-30 | **C13 planning revision** — per-surface params (`as_with` / `id_with` / `start_with`); slice 0 T18 removal; [`with-player-stepper-implementation-plan.md`](with-player-stepper-implementation-plan.md). |
+| 2026-06-30 | **C13 planning revision** — per-surface params (`as_with` / `id_with` / `start_with`); slice 0 T18 removal; `with-player-stepper-implementation-plan.md`. |
 | 2026-06-30 | **C13 with-player stepper** — policy locked [`with-player-stepper-policy.md`](with-player-stepper-policy.md); supersedes Amiga TT T18. |
 | 2026-06-30 | Creative session wrap — §4.0 discoverability; `UPDATE_DOCS` · `AGENTS.md` · `agent-track-playbook` cross-refs. |
 | 2026-06-30 | Initial ledger from creative chat — recipe, origin stories, C01–C12, rejects, sticky TT + glyph notes. Fixed stale "H2H rank not built" refs in rank-chart policy/plan. |

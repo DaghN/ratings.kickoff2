@@ -4,7 +4,7 @@
 
 **Audience:** Dagh, agents re-running or extending PHP live Finish confidence.
 
-**Related:** [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (RTB12) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) Lane B · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) · starter [`orchestration/agent-handoffs/amiga-php-finalize-parity-STARTER-PROMPT.md`](orchestration/agent-handoffs/amiga-php-finalize-parity-STARTER-PROMPT.md) · checkpoints [`../data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md)
+**Related:** [`amiga-running-tournament-boundary-policy.md`](amiga-running-tournament-boundary-policy.md) (RTB12) · [`amiga-live-ops-platform.md`](amiga-live-ops-platform.md) Lane B · [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) · starter `orchestration/agent-handoffs/amiga-php-finalize-parity-STARTER-PROMPT.md` · checkpoints [`../data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md)
 
 ---
 
@@ -64,7 +64,7 @@ Staging Finish / Make official runs **PHP** (`amiga_promote_running_tournament` 
 
 Assumed “PHP mirrors Python” was never continuously proven. Recent staging failures were schema/shape mismatches (dead columns; leaked `as_of_tournament_id` into `amiga_player_slice_totals`). This protocol asks: **after promote + full Finish derive, does PHP write the same ladder truth as a trusted Python replay?**
 
-**Not resurrected:** retired `verify-php-finalize-parity` / reopen-refinalize ([`archive/retired-amiga-refinalize-2026-06.md`](archive/retired-amiga-refinalize-2026-06.md)).
+**Not resurrected:** retired `verify-php-finalize-parity` / reopen-refinalize (`archive/retired-amiga-refinalize-2026-06.md`).
 
 ---
 
