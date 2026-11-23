@@ -76,7 +76,7 @@
                   "ko2amiga_40_wc_hof_snapshots.sql",
                   "ko2amiga_41_wc_hof_present.sql"
               ],
-    "generated":  "2026-11-23 05:52:17",
+    "generated":  "2026-11-23 06:40:04",
     "source_database":  "ko2amiga_work",
     "staging_database":  "ko2amiga_db"
 }
