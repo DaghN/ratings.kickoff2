@@ -139,9 +139,9 @@ Access `Scores` sometimes assigns the wrong `Team A` / `Team B` while regulation
 
 **Duesseldorf V:** Access stored the final 3–2 on Frederic–Cornelius instead of Frederic–Volker. Forum lists 18 games = complete 4p triple round-robin; wrong opponent caused 8/9/9/10 per-player counts and tier-C structure audit flag. Finish order unchanged (Oliver · Frederic · Volker · Cornelius); L5 rebuild after work DB patch.
 
-### 5.2 Scores row corrections: World Cup extra-time notes (2026-11-22)
+### 5.2 Scores row corrections: World Cup extra-time notes (2026-11-22 and 2026-11-23)
 
-Evidence, grades, beliefs about each source and the three matches left alone: **[`amiga-extra-time-review-2026-11.md`](amiga-extra-time-review-2026-11.md)**. Rule: Access stands unless it contradicts itself or a video; only then does alkis.org supply the score. No placing changes.
+Evidence, grades, beliefs about each source and the matches left alone: **[`amiga-extra-time-review-2026-11.md`](amiga-extra-time-review-2026-11.md)**. Rule: Access stands unless it contradicts itself or a video; only then does alkis.org supply the score. No placing changes.
 
 | `source_scores_id` | `amiga_games.id` | Event | Access | Canonical | Why |
 |---|---|---|---|---|---|
@@ -156,6 +156,11 @@ Evidence, grades, beliefs about each source and the three matches left alone: **
 | **24922** | 24412 | XVII Places 9-12, John H v Marco D | 2-3, `3-3 e.t.` | `2-4 e.t.` | Marco D played the 9th place final |
 | **26887** | 26267 | XXI 17th, Frederic G v Robert S | 3-3, `4-3 e.t.` | `3-4 e.t.` | Video: Robert S won |
 | **26896** | 26276 | XXI 29th, Cornelius H v Michele L | 2-2, no note | `5-2 e.t.` | Level tie without a decider |
+| **20483** | 19987 | XI Places 25-32, Mark W v Peter K | 1-2 | **1-1**, `1-2 e.t.` | Totals count 1-1 and a win for Peter K; changes Elo; decided by Dagh 2026-11-23 |
+| **20504** | 20008 | XI 19th, Wayne L v Mandhir S | 5-2 | **2-2**, `5-2 e.t.` | Totals count 2-2 and a win for Wayne L; changes Elo; decided by Dagh 2026-11-23 |
+| **26929** | 26309 | XXI 5th, Christopher D v Mario F | 6-5, no note | `6-8 e.t.` | Level tie without a decider; confirmed by Steve C and the tournament software |
+| **26913** | 26293 | XXI 11th, Frank F v Steve C | 2-9 | **2-5**, `2-9 e.t.` | Score after extra time stored as normal time; Steve C and the tournament software. No Elo change |
+| **4652** | 4651 | IV Round 1 Group B, Nazim C v Gianni T | 1-7 | **7-1** | All records from 2004 fit 7-1; changes Elo; decided by Dagh 2026-11-23 |
 
 Applied to `ko2amiga_work` with `scripts/oneoff/amiga_fix_world_cup_extra_time_2026_11.py`. The day-0 seal and older checkpoints hold the Access values: run the script after restoring one, then simul.
 
@@ -254,7 +259,7 @@ Access had a **separate catalog row** for the 2005 KOA Cup consolation bracket. 
 | Supplemental games | 10 (1 tournament) |
 | Scores row corrections (ET / pens) | 2 (Kristiansand g1188–89) |
 | Scores row corrections (wrong player) | 3 (Milan g2421–22; Duesseldorf V g15981) |
-| Scores row corrections (World Cup extra time, Nov 2026, after the seal) | 11 rows in 10 matches (§5.2) |
+| Scores row corrections (World Cup extra time, Nov 2026, after the seal) | 16 rows in 15 matches (§5.2) |
 | Player country overrides | 4 |
 | Player name merges | 5 groups (1 automatic spacing/case, 4 manual spelling aliases) |
 | Country token normalizations | 2 |

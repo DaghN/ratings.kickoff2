@@ -431,6 +431,60 @@ SCORE_CORRECTIONS: tuple[ScoreCorrection, ...] = (
         goals_et_a=3,
         goals_et_b=0,
     ),
+    # Decided by Dagh 2026-11-23 (docs/amiga-extra-time-review-2026-11.md 6 and 12).
+    ScoreCorrection(
+        source_scores_id=20483,
+        tournament="World Cup XI",
+        team_a="Mark W",
+        team_b="Peter K",
+        goals_a=1,
+        goals_b=1,
+        extra="1-2 e.t.",
+        goals_et_a=0,
+        goals_et_b=1,
+    ),
+    ScoreCorrection(
+        source_scores_id=20504,
+        tournament="World Cup XI",
+        team_a="Wayne L",
+        team_b="Mandhir S",
+        goals_a=2,
+        goals_b=2,
+        extra="5-2 e.t.",
+        goals_et_a=3,
+        goals_et_b=0,
+    ),
+    ScoreCorrection(
+        source_scores_id=26929,
+        tournament="World Cup XXI",
+        team_a="Christopher D",
+        team_b="Mario F",
+        goals_a=6,
+        goals_b=5,
+        extra="6-8 e.t.",
+        goals_et_a=0,
+        goals_et_b=3,
+    ),
+    ScoreCorrection(
+        source_scores_id=26913,
+        tournament="World Cup XXI",
+        team_a="Frank F",
+        team_b="Steve C",
+        goals_a=2,
+        goals_b=5,
+        extra="2-9 e.t.",
+        goals_et_a=0,
+        goals_et_b=4,
+    ),
+    ScoreCorrection(
+        source_scores_id=4652,
+        tournament="World Cup IV",
+        team_a="Nazim C",
+        team_b="Gianni T",
+        goals_a=7,
+        goals_b=1,
+        extra=None,
+    ),
 )
 
 SCORE_CORRECTION_RATIONALE: dict[int, str] = {
@@ -506,6 +560,32 @@ SCORE_CORRECTION_RATIONALE: dict[int, str] = {
     26896: (
         "World Cup XXI 29th Place Final: level 7-7 with Extra NULL in Access; Access places Cornelius H 29th. "
         "alkis.org results image: this game was the second leg, 5-2 a.e.t."
+    ),
+    20483: (
+        "World Cup XI Places 25-32: Access Scores and the alkis.org image have 1-2 without an extra-time mark. The "
+        "totals of both players (Access [Tables] and alkis.org) count 1-1 and still a win for Peter K; World Cup XI "
+        "counts goals in normal time and wins after extra time. Decided by Dagh 2026-11-23."
+    ),
+    20504: (
+        "World Cup XI 19th Place Final: Access Scores and the alkis.org image have 5-2 without an extra-time mark. "
+        "The totals of both players count 2-2 and still a win for Wayne L, and Access's group tables match the group "
+        "games, so the difference is in this game. Decided by Dagh 2026-11-23."
+    ),
+    26929: (
+        "World Cup XXI 5th Place Final: level 10-10 with Extra NULL in Access; Access places Mario F 5th. The "
+        "alkis.org results image has this leg as 8-6 to Mario F, its ranking list three more goals for Mario F and "
+        "one win each: 6-5 in normal time, 0-3 in extra time. Confirmed by Steve C 2026-11-23; the tournament "
+        "software (kickoff2.com/KO2TS, tn=worldcup2023) has 6-8 and counts 6-5 in its totals."
+    ),
+    26913: (
+        "World Cup XXI 11th Place Final second leg: Access Scores has the score after extra time, 2-9, as normal "
+        "time. Steve C, who played it, 2026-11-23: 2-5 in normal time, then four goals in extra time. The tournament "
+        "software's totals and Access [Tables] count 2-5."
+    ),
+    4652: (
+        "World Cup IV Round 1 Group B: Access Scores has 1-7. The alkis.org results image, its group table and "
+        "ranking list, Access's own group table and totals, and the KOA ranking of December 2004 (Access Rankings) "
+        "all fit 7-1. Decided by Dagh 2026-11-23."
     ),
 }
 

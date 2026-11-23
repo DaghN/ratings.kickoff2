@@ -520,6 +520,50 @@
       "goals_et_a": 3,
       "goals_et_b": 0,
       "note": "World Cup XXI 29th Place Final, second leg although the lower id; Cornelius H (A) vs Michele L; agg 7-7; Access silent; alkis.org results image 5-2 a.e.t.; Cornelius H 29th"
+    },
+    "19987": {
+      "verified_at": "2026-11-23",
+      "tournament_id": 526,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "1-1",
+      "witness": "1-2 e.t.",
+      "goals_et_a": 0,
+      "goals_et_b": 1,
+      "note": "World Cup XI Places 25-32; Mark W (A) vs Peter K; Access and alkis.org image 1-2 without a mark; totals of both players count 1-1 and a win for Peter K; their only game in the event; decided by Dagh 2026-11-23"
+    },
+    "20008": {
+      "verified_at": "2026-11-23",
+      "tournament_id": 526,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "2-2",
+      "witness": "5-2 e.t.",
+      "goals_et_a": 3,
+      "goals_et_b": 0,
+      "note": "World Cup XI 19th Place Final; Wayne L (A) vs Mandhir S; Access and alkis.org image 5-2 without a mark; totals of both players count 2-2 and a win for Wayne L; decided by Dagh 2026-11-23"
+    },
+    "26293": {
+      "verified_at": "2026-11-23",
+      "tournament_id": 16,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "2-5",
+      "witness": "2-9 e.t.",
+      "goals_et_a": 0,
+      "goals_et_b": 4,
+      "note": "World Cup XXI 11th Place Final leg 2; Frank F (A) vs Steve C; agg 7-7; Access has 2-9 as normal time; Steve C (player) 2026-11-23: 2-5, then four goals in extra time; tournament software totals and Access Tables count 2-5"
+    },
+    "26309": {
+      "verified_at": "2026-11-23",
+      "tournament_id": 16,
+      "extension_kinds": ["et"],
+      "interpretation": "post_et_total",
+      "regulation": "6-5",
+      "witness": "6-8 e.t.",
+      "goals_et_a": 0,
+      "goals_et_b": 3,
+      "note": "World Cup XXI 5th Place Final, second leg on alkis.org although the lower id; Christopher D (A) vs Mario F; agg 10-10; Access silent; alkis.org results image has this leg as 8-6 to Mario F, its ranking list three more goals for Mario F; Mario F 5th; confirmed by Steve C 2026-11-23 and by the tournament software (kickoff2.com/KO2TS tn=worldcup2023: 6-8)"
     }
   }
 }
