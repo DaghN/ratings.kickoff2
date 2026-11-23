@@ -415,18 +415,20 @@ body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option-
 	font-style: italic;
 }
 
-/* Tie card: a row per player (flag + name, goals per leg, aggregate), video glyphs, extra-time line. */
+/* Tie card: who went through (name, no flag), the games as results (Status-page colours), aggregate /
+   extra time / penalties. Design 11 from the card preview (Dagh, 2026-11-23). */
 .k2-amiga-bracket__round:has(.k2-amiga-tie) {
-	min-width: 13.5rem;
-	max-width: 17rem;
+	min-width: 18.5rem;
+	max-width: 20rem;
 }
 
 .k2-amiga-tie {
-	padding: 0.45rem 0.6rem 0.5rem;
+	padding: 0.5rem 0.65rem 0.55rem;
 	border: 1px solid var(--k2-border-subtle);
 	border-radius: var(--k2-radius-md);
 	background: color-mix(in srgb, var(--k2-bg-elevated) 55%, transparent);
 	scroll-margin-top: 6rem;
+	font-size: 0.86rem;
 }
 
 .k2-amiga-tie.is-active {
@@ -434,70 +436,85 @@ body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option-
 	box-shadow: 0 0 0 1px var(--k2-segment-active-ring);
 }
 
-.k2-amiga-tie__row {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) repeat(var(--k2-tie-legs, 2), 1.7rem) 2.1rem;
-	align-items: center;
-	column-gap: 0.15rem;
-	font-size: 0.88rem;
-	line-height: 1.5;
+.k2-amiga-tie__outcome {
+	display: flex;
+	justify-content: space-between;
+	gap: 0.5rem;
+	padding-bottom: 0.3rem;
+	margin-bottom: 0.3rem;
+	border-bottom: 1px solid var(--k2-border-subtle);
+	color: var(--k2-text-secondary);
+	white-space: nowrap;
+}
+
+.k2-amiga-tie__agg {
+	font-size: 0.78rem;
 	font-variant-numeric: tabular-nums;
 }
 
-.k2-amiga-tie--single .k2-amiga-tie__row {
-	grid-template-columns: minmax(0, 1fr) 1.9rem;
+.k2-amiga-tie__game {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	font-size: 0.78rem;
+	line-height: 1.7;
+	white-space: nowrap;
+	min-width: 0;
 }
 
-.k2-amiga-tie__row--head {
-	font-size: 0.7rem;
-	line-height: 1.2;
+.k2-amiga-tie__leg {
+	flex: none;
+	width: 1.6rem;
 	color: var(--k2-text-muted);
-	text-align: right;
-}
-
-.k2-amiga-tie__row.is-winner {
-	font-weight: 600;
-	color: var(--k2-text-primary);
-}
-
-/* Loser dimmed, but not the flag. */
-.k2-amiga-tie__row.is-loser .k2-amiga-tie__player a:not(.k2-country-roster-link),
-.k2-amiga-tie__row.is-loser .k2-amiga-tie__leg,
-.k2-amiga-tie__row.is-loser .k2-amiga-tie__agg {
-	opacity: 0.72;
+	font-size: 0.72rem;
 }
 
 .k2-amiga-tie__player {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
 	min-width: 0;
-	white-space: nowrap;
+	flex: 0 1 auto;
+}
+
+.k2-amiga-tie__player > a.k2-country-roster-link {
+	flex: none;
+}
+
+.k2-amiga-tie__name {
+	min-width: 0;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
-.k2-amiga-tie__leg,
-.k2-amiga-tie__agg {
-	text-align: right;
-}
-
-a.k2-amiga-tie__leg {
-	color: var(--k2-segment-active-text);
+.k2-amiga-tie__score {
+	flex: none;
+	color: inherit;
 	text-decoration: none;
 }
 
-a.k2-amiga-tie__leg:hover {
+a.k2-amiga-tie__score:hover .k2-status-score {
 	text-decoration: underline;
-	color: var(--k2-link-star-hover);
 }
 
-.k2-amiga-tie__row--video {
-	line-height: 1.1;
-	justify-items: end;
-	margin-top: 0.1rem;
+.k2-amiga-tie__video {
+	flex: none;
+	margin-left: auto;
+	line-height: 1;
 }
 
-.k2-amiga-tie__note {
-	margin: 0.25rem 0 0;
-	font-size: 0.76rem;
+.k2-amiga-tie__decider {
+	font-size: 0.74rem;
+	color: var(--k2-text-secondary);
+}
+
+.k2-amiga-tie__decider--indent {
+	padding-left: 1.95rem;
+}
+
+.k2-amiga-tie__foot {
+	margin-top: 0.55rem;
+	font-size: 0.74rem;
 	color: var(--k2-text-secondary);
 }
 

@@ -16,58 +16,103 @@ require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/k2_amiga_country_flag.php';
 
 /**
- * One knockout tie: a row per player (flag, name, goals in each leg, aggregate), video glyphs under
- * the legs that have footage, and a line for extra time / penalties. Each leg's goals open that game.
+ * Card design being tried (Dagh, 2026-11-23): 'c' (default), 'b' or 'e'. The ?card= switch works only on a
+ * local *.test / localhost site, to compare them; the chosen design stays and the switch goes before going live.
+ */
+function amiga_tournament_tie_card_variant(): string
+{
+    $host = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
+    $local = str_ends_with($host, '.test') || str_starts_with($host, 'localhost') || str_starts_with($host, '127.0.0.1');
+    $asked = strtolower((string) ($_GET['card'] ?? ''));
+
+    return $local && in_array($asked, ['b', 'c', 'e'], true) ? $asked : 'c';
+}
+
+/**
+ * One knockout tie: who went through on top (name, no flag), the games below as results (home player first,
+ * flags, winning goal coloured as on the Status page, linked to the game; play icon for a video), and the
+ * aggregate / extra time / penalties as the variant places them:
+ *   c: extra time and penalties under their leg, the aggregate alone after a small gap;
+ *   b: aggregate, extra time and penalties on one line after a small gap;
+ *   e: the aggregate at the right end of the top line, extra time and penalties under their leg.
  *
  * @param array<string, mixed> $tie with 'card' from amiga_tournament_knockout_tie_card()
  */
 function amiga_tournament_render_tie_card(array $tie, string $roundTitle, bool $isActive): void
 {
+    require_once __DIR__ . '/k2_rated_game_row.php';
+    $variant = amiga_tournament_tie_card_variant();
     $card = $tie['card'];
     $legs = $card['legs'];
-    $legCount = max(1, count($legs));
-    $multi = $legCount > 1;
-    $hasVideo = array_filter(array_column($legs, 'video')) !== [];
-    $ordinal = static fn (int $i): string => $i === 0 ? '1st' : ($i === 1 ? '2nd' : ($i === 2 ? '3rd' : ($i + 1) . 'th'));
+    $multi = count($legs) > 1;
+    $byId = [];
+    foreach ($card['rows'] as $row) {
+        $byId[(int) $row['id']] = $row;
+    }
+    $winner = !empty($tie['unresolved']) || $tie['winner_id'] === null ? null : (int) $tie['winner_id'];
+    $loser = $winner === null ? null : (int) ($winner === (int) $tie['player_lo'] ? $tie['player_hi'] : $tie['player_lo']);
+    $player = static function (int $pid, bool $flagFirst) use ($byId): string {
+        $row = $byId[$pid] ?? ['name' => '#' . $pid, 'country' => ''];
+        $flag = k2_amiga_country_flag_link((string) $row['country']);
+        $link = '<span class="k2-amiga-tie__name">' . k2_amiga_player_link($pid, (string) $row['name']) . '</span>';
+
+        return '<span class="k2-amiga-tie__player">' . ($flagFirst ? $flag . $link : $link . $flag) . '</span>';
+    };
+    $legLabel = static fn (int $i): string => $i === 0 ? '1st' : ($i === 1 ? '2nd' : ($i === 2 ? '3rd' : ($i + 1) . 'th'));
+    $decider = static function (array $leg): string {
+        $bits = [];
+        if ($leg['after_et'] !== null) {
+            $bits[] = 'a.e.t. ' . $leg['after_et'][0] . '–' . $leg['after_et'][1];
+        }
+        if ($leg['pens'] !== null) {
+            $bits[] = 'pens ' . $leg['pens'][0] . '–' . $leg['pens'][1];
+        }
+
+        return $bits !== [] ? implode(', ', $bits) : ($leg['after_et'] === null && $leg['pens'] === null ? (string) $leg['extra'] : '');
+    };
+    // Aggregate: winner first in the top line; first leg's home player first at the foot (as the legs read).
+    $agg = static fn (int $first, int $second): string => (int) ($byId[$first]['aggregate'] ?? 0) . '–' . (int) ($byId[$second]['aggregate'] ?? 0);
+    $firstHome = $legs !== [] ? (int) $legs[0]['home'] : (int) $tie['player_lo'];
+    $firstAway = $legs !== [] ? (int) $legs[0]['away'] : (int) $tie['player_hi'];
     ?>
-            <div class="k2-amiga-tie<?php echo $multi ? '' : ' k2-amiga-tie--single'; ?><?php echo $isActive ? ' is-active' : ''; ?>"
-                 id="<?php echo k2_h(amiga_tournament_tie_card_id((string) $tie['scope_key'])); ?>"
-                 style="--k2-tie-legs: <?php echo $legCount; ?>">
-                <?php if ($multi) { ?>
-                <div class="k2-amiga-tie__row k2-amiga-tie__row--head" aria-hidden="true">
-                    <span></span>
-                    <?php for ($i = 0; $i < $legCount; $i++) { ?><span><?php echo $ordinal($i); ?></span><?php } ?>
-                    <span>Agg</span>
+            <div class="k2-amiga-tie<?php echo $isActive ? ' is-active' : ''; ?>"
+                 id="<?php echo k2_h(amiga_tournament_tie_card_id((string) $tie['scope_key'])); ?>">
+                <div class="k2-amiga-tie__outcome">
+                    <span><?php
+                    if ($winner === null) {
+                        echo 'Tie unresolved';
+                    } else {
+                        echo '<span class="k2-amiga-tie__winner">', k2_amiga_player_link($winner, (string) ($byId[$winner]['name'] ?? '')), '</span> wins';
+                    } ?></span>
+                    <?php if ($variant === 'e' && $multi && $winner !== null) { ?>
+                    <span class="k2-amiga-tie__agg"><?php echo $agg($winner, (int) $loser); ?> agg</span>
+                    <?php } ?>
                 </div>
-                <?php } ?>
-                <?php foreach ($card['rows'] as $row) { ?>
-                <div class="k2-amiga-tie__row <?php echo k2_h((string) $row['state']); ?>">
-                    <span class="k2-amiga-tie__player"><?php
-                        echo k2_amiga_inline_flag_and_link((string) $row['country'], k2_amiga_player_link((int) $row['id'], (string) $row['name']));
-                    ?></span>
-                    <?php foreach ($row['goals'] as $i => $goals) {
-                        $leg = $legs[$i] ?? null;
-                        $help = $roundTitle . ($multi ? ', ' . $ordinal($i) . ' leg' : '') . ': open the game';
-                        if ($leg !== null && $leg['url'] !== '') { ?>
-                    <a class="k2-amiga-tie__leg" href="<?php echo k2_h($leg['url']); ?>" aria-label="<?php echo k2_h($help); ?>"><?php echo (int) $goals; ?></a>
-                        <?php } else { ?>
-                    <span class="k2-amiga-tie__leg"><?php echo (int) $goals; ?></span>
-                        <?php }
-                    } ?>
-                    <?php if ($multi) { ?><span class="k2-amiga-tie__agg"><?php echo (int) $row['aggregate']; ?></span><?php } ?>
+                <?php foreach ($legs as $i => $leg) {
+                    $scoreline = '<span class="k2-status-score">' . k2_rated_game_scoreline_html((int) $leg['goals_home'], (int) $leg['goals_away']) . '</span>';
+                    $help = $roundTitle . ($multi ? ', ' . $legLabel($i) . ' leg' : '');
+                    ?>
+                <div class="k2-amiga-tie__game">
+                    <?php if ($multi) { ?><span class="k2-amiga-tie__leg"><?php echo $legLabel($i); ?></span><?php } ?>
+                    <?php echo $player((int) $leg['home'], true); ?>
+                    <?php if ($leg['url'] !== '') { ?><a class="k2-amiga-tie__score" href="<?php echo k2_h($leg['url']); ?>" aria-label="<?php echo k2_h($help); ?>"><?php echo $scoreline; ?></a><?php } else { ?><span class="k2-amiga-tie__score"><?php echo $scoreline; ?></span><?php } ?>
+                    <?php echo $player((int) $leg['away'], false); ?>
+                    <span class="k2-amiga-tie__video"><?php echo $leg['video']; ?></span>
                 </div>
+                    <?php if ($variant !== 'b' && ($d = $decider($leg)) !== '') { ?>
+                <div class="k2-amiga-tie__decider<?php echo $multi ? ' k2-amiga-tie__decider--indent' : ''; ?>"><?php echo k2_h($d); ?></div>
+                    <?php } ?>
                 <?php } ?>
-                <?php if ($hasVideo) { ?>
-                <div class="k2-amiga-tie__row k2-amiga-tie__row--video">
-                    <span></span>
-                    <?php foreach ($legs as $leg) { ?><span><?php echo $leg['video']; ?></span><?php } ?>
-                    <?php if ($multi) { ?><span></span><?php } ?>
-                </div>
-                <?php } ?>
-                <?php if (!empty($tie['unresolved'])) { ?>
-                <p class="k2-amiga-tie__note">Tie unresolved</p>
-                <?php } elseif ($card['note'] !== '') { ?>
-                <p class="k2-amiga-tie__note"><?php echo k2_h($card['note']); ?></p>
+                <?php
+                $foot = [];
+                if (($variant === 'c' || $variant === 'b') && $multi) {
+                    $foot[] = 'Aggregate ' . $agg($firstHome, $firstAway);
+                }
+                if ($variant === 'b' && $card['note'] !== '') {
+                    $foot[] = $foot === [] ? (string) $card['note'] : lcfirst((string) $card['note']);
+                }
+                if ($foot !== []) { ?>
+                <div class="k2-amiga-tie__foot"><?php echo k2_h(implode(' · ', $foot)); ?></div>
                 <?php } ?>
             </div>
     <?php

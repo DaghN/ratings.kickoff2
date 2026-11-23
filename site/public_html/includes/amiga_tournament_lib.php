@@ -2640,6 +2640,16 @@ function amiga_tournament_knockout_tie_card(array $tie, array $names, array $cou
             'game_id' => $gid,
             'url' => $linkGames ? k2_amiga_game_page_url($gid) : '',
             'video' => $linkGames ? amiga_game_video_glyph_link($gid) : '',
+            // The leg as a result, home player first; after extra time and penalties in the same order.
+            'home' => $a,
+            'away' => $b,
+            'goals_home' => (int) $g['goals_a'],
+            'goals_away' => (int) $g['goals_b'],
+            'after_et' => $g['goals_et_a'] !== null && $g['goals_et_b'] !== null
+                ? [(int) $g['goals_a'] + (int) $g['goals_et_a'], (int) $g['goals_b'] + (int) $g['goals_et_b']]
+                : null,
+            'pens' => $g['pens_a'] !== null && $g['pens_b'] !== null ? [(int) $g['pens_a'], (int) $g['pens_b']] : null,
+            'extra' => trim((string) ($g['extra'] ?? '')),
         ];
         if ($g['goals_et_a'] !== null && $g['goals_et_b'] !== null) {
             $hasEt = true;
