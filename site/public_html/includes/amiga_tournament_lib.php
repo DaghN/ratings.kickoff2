@@ -2480,12 +2480,14 @@ function amiga_tournament_format_game_extra(?string $extra): string
  *
  * Inference rules (lower = earlier round, displayed left in main bracket):
  * - Round N / Round of 16 / Round of 32 → 100–199
- * - Quarter Finals → 200
- * - Semi Finals → 300
+ * - Quarter Finals → 200 (also "Quarter Final", as in World Cups 2024–2026)
+ * - Semi Finals → 300 (also "Semi Final")
  * - Final → 400
  * - Nth Place Final → 500 + place number
  * - Places X-Y brackets → 600 + lower bound
  * - Unknown → 900
+ *
+ * Transitional (docs/amiga-tournament-structure-display-policy.md D5): World Cups have no stage rows yet.
  */
 function amiga_tournament_knockout_phase_rank(string $phase): int
 {
@@ -2501,10 +2503,10 @@ function amiga_tournament_knockout_phase_rank(string $phase): int
     if (preg_match('/^round\s+(\d+)$/i', $label, $m) === 1) {
         return 100 + (int) $m[1];
     }
-    if ($lower === 'quarter finals') {
+    if ($lower === 'quarter finals' || $lower === 'quarter final') {
         return 200;
     }
-    if ($lower === 'semi finals') {
+    if ($lower === 'semi finals' || $lower === 'semi final') {
         return 300;
     }
     if ($lower === 'final') {
@@ -2532,6 +2534,30 @@ function amiga_tournament_knockout_phase_bucket(string $phase): string
     }
 
     return 'placement_bracket';
+}
+
+/**
+ * The tie the Knockouts tab opens on: the last round of the main bracket (the Final), not the first name A–Z.
+ *
+ * @param list<string> $scopeKeys knockout scope keys
+ */
+function amiga_tournament_knockout_landing_scope(array $scopeKeys): string
+{
+    $best = $scopeKeys[0] ?? '';
+    $bestRank = -1;
+    foreach ($scopeKeys as $scopeKey) {
+        $parsed = amiga_tournament_parse_knockout_scope_key($scopeKey);
+        if ($parsed === null || amiga_tournament_knockout_phase_bucket($parsed['phase']) !== 'main') {
+            continue;
+        }
+        $rank = amiga_tournament_knockout_phase_rank($parsed['phase']);
+        if ($rank > $bestRank) {
+            $best = $scopeKey;
+            $bestRank = $rank;
+        }
+    }
+
+    return $best;
 }
 
 /**

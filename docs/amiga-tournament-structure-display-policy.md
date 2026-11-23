@@ -130,6 +130,8 @@ Stored on **`tournament_stages.config_json`** (v1 preference — avoids DDL unti
 | **P3 — Display v2** | Tournament viewer reads stages + imprint only | Knockouts tab: no `list_scopes(knockout)` for layout; no phase_rank/bucket; `stage_id` URLs |
 | **P4 — Compat sunset** | Remove scope-based layout fallbacks | After P3 stable + bookmarks redirected; SC-10 fixture linkage complete |
 
+**Transitional display fixes (Nov 2026, Dagh):** until P2–P3, the name rule also accepts the singular `Quarter Final` / `Semi Final` (World Cups 2024–2026 and 12 other events had their quarter- and semifinals under Placement brackets); sections are shown in the order knockout bracket → placement brackets → placement finals; the Knockouts tab opens on the Final (`amiga_tournament_knockout_landing_scope()`), not the first name A–Z. All 24 World Cups still have no stage rows (`wc_deferred`), so imprint cannot fix them yet.
+
 **Current gap (Jul 2026):** P1 **non-WC complete** on `ko2amiga_work` (**583/606** with stages; **23** remaining = `wc_deferred` WCs only). P2–P3 not started; transitional bracket UI still in `amiga_tournament_bracket.php` + `amiga_tournament_knockout_bracket_data()`.
 
 ---

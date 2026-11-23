@@ -75,17 +75,18 @@ function amiga_tournament_render_bracket(array $bracket, string $activeScopeKey 
     </div>
     <?php } ?>
 
-    <?php if ($bracket['placement_final'] !== []) { ?>
-    <div class="k2-amiga-bracket__section k2-amiga-bracket__section--placement">
-        <h3 class="k2-amiga-bracket__subsection">Placement finals</h3>
-        <?php amiga_tournament_render_bracket_rounds($bracket['placement_final'], $activeScopeKey); ?>
-    </div>
-    <?php } ?>
-
+    <?php // Placement brackets lead into the placement finals, so the finals come last. ?>
     <?php if ($bracket['placement_bracket'] !== []) { ?>
     <div class="k2-amiga-bracket__section k2-amiga-bracket__section--placement">
         <h3 class="k2-amiga-bracket__subsection">Placement brackets</h3>
         <?php amiga_tournament_render_bracket_rounds($bracket['placement_bracket'], $activeScopeKey); ?>
+    </div>
+    <?php } ?>
+
+    <?php if ($bracket['placement_final'] !== []) { ?>
+    <div class="k2-amiga-bracket__section k2-amiga-bracket__section--placement">
+        <h3 class="k2-amiga-bracket__subsection">Placement finals</h3>
+        <?php amiga_tournament_render_bracket_rounds($bracket['placement_final'], $activeScopeKey); ?>
     </div>
     <?php } ?>
 
