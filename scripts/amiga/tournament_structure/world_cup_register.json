@@ -7,35 +7,43 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Round 2 - Group G": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 7
     },
     "Round 2 - Group H": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 8
     },
     "Quarter Finals": {
      "type": "knockout",
@@ -68,35 +76,43 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Round 2 - Group G": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 7
     },
     "Round 2 - Group H": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 8
     },
     "Quarter Finals": {
      "type": "knockout",
@@ -124,11 +140,13 @@
     },
     "Playouts Round 1 Group I": {
      "type": "group",
-     "track": "playouts"
+     "track": "playouts",
+     "order": 9
     },
     "Playouts Round 1 Group J": {
      "type": "group",
-     "track": "playouts"
+     "track": "playouts",
+     "order": 10
     },
     "Playouts Semi Finals": {
      "type": "knockout",
@@ -151,35 +169,43 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Round 2 - Group G": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 7
     },
     "Round 2 - Group H": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 8
     },
     "Quarter Finals": {
      "type": "knockout",
@@ -207,19 +233,23 @@
     },
     "Playouts Group W": {
      "type": "group",
-     "track": "playouts"
+     "track": "playouts",
+     "order": 9
     },
     "Playouts Group X": {
      "type": "group",
-     "track": "playouts"
+     "track": "playouts",
+     "order": 10
     },
     "Playouts Group Y": {
      "type": "group",
-     "track": "playouts"
+     "track": "playouts",
+     "order": 11
     },
     "Playouts Group Z": {
      "type": "group",
-     "track": "playouts"
+     "track": "playouts",
+     "order": 12
     },
     "Playouts Semi Finals": {
      "type": "knockout",
@@ -242,59 +272,73 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Round 1 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 1 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Round 2 - Group G": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 7
     },
     "Round 2 - Group H": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 8
     },
     "Round 2 - Group I": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 9
     },
     "Round 2 - Group J": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 10
     },
     "Round 2 - Group K": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 11
     },
     "Round 2 - Group L": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 12
     },
     "Round 2 - Group M": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 13
     },
     "Round 2 - Group N": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 14
     },
     "Round 3": {
      "type": "knockout",
@@ -375,35 +419,43 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Round 1 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 1 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Round 1 - Group G": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 7
     },
     "Round 1 - Group H": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 8
     },
     "Round 2": {
      "type": "knockout",
@@ -593,19 +645,23 @@
     },
     "KOA Cup - Round 1 - Group I": {
      "type": "group",
-     "track": "koa"
+     "track": "koa",
+     "order": 9
     },
     "KOA Cup - Round 1 - Group J": {
      "type": "group",
-     "track": "koa"
+     "track": "koa",
+     "order": 10
     },
     "KOA Cup - Round 1 - Group K": {
      "type": "group",
-     "track": "koa"
+     "track": "koa",
+     "order": 11
     },
     "KOA Cup - Round 1 - Group L": {
      "type": "group",
-     "track": "koa"
+     "track": "koa",
+     "order": 12
     },
     "KOA Cup - Round 2": {
      "type": "knockout",
@@ -649,19 +705,23 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Round 2": {
      "type": "knockout",
@@ -946,19 +1006,23 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Round 2": {
      "type": "knockout",
@@ -1136,7 +1200,8 @@
     },
     "Fun Cup - Group 33-40": {
      "type": "group",
-     "track": "fun"
+     "track": "fun",
+     "order": 5
     },
     "Game of Shame": {
      "type": "knockout",
@@ -1151,47 +1216,58 @@
    "rounds": {
     "Round 1 Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Round 2 Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Round 2 Group G": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 7
     },
     "Round 2 Group H": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 8
     },
     "Silver Cup Group I": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 9
     },
     "Silver Cup Group J": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 10
     },
     "Bronze Cup Group K": {
      "type": "group",
-     "track": "bronze"
+     "track": "bronze",
+     "order": 11
     },
     "40th Place Final": {
      "type": "knockout",
@@ -1338,43 +1414,53 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Bronze Cup - Group J": {
      "type": "group",
-     "track": "bronze"
+     "track": "bronze",
+     "order": 10
     },
     "Silver Cup - Group I": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 9
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Round 2 - Group G": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 7
     },
     "Round 2 - Group H": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 8
     },
     "33rd Place Final": {
      "type": "knockout",
@@ -1479,47 +1565,58 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Bronze Cup - Group K": {
      "type": "group",
-     "track": "bronze"
+     "track": "bronze",
+     "order": 11
     },
     "Silver Cup - Group I": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 9
     },
     "Silver Cup - Group J": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 10
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Round 2 - Group G": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 7
     },
     "Round 2 - Group H": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 8
     },
     "45th Place Final": {
      "type": "knockout",
@@ -1696,27 +1793,33 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Silver Cup - Group G": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 7
     },
     "Silver Cup - Group H": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 8
     },
     "Places 25-32": {
      "type": "knockout",
@@ -1804,11 +1907,13 @@
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Places 9-16": {
      "type": "knockout",
@@ -1901,23 +2006,28 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Bronze Cup - Group I": {
      "type": "group",
-     "track": "bronze"
+     "track": "bronze",
+     "order": 9
     },
     "Places 25-32": {
      "type": "knockout",
@@ -2005,19 +2115,23 @@
     },
     "Silver Cup - Group G": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 7
     },
     "Silver Cup - Group H": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 8
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Places 9-16": {
      "type": "knockout",
@@ -2111,23 +2225,28 @@
     "Round 1": {
      "type": "group",
      "track": "main",
-     "note": "One all-play-all group of 18, though the name has no 'Group'."
+     "note": "One all-play-all group of 18, though the name has no 'Group'.",
+     "order": 1
     },
     "Round 2 Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 2 Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 2 Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Round 2 Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "17th Place Final": {
      "type": "knockout",
@@ -2220,19 +2339,23 @@
    "rounds": {
     "Round 1 Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 2 Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 2 Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Round 2 Group D Tie Breaker": {
      "type": "knockout",
@@ -2243,7 +2366,8 @@
     },
     "Silver Cup Group E": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 5
     },
     "Places 17-20": {
      "type": "knockout",
@@ -2360,39 +2484,48 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Silver Cup - Group G": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 7
     },
     "Silver Cup - Group H": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 8
     },
     "Bronze Cup - Group I": {
      "type": "group",
-     "track": "bronze"
+     "track": "bronze",
+     "order": 9
     },
     "Places 25-32": {
      "type": "knockout",
@@ -2583,39 +2716,48 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Bronze Cup - Group I": {
      "type": "group",
-     "track": "bronze"
+     "track": "bronze",
+     "order": 9
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Silver Cup - Group G": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 7
     },
     "Silver Cup - Group H": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 8
     },
     "Game of Shame": {
      "type": "knockout",
@@ -2787,35 +2929,43 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Silver Cup - Group G": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 7
     },
     "Silver Cup - Group H": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 8
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Places 25-32": {
      "type": "knockout",
@@ -2992,39 +3142,48 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Bronze Cup - Group I": {
      "type": "group",
-     "track": "bronze"
+     "track": "bronze",
+     "order": 9
     },
     "Silver Cup - Group G": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 7
     },
     "Silver Cup - Group H": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 8
     },
     "Gold Cup - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Gold Cup - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "35th Place Final": {
      "type": "knockout",
@@ -3207,27 +3366,33 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Silver Cup - Group G": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 7
     },
     "Silver Cup - Group H": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 8
     },
     "Places 25-31": {
      "type": "knockout",
@@ -3309,11 +3474,13 @@
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Places 9-16": {
      "type": "knockout",
@@ -3406,19 +3573,23 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "31st Place Final": {
      "type": "knockout",
@@ -3429,19 +3600,23 @@
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Silver Cup - Group G": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 7
     },
     "Silver Cup - Group H": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 8
     },
     "29th Place Final": {
      "type": "knockout",
@@ -3558,19 +3733,23 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "33rd Place Final": {
      "type": "knockout",
@@ -3581,19 +3760,23 @@
     },
     "Silver Cup - Group G": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 7
     },
     "Silver Cup - Group H": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 8
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "17th Place Final": {
      "type": "knockout",
@@ -3710,19 +3893,23 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "34th Place Final": {
      "type": "knockout",
@@ -3732,19 +3919,23 @@
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "Silver Cup - Group G": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 7
     },
     "Silver Cup - Group H": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 8
     },
     "33rd Place Final": {
      "type": "knockout",
@@ -3873,19 +4064,23 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Game of Shame": {
      "type": "knockout",
@@ -3895,23 +4090,28 @@
     },
     "Bronze Cup - Group I": {
      "type": "group",
-     "track": "bronze"
+     "track": "bronze",
+     "order": 9
     },
     "Silver Cup - Group G": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 7
     },
     "Silver Cup - Group H": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 8
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "33rd Place Final": {
      "type": "knockout",
@@ -4040,19 +4240,23 @@
    "rounds": {
     "Round 1 - Group A": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 1
     },
     "Round 1 - Group B": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 2
     },
     "Round 1 - Group C": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 3
     },
     "Round 1 - Group D": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 4
     },
     "Game of Shame": {
      "type": "knockout",
@@ -4062,7 +4266,8 @@
     },
     "Silver Cup - Group G": {
      "type": "group",
-     "track": "silver"
+     "track": "silver",
+     "order": 7
     },
     "Places 17-20": {
      "type": "knockout",
@@ -4084,11 +4289,13 @@
     },
     "Round 2 - Group E": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 5
     },
     "Round 2 - Group F": {
      "type": "group",
-     "track": "main"
+     "track": "main",
+     "order": 6
     },
     "15th Place Final": {
      "type": "knockout",
@@ -4158,5 +4365,6 @@
     }
    }
   }
- }
+ },
+ "group_order": "Groups: order = tab order on the Stages page (main cup round 1, round 2 / Gold Cup, then Silver, Bronze, KOA Cup, Playouts, Fun Cup), reviewed 2026-11-23."
 }

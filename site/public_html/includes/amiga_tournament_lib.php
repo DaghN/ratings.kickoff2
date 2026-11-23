@@ -748,11 +748,19 @@ function amiga_tournament_list_scopes(mysqli $con, int $tournamentId, string $sc
         return $cache[$cacheKey];
     }
 
+    // Groups (league scopes) in the stored stage order (World Cups: main cup first, then side cups);
+    // without a stage, or for knockout scopes, A–Z by scope key.
     $stmt = mysqli_prepare(
         $con,
-        'SELECT DISTINCT scope_key FROM amiga_tournament_standings
-         WHERE tournament_id = ? AND scope_type = ?
-         ORDER BY scope_key'
+        $scopeType === 'league'
+            ? 'SELECT s.scope_key, MIN(st.sequence_no) AS seq FROM amiga_tournament_standings s
+               LEFT JOIN tournament_stages st ON st.id = s.stage_id
+               WHERE s.tournament_id = ? AND s.scope_type = ?
+               GROUP BY s.scope_key
+               ORDER BY seq IS NULL, seq, s.scope_key'
+            : 'SELECT DISTINCT scope_key FROM amiga_tournament_standings
+               WHERE tournament_id = ? AND scope_type = ?
+               ORDER BY scope_key'
     );
     if ($stmt === false) {
         return [];

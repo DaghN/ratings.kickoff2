@@ -59,6 +59,8 @@ def load_world_cup_register(path: Path | None = None) -> dict[int, dict[str, Any
                 raise ValueError(f"{where}: track must be one of {sorted(VALID_TRACKS)}")
             if d["type"] == "knockout" and d.get("section") not in VALID_SECTIONS:
                 raise ValueError(f"{where}: knockout section must be one of {sorted(VALID_SECTIONS)}")
+            if not isinstance(d.get("order"), int):
+                raise ValueError(f"{where}: order must be a whole number (groups: tab order; knockouts: place in the section)")
         out[int(key)] = wc
     return out
 
@@ -98,8 +100,9 @@ def materialize_world_cup(
     if existing:
         _clear_tournament_structure(conn, tournament_id)
 
-    # Stage per group, stage per knockout tie, in register order (groups first).
-    order = {label: i for i, label in enumerate(rounds)}
+    # Stage per group, stage per knockout tie. sequence_no: groups first in the register's tab order
+    # (the Stages menu follows it), then the knockout ties in register order.
+    order = {label: (d["order"] if d["type"] == "group" else i) for i, (label, d) in enumerate(rounds.items())}
     stages: dict[str, dict[str, Any]] = {}
     games_by_stage: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for g in games:
