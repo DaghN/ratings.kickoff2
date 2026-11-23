@@ -298,16 +298,17 @@ function amiga_wc_hof_single_game_patches(mysqli $con, $eventDate, float $chrono
     // Most goals in one game (per side).
     $sql = "SELECT game_id, player_id, player_name, goals, record_date FROM ("
         . "  SELECT g.id AS game_id, g.player_a_id AS player_id, pa.name AS player_name, "
-        . "         g.goals_a AS goals, {$dateExpr} AS record_date "
+        . "         g.goals_a AS goals, {$dateExpr} AS record_date, "
+        . "         t.event_date, t.chrono, t.id AS tournament_id "
         . "  FROM amiga_games g INNER JOIN amiga_players pa ON pa.id = g.player_a_id "
         . "  INNER JOIN tournaments t ON t.id = g.tournament_id "
         . "  WHERE t.name REGEXP ? AND (t.event_date, t.chrono, t.id) <= (?, ?, ?) "
         . "  UNION ALL "
-        . "  SELECT g.id, g.player_b_id, pb.name, g.goals_b, {$dateExpr} "
+        . "  SELECT g.id, g.player_b_id, pb.name, g.goals_b, {$dateExpr}, t.event_date, t.chrono, t.id "
         . "  FROM amiga_games g INNER JOIN amiga_players pb ON pb.id = g.player_b_id "
         . "  INNER JOIN tournaments t ON t.id = g.tournament_id "
         . "  WHERE t.name REGEXP ? AND (t.event_date, t.chrono, t.id) <= (?, ?, ?) "
-        . ") sides ORDER BY goals DESC, game_id ASC LIMIT 1";
+        . ") sides ORDER BY goals DESC, event_date ASC, chrono ASC, tournament_id ASC, game_id ASC LIMIT 1";
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
         throw new RuntimeException('prepare wc hof most goals: ' . $con->error);
@@ -338,7 +339,7 @@ function amiga_wc_hof_single_game_patches(mysqli $con, $eventDate, float $chrono
         . "INNER JOIN tournaments t ON t.id = g.tournament_id "
         . "WHERE r.actual_score IN (0.0, 1.0) AND r.goal_difference IS NOT NULL "
         . "  AND t.name REGEXP ? AND (t.event_date, t.chrono, t.id) <= (?, ?, ?) "
-        . "ORDER BY r.goal_difference DESC, g.id ASC LIMIT 1";
+        . "ORDER BY r.goal_difference DESC, t.event_date ASC, t.chrono ASC, t.id ASC, g.id ASC LIMIT 1";
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
         throw new RuntimeException('prepare wc hof win margin: ' . $con->error);
@@ -366,7 +367,7 @@ function amiga_wc_hof_single_game_patches(mysqli $con, $eventDate, float $chrono
         . "INNER JOIN amiga_players pb ON pb.id = g.player_b_id "
         . "INNER JOIN tournaments t ON t.id = g.tournament_id "
         . "WHERE r.actual_score = 0.5 AND t.name REGEXP ? AND (t.event_date, t.chrono, t.id) <= (?, ?, ?) "
-        . "ORDER BY draw_sum DESC, g.id ASC LIMIT 1";
+        . "ORDER BY draw_sum DESC, t.event_date ASC, t.chrono ASC, t.id ASC, g.id ASC LIMIT 1";
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
         throw new RuntimeException('prepare wc hof draw sum: ' . $con->error);
@@ -396,7 +397,7 @@ function amiga_wc_hof_single_game_patches(mysqli $con, $eventDate, float $chrono
         . "INNER JOIN amiga_players pb ON pb.id = g.player_b_id "
         . "INNER JOIN tournaments t ON t.id = g.tournament_id "
         . "WHERE t.name REGEXP ? AND (t.event_date, t.chrono, t.id) <= (?, ?, ?) "
-        . "ORDER BY goal_sum DESC, g.id ASC LIMIT 1";
+        . "ORDER BY goal_sum DESC, t.event_date ASC, t.chrono ASC, t.id ASC, g.id ASC LIMIT 1";
     $stmt = $con->prepare($sql);
     if ($stmt === false) {
         throw new RuntimeException('prepare wc hof sum goals: ' . $con->error);

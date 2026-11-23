@@ -297,21 +297,23 @@ function amiga_realm_most_goals_one_game_patch(mysqli $con, array $cutoff): arra
         SELECT game_id, player_id, player_name, goals, record_date
         FROM (
             SELECT g.id AS game_id, g.player_a_id AS player_id, pa.name AS player_name,
-                   g.goals_a AS goals, {$dateExpr} AS record_date
+                   g.goals_a AS goals, {$dateExpr} AS record_date,
+                   tg.event_date, tg.chrono, tg.id AS tournament_id
             FROM amiga_games g
             INNER JOIN amiga_players pa ON pa.id = g.player_a_id
             LEFT JOIN tournaments t ON t.id = g.tournament_id
             INNER JOIN tournaments tg ON tg.id = g.tournament_id
             WHERE 1=1{$extra}
             UNION ALL
-            SELECT g.id, g.player_b_id, pb.name, g.goals_b, {$dateExpr}
+            SELECT g.id, g.player_b_id, pb.name, g.goals_b, {$dateExpr},
+                   tg.event_date, tg.chrono, tg.id
             FROM amiga_games g
             INNER JOIN amiga_players pb ON pb.id = g.player_b_id
             LEFT JOIN tournaments t ON t.id = g.tournament_id
             INNER JOIN tournaments tg ON tg.id = g.tournament_id
             WHERE 1=1{$extra}
         ) sides
-        ORDER BY goals DESC, game_id ASC
+        ORDER BY goals DESC, event_date ASC, chrono ASC, tournament_id ASC, game_id ASC
         LIMIT 1
     ";
     return amiga_realm_fetch_single_game_record($con, $sql, $cutoff, 'MostGoalsScoredInOneGame');
@@ -337,7 +339,7 @@ function amiga_realm_biggest_win_margin_patch(mysqli $con, array $cutoff): array
         LEFT JOIN tournaments t ON t.id = g.tournament_id
         INNER JOIN tournaments tg ON tg.id = g.tournament_id
         WHERE r.actual_score IN (0.0, 1.0) AND r.goal_difference IS NOT NULL{$extra}
-        ORDER BY r.goal_difference DESC, g.id ASC
+        ORDER BY r.goal_difference DESC, tg.event_date ASC, tg.chrono ASC, tg.id ASC, g.id ASC
         LIMIT 1
     ";
     $row = amiga_realm_fetch_game_row($con, $sql, $cutoff);
@@ -373,7 +375,7 @@ function amiga_realm_biggest_draw_sum_patch(mysqli $con, array $cutoff): array
         LEFT JOIN tournaments t ON t.id = g.tournament_id
         INNER JOIN tournaments tg ON tg.id = g.tournament_id
         WHERE r.actual_score = 0.5{$extra}
-        ORDER BY draw_sum DESC, g.id ASC
+        ORDER BY draw_sum DESC, tg.event_date ASC, tg.chrono ASC, tg.id ASC, g.id ASC
         LIMIT 1
     ";
     $row = amiga_realm_fetch_game_row($con, $sql, $cutoff);
@@ -412,7 +414,7 @@ function amiga_realm_biggest_sum_goals_patch(mysqli $con, array $cutoff): array
         LEFT JOIN tournaments t ON t.id = g.tournament_id
         INNER JOIN tournaments tg ON tg.id = g.tournament_id
         WHERE 1=1{$extra}
-        ORDER BY goal_sum DESC, g.id ASC
+        ORDER BY goal_sum DESC, tg.event_date ASC, tg.chrono ASC, tg.id ASC, g.id ASC
         LIMIT 1
     ";
     $row = amiga_realm_fetch_game_row($con, $sql, $cutoff);

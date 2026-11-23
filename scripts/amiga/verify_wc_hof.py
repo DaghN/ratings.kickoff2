@@ -341,6 +341,7 @@ def _check_single_game(conn, ev_date, chrono, tid, snap, fail):
             INNER JOIN tournaments t ON t.id = g.tournament_id
             WHERE t.name REGEXP %s
               AND (t.event_date, t.chrono, t.id) <= (%s, %s, %s)
+            ORDER BY t.event_date ASC, t.chrono ASC, t.id ASC, g.id ASC
             """,
             (_WC_NAME_RE, ev_date, chrono, tid),
         )
@@ -348,61 +349,57 @@ def _check_single_game(conn, ev_date, chrono, tid, snap, fail):
     if not games:
         return
 
-    # Most goals in one game (per side), tie -> lowest game id.
+    # Most goals in one game (per side), tie -> first game.
     best = None
     for g in games:
         for goals, pid in ((int(g["goals_a"]), int(g["player_a_id"])), (int(g["goals_b"]), int(g["player_b_id"]))):
-            cand = (goals, -int(g["id"]), pid, g)
-            if goals > 0 and (best is None or cand[:2] > best[:2]):
-                best = cand
+            if goals > 0 and (best is None or goals > best[0]):
+                best = (goals, pid, g)
     if best is not None:
-        goals, _, pid, g = best
+        goals, pid, g = best
         if int(_num(snap.get("MostWcGoalsInOneGame"))) != goals:
             fail("MostWcGoalsInOneGame", snap.get("MostWcGoalsInOneGame"), goals)
         if snap.get("MostWcGoalsInOneGameGameID") != int(g["id"]):
             fail("MostWcGoalsInOneGameGameID", snap.get("MostWcGoalsInOneGameGameID"), int(g["id"]))
 
-    # Biggest winning margin, tie -> lowest game id.
+    # Biggest winning margin, tie -> first game.
     best = None
     for g in games:
         diff = abs(int(g["goals_a"]) - int(g["goals_b"]))
         if int(g["goals_a"]) == int(g["goals_b"]):
             continue
-        cand = (diff, -int(g["id"]), g)
-        if best is None or cand[:2] > best[:2]:
-            best = cand
+        if best is None or diff > best[0]:
+            best = (diff, g)
     if best is not None:
-        diff, _, g = best
+        diff, g = best
         if int(_num(snap.get("BiggestWcWinDifference"))) != diff:
             fail("BiggestWcWinDifference", snap.get("BiggestWcWinDifference"), diff)
         if snap.get("BiggestWcWinDifferenceGameID") != int(g["id"]):
             fail("BiggestWcWinDifferenceGameID", snap.get("BiggestWcWinDifferenceGameID"), int(g["id"]))
 
-    # Biggest draw sum, tie -> lowest game id.
+    # Biggest draw sum, tie -> first game.
     best = None
     for g in games:
         if int(g["goals_a"]) != int(g["goals_b"]):
             continue
         s = int(g["goals_a"]) + int(g["goals_b"])
-        cand = (s, -int(g["id"]), g)
-        if best is None or cand[:2] > best[:2]:
-            best = cand
+        if best is None or s > best[0]:
+            best = (s, g)
     if best is not None:
-        s, _, g = best
+        s, g = best
         if int(_num(snap.get("BiggestWcDrawSum"))) != s:
             fail("BiggestWcDrawSum", snap.get("BiggestWcDrawSum"), s)
         if snap.get("BiggestWcDrawSumGameID") != int(g["id"]):
             fail("BiggestWcDrawSumGameID", snap.get("BiggestWcDrawSumGameID"), int(g["id"]))
 
-    # Biggest sum of goals, tie -> lowest game id.
+    # Biggest sum of goals, tie -> first game.
     best = None
     for g in games:
         s = int(g["goals_a"]) + int(g["goals_b"])
-        cand = (s, -int(g["id"]), g)
-        if best is None or cand[:2] > best[:2]:
-            best = cand
+        if best is None or s > best[0]:
+            best = (s, g)
     if best is not None:
-        s, _, g = best
+        s, g = best
         if int(_num(snap.get("BiggestWcSumOfGoals"))) != s:
             fail("BiggestWcSumOfGoals", snap.get("BiggestWcSumOfGoals"), s)
         if snap.get("BiggestWcSumOfGoalsGameID") != int(g["id"]):

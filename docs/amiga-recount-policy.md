@@ -48,15 +48,12 @@ Most rebuild checks ask whether the stored numbers fit together, or calculate th
 
 Ratings may differ by 0.002 (they are stored with six decimals at every event), performance ratings by 0.05, the sum of opponents' ratings by 0.2. Other decimals by one step in the last place.
 
-## Open question: tied single-game records
+## Found by the recount
 
-When two games reach the same record (most goals in one game, biggest win, biggest draw, most goals in a game), the programs choose the holder like this: within a tournament the lower game number, between tournaments the lower player number. The written rule ([`amiga-realm-snapshot-policy.md`](amiga-realm-snapshot-policy.md) R8) says the lower player number. "The first game keeps the record" would be the natural rule.
-
-Only time travel shows a difference; today's records are not tied. Until Dagh decides, the recount accepts any game that reached the record.
+- **Tied single-game records (2026-11-23).** Two games can reach the same record (most goals in one game, biggest win, biggest draw, most goals in a game). Within a tournament the first game held it, between tournaments the lower player number, and the written rule said the lower player number. Dagh decided: **the first game keeps the record.** Changed in Python and PHP, also for the World Cup Hall of Fame. Only time travel showed a difference; the present records were not tied.
 
 ## Proof
 
 - The rebuilt database and the copy of live (both 608 tournaments, 2026-11-23): `SAME`, 12,208,421 values each.
 - Noticed, one example each: Elo factor 33 · performance rating scale 420 · double digits from 9 goals · 2 points for a win · fourth place as a podium · a winning streak that survives a draw · biggest win from the last game instead of the first · best rank from the last time instead of the first · clean sheets with one goal allowed · World Cup victims that include draws · goals given to the other player's country · a record holder on a tie with the higher number · ratio records from 10 games.
 - Not noticed, as expected: the World Cup win rate record (`verify-wc-hof` notices it) and league ties decided by goals before goal difference (`verify-php-standings-parity` notices it while PHP is right).
-- The first run found the tie question above.

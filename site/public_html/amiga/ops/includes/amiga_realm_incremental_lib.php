@@ -465,66 +465,20 @@ function amiga_realm_tournament_single_game_candidates(mysqli $con, int $tournam
  */
 function amiga_realm_merge_single_game_records(array $prior, array $candidates): array
 {
-    $patch = [];
-    $simple = [
-        ['MostGoalsScoredInOneGame', true],
-        ['BiggestWinDifference', true],
+    // A single-game record changes hands only when it is beaten: on a tie the first game keeps it (policy R8).
+    $records = [
+        'MostGoalsScoredInOneGame' => ['ID', 'Name', 'Date', 'GameID'],
+        'BiggestWinDifference' => ['ID', 'Name', 'Date', 'GameID'],
+        'BiggestDrawSum' => ['IDA', 'IDB', 'NameA', 'NameB', 'Date', 'GameID'],
+        'BiggestSumOfGoals' => ['IDA', 'IDB', 'NameA', 'NameB', 'Date', 'GameID'],
     ];
-    foreach ($simple as [$prefix, $higher]) {
-        $valueKey = $prefix;
-        $idKey = $prefix . 'ID';
-        $candValue = $candidates[$valueKey] ?? null;
-        $candId = $candidates[$idKey] ?? null;
-        if (
-            $candValue !== null
-            && $candId !== null
-            && amiga_realm_beats_holder(
-                $candValue,
-                (int) $candId,
-                $prior[$valueKey] ?? null,
-                $prior[$idKey] ?? null,
-                $higher,
-            )
-        ) {
-            foreach ([$valueKey, $idKey, $prefix . 'Name', $prefix . 'Date', $prefix . 'GameID'] as $key) {
-                if (array_key_exists($key, $candidates)) {
-                    $patch[$key] = $candidates[$key];
-                }
-            }
-        } else {
-            foreach ([$valueKey, $idKey, $prefix . 'Name', $prefix . 'Date', $prefix . 'GameID'] as $key) {
-                if (array_key_exists($key, $prior)) {
-                    $patch[$key] = $prior[$key];
-                }
-            }
-        }
-    }
-
-    foreach (['BiggestDrawSum', 'BiggestSumOfGoals'] as $prefix) {
-        $keys = match ($prefix) {
-            'BiggestDrawSum' => [
-                'BiggestDrawSum', 'BiggestDrawSumIDA', 'BiggestDrawSumIDB',
-                'BiggestDrawSumNameA', 'BiggestDrawSumNameB', 'BiggestDrawSumDate', 'BiggestDrawSumGameID',
-            ],
-            default => [
-                'BiggestSumOfGoals', 'BiggestSumOfGoalsIDA', 'BiggestSumOfGoalsIDB',
-                'BiggestSumOfGoalsNameA', 'BiggestSumOfGoalsNameB', 'BiggestSumOfGoalsDate', 'BiggestSumOfGoalsGameID',
-            ],
-        };
-        $candValue = $candidates[$prefix] ?? null;
-        $idKey = $prefix === 'BiggestDrawSum' ? 'BiggestDrawSumIDA' : 'BiggestSumOfGoalsIDA';
-        $candId = $candidates[$idKey] ?? null;
-        $useCandidate = $candValue !== null
-            && $candId !== null
-            && amiga_realm_beats_holder(
-                $candValue,
-                (int) $candId,
-                $prior[$prefix] ?? null,
-                $prior[$idKey] ?? null,
-                true,
-            );
-        $source = $useCandidate ? $candidates : $prior;
-        foreach ($keys as $key) {
+    $patch = [];
+    foreach ($records as $record => $suffixes) {
+        $candidate = $candidates[$record] ?? null;
+        $beaten = $candidate !== null && (float) $candidate > (float) ($prior[$record] ?? 0);
+        $source = $beaten ? $candidates : $prior;
+        foreach (['', ...$suffixes] as $suffix) {
+            $key = $record . $suffix;
             if (array_key_exists($key, $source)) {
                 $patch[$key] = $source[$key];
             }

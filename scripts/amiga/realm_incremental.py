@@ -543,148 +543,27 @@ def _single_game_candidates_from_memory(
     return _single_game_candidates_from_rows(enriched, event_date)
 
 
-_SINGLE_GAME_PREFIXES: tuple[tuple[str, str, bool], ...] = (
-    ("MostGoalsScoredInOneGame", "MostGoalsScoredInOneGame", True),
-    ("BiggestWinDifference", "BiggestWinDifference", True),
-    ("BiggestDrawSum", "BiggestDrawSum", True),
-    ("BiggestSumOfGoals", "BiggestSumOfGoals", True),
-)
+_SINGLE_GAME_RECORDS: dict[str, tuple[str, ...]] = {
+    "MostGoalsScoredInOneGame": ("ID", "Name", "Date", "GameID"),
+    "BiggestWinDifference": ("ID", "Name", "Date", "GameID"),
+    "BiggestDrawSum": ("IDA", "IDB", "NameA", "NameB", "Date", "GameID"),
+    "BiggestSumOfGoals": ("IDA", "IDB", "NameA", "NameB", "Date", "GameID"),
+}
 
 
 def _merge_single_game_records(
     prior: dict[str, Any],
     event_candidates: dict[str, Any],
 ) -> dict[str, Any]:
+    """A single-game record changes hands only when it is beaten: on a tie the first game keeps it (policy R8)."""
     patch: dict[str, Any] = {}
-    for value_key, prefix, higher_is_better in _SINGLE_GAME_PREFIXES:
-        prior_value = prior.get(value_key)
-        prior_id = prior.get(f"{prefix}ID") if prefix != "BiggestDrawSum" else None
-        cand_value = event_candidates.get(value_key)
-        if prefix == "BiggestDrawSum":
-            if cand_value is not None:
-                cand_id = int(event_candidates.get("BiggestDrawSumIDA") or 0)
-                prior_a = prior.get("BiggestDrawSum")
-                if _beats_holder(cand_value, cand_id, prior_a, prior.get("BiggestDrawSumIDA"), higher_is_better=True):
-                    for key in (
-                        "BiggestDrawSum",
-                        "BiggestDrawSumIDA",
-                        "BiggestDrawSumIDB",
-                        "BiggestDrawSumNameA",
-                        "BiggestDrawSumNameB",
-                        "BiggestDrawSumDate",
-                        "BiggestDrawSumGameID",
-                    ):
-                        if key in event_candidates:
-                            patch[key] = event_candidates[key]
-                else:
-                    for key in (
-                        "BiggestDrawSum",
-                        "BiggestDrawSumIDA",
-                        "BiggestDrawSumIDB",
-                        "BiggestDrawSumNameA",
-                        "BiggestDrawSumNameB",
-                        "BiggestDrawSumDate",
-                        "BiggestDrawSumGameID",
-                    ):
-                        if prior.get(key) is not None:
-                            patch[key] = prior[key]
-            else:
-                for key in (
-                    "BiggestDrawSum",
-                    "BiggestDrawSumIDA",
-                    "BiggestDrawSumIDB",
-                    "BiggestDrawSumNameA",
-                    "BiggestDrawSumNameB",
-                    "BiggestDrawSumDate",
-                    "BiggestDrawSumGameID",
-                ):
-                    if prior.get(key) is not None:
-                        patch[key] = prior[key]
-            continue
-
-        if prefix == "BiggestSumOfGoals":
-            if cand_value is not None:
-                cand_id = int(event_candidates.get("BiggestSumOfGoalsIDA") or 0)
-                if _beats_holder(
-                    cand_value,
-                    cand_id,
-                    prior.get("BiggestSumOfGoals"),
-                    prior.get("BiggestSumOfGoalsIDA"),
-                    higher_is_better=True,
-                ):
-                    keys = (
-                        "BiggestSumOfGoals",
-                        "BiggestSumOfGoalsIDA",
-                        "BiggestSumOfGoalsIDB",
-                        "BiggestSumOfGoalsNameA",
-                        "BiggestSumOfGoalsNameB",
-                        "BiggestSumOfGoalsDate",
-                        "BiggestSumOfGoalsGameID",
-                    )
-                    patch.update({k: event_candidates[k] for k in keys if k in event_candidates})
-                else:
-                    keys = (
-                        "BiggestSumOfGoals",
-                        "BiggestSumOfGoalsIDA",
-                        "BiggestSumOfGoalsIDB",
-                        "BiggestSumOfGoalsNameA",
-                        "BiggestSumOfGoalsNameB",
-                        "BiggestSumOfGoalsDate",
-                        "BiggestSumOfGoalsGameID",
-                    )
-                    patch.update({k: prior[k] for k in keys if prior.get(k) is not None})
-            else:
-                keys = (
-                    "BiggestSumOfGoals",
-                    "BiggestSumOfGoalsIDA",
-                    "BiggestSumOfGoalsIDB",
-                    "BiggestSumOfGoalsNameA",
-                    "BiggestSumOfGoalsNameB",
-                    "BiggestSumOfGoalsDate",
-                    "BiggestSumOfGoalsGameID",
-                )
-                patch.update({k: prior[k] for k in keys if prior.get(k) is not None})
-            continue
-
-        id_key = f"{prefix}ID"
-        cand_id = event_candidates.get(id_key)
-        if cand_value is not None and cand_id is not None:
-            if _beats_holder(
-                cand_value,
-                int(cand_id),
-                prior_value,
-                prior_id,
-                higher_is_better=higher_is_better,
-            ):
-                for key in (
-                    value_key,
-                    id_key,
-                    f"{prefix}Name",
-                    f"{prefix}Date",
-                    f"{prefix}GameID",
-                ):
-                    if key in event_candidates:
-                        patch[key] = event_candidates[key]
-            else:
-                for key in (
-                    value_key,
-                    id_key,
-                    f"{prefix}Name",
-                    f"{prefix}Date",
-                    f"{prefix}GameID",
-                ):
-                    if prior.get(key) is not None:
-                        patch[key] = prior[key]
-        else:
-            for key in (
-                value_key,
-                id_key,
-                f"{prefix}Name",
-                f"{prefix}Date",
-                f"{prefix}GameID",
-            ):
-                if prior.get(key) is not None:
-                    patch[key] = prior[key]
+    for record, suffixes in _SINGLE_GAME_RECORDS.items():
+        candidate = event_candidates.get(record)
+        beaten = candidate is not None and float(candidate) > float(prior.get(record) or 0)
+        source = event_candidates if beaten else prior
+        for key in (record, *(record + suffix for suffix in suffixes)):
+            if source.get(key) is not None:
+                patch[key] = source[key]
     return patch
 
 

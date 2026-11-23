@@ -194,15 +194,15 @@ class RecordTests(unittest.TestCase):
         self.r.add_game(both(2, 7, 8, 5, 0), dt.date(2020, 2, 1))
         self.names = {7: "A", 8: "B", 9: "C"}
 
-    def test_any_game_that_reached_a_tied_record_is_accepted(self) -> None:
-        for game, holder in ((1, 9), (2, 7)):
-            stored = defaultdict(lambda: None, {"BiggestWinDifferenceGameID": game, "MostGoalsScoredInOneGameGameID": game})
-            v = self.r.columns({}, self.names, stored)
-            self.assertEqual((v["BiggestWinDifference"], v["BiggestWinDifferenceGameID"], v["BiggestWinDifferenceID"]), (5, game, holder))
+    def test_first_game_keeps_a_tied_record(self) -> None:
+        v = self.r.columns({}, self.names)
+        self.assertEqual((v["BiggestWinDifference"], v["BiggestWinDifferenceGameID"], v["BiggestWinDifferenceID"]), (5, 1, 9))
+        self.assertEqual(v["MostGoalsScoredInOneGameDate"], dt.date(2020, 1, 1))
 
-    def test_a_game_that_did_not_reach_it_is_not(self) -> None:
-        v = self.r.columns({}, self.names, defaultdict(lambda: 99))
-        self.assertEqual(v["BiggestWinDifferenceGameID"], 1)
+    def test_a_better_game_takes_it(self) -> None:
+        self.r.add_game(both(3, 7, 8, 6, 0), dt.date(2020, 3, 1))
+        v = self.r.columns({}, self.names)
+        self.assertEqual((v["BiggestWinDifference"], v["BiggestWinDifferenceGameID"], v["BiggestWinDifferenceID"]), (6, 3, 7))
 
     def test_career_record_tie_goes_to_the_lowest_number(self) -> None:
         careers = {}
@@ -210,7 +210,7 @@ class RecordTests(unittest.TestCase):
             c = careers[pid] = Career()
             c.values = defaultdict(int, {"NumberGames": 4})
             c.rise = {"number_games": (3, dt.date(2020, 3, 1))}
-        v = self.r.columns(careers, self.names, None)
+        v = self.r.columns(careers, self.names)
         self.assertEqual((v["MostGamesPlayed"], v["MostGamesPlayedID"], v["MostGamesPlayedName"]), (4, 7, "A"))
         self.assertIsNone(v["BiggestWinRatio"])  # nobody has twenty games
 
@@ -220,7 +220,7 @@ class RecordTests(unittest.TestCase):
             c = careers[pid] = Career()
             c.n["games"] = games
             c.values = defaultdict(int, {"WinRatio": share})
-        v = self.r.columns(careers, self.names, None)
+        v = self.r.columns(careers, self.names)
         self.assertEqual((v["BiggestWinRatio"], v["BiggestWinRatioID"]), (0.5, 7))
 
 

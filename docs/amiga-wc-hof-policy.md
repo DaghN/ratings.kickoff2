@@ -43,7 +43,7 @@ Holy loop: DDL → Python finalize (WC events only) → PHP finalize parity → 
 | **WCH6** | **Ratio gate** | Rate/ratio/average HoF rows require holder to have **`games ≥ 20`** on WC slice at cutoff (WC games, not career games) |
 | **WCH7** | **Per-WC attack/defense awards** | At each WC finalize, award **one** “best attack” and **one** “best defense” to participants with the best **event** GF/g and lowest **event** GA/g — **no** minimum games within that WC |
 | **WCH8** | **Single-WC peaks** | “Record single WC GF/g” / “Record single WC GA/g” = best **one tournament's** averages — distinct from career WC GF/g and GA/g across all WC games |
-| **WCH9** | **Tie policy** | Same as career HoF (**H11** / **R8**): strict `>` to beat holder; equal → **lowest `player_id`**; ratio sort direction as listed in §4 |
+| **WCH9** | **Tie policy** | Same as career HoF (**H11** / **R8**): strict `>` to beat holder; equal → **lowest `player_id`**; ratio sort direction as listed in §4. Single-game rows (§4.6): **the first game keeps the record on a tie** (Dagh, 2026-11-23) |
 | **WCH10** | **Writer boundary** | Tournament finalize + full `replay` only — [`amiga-derived-write-policy.md`](amiga-derived-write-policy.md) |
 | **WCH11** | **UI placement** | Same `/amiga/hall-of-fame.php` table; WC rows grouped together (section header optional) |
 | **WCH12** | **LB deep links** | Each row links to the matching WC player LB sub-wing sort where one exists (extend `amiga_records_hof_links.php` pattern) |

@@ -520,7 +520,7 @@ class Realm:
         }
 
 
-#: Hall of Fame: record -> career column (highest value; equal value: lowest player number)
+#: Hall of Fame: career record -> column (highest value; equal value: lowest player number)
 CAREER_RECORDS = {
     "MostGamesPlayed": "NumberGames", "MostWins": "NumberWins", "MostGoalsScored": "GoalsFor", "MostDoubleDigits": "DoubleDigits",
     "MostCleanSheets": "CleanSheets", "MostDifferentOpponents": "DifferentOpponents", "MostDifferentVictims": "DifferentVictims",
@@ -539,15 +539,10 @@ RATIO_RECORDS = {
 
 
 class Records:
-    """Single-game records of the whole community.
-
-    When several games reached the same record, any of them is accepted as the holder: the program picks the
-    first game within a tournament but the lower player number between tournaments (open question, see
-    docs/amiga-recount-policy.md).
-    """
+    """Single-game records of the whole community, in the order the games were played."""
 
     def __init__(self) -> None:
-        self.held: dict[str, tuple[int, list[tuple[Side, Any]]]] = {}
+        self.held: dict[str, tuple[int, Side, Any]] = {}
 
     def add_game(self, sides: tuple[Side, Side], date: Any) -> None:
         for s in sides:
@@ -560,16 +555,12 @@ class Records:
 
     def _offer(self, name: str, value: int, s: Side, date: Any) -> None:
         held = self.held.get(name)
-        if held is None or value > held[0]:
-            self.held[name] = (value, [(s, date)])
-        elif value == held[0]:
-            held[1].append((s, date))
+        if held is None or value > held[0]:  # on a tie the first game keeps the record
+            self.held[name] = (value, s, date)
 
-    def columns(self, careers: dict[int, Career], names: dict[int, str], stored: dict[str, Any] | None) -> dict[str, Any]:
+    def columns(self, careers: dict[int, Career], names: dict[int, str]) -> dict[str, Any]:
         out: dict[str, Any] = {}
-        for record, (value, holders) in self.held.items():
-            stored_game = stored[f"{record}GameID"] if stored else None
-            s, date = next((h for h in holders if h[0].id == stored_game), holders[0])
+        for record, (value, s, date) in self.held.items():
             out[record], out[f"{record}Date"], out[f"{record}GameID"] = value, date, s.id
             if record in ("BiggestDrawSum", "BiggestSumOfGoals"):
                 out[f"{record}IDA"], out[f"{record}IDB"] = s.me, s.opp
@@ -745,6 +736,7 @@ def recount(conn: Any, database: str) -> dict[str, Any]:
     wc_rows: dict[int, dict[str, Any]] = {}
     year_games: Counter[int] = Counter()
     last_headline: dict[str, Any] = {}
+    last_records: dict[str, Any] = {}
 
     for tid in order:
         t = tournaments[tid]
@@ -878,8 +870,9 @@ def recount(conn: Any, database: str) -> dict[str, Any]:
         last_headline = realm.headline(careers)
         check.row("amiga_community_stats_snapshots", tid, {**about, **last_headline},
                   next(iter(read("SELECT * FROM amiga_community_stats_snapshots WHERE tournament_id = %s", tid)), None))
-        stored = next(iter(read("SELECT * FROM amiga_realm_snapshots WHERE tournament_id = %s", tid)), None)
-        check.row("amiga_realm_snapshots", tid, {**about, **records.columns(careers, names, stored)}, stored)
+        last_records = records.columns(careers, names)
+        check.row("amiga_realm_snapshots", tid, {**about, **last_records},
+                  next(iter(read("SELECT * FROM amiga_realm_snapshots WHERE tournament_id = %s", tid)), None))
         fact_columns = ("period_type", "period_key", "slice_type", "slice_key", "metric_key", "count_basis")
         check.rows("amiga_community_stat_facts", {
             k: {"tournament_id": tid, **dict(zip(fact_columns, k)), "value": v} for k, v in realm.all_facts().items()
@@ -938,8 +931,7 @@ def recount(conn: Any, database: str) -> dict[str, Any]:
     for (pid, opp), r in stored_pairs.items():
         check.equation("amiga_player_matchup_summary", (pid, opp), pairs[pid][opp].results(), r["performance_rating"])
     check.rows("amiga_community_stats", {1: last_headline}, {r["id"]: r for r in read("SELECT * FROM amiga_community_stats")})
-    stored_present = {r["id"]: r for r in read("SELECT * FROM amiga_generalstats")}
-    check.rows("amiga_generalstats", {1: records.columns(careers, names, stored_present.get(1))}, stored_present)
+    check.rows("amiga_generalstats", {1: last_records}, {r["id"]: r for r in read("SELECT * FROM amiga_generalstats")})
     check.rows("amiga_world_cup_stats", wc_rows, {r["tournament_id"]: r for r in read("SELECT * FROM amiga_world_cup_stats")})
     check.rows("amiga_player_slice_totals", {
         pid: {"player_id": pid, "slice_key": "world_cup", **world_cup_player_columns(tally, wc_medals[pid]),
