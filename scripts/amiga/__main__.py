@@ -68,6 +68,7 @@ from scripts.amiga.modern.chrono_integer import (
 from scripts.amiga.modern.apply_structure import run_apply_structure_work
 from scripts.amiga.modern.parity import run_parity
 from scripts.amiga.modern.php_finish_check import run_php_finish_check
+from scripts.amiga.modern.recount import run_recount
 from scripts.amiga.modern.verify_structure_work import run_verify_structure_work
 from scripts.amiga.modern.video_catalog import (
     run_verify_tournament_videos_work,
@@ -496,6 +497,14 @@ def main(argv: list[str] | None = None) -> int:
         "--allow-old-python",
         action="store_true",
         help="Compare although Python calculation files changed after the last simul",
+    )
+
+    p_recount = sub.add_parser(
+        "recount",
+        help="Count the stored numbers again from the game results, without the calculation code, and compare",
+    )
+    p_recount.add_argument(
+        "--database", default=None, help="Default ko2amiga_work; ko2amiga_staging_cmp for a pulled copy of live"
     )
 
     p_verify_structure_work = sub.add_parser(
@@ -1074,6 +1083,9 @@ def main(argv: list[str] | None = None) -> int:
             keep_database=args.keep_db,
             allow_old_python=args.allow_old_python,
         )
+
+    if args.cmd == "recount":
+        return run_recount(args.database)
 
     if args.cmd == "verify-structure-work":
         return run_verify_structure_work()

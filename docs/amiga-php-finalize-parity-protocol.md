@@ -38,6 +38,8 @@ The promote step (fixtures to official games), the browser steps, an interrupted
 | rounding | One step in the last stored decimal; ratings up to 0.00005; sums of ratings 0.00000001 of their size. Passes |
 | known | `LeastGoalsScoredVictims`, `LeastGoalsConcededCulprits`: shown on no Amiga page, retirement deferred ([`amiga-player-inverse-count-timeline-policy.md`](amiga-player-inverse-count-timeline-policy.md) §6). Passes |
 
+A mistake made in both programs passes this check; the recount is for that ([`amiga-recount-policy.md`](amiga-recount-policy.md)).
+
 It refuses to start when `ko2amiga_work` is not one complete Python rebuild, or when a Python calculation file changed after that rebuild (run simul first). Options: `--limit N` (first N tournaments), `--site-root PATH` (another `public_html`, for example an older version), `--keep-db`, `--allow-old-python`. Report: `data/amiga/modern/php-finish-check-last.json`. Code: `scripts/amiga/modern/php_finish_check.py`, `php_finish_replay.php`; tests `scripts/amiga/test_php_finish_check.py`.
 
 A new derived table is compared without being listed anywhere. A new **ground** table must be added to `GROUND_TABLES`; until then the check fails.

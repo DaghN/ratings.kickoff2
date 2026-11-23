@@ -6,6 +6,7 @@ import logging
 from typing import Callable
 
 from scripts.amiga.modern.db_config import activate_work_database_env
+from scripts.amiga.modern.recount import run_recount
 from scripts.amiga.verify_chronology import main as verify_chronology_main
 from scripts.amiga.verify_country_registry import main as verify_country_registry_main
 from scripts.amiga.verify_is_world_cup import main as verify_is_world_cup_main
@@ -67,6 +68,7 @@ MODERN_VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
     ("verify-standings-stage-id", verify_standings_stage_id_main),
     ("verify-match-extensions", verify_match_extensions_main),
     ("verify-tournament-formats", verify_tournament_formats_work_main),
+    ("recount", run_recount),
 ]
 
 

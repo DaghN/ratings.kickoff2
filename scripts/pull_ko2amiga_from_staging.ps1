@@ -1,6 +1,7 @@
 ﻿# Pull staged Amiga ground into a local database (default: ko2amiga_work).
 # Triggers staging export PHP, downloads dump, replaces TargetDatabase.
 # Simul is opt-in (-Simul) — default pull does not run it (~20 min).
+# At the end the pulled numbers are recounted (read only, about a minute; -SkipRecount leaves it out).
 #
 # Usage (repo root):
 #   powershell -ExecutionPolicy Bypass -File scripts\pull_ko2amiga_from_staging.ps1 -Force
@@ -16,6 +17,7 @@ param(
     [string]$TargetDatabase = 'ko2amiga_work',
     [switch]$SkipGenerate,
     [switch]$Simul,
+    [switch]$SkipRecount,
     [switch]$Force
 )
 

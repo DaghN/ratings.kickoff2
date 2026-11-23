@@ -14,6 +14,7 @@ Living ground tooling for **`ko2amiga_work`**. Legacy nuclear prove (`prove.py`,
 | `python -m scripts.amiga simul` | `simul.py` (video on by default) |
 | `python -m scripts.amiga parity` | `parity.py` |
 | `python -m scripts.amiga php-finish-check` | `php_finish_check.py` + `php_finish_replay.php` (after calculation changes) |
+| `python -m scripts.amiga recount` | `recount.py` (independent check; also last step of `simul` and of a pull; imports no calculation code) |
 | `python -m scripts.amiga align-video-work` | `video_catalog.py` |
 | `python -m scripts.amiga promote-video-deploy` | `video_catalog.py` |
 | `python -m scripts.amiga snapshot-video-promote` | `work_safety.py` |

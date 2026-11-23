@@ -62,6 +62,7 @@ function Invoke-Ko2AmigaStagingPull {
         [string]$SourceDatabaseName = 'ko2amiga_db',
         [switch]$SkipGenerate,
         [switch]$Simul,
+        [switch]$SkipRecount,
         [switch]$Force
     )
 
@@ -288,6 +289,22 @@ WinSCP sync these files to staging, then re-run pull:
     $json = $sync | ConvertTo-Json -Depth 6
     [System.IO.File]::WriteAllText($SyncManifest, $json + "`n", $enc)
     Write-Host "Wrote $SyncManifest"
+
+    # Read only. The pull is complete at this point and does not depend on the result.
+    if (-not $SkipRecount) {
+        Write-Host 'Recounting the pulled numbers (about a minute) ...'
+        Push-Location $RepoRoot
+        try {
+            python -m scripts.amiga recount --database $TargetDatabase
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host 'The recount is not the same, or could not be made: see above and docs\amiga-recount-policy.md' -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Host "Recount not made: $($_.Exception.Message)" -ForegroundColor Yellow
+        } finally {
+            Pop-Location
+        }
+    }
 
     Write-Host ''
     Write-Host "Pull complete. Local $TargetDatabase now mirrors staged ground." -ForegroundColor Green
