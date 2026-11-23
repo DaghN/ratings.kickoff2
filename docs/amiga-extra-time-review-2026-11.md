@@ -143,7 +143,7 @@ Here the results were right and the placing was wrong. Dagh's rule: the result d
 
 ## 9. Where the corrections live
 
-- The first ten: on live since 2026-11-22 (Amiga push verified, all tables identical to `ko2amiga_work`). The five of 2026-11-23: in `ko2amiga_work`, **not yet on live**.
+- The first ten: on live since 2026-11-22 (Amiga push verified, all tables identical to `ko2amiga_work`). The five of 2026-11-23: on live the same day (push verified MATCH).
 - `SCORE_CORRECTIONS` in `scripts/amiga/import_corrections.py`: the values and the reasons, used by any Access import.
 - `scripts/oneoff/amiga_fix_world_cup_extra_time_2026_11.py`: applies them to `ko2amiga_work` and refuses any row it does not recognise. Run it after restoring an older checkpoint, then simul.
 - Placings: `scripts/oneoff/amiga_fix_placement_overrides_2026_11.py`. Scoring chain: `scripts/oneoff/amiga_add_extra_time_step_2026_11.py` (§10).
