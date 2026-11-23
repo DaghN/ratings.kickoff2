@@ -1,15 +1,16 @@
 <?php
 /**
- * Self-hosted web fonts — preload critical faces before CSS (wordmark + body).
- * @font-face rules: stylesheets/k2-fonts.css. Files: fonts/*.woff2
+ * Self-hosted web fonts: preload every face the first paint needs (wordmark, menus, body).
+ * The address must be exactly the one in stylesheets/k2-fonts.css, without ?v=: otherwise the preload is
+ * wasted and the page is first drawn in the fallback font (menus jump). A new font file needs a new name.
  */
-$k2DocRoot = $_SERVER['DOCUMENT_ROOT'];
-$k2FontsPreloadVer = (int) max(
-	@filemtime($k2DocRoot . '/fonts/exo-2-latin-600-normal.woff2'),
-	@filemtime($k2DocRoot . '/fonts/ibm-plex-sans-latin-400-normal.woff2'),
-	@filemtime($k2DocRoot . '/fonts/ibm-plex-sans-latin-600-normal.woff2')
-);
-?>
-<link rel="preload" href="/fonts/exo-2-latin-600-normal.woff2?v=<?php echo $k2FontsPreloadVer; ?>" as="font" type="font/woff2" crossorigin="anonymous" />
-<link rel="preload" href="/fonts/ibm-plex-sans-latin-400-normal.woff2?v=<?php echo $k2FontsPreloadVer; ?>" as="font" type="font/woff2" crossorigin="anonymous" />
-<link rel="preload" href="/fonts/ibm-plex-sans-latin-600-normal.woff2?v=<?php echo $k2FontsPreloadVer; ?>" as="font" type="font/woff2" crossorigin="anonymous" />
+foreach ([
+	'exo-2-latin-500-normal',
+	'exo-2-latin-600-normal',
+	'ibm-plex-sans-latin-400-normal',
+	'ibm-plex-sans-latin-500-normal',
+	'ibm-plex-sans-latin-600-normal',
+	'ibm-plex-sans-latin-700-normal',
+] as $k2FontFile) {
+	echo '<link rel="preload" href="/fonts/' . $k2FontFile . '.woff2" as="font" type="font/woff2" crossorigin="anonymous" />' . "\n";
+}

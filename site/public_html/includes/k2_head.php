@@ -70,11 +70,7 @@ if (is_string($k2ReqPath)
 		echo "<style>html.k2-tt-arrival-pending .k2-amiga-tt-stamp{opacity:0;transform:translateY(5px)}html.k2-tt-arrival-pending .k2-amiga-tt-stamp__kicker-text{visibility:hidden}</style>\n";
 		echo "<script>document.documentElement.classList.add('k2-tt-arrival-pending');</script>\n";
 	}
-	$dseg7Path = $k2DocRoot . '/fonts/dseg7-classic-regular.woff2';
-	if (is_file($dseg7Path)) {
-		$dseg7Ver = (int) filemtime($dseg7Path);
-		echo '<link rel="preload" href="/fonts/dseg7-classic-regular.woff2?v=' . $dseg7Ver . '" as="font" type="font/woff2" crossorigin="anonymous" />' . "\n";
-	}
+	echo '<link rel="preload" href="/fonts/dseg7-classic-regular.woff2" as="font" type="font/woff2" crossorigin="anonymous" />' . "\n"; // no ?v=, as in k2-fonts.css
 }
 ?>
 <?php if (!empty($k2RankedCloak)) {
