@@ -1,3 +1,4 @@
+-- LEGACY COPY. Only the frozen legacy import (import_access.py) reads this file, so do not move or delete it. New DDL goes into sql/ground, sql/structure or sql/derived.
 -- Knockout pair scopes (two-player elimination ties).
 -- ARCHIVED from apply_schema (Jun 2026): regresses 002 league|knockout enum — upgrade archaeology only.
 SET time_zone = '+00:00';

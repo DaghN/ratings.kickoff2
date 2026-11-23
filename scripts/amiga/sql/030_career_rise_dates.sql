@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/030_career_rise_dates.sql.
 -- Career cumulative HoF last-rise event anchors (SCH-030).
 -- Policy: docs/amiga-hof-record-date-policy.md § SCH-030
 -- Apply after 029: mysql ko2amiga_db < scripts/amiga/sql/derived/030_career_rise_dates.sql

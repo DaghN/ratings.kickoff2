@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/structure/006_tournament_fixtures.sql.
 -- Tournament stage + fixture foundation for future live events.
 SET time_zone = '+00:00';
 

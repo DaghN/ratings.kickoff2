@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/029_hof_record_rise_dates.sql (its content differs from this copy).
 -- HoF record last-rise event anchors (SCH-029).
 -- Policy: docs/amiga-hof-record-date-policy.md
 -- Apply after 028: mysql ko2amiga_db < scripts/amiga/sql/derived/029_hof_record_rise_dates.sql

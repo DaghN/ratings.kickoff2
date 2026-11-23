@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/032_elo_rank.sql (its content differs from this copy).
 -- Career Elo ladder rank at each finalize (slice: elo_rank).
 -- Apply: mysql ko2amiga_db < scripts/amiga/sql/032_elo_rank.sql
 -- Fresh installs: scripts/amiga/sql/derived/032_elo_rank.sql via prove.

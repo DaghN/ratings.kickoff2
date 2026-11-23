@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. New DDL goes into sql/ground, sql/structure or sql/derived (see README.md).
 -- Event finish migration slice 0: additive columns on participation.
 -- Apply after 016: mysql ko2amiga_db < scripts/amiga/sql/017_event_finish_position.sql
 -- Policy: docs/amiga-tournament-honours-rules.md · Plan: docs/amiga-event-finish-implementation-plan.md slice 0

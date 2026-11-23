@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. New DDL goes into sql/ground, sql/structure or sql/derived (see README.md).
 -- Tournament medals unification v2 slice 6: drop participation wc_medal column.
 -- Apply after 021b: mysql ko2amiga_db < scripts/amiga/sql/022_drop_wc_medal.sql
 -- Policy: docs/amiga-tournament-honours-rules.md v2 M5

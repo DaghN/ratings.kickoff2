@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. New DDL goes into sql/ground, sql/structure or sql/derived (see README.md).
 -- Event average goals per game on participation (player x tournament).
 -- Apply after 015: mysql ko2amiga_db < scripts/amiga/sql/016_participation_avg_goals.sql
 

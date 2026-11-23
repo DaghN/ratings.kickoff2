@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. New DDL goes into sql/ground, sql/structure or sql/derived (see README.md).
 -- Slice 8: drop legacy player tables superseded by snapshots + current.
 -- Upgrade-only: run on DBs that still have these tables after migrating to snapshots.
 -- Fresh installs: apply_schema never creates them (see import_access.py).

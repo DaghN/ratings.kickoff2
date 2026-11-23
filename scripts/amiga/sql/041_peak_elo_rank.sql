@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/041_peak_elo_rank.sql.
 -- Career peak Elo ladder rank (best rank ever) at each finalize.
 -- Policy: docs/amiga-time-travel-policy.md · docs/amiga-data-contract.md
 -- Populated: tournament finalize (Python + PHP) alongside elo_rank.

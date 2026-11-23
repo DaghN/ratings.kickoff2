@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/051_inverse_count_changelog.sql.
 -- Sparse inverse victim/culprit count changelog (ghost-event TT authority).
 -- Policy: docs/amiga-player-inverse-count-timeline-policy.md
 -- Populated at tournament finalize (Python + PHP) when a player's inverse count changes.

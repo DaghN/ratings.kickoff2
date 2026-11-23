@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/031_matchup_summary_opponents_ext.sql.
 -- SCH-031 (Amiga): matchup summary + at-event — goal extremes (online SCH-019 parity).
 -- Contract: docs/amiga-opponents-wing-policy.md · docs/website-data-contract.md § player_matchup_summary
 -- Idempotent: no-op when column already exists.

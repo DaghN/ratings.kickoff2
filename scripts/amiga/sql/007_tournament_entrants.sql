@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/structure/007_tournament_entrants.sql.
 -- Tournament-level entrant registration ground truth for future live events.
 SET time_zone = '+00:00';
 

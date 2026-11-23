@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. New DDL goes into sql/ground, sql/structure or sql/derived (see README.md).
 -- Tournament medals unification v2 slice 0: career totals schema (event_* + wc_played/wc_podiums; drop cup_*).
 -- Apply after 020: mysql ko2amiga_db < scripts/amiga/sql/021_tournament_medals_totals.sql
 -- Policy: docs/amiga-tournament-honours-rules.md v2 · Plan: docs/amiga-tournament-medals-unification-implementation-plan.md slice 0

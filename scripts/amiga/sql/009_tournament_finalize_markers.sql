@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/structure/009_tournament_finalize_markers.sql.
 -- Tournament rating finalize markers (no amiga_rating_events — retired slice 8).
 -- Apply after 008 in fresh apply_schema bundle.
 SET time_zone = '+00:00';

@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/034_community_stats.sql (its content differs from this copy).
 -- Community stats (realm-wide Activity aggregates) — separate from HoF generalstats.
 -- Policy: docs/amiga-community-stats-policy.md
 -- Mirror of sql/derived/034_community_stats.sql

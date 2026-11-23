@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/035_drop_realm_aggregate_columns.sql (its content differs from this copy).
 -- Mirror: scripts/amiga/sql/derived/035_drop_realm_aggregate_columns.sql
 
 SET time_zone = '+00:00';

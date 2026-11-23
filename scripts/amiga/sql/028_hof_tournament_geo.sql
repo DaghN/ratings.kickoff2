@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/028_hof_tournament_geo.sql (its content differs from this copy).
 -- HoF tournament / calendar-year / geography expansion (SCH-028).
 -- Policy: docs/amiga-hof-tournament-geo-policy.md
 -- Apply after 027: mysql ko2amiga_db < scripts/amiga/sql/derived/028_hof_tournament_geo.sql

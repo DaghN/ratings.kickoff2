@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/026_matchup_at_event.sql.
 -- Cumulative directed H2H at each tournament finalize (policy: amiga-matchup-at-event-policy.md).
 SET time_zone = '+00:00';
 

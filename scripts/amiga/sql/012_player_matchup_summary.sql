@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/012_player_matchup_summary.sql.
 -- Directed head-to-head pair totals (derived from amiga_games).
 -- Apply after 011: mysql ko2amiga_db < scripts/amiga/sql/012_player_matchup_summary.sql
 -- Populate: slice 8+ rebuild.

@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. New DDL goes into sql/ground, sql/structure or sql/derived (see README.md).
 -- Tournament finalize rating events + finalize markers (Slice 0).
 -- Apply after 008: mysql ko2amiga_db < scripts/amiga/sql/009_rating_events.sql
 SET time_zone = '+00:00';

@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/045_perfect_event.sql.
 -- Perfect event honours + HoF (SCH-045).
 -- Policy: docs/amiga-perfect-event-policy.md
 -- Apply: mysql ko2amiga_db < scripts/amiga/sql/derived/045_perfect_event.sql

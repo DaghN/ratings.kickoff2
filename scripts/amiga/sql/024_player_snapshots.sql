@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/024_player_snapshots.sql (its content differs from this copy).
 -- Player event snapshots + present projection (event-snapshot policy slice 1).
 -- Apply after 023: mysql ko2amiga_db < scripts/amiga/sql/024_player_snapshots.sql
 -- Policy: docs/amiga-event-snapshot-policy.md

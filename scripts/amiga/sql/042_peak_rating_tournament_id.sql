@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/042_peak_rating_tournament_id.sql.
 -- Career peak/nadir rating event anchors (Amiga commits rating at tournament finalize).
 -- Policy: docs/amiga-stored-field-semantics.md · docs/amiga-data-contract.md
 -- Populated: tournament finalize (Python + PHP) via apply_peak_from_event_rating.

@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/ground/001_core.sql (its content differs from this copy).
 -- Amiga realm core schema (ko2amiga_db). Ground truth + derived truth (A2 split).
 -- Fresh install: use sql/ground/, sql/structure/, sql/derived/ via schema_bundles.py (slice 1).
 -- This flat file remains for archaeology; amiga_game_ratings also in sql/derived/001_game_ratings.sql.

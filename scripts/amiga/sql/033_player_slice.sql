@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/033_player_slice.sql.
 -- World Cup player slice tables + retire wc_* from honours block on snapshots/current.
 -- Policy: docs/amiga-world-cups-leaderboard-policy.md (slice 0)
 

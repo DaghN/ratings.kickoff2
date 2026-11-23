@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. New DDL goes into sql/ground, sql/structure or sql/derived (see README.md).
 -- Career tournament rollups per player (derived from participation).
 -- Apply after 010: mysql ko2amiga_db < scripts/amiga/sql/011_player_tournament_totals.sql
 -- Populate: slice 2+ rebuild.

@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/structure/008_tournament_lifecycle.sql (its content differs from this copy).
 -- Tournament lifecycle ground truth (draft through archived/void).
 SET time_zone = '+00:00';
 

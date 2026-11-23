@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. New DDL goes into sql/ground, sql/structure or sql/derived (see README.md).
 -- Tournament structure slice 1: collapse tournament_stages.stage_type to round_robin | knockout.
 -- Apply after 022: mysql ko2amiga_db < scripts/amiga/sql/023_unify_stage_types.sql
 -- Policy: docs/amiga-tournament-structure-policy.md T1–T5 · Plan: docs/amiga-tournament-structure-implementation-plan.md slice 1

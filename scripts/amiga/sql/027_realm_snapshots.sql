@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/027_realm_snapshots.sql (its content differs from this copy).
 -- Realm timeline: full amiga_generalstats payload per finalized tournament.
 -- Policy: docs/amiga-realm-snapshot-policy.md
 -- Apply after 026: mysql ko2amiga_db < scripts/amiga/sql/027_realm_snapshots.sql

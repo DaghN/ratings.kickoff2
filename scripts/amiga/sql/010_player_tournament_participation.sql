@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. New DDL goes into sql/ground, sql/structure or sql/derived (see README.md).
 -- Player tournament participation (derived; one row per player x event with >=1 game).
 -- Apply after 009: mysql ko2amiga_db < scripts/amiga/sql/010_player_tournament_participation.sql
 -- Populate: slice 1+ rebuild (replay wires in slice 2).

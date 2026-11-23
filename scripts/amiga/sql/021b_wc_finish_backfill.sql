@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. New DDL goes into sql/ground, sql/structure or sql/derived (see README.md).
 -- Tournament medals unification v2 slice 2: backfill WC event_finish_position from wc_medal.
 -- Apply after 021: mysql ko2amiga_db < scripts/amiga/sql/021b_wc_finish_backfill.sql
 -- Idempotent — safe to re-run.

@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. New DDL goes into sql/ground, sql/structure or sql/derived (see README.md).
 -- Event finish migration slice 8: drop legacy overall_position from participation.
 -- Apply after 017 + prove on slice 5+ data.
 -- Policy: docs/amiga-tournament-honours-rules.md · Plan: slice 8

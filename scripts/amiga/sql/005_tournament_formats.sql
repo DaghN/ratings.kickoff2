@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/structure/005_tournament_formats.sql.
 -- Tournament format foundation (ground truth metadata for legacy + future live events).
 SET time_zone = '+00:00';
 

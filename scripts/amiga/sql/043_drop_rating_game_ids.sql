@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/043_drop_rating_game_ids.sql.
 -- Amiga rating peak/nadir are event-level (finalize), not per-game.
 -- Online playertable retains PeakRatingGameID / LowestRatingGameID; Amiga drops them.
 

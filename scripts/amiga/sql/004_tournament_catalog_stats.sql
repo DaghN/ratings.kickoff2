@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/004_tournament_catalog_stats.sql.
 -- Tournament index aggregates for /amiga/tournaments.php (derived; no hot-path scans).
 -- Apply after 003: mysql ko2amiga_db < scripts/amiga/sql/004_tournament_catalog_stats.sql
 -- Populate: python -m scripts.amiga prove  (or replay)

@@ -1,3 +1,4 @@
+-- LEGACY COPY. Simul applies sql/derived/002_tournament_standings.sql; only the frozen legacy import (import_access.py) reads this file, so do not move or delete it.
 -- Track B: tournament standings derived table + ground-truth Extra column.
 -- Apply after 001_core.sql: mysql ... < scripts/amiga/sql/002_tournament_standings.sql
 SET time_zone = '+00:00';

@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. The file in use is sql/derived/013_generalstats.sql.
 -- Server-wide hall-of-fame row (Amiga realm). Streak columns omitted per player-universe contract.
 -- Apply after 012: mysql ko2amiga_db < scripts/amiga/sql/013_generalstats.sql
 -- Populate: slice 11+ rebuild.

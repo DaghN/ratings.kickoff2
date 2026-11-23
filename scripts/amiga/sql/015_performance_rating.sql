@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. New DDL goes into sql/ground, sql/structure or sql/derived (see README.md).
 -- Event performance rating (chess-style TPR) on rating events + participation denorm.
 -- Apply: mysql ko2amiga_db < scripts/amiga/sql/015_performance_rating.sql
 -- Backfill: python -m scripts.amiga prove

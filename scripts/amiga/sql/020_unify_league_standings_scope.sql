@@ -1,3 +1,4 @@
+-- ARCHIVE COPY, NOT APPLIED. New DDL goes into sql/ground, sql/structure or sql/derived (see README.md).
 -- Standings scope unification slice 0: merge overall+group → league; enum league|knockout only.
 -- Apply after 019: mysql ko2amiga_db < scripts/amiga/sql/020_unify_league_standings_scope.sql
 -- Policy: docs/amiga-standings-scope-policy.md · Plan: docs/amiga-standings-scope-implementation-plan.md slice 0
