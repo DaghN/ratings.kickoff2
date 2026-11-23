@@ -460,7 +460,10 @@ body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option-
 	color: var(--k2-text-primary);
 }
 
-.k2-amiga-tie__row.is-loser {
+/* Loser dimmed, but not the flag. */
+.k2-amiga-tie__row.is-loser .k2-amiga-tie__player a:not(.k2-country-roster-link),
+.k2-amiga-tie__row.is-loser .k2-amiga-tie__leg,
+.k2-amiga-tie__row.is-loser .k2-amiga-tie__agg {
 	opacity: 0.72;
 }
 

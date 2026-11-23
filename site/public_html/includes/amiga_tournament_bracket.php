@@ -49,7 +49,7 @@ function amiga_tournament_render_tie_card(array $tie, string $roundTitle, bool $
                         $leg = $legs[$i] ?? null;
                         $help = $roundTitle . ($multi ? ', ' . $ordinal($i) . ' leg' : '') . ': open the game';
                         if ($leg !== null && $leg['url'] !== '') { ?>
-                    <a class="k2-amiga-tie__leg" href="<?php echo k2_h($leg['url']); ?>" data-k2-help="<?php echo k2_h($help); ?>" data-k2-tooltip-hide-title="1"><?php echo (int) $goals; ?></a>
+                    <a class="k2-amiga-tie__leg" href="<?php echo k2_h($leg['url']); ?>" aria-label="<?php echo k2_h($help); ?>"><?php echo (int) $goals; ?></a>
                         <?php } else { ?>
                     <span class="k2-amiga-tie__leg"><?php echo (int) $goals; ?></span>
                         <?php }

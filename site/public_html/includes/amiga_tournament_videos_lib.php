@@ -1027,7 +1027,7 @@ function amiga_game_video_glyph_link(int $gameId): string
     $label = count($videos) > 1 ? 'Watch this game (' . count($videos) . ' videos)' : 'Watch this game';
 
     return '<a class="k2-amiga-video-glyph" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '"'
-        . ' aria-label="' . $label . '" data-k2-help="' . $label . '" data-k2-tooltip-hide-title="1">'
+        . ' aria-label="' . $label . '">'  // no tooltip: it got in the way (Dagh)
         . amiga_tournament_video_glyph_svg(14) . '</a>';
 }
 
