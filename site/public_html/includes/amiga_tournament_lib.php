@@ -3031,24 +3031,29 @@ function amiga_tournament_group_game_ids(mysqli $con, int $tournamentId, string 
         return $ids;
     }
     $stageType = 'round_robin';
-    $stmt = mysqli_prepare(
-        $con,
-        'SELECT g.id FROM amiga_games g
-         LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id
-         LEFT JOIN tournament_stages s ON s.id = f.stage_id
-         WHERE g.tournament_id = ?
-           AND (g.phase = ? OR (s.stage_type = ? AND COALESCE(f.phase_label, s.name) = ?))'
-    );
-    if ($stmt === false) {
-        return $ids;
+    // A failure (live MySQL can differ from local) shows no game list instead of a blank page.
+    try {
+        $stmt = mysqli_prepare(
+            $con,
+            'SELECT g.id FROM amiga_games g
+             LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id
+             LEFT JOIN tournament_stages s ON s.id = f.stage_id
+             WHERE g.tournament_id = ?
+               AND (g.phase = ? OR (s.stage_type = ? AND COALESCE(f.phase_label, s.name) = ?))'
+        );
+        if ($stmt === false) {
+            return [];
+        }
+        mysqli_stmt_bind_param($stmt, 'isss', $tournamentId, $scopeKey, $stageType, $scopeKey);
+        mysqli_stmt_execute($stmt);
+        $res = mysqli_stmt_get_result($stmt);
+        while ($res && ($row = mysqli_fetch_assoc($res))) {
+            $ids[(int) $row['id']] = true;
+        }
+        mysqli_stmt_close($stmt);
+    } catch (mysqli_sql_exception $e) {
+        return [];
     }
-    mysqli_stmt_bind_param($stmt, 'isss', $tournamentId, $scopeKey, $stageType, $scopeKey);
-    mysqli_stmt_execute($stmt);
-    $res = mysqli_stmt_get_result($stmt);
-    while ($res && ($row = mysqli_fetch_assoc($res))) {
-        $ids[(int) $row['id']] = true;
-    }
-    mysqli_stmt_close($stmt);
 
     return $ids;
 }
