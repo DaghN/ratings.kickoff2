@@ -36,7 +36,7 @@ Disposition review pauses on affected parents until the gate in the split starte
 | `pure_rr` | 512 | Assigned — spot-check only |
 | `pure_knockout` | 33 | Assigned |
 | `structure_spec` | 38 | Assigned |
-| `world_cup` | 24 | Done 2026-11-23 — a new World Cup gets its rounds added to `world_cup_register.json` |
+| `world_cup` | 24 | Done 2026-11-23 — a new World Cup gets its rounds added to `world_cup_register.json` ([`amiga-modern-ground-platform.md`](amiga-modern-ground-platform.md) §12; `simul` checks it) |
 | `wc_deferred` | 0 | — |
 | **`pending_review`** | **0** | — |
 

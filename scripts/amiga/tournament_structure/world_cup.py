@@ -177,6 +177,47 @@ def materialize_world_cup(
     return result
 
 
+def verify_all_world_cups(
+    conn: pymysql.connections.Connection,
+    *,
+    register: dict[int, dict[str, Any]] | None = None,
+) -> list[str]:
+    """Every World Cup in the database is in the register and stored as it says (empty list = right)."""
+    reg = register if register is not None else load_world_cup_register()
+    with conn.cursor() as cur:
+        cur.execute("SELECT id, name FROM tournaments WHERE is_world_cup = 1 ORDER BY id")
+        world_cups = {int(r["id"]): str(r["name"]) for r in cur.fetchall()}
+    problems: list[str] = []
+    for tid, name in world_cups.items():
+        if tid not in reg:
+            problems.append(
+                f"{name} (id {tid}) is not in world_cup_register.json: add its rounds (checked by hand), "
+                f"then run python -m scripts.amiga tournament-structure world-cups --apply --tournament-id {tid}"
+            )
+            continue
+        problems.extend(f"{name}: {p}" for p in verify_world_cup(conn, tid, register=reg))
+    for tid in sorted(set(reg) - set(world_cups)):
+        problems.append(f"world_cup_register.json has id {tid} ({reg[tid]['name']}), which is not a World Cup here")
+    return problems
+
+
+def main() -> int:
+    """Rebuild check: ``verify-world-cup-structure``."""
+    from scripts.amiga.tournament_structure.materialize_legacy import _connect
+
+    conn = _connect()
+    try:
+        problems = verify_all_world_cups(conn)
+    finally:
+        conn.close()
+    for p in problems:
+        print(f"FAIL: {p}")
+    if problems:
+        return 1
+    print(f"verify-world-cup-structure OK ({len(load_world_cup_register())} World Cups)")
+    return 0
+
+
 def verify_world_cup(
     conn: pymysql.connections.Connection,
     tournament_id: int,

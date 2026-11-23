@@ -11,6 +11,7 @@ from scripts.amiga.modern.verify_ground_games import main as verify_ground_games
 from scripts.amiga.verify_chronology import main as verify_chronology_main
 from scripts.amiga.verify_country_registry import main as verify_country_registry_main
 from scripts.amiga.verify_is_world_cup import main as verify_is_world_cup_main
+from scripts.amiga.tournament_structure.world_cup import main as verify_world_cup_structure_main
 from scripts.amiga.verify_player_create import main as verify_player_create_main
 from scripts.amiga.verify_scoring_contract import main as verify_scoring_contract_main
 from scripts.amiga.verify_running_tournament_boundary import main as verify_running_tournament_boundary_main
@@ -41,6 +42,8 @@ log = logging.getLogger(__name__)
 MODERN_VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
     ("verify-chronology", verify_chronology_main),
     ("verify-is-world-cup", verify_is_world_cup_main),
+    # Every World Cup is in world_cup_register.json and every game has its stage (2026-11-23).
+    ("verify-world-cup-structure", verify_world_cup_structure_main),
     # verify-rating-events and verify-player-matchups: covered by the recount (last step), 2026-11-23.
     ("verify-ground-games", verify_ground_games_main),
     ("verify-event-snapshots", verify_event_snapshots_main),
