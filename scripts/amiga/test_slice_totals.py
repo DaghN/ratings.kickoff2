@@ -24,6 +24,7 @@ class TestWorldCupSliceTotals(unittest.TestCase):
             {
                 "tournament_id": 21,
                 "tournament_name": "World Cup XXI",
+                "is_world_cup": 1,
                 "event_date": date(2022, 11, 1),
                 "event_finish_position": 1,
                 "games": 5,
@@ -48,6 +49,7 @@ class TestWorldCupSliceTotals(unittest.TestCase):
             {
                 "tournament_id": 1,
                 "tournament_name": "Kitchen Marathon",
+                "is_world_cup": 0,
                 "event_date": date(2010, 1, 1),
                 "games": 10,
                 "wins": 10,

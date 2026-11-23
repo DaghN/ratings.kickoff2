@@ -597,10 +597,18 @@ class EventFinishDbIntegrationTests(unittest.TestCase):
         )
         return tournament, list(cur.fetchall())
 
+    def _player_id(self, name: str) -> int:
+        """Look players up by name: ids moved when duplicate names were merged (Jun 2026)."""
+        cur = self._conn.cursor()
+        cur.execute("SELECT id FROM amiga_players WHERE name = %s", (name,))
+        row = cur.fetchone()
+        self.assertIsNotNone(row, f"player {name!r} not found")
+        return int(row["id"])
+
     def test_bournemouth_ii_best_knockout_phase_from_db(self) -> None:
         tournament, rows = self._load_tournament(544)
-        self.assertEqual(derive_best_knockout_phase(rows, 134), "Final")
-        self.assertEqual(derive_best_knockout_phase(rows, 286), "Semi Final")
+        self.assertEqual(derive_best_knockout_phase(rows, self._player_id("Garry C")), "Final")
+        self.assertEqual(derive_best_knockout_phase(rows, self._player_id("Mark W")), "Semi Final")
 
     def test_athens_lxxxv_league_cup_from_db(self) -> None:
         tournament, rows = self._load_tournament(592)
@@ -610,11 +618,11 @@ class EventFinishDbIntegrationTests(unittest.TestCase):
             has_league=bool(tournament["has_league"]),
             has_cup=bool(tournament["has_cup"]),
         )
-        self.assertEqual(finish[14], 1)
-        self.assertEqual(finish[30], 2)
-        self.assertEqual(finish[410], 3)
-        self.assertEqual(finish[338], 4)
-        self.assertEqual(finish[100], 5)
+        self.assertEqual(finish[self._player_id("Alkis P")], 1)
+        self.assertEqual(finish[self._player_id("Andy G")], 2)
+        self.assertEqual(finish[self._player_id("Spyros P")], 3)
+        self.assertEqual(finish[self._player_id("Nikos A")], 4)
+        self.assertEqual(finish[self._player_id("Ektoras K")], 5)
 
 
 if __name__ == "__main__":

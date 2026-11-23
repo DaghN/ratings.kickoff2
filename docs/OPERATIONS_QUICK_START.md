@@ -150,6 +150,7 @@ Not online ladder ops. Local build any way you like → export snapshot → sync
 |------|----------------|
 | **Local PHP + living DB** | `ko2amiga_config.local.php` → **`ko2amiga_work`** (`promote_ko2amiga_work_local.ps1` once) |
 | **Sign-off / derived rebuild** | `python -m scripts.amiga simul` on **`ko2amiga_work`** ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md); video on by default) |
+| **Unit tests** | `python -m unittest discover -s scripts/amiga -t . -p "test_*.py"` (2 min, 358 tests, some read `ko2amiga_work`). All pass since 2026-11-23: a failure is news, fix it or the test |
 | **Oracle / Access rebuild** | `setup_ko2amiga_db.ps1` or `python -m scripts.amiga prove` on frozen **`ko2amiga_db`** — archaeology only |
 | **Export SQL (agent runs this)** | `scripts\export_ko2amiga_work.ps1` → `site/public_html/amiga/_import/ko2amiga_*.sql` (promotes work video manifest first) |
 | **Work git checkpoint** | `scripts\seal_amiga_work_checkpoint.ps1 -Label <name>` → `data/amiga/checkpoints/work-YYYY-MM-DD-<label>/` (milestone; opt-in git) — [`data/amiga/checkpoints/README.md`](../data/amiga/checkpoints/README.md) |

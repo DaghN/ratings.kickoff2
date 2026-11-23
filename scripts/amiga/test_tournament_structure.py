@@ -443,19 +443,30 @@ class VerifyLegacyTests(unittest.TestCase):
         self.assertEqual(tier, TIER_C)
         self.assertIn("audit flag", detail)
 
-    def test_classify_tier_c_athens_lxxxv_mixed_labeled(self) -> None:
+    def test_classify_tier_c_flagged_mixed_labeled(self) -> None:
+        """A flagged tournament stays Tier C even when some games carry a phase label.
+
+        Athens LXXXV (592) was the real case; it was sorted out and left the register in Jul 2026,
+        so the flag is patched in here.
+        """
+        from unittest.mock import patch
+
         from scripts.amiga.tournament_structure.verify_legacy import TIER_C, classify_legacy_tier
 
         games = [
             {"player_a_id": 1, "player_b_id": 2, "phase": "Round 1"},
             {"player_a_id": 3, "player_b_id": 4},
         ]
-        tier, detail = classify_legacy_tier(
-            games,
-            tournament_name="Athens LXXXV",
-            format_overrides={},
-            tournament_id=592,
-        )
+        with patch(
+            "scripts.amiga.tournament_structure.tier_b_non_wc_register.NON_WC_STRUCTURE_REVIEW_IDS",
+            frozenset({592}),
+        ):
+            tier, detail = classify_legacy_tier(
+                games,
+                tournament_name="Athens LXXXV",
+                format_overrides={},
+                tournament_id=592,
+            )
         self.assertEqual(tier, TIER_C)
         self.assertIn("audit flag", detail)
 
@@ -473,6 +484,9 @@ class VerifyLegacyTests(unittest.TestCase):
         self.assertIn("WC track deferred", detail)
 
     def test_materialize_refuses_parser_fix_deferred(self) -> None:
+        """The parser-fix queue is empty since Jul 2026 (48 was its last id), so it is patched in."""
+        from unittest.mock import patch
+
         from scripts.amiga.tournament_structure.materialize_legacy import (
             StructureReviewRequired,
             _connect,
@@ -481,7 +495,10 @@ class VerifyLegacyTests(unittest.TestCase):
 
         conn = _connect()
         try:
-            with self.assertRaises(StructureReviewRequired) as ctx:
+            with patch(
+                "scripts.amiga.tournament_structure.tier_b_non_wc_register.NON_WC_PARSER_FIX_FIRST_IDS",
+                frozenset({48}),
+            ), self.assertRaises(StructureReviewRequired) as ctx:
                 materialize_legacy_fixtures(conn, 48, dry_run=True)
             self.assertIn("6a", str(ctx.exception))
             self.assertIn("PARSER_FIX", str(ctx.exception))

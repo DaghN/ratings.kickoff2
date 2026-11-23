@@ -54,6 +54,7 @@ class TestWorldCupSliceGameStats(unittest.TestCase):
             {
                 "tournament_id": 1,
                 "tournament_name": "World Cup I",
+                "is_world_cup": 1,
                 "event_date": "2010-01-01",
                 "games": 1,
                 "wins": 1,
@@ -68,6 +69,7 @@ class TestWorldCupSliceGameStats(unittest.TestCase):
             {
                 "tournament_id": 1,
                 "tournament_name": "World Cup I",
+                "is_world_cup": 1,
                 "event_date": "2010-01-01",
                 "games": 1,
                 "wins": 0,
@@ -88,7 +90,9 @@ class TestWorldCupSliceGameStats(unittest.TestCase):
         )
         self.assertEqual(slice_accum[1]["double_digits"], 1)
         self.assertEqual(slice_accum[1]["different_opponents"], 1)
-        self.assertEqual(slice_accum[1]["opponent_countries_faced"], 2)
+        self.assertEqual(slice_accum[1]["tournaments_played"], 1)
+        # Opponents' countries only: player 1 (Germany) met England (policy H6, no own-nation seed).
+        self.assertEqual(slice_accum[1]["opponent_countries_faced"], 1)
 
     def test_oracle_matches_tracker(self) -> None:
         v1 = empty_world_cup_slice()
