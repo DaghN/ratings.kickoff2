@@ -415,8 +415,8 @@ body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option-
 	font-style: italic;
 }
 
-/* Tie card: who went through (name, no flag), the games as results (Status-page colours), aggregate /
-   extra time / penalties. Design 11 from the card preview (Dagh, 2026-11-23). */
+/* Tie card: the games as results (Status-page colours), winner bold and loser dimmed (not the flags),
+   aggregate / extra time / penalties. From design 11 of the card preview (Dagh, 2026-11-23). */
 .k2-amiga-bracket__round:has(.k2-amiga-tie) {
 	min-width: 18.5rem;
 	max-width: 20rem;
@@ -436,19 +436,10 @@ body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option-
 	box-shadow: 0 0 0 1px var(--k2-segment-active-ring);
 }
 
-.k2-amiga-tie__outcome {
-	display: flex;
-	justify-content: space-between;
-	gap: 0.5rem;
-	padding-bottom: 0.3rem;
-	margin-bottom: 0.3rem;
-	border-bottom: 1px solid var(--k2-border-subtle);
-	color: var(--k2-text-secondary);
-	white-space: nowrap;
-}
-
 .k2-amiga-tie__agg {
-	font-size: 0.78rem;
+	text-align: right;
+	font-size: 0.74rem;
+	color: var(--k2-text-secondary);
 	font-variant-numeric: tabular-nums;
 }
 
@@ -485,6 +476,15 @@ body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option-
 	min-width: 0;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+/* The tie winner stands out, the loser is dimmed; flags keep full strength. */
+.k2-amiga-tie__name.is-winner a {
+	font-weight: 700;
+}
+
+.k2-amiga-tie__name.is-loser a {
+	opacity: 0.6;
 }
 
 .k2-amiga-tie__score {

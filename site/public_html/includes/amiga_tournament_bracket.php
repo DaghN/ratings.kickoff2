@@ -29,12 +29,12 @@ function amiga_tournament_tie_card_variant(): string
 }
 
 /**
- * One knockout tie: who went through on top (name, no flag), the games below as results (home player first,
- * flags, winning goal coloured as on the Status page, linked to the game; play icon for a video), and the
- * aggregate / extra time / penalties as the variant places them:
+ * One knockout tie: the games as results (home player first, flags, winning goal coloured as on the Status
+ * page, linked to the game; play icon for a video), the tie winner's name bold and the loser's dimmed (flags
+ * stay bright), and the aggregate / extra time / penalties as the variant places them:
  *   c: extra time and penalties under their leg, the aggregate alone after a small gap;
  *   b: aggregate, extra time and penalties on one line after a small gap;
- *   e: the aggregate at the right end of the top line, extra time and penalties under their leg.
+ *   e: extra time and penalties under their leg, "agg 11–11" right-aligned just under the games.
  *
  * @param array<string, mixed> $tie with 'card' from amiga_tournament_knockout_tie_card()
  */
@@ -51,10 +51,11 @@ function amiga_tournament_render_tie_card(array $tie, string $roundTitle, bool $
     }
     $winner = !empty($tie['unresolved']) || $tie['winner_id'] === null ? null : (int) $tie['winner_id'];
     $loser = $winner === null ? null : (int) ($winner === (int) $tie['player_lo'] ? $tie['player_hi'] : $tie['player_lo']);
-    $player = static function (int $pid, bool $flagFirst) use ($byId): string {
+    $player = static function (int $pid, bool $flagFirst) use ($byId, $winner): string {
         $row = $byId[$pid] ?? ['name' => '#' . $pid, 'country' => ''];
         $flag = k2_amiga_country_flag_link((string) $row['country']);
-        $link = '<span class="k2-amiga-tie__name">' . k2_amiga_player_link($pid, (string) $row['name']) . '</span>';
+        $state = $winner === null ? '' : ($pid === $winner ? ' is-winner' : ' is-loser');
+        $link = '<span class="k2-amiga-tie__name' . $state . '">' . k2_amiga_player_link($pid, (string) $row['name']) . '</span>';
 
         return '<span class="k2-amiga-tie__player">' . ($flagFirst ? $flag . $link : $link . $flag) . '</span>';
     };
@@ -77,17 +78,6 @@ function amiga_tournament_render_tie_card(array $tie, string $roundTitle, bool $
     ?>
             <div class="k2-amiga-tie<?php echo $isActive ? ' is-active' : ''; ?>"
                  id="<?php echo k2_h(amiga_tournament_tie_card_id((string) $tie['scope_key'])); ?>">
-                <div class="k2-amiga-tie__outcome">
-                    <span><?php
-                    if ($winner === null) {
-                        echo 'Tie unresolved';
-                    } else {
-                        echo '<span class="k2-amiga-tie__winner">', k2_amiga_player_link($winner, (string) ($byId[$winner]['name'] ?? '')), '</span> wins';
-                    } ?></span>
-                    <?php if ($variant === 'e' && $multi && $winner !== null) { ?>
-                    <span class="k2-amiga-tie__agg"><?php echo $agg($winner, (int) $loser); ?> agg</span>
-                    <?php } ?>
-                </div>
                 <?php foreach ($legs as $i => $leg) {
                     $scoreline = '<span class="k2-status-score">' . k2_rated_game_scoreline_html((int) $leg['goals_home'], (int) $leg['goals_away']) . '</span>';
                     $help = $roundTitle . ($multi ? ', ' . $legLabel($i) . ' leg' : '');
@@ -102,6 +92,12 @@ function amiga_tournament_render_tie_card(array $tie, string $roundTitle, bool $
                     <?php if ($variant !== 'b' && ($d = $decider($leg)) !== '') { ?>
                 <div class="k2-amiga-tie__decider<?php echo $multi ? ' k2-amiga-tie__decider--indent' : ''; ?>"><?php echo k2_h($d); ?></div>
                     <?php } ?>
+                <?php } ?>
+                <?php if ($variant === 'e' && $multi) { ?>
+                <div class="k2-amiga-tie__agg">agg <?php echo $agg($firstHome, $firstAway); ?></div>
+                <?php } ?>
+                <?php if ($winner === null && !empty($tie['unresolved'])) { ?>
+                <div class="k2-amiga-tie__decider">Tie unresolved</div>
                 <?php } ?>
                 <?php
                 $foot = [];
