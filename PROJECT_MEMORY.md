@@ -112,6 +112,7 @@ Finished tracks that used to be listed here (June–July 2026): [`docs/archive/f
 
 ## Deferred / blocked
 
+- **Parked items for Steve** (2026-11-23, Dagh): details only in the local, git-ignored `_notes/parked-for-steve.md`. Raise them with Steve later, e.g. with the online recalculation; never copy them into a tracked file.
 - GitHub branch protection — when collaborators land.
 - **Extensionless URLs** (`.htaccess` rewrites) — optional; filenames and folders done Jun 2026.
 - **Status on prod live DB** + joshua redirect — [`STATUS_PAGE_DATA.md`](docs/STATUS_PAGE_DATA.md).
