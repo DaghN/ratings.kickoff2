@@ -7,15 +7,14 @@ from typing import Callable
 
 from scripts.amiga.modern.db_config import activate_work_database_env
 from scripts.amiga.modern.recount import run_recount
+from scripts.amiga.modern.verify_ground_games import main as verify_ground_games_main
 from scripts.amiga.verify_chronology import main as verify_chronology_main
 from scripts.amiga.verify_country_registry import main as verify_country_registry_main
 from scripts.amiga.verify_is_world_cup import main as verify_is_world_cup_main
 from scripts.amiga.verify_player_create import main as verify_player_create_main
 from scripts.amiga.verify_scoring_contract import main as verify_scoring_contract_main
 from scripts.amiga.verify_running_tournament_boundary import main as verify_running_tournament_boundary_main
-from scripts.amiga.verify_player_matchups import main as verify_player_matchups_main
 from scripts.amiga.verify_player_participation import main as verify_player_participation_main
-from scripts.amiga.verify_rating_events import main as verify_rating_events_main
 from scripts.amiga.verify_event_snapshots import main as verify_event_snapshots_main
 from scripts.amiga.verify_inverse_count_changelog import main as verify_inverse_count_changelog_main
 from scripts.amiga.verify_realm_snapshots import main as verify_realm_snapshots_main
@@ -42,11 +41,11 @@ log = logging.getLogger(__name__)
 MODERN_VERIFY_STEPS: list[tuple[str, Callable[[], int]]] = [
     ("verify-chronology", verify_chronology_main),
     ("verify-is-world-cup", verify_is_world_cup_main),
-    ("verify-rating-events", verify_rating_events_main),
+    # verify-rating-events and verify-player-matchups: covered by the recount (last step), 2026-11-23.
+    ("verify-ground-games", verify_ground_games_main),
     ("verify-event-snapshots", verify_event_snapshots_main),
     ("verify-inverse-count-changelog", verify_inverse_count_changelog_main),
     ("verify-player-participation", verify_player_participation_main),
-    ("verify-player-matchups", verify_player_matchups_main),
     ("verify-player-slice", verify_player_slice_main),
     ("verify-country-slice", verify_country_slice_main),
     ("verify-wc-hof", verify_wc_hof_main),
