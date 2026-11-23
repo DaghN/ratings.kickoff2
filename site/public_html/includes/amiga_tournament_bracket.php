@@ -25,7 +25,16 @@ function amiga_tournament_tie_card_variant(): string
     $local = str_ends_with($host, '.test') || str_starts_with($host, 'localhost') || str_starts_with($host, '127.0.0.1');
     $asked = strtolower((string) ($_GET['card'] ?? ''));
 
-    return $local && in_array($asked, ['b', 'c', 'e'], true) ? $asked : 'c';
+    return $local && in_array($asked[0] ?? '', ['b', 'c', 'e'], true) ? $asked[0] : 'c';
+}
+
+/** Colour look being tried on the cards (1–5, ?card=c3 on a local site; see amiga-tournament.css). */
+function amiga_tournament_tie_card_look(): int
+{
+    $asked = strtolower((string) ($_GET['card'] ?? ''));
+    $look = (int) substr($asked, 1);
+
+    return amiga_tournament_tie_card_variant() === ($asked[0] ?? '') && $look >= 1 && $look <= 5 ? $look : 1;
 }
 
 /**
@@ -76,7 +85,7 @@ function amiga_tournament_render_tie_card(array $tie, string $roundTitle, bool $
     $firstHome = $legs !== [] ? (int) $legs[0]['home'] : (int) $tie['player_lo'];
     $firstAway = $legs !== [] ? (int) $legs[0]['away'] : (int) $tie['player_hi'];
     ?>
-            <div class="k2-amiga-tie<?php echo $isActive ? ' is-active' : ''; ?>"
+            <div class="k2-amiga-tie k2-amiga-tie--look-<?php echo amiga_tournament_tie_card_look(); ?><?php echo $isActive ? ' is-active' : ''; ?>"
                  id="<?php echo k2_h(amiga_tournament_tie_card_id((string) $tie['scope_key'])); ?>">
                 <?php foreach ($legs as $i => $leg) {
                     $scoreline = '<span class="k2-status-score">' . k2_rated_game_scoreline_html((int) $leg['goals_home'], (int) $leg['goals_away']) . '</span>';
