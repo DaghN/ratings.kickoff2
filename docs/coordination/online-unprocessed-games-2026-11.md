@@ -146,6 +146,8 @@ LORENZOL 2241→2188 · Micro 1600→1633 · Canvarol 1976→1953 · geo4444 184
 | 3. MyISAM, change to InnoDB | MyISAM, yes. The change: open |
 | 4. Does the app wait for the reply | Open |
 
+**Follow-up drafted for Dagh 2026-11-23** (not known whether sent): which machine has PHP 8.6.0; the recalculation when Steve has time, if possible before Dec 1; optional and without hurry: InnoDB, and whether players wait for the script's answer before the next game.
+
 
 Split of work: **we** write and upload the scripts; **Steve** runs the server, the database, the scheduled jobs and the game app. A failed call needs no action from the app any more.
 
