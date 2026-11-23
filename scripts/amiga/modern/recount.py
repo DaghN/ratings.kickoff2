@@ -45,7 +45,6 @@ _PLACE = "finish places are taken as given"
 _TABLES = "league tables: PHP and Python are compared in verify-php-standings-parity"
 _WC_HOF = "World Cup records: verify-wc-hof recounts them itself"
 _NO_PAGE = "no page shows it; not kept up for players who did not take part"
-_PHASE = "depends on the stage structure, not on results alone"
 _TEXT = "time or text, not a number"
 _WC_BEST = {
     c: _WC_HOF
@@ -71,9 +70,7 @@ NOT_RECOUNTED: dict[str, dict[str, str]] = {
     "amiga_player_slice_at_event": dict(_WC_BEST),
     "amiga_realm_snapshots": {"finalized_at": _TEXT},
     "amiga_community_stats_snapshots": {"finalized_at": _TEXT},
-    "amiga_world_cup_stats": {
-        "knockout_games": _PHASE, "group_games": _PHASE, "host_city": _TEXT, "finalized_at": _TEXT,
-    },
+    "amiga_world_cup_stats": {"host_city": _TEXT, "finalized_at": _TEXT},
     "amiga_tournament_catalog_stats": {
         c: _TABLES for c in ("standing_players", "standing_rows", "league_scopes", "knockout_ties")
     },
@@ -710,8 +707,11 @@ def recount(conn: Any, database: str) -> dict[str, Any]:
     names = {pid: p["name"] for pid, p in players.items()}
     nation = {pid: country(p["country"]) for pid, p in players.items()}
     games: dict[int, list[dict]] = defaultdict(list)
+    # stage_type: the stored structure says whether the game was a knockout tie or a group game.
     for g in read(
-        "SELECT id, game_date, player_a_id, player_b_id, tournament_id, goals_a, goals_b FROM amiga_games ORDER BY game_date, id"
+        "SELECT g.id, g.game_date, g.player_a_id, g.player_b_id, g.tournament_id, g.goals_a, g.goals_b, st.stage_type "
+        "FROM amiga_games g LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id "
+        "LEFT JOIN tournament_stages st ON st.id = f.stage_id ORDER BY g.game_date, g.id"
     ):
         games[g["tournament_id"]].append(g)
     unfinished = [t for t in games if t is None or not tournaments[t]["rating_finalized"]]
@@ -905,6 +905,9 @@ def recount(conn: Any, database: str) -> dict[str, Any]:
             for token, r in stored_nations.items():
                 check.equation("amiga_country_slice_at_event", (token, tid), wc_nations[token].results, r["performance_rating"])
             wc_rows[tid] = {"tournament_id": tid, **world_cup_page_columns(t, played, places, newcomers, year_games[year])}
+            # A knockout game is one in a knockout stage; every other game is a group game.
+            knockout = sum(1 for g in games[tid] if g["stage_type"] == "knockout")
+            wc_rows[tid].update(knockout_games=knockout, group_games=len(played) - knockout)
         # Every tournament repeats the World Cup numbers of the players who were there.
         check.rows("amiga_player_slice_at_event", {
             pid: {"player_id": pid, "slice_key": "world_cup", "as_of_tournament_id": tid, **identity,

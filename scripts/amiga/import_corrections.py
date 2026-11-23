@@ -485,6 +485,33 @@ SCORE_CORRECTIONS: tuple[ScoreCorrection, ...] = (
         goals_b=1,
         extra=None,
     ),
+    # Penalties, not extra time (docs/amiga-extra-time-review-2026-11.md 13), 2026-11-23.
+    ScoreCorrection(
+        source_scores_id=27482,
+        tournament="World Cup XXII",
+        team_a="Thor S",
+        team_b="Lorenzo L",
+        goals_a=3,
+        goals_b=3,
+        extra="(3-3) 4-5 p.k.",
+        goals_et_a=0,
+        goals_et_b=0,
+        pens_a=4,
+        pens_b=5,
+    ),
+    ScoreCorrection(
+        source_scores_id=27484,
+        tournament="World Cup XXII",
+        team_a="Mario F",
+        team_b="Lorenzo L",
+        goals_a=2,
+        goals_b=2,
+        extra="(2-2) 3-2 p.k.",
+        goals_et_a=0,
+        goals_et_b=0,
+        pens_a=3,
+        pens_b=2,
+    ),
 )
 
 SCORE_CORRECTION_RATIONALE: dict[int, str] = {
@@ -586,6 +613,16 @@ SCORE_CORRECTION_RATIONALE: dict[int, str] = {
         "World Cup IV Round 1 Group B: Access Scores has 1-7. The alkis.org results image, its group table and "
         "ranking list, Access's own group table and totals, and the KOA ranking of December 2004 (Access Rankings) "
         "all fit 7-1. Decided by Dagh 2026-11-23."
+    ),
+    27482: (
+        "World Cup XXII Positions 5-8: Access has 3-3 with Extra 4-5 a.e.t. The tournament software "
+        "(kickoff2.com/KO2TS, tn=worldcup2024) has 7-8: normal time plus a 4-5 shootout. That software adds "
+        "shootout goals to the score (World Cup XXIII semi-final and final, our penalty games, are 9-7 and 12-14 "
+        "there). The other 312 games of World Cup XXII match it. Lorenzo L went on to the 5th Place Final."
+    ),
+    27484: (
+        "World Cup XXII 5th Place Final: Access has 2-2 with Extra 3-2 a.e.t. The tournament software has 5-4: "
+        "2-2 and a 3-2 shootout. Mario F 5th, as in Access [Tables]."
     ),
 }
 

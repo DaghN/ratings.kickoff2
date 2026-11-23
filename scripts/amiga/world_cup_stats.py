@@ -11,10 +11,10 @@ import pymysql
 from scripts.amiga.community_game_metrics import (
     canonical_pair,
     country_token,
-    is_knockout_phase,
     rate,
     rated_game_metrics_from_row,
 )
+from scripts.amiga.tournament_phases import is_knockout_phase
 from scripts.amiga.tournament_honours import tournament_is_world_cup
 from scripts.amiga.world_cup_stats_columns import WORLD_CUP_STATS_COLUMNS
 
@@ -143,11 +143,14 @@ def build_world_cup_stats_row(
         SELECT g.id AS game_id, g.player_a_id, g.player_b_id, g.goals_a, g.goals_b, g.phase,
                pa.country AS country_a, pb.country AS country_b,
                r.sum_of_goals, r.actual_score,
-               r.dd_player_a, r.dd_player_b, r.cs_player_a, r.cs_player_b
+               r.dd_player_a, r.dd_player_b, r.cs_player_a, r.cs_player_b,
+               st.stage_type
         FROM amiga_games g
         INNER JOIN amiga_game_ratings r ON r.game_id = g.id
         INNER JOIN amiga_players pa ON pa.id = g.player_a_id
         INNER JOIN amiga_players pb ON pb.id = g.player_b_id
+        LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id
+        LEFT JOIN tournament_stages st ON st.id = f.stage_id
         WHERE g.tournament_id = %s
         ORDER BY g.game_date ASC, g.id ASC
         """
@@ -201,7 +204,10 @@ def build_world_cup_stats_row(
                 low_scoring += 1
             if metrics.is_blowout:
                 blowouts += 1
-            if is_knockout_phase(metrics.phase):
+            # The game's stored stage decides (a knockout tie or a group); a game without one, by its round name.
+            stage_type = row.get("stage_type")
+            is_knockout = stage_type == "knockout" if stage_type is not None else is_knockout_phase(metrics.phase)
+            if is_knockout:
                 knockout_games += 1
             else:
                 group_games += 1

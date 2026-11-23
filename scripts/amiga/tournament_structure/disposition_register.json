@@ -18,8 +18,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "5": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "6": {
       "handler": "pure_rr",
@@ -34,8 +34,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "9": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "10": {
       "handler": "pure_rr",
@@ -54,16 +54,16 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "14": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "15": {
       "handler": "pure_rr",
       "notes": "NULL phase + 3\u00d7 round-robin schedule"
     },
     "16": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "17": {
       "handler": "pure_rr",
@@ -78,8 +78,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "20": {
-      "handler": "wc_deferred",
-      "notes": "WC track; Jul 2026 Tier E finish override 1\u201335 from Access Tables holistic ladder (Nottingham 2024)"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand); Jul 2026 Tier E finish override 1\u201335 from Access Tables holistic ladder (Nottingham 2024)"
     },
     "21": {
       "handler": "pure_rr",
@@ -99,12 +99,12 @@
       "notes": "NULL phase + 3\u00d7 round-robin schedule"
     },
     "25": {
-      "handler": "wc_deferred",
-      "notes": "WC track; Jul 2026 Tier E finish override 1\u201337 from Access Tables holistic ladder (Milan 2025)"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand); Jul 2026 Tier E finish override 1\u201337 from Access Tables holistic ladder (Milan 2025)"
     },
     "26": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "27": {
       "handler": "pure_rr",
@@ -264,8 +264,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "66": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "67": {
       "handler": "pure_rr",
@@ -460,8 +460,8 @@
       "notes": "NULL phase + 4\u00d7 round-robin schedule"
     },
     "115": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "116": {
       "handler": "pure_rr",
@@ -561,8 +561,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "140": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "141": {
       "handler": "pure_rr",
@@ -677,8 +677,8 @@
       "notes": "NULL phase + 4\u00d7 round-robin schedule"
     },
     "169": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "170": {
       "handler": "pure_rr",
@@ -825,8 +825,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "206": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "207": {
       "handler": "pure_rr",
@@ -1121,8 +1121,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "280": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "281": {
       "handler": "pure_rr",
@@ -1433,8 +1433,8 @@
       "notes": "NULL phase + 3\u00d7 round-robin schedule"
     },
     "358": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "359": {
       "handler": "pure_rr",
@@ -1673,8 +1673,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "418": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "419": {
       "handler": "pure_rr",
@@ -1921,8 +1921,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "480": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "481": {
       "handler": "pure_rr",
@@ -2105,8 +2105,8 @@
       "notes": "NULL phase + single round-robin schedule"
     },
     "526": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "527": {
       "handler": "pure_rr",
@@ -2217,8 +2217,8 @@
       "notes": "9p League + 2-leg QF/SF/F + Places 5-8; display Round 1 - League; finish 1\u20139"
     },
     "554": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "555": {
       "handler": "pure_rr",
@@ -2277,8 +2277,8 @@
       "notes": "4p cup; Semi Finals \u00b7 3rd Place Final \u00b7 Final; g21621 reg 5-5 ET 2-2 pens 8-7 (Steve E)"
     },
     "569": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "570": {
       "handler": "structure_spec",
@@ -2309,8 +2309,8 @@
       "notes": "NULL phase + single round-robin schedule"
     },
     "577": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "578": {
       "handler": "pure_rr",
@@ -2341,8 +2341,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "585": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "586": {
       "handler": "pure_rr",
@@ -2385,8 +2385,8 @@
       "notes": "NULL phase + 4\u00d7 round-robin schedule"
     },
     "596": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "597": {
       "handler": "pure_rr",
@@ -2413,8 +2413,8 @@
       "notes": "NULL phase + 2\u00d7 round-robin schedule"
     },
     "603": {
-      "handler": "wc_deferred",
-      "notes": "WC track"
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     },
     "604": {
       "handler": "pure_knockout",
@@ -2427,6 +2427,10 @@
     "606": {
       "handler": "pure_knockout",
       "notes": "4p same-evening cup (4g ssid 7579\u20137582); import split from Hertford IV (187) via SCORE_TOURNAMENT_PARTITION. Forum t=12376. Jul 2026: work DB split + simul + materialize-pure-knockout."
+    },
+    "608": {
+      "handler": "world_cup",
+      "notes": "World Cup register (reviewed by hand)"
     }
   }
 }

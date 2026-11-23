@@ -8,7 +8,9 @@
 
 ## What it does
 
-It counts the numbers again and compares them with what is stored: about 12 million values in 18 tables, for today and for every earlier tournament. It starts from the game results, the players, the tournaments and the finish places, and from nothing else.
+It counts the numbers again and compares them with what is stored: about 12 million values in 18 tables, for today and for every earlier tournament. It starts from the game results, the players, the tournaments, the finish places and the stored stage of each game, and from nothing else.
+
+A World Cup's knockout games are the games in knockout stages (one stage per tie); all its other games are group games (since 2026-11-23; before, both counts were not recounted).
 
 `RESULT: SAME`, `DIFFERENT` (with the table, the column and an example), or `COLUMN WITHOUT A RECOUNT`. Report: `data/amiga/modern/recount-last.json` (not in git).
 
@@ -43,7 +45,6 @@ Most rebuild checks ask whether the stored numbers fit together, or calculate th
 | Finish places, best knockout phase | Taken as given; they come from the tournament structure |
 | League tables (`amiga_tournament_standings`), and the counts of them in the catalogue | PHP and Python are compared in `verify-php-standings-parity` |
 | World Cup Hall of Fame (`amiga_wc_hof_*`, best attack/defence, best single World Cup) | `verify-wc-hof` recounts them itself |
-| Group and knockout game counts of a World Cup | Depend on the stage structure |
 | `LeastGoalsScoredVictims`, `LeastGoalsConcededCulprits` | No page shows them; not kept up for players who did not take part |
 
 Ratings may differ by 0.002 (they are stored with six decimals at every event), performance ratings by 0.05, the sum of opponents' ratings by 0.2. Other decimals by one step in the last place.

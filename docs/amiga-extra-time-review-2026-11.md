@@ -44,7 +44,7 @@ The truth is the game on the Amiga. Everything else is a copy of it.
 | Results images on alkis.org | Pictures of the original result sheets | High, not perfect | Agree with 63 of the 69 Access notes we could compare, and in the other six Access contradicts itself. Known slips: XIV 5th place (§8); XXI 5th place has no extra-time mark although Access has the final level (§6) |
 | Placings: Access `[Tables]` and the alkis.org ranking lists | Made after the event, and they agree with each other | Good, not proof | Wrong in three placement finals (§7) |
 | Player comments on alkis.org | Written by Alkis after the event | Good supporting evidence for what happened; loose with numbers | They describe matches independently of the score tables |
-| The tournament software's results, <https://kickoff2.com/KO2TS/index.php?player_filter=&tn=worldcup2023> (by Steve C; not there for 2011) | What was typed in at the tournament | Very high | Its game list shows the score **after** extra time, its totals count normal time. Our 304 XXI games match its list |
+| The tournament software's results, <https://kickoff2.com/KO2TS/index.php?player_filter=&tn=worldcup2023> (by Steve C; not there for 2011) | What was typed in at the tournament | Very high | Its game list shows the score **after** extra time, plus the goals of a penalty shootout (§13); its totals count normal time. Our 304 XXI games match its list, and 312 of 314 XXII games |
 | Official KOA rankings (Access `Rankings`, monthly, frozen) | Calculated at the time from the game list | Good where a game counts for a lot | Found by rebuilding the formula roughly (§12) |
 
 **How a score after extra time gets into a leg:** Access's XXI game list is the software's list, with the extra-time goals taken out by hand in the matches somebody remembered. In the 11th place final nobody did.
@@ -206,3 +206,11 @@ So in 2004 the result counted as 7-1 to Nazim C. What we cannot tell is why the 
 All three are corrected (§5). Nobody has confirmed the two World Cup XI games: they rest on the totals alone (Access and alkis.org have the same numbers, so that is one witness). What the totals show is exact: Wayne L scored 114, not 117; Mandhir S conceded 98, not 101; Peter K scored 46, not 47; Mark W conceded 88, not 89. Both players of each pair are off by the same number, Mark W and Peter K met only once, and Access's group tables match the group games, so the difference is in these two games. Two separate slips that both leave a match exactly level are hard to believe. World Cup XI counts goals in normal time and wins after extra time and penalties (Wayne L v Thorsten B: 3-3 and a win), which is how these two look; and in XXI the same sign was right both times, also without a mark in the picture. Steve C's page does not go back to 2011, and the KOA ranking of December 2011 cannot tell.
 
 **What no check can see:** a match whose score after extra time went into every source as a normal score.
+
+## 13. World Cup XXII: two shootouts recorded as extra time (2026-11-23)
+
+Dagh asked why Lorenzo L, not Thor S, went on to the 5th place final after their 3-3 in Positions 5-8. Access's note `4-5 a.e.t.` made it extra time (one goal for Thor S, two for Lorenzo L). The tournament software (tn=worldcup2024) has **7-8**, and for the 5th place final, where Access has 2-2 and `3-2 a.e.t.`, it has **5-4**. All its other 312 games of XXII match ours.
+
+The software adds shootout goals to the score: our XXIII semi-final Dagh N v Fabio F (4-4 after extra time, 5-3 on penalties) is 9-7 there, and the final (6-7 after extra time, 6-7 on penalties) is 12-14. Read that way both XXII games fit exactly: 3-3 and a 4-5 shootout, 2-2 and a 3-2 shootout. With extra time as Access has it, the software would show 4-5 and 3-2. (A 1-1 extra time and a 3-4 shootout would also give 7-8, but Access's numbers match the shootout exactly.)
+
+Corrected to `(3-3) 4-5 p.k.` and `(2-2) 3-2 p.k.` (§5 of the inventory, `SCORE_CORRECTIONS`). Elo, the winners and the placings do not change; the extra-time goal counts do.

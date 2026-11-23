@@ -2560,6 +2560,56 @@ function amiga_tournament_knockout_landing_scope(array $scopeKeys): string
     return $best;
 }
 
+/** Side cups next to the main cup (stage track_key → heading), in display order. */
+const AMIGA_TOURNAMENT_SIDE_CUPS = [
+    'koa' => 'KOA Cup',
+    'silver' => 'Silver Cup',
+    'bronze' => 'Bronze Cup',
+    'playouts' => 'Playouts',
+    'fun' => 'Fun Cup',
+];
+
+/**
+ * Stored display structure of knockout ties (World Cups, scripts/amiga/tournament_structure/world_cup.py):
+ * scope_key → cup, section, order and title. Ties without it are left out (round-name fallback).
+ *
+ * @return array<string, array{track: string, section: string, order: int, title: string}>
+ */
+function amiga_tournament_knockout_stage_imprint(mysqli $con, int $tournamentId): array
+{
+    $out = [];
+    $stmt = $con->prepare(
+        'SELECT DISTINCT s.scope_key, st.track_key, st.config_json
+         FROM amiga_tournament_standings s
+         INNER JOIN tournament_stages st ON st.id = s.stage_id
+         WHERE s.tournament_id = ? AND s.scope_type = \'knockout\''
+    );
+    if ($stmt === false) {
+        return $out;
+    }
+    $stmt->bind_param('i', $tournamentId);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    while ($res && ($row = $res->fetch_assoc())) {
+        $config = json_decode((string) ($row['config_json'] ?? ''), true);
+        if (!is_array($config) || !isset($config['bracket_section'], $config['round_order'])) {
+            continue;
+        }
+        $out[(string) $row['scope_key']] = [
+            'track' => (string) ($row['track_key'] ?? 'main') ?: 'main',
+            'section' => (string) $config['bracket_section'],
+            'order' => (int) $config['round_order'],
+            'title' => (string) ($config['round_title'] ?? ''),
+        ];
+        if ($out[(string) $row['scope_key']]['title'] === '') {
+            unset($out[(string) $row['scope_key']]['title']);
+        }
+    }
+    $stmt->close();
+
+    return $out;
+}
+
 /**
  * Tournament format label for index badges.
  *
@@ -2581,11 +2631,17 @@ function amiga_tournament_format_kind(array $tournament, array $leagueLabeledSco
 /**
  * Build bracket layout from knockout scope keys (read-path only; no advancement graph).
  *
+ * Main cup: main / placement_bracket / placement_final / other. Side cups (KOA Cup, Bronze Cup,
+ * Playouts, …) under tracks, keyed by cup. Where a tie has stored structure (World Cups) its cup,
+ * section, order and title come from the stage; otherwise from the round name.
+ *
  * @param list<string> $scopeKeys
  * @return array{
- *   main: list<array{phase: string, rank: int, ties: list<array<string, mixed>>}>,
- *   placement_final: list<array{phase: string, rank: int, ties: list<array<string, mixed>>}>,
- *   placement_bracket: list<array{phase: string, rank: int, ties: list<array<string, mixed>>}>
+ *   main: list<array{phase: string, rank: int, section: string, name: string, ties: list<array<string, mixed>>}>,
+ *   placement_final: list<array<string, mixed>>,
+ *   placement_bracket: list<array<string, mixed>>,
+ *   other: list<array<string, mixed>>,
+ *   tracks: array<string, list<array<string, mixed>>>
  * }
  */
 function amiga_tournament_knockout_bracket_data(mysqli $con, int $tournamentId, array $scopeKeys): array
@@ -2595,6 +2651,8 @@ function amiga_tournament_knockout_bracket_data(mysqli $con, int $tournamentId, 
         'main' => [],
         'placement_final' => [],
         'placement_bracket' => [],
+        'other' => [],
+        'tracks' => [],
     ];
     if ($scopeKeys === [] || $tournamentId < 1) {
         return $empty;
@@ -2603,11 +2661,7 @@ function amiga_tournament_knockout_bracket_data(mysqli $con, int $tournamentId, 
         return $cache[$tournamentId];
     }
 
-    $buckets = [
-        'main' => [],
-        'placement_final' => [],
-        'placement_bracket' => [],
-    ];
+    $buckets = $empty;
 
     /** @var array<string, list<array<string, mixed>>> $byPhase */
     $byPhase = [];
@@ -2656,6 +2710,8 @@ function amiga_tournament_knockout_bracket_data(mysqli $con, int $tournamentId, 
     }
 
     $names = amiga_tournament_player_names($con, $allPlayerIds);
+    // Stored structure (World Cups): cup, section and order per tie; others fall back to the round name.
+    $imprint = amiga_tournament_knockout_stage_imprint($con, $tournamentId);
 
     foreach ($byPhase as $phase => &$ties) {
         usort(
@@ -2673,13 +2729,20 @@ function amiga_tournament_knockout_bracket_data(mysqli $con, int $tournamentId, 
         }
         unset($tie);
 
+        $stored = $imprint[$ties[0]['scope_key']] ?? null;
         $round = [
-            'phase' => $phase,
-            'rank' => amiga_tournament_knockout_phase_rank($phase),
+            'phase' => $stored['title'] ?? $phase,
+            'rank' => $stored['order'] ?? amiga_tournament_knockout_phase_rank($phase),
+            'section' => $stored['section'] ?? amiga_tournament_knockout_phase_bucket($phase),
+            'name' => $phase,
             'ties' => $ties,
         ];
-        $bucket = amiga_tournament_knockout_phase_bucket($phase);
-        $buckets[$bucket][] = $round;
+        $track = $stored['track'] ?? 'main';
+        if ($track !== 'main') {
+            $buckets['tracks'][$track][] = $round;
+        } else {
+            $buckets[$round['section']][] = $round;
+        }
     }
     unset($ties);
 
@@ -2687,14 +2750,23 @@ function amiga_tournament_knockout_bracket_data(mysqli $con, int $tournamentId, 
     $blockWidth = static fn (string $phase): int => preg_match('/^places\s+(\d+)-(\d+)$/i', trim($phase), $m) === 1
         ? (int) $m[2] - (int) $m[1]
         : 0;
-    foreach (['main', 'placement_final', 'placement_bracket'] as $bucket) {
-        usort(
-            $buckets[$bucket],
-            static fn (array $a, array $b): int => ($a['rank'] <=> $b['rank'])
-                ?: ($blockWidth($b['phase']) <=> $blockWidth($a['phase']))
-                ?: strcmp($a['phase'], $b['phase'])
-        );
+    $sectionOrder = ['main' => 0, 'placement_bracket' => 1, 'placement_final' => 2, 'other' => 3];
+    $byRound = static fn (array $a, array $b): int => (($sectionOrder[$a['section']] ?? 9) <=> ($sectionOrder[$b['section']] ?? 9))
+        ?: ($a['rank'] <=> $b['rank'])
+        ?: ($blockWidth($b['name']) <=> $blockWidth($a['name']))
+        ?: strcmp($a['name'], $b['name']);
+    foreach (['main', 'placement_final', 'placement_bracket', 'other'] as $bucket) {
+        usort($buckets[$bucket], $byRound);
     }
+    foreach ($buckets['tracks'] as &$rounds) {
+        usort($rounds, $byRound);
+    }
+    unset($rounds);
+    $cupOrder = array_flip(array_keys(AMIGA_TOURNAMENT_SIDE_CUPS));
+    uksort(
+        $buckets['tracks'],
+        static fn (string $a, string $b): int => ($cupOrder[$a] ?? 99) <=> ($cupOrder[$b] ?? 99) ?: strcmp($a, $b)
+    );
 
     $cache[$tournamentId] = $buckets;
 

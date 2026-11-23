@@ -1,0 +1,4162 @@
+{
+ "version": 1,
+ "reviewed": "2026-11-23, every round of every World Cup checked by hand against its games (players, pairs, legs)",
+ "world_cups": {
+  "26": {
+   "name": "World Cup I (Dartford)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group G": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group H": {
+     "type": "group",
+     "track": "main"
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    }
+   }
+  },
+  "66": {
+   "name": "World Cup II (Athens)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group G": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group H": {
+     "type": "group",
+     "track": "main"
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    },
+    "Playouts Round 1 Group I": {
+     "type": "group",
+     "track": "playouts"
+    },
+    "Playouts Round 1 Group J": {
+     "type": "group",
+     "track": "playouts"
+    },
+    "Playouts Semi Finals": {
+     "type": "knockout",
+     "track": "playouts",
+     "section": "main",
+     "order": 300,
+     "title": "Semi Finals"
+    },
+    "Playouts Final": {
+     "type": "knockout",
+     "track": "playouts",
+     "section": "main",
+     "order": 400,
+     "title": "Final"
+    }
+   }
+  },
+  "115": {
+   "name": "World Cup III (Groningen)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group G": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group H": {
+     "type": "group",
+     "track": "main"
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    },
+    "Playouts Group W": {
+     "type": "group",
+     "track": "playouts"
+    },
+    "Playouts Group X": {
+     "type": "group",
+     "track": "playouts"
+    },
+    "Playouts Group Y": {
+     "type": "group",
+     "track": "playouts"
+    },
+    "Playouts Group Z": {
+     "type": "group",
+     "track": "playouts"
+    },
+    "Playouts Semi Finals": {
+     "type": "knockout",
+     "track": "playouts",
+     "section": "main",
+     "order": 300,
+     "title": "Semi Finals"
+    },
+    "Playouts Final": {
+     "type": "knockout",
+     "track": "playouts",
+     "section": "main",
+     "order": 400,
+     "title": "Final"
+    }
+   }
+  },
+  "140": {
+   "name": "World Cup IV (Milan)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group G": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group H": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group I": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group J": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group K": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group L": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group M": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group N": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 3": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 103
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    },
+    "KOA Cup - Round 1": {
+     "type": "knockout",
+     "track": "koa",
+     "section": "main",
+     "order": 101,
+     "title": "Round 1"
+    },
+    "KOA Cup - Round 2": {
+     "type": "knockout",
+     "track": "koa",
+     "section": "main",
+     "order": 102,
+     "title": "Round 2"
+    },
+    "KOA Cup - Quarter Finals": {
+     "type": "knockout",
+     "track": "koa",
+     "section": "main",
+     "order": 200,
+     "title": "Quarter Finals"
+    },
+    "KOA Cup - Semi Finals": {
+     "type": "knockout",
+     "track": "koa",
+     "section": "main",
+     "order": 300,
+     "title": "Semi Finals"
+    },
+    "KOA Cup - 3rd Place Final": {
+     "type": "knockout",
+     "track": "koa",
+     "section": "placement_final",
+     "order": 3,
+     "title": "3rd Place Final"
+    },
+    "KOA Cup - Final": {
+     "type": "knockout",
+     "track": "koa",
+     "section": "main",
+     "order": 400,
+     "title": "Final"
+    }
+   }
+  },
+  "169": {
+   "name": "World Cup V (Cologne)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group G": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group H": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 102
+    },
+    "Positions 17-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1785
+    },
+    "Positions 25-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2593
+    },
+    "Positions 29-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2997
+    },
+    "31st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 31
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "Positions 25-28": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2597
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "Positions 17-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1793
+    },
+    "Positions 21-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2197
+    },
+    "23rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 23
+    },
+    "21st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 21
+    },
+    "Positions 17-20": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1797
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "Round 3": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 103
+    },
+    "Positions 9-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 993
+    },
+    "Positions 13-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1397
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "Positions 9-12": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 997
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Positions 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    },
+    "KOA Cup - Round 1 - Group I": {
+     "type": "group",
+     "track": "koa"
+    },
+    "KOA Cup - Round 1 - Group J": {
+     "type": "group",
+     "track": "koa"
+    },
+    "KOA Cup - Round 1 - Group K": {
+     "type": "group",
+     "track": "koa"
+    },
+    "KOA Cup - Round 1 - Group L": {
+     "type": "group",
+     "track": "koa"
+    },
+    "KOA Cup - Round 2": {
+     "type": "knockout",
+     "track": "koa",
+     "section": "main",
+     "order": 102,
+     "title": "Round 2"
+    },
+    "KOA Cup - Quarter Finals": {
+     "type": "knockout",
+     "track": "koa",
+     "section": "main",
+     "order": 200,
+     "title": "Quarter Finals"
+    },
+    "KOA Cup - Semi Finals": {
+     "type": "knockout",
+     "track": "koa",
+     "section": "main",
+     "order": 300,
+     "title": "Semi Finals"
+    },
+    "KOA Cup - 3rd Place Final": {
+     "type": "knockout",
+     "track": "koa",
+     "section": "placement_final",
+     "order": 3,
+     "title": "3rd Place Final"
+    },
+    "KOA Cup - Final": {
+     "type": "knockout",
+     "track": "koa",
+     "section": "main",
+     "order": 400,
+     "title": "Final"
+    }
+   }
+  },
+  "206": {
+   "name": "World Cup VI (Rickmansworth)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 102
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Places 9-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 993
+    },
+    "Places 13-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1397
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "Places 9-12": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 997
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Places 17-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1785
+    },
+    "Places 25-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2593
+    },
+    "Places 29-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2997
+    },
+    "31st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 31
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "Places 25-28": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2597
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "Places 17-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1793
+    },
+    "Places 21-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2197
+    },
+    "23rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 23
+    },
+    "21st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 21
+    },
+    "Places 17-20": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1797
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "Places 33-48": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 3385
+    },
+    "Places 41-48": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 4193
+    },
+    "Places 45-48": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 4597
+    },
+    "47th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 47
+    },
+    "45th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 45
+    },
+    "Game of Shame": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 999
+    },
+    "Places 41-44": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 4197
+    },
+    "43rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 43
+    },
+    "41st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 41
+    },
+    "Places 33-40": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 3393
+    },
+    "Places 37-40": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 3797
+    },
+    "39th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 39
+    },
+    "37th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 37
+    },
+    "Places 33-36": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 3397
+    },
+    "35th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 35
+    },
+    "33rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 33
+    }
+   }
+  },
+  "280": {
+   "name": "World Cup VII (Rome)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 102
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    },
+    "Places 17-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1785
+    },
+    "Places 25-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2593
+    },
+    "Places 29-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2997
+    },
+    "31st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 31
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "Places 25-28": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2597
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "Places 17-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1793
+    },
+    "Places 21-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2197
+    },
+    "23rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 23
+    },
+    "21st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 21
+    },
+    "Places 17-20": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1797
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "Places 9-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 993
+    },
+    "Places 13-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1397
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "Places 9-12": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 997
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Fun Cup - Group 33-40": {
+     "type": "group",
+     "track": "fun"
+    },
+    "Game of Shame": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 999
+    }
+   }
+  },
+  "358": {
+   "name": "World Cup VIII (Athens)",
+   "rounds": {
+    "Round 1 Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 Group G": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 Group H": {
+     "type": "group",
+     "track": "main"
+    },
+    "Silver Cup Group I": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Silver Cup Group J": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Bronze Cup Group K": {
+     "type": "group",
+     "track": "bronze"
+    },
+    "40th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 40
+    },
+    "31st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 31
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "23rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 23
+    },
+    "21st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 21
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "Places 9-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 993
+    },
+    "Places 13-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1397
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "Places 9-12": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 997
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    }
+   }
+  },
+  "418": {
+   "name": "World Cup IX (Voitsberg)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Bronze Cup - Group J": {
+     "type": "group",
+     "track": "bronze"
+    },
+    "Silver Cup - Group I": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group G": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group H": {
+     "type": "group",
+     "track": "main"
+    },
+    "33rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 33
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "Places 9-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 993
+    },
+    "Places 13-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1397
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "Places 9-12": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 997
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    }
+   }
+  },
+  "480": {
+   "name": "World Cup X (Dusseldorf)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Bronze Cup - Group K": {
+     "type": "group",
+     "track": "bronze"
+    },
+    "Silver Cup - Group I": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Silver Cup - Group J": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group G": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group H": {
+     "type": "group",
+     "track": "main"
+    },
+    "45th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 45
+    },
+    "33rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 33
+    },
+    "Places 29-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2997
+    },
+    "31st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 31
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "Places 25-28": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2597
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "Places 21-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2197
+    },
+    "23rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 23
+    },
+    "21st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 21
+    },
+    "Places 17-20": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1797
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "Places 9-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 993
+    },
+    "Places 13-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1397
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "Places 9-12": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 997
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    }
+   }
+  },
+  "526": {
+   "name": "World Cup XI (Birmingham)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Silver Cup - Group G": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Silver Cup - Group H": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Places 25-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2593
+    },
+    "Places 29-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2997
+    },
+    "31st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 31
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "Places 25-28": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2597
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "Places 17-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1793
+    },
+    "Places 21-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2197
+    },
+    "23rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 23
+    },
+    "21st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 21
+    },
+    "Places 17-20": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1797
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Places 9-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 993
+    },
+    "Places 13-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1397
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "Places 9-12": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 997
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    }
+   }
+  },
+  "554": {
+   "name": "World Cup XII (Milan)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Bronze Cup - Group I": {
+     "type": "group",
+     "track": "bronze"
+    },
+    "Places 25-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2593
+    },
+    "Places 29-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2997
+    },
+    "31st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 31
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "Places 25-28": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2597
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "Places 17-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1793
+    },
+    "Places 21-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2197
+    },
+    "23rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 23
+    },
+    "21st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 21
+    },
+    "Places 17-20": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1797
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "Silver Cup - Group G": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Silver Cup - Group H": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Places 9-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 993
+    },
+    "Places 13-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1397
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "Places 9-12": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 997
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    }
+   }
+  },
+  "569": {
+   "name": "World Cup XIII (Voitsberg)",
+   "rounds": {
+    "Round 1": {
+     "type": "group",
+     "track": "main",
+     "note": "One all-play-all group of 18, though the name has no 'Group'."
+    },
+    "Round 2 Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "Places 13-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1397
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "Places 9-12": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 997
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    }
+   }
+  },
+  "577": {
+   "name": "World Cup XIV (Copenhagen)",
+   "rounds": {
+    "Round 1 Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 Group D Tie Breaker": {
+     "type": "knockout",
+     "track": "main",
+     "section": "other",
+     "order": 0,
+     "note": "One deciding game between two players level in Round 2 Group D: a knockout game, not a group."
+    },
+    "Silver Cup Group E": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Places 17-20": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1797
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "Places 9-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 993
+    },
+    "Places 13-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1397
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "Places 9-12": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 997
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    },
+    "Game of Shame": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 999
+    }
+   }
+  },
+  "585": {
+   "name": "World Cup XV (Dublin)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Silver Cup - Group G": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Silver Cup - Group H": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Bronze Cup - Group I": {
+     "type": "group",
+     "track": "bronze"
+    },
+    "Places 25-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2593
+    },
+    "Places 9-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 993
+    },
+    "Places 17-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1793
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Places 13-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1397
+    },
+    "Places 21-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2197
+    },
+    "Places 25-28": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2597
+    },
+    "Places 29-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2997
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "Places 9-12": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 997
+    },
+    "Bronze Semi Finals": {
+     "type": "knockout",
+     "track": "bronze",
+     "section": "main",
+     "order": 300,
+     "title": "Semi Finals"
+    },
+    "Places 17-20": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1797
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "21st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 21
+    },
+    "23rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 23
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "31st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 31
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Bronze Final": {
+     "type": "knockout",
+     "track": "bronze",
+     "section": "main",
+     "order": 400,
+     "title": "Final"
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    }
+   }
+  },
+  "596": {
+   "name": "World Cup XVI (Milan)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Bronze Cup - Group I": {
+     "type": "group",
+     "track": "bronze"
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Silver Cup - Group G": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Silver Cup - Group H": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Game of Shame": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 999
+    },
+    "Bronze Cup Final": {
+     "type": "knockout",
+     "track": "bronze",
+     "section": "main",
+     "order": 400,
+     "title": "Final"
+    },
+    "Places 25-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2593
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "Places 25-28": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2597
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "Places 17-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1793
+    },
+    "Places 21-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2197
+    },
+    "23rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 23
+    },
+    "21st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 21
+    },
+    "Places 17-20": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1797
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "Places 9-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 993
+    },
+    "Places 13-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1397
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "Places 9-12": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 997
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    }
+   }
+  },
+  "603": {
+   "name": "World Cup XVII (Landskrona)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Silver Cup - Group G": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Silver Cup - Group H": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Places 25-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2593
+    },
+    "Places 29-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2997
+    },
+    "31st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 31
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "Places 25-28": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2597
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "Places 17-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1793
+    },
+    "Places 21-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2197
+    },
+    "23rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 23
+    },
+    "21st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 21
+    },
+    "Places 17-20": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1797
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "Places 9-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 993
+    },
+    "Places 13-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1397
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "Places 9-12": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 997
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    }
+   }
+  },
+  "5": {
+   "name": "World Cup XVIII (Bournemouth)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Bronze Cup - Group I": {
+     "type": "group",
+     "track": "bronze"
+    },
+    "Silver Cup - Group G": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Silver Cup - Group H": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Gold Cup - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Gold Cup - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "35th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 35
+    },
+    "34th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 34
+    },
+    "Places 25-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2593
+    },
+    "Places 29-32": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2997
+    },
+    "31st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 31
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "Places 25-28": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2597
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "Places 17-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1793
+    },
+    "Places 21-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2197
+    },
+    "23rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 23
+    },
+    "Places 17-20": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1797
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "Places 9-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 993
+    },
+    "Places 13-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1397
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "Places 9-12": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 997
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    }
+   }
+  },
+  "9": {
+   "name": "World Cup XIX (Bremen)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Silver Cup - Group G": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Silver Cup - Group H": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Places 25-31": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2594
+    },
+    "Places 29-31": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2998
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "Places 25-28": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2597
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "Places 17-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1793
+    },
+    "Places 21-24": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 2197
+    },
+    "23rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 23
+    },
+    "21st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 21
+    },
+    "Places 17-20": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1797
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Places 9-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 993
+    },
+    "Places 13-16": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1397
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "Places 9-12": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 997
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    }
+   }
+  },
+  "14": {
+   "name": "World Cup XX (Athens)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "31st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 31,
+     "note": "Two ties under one name: an early single game Hannes B v Manfred S (penalties), then the 31st place final Antonis T v Hannes B."
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Silver Cup - Group G": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Silver Cup - Group H": {
+     "type": "group",
+     "track": "silver"
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "23rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 23
+    },
+    "21st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 21
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    }
+   }
+  },
+  "16": {
+   "name": "World Cup XXI (Torremolinos)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "33rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 33,
+     "note": "Two ties under one name: an early single game David C v Grzegorz P, then the 33rd place final Grzegorz P v Stephane L."
+    },
+    "Silver Cup - Group G": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Silver Cup - Group H": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "21st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 21
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "31st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 31
+    },
+    "Quarter Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "Semi Finals": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    }
+   }
+  },
+  "20": {
+   "name": "World Cup XXII (Nottingham)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "34th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 34
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "Silver Cup - Group G": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Silver Cup - Group H": {
+     "type": "group",
+     "track": "silver"
+    },
+    "33rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 33
+    },
+    "31st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 31
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "23rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 23
+    },
+    "21st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 21
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Positions 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Quarter Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Semi Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    }
+   }
+  },
+  "25": {
+   "name": "World Cup XXIII (Milan)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Game of Shame": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 999
+    },
+    "Bronze Cup - Group I": {
+     "type": "group",
+     "track": "bronze"
+    },
+    "Silver Cup - Group G": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Silver Cup - Group H": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "33rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 33
+    },
+    "31st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 31
+    },
+    "29th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 29
+    },
+    "27th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 27
+    },
+    "25th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 25
+    },
+    "23rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 23
+    },
+    "21st Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 21
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Positions 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Quarter Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Semi Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    }
+   }
+  },
+  "608": {
+   "name": "World Cup XXIV (Oslo)",
+   "rounds": {
+    "Round 1 - Group A": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group B": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group C": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 1 - Group D": {
+     "type": "group",
+     "track": "main"
+    },
+    "Game of Shame": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 999
+    },
+    "Silver Cup - Group G": {
+     "type": "group",
+     "track": "silver"
+    },
+    "Places 17-20": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 1797
+    },
+    "19th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 19
+    },
+    "17th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 17
+    },
+    "Round 2 - Group E": {
+     "type": "group",
+     "track": "main"
+    },
+    "Round 2 - Group F": {
+     "type": "group",
+     "track": "main"
+    },
+    "15th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 15
+    },
+    "13th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 13
+    },
+    "11th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 11
+    },
+    "9th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 9
+    },
+    "Quarter Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 200
+    },
+    "Places 5-8": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_bracket",
+     "order": 597
+    },
+    "7th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 7
+    },
+    "5th Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 5
+    },
+    "Semi Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 300
+    },
+    "3rd Place Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "placement_final",
+     "order": 3
+    },
+    "Final": {
+     "type": "knockout",
+     "track": "main",
+     "section": "main",
+     "order": 400
+    }
+   }
+  }
+ }
+}

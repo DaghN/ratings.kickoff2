@@ -183,7 +183,7 @@ Counts use **rated games** (`amiga_games` joined to `amiga_game_ratings`) unless
 | `low_scoring_games` | How many games with goal sum ≤ 3? | volume | game | store | N | N | nice |
 | `blowout_games` | How many games with margin ≥ 5? | volume | game | store | N | N | nice |
 | `total_home_goals` | Goals by designated home side? | volume | game | defer | N | N | **defer** — no stable home/away in KO |
-| `knockout_games` | Rated games in knockout phases? | volume | game | store | N | N | nice |
+| `knockout_games` | Rated games in knockout stages (the game's stored stage; before 2026-11-23 only games named Quarter/Semi Final(s) or Final counted, so every World Cup showed 14) | volume | game | store | N | N | nice |
 | `group_games` | Rated games in group/league phases? | volume | game | store or derive | N | N | nice |
 | `koa_cup_games` | Rated games in KOA / consolation phases? | volume | game | store | N | N | defer |
 

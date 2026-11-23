@@ -56,17 +56,6 @@ function amiga_community_rated_game_metrics(array $row): array
     ];
 }
 
-function amiga_community_is_knockout_phase(?string $phase): bool
-{
-    if ($phase === null || $phase === '') {
-        return false;
-    }
-    $text = strtolower($phase);
-
-    return str_contains($text, 'knockout')
-        || in_array($text, ['final', 'semi final', 'semi finals', 'quarter final', 'quarter finals'], true);
-}
-
 function amiga_community_rate(int $numerator, int $denominator): ?float
 {
     if ($denominator <= 0) {

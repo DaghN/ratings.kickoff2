@@ -6,6 +6,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/amiga_community_game_metrics.php';
+require_once __DIR__ . '/amiga_tournament_phases.php';
 require_once __DIR__ . '/amiga_honours_totals_lib.php';
 require_once __DIR__ . '/../../../includes/amiga_participation_placement.php';
 
@@ -277,11 +278,14 @@ function amiga_world_cup_build_stats_row(
         SELECT g.id AS game_id, g.player_a_id, g.player_b_id, g.goals_a, g.goals_b, g.phase,
                pa.country AS country_a, pb.country AS country_b,
                r.sum_of_goals, r.actual_score,
-               r.dd_player_a, r.dd_player_b, r.cs_player_a, r.cs_player_b
+               r.dd_player_a, r.dd_player_b, r.cs_player_a, r.cs_player_b,
+               st.stage_type
         FROM amiga_games g
         INNER JOIN amiga_game_ratings r ON r.game_id = g.id
         INNER JOIN amiga_players pa ON pa.id = g.player_a_id
         INNER JOIN amiga_players pb ON pb.id = g.player_b_id
+        LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id
+        LEFT JOIN tournament_stages st ON st.id = f.stage_id
         WHERE g.tournament_id = ?
         ORDER BY g.game_date ASC, g.id ASC
     ";
@@ -357,7 +361,12 @@ function amiga_world_cup_build_stats_row(
         if ($metrics['is_blowout']) {
             $blowouts++;
         }
-        if (amiga_community_is_knockout_phase($metrics['phase'])) {
+        // The game's stored stage decides (a knockout tie or a group); a game without one, by its round name.
+        $stageType = $row['stage_type'] ?? null;
+        $isKnockout = $stageType !== null
+            ? $stageType === 'knockout'
+            : amiga_ops_is_knockout_phase($metrics['phase'] !== null ? (string) $metrics['phase'] : null);
+        if ($isKnockout) {
             $knockoutGames++;
         } else {
             $groupGames++;

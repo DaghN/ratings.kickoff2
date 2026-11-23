@@ -1,4 +1,4 @@
-"""Correct fifteen World Cup results: wrong or missing extra-time notes and two scores.
+"""Correct seventeen World Cup results: wrong or missing extra-time notes, two scores, two shootouts.
 
 The corrected values live in SCORE_CORRECTIONS (scripts/amiga/import_corrections.py), so an Access
 import gives the same rows. Evidence: docs/amiga-l3-legacy-fixes-inventory.md section 5.2.
@@ -46,6 +46,8 @@ BEFORE = {
     26929: (6, 5, None, None, None, None, None),  # XXI 5th
     26913: (2, 9, None, None, None, None, None),  # XXI 11th
     4652: (1, 7, None, None, None, None, None),  # IV Round 1 Group B
+    27482: (3, 3, "4-5 a.e.t.", 1, 2, None, None),  # XXII Positions 5-8 (penalties)
+    27484: (2, 2, "3-2 a.e.t.", 1, 0, None, None),  # XXII 5th (penalties)
 }
 
 

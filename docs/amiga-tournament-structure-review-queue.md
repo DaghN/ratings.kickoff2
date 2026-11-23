@@ -27,14 +27,17 @@ Disposition review pauses on affected parents until the gate in the split starte
 
 **Milestone:** Every **non-WC** catalog tournament on `ko2amiga_work` has `tournament_stages`. Remaining **23** without stages = **`wc_deferred`** World Cups (WC structure track).
 
-**Forward:** WC materialize (slice **6wc**) · structure imprint P2 · knockout display v2 — not more non-WC tail.
+**World Cups done 2026-11-23:** all 24 (Oslo included) materialized from the hand-reviewed `world_cup_register.json`, handler `world_cup`, with display imprint (display policy §6).
+
+**Forward:** structure imprint P2 and knockout display v2 for non-WC tournaments.
 
 | Handler | Count (606 catalog) | Action |
 |---------|------------------:|--------|
 | `pure_rr` | 512 | Assigned — spot-check only |
 | `pure_knockout` | 33 | Assigned |
 | `structure_spec` | 38 | Assigned |
-| `wc_deferred` | 23 | **WC track** — materialize when promoted |
+| `world_cup` | 24 | Done 2026-11-23 — a new World Cup gets its rounds added to `world_cup_register.json` |
+| `wc_deferred` | 0 | — |
 | **`pending_review`** | **0** | — |
 
 ```powershell

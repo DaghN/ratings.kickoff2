@@ -12,6 +12,7 @@ import json
 import logging
 import re
 import sys
+from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -763,6 +764,46 @@ def _main_audit_review_register(argv: list[str]) -> int:
     return 0 if report["ok"] else 1
 
 
+def _main_world_cups(argv: list[str]) -> int:
+    """Store (``--apply``) or check the World Cup structure from the hand-reviewed register."""
+    from scripts.amiga.tournament_structure.world_cup import (
+        load_world_cup_register,
+        materialize_world_cup,
+        verify_world_cup,
+    )
+
+    parser = argparse.ArgumentParser(prog="tournament-structure world-cups")
+    parser.add_argument("--tournament-id", type=int, help="One World Cup (default: all in the register)")
+    parser.add_argument("--apply", action="store_true", help="Rebuild the stored structure (replaces it)")
+    parser.add_argument("--dry-run", action="store_true", help="With --apply: build, check, roll back")
+    args = parser.parse_args(argv)
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+
+    register = load_world_cup_register()
+    ids = [args.tournament_id] if args.tournament_id else sorted(register)
+    conn = _connect()
+    failed = 0
+    try:
+        for tid in ids:
+            if args.apply:
+                result = materialize_world_cup(conn, tid, replace=True, register=register, dry_run=args.dry_run)
+                kinds = Counter(r["stage_type"] for r in result.stage_summary)
+                print(f"{result.tournament_name}: {kinds['round_robin']} groups, {kinds['knockout']} knockout ties, "
+                      f"{result.games_linked} games linked")
+            problems = verify_world_cup(conn, tid, register=register)
+            for p in problems:
+                print(f"  PROBLEM {register[tid]['name']}: {p}")
+            failed += bool(problems)
+        if args.apply and not args.dry_run and not failed:
+            conn.commit()
+        else:
+            conn.rollback()
+    finally:
+        conn.close()
+    print(f"{len(ids) - failed}/{len(ids)} World Cups right" + ("" if not args.apply or args.dry_run or not failed else " — nothing saved"))
+    return 1 if failed else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     if argv and argv[0] == "verify-legacy":
         from scripts.amiga.tournament_structure.verify_legacy import main_verify_legacy
@@ -790,6 +831,8 @@ def main(argv: list[str] | None = None) -> int:
         return _main_verify_disposition_register(argv[1:])
     if argv and argv[0] == "audit-review-register":
         return _main_audit_review_register(argv[1:])
+    if argv and argv[0] == "world-cups":
+        return _main_world_cups(argv[1:])
 
     parser = argparse.ArgumentParser(description="Legacy tournament structure materialize")
     sub = parser.add_subparsers(dest="cmd", required=True)

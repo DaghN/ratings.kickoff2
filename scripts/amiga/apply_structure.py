@@ -20,6 +20,7 @@ from scripts.amiga.tournament_structure.disposition_register import (
     HANDLER_PURE_RR,
     HANDLER_STRUCTURE_SPEC,
     HANDLER_WC_DEFERRED,
+    HANDLER_WORLD_CUP,
     DispositionRegister,
     verify_register,
 )
@@ -161,6 +162,11 @@ def apply_structure_from_disposition(
                     force=force,
                 )
                 stats.pure_knockout += 1
+                _accumulate_materialize(stats, result)
+            elif disp.handler == HANDLER_WORLD_CUP:
+                from scripts.amiga.tournament_structure.world_cup import materialize_world_cup
+
+                result = materialize_world_cup(conn, tid, replace=True, dry_run=dry_run)
                 _accumulate_materialize(stats, result)
             elif disp.handler == HANDLER_STRUCTURE_SPEC:
                 from scripts.amiga.tournament_structure.registry import registry_entry_for_catalog

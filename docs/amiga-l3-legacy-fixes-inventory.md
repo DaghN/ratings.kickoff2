@@ -161,6 +161,8 @@ Evidence, grades, beliefs about each source and the matches left alone: **[`amig
 | **26929** | 26309 | XXI 5th, Christopher D v Mario F | 6-5, no note | `6-8 e.t.` | Level tie without a decider; confirmed by Steve C and the tournament software |
 | **26913** | 26293 | XXI 11th, Frank F v Steve C | 2-9 | **2-5**, `2-9 e.t.` | Score after extra time stored as normal time; Steve C and the tournament software. No Elo change |
 | **4652** | 4651 | IV Round 1 Group B, Nazim C v Gianni T | 1-7 | **7-1** | All records from 2004 fit 7-1; changes Elo; decided by Dagh 2026-11-23 |
+| **27482** | 26862 | XXII Positions 5-8, Thor S v Lorenzo L | 3-3, `4-5 a.e.t.` | `(3-3) 4-5 p.k.` | A shootout, not extra time: the tournament software has 7-8 (it adds shootout goals). No Elo change |
+| **27484** | 26864 | XXII 5th, Mario F v Lorenzo L | 2-2, `3-2 a.e.t.` | `(2-2) 3-2 p.k.` | Same: the software has 5-4. No Elo change |
 
 Applied to `ko2amiga_work` with `scripts/oneoff/amiga_fix_world_cup_extra_time_2026_11.py`. The day-0 seal and older checkpoints hold the Access values: run the script after restoring one, then simul.
 

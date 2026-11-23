@@ -58,11 +58,14 @@ function amiga_tournament_render_bracket_rounds(array $rounds, string $activeSco
 }
 
 /**
- * @param array<string, list<array{phase: string, rank: int, ties: list<array<string, mixed>>}>> $bracket
+ * @param array<string, mixed> $bracket from amiga_tournament_knockout_bracket_data()
  */
 function amiga_tournament_render_bracket(array $bracket, string $activeScopeKey = ''): void
 {
-    if ($bracket['main'] === [] && $bracket['placement_final'] === [] && $bracket['placement_bracket'] === []) {
+    $sideCups = $bracket['tracks'] ?? [];
+    $otherGames = $bracket['other'] ?? [];
+    if ($bracket['main'] === [] && $bracket['placement_final'] === [] && $bracket['placement_bracket'] === []
+        && $sideCups === [] && $otherGames === []) {
         return;
     }
     ?>
@@ -87,6 +90,21 @@ function amiga_tournament_render_bracket(array $bracket, string $activeScopeKey 
     <div class="k2-amiga-bracket__section k2-amiga-bracket__section--placement">
         <h3 class="k2-amiga-bracket__subsection">Placement finals</h3>
         <?php amiga_tournament_render_bracket_rounds($bracket['placement_final'], $activeScopeKey); ?>
+    </div>
+    <?php } ?>
+
+    <?php // Side cups (KOA Cup, Bronze Cup, Playouts, …): their own knockout, after the main cup. ?>
+    <?php foreach ($sideCups as $track => $rounds) { ?>
+    <div class="k2-amiga-bracket__section k2-amiga-bracket__section--placement">
+        <h3 class="k2-amiga-bracket__subsection"><?php echo k2_h(AMIGA_TOURNAMENT_SIDE_CUPS[$track] ?? ucfirst((string) $track)); ?></h3>
+        <?php amiga_tournament_render_bracket_rounds($rounds, $activeScopeKey); ?>
+    </div>
+    <?php } ?>
+
+    <?php if ($otherGames !== []) { ?>
+    <div class="k2-amiga-bracket__section k2-amiga-bracket__section--placement">
+        <h3 class="k2-amiga-bracket__subsection">Other games</h3>
+        <?php amiga_tournament_render_bracket_rounds($otherGames, $activeScopeKey); ?>
     </div>
     <?php } ?>
 

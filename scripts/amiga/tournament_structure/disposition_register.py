@@ -12,6 +12,8 @@ HANDLER_PURE_KNOCKOUT: Final[str] = "pure_knockout"
 HANDLER_STRUCTURE_SPEC: Final[str] = "structure_spec"
 HANDLER_PENDING_REVIEW: Final[str] = "pending_review"
 HANDLER_WC_DEFERRED: Final[str] = "wc_deferred"
+# World Cups: stages from the hand-reviewed world_cup_register.json (Nov 2026).
+HANDLER_WORLD_CUP: Final[str] = "world_cup"
 HANDLER_NO_GAMES: Final[str] = "no_games"
 
 VALID_HANDLERS: frozenset[str] = frozenset({
@@ -20,6 +22,7 @@ VALID_HANDLERS: frozenset[str] = frozenset({
     HANDLER_STRUCTURE_SPEC,
     HANDLER_PENDING_REVIEW,
     HANDLER_WC_DEFERRED,
+    HANDLER_WORLD_CUP,
     HANDLER_NO_GAMES,
 })
 
@@ -120,6 +123,10 @@ def propose_handler(
             notes=entry.notes,
         )
 
+    from scripts.amiga.tournament_structure.world_cup import world_cup_register_ids
+
+    if tournament_id in world_cup_register_ids():
+        return DispositionRow(handler=HANDLER_WORLD_CUP, notes="World Cup register (reviewed by hand)")
     if tournament_id in DEFERRED_WORLD_CUP_TOURNAMENT_IDS or is_world_cup_catalog_name(tournament_name):
         return DispositionRow(handler=HANDLER_WC_DEFERRED, notes="WC track")
 

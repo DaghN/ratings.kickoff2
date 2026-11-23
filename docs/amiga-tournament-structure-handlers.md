@@ -25,7 +25,8 @@ Every catalog `tournament_id` has **one row** in the disposition register:
 | `pure_rr` | `materialize` (legacy) | Does RR / phase bucket match? |
 | `pure_knockout` | [`pure_knockout.py`](../scripts/amiga/tournament_structure/pure_knockout.py) | Does preview match reality? |
 | `structure_spec` | Legacy `materialize` **or** `apply.py` + registry spec | Multi-stage; registry spec rare — bulk skips without active spec |
-| `wc_deferred` | WC track later | Not slice-6 manual |
+| `world_cup` | [`world_cup.py`](../scripts/amiga/tournament_structure/world_cup.py) from the hand-reviewed [`world_cup_register.json`](../scripts/amiga/tournament_structure/world_cup_register.json) | Is every round in the register, and does its shape match (group = all-play-all, knockout = ties)? `tournament-structure world-cups` checks it |
+| `wc_deferred` | No longer used (all 24 World Cups moved to `world_cup`, 2026-11-23) | — |
 | `pending_review` | None until triaged | Not settled |
 | `no_games` | skip | Empty event |
 
@@ -33,7 +34,7 @@ Every catalog `tournament_id` has **one row** in the disposition register:
 
 ## Manual materialize (WC track — Jul 2026)
 
-**Non-WC catalog:** materialized on `ko2amiga_work` (**583/606** with stages). **23** without stages = `wc_deferred` WCs only.
+**All tournaments** have stages on `ko2amiga_work` since 2026-11-23: the 24 World Cups through handler `world_cup` (display policy §6).
 
 **Runbook:** [`amiga-tournament-structure-manual-materialize-runbook.md`](amiga-tournament-structure-manual-materialize-runbook.md)
 

@@ -265,7 +265,7 @@ class ImportCorrectionsTests(unittest.TestCase):
     def test_world_cup_extra_time_notes_follow_the_convention(self) -> None:
         """Note = score after extra time in the row's player order; columns = extra-time goals only."""
         rows = [c for c in SCORE_CORRECTIONS if c.tournament.startswith("World Cup")]
-        self.assertEqual(len(rows), 16)
+        self.assertEqual(len(rows), 18)
         for c in rows:
             with self.subTest(source_scores_id=c.source_scores_id):
                 ext = extract_structured_from_extra(c.extra, goals_a=c.goals_a, goals_b=c.goals_b)

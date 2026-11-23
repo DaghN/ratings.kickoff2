@@ -72,13 +72,6 @@ def rated_game_metrics_from_row(row: dict[str, Any]) -> RatedGameMetrics:
     )
 
 
-def is_knockout_phase(phase: str | None) -> bool:
-    if not phase:
-        return False
-    text = phase.lower()
-    return "knockout" in text or text in {"final", "semi final", "semi finals", "quarter final", "quarter finals"}
-
-
 def rate(numerator: int, denominator: int) -> float | None:
     if denominator <= 0:
         return None
