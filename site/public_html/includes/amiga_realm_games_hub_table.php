@@ -12,6 +12,7 @@ require_once __DIR__ . '/k2_amiga_country_flag.php';
 require_once __DIR__ . '/amiga_player_load.php';
 require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/amiga_realm_games_all.php';
+require_once __DIR__ . '/amiga_tournament_videos_lib.php';
 
 const AMIGA_REALM_GAMES_HUB_ID_SORT_COL = 0;
 const AMIGA_REALM_GAMES_HUB_DEFAULT_SORT_COL = 1;
@@ -59,6 +60,7 @@ function amiga_realm_games_hub_render_table(array $rows, array $opts = []): void
     $dateCol = $col++;
     $tournamentCol = $col++;
     $phaseCol = $col++;
+    $videoCol = $col++; // play icon when the game has a video (empty otherwise)
     $teamACol = $col++;
     $goalsACol = $col++;
     $goalsBCol = $col++;
@@ -95,6 +97,7 @@ function amiga_realm_games_hub_render_table(array $rows, array $opts = []): void
 			<?php echo amiga_realm_games_all_sort_header('date', 'Date', 'left', $serverState, 'Event day the rated game was played.', 'Date', 'k2-table-cell--pad-left-xs', $showRank); ?>
 			<?php echo amiga_realm_games_all_sort_header('tournament', 'Tournament', 'left', $serverState, 'Official KOA tournament that hosted this game.', 'Tournament', 'k2-table-cell--left', $showRank); ?>
 			<?php echo amiga_realm_games_all_sort_header('phase', 'Phase', 'left', $serverState, 'Bracket phase when recorded (group, final, etc.).', 'Phase', 'k2-table-cell--left', $showRank); ?>
+			<th class="k2-table-cell--center k2-table-cell--video-glyph" data-k2-tooltip-label="Video" data-k2-help="Games with a video: the play icon opens the game at its video."></th>
 			<?php echo amiga_realm_games_all_sort_header('team_a', 'Player A', 'right', $serverState, 'Player listed as Team A in the result row.', '', 'k2-table-cell--right', $showRank); ?>
 			<?php echo amiga_realm_games_all_sort_header('goals_a', 'A', 'right', $serverState, 'Goals scored by Team A.', 'Goals A', '', $showRank); ?>
 			<?php echo amiga_realm_games_all_sort_header('goals_b', 'B', 'left', $serverState, 'Goals scored by Team B.', 'Goals B', 'k2-table-cell--left', $showRank); ?>
@@ -113,6 +116,7 @@ function amiga_realm_games_hub_render_table(array $rows, array $opts = []): void
 			<th<?php echo k2_table_sortable_th_attr($dateCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left k2-table-cell--pad-left-xs'); ?> data-k2-sort="number">Date</th>
 			<th<?php echo k2_table_sortable_th_attr($tournamentCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Tournament</th>
 			<th<?php echo k2_table_sortable_th_attr($phaseCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text" data-k2-help="Bracket phase when recorded (group, final, etc.).">Phase</th>
+			<th<?php echo k2_table_sortable_th_attr($videoCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--center k2-table-cell--video-glyph'); ?> data-k2-sort="number" data-k2-tooltip-label="Video" data-k2-help="Games with a video: the play icon opens the game at its video."></th>
 			<th<?php echo k2_table_sortable_th_attr($teamACol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--right'); ?> data-k2-sort="text">Player A</th>
 			<th<?php echo k2_table_sortable_th_attr($goalsACol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">A</th>
 			<th<?php echo k2_table_sortable_th_attr($goalsBCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="number">B</th>
@@ -145,6 +149,7 @@ function amiga_realm_games_hub_render_table(array $rows, array $opts = []): void
             $dateCol,
             $tournamentCol,
             $phaseCol,
+            $videoCol,
             $teamACol,
             $goalsACol,
             $goalsBCol,
@@ -211,6 +216,7 @@ function amiga_realm_games_hub_render_row(
     int $dateCol,
     int $tournamentCol,
     int $phaseCol,
+    int $videoCol,
     int $teamACol,
     int $goalsACol,
     int $goalsBCol,
@@ -299,6 +305,8 @@ function amiga_realm_games_hub_render_row(
 			<td<?php echo k2_table_body_td_attr($dateCol, $anchorCol, $sortedColIndex, 'k2-table-cell--left k2-table-cell--pad-left-xs k2-amiga-player-games-date'); ?>><?php echo $dateCell; ?></td>
 			<td<?php echo k2_table_body_td_attr($tournamentCol, $anchorCol, $sortedColIndex, 'k2-table-cell--left k2-amiga-tgame-team'); ?>><?php echo $tournamentCell; ?></td>
 			<td<?php echo k2_table_body_td_attr($phaseCol, $anchorCol, $sortedColIndex, 'k2-table-cell--left'); ?>><?php echo $phaseCell; ?></td>
+			<?php $videoLink = amiga_game_video_glyph_link((int) $game['id']); ?>
+			<td<?php echo k2_table_body_td_attr($videoCol, $anchorCol, $sortedColIndex, 'k2-table-cell--center k2-table-cell--video-glyph'); ?> data-k2-sort-value="<?php echo $videoLink !== '' ? 1 : 0; ?>"><?php echo $videoLink; ?></td>
 			<td<?php echo k2_table_body_td_attr($teamACol, $anchorCol, $sortedColIndex, 'k2-table-cell--right k2-amiga-tgame-team k2-amiga-tgame-team--a'); ?>><?php echo $teamACell; ?></td>
 			<td<?php echo k2_table_body_td_attr($goalsACol, $anchorCol, $sortedColIndex, $goalsAClass); ?>><?php echo $goalsACell; ?></td>
 			<td<?php echo k2_table_body_td_attr($goalsBCol, $anchorCol, $sortedColIndex, $goalsBClass); ?>><?php echo $goalsBCell; ?></td>

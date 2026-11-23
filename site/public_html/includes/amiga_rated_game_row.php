@@ -191,6 +191,15 @@ function amiga_rated_game_row_html(array $row, array $options = [], ?mysqli $con
  * @param array<string, mixed> $row ratedresults-shaped Amiga row
  * @param array{id_mode?: string, show_ts_column?: bool, show_gd_column?: bool, show_sum_column?: bool, highlight_winner_goal?: bool, team_a_align?: string} $options
  */
+/** Play-icon cell for a game list (sort value 1 when the game has a video, else 0; empty cell then). */
+function amiga_rated_game_video_td(int $gameId, string $class): string
+{
+    require_once __DIR__ . '/amiga_tournament_videos_lib.php';
+    $link = amiga_game_video_glyph_link($gameId);
+
+    return '<td class="' . $class . '" data-k2-sort-value="' . ($link !== '' ? 1 : 0) . '">' . $link . '</td>';
+}
+
 function amiga_rated_game_highlights_row_html(array $row, array $options = []): string
 {
     $processed = k2_rated_game_is_processed($row);
@@ -201,6 +210,7 @@ function amiga_rated_game_highlights_row_html(array $row, array $options = []): 
     $showSum = ($options['show_sum_column'] ?? true) !== false;
     $highlightWinnerGoal = !empty($options['highlight_winner_goal']);
     $teamAClass = ($options['team_a_align'] ?? 'left') === 'right' ? 'k2-table-cell--right' : 'k2-table-cell--left';
+    $showVideo = !empty($options['show_video_column']);
 
     $countryA = trim((string) ($row['country_a'] ?? ''));
     $countryB = trim((string) ($row['country_b'] ?? ''));
@@ -255,6 +265,7 @@ function amiga_rated_game_highlights_row_html(array $row, array $options = []): 
         . '<td class="' . k2_games_highlights_col_classes('id', 'k2-games-highlights-table__id') . '" data-k2-sort-value="' . $gameId . '">' . amiga_rated_game_id_html($gameId, $idMode) . '</td>'
         . '<td class="' . k2_games_highlights_col_classes('date', 'k2-table-cell--left k2-table-cell--pad-left-xs k2-amiga-player-games-date') . '" data-k2-sort-value="' . $dateSortValue . '">' . amiga_player_game_date_html((string) $game['Date']) . '</td>'
         . '<td class="' . k2_games_highlights_col_classes('tournament', 'k2-table-cell--left k2-amiga-tgame-team') . '">' . amiga_rated_game_tournament_cell($row) . '</td>'
+        . ($showVideo ? amiga_rated_game_video_td($gameId, k2_games_highlights_col_classes('video', 'k2-table-cell--center k2-table-cell--video-glyph')) : '')
         . '<td class="' . k2_games_highlights_col_classes('team-a', $teamAClass) . '">' . $teamA . '</td>'
         . '<td class="' . k2_games_highlights_col_classes('goals-a') . '" data-k2-sort-value="' . $goalsA . '">' . $goalsACell . '</td>'
         . '<td class="' . k2_games_highlights_col_classes('goals-b', 'k2-table-cell--left') . '" data-k2-sort-value="' . $goalsB . '">' . $goalsBCell . '</td>'

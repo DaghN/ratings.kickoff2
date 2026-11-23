@@ -365,6 +365,7 @@ $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : 
     <?php echo amiga_games_sort_header('date', 'Date', 'left', $sortState, '', '', 'k2-table-cell--pad-left-xs k2-amiga-player-games-date'); ?>
     <?php echo amiga_games_sort_header('tournament', 'Tournament', 'left', $sortState, 'Offline tournament or event.', 'Tournament'); ?>
     <?php echo amiga_games_sort_header('phase', 'Phase', 'left', $sortState, 'Bracket phase when recorded (group, final, etc.).', 'Phase'); ?>
+    <th class="k2-table-cell--center k2-table-cell--video-glyph" data-k2-tooltip-label="Video" data-k2-help="Games with a video: the play icon opens the game at its video."></th>
     <?php echo amiga_games_sort_header('team_a', 'Team A', 'right', $sortState, ''); ?>
     <th></th>
     <th></th>
@@ -384,7 +385,7 @@ $gdListboxValue = $heroGoalDiffFilter !== null ? (string) $heroGoalDiffFilter : 
 <tbody>
     <?php if ($games === []) { ?>
     <tr>
-        <td colspan="17" class="k2-table-cell--left k2-games-day__empty">No games match these filters.</td>
+        <td colspan="18" class="k2-table-cell--left k2-games-day__empty">No games match these filters.</td>
     </tr>
     <?php } ?>
     <?php foreach ($games as $game) { ?>
