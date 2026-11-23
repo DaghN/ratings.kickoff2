@@ -415,8 +415,8 @@ body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option-
 	font-style: italic;
 }
 
-/* Tie card: the games as results (Status-page colours), winner bold and loser dimmed (not the flags),
-   aggregate / extra time / penalties. From design 11 of the card preview (Dagh, 2026-11-23). */
+/* Tie card (design C2 of the card trials, Dagh 2026-11-23): the games as results, grey goals with the winning
+   goal bold, winner's name bold and loser's a little dimmed (not the flags), extra time under its game, aggregate. */
 .k2-amiga-bracket__round:has(.k2-amiga-tie) {
 	min-width: 18.5rem;
 	max-width: 20rem;
@@ -434,13 +434,6 @@ body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option-
 .k2-amiga-tie.is-active {
 	border-color: var(--k2-segment-active-ring);
 	box-shadow: 0 0 0 1px var(--k2-segment-active-ring);
-}
-
-.k2-amiga-tie__agg {
-	text-align: right;
-	font-size: 0.74rem;
-	color: var(--k2-text-secondary);
-	font-variant-numeric: tabular-nums;
 }
 
 .k2-amiga-tie__game {
@@ -484,36 +477,13 @@ body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option-
 }
 
 .k2-amiga-tie__name.is-loser a {
-	opacity: 0.6;
-}
-
-/* Looks being tried (?card=c1 … c5 on a local site, Dagh 2026-11-23). 1: win colour, loser dimmed.
-   2–5: loser's name dimmed less (0.8); 2 grey goals, winning goal bold; 3 winning goal in the tint, losing goal grey;
-   4 both goals in the tint, winning goal bold; 5 grey goals, winning goal bright and bold. */
-body.k2-site .k2-amiga-tie:not(.k2-amiga-tie--look-1) .k2-amiga-tie__name.is-loser a {
 	opacity: 0.8;
 }
 
-body.k2-site .k2-amiga-tie--look-2 .k2-status-score,
-body.k2-site .k2-amiga-tie--look-2 .k2-status-score .blue {
+/* Goals grey, the winning goal of each game bold (look 2 of the trials). */
+body.k2-site .k2-amiga-tie .k2-status-score,
+body.k2-site .k2-amiga-tie .k2-status-score .blue {
 	color: var(--k2-text-secondary);
-}
-
-body.k2-site .k2-amiga-tie--look-3 .k2-status-score .blue {
-	color: var(--k2-link-star);
-}
-
-body.k2-site .k2-amiga-tie--look-4 .k2-status-score,
-body.k2-site .k2-amiga-tie--look-4 .k2-status-score .blue {
-	color: var(--k2-link-star);
-}
-
-body.k2-site .k2-amiga-tie--look-5 .k2-status-score {
-	color: var(--k2-text-secondary);
-}
-
-body.k2-site .k2-amiga-tie--look-5 .k2-status-score .blue {
-	color: var(--k2-text-primary);
 }
 
 .k2-amiga-tie__score {

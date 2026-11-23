@@ -16,41 +16,16 @@ require_once __DIR__ . '/amiga_tournament_lib.php';
 require_once __DIR__ . '/k2_amiga_country_flag.php';
 
 /**
- * Card design being tried (Dagh, 2026-11-23): 'c' (default), 'b' or 'e'. The ?card= switch works only on a
- * local *.test / localhost site, to compare them; the chosen design stays and the switch goes before going live.
- */
-function amiga_tournament_tie_card_variant(): string
-{
-    $host = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
-    $local = str_ends_with($host, '.test') || str_starts_with($host, 'localhost') || str_starts_with($host, '127.0.0.1');
-    $asked = strtolower((string) ($_GET['card'] ?? ''));
-
-    return $local && in_array($asked[0] ?? '', ['b', 'c', 'e'], true) ? $asked[0] : 'c';
-}
-
-/** Colour look being tried on the cards (1–5, ?card=c3 on a local site; see amiga-tournament.css). */
-function amiga_tournament_tie_card_look(): int
-{
-    $asked = strtolower((string) ($_GET['card'] ?? ''));
-    $look = (int) substr($asked, 1);
-
-    return amiga_tournament_tie_card_variant() === ($asked[0] ?? '') && $look >= 1 && $look <= 5 ? $look : 1;
-}
-
-/**
- * One knockout tie: the games as results (home player first, flags, winning goal coloured as on the Status
- * page, linked to the game; play icon for a video), the tie winner's name bold and the loser's dimmed (flags
- * stay bright), and the aggregate / extra time / penalties as the variant places them:
- *   c: extra time and penalties under their leg, the aggregate alone after a small gap;
- *   b: aggregate, extra time and penalties on one line after a small gap;
- *   e: extra time and penalties under their leg, "agg 11–11" right-aligned just under the games.
+ * One knockout tie (design C2 of the card trials, Dagh 2026-11-23): the games as results, home player first,
+ * with flags; goals grey, the winning goal of each game bold; each score links to its game, a play icon to its
+ * video. The tie winner's name is bold, the loser's a little dimmed (flags stay bright). Extra time and
+ * penalties under the game where they happened; after a small gap the aggregate, higher number first.
  *
  * @param array<string, mixed> $tie with 'card' from amiga_tournament_knockout_tie_card()
  */
 function amiga_tournament_render_tie_card(array $tie, string $roundTitle, bool $isActive): void
 {
     require_once __DIR__ . '/k2_rated_game_row.php';
-    $variant = amiga_tournament_tie_card_variant();
     $card = $tie['card'];
     $legs = $card['legs'];
     $multi = count($legs) > 1;
@@ -80,12 +55,12 @@ function amiga_tournament_render_tie_card(array $tie, string $roundTitle, bool $
 
         return $bits !== [] ? implode(', ', $bits) : ($leg['after_et'] === null && $leg['pens'] === null ? (string) $leg['extra'] : '');
     };
-    // Aggregate: winner first in the top line; first leg's home player first at the foot (as the legs read).
+    // Aggregate: the winner's goals first.
     $agg = static fn (int $first, int $second): string => (int) ($byId[$first]['aggregate'] ?? 0) . '–' . (int) ($byId[$second]['aggregate'] ?? 0);
     $firstHome = $legs !== [] ? (int) $legs[0]['home'] : (int) $tie['player_lo'];
     $firstAway = $legs !== [] ? (int) $legs[0]['away'] : (int) $tie['player_hi'];
     ?>
-            <div class="k2-amiga-tie k2-amiga-tie--look-<?php echo amiga_tournament_tie_card_look(); ?><?php echo $isActive ? ' is-active' : ''; ?>"
+            <div class="k2-amiga-tie<?php echo $isActive ? ' is-active' : ''; ?>"
                  id="<?php echo k2_h(amiga_tournament_tie_card_id((string) $tie['scope_key'])); ?>">
                 <?php foreach ($legs as $i => $leg) {
                     $scoreline = '<span class="k2-status-score">' . k2_rated_game_scoreline_html((int) $leg['goals_home'], (int) $leg['goals_away']) . '</span>';
@@ -98,26 +73,15 @@ function amiga_tournament_render_tie_card(array $tie, string $roundTitle, bool $
                     <?php echo $player((int) $leg['away'], false); ?>
                     <span class="k2-amiga-tie__video"><?php echo $leg['video']; ?></span>
                 </div>
-                    <?php if ($variant !== 'b' && ($d = $decider($leg)) !== '') { ?>
+                    <?php if (($d = $decider($leg)) !== '') { ?>
                 <div class="k2-amiga-tie__decider<?php echo $multi ? ' k2-amiga-tie__decider--indent' : ''; ?>"><?php echo k2_h($d); ?></div>
                     <?php } ?>
-                <?php } ?>
-                <?php if ($variant === 'e' && $multi) { ?>
-                <div class="k2-amiga-tie__agg">agg <?php echo $agg($firstHome, $firstAway); ?></div>
                 <?php } ?>
                 <?php if ($winner === null && !empty($tie['unresolved'])) { ?>
                 <div class="k2-amiga-tie__decider">Tie unresolved</div>
                 <?php } ?>
-                <?php
-                $foot = [];
-                if (($variant === 'c' || $variant === 'b') && $multi) {
-                    $foot[] = 'Aggregate ' . $agg($firstHome, $firstAway);
-                }
-                if ($variant === 'b' && $card['note'] !== '') {
-                    $foot[] = $foot === [] ? (string) $card['note'] : lcfirst((string) $card['note']);
-                }
-                if ($foot !== []) { ?>
-                <div class="k2-amiga-tie__foot"><?php echo k2_h(implode(' · ', $foot)); ?></div>
+                <?php if ($multi) { // the winner's (higher) number first; a level aggregate in the order the games read ?>
+                <div class="k2-amiga-tie__foot">Aggregate <?php echo $winner !== null ? $agg($winner, (int) $loser) : $agg($firstHome, $firstAway); ?></div>
                 <?php } ?>
             </div>
     <?php
