@@ -415,11 +415,99 @@ body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option-
 	font-style: italic;
 }
 
+/* Tie card: a row per player (flag + name, goals per leg, aggregate), video glyphs, extra-time line. */
+.k2-amiga-bracket__round:has(.k2-amiga-tie) {
+	min-width: 13.5rem;
+	max-width: 17rem;
+}
+
+.k2-amiga-tie {
+	padding: 0.45rem 0.6rem 0.5rem;
+	border: 1px solid var(--k2-border-subtle);
+	border-radius: var(--k2-radius-md);
+	background: color-mix(in srgb, var(--k2-bg-elevated) 55%, transparent);
+	scroll-margin-top: 6rem;
+}
+
+.k2-amiga-tie.is-active {
+	border-color: var(--k2-segment-active-ring);
+	box-shadow: 0 0 0 1px var(--k2-segment-active-ring);
+}
+
+.k2-amiga-tie__row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) repeat(var(--k2-tie-legs, 2), 1.7rem) 2.1rem;
+	align-items: center;
+	column-gap: 0.15rem;
+	font-size: 0.88rem;
+	line-height: 1.5;
+	font-variant-numeric: tabular-nums;
+}
+
+.k2-amiga-tie--single .k2-amiga-tie__row {
+	grid-template-columns: minmax(0, 1fr) 1.9rem;
+}
+
+.k2-amiga-tie__row--head {
+	font-size: 0.7rem;
+	line-height: 1.2;
+	color: var(--k2-text-muted);
+	text-align: right;
+}
+
+.k2-amiga-tie__row.is-winner {
+	font-weight: 600;
+	color: var(--k2-text-primary);
+}
+
+.k2-amiga-tie__row.is-loser {
+	opacity: 0.72;
+}
+
+.k2-amiga-tie__player {
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.k2-amiga-tie__leg,
+.k2-amiga-tie__agg {
+	text-align: right;
+}
+
+a.k2-amiga-tie__leg {
+	color: var(--k2-segment-active-text);
+	text-decoration: none;
+}
+
+a.k2-amiga-tie__leg:hover {
+	text-decoration: underline;
+	color: var(--k2-link-star-hover);
+}
+
+.k2-amiga-tie__row--video {
+	line-height: 1.1;
+	justify-items: end;
+	margin-top: 0.1rem;
+}
+
+.k2-amiga-tie__note {
+	margin: 0.25rem 0 0;
+	font-size: 0.76rem;
+	color: var(--k2-text-secondary);
+}
+
 .k2-amiga-bracket__hint {
 	margin: 1rem 0 0;
 	font-size: 0.82rem;
 	color: var(--k2-text-muted);
 	line-height: 1.45;
+}
+
+/* A group's games under its table. */
+.k2-amiga-group-games {
+	margin: 1.75rem 0 0;
 }
 
 .k2-amiga-tournament-fixture {
@@ -452,6 +540,11 @@ body.k2-site .k2-amiga-tournament-step-nav__filters .k2-archive-listbox__option-
 		min-width: 0;
 		max-width: none;
 		width: 100%;
+	}
+
+	.k2-amiga-bracket__round:has(.k2-amiga-tie) {
+		min-width: 0;
+		max-width: none;
 	}
 
 	.k2-amiga-bracket__slot {

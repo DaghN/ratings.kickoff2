@@ -964,16 +964,23 @@ function amiga_tournament_videos_play_button_html(
  */
 function amiga_videos_for_game_id(int $gameId): array
 {
-    if ($gameId < 1) {
-        return [];
-    }
+    return $gameId > 0 ? (amiga_game_video_index()[$gameId] ?? []) : [];
+}
 
-    $rows = [];
+/**
+ * Game id → its match clips (as amiga_videos_for_game_id), built once per request from the manifest.
+ *
+ * @return array<int, list<array{game_id: int, youtube_id: string, video: array<string, mixed>, sort: int, start_sec: int}>>
+ */
+function amiga_game_video_index(): array
+{
+    static $index = null;
+    if ($index !== null) {
+        return $index;
+    }
+    $index = [];
     foreach (amiga_tournament_videos_manifest()['videos'] as $video) {
-        if (!is_array($video)) {
-            continue;
-        }
-        if (($video['kind'] ?? '') === 'excluded') {
+        if (!is_array($video) || ($video['kind'] ?? '') === 'excluded') {
             continue;
         }
         $yt = amiga_tournament_videos_sanitize_youtube_id((string) ($video['youtube_id'] ?? ''));
@@ -981,33 +988,47 @@ function amiga_videos_for_game_id(int $gameId): array
             continue;
         }
         $gameIds = isset($video['game_ids']) && is_array($video['game_ids']) ? $video['game_ids'] : [];
-        foreach ($gameIds as $gid) {
-            if ((int) $gid !== $gameId) {
+        foreach (array_unique(array_map('intval', $gameIds)) as $gid) {
+            if ($gid < 1) {
                 continue;
             }
-            $rows[] = [
-                'game_id' => $gameId,
+            $index[$gid][] = [
+                'game_id' => $gid,
                 'youtube_id' => $yt,
                 'video' => $video,
                 'sort' => (int) ($video['sort'] ?? 999),
-                'start_sec' => amiga_tournament_videos_game_start_sec($video, $gameId),
+                'start_sec' => amiga_tournament_videos_game_start_sec($video, $gid),
             ];
-            break;
         }
     }
+    foreach ($index as &$rows) {
+        usort(
+            $rows,
+            static fn (array $a, array $b): int => ($a['sort'] <=> $b['sort']) ?: strcmp($a['youtube_id'], $b['youtube_id']),
+        );
+    }
+    unset($rows);
 
-    usort(
-        $rows,
-        static function (array $a, array $b): int {
-            if ($a['sort'] !== $b['sort']) {
-                return $a['sort'] <=> $b['sort'];
-            }
+    return $index;
+}
 
-            return strcmp($a['youtube_id'], $b['youtube_id']);
-        },
-    );
+/**
+ * Video glyph linking to a game's page at its first clip; '' when the game has no video.
+ * Same glyph as the tournament Videos column (`k2-amiga-video-glyph`).
+ */
+function amiga_game_video_glyph_link(int $gameId): string
+{
+    $videos = amiga_videos_for_game_id($gameId);
+    if ($videos === []) {
+        return '';
+    }
+    $first = $videos[0];
+    $href = amiga_game_videos_url($gameId, $first['youtube_id'], count($videos), $first['start_sec']);
+    $label = count($videos) > 1 ? 'Watch this game (' . count($videos) . ' videos)' : 'Watch this game';
 
-    return $rows;
+    return '<a class="k2-amiga-video-glyph" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '"'
+        . ' aria-label="' . $label . '" data-k2-help="' . $label . '" data-k2-tooltip-hide-title="1">'
+        . amiga_tournament_video_glyph_svg(14) . '</a>';
 }
 
 function amiga_game_videos_scroll_target_id(int $videoCount): string

@@ -91,6 +91,10 @@ echo match ($tournamentPageView) {
 $k2ScrollTargetId = ($tournamentPageView === 'videos' && isset($_GET['v']) && (string) $_GET['v'] !== '')
     ? 'k2-tournament-video-player'
     : '';
+// A link to one knockout tie lands on its card in the bracket (the legs are in the card).
+if ($k2ScrollTargetId === '' && $tournamentScopeType === 'knockout' && $tournamentScopeKey !== '') {
+    $k2ScrollTargetId = amiga_tournament_tie_card_id($tournamentScopeKey);
+}
 ?>
 <?php $k2RankedCloak = true; include $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_head.php'; ?>
 
@@ -218,6 +222,16 @@ if ($needsStandingsRows) {
 
 }
 
+// A group's games, listed under its table (loaded here: the connection closes before the page is drawn).
+$groupGames = [];
+if ($needsStandingsRows && $scopeType === 'league' && $scopeKey !== '' && $rows !== []) {
+    $groupGameIds = amiga_tournament_group_game_ids($con, $id, $scopeKey);
+    $groupGames = array_values(array_filter(
+        amiga_tournament_games_rows($con, $id),
+        static fn (array $g): bool => isset($groupGameIds[(int) $g['id']])
+    ));
+}
+
 $knockoutScopeLabels = [];
 foreach ($knockoutScopes as $kk) {
     $knockoutScopeLabels[$kk] = amiga_tournament_scope_label($con, $kk);
@@ -234,12 +248,6 @@ $hasBracket = $knockoutScopes !== [];
 $showLeagueTableTab = $needsStandingsRows ? $implicitLeagueRows !== [] : $hasImplicitLeagueTable;
 $hasLeagueStandingsNav = $showLeagueTableTab || $leagueLabeledScopes !== [];
 
-$knockoutFixture = [];
-$knockoutWinner = null;
-if ($needsStandingsRows && $isKnockoutView && $scopeKey !== '') {
-    $knockoutFixture = amiga_tournament_knockout_fixture_games($con, $id, $scopeKey);
-    $knockoutWinner = amiga_tournament_knockout_resolve_winner($knockoutFixture, $rows);
-}
 
 
 $eventStatsRows = $needsParticipationRows ? amiga_tournament_participation_rows($con, $id) : [];
@@ -466,7 +474,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
               <?php
           }
           if ($hasBracket) {
-              $bracketScopeKey = amiga_tournament_knockout_landing_scope($knockoutScopes);
+              $bracketScopeKey = ''; // the whole bracket, from the top
               ?>
       <a href="<?php echo k2_h(amiga_tournament_href(amiga_tournament_standings_nav_url($id, 'knockout', $bracketScopeKey))); ?>" class="k2-player-nav__btn<?php echo $isKnockoutView && $pageView === 'stages' ? ' is-active' : ''; ?>">Knockouts</a>
               <?php
@@ -656,107 +664,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
 
 
 
-<?php if ($isKnockoutView && $knockoutFixture !== []) {
 
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/k2_rated_game_row.php';
-    $winnerId = $knockoutWinner !== null ? ($knockoutWinner['winner_id'] ?? null) : null;
-    $loserId = $knockoutWinner !== null ? ($knockoutWinner['loser_id'] ?? null) : null;
-    $winnerUnresolved = $knockoutWinner !== null && !empty($knockoutWinner['unresolved']);
-    $fixtureNames = [];
-    foreach ($knockoutFixture as $leg) {
-        $fixtureNames[(int) $leg['player_a_id']] = (string) $leg['player_a_name'];
-        $fixtureNames[(int) $leg['player_b_id']] = (string) $leg['player_b_name'];
-    }
-    $winnerName = $winnerId !== null ? ($fixtureNames[$winnerId] ?? ('#' . $winnerId)) : '';
-    $winnerAgg = ($winnerId !== null && $knockoutWinner !== null)
-        ? ($knockoutWinner['aggregate'][$winnerId] ?? null)
-        : null;
-    $loserAgg = ($loserId !== null && $knockoutWinner !== null)
-        ? ($knockoutWinner['aggregate'][$loserId] ?? null)
-        : null;
-
-?>
-
-<section class="k2-amiga-tournament-fixture" aria-labelledby="k2-amiga-fixture-heading">
-
-  <h2 id="k2-amiga-fixture-heading" class="k2-panel-heading"><?php
-
-      echo k2_h($knockoutScopeLabels[$scopeKey] ?? $scopeLabel);
-
-  ?></h2>
-
-  <div class="k2-table-wrap">
-
-    <p style="margin:0 0 0.75rem;line-height:1.5">
-
-      <?php if ($winnerUnresolved) { ?>
-
-      <strong>Tie unresolved</strong>
-
-      <?php } elseif ($winnerId !== null && $winnerAgg !== null && $loserAgg !== null) { ?>
-
-      <strong>Winner:</strong> <?php echo k2_amiga_player_link($winnerId, $winnerName); ?>
-
-      (aggregate <?php echo (int) $winnerAgg['goals_for']; ?>–<?php echo (int) $loserAgg['goals_for']; ?>)
-
-      <?php } ?>
-
-    </p>
-
-    <table class="k2-table k2-table--numeric-default k2-table--calm-stats">
-
-      <thead>
-
-        <tr>
-
-          <th class="k2-table-cell--left">Leg</th>
-
-          <th class="k2-table-cell--left" colspan="3">Fixture</th>
-
-        </tr>
-
-      </thead>
-
-      <tbody class="black">
-
-      <?php foreach ($knockoutFixture as $legIdx => $leg) { ?>
-
-        <tr>
-
-          <td class="k2-table-cell--left"><?php echo (int) ($legIdx + 1); ?></td>
-
-          <td class="k2-table-cell--left"><?php
-
-              echo k2_amiga_player_link((int) $leg['player_a_id'], (string) $leg['player_a_name']);
-
-          ?></td>
-
-          <td><?php
-
-              echo k2_rated_game_scoreline_html((int) $leg['goals_a'], (int) $leg['goals_b']);
-              echo amiga_tournament_format_game_extra(isset($leg['extra']) ? (string) $leg['extra'] : null);
-
-          ?></td>
-
-          <td class="k2-table-cell--left"><?php
-
-              echo k2_amiga_player_link((int) $leg['player_b_id'], (string) $leg['player_b_name']);
-
-          ?></td>
-
-        </tr>
-
-      <?php } ?>
-
-      </tbody>
-
-    </table>
-
-  </div>
-
-</section>
-
-<?php } ?>
 
 
 
@@ -772,21 +680,21 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/amiga_tournament_step_nav.ph
 
 
 
-<?php if (!$isKnockoutView || $rows !== []) {
-    amiga_tournament_render_standings_table($rows, $isKnockoutView);
+<?php if (!$isKnockoutView) {
+    amiga_tournament_render_standings_table($rows, false);
 } ?>
 
-
-
-<?php if ($isKnockoutView) { ?>
-
-<p class="k2-amiga-tournament-footnote">
-
-  Per-leg scores above; aggregate table below. Winner by total goal difference (penalties in <code>extra</code> when aggregate is tied).
-
-</p>
-
+<?php // A group's games under its table, oldest first, with video icons (Dagh, 2026-11-23).
+if ($groupGames !== []) { ?>
+<section class="k2-amiga-group-games" aria-labelledby="k2-amiga-group-games-heading">
+  <h2 id="k2-amiga-group-games-heading" class="k2-panel-heading">Games (<?php echo count($groupGames); ?>)</h2>
+  <?php amiga_tournament_render_games_table($groupGames, null, ['phase' => false, 'request_sort' => false, 'oldest_first' => true]); ?>
+</section>
 <?php } ?>
+
+
+
+
 
 <?php } ?>
 

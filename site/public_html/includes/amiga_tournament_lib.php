@@ -2606,6 +2606,85 @@ function amiga_tournament_knockout_landing_scope(array $scopeKeys): string
     return $best;
 }
 
+/**
+ * What a knockout card shows: the two players (first leg's home player on top), each leg's goals
+ * (normal time, linked to the game; video glyph when there is footage), the aggregate, and how a
+ * level tie was decided (extra time / penalties, from the games' stored columns).
+ *
+ * @param array<string, mixed> $tie from amiga_tournament_knockout_bracket_data()
+ * @param array<int, string> $names
+ * @param array<int, string> $countries
+ * @return array{rows: list<array<string, mixed>>, legs: list<array<string, mixed>>, note: string}
+ */
+function amiga_tournament_knockout_tie_card(array $tie, array $names, array $countries, bool $linkGames = true): array
+{
+    require_once __DIR__ . '/amiga_tournament_videos_lib.php';
+    require_once __DIR__ . '/k2_amiga_routes.php';
+    $games = $tie['games'] ?? [];
+    $top = $games !== [] ? (int) $games[0]['player_a_id'] : (int) $tie['player_lo'];
+    $bottom = $top === (int) $tie['player_lo'] ? (int) $tie['player_hi'] : (int) $tie['player_lo'];
+
+    $legs = [];
+    $goals = [$top => [], $bottom => []];
+    $et = [$top => 0, $bottom => 0];
+    $hasEt = false;
+    $pens = null;
+    $loose = '';
+    foreach ($games as $g) {
+        $a = (int) $g['player_a_id'];
+        $b = (int) $g['player_b_id'];
+        $gid = (int) $g['id'];
+        $goals[$a][] = (int) $g['goals_a'];
+        $goals[$b][] = (int) $g['goals_b'];
+        $legs[] = [
+            'game_id' => $gid,
+            'url' => $linkGames ? k2_amiga_game_page_url($gid) : '',
+            'video' => $linkGames ? amiga_game_video_glyph_link($gid) : '',
+        ];
+        if ($g['goals_et_a'] !== null && $g['goals_et_b'] !== null) {
+            $hasEt = true;
+            $et[$a] += (int) $g['goals_et_a'];
+            $et[$b] += (int) $g['goals_et_b'];
+        }
+        if ($g['pens_a'] !== null && $g['pens_b'] !== null) {
+            $pens = [$a => (int) $g['pens_a'], $b => (int) $g['pens_b']];
+        }
+        if (trim((string) ($g['extra'] ?? '')) !== '' && $g['goals_et_a'] === null && $g['pens_a'] === null) {
+            $loose = trim((string) $g['extra']);
+        }
+    }
+
+    $parts = [];
+    if ($hasEt) {
+        $parts[] = 'Extra time ' . $et[$top] . '–' . $et[$bottom];
+    }
+    if ($pens !== null) {
+        $parts[] = ($hasEt ? 'penalties ' : 'Penalties ') . ($pens[$top] ?? 0) . '–' . ($pens[$bottom] ?? 0);
+    }
+    $note = $parts !== [] ? implode(', ', $parts) : $loose;
+
+    $winner = $tie['winner_id'] !== null ? (int) $tie['winner_id'] : null;
+    $rows = [];
+    foreach ([$top, $bottom] as $pid) {
+        $rows[] = [
+            'id' => $pid,
+            'name' => $names[$pid] ?? ('#' . $pid),
+            'country' => $countries[$pid] ?? '',
+            'goals' => $goals[$pid] ?? [],
+            'aggregate' => (int) ($tie['aggregate'][$pid]['goals_for'] ?? 0),
+            'state' => $winner === null || !empty($tie['unresolved']) ? '' : ($winner === $pid ? 'is-winner' : 'is-loser'),
+        ];
+    }
+
+    return ['rows' => $rows, 'legs' => $legs, 'note' => $note];
+}
+
+/** Element id of a tie card (old tie links scroll to it). */
+function amiga_tournament_tie_card_id(string $scopeKey): string
+{
+    return 'k2-tie-' . trim((string) preg_replace('/[^a-z0-9]+/', '-', strtolower($scopeKey)), '-');
+}
+
 /** Side cups next to the main cup (stage track_key → heading), in display order. */
 const AMIGA_TOURNAMENT_SIDE_CUPS = [
     'koa' => 'KOA Cup',
@@ -2752,10 +2831,16 @@ function amiga_tournament_knockout_bracket_data(mysqli $con, int $tournamentId, 
             'unresolved' => $resolved['unresolved'],
             'score' => $scoreLabel,
             'url' => amiga_tournament_href(amiga_tournament_url($tournamentId, 'knockout', $scopeKey)),
+            'games' => $games,
+            'aggregate' => $resolved['aggregate'],
         ];
     }
 
     $names = amiga_tournament_player_names($con, $allPlayerIds);
+    $countries = amiga_tournament_player_countries($con, $allPlayerIds);
+    // A running tournament lists fixtures, not rated games yet: no game links there.
+    require_once __DIR__ . '/amiga_running_tournament_lib.php';
+    $linkGames = !amiga_running_tournament_broadcast_mode($con, $tournamentId);
     // Stored structure (World Cups): cup, section and order per tie; others fall back to the round name.
     $imprint = amiga_tournament_knockout_stage_imprint($con, $tournamentId);
 
@@ -2772,6 +2857,7 @@ function amiga_tournament_knockout_bracket_data(mysqli $con, int $tournamentId, 
             $tie['player_b_id'] = $hi;
             $tie['player_a_name'] = $names[$lo] ?? ('#' . $lo);
             $tie['player_b_name'] = $names[$hi] ?? ('#' . $hi);
+            $tie['card'] = amiga_tournament_knockout_tie_card($tie, $names, $countries, $linkGames);
         }
         unset($tie);
 
@@ -2923,7 +3009,46 @@ function amiga_tournament_render_standings_table(array $rows, bool $isKnockoutVi
 /**
  * @param list<array<string, mixed>> $rows from amiga_tournament_games_rows()
  */
-function amiga_tournament_render_games_table(array $rows, ?mysqli $con = null): void
+/**
+ * Game ids of one group (league scope) of a tournament: by its stored stage, or by the game's round name.
+ *
+ * @return array<int, true>
+ */
+function amiga_tournament_group_game_ids(mysqli $con, int $tournamentId, string $scopeKey): array
+{
+    $ids = [];
+    if ($tournamentId < 1 || $scopeKey === '') {
+        return $ids;
+    }
+    $stageType = 'round_robin';
+    $stmt = mysqli_prepare(
+        $con,
+        'SELECT g.id FROM amiga_games g
+         LEFT JOIN tournament_fixtures f ON f.id = g.fixture_id
+         LEFT JOIN tournament_stages s ON s.id = f.stage_id
+         WHERE g.tournament_id = ?
+           AND (g.phase = ? OR (s.stage_type = ? AND COALESCE(f.phase_label, s.name) = ?))'
+    );
+    if ($stmt === false) {
+        return $ids;
+    }
+    mysqli_stmt_bind_param($stmt, 'isss', $tournamentId, $scopeKey, $stageType, $scopeKey);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    while ($res && ($row = mysqli_fetch_assoc($res))) {
+        $ids[(int) $row['id']] = true;
+    }
+    mysqli_stmt_close($stmt);
+
+    return $ids;
+}
+
+/**
+ * @param array{phase?: bool, request_sort?: bool, oldest_first?: bool} $options
+ *   phase: show the Phase column (default: when any row has a phase); request_sort: take the sort from
+ *   the address (default true; off for a second table on the page); oldest_first: game order ascending.
+ */
+function amiga_tournament_render_games_table(array $rows, ?mysqli $con = null, array $options = []): void
 {
     require_once __DIR__ . '/k2_table_helpers.php';
     require_once __DIR__ . '/k2_rated_game_row.php';
@@ -2931,8 +3056,20 @@ function amiga_tournament_render_games_table(array $rows, ?mysqli $con = null): 
     require_once __DIR__ . '/amiga_rated_game_row.php';
     require_once __DIR__ . '/k2_amiga_country_flag.php';
     require_once __DIR__ . '/amiga_player_load.php';
+    require_once __DIR__ . '/amiga_tournament_videos_lib.php';
 
-    $showPhase = amiga_tournament_games_show_phase_column($rows);
+    $showPhase = $options['phase'] ?? amiga_tournament_games_show_phase_column($rows);
+    $requestSort = $options['request_sort'] ?? true;
+    $oldestFirst = !empty($options['oldest_first']);
+    if ($oldestFirst) {
+        $rows = array_reverse($rows); // rows arrive newest first
+    }
+    // Video column only when a game in the list has a video (as the Phase column).
+    $videoLinks = [];
+    foreach ($rows as $row) {
+        $videoLinks[(int) $row['id']] = amiga_game_video_glyph_link((int) $row['id']);
+    }
+    $showVideo = array_filter($videoLinks) !== [];
     $showFlags = amiga_tournament_games_show_flags($rows);
 
     // Column index plan. Flags live inside the player cells, so they add no columns;
@@ -2940,6 +3077,7 @@ function amiga_tournament_render_games_table(array $rows, ?mysqli $con = null): 
     $col = 0;
     $idCol = $col++;
     $phaseCol = $showPhase ? $col++ : -1;
+    $videoCol = $showVideo ? $col++ : -1;
     $teamACol = $col++;
     $goalsACol = $col++;
     $goalsBCol = $col++;
@@ -2956,13 +3094,16 @@ function amiga_tournament_render_games_table(array $rows, ?mysqli $con = null): 
     $colCount = $col;
 
     $anchorCol = $idCol;
-    $defaultSortCol = k2_table_default_sort_col_from_request(AMIGA_TOURNAMENT_GAMES_DEFAULT_SORT_COL);
-    $defaultSortDir = k2_table_default_sort_dir_from_request('desc');
+    $baseDir = $oldestFirst ? 'asc' : 'desc';
+    $defaultSortCol = $requestSort
+        ? k2_table_default_sort_col_from_request(AMIGA_TOURNAMENT_GAMES_DEFAULT_SORT_COL)
+        : AMIGA_TOURNAMENT_GAMES_DEFAULT_SORT_COL;
+    $defaultSortDir = $requestSort ? k2_table_default_sort_dir_from_request($baseDir) : $baseDir;
     $tableClass = k2_table_ranked_sortable_class('k2-table--tournament-games');
-    // No date/order column — rows arrive in game-id descending order; preserve that on first paint.
+    // No date/order column — rows arrive in game-id order; preserve that on first paint.
     $skipInitialSort = $defaultSortCol === AMIGA_TOURNAMENT_GAMES_DEFAULT_SORT_COL
-        && $defaultSortDir === 'desc'
-        && k2_table_sort_query_params() === [];
+        && $defaultSortDir === $baseDir
+        && (!$requestSort || k2_table_sort_query_params() === []);
     ?>
 <?php k2_table_wrap_open(true); ?>
 <table class="<?php echo k2_h($tableClass); ?>" data-k2-table="sortable" data-k2-anchor-col="<?php echo $anchorCol; ?>" data-k2-default-sort="<?php echo $defaultSortCol; ?>" data-k2-default-direction="<?php echo k2_h($defaultSortDir); ?>"<?php echo $skipInitialSort ? ' data-k2-skip-initial-sort="1"' : ''; ?>>
@@ -2971,6 +3112,9 @@ function amiga_tournament_render_games_table(array $rows, ?mysqli $con = null): 
 			<th<?php echo k2_table_sortable_th_attr($idCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="number">ID</th>
 			<?php if ($showPhase) { ?>
 			<th<?php echo k2_table_sortable_th_attr($phaseCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--left'); ?> data-k2-sort="text">Phase</th>
+			<?php } ?>
+			<?php if ($showVideo) { ?>
+			<th<?php echo k2_table_sortable_th_attr($videoCol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--center k2-table-cell--video-glyph'); ?> data-k2-sort="number" data-k2-tooltip-label="Video" data-k2-help="Games with a video: the play icon opens the game at its video."></th>
 			<?php } ?>
 			<th<?php echo k2_table_sortable_th_attr($teamACol, $defaultSortCol, $defaultSortDir, 'k2-table-cell--right'); ?> data-k2-sort="text">Player A</th>
 			<th<?php echo k2_table_sortable_th_attr($goalsACol, $defaultSortCol, $defaultSortDir); ?> data-k2-sort="number">A</th>
@@ -3053,6 +3197,9 @@ function amiga_tournament_render_games_table(array $rows, ?mysqli $con = null): 
 			<td<?php echo k2_table_body_td_attr($idCol, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php echo amiga_rated_game_id_html((int) $game['id']); ?></td>
 			<?php if ($showPhase) { ?>
 			<td<?php echo k2_table_body_td_attr($phaseCol, $anchorCol, $defaultSortCol, 'k2-table-cell--left'); ?>><?php echo $phaseCell; ?></td>
+			<?php } ?>
+			<?php if ($showVideo) { $videoLink = $videoLinks[(int) $game['id']] ?? ''; ?>
+			<td<?php echo k2_table_body_td_attr($videoCol, $anchorCol, $defaultSortCol, 'k2-table-cell--center k2-table-cell--video-glyph'); ?> data-k2-sort-value="<?php echo $videoLink !== '' ? 1 : 0; ?>"><?php echo $videoLink; ?></td>
 			<?php } ?>
 			<td<?php echo k2_table_body_td_attr($teamACol, $anchorCol, $defaultSortCol, 'k2-table-cell--right k2-amiga-tgame-team k2-amiga-tgame-team--a'); ?>><?php echo $teamACell; ?></td>
 			<td<?php echo k2_table_body_td_attr($goalsACol, $anchorCol, $defaultSortCol, $goalsAClass); ?>><?php echo $goalsACell; ?></td>
