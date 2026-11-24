@@ -1,2 +1,5 @@
 # Block web access to SQL dumps (download via WinSCP only).
+# Same plain rules as ops/.htaccess (Steve, 2026-11-24): this server skips rules inside <IfModule> blocks.
 Require all denied
+Order deny,allow
+Deny from all

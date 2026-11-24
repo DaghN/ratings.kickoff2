@@ -1,8 +1,36 @@
 # Online games that were never processed (Nov 2026)
 
-**Status:** investigated 2026-11-22. Our scripts are fixed and tested in the repo, **not uploaded**. The live ladder still needs one full recalculation. **Message (§5) sent to Steve by Dagh 2026-11-22 (WhatsApp); first answers 2026-11-23 (§5), the rest still open.** Until then do not upload `ops/` or `includes/league_standings.php`.
+**Status (2026-11-24): ready to go, waiting for Steve to pick a day.** Our scripts are fixed and tested in the repo, **not uploaded**. The step path is §0, the message for Steve §5. Until step 1b, do not upload `ops/` or `includes/league_standings.php`.
 
 **Audience:** Dagh, Steve, agents. **Code:** `ops/includes/ops_game_queue.php` · `ops/modules/process_pending_games.php` · test `scripts/test_ops_game_queue.php`.
+
+---
+
+## 0. The step path (ready to go)
+
+**Assumptions (Dagh, 2026-11-24):** the online database is on another machine than the web server (very likely joshua, §2), and Steve can recalculate next to it, as in July. If either is wrong, Steve says so and only step 2 changes.
+
+| Step | Who | What | Ready |
+|---|---|---|---|
+| 1a | Steve | Back up the live online database. Exempt the game machine's address from the web server's automatic block (§4, "Before the upload") | — |
+| 1b | Dagh + agent | Upload the 17 files below: preview, upload, read back, then load one online page at once | List checked against live 2026-11-24 |
+| 2 | Steve | Recalculate next to the database with the commands in §4 step 2–6 (about 2½ hours). He needs the folders `ops` and `includes` from the web server after 1b, and a `work-targets.ini` target for that database | Tested locally at full size |
+| 3a | Steve | Add the one-minute job (§5) next to the midnight job; tell Dagh | Line ready |
+| 3b | Agent | Compare live with the expected ratings (§4), then mark this doc, `PROJECT_MEMORY.md` and `ladder-ops-platform.md` done | Expected list ready |
+
+1a, 1b and 2 belong on the same day: from 1b on, new games are stored by the new rules (§3, faults 10–13), and the recalculation puts all of history on the same rules. Best before **Dec 1 00:00 UTC**, when the November league closes.
+
+**Upload list** (compared with live 2026-11-24; everything else in `ops/` is identical):
+
+| Folder | Files |
+|---|---|
+| `ops/includes/` | `ops_bootstrap.php`, `ops_dispatch.php`, `ops_dispatch_http.php`, `ops_game_queue.php` (new), `ops_reset_universe.php`, `ops_sim.php`, `ops_work_target.php` (only two blank lines differ), `post_game_generalstats.php`, `post_game_player_db.php`, `post_game_server_records.php` |
+| `ops/modules/` | `process_completed_game.php`, `process_pending_games.php` (new) |
+| `ops/` | `run_ops_sim.php` |
+| `ops/docs/` | `ops-dispatch.md`, `post-dagh-live-story.md`, `steve-live-ops.md` |
+| `includes/` | `league_standings.php` |
+
+**Never upload** `ops/config/` or `ops/.htaccess`. Steve rewrote the live `ops/.htaccess` on 2026-11-24; the repo copy has his rules, but line endings differ.
 
 ---
 
@@ -138,47 +166,35 @@ LORENZOL 2241→2188 · Micro 1600→1633 · Canvarol 1976→1953 · geo4444 184
 
 ## 5. Message to Steve
 
-**Answers so far (2026-11-23):**
+**History:** first message sent by Dagh 2026-11-22 (WhatsApp; text in git history). Answers 2026-11-23: the Amiga database is on the web server, not on joshua; the databases are MyISAM; one machine runs PHP 8.6.0. The rest was not answered and is now assumed (§0).
 
-| Question | Answer |
-|---|---|
-| 1. Which machines | In part: the Amiga database is on the web server, not on joshua. Name of the live online database and the role of the old copies: open |
-| 2. How to recalculate | Open. PHP 8.6.0 would be enough for way A (§4) if it is joshua's |
-| 3. MyISAM, change to InnoDB | MyISAM, yes. The change: open |
-| 4. Does the app wait for the reply | Open |
+Split of work: **we** write and upload the scripts; **Steve** runs the servers, the database, the scheduled jobs and the game app.
 
-**Follow-up drafted for Dagh 2026-11-23** (not known whether sent): which machine has PHP 8.6.0; the recalculation when Steve has time, if possible before Dec 1; optional and without hurry: InnoDB, and whether players wait for the script's answer before the next game.
-
-
-Split of work: **we** write and upload the scripts; **Steve** runs the server, the database, the scheduled jobs and the game app. A failed call needs no action from the app any more.
+**Message 1, the recalculation (drafted 2026-11-24, for Dagh to send):**
 
 > Hi Steve,
 >
-> We found 154 online games that are stored but were never processed: 150 in a row from Oct 30 to Nov 3 (we guess while the site was closed because of the bots), and 4 single ones (Sep 7, Oct 8, two on Oct 19). They count as played, but they are missing from ratings, leagues, streaks and milestones.
+> The online recalculation is ready on our side. This is the plan, so you know what we're waiting for:
 >
-> **What we want to reach**
-> 1. Recalculate the ladder once, so these games count. Best before Dec 1, when the November league closes.
-> 2. No more lost games. We changed our scripts so that any waiting games are processed first, in order, before the next one.
-> 3. Processing that works even when the website is closed, through a small job every minute.
+> 1. **Prepare (you):** back up the live online database, and exempt the game machine from the web server's automatic block. The new scripts answer with an error code when something fails, and a blocked game machine could not report its games any more.
+> 2. **Upload (me):** I upload 17 changed script files with WinSCP, as usual. From then on games are processed in order, and a missed game is caught up automatically.
+> 3. **Recalculate (you):** run the recalculation once, next to the database, as in July. It takes about 2½ hours. People can keep playing; their games are processed afterwards. Commands below.
+> 4. **Afterwards (you):** add a one-minute job next to the midnight job and tell me. I then check the ladder against the ratings we expect.
 >
-> **How we think it is set up. Please correct us:**
-> - Joshua runs the game app and the live database.
-> - The web server runs the website and our scripts, and both use the database on joshua over the network.
-> - After each game, the app calls dispatch_request.php on the web server. At midnight, cron on the web server runs FinalizeUtcDay.
-> - The old copies on the web server (kooldb, kooldb1, kooldb2) are no longer used.
+> We assume the online database is on joshua and that you run it there, or on a copy as in July. If it's different, just tell me what's different.
 >
-> We ask because the online pages take about 19 ms per database query, while the Amiga pages take almost none. One game needs about 280 round trips, so about 5 seconds (duration_ms in the reply would show it). A full recalculation over that line would take more than 4 days, so it has to run next to the database, or on a copy next to the scripts.
+> Steps 1 to 3 should be on the same day, best before Dec 1 when the November league closes. Which day suits you?
 >
-> **Questions**
-> 1. Is that picture right? If not, which machine and database do the app, the website and our scripts use?
-> 2. How did you do the full recalculation and the switch in July, and can we do it the same way again? Running it directly on the machine with the database also works, if that is easier for you: it needs PHP 8.1+ on the command line and two folders from us, people can keep playing (their games are processed afterwards), and the ladder looks unfinished meanwhile. It should take about 2.5 hours, as in June on the web server.
-> 3. Are the live tables MyISAM? We would like InnoDB. With MyISAM, if the connection breaks halfway through a game, some tables have the game and others don't, and it can't be undone. With InnoDB the whole game is undone and simply tried again. The app needs no change.
-> 4. Does the app wait for the script's reply before play goes on? After an outage a reply can take up to about 30 seconds. If it waits, we will make the script answer at once and do the work afterwards.
+> Commands, from public_html, with the target name of the midnight job (I wrote live-game):
+> `php ops/dispatch.php CMD=ProcessPending target=live-game dry_run=1` (report only; should say holes=154 or a few more)
+> `php ops/run_prepare.php seed-catalog --target live-game`
+> `php ops/run_prepare.php zero-derived --target live-game`
+> `php ops/run_ops_sim.php run --target live-game`
+> `php ops/dispatch.php CMD=ProcessPending target=live-game` (games played meanwhile)
+> `php ops/run_verify_ops_sim.php --target live-game` (should report 0 failures)
 >
-> **What we would like you to do**
-> 1. Back up the live database.
-> 2. Convert the tables to InnoDB, if you agree.
-> 3. Run the recalculation. We send the exact commands.
-> 4. Once the new scripts are up, add this next to the midnight job, with the same target: `* * * * * cd /path/to/public_html && php ops/dispatch.php CMD=ProcessPending target=live-game`
+> One-minute job: `* * * * * cd /path/to/public_html && php ops/dispatch.php CMD=ProcessPending target=live-game`
 >
-> We upload the new scripts as usual, when you are ready. With the job in place you can close the website whenever you need to: games are then processed within a minute anyway.
+> Optional, whenever you have time: converting the tables to InnoDB would make a broken connection in the middle of a game harmless; the game is simply tried again a minute later. The game app needs no change.
+
+**Message 2** (server housekeeping) is in Dagh's private notes, not in this repo.

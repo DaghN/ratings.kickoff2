@@ -1,7 +1,5 @@
 # Deny HTTP access to Amiga ops secrets (password file lives here).
-<IfModule mod_authz_core.c>
-  Require all denied
-</IfModule>
-<IfModule !mod_authz_core.c>
-  Deny from all
-</IfModule>
+# Same plain rules as ops/.htaccess (Steve, 2026-11-24): this server skips rules inside <IfModule> blocks.
+Require all denied
+Order deny,allow
+Deny from all
