@@ -170,31 +170,58 @@ LORENZOL 2241→2188 · Micro 1600→1633 · Canvarol 1976→1953 · geo4444 184
 
 Split of work: **we** write and upload the scripts; **Steve** runs the servers, the database, the scheduled jobs and the game app.
 
-**Message 1, the recalculation (drafted 2026-11-24, for Dagh to send):**
+**Message 1, the recalculation (drafted 2026-11-24, for Dagh to send).** Formatted for WhatsApp (`*bold*`, three backticks for the command boxes): copy everything inside the box below.
 
-> Hi Steve,
->
-> The online recalculation is ready on our side. This is the plan, so you know what we're waiting for:
->
-> 1. **Prepare (you):** back up the live online database, and exempt the game machine from the web server's automatic block. The new scripts answer with an error code when something fails, and a blocked game machine could not report its games any more.
-> 2. **Upload (me):** I upload 17 changed script files with WinSCP, as usual. From then on games are processed in order, and a missed game is caught up automatically.
-> 3. **Recalculate (you):** run the recalculation once, next to the database, as in July. It takes about 2½ hours. People can keep playing; their games are processed afterwards. Commands below.
-> 4. **Afterwards (you):** add a one-minute job next to the midnight job and tell me. I then check the ladder against the ratings we expect.
->
-> We assume the online database is on joshua and that you run it there, or on a copy as in July. If it's different, just tell me what's different.
->
-> Steps 1 to 3 should be on the same day, best before Dec 1 when the November league closes. Which day suits you?
->
-> Commands, from public_html, with the target name of the midnight job (I wrote live-game):
-> `php ops/dispatch.php CMD=ProcessPending target=live-game dry_run=1` (report only; should say holes=154 or a few more)
-> `php ops/run_prepare.php seed-catalog --target live-game`
-> `php ops/run_prepare.php zero-derived --target live-game`
-> `php ops/run_ops_sim.php run --target live-game`
-> `php ops/dispatch.php CMD=ProcessPending target=live-game` (games played meanwhile)
-> `php ops/run_verify_ops_sim.php --target live-game` (should report 0 failures)
->
-> One-minute job: `* * * * * cd /path/to/public_html && php ops/dispatch.php CMD=ProcessPending target=live-game`
->
-> Optional, whenever you have time: converting the tables to InnoDB would make a broken connection in the middle of a game harmless; the game is simply tried again a minute later. The game app needs no change.
+````text
+Hi Steve,
+
+The online recalculation is ready on our side. Here is the plan, so you know what we're waiting for. In steps 3 and 4 we ask you to run some exact commands from us; they are at the bottom of this message.
+
+*1. Prepare (you)*
+- Back up the live online database.
+- Exempt the game machine from the web server's automatic IP block. The new scripts answer with an error code when something fails, and a blocked game machine could no longer report its games.
+
+*2. Upload (me)*
+I upload 17 changed script files with WinSCP, as usual. From then on games are processed in order, and a missed game is caught up automatically.
+
+*3. Recalculate (you): run our 6 commands*
+Run the 6 commands under *Commands for step 3* below, one after the other, next to the database, as in July. It takes about 2½ hours. People can keep playing; their games are processed afterwards.
+
+*4. One-minute job (you): add our 1 line*
+Add the line under *Line for step 4* below to the scheduled jobs (cron), next to the midnight job. Then tell me, and I'll check the ladder against the ratings we expect.
+
+We assume the online database is on joshua and that you run step 3 there, or on a copy as in July. If anything is different, just tell me.
+
+Steps 1 to 3 should be on the same day, best before Dec 1, when the November league closes. Which day suits you?
+
+*Commands for step 3*
+Run them in the folder that holds our ops and includes folders. If that's on joshua, copy both from public_html after my upload in step 2, and point the target in ops/config/work-targets.ini at the database there. I wrote the target as live-game; use the midnight job's target name if it's different.
+
+```
+php ops/dispatch.php CMD=ProcessPending target=live-game dry_run=1
+php ops/run_prepare.php seed-catalog --target live-game
+php ops/run_prepare.php zero-derived --target live-game
+php ops/run_ops_sim.php run --target live-game
+php ops/dispatch.php CMD=ProcessPending target=live-game
+php ops/run_verify_ops_sim.php --target live-game
+```
+
+What each one does:
+1. Report only, changes nothing. It should say holes=154 or a few more.
+2. and 3. Reset the calculated tables (ratings, leagues, milestones). The games and the accounts stay.
+4. The recalculation itself, about 2½ hours.
+5. Processes the games played meanwhile.
+6. Check. It should report 0 failures.
+
+*Line for step 4*
+With the real path to public_html:
+
+```
+* * * * * cd /path/to/public_html && php ops/dispatch.php CMD=ProcessPending target=live-game
+```
+
+*Optional, whenever you have time*
+Converting the tables to InnoDB would make a broken connection in the middle of a game harmless: the game is simply tried again a minute later. The game app needs no change.
+````
 
 **Message 2** (server housekeeping) is in Dagh's private notes, not in this repo.
