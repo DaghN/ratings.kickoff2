@@ -300,7 +300,15 @@ def _beats_holder(
 
 def _career_holders_from_player_rows(
     player_rows: list[dict[str, Any]],
+    prior: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    """Career record holders (policy R8).
+
+    The holder in ``prior`` (the realm row before this tournament) keeps a record until
+    someone has a higher value. When it passes on and several players have the new value,
+    the lowest player number holds it.
+    """
+    row_by_id = {int(row["player_id"]): row for row in player_rows}
     patch: dict[str, Any] = {}
     for value_col, prefix in _CAREER_ROW_PREFIXES:
         best_row: dict[str, Any] | None = None
@@ -323,6 +331,16 @@ def _career_holders_from_player_rows(
                 best_id = pid
         if best_row is None:
             continue
+        held_id = (prior or {}).get(f"{prefix}ID")
+        held_row = row_by_id.get(int(held_id)) if held_id is not None else None
+        if (
+            held_row is not None
+            and held_row.get(value_col) is not None
+            and float(held_row[value_col]) == float(best_value)
+        ):
+            best_row = held_row
+            best_value = held_row[value_col]
+            best_id = int(held_id)
         patch[prefix] = best_value
         patch[f"{prefix}ID"] = best_id
         patch[f"{prefix}Name"] = best_row["player_name"]
@@ -599,7 +617,7 @@ def build_generalstats_payload_incremental(
     # Geo/honours holder columns live on amiga_player_current (persisted before realm row).
     holder_rows = fetch_player_current_rows(conn)
     patch: dict[str, Any] = {}
-    patch.update(_career_holders_from_player_rows(holder_rows))
+    patch.update(_career_holders_from_player_rows(holder_rows, prior_payload))
     patch.update(_ratio_leaders_from_player_rows(holder_rows))
     patch.update(_merge_single_game_records(prior_payload, event_candidates))
 

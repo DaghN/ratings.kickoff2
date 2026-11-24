@@ -52,6 +52,7 @@ Finish on the website saves row by row; the command saves once per tournament, w
 |------|-----|--------|--------|
 | 2026-11-22 | `e7d2f66a` (live that day) | live data of that morning | Test before the command existed: only rounding and the two known counts |
 | 2026-11-22 | working copy at `de0b7082`, with the extra-time rule, the World Cup podium and the held online fix | simul of 15:58 UTC | **SAME**, 608 tournaments, 8,820,661 values, 19.4 min |
+| 2026-11-24 | working copy at `471b56e9` with the tie rule for count records (the holder keeps an equalled record) | simul of that afternoon | **SAME**, 608 tournaments, 8,984,460 values, 17.8 min |
 | 2026-11-22 | `e7d2f66a`, before that day's two rule changes (a one-sided change on purpose) | simul of 15:58 UTC, with both | **DIFFERENT**, as it should be: 33 positions in stage tables (extra-time rule) and 1 value in `amiga_world_cup_stats` (World Cup XII bronze), nothing else. Exit 1 |
 
 Planted faults it caught: K factor 32.001 instead of 32; one clean-sheet condition changed in one of three branches; an error in one tournament.

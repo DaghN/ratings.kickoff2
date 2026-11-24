@@ -507,6 +507,7 @@ def build_generalstats_payload(
         _player_count_stats_sql_present,
         _ratio_leaders_from_player_rows,
         fetch_player_current_rows,
+        load_prior_realm_payload,
     )
 
     cutoff = (
@@ -516,10 +517,13 @@ def build_generalstats_payload(
     )
     if cutoff is None:
         player_rows = fetch_player_current_rows(conn)
+        prior = None
     else:
         player_rows = _load_cutoff_player_rows(conn, cutoff)
+        # Career holders keep a tied record (R8): start from the stored row before this tournament.
+        prior = load_prior_realm_payload(conn, as_of_tournament_id)
     patch: dict[str, Any] = {}
-    patch.update(_career_holders_from_player_rows(player_rows))
+    patch.update(_career_holders_from_player_rows(player_rows, prior))
     patch.update(_ratio_leaders_from_player_rows(player_rows))
     patch.update(_most_goals_one_game_patch(conn, cutoff=cutoff))
     patch.update(_biggest_win_margin_patch(conn, cutoff=cutoff))

@@ -26,7 +26,7 @@ from scripts.amiga.generalstats_columns import (
 )
 from scripts.amiga.honours_totals import empty_honours_totals, increment_honours_totals
 from scripts.amiga.player_geo_year import PlayerGeoYearTracker, load_player_countries
-from scripts.amiga.realm_incremental import _career_holders_from_player_rows
+from scripts.amiga.realm_incremental import _career_holders_from_player_rows, load_prior_realm_payload
 from scripts.amiga.realm_cutoff import latest_finalized_tournament_id, load_realm_cutoff
 from scripts.amiga.server_records import _CAREER_HOLDERS, _load_cutoff_player_rows
 
@@ -314,7 +314,9 @@ def verify_hof_geo_year(conn: pymysql.connections.Connection) -> list[str]:
 
     cutoff = load_realm_cutoff(conn, latest_tid)
     player_rows = _load_cutoff_player_rows(conn, cutoff)
-    holder_patch = _career_holders_from_player_rows(player_rows)
+    holder_patch = _career_holders_from_player_rows(
+        player_rows, load_prior_realm_payload(conn, latest_tid)
+    )
     with conn.cursor() as cur:
         cur.execute("SELECT * FROM amiga_generalstats WHERE id = 1 LIMIT 1")
         gst = cur.fetchone() or {}

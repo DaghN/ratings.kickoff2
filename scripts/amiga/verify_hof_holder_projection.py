@@ -23,6 +23,7 @@ from scripts.amiga.realm_incremental import (
     _holder_record_date,
     _ratio_leaders_from_player_rows,
     _career_holders_from_player_rows,
+    load_prior_realm_payload,
 )
 from scripts.amiga.server_records import (
     _biggest_draw_sum_patch,
@@ -189,7 +190,9 @@ def verify_hof_holder_projection(conn: pymysql.connections.Connection) -> list[s
     player_rows = _load_cutoff_player_rows(conn, cutoff)
     row_by_id = {int(row["player_id"]): row for row in player_rows}
 
-    career_oracle = _career_holders_from_player_rows(player_rows)
+    career_oracle = _career_holders_from_player_rows(
+        player_rows, load_prior_realm_payload(conn, latest_tid)
+    )
     game_oracle = _game_oracle_patch(conn, cutoff)
     ratio_row_oracle = _ratio_leaders_from_player_rows(player_rows)
     ratio_sql_oracle = compute_ratio_leader_patch(conn, as_of_tournament_id=latest_tid)

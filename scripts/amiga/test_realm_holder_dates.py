@@ -44,6 +44,25 @@ class RealmHolderDateTests(unittest.TestCase):
         self.assertEqual(patch["MostTournamentWinsID"], 14)
         self.assertEqual(patch["MostTournamentWinsDate"], "2025-09-20")
 
+    def test_tied_record_stays_with_the_holder(self) -> None:
+        # Policy R8: Steve C reached 20 first; Gianni T equalled it a year later.
+        rows = [
+            {"player_id": 149, "player_name": "Gianni T", "opponent_countries_faced": 20,
+             "opponent_countries_faced_last_rise_event_date": date(2025, 11, 1)},
+            {"player_id": 417, "player_name": "Steve C", "opponent_countries_faced": 20,
+             "opponent_countries_faced_last_rise_event_date": date(2024, 11, 10)},
+        ]
+        prior = {"MostOpponentCountriesFacedID": 417}
+        patch = _career_holders_from_player_rows(rows, prior)
+        self.assertEqual(patch["MostOpponentCountriesFacedID"], 417)
+        self.assertEqual(patch["MostOpponentCountriesFacedName"], "Steve C")
+        self.assertEqual(patch["MostOpponentCountriesFacedDate"], "2024-11-10")
+        # A higher value takes it; with no holder before, the lowest number holds a tie.
+        rows[0]["opponent_countries_faced"] = 21
+        self.assertEqual(_career_holders_from_player_rows(rows, prior)["MostOpponentCountriesFacedID"], 149)
+        rows[0]["opponent_countries_faced"] = 20
+        self.assertEqual(_career_holders_from_player_rows(rows)["MostOpponentCountriesFacedID"], 149)
+
     def test_most_games_played_uses_career_rise_date(self) -> None:
         row = {
             "player_id": 5,

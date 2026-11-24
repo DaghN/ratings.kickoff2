@@ -4,7 +4,9 @@
  * wc_hof_persist.py). Writes amiga_wc_hof_snapshots (per WC) + amiga_wc_hof_present
  * (id=1) at World Cup finalize, after the WC player slice for the event is persisted.
  *
- * Selection: strict > to beat; tie -> lowest player_id; ratio rows gated at games >= 20.
+ * Selection (WCH9): a count record or best single World Cup stays with its holder (the
+ * previous World Cup's snapshot) until someone has a better value; when it passes on, a tie
+ * goes to the lowest player_id. Ratio rows: best value, tie -> lowest player_id, games >= 20.
  * {Prefix}Date for cumulative / ratio rows is DERIVED from the holder's
  * amiga_player_slice_at_event timeline (decision ID1). Idempotent UPSERT (decision ID2).
  *
@@ -227,10 +229,60 @@ function amiga_wc_hof_rise_date_ratio(array $timeline, string $prefix, bool $hig
 }
 
 /**
+ * WCH9: the previous holder keeps the record while nobody has a better value.
+ *
+ * @param list<array<string, mixed>> $rows
+ * @param array<string, mixed>|null $best
+ * @return array<string, mixed>|null
+ */
+function amiga_wc_hof_keep_holder(array $rows, ?array $best, string $column, $heldId): ?array
+{
+    if ($best === null || $heldId === null) {
+        return $best;
+    }
+    foreach ($rows as $row) {
+        if ((int) $row['player_id'] === (int) $heldId) {
+            $value = $row[$column] ?? null;
+            if ($value !== null && (float) $value == (float) $best[$column]) {
+                return $row;
+            }
+            break;
+        }
+    }
+
+    return $best;
+}
+
+/**
+ * Snapshot of the World Cup before this one ([] before the first).
+ *
+ * @return array<string, mixed>
+ */
+function amiga_wc_hof_load_prior_payload(mysqli $con, $eventDate, float $chrono, int $tid): array
+{
+    $sql = 'SELECT * FROM amiga_wc_hof_snapshots '
+        . 'WHERE (event_date, event_chrono, tournament_id) < (?, ?, ?) '
+        . 'ORDER BY event_date DESC, event_chrono DESC, tournament_id DESC LIMIT 1';
+    $stmt = $con->prepare($sql);
+    if ($stmt === false) {
+        throw new RuntimeException('prepare wc hof prior: ' . $con->error);
+    }
+    $stmt->bind_param('sdi', $eventDate, $chrono, $tid);
+    if (!$stmt->execute()) {
+        throw new RuntimeException('execute wc hof prior: ' . $stmt->error);
+    }
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+
+    return $row ?? [];
+}
+
+/**
  * @param list<array<string, mixed>> $rows
  * @return array<string, mixed>|null
  */
-function amiga_wc_hof_pick_cumulative(array $rows, string $column): ?array
+function amiga_wc_hof_pick_cumulative(array $rows, string $column, $heldId = null): ?array
 {
     $best = null;
     $bestVal = 0.0;
@@ -246,7 +298,7 @@ function amiga_wc_hof_pick_cumulative(array $rows, string $column): ?array
         }
     }
 
-    return $best;
+    return amiga_wc_hof_keep_holder($rows, $best, $column, $heldId);
 }
 
 /**
@@ -446,9 +498,10 @@ function amiga_wc_hof_tournament_event_date(mysqli $con, ?int $tournamentId)
 
 /**
  * @param list<array<string, mixed>> $rows
+ * @param array<string, mixed> $prior
  * @return array<string, mixed>
  */
-function amiga_wc_hof_single_peak_patches(mysqli $con, array $rows): array
+function amiga_wc_hof_single_peak_patches(mysqli $con, array $rows, array $prior = []): array
 {
     $patch = [];
     $bestGf = null;
@@ -476,6 +529,8 @@ function amiga_wc_hof_single_peak_patches(mysqli $con, array $rows): array
             }
         }
     }
+    $bestGf = amiga_wc_hof_keep_holder($rows, $bestGf, 'best_single_wc_gf_per_game', $prior['BestSingleWcGoalsForPerGameID'] ?? null);
+    $bestGa = amiga_wc_hof_keep_holder($rows, $bestGa, 'best_single_wc_ga_per_game', $prior['BestSingleWcGoalsAgainstPerGameID'] ?? null);
     if ($bestGf !== null) {
         $tidAnchor = $bestGf['best_single_wc_gf_per_game_tournament_id'] ?? null;
         $tidAnchor = $tidAnchor !== null ? (int) $tidAnchor : null;
@@ -506,11 +561,12 @@ function amiga_wc_hof_single_peak_patches(mysqli $con, array $rows): array
 function amiga_wc_hof_build_payload(mysqli $con, int $tournamentId, $eventDate, float $chrono): array
 {
     $rows = amiga_wc_hof_slice_cutoff_rows($con, $eventDate, $chrono, $tournamentId);
+    $prior = amiga_wc_hof_load_prior_payload($con, $eventDate, $chrono, $tournamentId);
     $timelines = [];
     $patch = [];
 
     foreach (amiga_wc_hof_cumulative_holders() as $prefix => $column) {
-        $holder = amiga_wc_hof_pick_cumulative($rows, $column);
+        $holder = amiga_wc_hof_pick_cumulative($rows, $column, $prior["{$prefix}ID"] ?? null);
         if ($holder === null) {
             continue;
         }
@@ -543,7 +599,7 @@ function amiga_wc_hof_build_payload(mysqli $con, int $tournamentId, $eventDate, 
     foreach (amiga_wc_hof_single_game_patches($con, $eventDate, $chrono, $tournamentId) as $k => $v) {
         $patch[$k] = $v;
     }
-    foreach (amiga_wc_hof_single_peak_patches($con, $rows) as $k => $v) {
+    foreach (amiga_wc_hof_single_peak_patches($con, $rows, $prior) as $k => $v) {
         $patch[$k] = $v;
     }
 

@@ -53,6 +53,8 @@ Ratings may differ by 0.002 (they are stored with six decimals at every event), 
 
 - **Tied single-game records (2026-11-23).** Two games can reach the same record (most goals in one game, biggest win, biggest draw, most goals in a game). Within a tournament the first game held it, between tournaments the lower player number, and the written rule said the lower player number. Dagh decided: **the first game keeps the record.** Changed in Python and PHP, also for the World Cup Hall of Fame. Only time travel showed a difference; the present records were not tied.
 
+Not found by the recount, because the recount followed the written rule: **tied career and World Cup count records (2026-11-24).** A player who equalled a record took it when their player number was lower (Dagh N took Most WC golds from Gianni T at Oslo; Gianni T took both opponent-country records from Steve C). Dagh saw it on the Hall of Fame. Now **the holder keeps a record until someone has more**; when it passes on and several players have the new value, the lowest player number. The recount, `verify-wc-hof` and the calculation all follow that rule.
+
 ## Proof
 
 - The rebuilt database and the copy of live (both 608 tournaments, 2026-11-23): `SAME`, 12,208,421 values each.

@@ -21,7 +21,7 @@
 | **H9** | Country token = `TRIM(value)`; empty/NULL excluded from game-derived sets |
 | **H10** | HoF holders on `amiga_generalstats` + full `amiga_realm_snapshots` row |
 | **H11** | Per-player scalars on `amiga_player_event_snapshots` + `amiga_player_current` |
-| **H12** | Tie policy: strict `>`; equal → lowest `player_id`; year peak tie → earliest calendar year |
+| **H12** | Tie policy: realm **R8** (the holder keeps a record until someone has more; a new tie → lowest `player_id`); a player's own year peak tie → earliest calendar year |
 | **H13** | Writer boundary: tournament finalize + full replay only |
 
 ---

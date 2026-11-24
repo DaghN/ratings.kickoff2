@@ -36,7 +36,7 @@ Amiga-native only — no Access parity target.
 | **P5** | **Honours LB label** | Column header **Perfect**; tooltip explains *won every game (at least 2 games)* — distinct from perf-rating “perfect win or loss”. |
 | **P6** | **WC honours column** | Same **Perfect** column on World Cups honours wing; **subset count** of perfect events in WC tournaments only. **No** new columns on `amiga_player_slice_totals` / `amiga_player_slice_at_event`. |
 | **P7** | **HoF row** | **Most perfect events** — career cumulative count over **all** tournaments (not WC-only). Placement: honours block on `/amiga/hall-of-fame.php`, near Most tournament wins. |
-| **P8** | **HoF tie-break** | Realm rule R8: strict `>` on value to replace holder; equal value → **lowest `player_id`**. HoF date from winning holder’s rise fields. |
+| **P8** | **HoF tie-break** | Realm rule R8: the holder keeps the record until someone has more; when it passes on, a tie → **lowest `player_id`**. HoF date from winning holder’s rise fields. |
 | **P9** | **Time travel** | All surfaces use stored snapshot / realm timeline at cutoff — no present-only backfill. |
 | **P10** | **Writer boundary** | Tournament finalize + full `replay` / `prove` only ([`amiga-derived-write-policy.md`](amiga-derived-write-policy.md)). |
 
@@ -130,7 +130,7 @@ Four columns on `amiga_generalstats` and mirrored on each `amiga_realm_snapshots
 | `MostPerfectEventsName` | Denorm holder name at projection |
 | `MostPerfectEventsDate` | Holder’s `perfect_events_last_rise_event_date` |
 
-**Holder selection:** scan `amiga_player_current` (or player state at cutoff) — max `perfect_events`, tie → lowest `player_id` (R8).
+**Holder selection:** scan `amiga_player_current` (or player state at cutoff) — max `perfect_events`; the holder keeps a tie, a new tie → lowest `player_id` (R8).
 
 **Not stored on generalstats:** rise `tournament_id` (existing habit — date only on HoF row; rise id remains on holder player row).
 

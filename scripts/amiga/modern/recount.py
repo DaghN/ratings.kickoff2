@@ -517,7 +517,8 @@ class Realm:
         }
 
 
-#: Hall of Fame: career record -> column (highest value; equal value: lowest player number)
+#: Hall of Fame: career record -> column. Highest value; the holder keeps it until someone has more.
+#: When it passes on and several players have the new value, the lowest player number holds it.
 CAREER_RECORDS = {
     "MostGamesPlayed": "NumberGames", "MostWins": "NumberWins", "MostGoalsScored": "GoalsFor", "MostDoubleDigits": "DoubleDigits",
     "MostCleanSheets": "CleanSheets", "MostDifferentOpponents": "DifferentOpponents", "MostDifferentVictims": "DifferentVictims",
@@ -536,10 +537,11 @@ RATIO_RECORDS = {
 
 
 class Records:
-    """Single-game records of the whole community, in the order the games were played."""
+    """Records of the whole community: single games in the order they were played, careers tournament by tournament."""
 
     def __init__(self) -> None:
         self.held: dict[str, tuple[int, Side, Any]] = {}
+        self.career_holder: dict[str, int] = {}  # record -> player who held it after the previous tournament
 
     def add_game(self, sides: tuple[Side, Side], date: Any) -> None:
         for s in sides:
@@ -567,6 +569,11 @@ class Records:
         for record, column in CAREER_RECORDS.items():
             best = max(((c.values.get(column) or 0, -pid) for pid, c in careers.items()), default=(0, 0))
             value, pid = best[0], -best[1]
+            held = self.career_holder.get(record)
+            if value and held in careers and (careers[held].values.get(column) or 0) == value:
+                pid = held  # equalling the record does not take it
+            if value:
+                self.career_holder[record] = pid
             out[record] = value or None
             out[f"{record}ID"] = out[f"{record}Name"] = out[f"{record}Date"] = None
             if value:

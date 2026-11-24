@@ -167,7 +167,18 @@ def _rise_date_ratio(timeline, fn, higher_better):
     return last
 
 
-def _pick_cumulative(rows, column):
+def _held_or_best(rows, best, best_val, column, held_id):
+    """WCH9: whoever held the record after the previous World Cup keeps it while nobody is better."""
+    if best is None or held_id is None:
+        return best
+    for row in rows:
+        if int(row["player_id"]) == held_id:
+            v = row.get(column)
+            return row if v is not None and float(v) == float(best_val) else best
+    return best
+
+
+def _pick_cumulative(rows, column, held_id=None):
     best, best_val = None, 0.0
     for row in rows:
         v = _num(row.get(column))
@@ -176,7 +187,7 @@ def _pick_cumulative(rows, column):
         pid = int(row["player_id"])
         if best is None or v > best_val or (v == best_val and pid < int(best["player_id"])):
             best, best_val = row, v
-    return best
+    return _held_or_best(rows, best, best_val, column, held_id)
 
 
 def _pick_ratio(rows, fn, higher_better):
@@ -243,7 +254,8 @@ def _check_counts_and_present(conn, errors) -> list[dict]:
     return wcs
 
 
-def _check_snapshot_holders(conn, wc, errors) -> None:
+def _check_snapshot_holders(conn, wc, errors, held: dict[str, int]) -> None:
+    """``held``: this check's own holders after the previous World Cup (updated here)."""
     tid, ev_date, chrono = int(wc["id"]), wc["event_date"], wc["chrono"]
     with conn.cursor() as cur:
         cur.execute("SELECT * FROM amiga_wc_hof_snapshots WHERE tournament_id = %s", (tid,))
@@ -264,10 +276,11 @@ def _check_snapshot_holders(conn, wc, errors) -> None:
 
     # Cumulative holders + rise dates.
     for prefix, column in _CUMULATIVE:
-        holder = _pick_cumulative(rows, column)
+        holder = _pick_cumulative(rows, column, held.get(prefix))
         if holder is None:
             continue
         pid = int(holder["player_id"])
+        held[prefix] = pid
         if int(_num(snap.get(prefix))) != int(_num(holder.get(column))):
             fail(prefix, snap.get(prefix), int(_num(holder.get(column))))
         if snap.get(f"{prefix}ID") != pid:
@@ -291,14 +304,14 @@ def _check_snapshot_holders(conn, wc, errors) -> None:
             fail(f"{prefix}Date", snap.get(f"{prefix}Date"), exp_date)
 
     # Single-WC peaks (selection over stored slice peak columns).
-    _check_peak_holder(snap, rows, "BestSingleWcGoalsForPerGame", "best_single_wc_gf_per_game", True, conn, fail)
-    _check_peak_holder(snap, rows, "BestSingleWcGoalsAgainstPerGame", "best_single_wc_ga_per_game", False, conn, fail)
+    _check_peak_holder(snap, rows, "BestSingleWcGoalsForPerGame", "best_single_wc_gf_per_game", True, conn, fail, held)
+    _check_peak_holder(snap, rows, "BestSingleWcGoalsAgainstPerGame", "best_single_wc_ga_per_game", False, conn, fail, held)
 
     # Single-game rows from raw goals.
     _check_single_game(conn, ev_date, chrono, tid, snap, fail)
 
 
-def _check_peak_holder(snap, rows, prefix, column, higher_better, conn, fail):
+def _check_peak_holder(snap, rows, prefix, column, higher_better, conn, fail, held):
     best, best_val = None, None
     for row in rows:
         v = row.get(column)
@@ -312,9 +325,11 @@ def _check_peak_holder(snap, rows, prefix, column, higher_better, conn, fail):
         better = v > best_val if higher_better else v < best_val
         if better or (v == best_val and pid < int(best["player_id"])):
             best, best_val = row, v
+    best = _held_or_best(rows, best, best_val, column, held.get(prefix))
     if best is None:
         return
     pid = int(best["player_id"])
+    held[prefix] = pid
     tid_anchor = best.get(f"{column}_tournament_id")
     if not _eq_num(snap.get(prefix), _q4(best_val)):
         fail(prefix, snap.get(prefix), _q4(best_val))
@@ -495,8 +510,9 @@ def main() -> int:
     errors: list[str] = []
     try:
         wcs = _check_counts_and_present(conn, errors)
-        for wc in wcs:
-            _check_snapshot_holders(conn, wc, errors)
+        held: dict[str, int] = {}
+        for wc in wcs:  # oldest first
+            _check_snapshot_holders(conn, wc, errors, held)
         _check_awards_and_peaks_from_games(conn, errors)
     finally:
         conn.close()

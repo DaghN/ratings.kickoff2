@@ -214,6 +214,19 @@ class RecordTests(unittest.TestCase):
         self.assertEqual((v["MostGamesPlayed"], v["MostGamesPlayedID"], v["MostGamesPlayedName"]), (4, 7, "A"))
         self.assertIsNone(v["BiggestWinRatio"])  # nobody has twenty games
 
+    def test_career_record_stays_with_the_first_to_reach_it(self) -> None:
+        careers = {9: Career()}
+        careers[9].values = defaultdict(int, {"NumberGames": 4})
+        careers[9].rise = {"number_games": (1, dt.date(2020, 1, 1))}
+        self.assertEqual(self.r.columns(careers, self.names)["MostGamesPlayedID"], 9)
+        careers[7] = Career()  # a later tournament: player 7 equals the record
+        careers[7].values = defaultdict(int, {"NumberGames": 4})
+        careers[7].rise = {"number_games": (2, dt.date(2020, 2, 1))}
+        v = self.r.columns(careers, self.names)
+        self.assertEqual((v["MostGamesPlayedID"], v["MostGamesPlayedDate"]), (9, dt.date(2020, 1, 1)))
+        careers[7].values["NumberGames"] = 5  # and then beats it
+        self.assertEqual(self.r.columns(careers, self.names)["MostGamesPlayedID"], 7)
+
     def test_ratio_record_needs_twenty_games(self) -> None:
         careers = {}
         for pid, games, share in ((7, 20, 0.5), (9, 19, 0.9)):

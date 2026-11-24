@@ -193,11 +193,20 @@ function amiga_realm_fetch_player_current_rows(mysqli $con): array
 }
 
 /**
+ * Career record holders (policy R8): the holder in $prior (the realm row before this
+ * tournament) keeps a record until someone has a higher value. When it passes on and
+ * several players have the new value, the lowest player number holds it.
+ *
  * @param list<array<string, mixed>> $playerRows
+ * @param array<string, mixed> $prior
  * @return array<string, mixed>
  */
-function amiga_realm_career_holders_from_rows(array $playerRows): array
+function amiga_realm_career_holders_from_rows(array $playerRows, array $prior = []): array
 {
+    $rowById = [];
+    foreach ($playerRows as $row) {
+        $rowById[(int) $row['player_id']] = $row;
+    }
     $holders = [
         ['NumberGames', 'MostGamesPlayed'],
         ['NumberWins', 'MostWins'],
@@ -263,6 +272,21 @@ function amiga_realm_career_holders_from_rows(array $playerRows): array
         }
         if ($best === null) {
             continue;
+        }
+        $heldId = $prior[$prefix . 'ID'] ?? null;
+        $heldRow = $heldId !== null ? ($rowById[(int) $heldId] ?? null) : null;
+        if (
+            $heldRow !== null
+            && ($heldRow[$valueCol] ?? null) !== null
+            && (float) $heldRow[$valueCol] === (float) $best['value']
+        ) {
+            $best = [
+                'value' => $heldRow[$valueCol],
+                'id' => (int) $heldId,
+                'name' => (string) $heldRow['player_name'],
+                'date' => $heldRow['record_date'] ?? null,
+                'row' => $heldRow,
+            ];
         }
         $patch[$prefix] = $best['value'];
         $patch[$prefix . 'ID'] = $best['id'];
@@ -499,7 +523,7 @@ function amiga_realm_build_generalstats_payload_incremental(mysqli $con, int $to
     $cutoff = amiga_realm_load_cutoff($con, $tournamentId);
     $playerRows = amiga_realm_fetch_player_current_rows($con);
 
-    $patch = amiga_realm_career_holders_from_rows($playerRows);
+    $patch = amiga_realm_career_holders_from_rows($playerRows, $prior);
     $patch = array_merge($patch, amiga_realm_ratio_leaders_from_rows($playerRows));
     $patch = array_merge(
         $patch,

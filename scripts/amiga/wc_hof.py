@@ -5,8 +5,10 @@ HoF holder payload (``WC_HOF_PAYLOAD_COLUMNS``) as of World Cup ``E``, reading t
 already-persisted WC player slice (``amiga_player_slice_at_event`` <= E per player)
 plus a WC-filtered ``amiga_games`` oracle for single-game anchors.
 
-Selection follows policy §4 / WCH9 (strict > to beat; tie -> lowest ``player_id``;
-ratio rows gated at ``games >= 20``). Cumulative / ratio ``{Prefix}Date`` is DERIVED
+Selection follows policy §4 / WCH9: a count record or best single World Cup stays
+with its holder (the previous World Cup's snapshot) until someone has a better value;
+when it passes on, a tie goes to the lowest ``player_id``; ratio rows pick the best value,
+tie -> lowest ``player_id``, gated at ``games >= 20``. Cumulative / ratio ``{Prefix}Date`` is DERIVED
 from the holder's slice timeline (decision ID1). Date helpers are shared with
 ``verify_wc_hof``.
 """
@@ -190,7 +192,24 @@ def derive_ratio_rise_date(
     return last
 
 
-def _pick_cumulative(rows: list[dict[str, Any]], column: str) -> dict[str, Any] | None:
+def _keep_holder(
+    rows: list[dict[str, Any]], best: dict[str, Any] | None, column: str, held_id: Any
+) -> dict[str, Any] | None:
+    """The previous holder keeps the record while nobody has a better value (WCH9)."""
+    if best is None or held_id is None:
+        return best
+    for row in rows:
+        if int(row["player_id"]) == int(held_id):
+            value = row.get(column)
+            if value is not None and float(value) == float(best[column]):
+                return row
+            break
+    return best
+
+
+def _pick_cumulative(
+    rows: list[dict[str, Any]], column: str, held_id: Any = None
+) -> dict[str, Any] | None:
     best: dict[str, Any] | None = None
     best_val = 0.0
     for row in rows:
@@ -201,7 +220,24 @@ def _pick_cumulative(rows: list[dict[str, Any]], column: str) -> dict[str, Any] 
         if best is None or value > best_val or (value == best_val and pid < int(best["player_id"])):
             best = row
             best_val = value
-    return best
+    return _keep_holder(rows, best, column, held_id)
+
+
+def load_prior_wc_hof_payload(
+    conn: pymysql.connections.Connection, cutoff: RealmCutoff
+) -> dict[str, Any]:
+    """World Cup HoF snapshot of the World Cup before ``cutoff`` (empty before the first)."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT * FROM amiga_wc_hof_snapshots
+            WHERE (event_date, event_chrono, tournament_id) < (%s, %s, %s)
+            ORDER BY event_date DESC, event_chrono DESC, tournament_id DESC
+            LIMIT 1
+            """,
+            (cutoff.event_date, cutoff.chrono, cutoff.tournament_id),
+        )
+        return cur.fetchone() or {}
 
 
 def _pick_ratio(
@@ -233,10 +269,11 @@ def _cumulative_patch(
     rows: list[dict[str, Any]],
     cutoff: RealmCutoff,
     timelines: dict[int, list[dict[str, Any]]],
+    prior: dict[str, Any],
 ) -> dict[str, Any]:
     patch: dict[str, Any] = {}
     for prefix, column in WC_CUMULATIVE_HOLDERS:
-        holder = _pick_cumulative(rows, column)
+        holder = _pick_cumulative(rows, column, prior.get(f"{prefix}ID"))
         if holder is None:
             continue
         pid = int(holder["player_id"])
@@ -442,9 +479,9 @@ def _tournament_event_date(conn, tournament_id):
     return row["event_date"] if row else None
 
 
-def _single_wc_peaks_patch(conn, rows):
+def _single_wc_peaks_patch(conn, rows, prior):
     patch: dict[str, Any] = {}
-    # GF/g peak (higher), GA/g peak (lower) — tie -> lowest player_id.
+    # GF/g peak (higher), GA/g peak (lower): the holder keeps a tie; new holders tie -> lowest player_id.
     best_gf: dict[str, Any] | None = None
     best_ga: dict[str, Any] | None = None
     for row in rows:
@@ -471,6 +508,8 @@ def _single_wc_peaks_patch(conn, rows):
                 )
             ):
                 best_ga = row
+    best_gf = _keep_holder(rows, best_gf, "best_single_wc_gf_per_game", prior.get("BestSingleWcGoalsForPerGameID"))
+    best_ga = _keep_holder(rows, best_ga, "best_single_wc_ga_per_game", prior.get("BestSingleWcGoalsAgainstPerGameID"))
     if best_gf is not None:
         tid = best_gf.get("best_single_wc_gf_per_game_tournament_id")
         patch["BestSingleWcGoalsForPerGame"] = _q4(float(best_gf["best_single_wc_gf_per_game"]))
@@ -496,15 +535,16 @@ def build_wc_hof_payload(
     """Full WC HoF holder payload as of World Cup ``as_of_tournament_id``."""
     cutoff = load_realm_cutoff(conn, as_of_tournament_id)
     rows = _slice_cutoff_rows(conn, cutoff)
+    prior = load_prior_wc_hof_payload(conn, cutoff)
     timelines: dict[int, list[dict[str, Any]]] = {}
 
     patch: dict[str, Any] = {}
-    patch.update(_cumulative_patch(conn, rows, cutoff, timelines))
+    patch.update(_cumulative_patch(conn, rows, cutoff, timelines, prior))
     patch.update(_ratio_patch(conn, rows, cutoff, timelines))
     patch.update(_most_goals_one_game(conn, cutoff))
     patch.update(_biggest_win_margin(conn, cutoff))
     patch.update(_biggest_draw_sum(conn, cutoff))
     patch.update(_biggest_sum_goals(conn, cutoff))
-    patch.update(_single_wc_peaks_patch(conn, rows))
+    patch.update(_single_wc_peaks_patch(conn, rows, prior))
 
     return {col: patch.get(col) for col in WC_HOF_PAYLOAD_COLUMNS}

@@ -10,7 +10,7 @@ from pymysql.cursors import DictCursor
 
 from scripts.amiga.config import load_amiga_db_config
 from scripts.amiga.honours_totals import empty_honours_totals, increment_honours_totals
-from scripts.amiga.realm_incremental import _career_holders_from_player_rows
+from scripts.amiga.realm_incremental import _career_holders_from_player_rows, load_prior_realm_payload
 from scripts.amiga.server_records import _load_cutoff_player_rows
 from scripts.amiga.realm_cutoff import latest_finalized_tournament_id, load_realm_cutoff
 
@@ -144,7 +144,9 @@ def _verify_hof_holder(conn: pymysql.connections.Connection) -> list[str]:
         return errors
     cutoff = load_realm_cutoff(conn, latest_tid)
     player_rows = _load_cutoff_player_rows(conn, cutoff)
-    holder_patch = _career_holders_from_player_rows(player_rows)
+    holder_patch = _career_holders_from_player_rows(
+        player_rows, load_prior_realm_payload(conn, latest_tid)
+    )
     prefix = "MostPerfectEvents"
     with conn.cursor() as cur:
         cur.execute("SELECT * FROM amiga_generalstats WHERE id = 1 LIMIT 1")
