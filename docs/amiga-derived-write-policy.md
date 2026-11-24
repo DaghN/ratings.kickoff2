@@ -73,7 +73,7 @@ Historical context: `archive/retired-amiga-refinalize-2026-06.md` (reopen/refina
 | Command | Role |
 |---------|------|
 | `standings-rebuild --tournament-id` | One open tournament’s standings (pre-finalize / structure) |
-| `participation-refresh-tournament` | Dev mirror of PHP finalize participation slice |
+| `refresh-event-finish-snapshots --tournament-id` | Rewrites finish places on one tournament's event snapshots after a placement override changes |
 | `tournament-structure … --rebuild-standings` | L4 structure materialize helper |
 
 These touch **one tournament** or **structure**, not cumulative derived repair across history.
