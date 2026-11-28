@@ -1,6 +1,6 @@
 # Online games that were never processed (Nov 2026)
 
-**Status (2026-11-28): steps 1a and 1b done; Steve recalculates next (step 2).** Steve backed up the live online database, then we uploaded the 17 files (read back identical; the Status page and a league page fine on live). His first try of the commands, before the upload, failed because they need the new scripts; live was unchanged by it (ratings and milestone holders checked). The step path is §0, the messages for Steve §5. Never upload `ops/config/` or `ops/.htaccess`.
+**Status (2026-11-28): steps 1a and 1b done; Steve's recalculation (step 2) is running, but far from the database.** At 06:34-06:37 UTC the live leaderboard grew by about 39 games in 172 s: about 14 games a minute, 4.4 s per game, which is the speed of §2 for a run on the web server (about 4 days for 78,500 games). Next to the database it should be about 10 games a second. Message to Steve in §5 ("Recalculation too slow"). Steve backed up the live online database, then we uploaded the 17 files (read back identical; the Status page and a league page fine on live). His first try of the commands, before the upload, failed because they need the new scripts; live was unchanged by it (ratings and milestone holders checked). The step path is §0, the messages for Steve §5. Never upload `ops/config/` or `ops/.htaccess`.
 
 **Audience:** Dagh, Steve, agents. **Code:** `ops/includes/ops_game_queue.php` · `ops/modules/process_pending_games.php` · test `scripts/test_ops_game_queue.php`.
 
@@ -249,6 +249,18 @@ You can now run the 6 commands from my first message (*Commands for step 3*), an
 The first command only reports and changes nothing: it should say holes=154 or a few more. If it says something else, or anything gives an error, just send me the text before you go on.
 
 Tell me when it's all done, and I'll check the ladder against the ratings we expect.
+````
+
+**Recalculation too slow (2026-11-28, for Dagh to send).**
+
+````text
+Hi Steve, I can see the recalculation running on the website, but it's going slowly: about 14 games a minute. At that speed the 78,500 games take about 4 days. That's the speed we expect when the script runs on the web server, because every database call has to travel to the database machine and back (about 19 ms each, and a game needs about 230 of them). Next to the database it should do about 10 games a second, so about 2½ hours in all.
+
+Can you run it on the machine with the online database instead? If so:
+1. Stop the running command (Ctrl-C). That's safe: the commands start from zero, so nothing is lost, and games played meanwhile just wait.
+2. On the database machine, with our ops and includes folders copied there and the target pointing at the database there, run commands 2 to 6 from my first message again.
+
+If the database machine can't run PHP, just let the current run continue: it will finish correctly by itself, only slowly. In that case please make sure it keeps running when you log out (screen or nohup), and tell me, so we can find a faster way for next time.
 ````
 
 **Message 2** (server housekeeping) is in Dagh's private notes, not in this repo.
