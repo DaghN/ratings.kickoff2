@@ -76,12 +76,12 @@ function k2_ops_dispatch_http_result(int $exitCode, string $cmd, array $log): ar
     if (!$ok) {
         error_log('[k2-ops] cmd=' . $cmd . ' exit=' . $exitCode . ' ' . implode(' | ', array_slice($log, -3)));
     }
-    $httpStatus = match ($exitCode) {
-        0, 2 => 200,
-        3 => 409,
-        64 => 400,
-        default => 500,
-    };
+    // Every handled outcome answers 200 and the JSON says what happened: the live web server
+    // blocks an address after a few error replies, and a blocked game server could no longer
+    // report games. Busy or failed games stay queued (exit 1), and refused ones (exit 3) are in
+    // the error log above. Error codes are kept for real faults: bad key 401, missing config
+    // 503, bad call 400, PHP crash 500.
+    $httpStatus = $exitCode === 64 ? 400 : 200;
 
     return [
         'http_status' => $httpStatus,

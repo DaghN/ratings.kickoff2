@@ -54,7 +54,7 @@ php ops/dispatch.php CMD=ProcessCompletedGame game_id=GAME_ID target=YOUR_TARGET
 | **0** | OK — derived committed, or skipped (bad ids / goals — see log) |
 | **1** | Failed, busy, or backlog not cleared yet — the game stays queued; the next game call, `ProcessPending` or midnight run takes it in order |
 | **2** | Already processed (`NewRatingA` set) — safe duplicate; ignore |
-| **3** | Refused: later games are already processed, so this one needs a full recalculation. HTTP **409** |
+| **3** | Refused: later games are already processed, so this one needs a full recalculation |
 | **64** | Bad CLI |
 
 **Missed calls heal themselves:** every call first processes all earlier waiting games, in order.
@@ -93,7 +93,7 @@ https://ratings.kickoff2.com/dispatch_request.php?key=YOUR_KEY&CMD=ProcessComple
 https://ratings.kickoff2.com/dispatch_request.php?key=YOUR_KEY&CMD=ProcessPlayerRegistered&player_id=42&target=YOUR_TARGET
 ```
 
-Read the JSON **`exit`** field (same semantics as CLI). **`log`** carries `[dispatch]` lines. HTTP status: **200** for exit **0** or **2**; **400** for **64**; **500** for **1**; **401** if `key` is wrong; **503** if `dispatch-http.ini` is missing.
+Read the JSON **`exit`** field (same semantics as CLI). **`log`** carries `[dispatch]` lines. HTTP status: **200** for exit **0**, **1**, **2** and **3**, so read `exit`; **400** for **64**; **401** if `key` is wrong; **503** if `dispatch-http.ini` is missing; **500** only if PHP crashes. Normal outcomes answer 200 because the web server blocks an address after a few error replies, and a blocked game server could no longer report games. Exit 1 and 3 also go to the PHP error log.
 
 `key=` is required on every request (value from `ops/config/dispatch-http.ini`).
 
