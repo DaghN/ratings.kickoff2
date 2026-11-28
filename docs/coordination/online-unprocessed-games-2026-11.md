@@ -1,6 +1,6 @@
 # Online games that were never processed (Nov 2026)
 
-**Status (2026-11-28): message 1 sent; Steve is ready and waits for our upload (step 1b).** His first try of the commands failed because they need the new scripts; live was unchanged afterwards (ratings and milestone holders checked 2026-11-28). Our scripts are fixed and tested in the repo, **not uploaded**. The step path is §0, the messages for Steve §5. Until step 1b, do not upload `ops/` or `includes/league_standings.php`.
+**Status (2026-11-28): steps 1a and 1b done; Steve recalculates next (step 2).** Steve backed up the live online database, then we uploaded the 17 files (read back identical; the Status page and a league page fine on live). His first try of the commands, before the upload, failed because they need the new scripts; live was unchanged by it (ratings and milestone holders checked). The step path is §0, the messages for Steve §5. Never upload `ops/config/` or `ops/.htaccess`.
 
 **Audience:** Dagh, Steve, agents. **Code:** `ops/includes/ops_game_queue.php` · `ops/modules/process_pending_games.php` · test `scripts/test_ops_game_queue.php`.
 
@@ -12,8 +12,8 @@
 
 | Step | Who | What | Ready |
 |---|---|---|---|
-| 1a | Steve | Back up the live online database. No exemption from the web server's block is needed (§4, "Before the upload") | — |
-| 1b | Dagh + agent | Upload the 17 files below: preview, upload, read back, then load one online page at once | List checked against live 2026-11-24 |
+| 1a | Steve | Back up the live online database. No exemption from the web server's block is needed (§4, "Before the upload") | **Done 2026-11-28** |
+| 1b | Dagh + agent | Upload the 17 files below: preview, upload, read back, then load one online page at once | **Done 2026-11-28**: live unchanged since 2026-11-24 beforehand; read back identical; Status and a league page without errors. The live versions from before are kept locally (git-ignored `_notes/live-before-2026-11-28/`); the two new files had none |
 | 2 | Steve | Recalculate next to the database with the commands in §4 step 2–6 (about 2½ hours). He needs the folders `ops` and `includes` from the web server after 1b, and a `work-targets.ini` target for that database | Tested locally at full size |
 | 3a | Steve | Add the one-minute job (§5) next to the midnight job; tell Dagh | Line ready |
 | 3b | Agent | Compare live with the expected ratings (§4), then mark this doc, `PROJECT_MEMORY.md` and `ladder-ops-platform.md` done | Expected list ready |
@@ -237,6 +237,18 @@ The old scripts on live today answer 500 when a game call fails or is busy. That
 One small thing: if you ever change the shared key, change it in the game server and in ops/config/dispatch-http.ini at the same moment. With a wrong key the script has to answer with an error, so a mismatch could get the game server blocked.
 
 So step 1 is now only the backup. Tell me when it's done, and I'll upload the 17 files right away. Then you can run the commands the same day.
+````
+
+**Go-ahead after the upload (2026-11-28, for Dagh to send).**
+
+````text
+Hi Steve, thanks for the backup! The 17 files are uploaded and checked, and the website works as before.
+
+You can now run the 6 commands from my first message (*Commands for step 3*), and then add the one-minute job (*Line for step 4*). If you run them on joshua, copy the ops and includes folders from public_html first, now that they are updated.
+
+The first command only reports and changes nothing: it should say holes=154 or a few more. If it says something else, or anything gives an error, just send me the text before you go on.
+
+Tell me when it's all done, and I'll check the ladder against the ratings we expect.
 ````
 
 **Message 2** (server housekeeping) is in Dagh's private notes, not in this repo.

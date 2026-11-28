@@ -113,7 +113,7 @@ Local dry-run: same paths on `http://ratingskickoff.test` when Laragon `ko2amiga
 
 ## Dagh — code or data refresh
 
-1. **Code:** WinSCP: upload the changed files from **`site/public_html/`** to **`public_html/`**, preview first. Not a full synchronize: `ops/` and `includes/league_standings.php` are on hold (Nov 2026). Include **`public_html/data/amiga/country_registry.json`** (country registry — Jul 2026) and **`img/flags/amiga/`** (253 flag SVGs) with PHP changes; without the JSON, Amiga table pages render headers but **fatal mid-row** (empty bodies).
+1. **Code:** WinSCP: upload the changed files from **`site/public_html/`** to **`public_html/`**, preview first. Not a full synchronize; never `ops/config/` or `ops/.htaccess`. Include **`public_html/data/amiga/country_registry.json`** (country registry — Jul 2026) and **`img/flags/amiga/`** (253 flag SVGs) with PHP changes; without the JSON, Amiga table pages render headers but **fatal mid-row** (empty bodies).
 
 2. **Data** — whenever local **`ko2amiga_work`** is the state you want on staging (simul, live-ops forward, manual SQL, etc.):
 

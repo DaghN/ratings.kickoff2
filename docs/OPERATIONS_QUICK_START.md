@@ -4,7 +4,7 @@
 
 **Ladder ops (Steve, staging deploy, sim):** [`docs/ladder-ops-platform.md`](ladder-ops-platform.md); DB names in [`coordination/database-copies-2026-06.md`](coordination/database-copies-2026-06.md).
 
-**Uploading to live:** upload **only the files you changed**, with a WinSCP preview first and Dagh's OK. Do not synchronize all of `site/public_html/`. **On hold since 2026-11-22:** `ops/` and `includes/league_standings.php`, until Steve has answered about the recalculation ([`coordination/online-unprocessed-games-2026-11.md`](coordination/online-unprocessed-games-2026-11.md)).
+**Uploading to live:** upload **only the files you changed**, with a WinSCP preview first and Dagh's OK. Do not synchronize all of `site/public_html/`. **Never upload** `ops/config/` (Steve's server settings) or `ops/.htaccess` (Steve's rules). The hold on `ops/` from 2026-11-22 ended with the upload of 2026-11-28 ([`coordination/online-unprocessed-games-2026-11.md`](coordination/online-unprocessed-games-2026-11.md)).
 
 **Retired dev scripts (Jun 2026):** [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) — do not use batch rebuild or Python ladder CLI for fill/sign-off.
 
@@ -125,7 +125,7 @@ Prefer ops simul when the job is “recompute from all games in order.”
 
 ## Staging / Steve — what to sync today
 
-**Forward path:** upload the changed files (see **Uploading to live** at the top; `ops/` is on hold). Work DB on staging = **`kooldb1`** — prepare + simul per [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md) and [`site/public_html/ops/docs/post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md).
+**Forward path:** upload the changed files (see **Uploading to live** at the top). Work DB on staging = **`kooldb1`** — prepare + simul per [`coordination/cutover-readiness.md`](coordination/cutover-readiness.md) and [`site/public_html/ops/docs/post-dagh-live-story.md`](../site/public_html/ops/docs/post-dagh-live-story.md).
 
 | Task | Command / doc |
 |------|----------------|

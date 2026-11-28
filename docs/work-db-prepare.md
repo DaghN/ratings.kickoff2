@@ -47,7 +47,7 @@
 | Retired dev batch SQL chain | See [`obsolete-dev-scripts-retirement-policy.md`](obsolete-dev-scripts-retirement-policy.md) |
 | Ad-hoc “fix awards / milestones / holder_count” bulk SQL | Patch-in-place defeats the proof run |
 
-**Steve on `kooldb1`:** current `ops/` in place (uploads of `ops/` are on hold since 2026-11-22, ask Dagh) → `migrate-work` → `seed-catalog` → `zero-derived` → `run_ops_sim.php` → `run_verify_ops_sim.php`. A full re-simul after a writer fix is **expected**, not a failure of the process.
+**Steve on `kooldb1`:** current `ops/` in place (changed files uploaded with Dagh's OK) → `migrate-work` → `seed-catalog` → `zero-derived` → `run_ops_sim.php` → `run_verify_ops_sim.php`. A full re-simul after a writer fix is **expected**, not a failure of the process.
 
 **Canonical runbook:** [`coordination/ops-simul-runbook.md`](coordination/ops-simul-runbook.md).
 

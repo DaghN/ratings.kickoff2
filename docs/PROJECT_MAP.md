@@ -103,7 +103,7 @@ Dagh uses this phrase often — **not only for DB work**. Always: session handof
 
 | Piece | Us (repo) | Steve |
 |-------|-----------|--------|
-| PHP site | WinSCP: changed files only, preview first. `ops/` and `includes/league_standings.php` are on hold (Nov 2026) | Prod deploy agreed |
+| PHP site | WinSCP: changed files only, preview first. Never `ops/config/` or `ops/.htaccess` | Prod deploy agreed |
 | Schema SQL | `ops/sql/migrations/` (synced with ops) | `migrate-work` on work DB; Steve WinSCP `ops/` |
 | Website derived history | `ops/run_ops_sim.php` | Steve on prod copy / live (cutover) |
 | Shared rating formulas (library) | `scripts/k2_rating_core/` | Amiga **simul** + PHP mirror reference |

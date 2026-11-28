@@ -18,7 +18,7 @@ Unless the first user message already contains equivalent context:
    - **Never:** `?view=` / `?wing=` / `?tab=` for navigation; native `title` on `<th>` (use `data-k2-help`); dropping `as=` or an active with-player parameter (`as_with` / `id_with` / `start_with`) on an internal Amiga link; card reflow of dense tables on phones.
    - **Pull staged Amiga** (when Dagh asks): **run** `scripts\pull_ko2amiga_from_staging.ps1 -Force`. It replaces local `ko2amiga_work`; no simul unless he asks (`-Simul`).
    - **Push Amiga to live** (after Dagh OKs it): **run** `scripts\push_ko2amiga_to_staging.ps1 -Force`. It exports, stops if staged changed since the last pull, uploads, imports and verifies a MATCH. Manual fallback: `docs/amiga-staging-handoff.md`. Passwords go on the POST form, never in a URL.
-   - **Uploads:** only the files you changed, preview first, after Dagh's OK. `PROJECT_MEMORY.md` says what is on hold (now `ops/` and `includes/league_standings.php`).
+   - **Uploads:** only the files you changed, preview first, after Dagh's OK. Never `ops/config/` or `ops/.htaccess` (Steve's); `PROJECT_MEMORY.md` says if anything is on hold.
    - **Sandbox / `ko2unity_work` / `ops/` / post-game / Steve boundary / schema on work:** also read `docs/ladder-ops-platform.md` and `docs/coordination/database-copies-2026-06.md`.
 3. **Do not** read all of `docs/coordination/` unless the task is migration / Steve / schema / replay / C++
 
