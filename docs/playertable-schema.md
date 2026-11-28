@@ -5,7 +5,7 @@ Reference captured from **staging** via `scripts/throwaway_playertable_schema.ph
 
 **May 2026 (dev/staging):** nine unused **`KungFu*`** columns were dropped from `playertable` (`KungFuLevel`, `KungFuWinBank`, `KungFuLoseBank`, `KungFuLastGameID`, `KungFuLastGameDate`, `KungFuNumberOfGames`, `KungFuPeakLevel`, `KungFuPeakLevelDate`, `KungFuDisplay`). They are **not** listed below. Production may still have them until the same migration is applied there.
 
-**Engine / charset (from `SHOW CREATE TABLE`):** `MyISAM`, `utf8mb4_general_ci`.
+**Engine / charset (from `SHOW CREATE TABLE`):** `MyISAM`, `utf8mb4_general_ci`; live converted to **InnoDB** by Steve on 2026-11-28 (local copies may still be MyISAM).
 
 ---
 

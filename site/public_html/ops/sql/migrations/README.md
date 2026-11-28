@@ -15,7 +15,7 @@ Files are applied in **sorted filename order**, re-run every time (must be **ide
 
 ## Adding a migration
 
-1. Add `NNN_short_name.sql` here (idempotent where possible).
+1. Add `NNN_short_name.sql` here (idempotent where possible). New tables: `ENGINE=InnoDB`, since the live online tables are InnoDB from 2026-11-28 (older files here still say MyISAM; they only create missing tables).
 2. Add SCH row in `schema-register.md`.
 3. **Commit** the `.sql` file (allowlisted in repo `.gitignore`; WinSCP + git backup must match disk).
 4. Run `migrate-work` on `ko2unity_work` (or full `prepare`).

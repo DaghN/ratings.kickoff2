@@ -6,7 +6,7 @@
 
 **Companion doc:** `docs/playertable-schema.md` (per-player aggregates; many extremes on `playertable` point back to a `ratedresults.id` via `*GameID` columns).
 
-**Engine / charset:** `MyISAM`, `utf8mb4_general_ci`.
+**Engine / charset:** `MyISAM`, `utf8mb4_general_ci`; live converted to **InnoDB** by Steve on 2026-11-28 (local copies may still be MyISAM).
 
 **Timezone contract:** `Date` is a MySQL `timestamp`, so MySQL converts it through the connection/session timezone before `DATE(Date)`, `YEAR(Date)`, and `DATE_FORMAT(Date, ...)` are evaluated. PHP connections and SQL rebuild scripts in this repo must pin the session with `SET time_zone = '+00:00'` before reading period buckets, otherwise local machines outside UK/UTC can rebuild daily/weekly/monthly truth with shifted boundaries.
 

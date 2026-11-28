@@ -1,6 +1,6 @@
 # Online games that were never processed (Nov 2026)
 
-**Status (2026-11-28): steps 1a and 1b done; Steve's recalculation (step 2) is running, but far from the database.** At 06:34-06:37 UTC the live leaderboard grew by about 39 games in 172 s: about 14 games a minute, 4.4 s per game, which is the speed of §2 for a run on the web server (about 4 days for 78,500 games). Next to the database it should be about 10 games a second. Message to Steve in §5 ("Recalculation too slow"). Steve backed up the live online database, then we uploaded the 17 files (read back identical; the Status page and a league page fine on live). His first try of the commands, before the upload, failed because they need the new scripts; live was unchanged by it (ratings and milestone holders checked). The step path is §0, the messages for Steve §5. Never upload `ops/config/` or `ops/.htaccess`.
+**Status (2026-11-28): steps 1a and 1b done; Steve's recalculation (step 2) runs next to the database.** His first run went at about 14 games a minute (06:34-06:37 UTC, 4.4 s per game: far from the database, §2), so he restarted it "locally" at about 06:47 UTC after our message (§5, "Recalculation too slow"). Second run, 06:50:42-06:52:50 UTC: from about 2,630 to 4,120 games on the live leaderboard, about 700 games a minute, so the end is expected around 08:40-09:15 UTC. Before that Steve converted **all tables to InnoDB** (§3, MyISAM). Steve backed up the live online database, then we uploaded the 17 files (read back identical; the Status page and a league page fine on live). His first try of the commands, before the upload, failed because they need the new scripts; live was unchanged by it (ratings and milestone holders checked). The step path is §0, the messages for Steve §5. Never upload `ops/config/` or `ops/.htaccess`.
 
 **Audience:** Dagh, Steve, agents. **Code:** `ops/includes/ops_game_queue.php` · `ops/modules/process_pending_games.php` · test `scripts/test_ops_game_queue.php`.
 
@@ -70,7 +70,7 @@ A game counts as processed when `ratedresults.NewRatingA` is set. Read from `gam
 | That database is **not on the web server** | Online pages take about 19 ms per database statement, in step with the number of statements. Amiga pages, whose database is on the web server, take almost none |
 | It is very likely on **joshua** | The July template for `work-targets.ini` has a `[live-game]` target with its own host and port |
 | The Amiga database is on the web server, "not joshua" | Steve, 2026-11-23. With the 19 ms line this makes joshua near certain for the online database |
-| The databases use MyISAM | Steve, 2026-11-23 |
+| The databases use MyISAM | Steve, 2026-11-23. **Since 2026-11-28 InnoDB:** Steve converted all tables before the recalculation |
 | One machine runs PHP 8.6.0 | Steve, 2026-11-23; which one was not said. Our `ops` scripts use none of the functions that PHP 8.4 and 8.5 gave up; 8.6 itself is not tested (local: 8.3.30) |
 | The website's database settings file was last changed June 4 | File date. Not explained: it does not fit a switch on July 18 |
 | The online pages' settings file on the web server names a database `kooldb1`, reached as `localhost` | Read over SFTP 2026-11-23 (names only). It does not show where that database physically is: with the 19 ms per statement it may well be passed on to joshua, or it may be a copy on the web server. Not concluded; Steve to confirm |
@@ -104,7 +104,7 @@ The June recalculation took 2 h 18 min because scripts and database were on the 
 | 8 | A full recalculation also closed the current, unfinished day | It stops at the present moment |
 | 9 | Nothing outside the website could process games | `CMD=ProcessPending`, started by the server's own scheduler every minute |
 
-**MyISAM.** Processing one game writes to about 15 tables. MyISAM saves each write at once and cannot undo. If the connection breaks halfway, some totals include the game and others don't, and the game is already marked as processed, so nothing repairs it. InnoDB makes the whole game all-or-nothing: a broken game leaves no trace, stays waiting and is processed a minute later. Until now InnoDB would not have helped either, because a `CREATE TABLE IF NOT EXISTS` in the middle of each game saved everything before it; that statement has moved. On MyISAM a broken game is now at least reported as **HALF-PROCESSED**. Converting is one command per table and needs no change in the game app.
+**MyISAM.** Processing one game writes to about 15 tables. MyISAM saves each write at once and cannot undo. If the connection breaks halfway, some totals include the game and others don't, and the game is already marked as processed, so nothing repairs it. InnoDB makes the whole game all-or-nothing: a broken game leaves no trace, stays waiting and is processed a minute later. Until now InnoDB would not have helped either, because a `CREATE TABLE IF NOT EXISTS` in the middle of each game saved everything before it; that statement has moved. On MyISAM a broken game is now at least reported as **HALF-PROCESSED**. Converting is one command per table and needs no change in the game app. **Done by Steve on 2026-11-28** (all tables, before the recalculation); our reset step empties tables with `TRUNCATE`, which keeps InnoDB.
 
 **Limits:** a web call waits at most 15 s for its turn and spends at most 10 s on a backlog, then answers exit 1; the next call or the one-minute job continues. More than 1000 waiting games is treated as a recalculation in progress and refused.
 
@@ -222,6 +222,8 @@ With the real path to public_html:
 *Optional, whenever you have time*
 Converting the tables to InnoDB would make a broken connection in the middle of a game harmless: the game is simply tried again a minute later. The game app needs no change.
 ````
+
+Steve did the InnoDB conversion on 2026-11-28.
 
 **Reply to Steve's two questions (2026-11-28, for Dagh to send).** Steve tried the commands and got errors, and asked whether he must whitelist every player who logs in; he would prefer that the scripts did not answer with errors unless something is really wrong. He had read "game machine" in message 1 as the players' computers; it meant the game server, the one machine that reports finished games to the website. Copy everything inside the box below.
 
