@@ -52,9 +52,9 @@ A game counts as processed when `ratedresults.NewRatingA` is set. Read from `gam
 
 **One old mark:** 15 games have slightly wrong pre-game ratings: 75839–75848 from the cutover evening (July 17), where 75843–75847 were processed before 75839–75842, and the ~1 point this left in later games. A full recalculation corrects these too.
 
-**Cause.** The block fits the website being closed because of bots (not confirmed): the calls from the game app go through the website. The game machine itself ran without a restart through those days. The cause of the four singles is unknown; a short network break between the machines is the likeliest (§2). Neither needs a fuller answer, because the new scripts recover from any missed call.
+**Cause.** The block fits the website being closed because of bots (not confirmed): the calls from the game app go through the website. The game server itself ran without a restart through those days. The cause of the four singles is unknown; a short network break between the machines is the likeliest (§2). Neither needs a fuller answer, because the new scripts recover from any missed call.
 
-**Second possible cause (2026-11-23, not confirmed).** Steve: the web server blocks an address whose requests end in errors. A failed call from the game machine gets 400, 401 or 500, so a few failures in a row may have blocked the game machine itself. Steve's block list for Oct 30 to Nov 3 can tell. From the upload on, normal outcomes answer 200 (§4, "Before the upload").
+**Second possible cause (2026-11-23, not confirmed).** Steve: the web server blocks an address whose requests end in errors. A failed call from the game server gets 400, 401 or 500, so a few failures in a row may have blocked the game server itself. Steve's block list for Oct 30 to Nov 3 can tell. From the upload on, normal outcomes answer 200 (§4, "Before the upload").
 
 ---
 
@@ -155,7 +155,7 @@ Upload the new scripts first. Then games can be played meanwhile: they wait and 
 
 **Upload note:** live `ops/includes/ops_work_target.php` differs by 2 bytes since July 18. Compare before uploading, and never upload `ops/config/`.
 
-**Before the upload:** no exemption from the web server's block is needed (changed 2026-11-28, after Steve asked). The web server blocks an address after a few error replies, so `dispatch_request.php` answers **200** for every handled outcome (exit 0 to 3); the JSON `exit` says which, and exit 1 and 3 go to the PHP error log. Error codes remain only for real faults: wrong key 401, missing config 503, bad call 400, PHP crash 500. The scripts on live before the upload answer 500 for exit 1, which may be how the game machine was blocked from Oct 30 to Nov 3 (§1). The one-minute job (`CMD=ProcessPending`) does not go through the web server at all.
+**Before the upload:** no exemption from the web server's block is needed (changed 2026-11-28, after Steve asked). The web server blocks an address after a few error replies, so `dispatch_request.php` answers **200** for every handled outcome (exit 0 to 3); the JSON `exit` says which, and exit 1 and 3 go to the PHP error log. Error codes remain only for real faults: wrong key 401, missing config 503, bad call 400, PHP crash 500. The scripts on live before the upload answer 500 for exit 1, which may be how the game server was blocked from Oct 30 to Nov 3 (§1). The one-minute job (`CMD=ProcessPending`) does not go through the web server at all.
 
 **Before Dec 1** if possible: the November league closes Dec 1 00:00 UTC. A later recalculation still corrects it, after the medals have been shown.
 
@@ -170,7 +170,7 @@ LORENZOL 2241→2188 · Micro 1600→1633 · Canvarol 1976→1953 · geo4444 184
 
 Split of work: **we** write and upload the scripts; **Steve** runs the servers, the database, the scheduled jobs and the game app.
 
-**Message 1, the recalculation (drafted 2026-11-24, sent by Dagh before 2026-11-28).** Formatted for WhatsApp (`*bold*`, three backticks for the command boxes). The sent version also asked Steve to exempt the game machine from the IP block; the reply below withdrew that, and the line is gone from this copy.
+**Message 1, the recalculation (drafted 2026-11-24, sent by Dagh before 2026-11-28).** Formatted for WhatsApp (`*bold*`, three backticks for the command boxes). The sent version also asked Steve to exempt the game server from the IP block; the reply below withdrew that, and the line is gone from this copy.
 
 ````text
 Hi Steve,
@@ -223,16 +223,18 @@ With the real path to public_html:
 Converting the tables to InnoDB would make a broken connection in the middle of a game harmless: the game is simply tried again a minute later. The game app needs no change.
 ````
 
-**Reply to Steve's two questions (2026-11-28, for Dagh to send).** Steve tried the commands and got errors, and asked whether he must whitelist every player who logs in; he would prefer that the scripts did not answer with errors unless something is really wrong. Copy everything inside the box below.
+**Reply to Steve's two questions (2026-11-28, for Dagh to send).** Steve tried the commands and got errors, and asked whether he must whitelist every player who logs in; he would prefer that the scripts did not answer with errors unless something is really wrong. He had read "game machine" in message 1 as the players' computers; it meant the game server, the one machine that reports finished games to the website. Copy everything inside the box below.
 
 ````text
 Hi Steve, you guessed right: the commands only work after my upload of the 17 files, because they are new. Your try changed nothing, the ladder is fine.
 
-About the IP block: you're right, and you don't need to whitelist anything. I've changed our scripts so they answer normally (200) for everything that is part of normal running: a game processed, a game that waits for the next call, a game that was already done. What happened is written in the reply text, and anything unusual goes to the PHP error log. They only answer with an error code when something is really broken: a wrong key, a missing config file, or a PHP crash.
+About the whitelist: sorry, I wrote that unclearly. By "game machine" I meant the game server, the one machine that reports finished games to the website. The players' computers never call our scripts.
 
-Also, as far as I know only the game server calls dispatch_request.php, not the players' computers. Either way, there is nothing to whitelist now. The one-minute job runs on the web server itself and doesn't go through the block at all.
+But your wish was a good one, so I've changed the scripts: they now answer normally (200) for everything that is part of normal running, like a game processed, a game that waits for the next call, or a game that was already done. What happened is written in the reply text, and anything unusual goes to the PHP error log. They only answer with an error code when something is really broken: a wrong key, a missing config file, or a PHP crash. So you don't need to whitelist anything, not even the game server.
 
-By the way, the old scripts on live today answer 500 when a game call fails or is busy. That may be how the game machine got blocked from Oct 30 to Nov 3. The upload fixes that too.
+The old scripts on live today answer 500 when a game call fails or is busy. That may be how the game server got blocked from Oct 30 to Nov 3. The upload fixes that too.
+
+One small thing: if you ever change the shared key, change it in the game server and in ops/config/dispatch-http.ini at the same moment. With a wrong key the script has to answer with an error, so a mismatch could get the game server blocked.
 
 So step 1 is now only the backup. Tell me when it's done, and I'll upload the 17 files right away. Then you can run the commands the same day.
 ````
